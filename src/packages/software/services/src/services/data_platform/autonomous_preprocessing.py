@@ -38,7 +38,7 @@ class QualityIssue:
     severity: float  # 0.0 to 1.0
     affected_columns: list[str]
     description: str
-    impact_on_detection: str
+    impact_on_processing: str
     recommended_strategies: list[str]
     metadata: dict[str, Any]
 
@@ -80,12 +80,12 @@ class AutonomousQualityAnalyzer:
         """Perform comprehensive data quality analysis.
 
         Args:
-            dataset: Dataset to analyze
+            data_collection: DataCollection to analyze
 
         Returns:
             Comprehensive quality report with issues and recommendations
         """
-        df = dataset.data
+        df = data_collection.data
         issues = []
 
         # Check for missing values
@@ -188,7 +188,7 @@ class AutonomousQualityAnalyzer:
             severity=severity,
             affected_columns=missing_cols,
             description=f"Found {total_missing:,} missing values across {len(missing_cols)} columns",
-            impact_on_detection="Missing values can cause algorithm failures or biased results",
+            impact_on_processing="Missing values can cause algorithm failures or biased results",
             recommended_strategies=list(set(strategies)),
             metadata={
                 "total_missing": total_missing,
@@ -240,7 +240,7 @@ class AutonomousQualityAnalyzer:
             severity=severity,
             affected_columns=affected_cols,
             description=f"Found {total_outliers:,} outliers across {len(affected_cols)} numeric columns",
-            impact_on_detection="Outliers can dominate distance-based algorithms and skew results",
+            impact_on_processing="Outliers can dominate distance-based algorithms and skew results",
             recommended_strategies=strategies,
             metadata={
                 "total_outliers": total_outliers,
@@ -264,7 +264,7 @@ class AutonomousQualityAnalyzer:
             severity=severity,
             affected_columns=list(df.columns),
             description=f"Found {duplicate_count:,} duplicate rows ({duplicate_ratio:.1%} of data)",
-            impact_on_detection="Duplicates can bias algorithms toward repeated patterns",
+            impact_on_processing="Duplicates can bias algorithms toward repeated patterns",
             recommended_strategies=["remove"],
             metadata={
                 "duplicate_count": duplicate_count,
@@ -290,7 +290,7 @@ class AutonomousQualityAnalyzer:
             severity=severity,
             affected_columns=constant_cols,
             description=f"Found {len(constant_cols)} constant features with no variation",
-            impact_on_detection="Constant features provide no information for anomaly detection",
+            impact_on_processing="Constant features provide no information for anomaly processing",
             recommended_strategies=["remove"],
             metadata={"constant_count": len(constant_cols)},
         )
@@ -316,7 +316,7 @@ class AutonomousQualityAnalyzer:
             severity=severity,
             affected_columns=low_variance_cols,
             description=f"Found {len(low_variance_cols)} low variance features",
-            impact_on_detection="Low variance features contribute little to anomaly detection",
+            impact_on_processing="Low variance features contribute little to anomaly processing",
             recommended_strategies=["variance_threshold"],
             metadata={"low_variance_count": len(low_variance_cols)},
         )
@@ -344,7 +344,7 @@ class AutonomousQualityAnalyzer:
             severity=severity,
             affected_columns=infinite_cols,
             description=f"Found {total_infinite:,} infinite values across {len(infinite_cols)} columns",
-            impact_on_detection="Infinite values cause numerical instability in algorithms",
+            impact_on_processing="Infinite values cause numerical instability in algorithms",
             recommended_strategies=["remove", "clip"],
             metadata={
                 "total_infinite": total_infinite,
@@ -380,7 +380,7 @@ class AutonomousQualityAnalyzer:
                 severity=severity,
                 affected_columns=list(numeric_cols),
                 description=f"Large scale differences detected (max/min ratio: {max_scale / min_scale:.1f})",
-                impact_on_detection="Poor scaling can cause distance-based algorithms to focus on large-scale features",
+                impact_on_processing="Poor scaling can cause distance-based algorithms to focus on large-scale features",
                 recommended_strategies=["standard", "minmax", "robust"],
                 metadata={
                     "scale_ratio": max_scale / min_scale,
@@ -408,7 +408,7 @@ class AutonomousQualityAnalyzer:
                         severity=min(unique_values / total_values, 1.0),
                         affected_columns=[col],
                         description=f"High cardinality feature '{col}' with {unique_values} unique values",
-                        impact_on_detection="High cardinality can create sparse, high-dimensional representations",
+                        impact_on_processing="High cardinality can create sparse, high-dimensional representations",
                         recommended_strategies=["frequency", "target", "binary"],
                         metadata={
                             "unique_values": unique_values,
@@ -430,7 +430,7 @@ class AutonomousQualityAnalyzer:
                             severity=min(np.log10(max_freq / min_freq) / 3, 1.0),
                             affected_columns=[col],
                             description=f"Imbalanced categories in '{col}' (max/min ratio: {max_freq / min_freq:.1f})",
-                            impact_on_detection="Imbalanced categories can bias algorithms toward frequent categories",
+                            impact_on_processing="Imbalanced categories can bias algorithms toward frequent categories",
                             recommended_strategies=["frequency", "target"],
                             metadata={
                                 "imbalance_ratio": max_freq / min_freq,
@@ -649,7 +649,7 @@ class AutonomousQualityAnalyzer:
 
         return {
             "name": "autonomous_preprocessing_pipeline",
-            "description": "Auto-generated preprocessing pipeline for anomaly detection",
+            "description": "Auto-generated preprocessing pipeline for anomaly processing",
             "steps": steps,
         }
 
@@ -706,7 +706,7 @@ class AutonomousQualityAnalyzer:
 
 
 class AutonomousPreprocessingOrchestrator:
-    """Orchestrates preprocessing steps within autonomous detection workflow."""
+    """Orchestrates preprocessing steps within autonomous processing workflow."""
 
     def __init__(self):
         """Initialize the orchestrator."""
@@ -716,18 +716,18 @@ class AutonomousPreprocessingOrchestrator:
         self.logger = logging.getLogger(__name__)
 
     def should_preprocess(
-        self, dataset: Dataset, quality_threshold: float = 0.8
+        self, data_collection: DataCollection, quality_threshold: float = 0.8
     ) -> tuple[bool, DataQualityReport]:
         """Determine if preprocessing is needed.
 
         Args:
-            dataset: Dataset to analyze
+            data_collection: DataCollection to analyze
             quality_threshold: Minimum quality score to skip preprocessing
 
         Returns:
             Tuple of (should_preprocess, quality_report)
         """
-        quality_report = self.quality_analyzer.analyze_data_quality(dataset)
+        quality_report = self.quality_analyzer.analyze_data_quality(data_collection)
         should_process = (
             quality_report.overall_score < quality_threshold
             or quality_report.preprocessing_required
@@ -737,22 +737,22 @@ class AutonomousPreprocessingOrchestrator:
 
     def preprocess_for_autonomous_detection(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         quality_report: DataQualityReport,
         max_processing_time: float = 300.0,  # 5 minutes max
-    ) -> tuple[Dataset, dict[str, Any]]:
-        """Apply preprocessing optimized for autonomous anomaly detection.
+    ) -> tuple[DataCollection, dict[str, Any]]:
+        """Apply preprocessing optimized for autonomous anomaly processing.
 
         Args:
-            dataset: Dataset to preprocess
+            data_collection: DataCollection to preprocess
             quality_report: Quality analysis results
             max_processing_time: Maximum allowed processing time
 
         Returns:
-            Tuple of (preprocessed_dataset, preprocessing_metadata)
+            Tuple of (preprocessed_data_collection, preprocessing_metadata)
         """
         if not quality_report.preprocessing_required:
-            return dataset, {
+            return data_collection, {
                 "preprocessing_applied": False,
                 "reason": "No preprocessing needed",
             }
@@ -763,14 +763,14 @@ class AutonomousPreprocessingOrchestrator:
                 f"Skipping preprocessing: estimated time {quality_report.processing_time_estimate:.1f}s "
                 f"exceeds limit {max_processing_time:.1f}s"
             )
-            return dataset, {
+            return data_collection, {
                 "preprocessing_applied": False,
                 "reason": "Processing time too long",
                 "estimated_time": quality_report.processing_time_estimate,
             }
 
         # Apply preprocessing pipeline
-        df = dataset.data.copy()
+        df = data_collection.data.copy()
         applied_steps = []
 
         try:
@@ -782,19 +782,19 @@ class AutonomousPreprocessingOrchestrator:
                 if step_applied:
                     applied_steps.append(step_applied)
 
-            # Create new dataset with preprocessed data
-            preprocessed_dataset = Dataset(
-                id=dataset.id,
-                name=f"{dataset.name}_preprocessed",
-                description=f"Preprocessed version of {dataset.name}",
+            # Create new data_collection with preprocessed data
+            preprocessed_data_collection = DataCollection(
+                id=data_collection.id,
+                name=f"{data_collection.name}_preprocessed",
+                description=f"Preprocessed version of {data_collection.name}",
                 data=df,
                 target_column=(
-                    dataset.target_column if hasattr(dataset, "target_column") else None
+                    data_collection.target_column if hasattr(data_collection, "target_column") else None
                 ),
                 metadata={
-                    **dataset.metadata,
+                    **data_collection.metadata,
                     "preprocessing_applied": True,
-                    "original_shape": dataset.data.shape,
+                    "original_shape": data_collection.data.shape,
                     "preprocessed_shape": df.shape,
                 },
             )
@@ -802,17 +802,17 @@ class AutonomousPreprocessingOrchestrator:
             metadata = {
                 "preprocessing_applied": True,
                 "applied_steps": applied_steps,
-                "original_shape": dataset.data.shape,
+                "original_shape": data_collection.data.shape,
                 "final_shape": df.shape,
                 "quality_improvement": quality_report.estimated_improvement,
                 "processing_successful": True,
             }
 
-            return preprocessed_dataset, metadata
+            return preprocessed_data_collection, metadata
 
         except Exception as e:
             self.logger.error(f"Preprocessing failed: {str(e)}")
-            return dataset, {
+            return data_collection, {
                 "preprocessing_applied": False,
                 "reason": f"Processing failed: {str(e)}",
                 "error": str(e),

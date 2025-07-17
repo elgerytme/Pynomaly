@@ -58,7 +58,7 @@ class ExportFormat(str, Enum):
 class AlgorithmConfigurationDTO(BaseModel):
     """DTO for algorithm configuration."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     algorithm_name: str = Field(..., description="Name of the algorithm")
     algorithm_family: str = Field(..., description="Algorithm family")
@@ -71,8 +71,8 @@ class AlgorithmConfigurationDTO(BaseModel):
     optimization_config: dict[str, Any] = Field(
         default_factory=dict, description="Optimization configuration"
     )
-    performance_metrics: dict[str, float] = Field(
-        default_factory=dict, description="Performance metrics"
+    performance_measurements: dict[str, float] = Field(
+        default_factory=dict, description="Performance measurements"
     )
     resource_requirements: dict[str, Any] = Field(
         default_factory=dict, description="Resource requirements"
@@ -97,7 +97,7 @@ class ConfigurationLevel(str, Enum):
 class OptimizationConfigDTO(BaseModel):
     """Configuration for optimization settings."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Optimization strategy
     strategy: str = Field(default="bayesian", description="Optimization strategy")
@@ -131,13 +131,13 @@ class OptimizationConfigDTO(BaseModel):
 
 
 class DatasetCharacteristicsDTO(BaseModel):
-    """DTO for dataset characteristics and profile."""
+    """DTO for data_collection characteristics and profile."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
-    # Basic dataset properties
-    num_samples: int = Field(..., description="Number of samples in dataset")
-    num_features: int = Field(..., description="Number of features in dataset")
+    # Basic data_collection properties
+    num_samples: int = Field(..., description="Number of samples in data_collection")
+    num_features: int = Field(..., description="Number of features in data_collection")
     feature_names: list[str] = Field(default_factory=list, description="Feature names")
 
     # Data types and characteristics
@@ -151,7 +151,7 @@ class DatasetCharacteristicsDTO(BaseModel):
         default_factory=list, description="Datetime feature names"
     )
 
-    # Data quality metrics
+    # Data quality measurements
     missing_values_ratio: float = Field(
         default=0.0, description="Ratio of missing values"
     )
@@ -167,11 +167,11 @@ class DatasetCharacteristicsDTO(BaseModel):
     data_variance: float = Field(default=0.0, description="Overall data variance")
     sparsity_ratio: float = Field(default=0.0, description="Data sparsity ratio")
 
-    # Dataset complexity
+    # DataCollection complexity
     dimensionality_ratio: float = Field(
         default=0.0, description="Features to samples ratio"
     )
-    complexity_score: float = Field(default=0.0, description="Dataset complexity score")
+    complexity_score: float = Field(default=0.0, description="DataCollection complexity score")
 
     # Temporal characteristics
     has_temporal_structure: bool = Field(
@@ -182,21 +182,21 @@ class DatasetCharacteristicsDTO(BaseModel):
     )
 
     # Size information
-    dataset_size_bytes: int = Field(default=0, description="Dataset size in bytes")
+    data_collection_size_bytes: int = Field(default=0, description="DataCollection size in bytes")
     memory_usage_mb: float = Field(default=0.0, description="Memory usage in MB")
 
 
 class DatasetConfigDTO(BaseModel):
-    """Configuration for dataset handling."""
+    """Configuration for data_collection handling."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
-    # Dataset identification
-    dataset_path: str | None = Field(default=None, description="Path to dataset file")
-    dataset_name: str | None = Field(
-        default=None, description="Dataset name identifier"
+    # DataCollection identification
+    data_collection_path: str | None = Field(default=None, description="Path to data_collection file")
+    data_collection_name: str | None = Field(
+        default=None, description="DataCollection name identifier"
     )
-    dataset_id: UUID | None = Field(default=None, description="Dataset UUID")
+    data_collection_id: UUID | None = Field(default=None, description="DataCollection UUID")
 
     # Data loading configuration
     file_format: str | None = Field(
@@ -220,7 +220,7 @@ class DatasetConfigDTO(BaseModel):
 
     # Data validation
     expected_shape: tuple[int, ...] | None = Field(
-        default=None, description="Expected dataset shape"
+        default=None, description="Expected data_collection shape"
     )
     required_columns: list[str] | None = Field(
         default=None, description="Required column names"
@@ -240,9 +240,9 @@ class DatasetConfigDTO(BaseModel):
 
 
 class AlgorithmConfigDTO(BaseModel):
-    """Configuration for anomaly detection algorithms."""
+    """Configuration for anomaly processing algorithms."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithm selection
     algorithm_name: str = Field(..., description="Algorithm name")
@@ -262,7 +262,7 @@ class AlgorithmConfigDTO(BaseModel):
         default=None, description="Hyperparameter optimization method"
     )
 
-    # Model configuration
+    # Processor configuration
     contamination: float | None = Field(
         default=0.1, ge=0, le=0.5, description="Expected contamination rate"
     )
@@ -294,7 +294,7 @@ class AlgorithmConfigDTO(BaseModel):
 class PreprocessingConfigDTO(BaseModel):
     """Configuration for data preprocessing."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Missing value handling
     missing_value_strategy: str | None = Field(
@@ -305,11 +305,11 @@ class PreprocessingConfigDTO(BaseModel):
     )
 
     # Outlier handling
-    outlier_detection_method: str | None = Field(
-        default="iqr", description="Outlier detection method"
+    outlier_processing_method: str | None = Field(
+        default="iqr", description="Outlier processing method"
     )
     outlier_threshold: float | None = Field(
-        default=1.5, description="Outlier detection threshold"
+        default=1.5, description="Outlier processing threshold"
     )
     outlier_treatment: str | None = Field(
         default="remove", description="Outlier treatment method"
@@ -352,16 +352,16 @@ class PreprocessingConfigDTO(BaseModel):
 
 
 class EvaluationConfigDTO(BaseModel):
-    """Configuration for model evaluation."""
+    """Configuration for processor evaluation."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
-    # Evaluation metrics
+    # Evaluation measurements
     primary_metric: str = Field(
         default="roc_auc", description="Primary evaluation metric"
     )
-    secondary_metrics: list[str] = Field(
-        default_factory=list, description="Additional evaluation metrics"
+    secondary_measurements: list[str] = Field(
+        default_factory=list, description="Additional evaluation measurements"
     )
 
     # Cross-validation
@@ -397,7 +397,7 @@ class EvaluationConfigDTO(BaseModel):
         default=True, description="Calculate feature importance"
     )
     generate_plots: bool = Field(default=True, description="Generate evaluation plots")
-    save_predictions: bool = Field(default=False, description="Save model predictions")
+    save_predictions: bool = Field(default=False, description="Save processor predictions")
     detailed_results: bool = Field(
         default=True, description="Include detailed evaluation results"
     )
@@ -406,7 +406,7 @@ class EvaluationConfigDTO(BaseModel):
 class EnvironmentConfigDTO(BaseModel):
     """Configuration for execution environment."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Python environment
     python_version: str | None = Field(default=None, description="Python version")
@@ -418,7 +418,7 @@ class EnvironmentConfigDTO(BaseModel):
     cpu_count: int | None = Field(default=None, description="Number of CPU cores")
     memory_gb: float | None = Field(default=None, description="Available memory in GB")
     gpu_available: bool = Field(default=False, description="GPU availability")
-    gpu_model: str | None = Field(default=None, description="GPU model")
+    gpu_processor: str | None = Field(default=None, description="GPU processor")
 
     # Execution constraints
     max_execution_time: float | None = Field(
@@ -447,7 +447,7 @@ class EnvironmentConfigDTO(BaseModel):
 class ConfigurationMetadataDTO(BaseModel):
     """Metadata for configuration tracking."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Origin information
     created_by: str | None = Field(
@@ -493,12 +493,12 @@ class ConfigurationMetadataDTO(BaseModel):
 class PerformanceResultsDTO(BaseModel):
     """Performance results for configuration."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
-    # Primary metrics
-    accuracy: float | None = Field(default=None, description="Model accuracy")
-    precision: float | None = Field(default=None, description="Model precision")
-    recall: float | None = Field(default=None, description="Model recall")
+    # Primary measurements
+    accuracy: float | None = Field(default=None, description="Processor accuracy")
+    precision: float | None = Field(default=None, description="Processor precision")
+    recall: float | None = Field(default=None, description="Processor recall")
     f1_score: float | None = Field(default=None, description="F1 score")
     roc_auc: float | None = Field(default=None, description="ROC AUC score")
 
@@ -512,7 +512,7 @@ class PerformanceResultsDTO(BaseModel):
     memory_usage_mb: float | None = Field(
         default=None, description="Memory usage in MB"
     )
-    model_size_mb: float | None = Field(default=None, description="Model size in MB")
+    processor_size_mb: float | None = Field(default=None, description="Processor size in MB")
 
     # Cross-validation results
     cv_scores: list[float] | None = Field(
@@ -521,7 +521,7 @@ class PerformanceResultsDTO(BaseModel):
     cv_mean: float | None = Field(default=None, description="CV mean score")
     cv_std: float | None = Field(default=None, description="CV standard deviation")
 
-    # Additional metrics
+    # Additional measurements
     confusion_matrix: list[list[int]] | None = Field(
         default=None, description="Confusion matrix"
     )
@@ -541,22 +541,22 @@ class PerformanceResultsDTO(BaseModel):
     )
     disk_io_mb: float | None = Field(default=None, description="Disk I/O in MB")
 
-    # Quality metrics
+    # Quality measurements
     stability_score: float | None = Field(
-        default=None, description="Model stability score"
+        default=None, description="Processor stability score"
     )
     robustness_score: float | None = Field(
-        default=None, description="Model robustness score"
+        default=None, description="Processor robustness score"
     )
     interpretability_score: float | None = Field(
-        default=None, description="Model interpretability score"
+        default=None, description="Processor interpretability score"
     )
 
 
 class ConfigurationLineageDTO(BaseModel):
     """Configuration lineage and relationships."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Relationship tracking
     parent_configurations: list[UUID] = Field(
@@ -599,7 +599,7 @@ class ConfigurationLineageDTO(BaseModel):
 class ExperimentConfigurationDTO(BaseModel):
     """Complete experiment configuration."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Identification
     id: UUID = Field(default_factory=uuid4, description="Configuration ID")
@@ -609,7 +609,7 @@ class ExperimentConfigurationDTO(BaseModel):
     )
 
     # Core configuration components
-    dataset_config: DatasetConfigDTO = Field(..., description="Dataset configuration")
+    data_collection_config: DatasetConfigDTO = Field(..., description="DataCollection configuration")
     algorithm_config: AlgorithmConfigDTO = Field(
         ..., description="Algorithm configuration"
     )
@@ -681,7 +681,7 @@ EvaluationConfigurationDTO = EvaluationConfigDTO
 class ConfigurationCollectionDTO(BaseModel):
     """Collection of related configurations."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Collection identification
     id: UUID = Field(default_factory=uuid4, description="Collection ID")
@@ -723,7 +723,7 @@ class ConfigurationCollectionDTO(BaseModel):
 class ConfigurationTemplateDTO(BaseModel):
     """Template for creating configurations."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Template identification
     id: UUID = Field(default_factory=uuid4, description="Template ID")
@@ -777,7 +777,7 @@ class ConfigurationTemplateDTO(BaseModel):
 class ConfigurationCaptureRequestDTO(BaseModel):
     """Request to capture configuration from execution."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Source information
     source: ConfigurationSource = Field(..., description="Configuration source")
@@ -811,7 +811,7 @@ class ConfigurationCaptureRequestDTO(BaseModel):
 class ConfigurationExportRequestDTO(BaseModel):
     """Request to export configuration."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Configuration selection
     configuration_ids: list[UUID] = Field(
@@ -846,7 +846,7 @@ class ConfigurationExportRequestDTO(BaseModel):
 class ConfigurationSearchRequestDTO(BaseModel):
     """Request to search configurations."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Search criteria
     query: str | None = Field(default=None, description="Search query")
@@ -886,7 +886,7 @@ class ConfigurationSearchRequestDTO(BaseModel):
 class ConfigurationResponseDTO(BaseModel):
     """Response containing configuration data."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Status
     success: bool = Field(..., description="Whether operation was successful")
@@ -929,7 +929,7 @@ class ConfigurationResponseDTO(BaseModel):
 class ConfigurationValidationResultDTO(BaseModel):
     """Results of configuration validation."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    processor_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Validation status
     is_valid: bool = Field(..., description="Whether configuration is valid")
@@ -945,8 +945,8 @@ class ConfigurationValidationResultDTO(BaseModel):
     )
 
     # Component validation
-    dataset_validation: dict[str, Any] = Field(
-        default_factory=dict, description="Dataset validation results"
+    data_collection_validation: dict[str, Any] = Field(
+        default_factory=dict, description="DataCollection validation results"
     )
     algorithm_validation: dict[str, Any] = Field(
         default_factory=dict, description="Algorithm validation results"
@@ -985,14 +985,14 @@ class ConfigurationValidationResultDTO(BaseModel):
 
 def create_basic_configuration(
     name: str,
-    dataset_path: str,
+    data_collection_path: str,
     algorithm_name: str,
     source: ConfigurationSource = ConfigurationSource.MANUAL,
 ) -> ExperimentConfigurationDTO:
     """Create a basic configuration with minimal parameters."""
     return ExperimentConfigurationDTO(
         name=name,
-        dataset_config=DatasetConfigDTO(dataset_path=dataset_path),
+        data_collection_config=DatasetConfigDTO(data_collection_path=data_collection_path),
         algorithm_config=AlgorithmConfigDTO(algorithm_name=algorithm_name),
         evaluation_config=EvaluationConfigDTO(),
         metadata=ConfigurationMetadataDTO(source=source),
@@ -1004,7 +1004,7 @@ def merge_configurations(
 ) -> ExperimentConfigurationDTO:
     """Merge two configurations, with override taking precedence."""
     # Create new configuration
-    merged = base_config.model_copy(deep=True)
+    merged = base_config.processor_copy(deep=True)
 
     # Update with override values
     merged.algorithm_config = override_config.algorithm_config
@@ -1034,11 +1034,11 @@ def validate_configuration_compatibility(
     ):
         issues.append("Different algorithms specified")
 
-    # Check dataset compatibility
+    # Check data_collection compatibility
     if (
-        config1.dataset_config.dataset_path
-        and config2.dataset_config.dataset_path
-        and config1.dataset_config.dataset_path != config2.dataset_config.dataset_path
+        config1.data_collection_config.data_collection_path
+        and config2.data_collection_config.data_collection_path
+        and config1.data_collection_config.data_collection_path != config2.data_collection_config.data_collection_path
     ):
         issues.append("Different datasets specified")
 

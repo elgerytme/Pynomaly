@@ -3,7 +3,7 @@
 Enhanced Data Preprocessing Service
 
 Advanced data preprocessing service that integrates the data_transformation package
-with existing Pynomaly infrastructure for anomaly detection workflows.
+with existing Software infrastructure for anomaly processing workflows.
 """
 
 import logging
@@ -16,7 +16,7 @@ from uuid import UUID
 import numpy as np
 import pandas as pd
 
-# Import existing Pynomaly components
+# Import existing Software components
 from monorepo.application.services.automl_service import DatasetProfile
 from monorepo.infrastructure.config.feature_flags import require_feature
 from monorepo.domain.entities import Dataset
@@ -40,10 +40,10 @@ logger = logging.getLogger(__name__)
 class EnhancedDataQualityReport:
     """Enhanced report of data quality assessment with detailed insights."""
 
-    dataset_id: str
+    data_collection_id: str
     assessment_time: datetime
 
-    # Core quality metrics
+    # Core quality measurements
     missing_values_ratio: float
     duplicate_rows_ratio: float
     outlier_ratio: float
@@ -59,7 +59,7 @@ class EnhancedDataQualityReport:
     warnings: list[str] = field(default_factory=list)
     recommendations: list[str] = field(default_factory=list)
 
-    # Enhanced metrics
+    # Enhanced measurements
     data_drift_score: float = 0.0
     feature_importance_scores: dict[str, float] = field(default_factory=dict)
     transformation_suggestions: list[str] = field(default_factory=list)
@@ -98,16 +98,16 @@ class EnhancedDataPreprocessingService:
         else:
             self.logger.warning("Advanced features disabled or data_transformation unavailable")
 
-    async def preprocess_for_anomaly_detection(
+    async def preprocess_for_anomaly_processing(
         self,
-        dataset: Union[pd.DataFrame, Dataset, str, Path],
+        data_collection: Union[pd.DataFrame, DataCollection, str, Path],
         config: Optional[PipelineConfig] = None,
         target_column: Optional[str] = None
     ) -> tuple[pd.DataFrame, EnhancedDataQualityReport]:
-        """Preprocess data specifically for anomaly detection workflows.
+        """Preprocess data specifically for anomaly processing workflows.
         
         Args:
-            dataset: Input dataset (DataFrame, Dataset entity, or file path)
+            data_collection: Input data_collection (DataFrame, DataCollection entity, or file path)
             config: Optional preprocessing configuration
             target_column: Optional target column for supervised preprocessing
             
@@ -116,18 +116,18 @@ class EnhancedDataPreprocessingService:
         """
         try:
             # Convert input to DataFrame if needed
-            if isinstance(dataset, (str, Path)):
-                df = pd.read_csv(dataset)
-                dataset_id = str(Path(dataset).stem)
-            elif isinstance(dataset, Dataset):
-                df = dataset.data  # Assuming Dataset has a data attribute
-                dataset_id = str(dataset.id)
+            if isinstance(data_collection, (str, Path)):
+                df = pd.read_csv(data_collection)
+                data_collection_id = str(Path(data_collection).stem)
+            elif isinstance(data_collection, DataCollection):
+                df = data_collection.data  # Assuming DataCollection has a data attribute
+                data_collection_id = str(data_collection.id)
             else:
-                df = dataset
-                dataset_id = f"dataset_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                df = data_collection
+                data_collection_id = f"data_collection_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
             # Generate quality report
-            quality_report = await self._assess_data_quality(df, dataset_id)
+            quality_report = await self._assess_data_quality(df, data_collection_id)
 
             if not self.enable_advanced_features:
                 # Fallback to basic preprocessing
@@ -136,7 +136,7 @@ class EnhancedDataPreprocessingService:
 
             # Create optimal configuration if not provided
             if config is None:
-                config = self._create_anomaly_detection_config(df, quality_report)
+                config = self._create_anomaly_processing_config(df, quality_report)
 
             # Apply advanced preprocessing pipeline
             pipeline = DataPipelineUseCase(config)
@@ -151,45 +151,45 @@ class EnhancedDataPreprocessingService:
                 }
                 
                 self.logger.info(
-                    f"Successfully preprocessed dataset {dataset_id}: "
+                    f"Successfully preprocessed data_collection {data_collection_id}: "
                     f"{len(result.data)} rows, {len(result.data.columns)} columns"
                 )
                 
                 return result.data, quality_report
             else:
                 self.logger.warning(
-                    f"Advanced preprocessing failed for {dataset_id}: {result.error_message}"
+                    f"Advanced preprocessing failed for {data_collection_id}: {result.error_message}"
                 )
                 processed_df = self._basic_preprocessing(df)
                 return processed_df, quality_report
 
         except Exception as e:
-            self.logger.error(f"Error in preprocess_for_anomaly_detection: {e}")
+            self.logger.error(f"Error in preprocess_for_anomaly_processing: {e}")
             # Fallback to basic preprocessing
-            processed_df = self._basic_preprocessing(df if 'df' in locals() else dataset)
-            quality_report = await self._assess_data_quality(processed_df, dataset_id)
+            processed_df = self._basic_preprocessing(df if 'df' in locals() else data_collection)
+            quality_report = await self._assess_data_quality(processed_df, data_collection_id)
             return processed_df, quality_report
 
     async def get_preprocessing_recommendations(
         self,
-        dataset: Union[pd.DataFrame, str, Path],
-        anomaly_detection_type: str = "unsupervised"
+        data_collection: Union[pd.DataFrame, str, Path],
+        anomaly_processing_type: str = "unsupervised"
     ) -> dict[str, Any]:
-        """Get intelligent preprocessing recommendations for anomaly detection.
+        """Get intelligent preprocessing recommendations for anomaly processing.
         
         Args:
-            dataset: Input dataset
-            anomaly_detection_type: Type of anomaly detection (supervised/unsupervised)
+            data_collection: Input data_collection
+            anomaly_processing_type: Type of anomaly processing (supervised/unsupervised)
             
         Returns:
             Dictionary containing preprocessing recommendations
         """
         try:
             # Convert to DataFrame if needed
-            if isinstance(dataset, (str, Path)):
-                df = pd.read_csv(dataset)
+            if isinstance(data_collection, (str, Path)):
+                df = pd.read_csv(data_collection)
             else:
-                df = dataset
+                df = data_collection
 
             recommendations = {
                 "basic_stats": {
@@ -212,8 +212,8 @@ class EnhancedDataPreprocessingService:
                 recommendations["preprocessing_steps"] = quality_report.transformation_suggestions
                 recommendations["quality_score"] = quality_report.quality_score
                 
-                # Add anomaly detection specific recommendations
-                if anomaly_detection_type == "unsupervised":
+                # Add anomaly processing specific recommendations
+                if anomaly_processing_type == "unsupervised":
                     recommendations["optimization_suggestions"].extend([
                         "Consider feature scaling for distance-based algorithms",
                         "Remove or transform highly correlated features",
@@ -222,7 +222,7 @@ class EnhancedDataPreprocessingService:
                 else:
                     recommendations["optimization_suggestions"].extend([
                         "Consider feature selection based on target correlation",
-                        "Balance the dataset if anomalies are rare",
+                        "Balance the data_collection if anomalies are rare",
                         "Use appropriate encoding for categorical features"
                     ])
 
@@ -237,7 +237,7 @@ class EnhancedDataPreprocessingService:
         df: pd.DataFrame,
         quality_report: EnhancedDataQualityReport
     ) -> PipelineConfig:
-        """Create optimal configuration for anomaly detection workflows."""
+        """Create optimal configuration for anomaly processing workflows."""
         # Choose strategies based on data characteristics and quality
         if quality_report.missing_values_ratio > 0.1:
             cleaning_strategy = CleaningStrategy.STATISTICAL
@@ -246,7 +246,7 @@ class EnhancedDataPreprocessingService:
         else:
             cleaning_strategy = CleaningStrategy.CONSERVATIVE
 
-        # For anomaly detection, robust scaling is often preferred
+        # For anomaly processing, robust scaling is often preferred
         scaling_method = ScalingMethod.ROBUST
 
         # Choose encoding based on categorical ratio
@@ -261,7 +261,7 @@ class EnhancedDataPreprocessingService:
             cleaning_strategy=cleaning_strategy,
             scaling_method=scaling_method,
             encoding_strategy=encoding_strategy,
-            feature_engineering=True,  # Enable for better anomaly detection
+            feature_engineering=True,  # Enable for better anomaly processing
             validation_enabled=True,
             parallel_processing=True,
             memory_efficient=len(df) > 10000  # Enable for large datasets
@@ -270,15 +270,15 @@ class EnhancedDataPreprocessingService:
     async def _assess_data_quality(
         self,
         df: pd.DataFrame,
-        dataset_id: str
+        data_collection_id: str
     ) -> EnhancedDataQualityReport:
-        """Assess data quality with enhanced metrics."""
+        """Assess data quality with enhanced measurements."""
         try:
-            # Basic quality metrics
+            # Basic quality measurements
             missing_ratio = df.isnull().sum().sum() / (len(df) * len(df.columns))
             duplicate_ratio = df.duplicated().sum() / len(df)
             
-            # Outlier detection for numeric columns
+            # Outlier processing for numeric columns
             numeric_cols = df.select_dtypes(include=['number']).columns
             outlier_count = 0
             total_numeric_values = 0
@@ -329,7 +329,7 @@ class EnhancedDataPreprocessingService:
             # Calculate quality score
             quality_score = max(0, 1 - (missing_ratio + duplicate_ratio + outlier_ratio))
 
-            # Enhanced metrics if advanced features are available
+            # Enhanced measurements if advanced features are available
             transformation_suggestions = []
             if self.enable_advanced_features:
                 # Use data_transformation service for detailed analysis
@@ -338,12 +338,12 @@ class EnhancedDataPreprocessingService:
                 
                 transformation_suggestions.extend([
                     "Apply intelligent feature engineering",
-                    "Use advanced outlier detection methods",
+                    "Use advanced outlier processing methods",
                     "Consider automated feature selection"
                 ])
 
             return EnhancedDataQualityReport(
-                dataset_id=dataset_id,
+                data_collection_id=data_collection_id,
                 assessment_time=datetime.now(),
                 missing_values_ratio=missing_ratio,
                 duplicate_rows_ratio=duplicate_ratio,
@@ -363,7 +363,7 @@ class EnhancedDataPreprocessingService:
             self.logger.error(f"Error in data quality assessment: {e}")
             # Return basic report on error
             return EnhancedDataQualityReport(
-                dataset_id=dataset_id,
+                data_collection_id=data_collection_id,
                 assessment_time=datetime.now(),
                 missing_values_ratio=0.0,
                 duplicate_rows_ratio=0.0,
@@ -410,22 +410,22 @@ class EnhancedDataPreprocessingService:
     @require_feature("enhanced_preprocessing")
     async def optimize_for_algorithm(
         self,
-        dataset: pd.DataFrame,
+        data_collection: pd.DataFrame,
         algorithm_type: str,
         target_column: Optional[str] = None
     ) -> pd.DataFrame:
-        """Optimize preprocessing for specific anomaly detection algorithms.
+        """Optimize preprocessing for specific anomaly processing algorithms.
         
         Args:
-            dataset: Input dataset
+            data_collection: Input data_collection
             algorithm_type: Type of algorithm (isolation_forest, one_class_svm, etc.)
             target_column: Optional target column for supervised algorithms
             
         Returns:
-            Optimized dataset for the specific algorithm
+            Optimized data_collection for the specific algorithm
         """
         if not self.enable_advanced_features:
-            return self._basic_preprocessing(dataset)
+            return self._basic_preprocessing(data_collection)
         
         # Algorithm-specific optimization configurations
         algorithm_configs = {
@@ -454,10 +454,10 @@ class EnhancedDataPreprocessingService:
         
         config = algorithm_configs.get(
             algorithm_type,
-            self._create_anomaly_detection_config(dataset, await self._assess_data_quality(dataset, "temp"))
+            self._create_anomaly_processing_config(data_collection, await self._assess_data_quality(data_collection, "temp"))
         )
         
         pipeline = DataPipelineUseCase(config)
-        result = pipeline.execute(dataset, target=target_column)
+        result = pipeline.execute(data_collection, target=target_column)
         
-        return result.data if result.success else self._basic_preprocessing(dataset)
+        return result.data if result.success else self._basic_preprocessing(data_collection)

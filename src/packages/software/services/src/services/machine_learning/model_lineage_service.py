@@ -1,4 +1,4 @@
-"""Model lineage tracking service."""
+"""Processor lineage tracking service."""
 
 from __future__ import annotations
 
@@ -36,29 +36,29 @@ class CircularDependencyError(Exception):
 
 
 class ModelLineageService:
-    """Service for tracking and analyzing model lineage."""
+    """Service for tracking and analyzing processor lineage."""
 
     def __init__(
         self,
-        model_repository: ModelRepositoryProtocol,
-        model_version_repository: ModelVersionRepositoryProtocol,
+        processor_repository: ModelRepositoryProtocol,
+        processor_version_repository: ModelVersionRepositoryProtocol,
         lineage_repository: Any,  # LineageRepositoryProtocol when implemented
     ):
         """Initialize the lineage service.
 
         Args:
-            model_repository: Model repository
-            model_version_repository: Model version repository
+            processor_repository: Processor repository
+            processor_version_repository: Processor version repository
             lineage_repository: Lineage repository
         """
-        self.model_repository = model_repository
-        self.model_version_repository = model_version_repository
+        self.processor_repository = processor_repository
+        self.processor_version_repository = processor_version_repository
         self.lineage_repository = lineage_repository
 
     async def create_lineage_record(
         self,
-        child_model_id: UUID,
-        parent_model_ids: list[UUID],
+        child_processor_id: UUID,
+        parent_processor_ids: list[UUID],
         relation_type: LineageRelationType,
         transformation: LineageTransformation,
         created_by: str,
@@ -70,8 +70,8 @@ class ModelLineageService:
         """Create a new lineage record.
 
         Args:
-            child_model_id: Child model identifier
-            parent_model_ids: Parent model identifiers
+            child_processor_id: Child processor identifier
+            parent_processor_ids: Parent processor identifiers
             relation_type: Type of relationship
             transformation: Transformation details
             created_by: User creating the record
@@ -84,12 +84,12 @@ class ModelLineageService:
             Created lineage record
         """
         # Validate models exist
-        await self._validate_models_exist(parent_model_ids + [child_model_id])
+        await self._validate_processors_exist(parent_processor_ids + [child_processor_id])
 
         # Create lineage record
         record = LineageRecord(
-            child_model_id=child_model_id,
-            parent_model_ids=parent_model_ids,
+            child_processor_id=child_processor_id,
+            parent_processor_ids=parent_processor_ids,
             relation_type=relation_type,
             transformation=transformation,
             created_by=created_by,
@@ -104,10 +104,10 @@ class ModelLineageService:
 
         return stored_record
 
-    async def track_model_derivation(
+    async def track_processor_derivation(
         self,
-        parent_model_id: UUID,
-        child_model_id: UUID,
+        parent_processor_id: UUID,
+        child_processor_id: UUID,
         transformation_type: TransformationType,
         transformation_metadata: dict[str, Any],
         created_by: str,
@@ -116,11 +116,11 @@ class ModelLineageService:
         execution_time: float | None = None,
         resource_usage: dict[str, Any] | None = None,
     ) -> LineageRecord:
-        """Track a simple parent-child model derivation.
+        """Track a simple parent-child processor derivation.
 
         Args:
-            parent_model_id: Parent model ID
-            child_model_id: Child model ID
+            parent_processor_id: Parent processor ID
+            child_processor_id: Child processor ID
             transformation_type: Type of transformation
             transformation_metadata: Transformation parameters
             created_by: User creating the record
@@ -157,8 +157,8 @@ class ModelLineageService:
         )
 
         return await self.create_lineage_record(
-            child_model_id=child_model_id,
-            parent_model_ids=[parent_model_id],
+            child_processor_id=child_processor_id,
+            parent_processor_ids=[parent_processor_id],
             relation_type=relation_type,
             transformation=transformation,
             created_by=created_by,
@@ -166,18 +166,18 @@ class ModelLineageService:
 
     async def track_ensemble_creation(
         self,
-        ensemble_model_id: UUID,
-        component_model_ids: list[UUID],
+        ensemble_processor_id: UUID,
+        component_processor_ids: list[UUID],
         ensemble_metadata: dict[str, Any],
         created_by: str,
         algorithm: str = "ensemble",
         tool: str | None = None,
     ) -> LineageRecord:
-        """Track ensemble model creation.
+        """Track ensemble processor creation.
 
         Args:
-            ensemble_model_id: Ensemble model ID
-            component_model_ids: Component model IDs
+            ensemble_processor_id: Ensemble processor ID
+            component_processor_ids: Component processor IDs
             ensemble_metadata: Ensemble configuration
             created_by: User creating the record
             algorithm: Ensemble algorithm
@@ -194,24 +194,24 @@ class ModelLineageService:
         )
 
         return await self.create_lineage_record(
-            child_model_id=ensemble_model_id,
-            parent_model_ids=component_model_ids,
+            child_processor_id=ensemble_processor_id,
+            parent_processor_ids=component_processor_ids,
             relation_type=LineageRelationType.ENSEMBLE_OF,
             transformation=transformation,
             created_by=created_by,
         )
 
-    async def get_model_lineage(
+    async def get_processor_lineage(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         include_ancestors: bool = True,
         include_descendants: bool = True,
         max_depth: int = 10,
     ) -> LineageGraph:
-        """Get complete lineage graph for a model.
+        """Get complete lineage graph for a processor.
 
         Args:
-            model_id: Target model ID
+            processor_id: Target processor ID
             include_ancestors: Include ancestor models
             include_descendants: Include descendant models
             max_depth: Maximum depth to traverse
@@ -219,9 +219,9 @@ class ModelLineageService:
         Returns:
             Complete lineage graph
         """
-        # Get all lineage records related to the model
+        # Get all lineage records related to the processor
         query = LineageQuery(
-            model_id=model_id,
+            processor_id=processor_id,
             include_ancestors=include_ancestors,
             include_descendants=include_descendants,
             max_depth=max_depth,
@@ -233,30 +233,30 @@ class ModelLineageService:
         nodes = {}
         edges = []
 
-        # Collect all model IDs
-        all_model_ids = set()
+        # Collect all processor IDs
+        all_processor_ids = set()
         for record in lineage_records:
-            all_model_ids.update(record.get_all_model_ids())
+            all_processor_ids.update(record.get_all_processor_ids())
 
         # Create nodes
-        for model_id in all_model_ids:
-            model = await self.model_repository.get_by_id(model_id)
-            if model:
-                nodes[model_id] = LineageNode(
-                    model_id=model_id,
-                    model_name=model.name,
-                    model_version=model.current_version or "unknown",
-                    created_at=model.created_at,
-                    metadata=model.metadata,
+        for processor_id in all_processor_ids:
+            processor = await self.processor_repository.get_by_id(processor_id)
+            if processor:
+                nodes[processor_id] = LineageNode(
+                    processor_id=processor_id,
+                    processor_name=processor.name,
+                    processor_version=processor.current_version or "unknown",
+                    created_at=processor.created_at,
+                    metadata=processor.metadata,
                 )
 
         # Create edges
         for record in lineage_records:
-            for parent_id in record.parent_model_ids:
+            for parent_id in record.parent_processor_ids:
                 edges.append(
                     LineageEdge(
                         parent_id=parent_id,
-                        child_id=record.child_model_id,
+                        child_id=record.child_processor_id,
                         relation_type=record.relation_type,
                         transformation=record.transformation,
                         created_at=record.created_at,
@@ -265,69 +265,69 @@ class ModelLineageService:
                 )
 
         # Calculate depth
-        depth = self._calculate_graph_depth(model_id, edges)
+        depth = self._calculate_graph_depth(processor_id, edges)
 
         return LineageGraph(
-            root_model_id=model_id,
+            root_processor_id=processor_id,
             nodes=nodes,
             edges=edges,
             depth=depth,
         )
 
-    async def get_model_ancestors(
-        self, model_id: UUID, max_depth: int = 10
+    async def get_processor_ancestors(
+        self, processor_id: UUID, max_depth: int = 10
     ) -> list[UUID]:
         """Get all ancestor models.
 
         Args:
-            model_id: Target model ID
+            processor_id: Target processor ID
             max_depth: Maximum depth to traverse
 
         Returns:
-            List of ancestor model IDs
+            List of ancestor processor IDs
         """
-        lineage_graph = await self.get_model_lineage(
-            model_id,
+        lineage_graph = await self.get_processor_lineage(
+            processor_id,
             include_ancestors=True,
             include_descendants=False,
             max_depth=max_depth,
         )
-        return list(lineage_graph.get_ancestors(model_id))
+        return list(lineage_graph.get_ancestors(processor_id))
 
-    async def get_model_descendants(
-        self, model_id: UUID, max_depth: int = 10
+    async def get_processor_descendants(
+        self, processor_id: UUID, max_depth: int = 10
     ) -> list[UUID]:
         """Get all descendant models.
 
         Args:
-            model_id: Target model ID
+            processor_id: Target processor ID
             max_depth: Maximum depth to traverse
 
         Returns:
-            List of descendant model IDs
+            List of descendant processor IDs
         """
-        lineage_graph = await self.get_model_lineage(
-            model_id,
+        lineage_graph = await self.get_processor_lineage(
+            processor_id,
             include_ancestors=False,
             include_descendants=True,
             max_depth=max_depth,
         )
-        return list(lineage_graph.get_descendants(model_id))
+        return list(lineage_graph.get_descendants(processor_id))
 
     async def find_common_ancestor(
-        self, model_id1: UUID, model_id2: UUID
+        self, processor_id1: UUID, processor_id2: UUID
     ) -> UUID | None:
         """Find common ancestor of two models.
 
         Args:
-            model_id1: First model ID
-            model_id2: Second model ID
+            processor_id1: First processor ID
+            processor_id2: Second processor ID
 
         Returns:
-            Common ancestor model ID or None
+            Common ancestor processor ID or None
         """
-        ancestors1 = set(await self.get_model_ancestors(model_id1))
-        ancestors2 = set(await self.get_model_ancestors(model_id2))
+        ancestors1 = set(await self.get_processor_ancestors(processor_id1))
+        ancestors2 = set(await self.get_processor_ancestors(processor_id2))
 
         common_ancestors = ancestors1.intersection(ancestors2)
 
@@ -339,28 +339,28 @@ class ModelLineageService:
         return next(iter(common_ancestors))
 
     async def get_lineage_path(
-        self, from_model_id: UUID, to_model_id: UUID
+        self, from_processor_id: UUID, to_processor_id: UUID
     ) -> list[UUID] | None:
         """Find lineage path between two models.
 
         Args:
-            from_model_id: Source model ID
-            to_model_id: Target model ID
+            from_processor_id: Source processor ID
+            to_processor_id: Target processor ID
 
         Returns:
-            Path as list of model IDs or None if no path exists
+            Path as list of processor IDs or None if no path exists
         """
         # Get lineage graph that includes both models
-        lineage_graph = await self.get_model_lineage(from_model_id, max_depth=20)
+        lineage_graph = await self.get_processor_lineage(from_processor_id, max_depth=20)
 
-        # Check if target model is in the graph
-        if to_model_id not in lineage_graph.nodes:
+        # Check if target processor is in the graph
+        if to_processor_id not in lineage_graph.nodes:
             # Try from the other direction
-            lineage_graph = await self.get_model_lineage(to_model_id, max_depth=20)
-            if from_model_id not in lineage_graph.nodes:
+            lineage_graph = await self.get_processor_lineage(to_processor_id, max_depth=20)
+            if from_processor_id not in lineage_graph.nodes:
                 return None
 
-        return lineage_graph.find_path(from_model_id, to_model_id)
+        return lineage_graph.find_path(from_processor_id, to_processor_id)
 
     async def get_lineage_statistics(self) -> LineageStatistics:
         """Get overall lineage statistics.
@@ -373,14 +373,14 @@ class ModelLineageService:
         total_records = await self.lineage_repository.count()
 
         return LineageStatistics(
-            total_models=await self.model_repository.count(),
+            total_processors=await self.processor_repository.count(),
             total_relationships=total_records,
             max_depth=0,  # Would be calculated
             avg_branching_factor=0.0,  # Would be calculated
             relation_type_counts={},  # Would be calculated
             transformation_type_counts={},  # Would be calculated
-            orphaned_models=0,  # Would be calculated
-            most_derived_model=None,  # Would be calculated
+            orphaned_processors=0,  # Would be calculated
+            most_derived_processor=None,  # Would be calculated
             oldest_lineage=None,  # Would be calculated
             newest_lineage=None,  # Would be calculated
         )
@@ -419,11 +419,11 @@ class ModelLineageService:
             Imported records
         """
         # Validate all models exist
-        all_model_ids = set()
+        all_processor_ids = set()
         for record in lineage_records:
-            all_model_ids.update(record.get_all_model_ids())
+            all_processor_ids.update(record.get_all_processor_ids())
 
-        await self._validate_models_exist(list(all_model_ids))
+        await self._validate_processors_exist(list(all_processor_ids))
 
         # Import records
         imported_records = []
@@ -433,31 +433,31 @@ class ModelLineageService:
 
         return imported_records
 
-    async def _validate_models_exist(self, model_ids: list[UUID]) -> None:
+    async def _validate_processors_exist(self, processor_ids: list[UUID]) -> None:
         """Validate that all models exist.
 
         Args:
-            model_ids: Model IDs to validate
+            processor_ids: Processor IDs to validate
 
         Raises:
-            ValueError: If any model doesn't exist
+            ValueError: If any processor doesn't exist
         """
         # Check models in parallel
         validation_tasks = [
-            self.model_repository.get_by_id(model_id) for model_id in model_ids
+            self.processor_repository.get_by_id(processor_id) for processor_id in processor_ids
         ]
 
         models = await asyncio.gather(*validation_tasks, return_exceptions=True)
 
         for i, result in enumerate(models):
             if isinstance(result, Exception) or result is None:
-                raise ValueError(f"Model {model_ids[i]} does not exist")
+                raise ValueError(f"Processor {processor_ids[i]} does not exist")
 
     def _calculate_graph_depth(self, root_id: UUID, edges: list[LineageEdge]) -> int:
         """Calculate the maximum depth of a lineage graph.
 
         Args:
-            root_id: Root model ID
+            root_id: Root processor ID
             edges: Graph edges
 
         Returns:

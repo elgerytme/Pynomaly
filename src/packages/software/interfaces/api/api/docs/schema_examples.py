@@ -10,10 +10,10 @@ class SchemaExamples:
 
     @staticmethod
     def dataset_upload_request() -> dict[str, Any]:
-        """Dataset upload request example."""
+        """DataCollection upload request example."""
         return {
-            "summary": "Upload a CSV dataset",
-            "description": "Upload a CSV file containing numerical data for anomaly detection",
+            "summary": "Upload a CSV data_collection",
+            "description": "Upload a CSV file containing numerical data for anomaly processing",
             "value": {
                 "name": "Network Traffic Data",
                 "description": "Daily network traffic measurements with potential anomalies",
@@ -29,14 +29,14 @@ class SchemaExamples:
 
     @staticmethod
     def dataset_response() -> dict[str, Any]:
-        """Dataset response example."""
+        """DataCollection response example."""
         return {
-            "summary": "Dataset information",
-            "description": "Complete dataset metadata and statistics",
+            "summary": "DataCollection information",
+            "description": "Complete data_collection metadata and statistics",
             "value": {
                 "success": True,
                 "data": {
-                    "id": "dataset_123",
+                    "id": "data_collection_123",
                     "name": "Network Traffic Data",
                     "description": "Daily network traffic measurements",
                     "rows": 10000,
@@ -70,7 +70,7 @@ class SchemaExamples:
         """Detector creation request example."""
         return {
             "summary": "Create Isolation Forest detector",
-            "description": "Configure an Isolation Forest algorithm for anomaly detection",
+            "description": "Configure an Isolation Forest algorithm for anomaly processing",
             "value": {
                 "name": "Production Traffic Detector",
                 "algorithm": "IsolationForest",
@@ -107,7 +107,7 @@ class SchemaExamples:
                     "created_at": "2024-12-25T10:15:00Z",
                     "updated_at": "2024-12-25T10:15:00Z",
                     "training_history": [],
-                    "performance_metrics": None,
+                    "performance_measurements": None,
                 },
                 "timestamp": "2024-12-25T10:30:00Z",
             },
@@ -115,13 +115,13 @@ class SchemaExamples:
 
     @staticmethod
     def detection_train_request() -> dict[str, Any]:
-        """Detection training request example."""
+        """Processing training request example."""
         return {
-            "summary": "Train detector on dataset",
-            "description": "Train the configured detector using uploaded dataset",
+            "summary": "Train detector on data_collection",
+            "description": "Train the configured detector using uploaded data_collection",
             "value": {
                 "detector_id": "detector_456",
-                "dataset_id": "dataset_123",
+                "data_collection_id": "data_collection_123",
                 "features": [
                     "bytes_in",
                     "bytes_out",
@@ -141,7 +141,7 @@ class SchemaExamples:
 
     @staticmethod
     def detection_train_response() -> dict[str, Any]:
-        """Detection training response example."""
+        """Processing training response example."""
         return {
             "summary": "Training initiated",
             "description": "Training task started successfully",
@@ -151,7 +151,7 @@ class SchemaExamples:
                     "task_id": "train_task_789",
                     "status": "running",
                     "detector_id": "detector_456",
-                    "dataset_id": "dataset_123",
+                    "data_collection_id": "data_collection_123",
                     "progress": 0.0,
                     "estimated_completion": "2024-12-25T10:35:00Z",
                     "started_at": "2024-12-25T10:30:00Z",
@@ -162,7 +162,7 @@ class SchemaExamples:
 
     @staticmethod
     def detection_predict_request() -> dict[str, Any]:
-        """Detection prediction request example."""
+        """Processing prediction request example."""
         return {
             "summary": "Detect anomalies in new data",
             "description": "Use trained detector to find anomalies in new data points",
@@ -193,10 +193,10 @@ class SchemaExamples:
 
     @staticmethod
     def detection_predict_response() -> dict[str, Any]:
-        """Detection prediction response example."""
+        """Processing prediction response example."""
         return {
-            "summary": "Anomaly detection results",
-            "description": "Results of anomaly detection with scores and explanations",
+            "summary": "Anomaly processing results",
+            "description": "Results of anomaly processing with scores and explanations",
             "value": {
                 "success": True,
                 "data": {
@@ -248,11 +248,11 @@ class SchemaExamples:
             "summary": "Create new experiment",
             "description": "Set up a new experiment to track detector performance",
             "value": {
-                "name": "Network Anomaly Detection Comparison",
+                "name": "Network Anomaly Processing Comparison",
                 "description": "Compare multiple algorithms on network traffic data",
-                "dataset_id": "dataset_123",
+                "data_collection_id": "data_collection_123",
                 "detectors": ["detector_456", "detector_789", "detector_101"],
-                "metrics": ["precision", "recall", "f1_score", "auc"],
+                "measurements": ["precision", "recall", "f1_score", "auc"],
                 "tags": ["comparison", "network", "production"],
             },
         }
@@ -351,9 +351,9 @@ class SchemaExamples:
             "value": {
                 "success": True,
                 "data": [
-                    {"id": "dataset_1", "name": "Dataset 1", "rows": 1000},
-                    {"id": "dataset_2", "name": "Dataset 2", "rows": 2500},
-                    {"id": "dataset_3", "name": "Dataset 3", "rows": 750},
+                    {"id": "data_collection_1", "name": "DataCollection 1", "rows": 1000},
+                    {"id": "data_collection_2", "name": "DataCollection 2", "rows": 2500},
+                    {"id": "data_collection_3", "name": "DataCollection 3", "rows": 750},
                 ],
                 "pagination": {
                     "page": 1,

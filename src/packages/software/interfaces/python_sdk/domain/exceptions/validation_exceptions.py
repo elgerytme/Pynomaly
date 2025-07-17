@@ -76,7 +76,7 @@ class DataValidationError(ValidationError):
     Exception raised when input data validation fails.
     
     This exception is raised when input data does not meet
-    the requirements for anomaly detection processing.
+    the requirements for anomaly processing processing.
     """
     
     def __init__(self, message: str, data_issues: Optional[List[str]] = None):
@@ -89,7 +89,7 @@ class IncompatibleDataAlgorithmError(DomainException):
     Exception raised when data is incompatible with the selected algorithm.
     
     This exception is raised when the input data characteristics
-    are not suitable for the chosen anomaly detection algorithm.
+    are not suitable for the chosen anomaly processing algorithm.
     """
     
     def __init__(self, algorithm_type: str, data_size: int, reason: str):
@@ -102,14 +102,14 @@ class IncompatibleDataAlgorithmError(DomainException):
 
 class DetectionRequestError(DomainException):
     """
-    Exception raised when detection request processing fails.
+    Exception raised when processing request processing fails.
     
-    This exception is raised when detection requests cannot
+    This exception is raised when processing requests cannot
     be processed due to various domain-level issues.
     """
     
     def __init__(self, request_id: str, message: str):
-        full_message = f"Detection request {request_id} failed: {message}"
+        full_message = f"Processing request {request_id} failed: {message}"
         super().__init__(full_message, "DETECTION_REQUEST_ERROR")
         self.request_id = request_id
 

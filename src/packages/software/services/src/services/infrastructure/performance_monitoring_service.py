@@ -2,7 +2,7 @@
 
 This service provides application-level performance monitoring capabilities,
 integrating with the infrastructure performance monitor to provide comprehensive
-monitoring for anomaly detection workflows.
+monitoring for anomaly processing workflows.
 """
 
 from __future__ import annotations
@@ -61,79 +61,79 @@ class PerformanceMonitoringService:
 
     @require_feature("performance_monitoring")
     def monitor_detection_operation(
-        self, detector: Detector, dataset: Dataset, operation_func: callable, **kwargs
+        self, detector: Detector, data_collection: DataCollection, operation_func: callable, **kwargs
     ) -> tuple[DetectionResult, PerformanceMetrics]:
-        """Monitor a complete detection operation.
+        """Monitor a complete processing operation.
 
         Args:
             detector: The detector being used
-            dataset: The dataset being processed
-            operation_func: Function that performs detection
+            data_collection: The data_collection being processed
+            operation_func: Function that performs processing
             **kwargs: Additional arguments for the operation
 
         Returns:
-            Tuple of (detection_result, performance_metrics)
+            Tuple of (processing_result, performance_measurements)
         """
-        operation_name = f"detection_{detector.algorithm_name}"
+        operation_name = f"processing_{detector.algorithm_name}"
 
         with PerformanceTracker(
             self.monitor,
             operation_name=operation_name,
             algorithm_name=detector.algorithm_name,
-            dataset_size=len(dataset.data),
+            data_collection_size=len(data_collection.data),
             metadata={
                 "detector_name": detector.name,
-                "dataset_name": dataset.name,
+                "data_collection_name": data_collection.name,
                 "parameters": detector.parameters,
             },
         ) as tracker:
-            # Execute the detection operation
-            result = operation_func(detector, dataset, **kwargs)
+            # Execute the processing operation
+            result = operation_func(detector, data_collection, **kwargs)
 
-            # Extract quality metrics if available
+            # Extract quality measurements if available
             if hasattr(result, "metadata") and result.metadata:
-                quality_metrics = {}
+                quality_measurements = {}
                 for metric in ["accuracy", "precision", "recall", "f1_score"]:
                     if metric in result.metadata:
-                        quality_metrics[metric] = result.metadata[metric]
+                        quality_measurements[metric] = result.metadata[metric]
 
-                if quality_metrics:
-                    tracker.set_quality_metrics(quality_metrics)
+                if quality_measurements:
+                    tracker.set_quality_measurements(quality_measurements)
 
             # Set samples processed
-            tracker.set_samples_processed(len(dataset.data))
+            tracker.set_samples_processed(len(data_collection.data))
 
-            # Get the final metrics (will be available after context exit)
-            # Check if metrics are available
-            if self.monitor.metrics_history:
-                return result, self.monitor.metrics_history[-1]
+            # Get the final measurements (will be available after context exit)
+            # Check if measurements are available
+            if self.monitor.measurements_history:
+                return result, self.monitor.measurements_history[-1]
             else:
-                # Create a dummy metrics object if none available
+                # Create a dummy measurements object if none available
                 from ...infrastructure.monitoring.performance_monitor import (
                     PerformanceMetrics,
                 )
 
-                dummy_metrics = PerformanceMetrics(
+                dummy_measurements = PerformanceMetrics(
                     operation_name=operation_name,
                     algorithm_name=detector.algorithm_name,
-                    dataset_size=len(dataset.data),
+                    data_collection_size=len(data_collection.data),
                 )
-                return result, dummy_metrics
+                return result, dummy_measurements
 
     @require_feature("performance_monitoring")
     def monitor_training_operation(
-        self, detector: Detector, dataset: Dataset, training_func: callable, **kwargs
+        self, detector: Detector, data_collection: DataCollection, training_func: callable, **kwargs
     ) -> tuple[Detector, PerformanceMetrics]:
         """Monitor a detector training operation.
 
         Args:
             detector: The detector being trained
-            dataset: The training dataset
+            data_collection: The training data_collection
             training_func: Function that performs training
             **kwargs: Additional arguments for training
 
         Returns:
-            Tuple of (trained_detector, performance_metrics)
+            Tuple of (trained_detector, performance_measurements)
         """
         operation_name = f"training_{detector.algorithm_name}"
 
@@ -141,34 +141,34 @@ class PerformanceMonitoringService:
             self.monitor,
             operation_name=operation_name,
             algorithm_name=detector.algorithm_name,
-            dataset_size=len(dataset.data),
+            data_collection_size=len(data_collection.data),
             metadata={
                 "detector_name": detector.name,
-                "dataset_name": dataset.name,
+                "data_collection_name": data_collection.name,
                 "parameters": detector.parameters,
             },
         ) as tracker:
             # Execute the training operation
-            trained_detector = training_func(detector, dataset, **kwargs)
+            trained_detector = training_func(detector, data_collection, **kwargs)
 
             # Set samples processed
-            tracker.set_samples_processed(len(dataset.data))
+            tracker.set_samples_processed(len(data_collection.data))
 
-            # Check if metrics are available
-            if self.monitor.metrics_history:
-                return trained_detector, self.monitor.metrics_history[-1]
+            # Check if measurements are available
+            if self.monitor.measurements_history:
+                return trained_detector, self.monitor.measurements_history[-1]
             else:
-                # Create a dummy metrics object if none available
+                # Create a dummy measurements object if none available
                 from ...infrastructure.monitoring.performance_monitor import (
                     PerformanceMetrics,
                 )
 
-                dummy_metrics = PerformanceMetrics(
+                dummy_measurements = PerformanceMetrics(
                     operation_name=operation_name,
                     algorithm_name=detector.algorithm_name,
-                    dataset_size=len(dataset.data),
+                    data_collection_size=len(data_collection.data),
                 )
-                return trained_detector, dummy_metrics
+                return trained_detector, dummy_measurements
 
     @require_feature("performance_monitoring")
     def get_algorithm_performance_comparison(
@@ -183,19 +183,19 @@ class PerformanceMonitoringService:
         Returns:
             Performance comparison across algorithms
         """
-        # Get all metrics within time window
-        metrics_list = list(self.monitor.metrics_history)
+        # Get all measurements within time window
+        measurements_list = list(self.monitor.measurements_history)
         if time_window:
             cutoff_time = datetime.utcnow() - time_window
-            metrics_list = [m for m in metrics_list if m.timestamp >= cutoff_time]
+            measurements_list = [m for m in measurements_list if m.timestamp >= cutoff_time]
 
         # Group by algorithm
-        algorithm_metrics = {}
-        for metric in metrics_list:
+        algorithm_measurements = {}
+        for metric in measurements_list:
             if metric.algorithm_name:
-                if metric.algorithm_name not in algorithm_metrics:
-                    algorithm_metrics[metric.algorithm_name] = []
-                algorithm_metrics[metric.algorithm_name].append(metric)
+                if metric.algorithm_name not in algorithm_measurements:
+                    algorithm_measurements[metric.algorithm_name] = []
+                algorithm_measurements[metric.algorithm_name].append(metric)
 
         # Calculate comparison statistics
         comparison = {
@@ -206,18 +206,18 @@ class PerformanceMonitoringService:
             "algorithms": {},
         }
 
-        for algorithm, metrics in algorithm_metrics.items():
-            if len(metrics) < min_operations:
+        for algorithm, measurements in algorithm_measurements.items():
+            if len(measurements) < min_operations:
                 continue
 
-            execution_times = [m.execution_time for m in metrics]
-            memory_usages = [m.memory_usage for m in metrics]
+            execution_times = [m.execution_time for m in measurements]
+            memory_usages = [m.memory_usage for m in measurements]
             throughputs = [
-                m.samples_per_second for m in metrics if m.samples_per_second > 0
+                m.samples_per_second for m in measurements if m.samples_per_second > 0
             ]
 
             algorithm_stats = {
-                "operation_count": len(metrics),
+                "operation_count": len(measurements),
                 "avg_execution_time": (
                     sum(execution_times) / len(execution_times)
                     if execution_times
@@ -229,20 +229,20 @@ class PerformanceMonitoringService:
                 "avg_throughput": (
                     sum(throughputs) / len(throughputs) if throughputs else 0
                 ),
-                "reliability_score": self._calculate_reliability_score(metrics),
+                "reliability_score": self._calculate_reliability_score(measurements),
             }
 
-            # Add quality metrics if available
-            quality_metrics = [m for m in metrics if m.accuracy is not None]
-            if quality_metrics:
+            # Add quality measurements if available
+            quality_measurements = [m for m in measurements if m.accuracy is not None]
+            if quality_measurements:
                 algorithm_stats["avg_accuracy"] = sum(
-                    m.accuracy for m in quality_metrics
-                ) / len(quality_metrics)
-                f1_metrics = [m for m in quality_metrics if m.f1_score is not None]
-                if f1_metrics:
+                    m.accuracy for m in quality_measurements
+                ) / len(quality_measurements)
+                f1_measurements = [m for m in quality_measurements if m.f1_score is not None]
+                if f1_measurements:
                     algorithm_stats["avg_f1_score"] = sum(
-                        m.f1_score for m in f1_metrics
-                    ) / len(f1_metrics)
+                        m.f1_score for m in f1_measurements
+                    ) / len(f1_measurements)
 
             comparison["algorithms"][algorithm] = algorithm_stats
 
@@ -271,44 +271,44 @@ class PerformanceMonitoringService:
         Returns:
             Performance trend analysis
         """
-        # Get metrics for analysis
+        # Get measurements for analysis
         cutoff_time = datetime.utcnow() - time_window
-        metrics_list = [
-            m for m in self.monitor.metrics_history if m.timestamp >= cutoff_time
+        measurements_list = [
+            m for m in self.monitor.measurements_history if m.timestamp >= cutoff_time
         ]
 
         if operation_name:
-            metrics_list = [
-                m for m in metrics_list if m.operation_name == operation_name
+            measurements_list = [
+                m for m in measurements_list if m.operation_name == operation_name
             ]
 
-        if not metrics_list:
-            return {"message": "No metrics available for trend analysis"}
+        if not measurements_list:
+            return {"message": "No measurements available for trend analysis"}
 
         # Create time buckets
-        start_time = min(m.timestamp for m in metrics_list)
-        end_time = max(m.timestamp for m in metrics_list)
+        start_time = min(m.timestamp for m in measurements_list)
+        end_time = max(m.timestamp for m in measurements_list)
 
         buckets = []
         current_time = start_time
         while current_time < end_time:
             bucket_end = min(current_time + bucket_size, end_time)
-            bucket_metrics = [
-                m for m in metrics_list if current_time <= m.timestamp < bucket_end
+            bucket_measurements = [
+                m for m in measurements_list if current_time <= m.timestamp < bucket_end
             ]
 
-            if bucket_metrics:
+            if bucket_measurements:
                 bucket_stats = {
                     "timestamp": current_time.isoformat(),
-                    "operation_count": len(bucket_metrics),
-                    "avg_execution_time": sum(m.execution_time for m in bucket_metrics)
-                    / len(bucket_metrics),
-                    "avg_memory_usage": sum(m.memory_usage for m in bucket_metrics)
-                    / len(bucket_metrics),
-                    "avg_cpu_usage": sum(m.cpu_usage for m in bucket_metrics)
-                    / len(bucket_metrics),
+                    "operation_count": len(bucket_measurements),
+                    "avg_execution_time": sum(m.execution_time for m in bucket_measurements)
+                    / len(bucket_measurements),
+                    "avg_memory_usage": sum(m.memory_usage for m in bucket_measurements)
+                    / len(bucket_measurements),
+                    "avg_cpu_usage": sum(m.cpu_usage for m in bucket_measurements)
+                    / len(bucket_measurements),
                     "total_samples_processed": sum(
-                        m.samples_processed for m in bucket_metrics
+                        m.samples_processed for m in bucket_measurements
                     ),
                 }
                 buckets.append(bucket_stats)
@@ -322,23 +322,23 @@ class PerformanceMonitoringService:
             "analysis_timestamp": datetime.utcnow().isoformat(),
             "time_window_hours": time_window.total_seconds() / 3600,
             "bucket_size_minutes": bucket_size.total_seconds() / 60,
-            "total_operations": len(metrics_list),
+            "total_operations": len(measurements_list),
             "time_buckets": buckets,
             "trends": trends,
         }
 
     @require_feature("performance_monitoring")
     def set_performance_baseline(
-        self, operation_name: str, baseline_metrics: dict[str, float]
+        self, operation_name: str, baseline_measurements: dict[str, float]
     ) -> None:
         """Set performance baseline for an operation.
 
         Args:
             operation_name: Name of the operation
-            baseline_metrics: Expected baseline performance metrics
+            baseline_measurements: Expected baseline performance measurements
         """
         self.performance_baselines[operation_name] = {
-            "metrics": baseline_metrics,
+            "measurements": baseline_measurements,
             "set_at": datetime.utcnow(),
         }
 
@@ -360,31 +360,31 @@ class PerformanceMonitoringService:
 
         baseline = self.performance_baselines[operation_name]
 
-        # Get recent metrics
+        # Get recent measurements
         cutoff_time = datetime.utcnow() - recent_window
-        recent_metrics = [
+        recent_measurements = [
             m
-            for m in self.monitor.metrics_history
+            for m in self.monitor.measurements_history
             if m.timestamp >= cutoff_time and m.operation_name == operation_name
         ]
 
-        if not recent_metrics:
-            return {"error": "No recent metrics available for comparison"}
+        if not recent_measurements:
+            return {"error": "No recent measurements available for comparison"}
 
         # Calculate current averages
         current_avg = {
-            "execution_time": sum(m.execution_time for m in recent_metrics)
-            / len(recent_metrics),
-            "memory_usage": sum(m.memory_usage for m in recent_metrics)
-            / len(recent_metrics),
-            "cpu_usage": sum(m.cpu_usage for m in recent_metrics) / len(recent_metrics),
+            "execution_time": sum(m.execution_time for m in recent_measurements)
+            / len(recent_measurements),
+            "memory_usage": sum(m.memory_usage for m in recent_measurements)
+            / len(recent_measurements),
+            "cpu_usage": sum(m.cpu_usage for m in recent_measurements) / len(recent_measurements),
         }
 
         # Check for regressions
         regressions = {}
         for metric, current_value in current_avg.items():
-            if metric in baseline["metrics"]:
-                baseline_value = baseline["metrics"][metric]
+            if metric in baseline["measurements"]:
+                baseline_value = baseline["measurements"][metric]
                 regression_threshold = baseline_value * 1.2  # 20% degradation threshold
 
                 if current_value > regression_threshold:
@@ -401,11 +401,11 @@ class PerformanceMonitoringService:
             "operation_name": operation_name,
             "check_timestamp": datetime.utcnow().isoformat(),
             "baseline_set_at": baseline["set_at"].isoformat(),
-            "recent_operations": len(recent_metrics),
+            "recent_operations": len(recent_measurements),
             "regressions_detected": len(regressions),
             "regressions": regressions,
             "current_performance": current_avg,
-            "baseline_performance": baseline["metrics"],
+            "baseline_performance": baseline["measurements"],
         }
 
     def add_alert_handler(self, handler: callable) -> None:
@@ -420,10 +420,10 @@ class PerformanceMonitoringService:
         """Get data for performance monitoring dashboard.
 
         Returns:
-            Dashboard data including current metrics, alerts, and statistics
+            Dashboard data including current measurements, alerts, and statistics
         """
         return {
-            "current_metrics": self.monitor.get_real_time_metrics(),
+            "current_measurements": self.monitor.get_real_time_measurements(),
             "active_alerts": [
                 alert.to_dict() for alert in self.monitor.get_active_alerts()
             ],
@@ -437,7 +437,7 @@ class PerformanceMonitoringService:
                 "alert_count": len(self.monitor.active_alerts),
             },
             "performance_baselines": {
-                name: data["metrics"]
+                name: data["measurements"]
                 for name, data in self.performance_baselines.items()
             },
         }
@@ -458,12 +458,12 @@ class PerformanceMonitoringService:
                     print(f"Alert handler error: {e}")
 
     def _calculate_reliability_score(self, metrics: list[PerformanceMetrics]) -> float:
-        """Calculate reliability score based on consistency of metrics."""
-        if len(metrics) < 2:
+        """Calculate reliability score based on consistency of measurements."""
+        if len(measurements) < 2:
             return 1.0
 
-        execution_times = [m.execution_time for m in metrics]
-        memory_usages = [m.memory_usage for m in metrics]
+        execution_times = [m.execution_time for m in measurements]
+        memory_usages = [m.memory_usage for m in measurements]
 
         # Calculate coefficient of variation (lower is more reliable)
         exec_time_cv = (

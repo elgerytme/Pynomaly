@@ -1,4 +1,4 @@
-"""Application service for model persistence."""
+"""Application service for processor persistence."""
 
 from __future__ import annotations
 
@@ -21,23 +21,23 @@ class ModelPersistenceService:
     def __init__(
         self, detector_repository: DetectorRepositoryProtocol, storage_path: Path
     ):
-        """Initialize model persistence service.
+        """Initialize processor persistence service.
 
         Args:
             detector_repository: Repository for detectors
-            storage_path: Base path for model storage
+            storage_path: Base path for processor storage
         """
         self.detector_repository = detector_repository
         self.storage_path = storage_path
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
-    async def save_model(
+    async def save_processor(
         self,
         detector_id: UUID,
         format: str = "pickle",
         metadata: dict[str, Any] | None = None,
     ) -> str:
-        """Save a trained model to storage.
+        """Save a trained processor to storage.
 
         Args:
             detector_id: ID of detector to save
@@ -45,7 +45,7 @@ class ModelPersistenceService:
             metadata: Additional metadata to save
 
         Returns:
-            Path where model was saved
+            Path where processor was saved
         """
         # Load detector
         detector = await self.detector_repository.find_by_id(detector_id)
@@ -55,9 +55,9 @@ class ModelPersistenceService:
         if not detector.is_fitted:
             raise ValueError(f"Detector {detector.name} is not fitted")
 
-        # Create model directory
-        model_dir = self.storage_path / str(detector_id)
-        model_dir.mkdir(exist_ok=True)
+        # Create processor directory
+        processor_dir = self.storage_path / str(detector_id)
+        processor_dir.mkdir(exist_ok=True)
 
         # Use secure serialization instead of pickle
         secure_serializer = get_secure_serializer()
@@ -65,16 +65,16 @@ class ModelPersistenceService:
         # Save based on format
         if format == "pickle":
             # Use secure serialization instead of unsafe pickle
-            model_path = model_dir / "model.secure"
-            secure_serializer.serialize_model(detector, model_path)
+            processor_path = processor_dir / "processor.secure"
+            secure_serializer.serialize_processor(detector, processor_path)
         elif format == "joblib":
             # joblib is safer than pickle, but still use secure wrapper
-            model_path = model_dir / "model.joblib"
-            secure_serializer.serialize_model(detector, model_path)
+            processor_path = processor_dir / "processor.joblib"
+            secure_serializer.serialize_processor(detector, processor_path)
         elif format == "onnx":
             # ONNX conversion using existing implementation
-            model_path = model_dir / "model.onnx"
-            await self._save_onnx_model(detector, model_path)
+            processor_path = processor_dir / "processor.onnx"
+            await self._save_onnx_processor(detector, processor_path)
         else:
             raise ValueError(f"Unknown format: {format}")
 
@@ -90,19 +90,19 @@ class ModelPersistenceService:
             **(metadata or {}),
         }
 
-        meta_path = model_dir / "metadata.json"
+        meta_path = processor_dir / "metadata.json"
         with open(meta_path, "w") as f:
             json.dump(meta, f, indent=2)
 
         # Save to repository as well
         await self.detector_repository.save(detector)
 
-        return str(model_path)
+        return str(processor_path)
 
-    async def load_model(
+    async def load_processor(
         self, detector_id: UUID, format: str = "pickle"
     ) -> DetectorProtocol:
-        """Load a saved model.
+        """Load a saved processor.
 
         Args:
             detector_id: ID of detector to load
@@ -111,10 +111,10 @@ class ModelPersistenceService:
         Returns:
             Loaded detector
         """
-        model_dir = self.storage_path / str(detector_id)
+        processor_dir = self.storage_path / str(detector_id)
 
-        if not model_dir.exists():
-            raise ValueError(f"No saved model found for detector {detector_id}")
+        if not processor_dir.exists():
+            raise ValueError(f"No saved processor found for detector {detector_id}")
 
         # Use secure deserialization
         secure_serializer = get_secure_serializer()
@@ -122,27 +122,27 @@ class ModelPersistenceService:
         # Load based on format
         if format == "pickle":
             # Use secure deserialization instead of unsafe pickle
-            model_path = model_dir / "model.secure"
-            if not model_path.exists():
+            processor_path = processor_dir / "processor.secure"
+            if not processor_path.exists():
                 # Try legacy pickle file for backward compatibility
-                legacy_path = model_dir / "model.pkl"
+                legacy_path = processor_dir / "processor.pkl"
                 if legacy_path.exists():
                     raise ValueError(
                         f"Legacy pickle file found for detector {detector_id}. "
-                        "Please re-save the model with secure serialization."
+                        "Please re-save the processor with secure serialization."
                     )
                 raise ValueError(
-                    f"No secure model file found for detector {detector_id}"
+                    f"No secure processor file found for detector {detector_id}"
                 )
-            detector = secure_serializer.deserialize_model(model_path)
+            detector = secure_serializer.deserialize_processor(processor_path)
         elif format == "joblib":
             # Use secure deserialization wrapper
-            model_path = model_dir / "model.joblib"
-            detector = secure_serializer.deserialize_model(model_path)
+            processor_path = processor_dir / "processor.joblib"
+            detector = secure_serializer.deserialize_processor(processor_path)
         elif format == "onnx":
             # ONNX loading - for now, load the stub or use fallback
-            model_path = model_dir / "model.onnx"
-            detector = await self._load_onnx_model(model_path)
+            processor_path = processor_dir / "processor.onnx"
+            detector = await self._load_onnx_processor(processor_path)
         else:
             raise ValueError(f"Unknown format: {format}")
 
@@ -153,10 +153,10 @@ class ModelPersistenceService:
 
         return detector
 
-    async def export_model(
+    async def export_processor(
         self, detector_id: UUID, export_path: Path, include_data: bool = False
     ) -> dict[str, str]:
-        """Export model for deployment.
+        """Export processor for deployment.
 
         Args:
             detector_id: ID of detector to export
@@ -174,10 +174,10 @@ class ModelPersistenceService:
         export_path.mkdir(parents=True, exist_ok=True)
         exported_files = {}
 
-        # Export model - for domain entities, we'll save as JSON with custom serialization
+        # Export processor - for domain entities, we'll save as JSON with custom serialization
         # since the secure serializer has issues with domain value objects
-        model_path = export_path / "model.json"
-        model_data = {
+        processor_path = export_path / "processor.json"
+        processor_data = {
             "id": str(detector.id),
             "name": detector.name,
             "algorithm_name": detector.algorithm_name,
@@ -192,9 +192,9 @@ class ModelPersistenceService:
             "exported_at": datetime.now(UTC).isoformat(),
         }
 
-        with open(model_path, "w") as f:
-            json.dump(model_data, f, indent=2)
-        exported_files["model"] = str(model_path)
+        with open(processor_path, "w") as f:
+            json.dump(processor_data, f, indent=2)
+        exported_files["processor"] = str(processor_path)
 
         # Export configuration
         config = {
@@ -228,26 +228,26 @@ class ModelPersistenceService:
 
         return exported_files
 
-    async def list_saved_models(self) -> dict[str, dict[str, Any]]:
+    async def list_saved_processors(self) -> dict[str, dict[str, Any]]:
         """List all saved models.
 
         Returns:
-            Dictionary of model metadata by detector ID
+            Dictionary of processor metadata by detector ID
         """
-        saved_models = {}
+        saved_processors = {}
 
-        for model_dir in self.storage_path.iterdir():
-            if model_dir.is_dir():
-                meta_path = model_dir / "metadata.json"
+        for processor_dir in self.storage_path.iterdir():
+            if processor_dir.is_dir():
+                meta_path = processor_dir / "metadata.json"
                 if meta_path.exists():
                     with open(meta_path) as f:
                         metadata = json.load(f)
-                    saved_models[model_dir.name] = metadata
+                    saved_processors[processor_dir.name] = metadata
 
-        return saved_models
+        return saved_processors
 
-    async def delete_model(self, detector_id: UUID) -> bool:
-        """Delete a saved model.
+    async def delete_processor(self, detector_id: UUID) -> bool:
+        """Delete a saved processor.
 
         Args:
             detector_id: ID of detector to delete
@@ -255,21 +255,21 @@ class ModelPersistenceService:
         Returns:
             True if deleted, False if not found
         """
-        model_dir = self.storage_path / str(detector_id)
+        processor_dir = self.storage_path / str(detector_id)
 
-        if model_dir.exists():
+        if processor_dir.exists():
             import shutil
 
-            shutil.rmtree(model_dir)
+            shutil.rmtree(processor_dir)
             return True
 
         return False
 
     def _generate_requirements(self, detector: DetectorProtocol) -> list[str]:
-        """Generate requirements for model deployment."""
+        """Generate requirements for processor deployment."""
         # Base requirements
         requirements = [
-            "pynomaly>=0.1.0",
+            "software>=0.1.0",
             "numpy>=1.26.0",
             "pandas>=2.2.0",
             "scikit-learn>=1.5.0",
@@ -295,7 +295,7 @@ class ModelPersistenceService:
         return f'''#!/usr/bin/env python3
 """
 Deployment script for {detector.name}
-Generated by Pynomaly ModelPersistenceService
+Generated by Software ModelPersistenceService
 """
 
 import json
@@ -309,18 +309,18 @@ class {detector.name.replace(" ", "")}Detector:
     """Wrapper for deployed anomaly detector."""
 
     def __init__(self, model_path: str = "model.json"):
-        """Load the detector model."""
-        with open(model_path, 'r') as f:
-            model_data = json.load(f)
+        """Load the detector processor."""
+        with open(processor_path, 'r') as f:
+            processor_data = json.load(f)
 
         # Create a simple detector-like object
         self.detector = type('Detector', (), {{
-            'id': UUID(model_data['id']),
-            'name': model_data['name'],
-            'algorithm_name': model_data['algorithm_name'],
-            'contamination_rate': type('ContaminationRate', (), {{'value': model_data['contamination_rate']}})(),
-            'parameters': model_data['parameters'],
-            'is_fitted': model_data['is_fitted'],
+            'id': UUID(processor_data['id']),
+            'name': processor_data['name'],
+            'algorithm_name': processor_data['algorithm_name'],
+            'contamination_rate': type('ContaminationRate', (), {{'value': processor_data['contamination_rate']}})(),
+            'parameters': processor_data['parameters'],
+            'is_fitted': processor_data['is_fitted'],
         }})()
 
     def detect(self, data: pd.DataFrame) -> dict:
@@ -334,8 +334,8 @@ class {detector.name.replace(" ", "")}Detector:
         """
         from monorepo.domain.entities import Dataset
 
-        dataset = Dataset(name="input", data=data)
-        result = self.detector.detect(dataset)
+        data_collection = DataCollection(name="input", data=data)
+        result = self.detector.detect(data_collection)
 
         return {{
             "scores": [s.value for s in result.scores],
@@ -355,8 +355,8 @@ class {detector.name.replace(" ", "")}Detector:
         """
         from monorepo.domain.entities import Dataset
 
-        dataset = Dataset(name="input", data=data)
-        scores = self.detector.score(dataset)
+        data_collection = DataCollection(name="input", data=data)
+        scores = self.detector.score(data_collection)
         return [s.value for s in scores]
 
 
@@ -389,14 +389,14 @@ if __name__ == "__main__":
     print("Results saved to anomalies.csv")
 '''
 
-    async def _save_onnx_model(
-        self, detector: DetectorProtocol, model_path: Path
+    async def _save_onnx_processor(
+        self, detector: DetectorProtocol, processor_path: Path
     ) -> None:
-        """Save model in ONNX format.
+        """Save processor in ONNX format.
 
         Args:
             detector: Detector to save
-            model_path: Path to save ONNX model
+            processor_path: Path to save ONNX processor
         """
         from monorepo.infrastructure.config.feature_flags import feature_flags
 
@@ -407,26 +407,26 @@ if __name__ == "__main__":
             )
 
         try:
-            # Try to get PyTorch model from detector
-            if hasattr(detector, "_model") and detector._model is not None:
+            # Try to get PyTorch processor from detector
+            if hasattr(detector, "_processor") and detector._processor is not None:
                 try:
                     import torch
                     import torch.onnx
 
-                    # Get model and create dummy input
-                    model = detector._model
-                    logger.info(f"Exporting PyTorch model to ONNX: {detector.name}")
+                    # Get processor and create dummy input
+                    processor = detector._processor
+                    logger.info(f"Exporting PyTorch processor to ONNX: {detector.name}")
 
-                    # Create dummy input based on model's expected input shape
+                    # Create dummy input based on processor's expected input shape
                     dummy_input = self._create_dummy_input(detector)
                     if dummy_input is None:
                         raise ValueError("Could not create dummy input for ONNX export")
 
                     # Export to ONNX with comprehensive error handling
                     torch.onnx.export(
-                        model,
+                        processor,
                         dummy_input,
-                        str(model_path),
+                        str(processor_path),
                         export_params=True,
                         opset_version=11,
                         do_constant_folding=True,
@@ -439,37 +439,37 @@ if __name__ == "__main__":
                         verbose=False,  # Reduce noise
                     )
                     logger.info(
-                        f"Successfully exported PyTorch model to ONNX: {model_path}"
+                        f"Successfully exported PyTorch processor to ONNX: {processor_path}"
                     )
 
                 except ImportError as e:
                     logger.warning(
-                        f"PyTorch not available for ONNX export: {e}. Creating stub model."
+                        f"PyTorch not available for ONNX export: {e}. Creating stub processor."
                     )
-                    await self._create_stub_onnx_model(detector, model_path)
+                    await self._create_stub_onnx_processor(detector, processor_path)
                 except (RuntimeError, ValueError, TypeError) as e:
                     logger.warning(
-                        f"PyTorch ONNX export failed: {e}. Creating stub model."
+                        f"PyTorch ONNX export failed: {e}. Creating stub processor."
                     )
-                    await self._create_stub_onnx_model(detector, model_path)
+                    await self._create_stub_onnx_processor(detector, processor_path)
             else:
-                # For non-PyTorch models, create a stub ONNX model
+                # For non-PyTorch models, create a stub ONNX processor
                 logger.info(
-                    f"Creating stub ONNX model for non-PyTorch detector: {detector.name}"
+                    f"Creating stub ONNX processor for non-PyTorch detector: {detector.name}"
                 )
-                await self._create_stub_onnx_model(detector, model_path)
+                await self._create_stub_onnx_processor(detector, processor_path)
 
         except Exception as e:
             # If any other error occurs, try to create stub as fallback
             logger.error(f"Unexpected error during ONNX export: {e}")
             try:
-                await self._create_stub_onnx_model(detector, model_path)
+                await self._create_stub_onnx_processor(detector, processor_path)
                 logger.info(
-                    f"Created fallback stub ONNX model after error: {model_path}"
+                    f"Created fallback stub ONNX processor after error: {processor_path}"
                 )
             except Exception as stub_error:
                 raise RuntimeError(
-                    f"Failed to export model to ONNX and fallback stub creation failed. "
+                    f"Failed to export processor to ONNX and fallback stub creation failed. "
                     f"Original error: {e}. Stub error: {stub_error}"
                 )
 
@@ -492,68 +492,68 @@ if __name__ == "__main__":
             # If torch is not available, return None
             return None
 
-    async def _create_stub_onnx_model(
-        self, detector: DetectorProtocol, model_path: Path
+    async def _create_stub_onnx_processor(
+        self, detector: DetectorProtocol, processor_path: Path
     ) -> None:
-        """Create a stub ONNX model for non-PyTorch detectors.
+        """Create a stub ONNX processor for non-PyTorch detectors.
 
         Args:
             detector: Detector to create stub for
-            model_path: Path to save stub model
+            processor_path: Path to save stub processor
         """
-        # Create a simple stub ONNX model that can be loaded later
+        # Create a simple stub ONNX processor that can be loaded later
         # This is a minimal implementation for fast tests
         import json
 
         stub_data = {
-            "model_type": "stub",
+            "processor_type": "stub",
             "detector_name": detector.name,
             "algorithm": detector.algorithm_name,
             "parameters": detector.parameters,
-            "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models.",
+            "message": "This is a stub ONNX processor. Full ONNX export requires PyTorch-based models.",
         }
 
         # Save as JSON stub with .onnx extension
-        with open(model_path, "w") as f:
+        with open(processor_path, "w") as f:
             json.dump(stub_data, f, indent=2)
 
-    async def _load_onnx_model(self, model_path: Path) -> DetectorProtocol:
-        """Load ONNX model.
+    async def _load_onnx_processor(self, processor_path: Path) -> DetectorProtocol:
+        """Load ONNX processor.
 
         Args:
-            model_path: Path to ONNX model
+            processor_path: Path to ONNX processor
 
         Returns:
             Loaded detector
         """
         try:
-            # Try to load as actual ONNX model
+            # Try to load as actual ONNX processor
             import onnxruntime as ort
 
-            # Check if it's a real ONNX model
+            # Check if it's a real ONNX processor
             try:
-                session = ort.InferenceSession(str(model_path))
-                # Create a wrapper detector for ONNX model
-                return await self._create_onnx_detector_wrapper(session, model_path)
+                session = ort.InferenceSession(str(processor_path))
+                # Create a wrapper detector for ONNX processor
+                return await self._create_onnx_detector_wrapper(session, processor_path)
             except:
                 # If it fails, try to load as stub
-                return await self._load_onnx_stub(model_path)
+                return await self._load_onnx_stub(processor_path)
 
         except ImportError:
             # If ONNX runtime not available, try to load as stub
-            return await self._load_onnx_stub(model_path)
+            return await self._load_onnx_stub(processor_path)
 
-    async def _load_onnx_stub(self, model_path: Path) -> DetectorProtocol:
-        """Load ONNX stub model.
+    async def _load_onnx_stub(self, processor_path: Path) -> DetectorProtocol:
+        """Load ONNX stub processor.
 
         Args:
-            model_path: Path to ONNX stub model
+            processor_path: Path to ONNX stub processor
 
         Returns:
             Detector instance
         """
         # Load the stub data
-        with open(model_path) as f:
+        with open(processor_path) as f:
             stub_data = json.load(f)
 
         # Create a basic detector from the stub data
@@ -571,13 +571,13 @@ if __name__ == "__main__":
         return detector
 
     async def _create_onnx_detector_wrapper(
-        self, session, model_path: Path
+        self, session, processor_path: Path
     ) -> DetectorProtocol:
-        """Create a detector wrapper for ONNX model.
+        """Create a detector wrapper for ONNX processor.
 
         Args:
             session: ONNX runtime session
-            model_path: Path to ONNX model
+            processor_path: Path to ONNX processor
 
         Returns:
             Detector wrapper
@@ -585,5 +585,5 @@ if __name__ == "__main__":
         from monorepo.infrastructure.adapters.onnx_adapter import ONNXAdapter
 
         # Create ONNX adapter (this would need to be implemented)
-        adapter = ONNXAdapter(session, model_path)
+        adapter = ONNXAdapter(session, processor_path)
         return adapter

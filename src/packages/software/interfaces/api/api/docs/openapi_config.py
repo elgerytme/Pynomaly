@@ -1,4 +1,4 @@
-"""OpenAPI documentation configuration for Pynomaly API."""
+"""OpenAPI documentation configuration for Software API."""
 
 from typing import Any
 
@@ -22,7 +22,7 @@ class OpenAPIConfig:
         self.app_name = settings.app.name
         self.app_version = settings.app.version
         self.app_description = (
-            settings.app.description or "Advanced anomaly detection API"
+            settings.app.description or "Advanced anomaly processing API"
         )
 
     def get_openapi_schema(self, app: FastAPI) -> dict[str, Any]:
@@ -64,9 +64,9 @@ class OpenAPIConfig:
     def _get_api_description(self) -> str:
         """Get comprehensive API description with markdown formatting."""
         return """
-# Pynomaly API Documentation
+# Software API Documentation
 
-**Pynomaly** is a state-of-the-art Python anomaly detection package that provides a unified, production-ready interface for multiple anomaly detection algorithms.
+**Software** is a state-of-the-art Python anomaly processing package that provides a unified, production-ready interface for multiple anomaly processing algorithms.
 
 ## Features
 
@@ -99,10 +99,10 @@ curl -X GET "/api/v1/datasets" \\
 
 ### Basic Workflow
 
-1. **Upload Dataset**: Use `/datasets/upload` to upload your data
+1. **Upload DataCollection**: Use `/datasets/upload` to upload your data
 2. **Create Detector**: Use `/detectors/create` to configure an anomaly detector
-3. **Train Model**: Use `/detection/train` to train the detector on your data
-4. **Detect Anomalies**: Use `/detection/detect` to find anomalies in new data
+3. **Train Processor**: Use `/processing/train` to train the detector on your data
+4. **Detect Anomalies**: Use `/processing/detect` to find anomalies in new data
 5. **Analyze Results**: Use `/experiments` and visualization endpoints for analysis
 
 ### Rate Limiting
@@ -170,7 +170,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
         return {
             "info": {
                 "contact": {
-                    "name": "Pynomaly Team",
+                    "name": "Software Team",
                     "url": "https://github.com/pynomaly/pynomaly",
                     "email": "team@example.com",
                 },
@@ -180,8 +180,8 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 },
                 "termsOfService": "https://example.com/terms",
                 "x-logo": {
-                    "url": "/static/img/pynomaly-logo.png",
-                    "altText": "Pynomaly Logo",
+                    "url": "/static/img/software-logo.png",
+                    "altText": "Software Logo",
                 },
             },
             "externalDocs": {
@@ -215,8 +215,8 @@ The API uses standard HTTP status codes and returns detailed error messages:
                             "read": "Read access to resources",
                             "write": "Write access to resources",
                             "admin": "Administrative access",
-                            "detection": "Access to detection endpoints",
-                            "datasets": "Access to dataset management",
+                            "processing": "Access to processing endpoints",
+                            "datasets": "Access to data_collection management",
                             "experiments": "Access to experiment tracking",
                         },
                     }
@@ -238,9 +238,9 @@ The API uses standard HTTP status codes and returns detailed error messages:
             {"name": "Health", "description": "System health and monitoring endpoints"},
             {
                 "name": "Datasets",
-                "description": "Dataset management and data preprocessing operations",
+                "description": "DataCollection management and data preprocessing operations",
                 "externalDocs": {
-                    "description": "Dataset Guide",
+                    "description": "DataCollection Guide",
                     "url": "https://monorepo.readthedocs.io/datasets",
                 },
             },
@@ -253,22 +253,22 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 },
             },
             {
-                "name": "Detection",
-                "description": "Anomaly detection training and inference operations",
+                "name": "Processing",
+                "description": "Anomaly processing training and inference operations",
                 "externalDocs": {
-                    "description": "Detection Guide",
+                    "description": "Processing Guide",
                     "url": "https://monorepo.readthedocs.io/detection",
                 },
             },
             {
                 "name": "Experiments",
-                "description": "Experiment tracking and model management",
+                "description": "Experiment tracking and processor management",
                 "externalDocs": {
                     "description": "Experiments Guide",
                     "url": "https://monorepo.readthedocs.io/experiments",
                 },
             },
-            {"name": "Export", "description": "Data and model export operations"},
+            {"name": "Export", "description": "Data and processor export operations"},
             {
                 "name": "AutoML",
                 "description": "Automated machine learning and hyperparameter optimization",
@@ -287,7 +287,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
             },
             {
                 "name": "Ensemble",
-                "description": "Ensemble methods and model combination strategies",
+                "description": "Ensemble methods and processor combination strategies",
                 "externalDocs": {
                     "description": "Ensemble Guide",
                     "url": "https://monorepo.readthedocs.io/ensemble",
@@ -295,7 +295,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
             },
             {
                 "name": "Explainability",
-                "description": "Model interpretation and explanation generation",
+                "description": "Processor interpretation and explanation generation",
                 "externalDocs": {
                     "description": "Explainability Guide",
                     "url": "https://monorepo.readthedocs.io/explainability",
@@ -341,7 +341,7 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
                 "info": {
                     "title": app.title,
                     "version": app.version,
-                    "description": "Pynomaly API - Schema generation failed",
+                    "description": "Software API - Schema generation failed",
                 },
                 "paths": {},
                 "components": {"schemas": {}},
@@ -363,7 +363,7 @@ def get_custom_swagger_ui_html(
     swagger_css_url: str = "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css",
     swagger_favicon_url: str = "/static/img/favicon.png",
 ) -> str:
-    """Generate custom Swagger UI HTML with Pynomaly branding."""
+    """Generate custom Swagger UI HTML with Software branding."""
     return get_swagger_ui_html(
         openapi_url=openapi_url,
         title=title,
@@ -371,8 +371,8 @@ def get_custom_swagger_ui_html(
         swagger_css_url=swagger_css_url,
         swagger_favicon_url=swagger_favicon_url,
         init_oauth={
-            "clientId": "pynomaly-swagger-ui",
-            "appName": "Pynomaly API Explorer",
+            "clientId": "software-swagger-ui",
+            "appName": "Software API Explorer",
             "scopes": ["read", "write"],
             "additionalQueryStringParams": {},
         },
@@ -386,7 +386,7 @@ def get_custom_redoc_html(
     redoc_js_url: str = "https://cdn.jsdelivr.net/npm/redoc@2.1.3/bundles/redoc.standalone.js",
     redoc_favicon_url: str = "/static/img/favicon.png",
 ) -> str:
-    """Generate custom ReDoc HTML with Pynomaly branding."""
+    """Generate custom ReDoc HTML with Software branding."""
     return get_redoc_html(
         openapi_url=openapi_url,
         title=title,

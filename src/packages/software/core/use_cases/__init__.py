@@ -1,21 +1,10 @@
-"""Application use cases for software core."""
+"""
+Generic Software Use Cases
 
-from .evaluate_model import (
-    EvaluateModelRequest,
-    EvaluateModelResponse,
-    EvaluateModelUseCase,
-)
-from .generic_detection import (
-    GenericDetectionRequest,
-    GenericDetectionResponse,
-    GenericDetectionUseCase,
-)
+This module provides generic use cases for software applications.
+Contains only domain-agnostic business logic.
+"""
 
-__all__ = [
-    "EvaluateModelUseCase",
-    "EvaluateModelRequest",
-    "EvaluateModelResponse",
-    "GenericDetectionUseCase",
-    "GenericDetectionRequest",
-    "GenericDetectionResponse",
-]
+# Generic use cases would go here
+# For now, this is kept minimal as a placeholder
+__all__ = []

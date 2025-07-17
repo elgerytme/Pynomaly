@@ -1,4 +1,4 @@
-"""Comprehensive error handling utilities for Pynomaly."""
+"""Comprehensive error handling utilities for Software."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class PynomaliError(Exception):
-    """Base exception for all Pynomaly errors."""
+    """Base exception for all Software errors."""
 
     def __init__(self, message: str, details: dict | None = None):
         super().__init__(message)
@@ -390,7 +390,7 @@ def create_user_friendly_message(error: Exception) -> str:
     elif "PermissionError" in error_type:
         return f"{base_message}. Make sure you have read access to the file."
     elif "MemoryError" in error_type:
-        return f"{base_message}. Try using a smaller dataset or increasing available memory."
+        return f"{base_message}. Try using a smaller data_collection or increasing available memory."
     elif "ImportError" in error_type:
         return f"{base_message}. Install missing dependencies with pip install."
 

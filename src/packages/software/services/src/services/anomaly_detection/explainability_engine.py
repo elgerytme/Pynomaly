@@ -1,4 +1,4 @@
-"""Explainability engine for anomaly detection with SHAP, LIME, and custom techniques."""
+"""Explainability engine for anomaly processing with SHAP, LIME, and custom techniques."""
 
 from __future__ import annotations
 
@@ -73,16 +73,16 @@ class LocalExplanation:
 
 @dataclass
 class GlobalExplanation:
-    """Global explanation for the detector model."""
+    """Global explanation for the detector processor."""
 
     detector_id: UUID
-    model_type: str
+    processor_type: str
     feature_importances: list[FeatureImportance]
     anomaly_patterns: list[dict[str, Any]]
     decision_boundaries: dict[str, Any] | None = None
     feature_interactions: list[tuple[str, str, float]] | None = None
     explanation_summary: str = ""
-    model_interpretability_score: float = 0.0
+    processor_interpretability_score: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -117,7 +117,7 @@ class ExplanationConfig:
 
 
 class ExplainabilityEngine:
-    """Advanced explainability engine for anomaly detection."""
+    """Advanced explainability engine for anomaly processing."""
 
     def __init__(self, config: ExplanationConfig | None = None):
         """Initialize explainability engine.
@@ -156,7 +156,7 @@ class ExplainabilityEngine:
     async def explain_local(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         sample_indices: list[int],
         method: str = "auto",
     ) -> list[LocalExplanation]:
@@ -164,7 +164,7 @@ class ExplainabilityEngine:
 
         Args:
             detector: Trained anomaly detector
-            dataset: Dataset containing the samples
+            data_collection: DataCollection containing the samples
             sample_indices: Indices of samples to explain
             method: Explanation method (shap, lime, custom, auto)
 
@@ -179,10 +179,10 @@ class ExplainabilityEngine:
             explanations = []
 
             # Get data
-            X = self._prepare_data(dataset)
+            X = self._prepare_data(data_collection)
 
             # Get predictions and scores for all samples
-            predictions, scores = await self._get_model_predictions(detector, X)
+            predictions, scores = await self._get_processor_predictions(detector, X)
 
             for idx in sample_indices:
                 if idx >= len(X):
@@ -221,14 +221,14 @@ class ExplainabilityEngine:
     async def explain_global(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         method: str = "auto",
     ) -> GlobalExplanation:
-        """Generate global explanation for the detector model.
+        """Generate global explanation for the detector processor.
 
         Args:
             detector: Trained anomaly detector
-            dataset: Training dataset
+            data_collection: Training data_collection
             method: Explanation method
 
         Returns:
@@ -238,10 +238,10 @@ class ExplainabilityEngine:
 
         try:
             # Get data
-            X = self._prepare_data(dataset)
+            X = self._prepare_data(data_collection)
 
             # Get predictions and scores
-            predictions, scores = await self._get_model_predictions(detector, X)
+            predictions, scores = await self._get_processor_predictions(detector, X)
 
             # Generate global feature importances
             feature_importances = await self._generate_global_feature_importances(
@@ -250,14 +250,14 @@ class ExplainabilityEngine:
 
             # Find anomaly patterns
             anomaly_patterns = await self._discover_anomaly_patterns(
-                X, predictions, scores, dataset.feature_names
+                X, predictions, scores, data_collection.feature_names
             )
 
             # Analyze feature interactions
             feature_interactions = None
             if self.config.enable_feature_interactions:
                 feature_interactions = await self._analyze_feature_interactions(
-                    X, scores, dataset.feature_names
+                    X, scores, data_collection.feature_names
                 )
 
             # Create explanation summary
@@ -265,19 +265,19 @@ class ExplainabilityEngine:
                 feature_importances, anomaly_patterns, feature_interactions
             )
 
-            # Calculate model interpretability score
+            # Calculate processor interpretability score
             interpretability_score = self._calculate_interpretability_score(
                 detector, feature_importances, anomaly_patterns
             )
 
             global_explanation = GlobalExplanation(
                 detector_id=detector.id,
-                model_type=detector.algorithm_config.name,
+                processor_type=detector.algorithm_config.name,
                 feature_importances=feature_importances,
                 anomaly_patterns=anomaly_patterns,
                 feature_interactions=feature_interactions,
                 explanation_summary=explanation_summary,
-                model_interpretability_score=interpretability_score,
+                processor_interpretability_score=interpretability_score,
             )
 
             self.logger.info("Global explanation generated successfully")
@@ -878,24 +878,24 @@ class ExplainabilityEngine:
         return final_confidence
 
     def _prepare_data(self, dataset: Dataset) -> np.ndarray:
-        """Prepare dataset for explanation."""
+        """Prepare data_collection for explanation."""
 
-        if hasattr(dataset, "data") and dataset.data is not None:
-            if isinstance(dataset.data, np.ndarray):
-                return dataset.data
-            elif isinstance(dataset.data, pd.DataFrame):
-                return dataset.data.values
-            elif isinstance(dataset.data, list):
-                return np.array(dataset.data)
+        if hasattr(data_collection, "data") and data_collection.data is not None:
+            if isinstance(data_collection.data, np.ndarray):
+                return data_collection.data
+            elif isinstance(data_collection.data, pd.DataFrame):
+                return data_collection.data.values
+            elif isinstance(data_collection.data, list):
+                return np.array(data_collection.data)
 
         # Fallback: create dummy data
-        self.logger.warning("No data available in dataset, using dummy data")
+        self.logger.warning("No data available in data_collection, using dummy data")
         return np.random.randn(100, 10)
 
-    async def _get_model_predictions(
+    async def _get_processor_predictions(
         self, detector: Detector, X: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Get model predictions and scores."""
+        """Get processor predictions and scores."""
 
         # Placeholder implementation
         # In practice, this would use the actual detector to get predictions
@@ -908,15 +908,15 @@ class ExplainabilityEngine:
         return predictions, scores
 
     def _select_best_method(self, detector: Detector, X: np.ndarray) -> str:
-        """Select the best explanation method for the given model and data."""
+        """Select the best explanation method for the given processor and data."""
 
         # Decision logic for method selection
-        model_name = detector.algorithm_config.name.lower()
+        processor_name = detector.algorithm_config.name.lower()
         n_samples, n_features = X.shape
 
         # Tree-based models work well with SHAP
         if any(
-            tree_name in model_name
+            tree_name in processor_name
             for tree_name in ["forest", "tree", "gradient", "xgb"]
         ):
             if SHAP_AVAILABLE:
@@ -924,7 +924,7 @@ class ExplainabilityEngine:
 
         # Linear models work well with SHAP linear
         if any(
-            linear_name in model_name for linear_name in ["linear", "logistic", "svm"]
+            linear_name in processor_name for linear_name in ["linear", "logistic", "svm"]
         ):
             if SHAP_AVAILABLE:
                 return "shap"
@@ -937,20 +937,20 @@ class ExplainabilityEngine:
         return "custom"
 
     def _create_shap_explainer(self, detector: Detector, X: np.ndarray):
-        """Create appropriate SHAP explainer for the model."""
+        """Create appropriate SHAP explainer for the processor."""
 
         if not SHAP_AVAILABLE:
             return None
 
         # For demonstration, create a simple explainer
-        # In practice, this would be based on the actual model type
+        # In practice, this would be based on the actual processor type
         background = X[: min(self.config.shap_background_samples, len(X))]
 
         try:
-            # Try different explainer types based on model
-            model_name = detector.algorithm_config.name.lower()
+            # Try different explainer types based on processor
+            processor_name = detector.algorithm_config.name.lower()
 
-            if "tree" in model_name or "forest" in model_name:
+            if "tree" in processor_name or "forest" in processor_name:
                 # Would use TreeExplainer for tree-based models
                 return shap.KernelExplainer(
                     lambda x: np.random.random(len(x)), background
@@ -1338,7 +1338,7 @@ class ExplainabilityEngine:
     ) -> str:
         """Create global explanation summary."""
 
-        summary_parts = ["Global Model Explanation Summary", "=" * 35, ""]
+        summary_parts = ["Global Processor Explanation Summary", "=" * 35, ""]
 
         # Top features
         if feature_importances:
@@ -1376,9 +1376,9 @@ class ExplainabilityEngine:
         # Summary
         summary_parts.extend(
             [
-                "Model Behavior:",
+                "Processor Behavior:",
                 "---------------",
-                "This anomaly detection model identifies outliers based on the patterns above. ",
+                "This anomaly processing processor identifies outliers based on the patterns above. ",
                 "The most important features drive the majority of anomaly decisions, while ",
                 "feature interactions capture more complex relationships in the data.",
             ]
@@ -1392,12 +1392,12 @@ class ExplainabilityEngine:
         feature_importances: list[FeatureImportance],
         anomaly_patterns: list[dict[str, Any]],
     ) -> float:
-        """Calculate overall model interpretability score."""
+        """Calculate overall processor interpretability score."""
 
         score = 0.0
 
-        # Base score from model type
-        model_interpretability = {
+        # Base score from processor type
+        processor_interpretability = {
             "isolationforest": 0.7,
             "lof": 0.6,
             "oneclass": 0.5,
@@ -1405,11 +1405,11 @@ class ExplainabilityEngine:
             "vae": 0.2,
         }
 
-        model_name = detector.algorithm_config.name.lower()
+        processor_name = detector.algorithm_config.name.lower()
         base_score = 0.5
 
-        for model_key, interpretability in model_interpretability.items():
-            if model_key in model_name:
+        for processor_key, interpretability in processor_interpretability.items():
+            if processor_key in processor_name:
                 base_score = interpretability
                 break
 

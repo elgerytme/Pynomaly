@@ -184,7 +184,7 @@ def run_pipeline(
                 pipeline_config, environment, pipeline_params
             )
             console.print(f"[green]Pipeline started with execution ID: {execution_id}[/green]")
-            console.print(f"Monitor with: pynomaly pipeline status {execution_id}")
+            console.print(f"Monitor with: software pipeline status {execution_id}")
         else:
             console.print("[blue]Starting pipeline execution...[/blue]")
             

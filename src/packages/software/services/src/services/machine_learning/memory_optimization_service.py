@@ -1,7 +1,7 @@
-"""Memory optimization service for efficient anomaly detection.
+"""Memory optimization service for efficient anomaly processing.
 
 This service provides high-level memory optimization capabilities for
-anomaly detection workflows, integrating with the feature flag system.
+anomaly processing workflows, integrating with the feature flag system.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from ...infrastructure.data_processing import (
 
 
 class MemoryOptimizationService:
-    """Service for memory-optimized anomaly detection operations."""
+    """Service for memory-optimized anomaly processing operations."""
 
     def __init__(
         self,
@@ -42,7 +42,7 @@ class MemoryOptimizationService:
             chunk_size=chunk_size, memory_limit_mb=memory_limit_mb
         )
         self.data_loader = MemoryOptimizedDataLoader(self.streaming_processor)
-        self.dataset_analyzer = LargeDatasetAnalyzer(self.streaming_processor)
+        self.data_collection_analyzer = LargeDatasetAnalyzer(self.streaming_processor)
         self.enable_streaming = enable_streaming
 
         # Memory optimization statistics
@@ -55,17 +55,17 @@ class MemoryOptimizationService:
     @require_feature("memory_efficiency")
     def optimize_dataset_for_detection(
         self,
-        dataset: Dataset | str | pd.DataFrame,
+        data_collection: DataCollection | str | pd.DataFrame,
         target_memory_mb: int | None = None,
-    ) -> tuple[Dataset, dict[str, Any]]:
-        """Optimize dataset for memory-efficient anomaly detection.
+    ) -> tuple[DataCollection, dict[str, Any]]:
+        """Optimize data_collection for memory-efficient anomaly processing.
 
         Args:
-            dataset: Input dataset or path to data
+            data_collection: Input data_collection or path to data
             target_memory_mb: Target memory usage limit
 
         Returns:
-            Tuple of (optimized_dataset, optimization_info)
+            Tuple of (optimized_data_collection, optimization_info)
         """
         memory_before = get_memory_usage()
         optimization_info = {
@@ -75,30 +75,30 @@ class MemoryOptimizationService:
             "memory_reduction_percent": 0.0,
         }
 
-        # Load dataset efficiently
-        if not isinstance(dataset, Dataset):
-            dataset = self.data_loader.load_dataset_efficiently(
-                dataset, target_memory_mb
+        # Load data_collection efficiently
+        if not isinstance(data_collection, DataCollection):
+            data_collection = self.data_loader.load_data_collection_efficiently(
+                data_collection, target_memory_mb
             )
             optimization_info["optimization_applied"].append("efficient_loading")
 
         # Check if streaming is needed
-        if hasattr(dataset.data, "nbytes"):
-            dataset_size_mb = dataset.data.nbytes / 1024 / 1024
+        if hasattr(data_collection.data, "nbytes"):
+            data_collection_size_mb = data_collection.data.nbytes / 1024 / 1024
         else:
             # Estimate size for other data types
-            dataset_size_mb = (
-                len(dataset.data) * 8 / 1024 / 1024
+            data_collection_size_mb = (
+                len(data_collection.data) * 8 / 1024 / 1024
             )  # Assume 8 bytes per element
-        if self.enable_streaming and dataset_size_mb > (target_memory_mb or 100):
+        if self.enable_streaming and data_collection_size_mb > (target_memory_mb or 100):
             optimization_info["streaming_used"] = True
             optimization_info["optimization_applied"].append("streaming_enabled")
 
         # Apply memory optimizations to data
-        if isinstance(dataset.data, np.ndarray):
-            optimized_data = self._optimize_numpy_array(dataset.data)
-            if optimized_data.nbytes < dataset.data.nbytes:
-                dataset.data = optimized_data
+        if isinstance(data_collection.data, np.ndarray):
+            optimized_data = self._optimize_numpy_array(data_collection.data)
+            if optimized_data.nbytes < data_collection.data.nbytes:
+                data_collection.data = optimized_data
                 optimization_info["optimization_applied"].append("dtype_optimization")
 
         memory_after = get_memory_usage()
@@ -113,7 +113,7 @@ class MemoryOptimizationService:
         optimization_info["final_memory_mb"] = memory_after
         self.optimization_stats["datasets_optimized"] += 1
 
-        return dataset, optimization_info
+        return data_collection, optimization_info
 
     @require_feature("memory_efficiency")
     def stream_anomaly_detection(
@@ -122,15 +122,15 @@ class MemoryOptimizationService:
         detector_func: callable,
         aggregation_strategy: str = "concatenate",
     ) -> DetectionResult:
-        """Perform anomaly detection on large datasets using streaming.
+        """Perform anomaly processing on large datasets using streaming.
 
         Args:
-            data_source: Large dataset source
-            detector_func: Function that performs detection on chunks
+            data_source: Large data_collection source
+            detector_func: Function that performs processing on chunks
             aggregation_strategy: How to combine chunk results
 
         Returns:
-            Aggregated detection result
+            Aggregated processing result
         """
         self.optimization_stats["streaming_operations"] += 1
 
@@ -138,13 +138,13 @@ class MemoryOptimizationService:
         total_samples = 0
 
         # Process data in chunks
-        for chunk_dataset in self.streaming_processor.process_large_dataset(
+        for chunk_data_collection in self.streaming_processor.process_large_data_collection(
             data_source
         ):
             try:
-                chunk_result = detector_func(chunk_dataset)
+                chunk_result = detector_func(chunk_data_collection)
                 chunk_results.append(chunk_result)
-                total_samples += len(chunk_dataset.data)
+                total_samples += len(chunk_data_collection.data)
 
             except Exception as e:
                 warnings.warn(f"Failed to process chunk: {e}", stacklevel=2)
@@ -154,7 +154,7 @@ class MemoryOptimizationService:
         if not chunk_results:
             raise RuntimeError("No chunks were successfully processed")
 
-        return self._aggregate_detection_results(
+        return self._aggregate_processing_results(
             chunk_results, aggregation_strategy, total_samples
         )
 
@@ -165,16 +165,16 @@ class MemoryOptimizationService:
         """Analyze characteristics of large datasets efficiently.
 
         Args:
-            data_source: Large dataset to analyze
+            data_source: Large data_collection to analyze
 
         Returns:
-            Dataset characteristics and recommendations
+            DataCollection characteristics and recommendations
         """
         # Get basic statistics
-        stats = self.dataset_analyzer.analyze_dataset_statistics(data_source)
+        stats = self.data_collection_analyzer.analyze_data_collection_statistics(data_source)
 
         # Detect potential anomaly candidates
-        candidates = self.dataset_analyzer.detect_anomaly_candidates(data_source)
+        candidates = self.data_collection_analyzer.detect_anomaly_candidates(data_source)
 
         # Generate recommendations
         recommendations = self._generate_memory_recommendations(stats)
@@ -188,17 +188,17 @@ class MemoryOptimizationService:
 
     @require_feature("memory_efficiency")
     def recommend_optimal_configuration(
-        self, dataset_info: dict[str, Any]
+        self, data_collection_info: dict[str, Any]
     ) -> dict[str, Any]:
         """Recommend optimal configuration for memory-efficient processing.
 
         Args:
-            dataset_info: Information about the dataset
+            data_collection_info: Information about the data_collection
 
         Returns:
             Recommended configuration parameters
         """
-        stats = dataset_info.get("statistics", {})
+        stats = data_collection_info.get("statistics", {})
         memory_estimate = stats.get("memory_estimate_mb", 0)
         total_rows = stats.get("total_rows", 0)
 
@@ -211,7 +211,7 @@ class MemoryOptimizationService:
             "optimization_level": "standard",
         }
 
-        # Adjust based on dataset size
+        # Adjust based on data_collection size
         if memory_estimate > 1000:  # > 1GB
             config.update(
                 {
@@ -273,7 +273,7 @@ class MemoryOptimizationService:
     def _aggregate_detection_results(
         self, chunk_results: list[DetectionResult], strategy: str, total_samples: int
     ) -> DetectionResult:
-        """Aggregate detection results from multiple chunks."""
+        """Aggregate processing results from multiple chunks."""
         if strategy == "concatenate":
             # Concatenate all scores and labels
             all_scores = np.concatenate([result.scores for result in chunk_results])
@@ -317,7 +317,7 @@ class MemoryOptimizationService:
         total_columns = stats.get("total_columns", 0)
 
         if memory_estimate > 500:
-            recommendations.append("Enable streaming processing for large dataset")
+            recommendations.append("Enable streaming processing for large data_collection")
 
         if memory_estimate > 1000:
             recommendations.append("Consider reducing chunk size to 5000 or less")
@@ -329,14 +329,14 @@ class MemoryOptimizationService:
             )
 
         if memory_estimate > 2000:
-            recommendations.append("Dataset may require distributed processing")
+            recommendations.append("DataCollection may require distributed processing")
             recommendations.append("Consider sampling for initial analysis")
 
         return recommendations
 
 
 class MemoryProfiler:
-    """Profiler for memory usage during anomaly detection."""
+    """Profiler for memory usage during anomaly processing."""
 
     def __init__(self):
         """Initialize memory profiler."""

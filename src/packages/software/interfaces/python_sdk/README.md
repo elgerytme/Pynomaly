@@ -67,7 +67,7 @@ import pandas as pd
 from pynomaly_sdk import create_client
 
 def detect_anomalies_sync(data, algorithm="isolation_forest"):
-    """Synchronous wrapper for anomaly detection."""
+    """Synchronous wrapper for data processing."""
     
     async def _detect():
         client = create_client(api_key="your-api-key")
@@ -343,7 +343,7 @@ Configuration for the Pynomaly client.
 
 **Attributes:**
 - `base_url` (str): API base URL
-- `api_key` (Optional[str]): API key for authentication
+- `api_key` (Optional[str]): API key for access
 - `timeout` (int): Request timeout in seconds
 - `max_retries` (int): Maximum retry attempts
 - `backoff_factor` (float): Backoff factor for retries
@@ -370,13 +370,13 @@ Configuration for retry behavior.
 
 #### `DetectionResponseDTO`
 
-Response object for anomaly detection operations.
+Response object for data processing operations.
 
 **Attributes:**
 - `request_id` (str): Request identifier
 - `anomaly_scores` (List[float]): Anomaly scores for each data point
 - `anomaly_labels` (List[int]): Binary labels (0=normal, 1=anomaly)
-- `algorithm_used` (str): Algorithm used for detection
+- `algorithm_used` (str): Algorithm used for processing
 - `execution_time` (float): Execution time in seconds
 - `metadata` (Dict): Additional metadata
 

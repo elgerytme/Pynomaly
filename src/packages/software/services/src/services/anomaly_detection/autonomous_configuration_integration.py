@@ -1,6 +1,6 @@
 """Autonomous Mode Configuration Integration Service.
 
-This module extends the autonomous detection service to automatically capture
+This module extends the autonomous processing service to automatically capture
 and save successful configurations for future learning and reuse.
 """
 
@@ -47,7 +47,7 @@ class AutonomousConfigurationIntegration:
         """Initialize autonomous configuration integration.
 
         Args:
-            autonomous_service: Autonomous detection service
+            autonomous_service: Autonomous processing service
             configuration_service: Configuration capture service
             auto_save_successful: Automatically save successful configurations
             auto_save_threshold: Minimum performance threshold for auto-save
@@ -78,15 +78,15 @@ class AutonomousConfigurationIntegration:
         config: AutonomousConfig | None = None,
         capture_metadata: dict[str, Any] | None = None,
     ) -> tuple[DetectionResult, str | None]:
-        """Run autonomous detection with configuration capture.
+        """Run autonomous processing with configuration capture.
 
         Args:
-            data_source: Data source for detection
-            config: Autonomous detection configuration
+            data_source: Data source for processing
+            config: Autonomous processing configuration
             capture_metadata: Additional metadata for capture
 
         Returns:
-            Tuple of (detection_result, configuration_id)
+            Tuple of (processing_result, configuration_id)
         """
         self.integration_stats["total_autonomous_runs"] += 1
 
@@ -95,30 +95,30 @@ class AutonomousConfigurationIntegration:
         configuration_id = None
 
         try:
-            logger.info("Starting autonomous detection with configuration capture")
+            logger.info("Starting autonomous processing with configuration capture")
 
             # Extract initial parameters for configuration capture
             initial_params = self._extract_initial_parameters(
                 data_source, config, capture_metadata
             )
 
-            # Run autonomous detection
-            detection_result = await self.autonomous_service.detect_anomalies(
+            # Run autonomous processing
+            processing_result = await self.autonomous_service.detect_anomalies(
                 data_source=data_source, config=config
             )
 
             end_time = datetime.now()
-            detection_duration = (end_time - start_time).total_seconds()
+            processing_duration = (end_time - start_time).total_seconds()
 
             # Extract comprehensive results for configuration capture
             if self.auto_save_successful and self._should_save_configuration(
-                detection_result
+                processing_result
             ):
                 configuration_id = await self._capture_autonomous_configuration(
                     initial_params=initial_params,
-                    detection_result=detection_result,
+                    processing_result=processing_result,
                     config=config,
-                    detection_duration=detection_duration,
+                    processing_duration=processing_duration,
                     capture_metadata=capture_metadata,
                 )
 
@@ -127,34 +127,34 @@ class AutonomousConfigurationIntegration:
 
                     # Analyze performance
                     performance_score = self._calculate_performance_score(
-                        detection_result
+                        processing_result
                     )
                     if performance_score >= self.auto_save_threshold:
                         self.integration_stats["configurations_above_threshold"] += 1
 
             # Save preprocessing configuration if enabled
             if self.save_preprocessing_configs and hasattr(
-                detection_result, "preprocessing_report"
+                processing_result, "preprocessing_report"
             ):
                 await self._save_preprocessing_configuration(
-                    detection_result, initial_params, capture_metadata
+                    processing_result, initial_params, capture_metadata
                 )
 
             # Save algorithm selection configuration if enabled
             if self.save_algorithm_selections and hasattr(
-                detection_result, "algorithm_explanations"
+                processing_result, "algorithm_explanations"
             ):
                 await self._save_algorithm_selection_configuration(
-                    detection_result, initial_params, capture_metadata
+                    processing_result, initial_params, capture_metadata
                 )
 
             logger.info(
-                f"Autonomous detection completed. Configuration ID: {configuration_id}"
+                f"Autonomous processing completed. Configuration ID: {configuration_id}"
             )
-            return detection_result, configuration_id
+            return processing_result, configuration_id
 
         except Exception as e:
-            logger.error(f"Autonomous detection with configuration capture failed: {e}")
+            logger.error(f"Autonomous processing with configuration capture failed: {e}")
             raise e
 
     async def capture_autonomous_experiment(
@@ -173,7 +173,7 @@ class AutonomousConfigurationIntegration:
             experiment_metadata: Experiment-level metadata
 
         Returns:
-            List of (detection_result, configuration_id) tuples
+            List of (processing_result, configuration_id) tuples
         """
         experiment_id = str(uuid4())
         results = []
@@ -189,14 +189,14 @@ class AutonomousConfigurationIntegration:
                     capture_metadata = {
                         "experiment_name": experiment_name,
                         "experiment_id": experiment_id,
-                        "dataset_index": i,
+                        "data_collection_index": i,
                         "config_index": j,
-                        "total_datasets": len(data_sources),
+                        "total_data_collections": len(data_sources),
                         "total_configs": len(configs),
                         **(experiment_metadata or {}),
                     }
 
-                    # Run detection with capture
+                    # Run processing with capture
                     result, config_id = await self.detect_with_configuration_capture(
                         data_source=data_source,
                         config=config,
@@ -207,7 +207,7 @@ class AutonomousConfigurationIntegration:
 
                 except Exception as e:
                     logger.warning(
-                        f"Experiment run failed for dataset {i}, config {j}: {e}"
+                        f"Experiment run failed for data_collection {i}, config {j}: {e}"
                     )
                     results.append((None, None))
 
@@ -362,11 +362,11 @@ class AutonomousConfigurationIntegration:
 
         # Add data source information
         if isinstance(data_source, str | Path):
-            params["dataset_path"] = str(data_source)
-            params["dataset_name"] = Path(data_source).stem
+            params["data_collection_path"] = str(data_source)
+            params["data_collection_name"] = Path(data_source).stem
         elif isinstance(data_source, pd.DataFrame):
-            params["dataset_shape"] = data_source.shape
-            params["dataset_name"] = (
+            params["data_collection_shape"] = data_source.shape
+            params["data_collection_name"] = (
                 f"dataframe_{data_source.shape[0]}x{data_source.shape[1]}"
             )
 
@@ -397,58 +397,58 @@ class AutonomousConfigurationIntegration:
 
     def _should_save_configuration(self, detection_result: DetectionResult) -> bool:
         """Determine if configuration should be saved based on results."""
-        if not detection_result:
+        if not processing_result:
             return False
 
         # Check performance threshold
-        performance_score = self._calculate_performance_score(detection_result)
+        performance_score = self._calculate_performance_score(processing_result)
 
         # Save if performance is above threshold
         if performance_score >= self.auto_save_threshold:
             return True
 
-        # Save if detection was successful and produced reasonable results
+        # Save if processing was successful and produced reasonable results
         if (
-            hasattr(detection_result, "anomalies")
-            and len(detection_result.anomalies) > 0
-            and len(detection_result.anomalies) < len(detection_result.scores) * 0.5
+            hasattr(processing_result, "anomalies")
+            and len(processing_result.anomalies) > 0
+            and len(processing_result.anomalies) < len(processing_result.scores) * 0.5
         ):  # Not too many anomalies
             return True
 
         return False
 
     def _calculate_performance_score(self, detection_result: DetectionResult) -> float:
-        """Calculate overall performance score for detection result."""
-        if not detection_result:
+        """Calculate overall performance score for processing result."""
+        if not processing_result:
             return 0.0
 
-        # Base score from anomaly detection quality
+        # Base score from anomaly processing quality
         base_score = 0.5
 
         # Adjust based on anomaly ratio (reasonable range is 5-20%)
-        if hasattr(detection_result, "anomaly_rate"):
-            anomaly_rate = detection_result.anomaly_rate
+        if hasattr(processing_result, "anomaly_rate"):
+            anomaly_rate = processing_result.anomaly_rate
             if 0.05 <= anomaly_rate <= 0.20:
                 base_score += 0.2  # Good anomaly rate
             elif 0.01 <= anomaly_rate <= 0.30:
                 base_score += 0.1  # Acceptable anomaly rate
 
         # Adjust based on confidence in results
-        if hasattr(detection_result, "confidence_scores"):
-            avg_confidence = sum(detection_result.confidence_scores) / len(
-                detection_result.confidence_scores
+        if hasattr(processing_result, "confidence_scores"):
+            avg_confidence = sum(processing_result.confidence_scores) / len(
+                processing_result.confidence_scores
             )
             base_score += (avg_confidence - 0.5) * 0.3
 
         # Adjust based on processing success
         if (
-            hasattr(detection_result, "processing_time")
-            and detection_result.processing_time > 0
+            hasattr(processing_result, "processing_time")
+            and processing_result.processing_time > 0
         ):
             base_score += 0.1  # Successfully completed processing
 
         # Adjust based on explanations available
-        if hasattr(detection_result, "explanations") and detection_result.explanations:
+        if hasattr(processing_result, "explanations") and processing_result.explanations:
             base_score += 0.1  # Explanations available
 
         return max(0.0, min(1.0, base_score))
@@ -456,16 +456,16 @@ class AutonomousConfigurationIntegration:
     async def _capture_autonomous_configuration(
         self,
         initial_params: dict[str, Any],
-        detection_result: DetectionResult,
+        processing_result: DetectionResult,
         config: AutonomousConfig,
-        detection_duration: float,
+        processing_duration: float,
         capture_metadata: dict[str, Any] | None,
     ) -> str | None:
-        """Capture autonomous detection configuration."""
+        """Capture autonomous processing configuration."""
         try:
             # Extract performance results
             performance_results = self._extract_performance_results(
-                detection_result, detection_duration
+                processing_result, processing_duration
             )
 
             # Create capture request
@@ -473,21 +473,21 @@ class AutonomousConfigurationIntegration:
                 source=ConfigurationSource.AUTONOMOUS,
                 raw_parameters=initial_params,
                 execution_results=(
-                    performance_results.model_dump() if performance_results else None
+                    performance_results.processor_dump() if performance_results else None
                 ),
                 source_context={
                     "autonomous_config": config.__dict__,
-                    "detection_summary": self._create_detection_summary(
-                        detection_result
+                    "processing_summary": self._create_processing_summary(
+                        processing_result
                     ),
                     "performance_score": self._calculate_performance_score(
-                        detection_result
+                        processing_result
                     ),
                     **(capture_metadata or {}),
                 },
                 auto_save=True,
                 generate_name=True,
-                tags=["autonomous", "auto_detection", "successful"],
+                tags=["autonomous", "auto_processing", "successful"],
             )
 
             # Capture configuration
@@ -511,69 +511,69 @@ class AutonomousConfigurationIntegration:
             return None
 
     def _extract_performance_results(
-        self, detection_result: DetectionResult, detection_duration: float
+        self, processing_result: DetectionResult, processing_duration: float
     ) -> PerformanceResultsDTO | None:
-        """Extract performance results from detection result."""
-        if not detection_result:
+        """Extract performance results from processing result."""
+        if not processing_result:
             return None
 
         return PerformanceResultsDTO(
-            training_time_seconds=detection_duration,
-            prediction_time_ms=getattr(detection_result, "prediction_time_ms", None),
-            memory_usage_mb=getattr(detection_result, "memory_usage_mb", None),
+            training_time_seconds=processing_duration,
+            prediction_time_ms=getattr(processing_result, "prediction_time_ms", None),
+            memory_usage_mb=getattr(processing_result, "memory_usage_mb", None),
             anomaly_scores=(
-                detection_result.scores.tolist()
-                if hasattr(detection_result.scores, "tolist")
+                processing_result.scores.tolist()
+                if hasattr(processing_result.scores, "tolist")
                 else None
             ),
-            # Additional autonomous-specific metrics
-            stability_score=getattr(detection_result, "stability_score", None),
-            robustness_score=getattr(detection_result, "robustness_score", None),
+            # Additional autonomous-specific measurements
+            stability_score=getattr(processing_result, "stability_score", None),
+            robustness_score=getattr(processing_result, "robustness_score", None),
             interpretability_score=getattr(
-                detection_result, "interpretability_score", None
+                processing_result, "interpretability_score", None
             ),
         )
 
     def _create_detection_summary(
-        self, detection_result: DetectionResult
+        self, processing_result: DetectionResult
     ) -> dict[str, Any]:
-        """Create summary of detection results."""
-        if not detection_result:
+        """Create summary of processing results."""
+        if not processing_result:
             return {}
 
         return {
             "n_samples": (
-                len(detection_result.scores)
-                if detection_result.scores is not None
+                len(processing_result.scores)
+                if processing_result.scores is not None
                 else 0
             ),
-            "n_anomalies": detection_result.n_anomalies,
-            "anomaly_rate": detection_result.anomaly_rate,
+            "n_anomalies": processing_result.n_anomalies,
+            "anomaly_rate": processing_result.anomaly_rate,
             "detector_algorithm": (
-                detection_result.detector_name
-                if hasattr(detection_result, "detector_name")
+                processing_result.detector_name
+                if hasattr(processing_result, "detector_name")
                 else None
             ),
-            "timestamp": detection_result.timestamp.isoformat(),
-            "has_explanations": hasattr(detection_result, "explanations")
-            and detection_result.explanations is not None,
+            "timestamp": processing_result.timestamp.isoformat(),
+            "has_explanations": hasattr(processing_result, "explanations")
+            and processing_result.explanations is not None,
             "processing_successful": True,
         }
 
     async def _save_preprocessing_configuration(
         self,
-        detection_result: DetectionResult,
+        processing_result: DetectionResult,
         initial_params: dict[str, Any],
         capture_metadata: dict[str, Any] | None,
     ) -> None:
         """Save preprocessing configuration separately."""
         try:
-            if not hasattr(detection_result, "preprocessing_report"):
+            if not hasattr(processing_result, "preprocessing_report"):
                 return
 
             preprocessing_params = {
                 **initial_params,
-                "preprocessing_report": detection_result.preprocessing_report,
+                "preprocessing_report": processing_result.preprocessing_report,
                 "configuration_type": "preprocessing",
             }
 
@@ -601,20 +601,20 @@ class AutonomousConfigurationIntegration:
 
     async def _save_algorithm_selection_configuration(
         self,
-        detection_result: DetectionResult,
+        processing_result: DetectionResult,
         initial_params: dict[str, Any],
         capture_metadata: dict[str, Any] | None,
     ) -> None:
         """Save algorithm selection configuration separately."""
         try:
-            if not hasattr(detection_result, "algorithm_explanations"):
+            if not hasattr(processing_result, "algorithm_explanations"):
                 return
 
             selection_params = {
                 **initial_params,
-                "algorithm_explanations": detection_result.algorithm_explanations,
+                "algorithm_explanations": processing_result.algorithm_explanations,
                 "selected_algorithms": getattr(
-                    detection_result, "selected_algorithms", []
+                    processing_result, "selected_algorithms", []
                 ),
                 "configuration_type": "algorithm_selection",
             }
@@ -655,13 +655,13 @@ class AutonomousConfigurationManager:
 
     async def recommend_autonomous_config(
         self,
-        dataset_characteristics: dict[str, Any],
+        data_collection_characteristics: dict[str, Any],
         performance_requirements: dict[str, float] | None = None,
     ) -> AutonomousConfig:
         """Recommend autonomous configuration based on similar successful runs.
 
         Args:
-            dataset_characteristics: Characteristics of the target dataset
+            data_collection_characteristics: Characteristics of the target data_collection
             performance_requirements: Performance requirements
 
         Returns:

@@ -38,7 +38,7 @@ class BenchmarkConfig:
     description: str = ""
 
     # Test parameters
-    dataset_sizes: list[int] = field(default_factory=lambda: [1000, 5000, 10000, 50000])
+    data_collection_sizes: list[int] = field(default_factory=lambda: [1000, 5000, 10000, 50000])
     feature_dimensions: list[int] = field(default_factory=lambda: [10, 50, 100, 500])
     contamination_rates: list[float] = field(
         default_factory=lambda: [0.01, 0.05, 0.1, 0.2]
@@ -66,45 +66,45 @@ class BenchmarkConfig:
 
 @dataclass
 class PerformanceMetrics:
-    """Performance metrics for a single test run."""
+    """Performance measurements for a single test run."""
 
     test_id: UUID = field(default_factory=uuid4)
     algorithm_name: str = ""
-    dataset_size: int = 0
+    data_collection_size: int = 0
     feature_dimension: int = 0
     contamination_rate: float = 0.0
 
-    # Execution metrics
+    # Execution measurements
     execution_time_seconds: float = 0.0
     training_time_seconds: float = 0.0
     prediction_time_seconds: float = 0.0
     preprocessing_time_seconds: float = 0.0
 
-    # Memory metrics
+    # Memory measurements
     peak_memory_mb: float = 0.0
     average_memory_mb: float = 0.0
     memory_growth_mb: float = 0.0
 
-    # CPU metrics
+    # CPU measurements
     cpu_usage_percent: float = 0.0
     cpu_time_seconds: float = 0.0
 
-    # Throughput metrics
+    # Throughput measurements
     training_throughput: float = 0.0  # samples/second
     prediction_throughput: float = 0.0  # samples/second
 
-    # Quality metrics
+    # Quality measurements
     accuracy_score: float = 0.0
     precision_score: float = 0.0
     recall_score: float = 0.0
     f1_score: float = 0.0
     auc_score: float = 0.0
 
-    # Resource metrics
+    # Resource measurements
     disk_io_mb: float = 0.0
     network_io_mb: float = 0.0
 
-    # Scalability metrics
+    # Scalability measurements
     scalability_factor: float = 1.0
     efficiency_ratio: float = 1.0
 
@@ -158,7 +158,7 @@ class PerformanceBenchmarkingService:
 
         # Performance tracking
         self.performance_history: list[PerformanceMetrics] = []
-        self.baseline_metrics: dict[str, PerformanceMetrics] = {}
+        self.baseline_measurements: dict[str, PerformanceMetrics] = {}
 
         # System monitoring
         self.system_monitor = SystemMonitor()
@@ -194,7 +194,7 @@ class PerformanceBenchmarkingService:
         try:
             # Generate synthetic datasets if not provided
             if datasets is None:
-                datasets = await self._generate_benchmark_datasets(suite.config)
+                datasets = await self._generate_benchmark_data_collections(suite.config)
 
             # Run benchmarks for each algorithm
             for algorithm in algorithms:
@@ -223,7 +223,7 @@ class PerformanceBenchmarkingService:
     async def run_scalability_test(
         self,
         algorithm_name: str,
-        base_dataset_size: int = 1000,
+        base_data_collection_size: int = 1000,
         scale_factors: list[int] = None,
         feature_dimension: int = 10,
     ) -> dict[str, Any]:
@@ -235,32 +235,32 @@ class PerformanceBenchmarkingService:
         baseline_time = None
 
         for scale_factor in scale_factors:
-            dataset_size = base_dataset_size * scale_factor
+            data_collection_size = base_data_collection_size * scale_factor
 
-            # Generate test dataset
-            dataset = await self._generate_synthetic_dataset(
-                size=dataset_size, features=feature_dimension, contamination=0.1
+            # Generate test data_collection
+            data_collection = await self._generate_synthetic_data_collection(
+                size=data_collection_size, features=feature_dimension, contamination=0.1
             )
 
             # Run benchmark
-            metrics = await self._benchmark_single_run(
+            measurements = await self._benchmark_single_run(
                 algorithm_name=algorithm_name,
-                dataset=dataset,
-                dataset_size=dataset_size,
+                data_collection=data_collection,
+                data_collection_size=data_collection_size,
                 feature_dimension=feature_dimension,
                 contamination_rate=0.1,
             )
 
             if baseline_time is None:
-                baseline_time = metrics.execution_time_seconds
+                baseline_time = measurements.execution_time_seconds
 
-            # Calculate scalability metrics
-            metrics.scalability_factor = scale_factor
-            metrics.efficiency_ratio = baseline_time / (
-                metrics.execution_time_seconds / scale_factor
+            # Calculate scalability measurements
+            measurements.scalability_factor = scale_factor
+            measurements.efficiency_ratio = baseline_time / (
+                measurements.execution_time_seconds / scale_factor
             )
 
-            results.append(metrics)
+            results.append(measurements)
 
         return {
             "algorithm": algorithm_name,
@@ -271,16 +271,16 @@ class PerformanceBenchmarkingService:
     async def run_memory_stress_test(
         self,
         algorithm_name: str,
-        max_dataset_size: int = 1000000,
+        max_data_collection_size: int = 1000000,
         memory_limit_mb: float = 8192.0,
     ) -> dict[str, Any]:
         """Run memory stress test."""
         results = []
         current_size = 1000
 
-        while current_size <= max_dataset_size:
-            # Generate large dataset
-            dataset = await self._generate_synthetic_dataset(
+        while current_size <= max_data_collection_size:
+            # Generate large data_collection
+            data_collection = await self._generate_synthetic_data_collection(
                 size=current_size, features=50, contamination=0.1
             )
 
@@ -288,24 +288,24 @@ class PerformanceBenchmarkingService:
             memory_before = psutil.virtual_memory().used / 1024 / 1024
 
             try:
-                metrics = await self._benchmark_single_run(
+                measurements = await self._benchmark_single_run(
                     algorithm_name=algorithm_name,
-                    dataset=dataset,
-                    dataset_size=current_size,
+                    data_collection=data_collection,
+                    data_collection_size=current_size,
                     feature_dimension=50,
                     contamination_rate=0.1,
                 )
 
                 memory_after = psutil.virtual_memory().used / 1024 / 1024
-                metrics.memory_growth_mb = memory_after - memory_before
+                measurements.memory_growth_mb = memory_after - memory_before
 
-                results.append(metrics)
+                results.append(measurements)
 
                 # Check if we've hit memory limit
-                if metrics.peak_memory_mb > memory_limit_mb:
+                if measurements.peak_memory_mb > memory_limit_mb:
                     break
 
-                # Increase dataset size
+                # Increase data_collection size
                 current_size = int(current_size * 1.5)
 
             except MemoryError:
@@ -315,7 +315,7 @@ class PerformanceBenchmarkingService:
 
         return {
             "algorithm": algorithm_name,
-            "max_dataset_size_tested": current_size,
+            "max_data_collection_size_tested": current_size,
             "memory_limit_mb": memory_limit_mb,
             "results": results,
             "memory_analysis": await self._analyze_memory_usage(results),
@@ -324,32 +324,32 @@ class PerformanceBenchmarkingService:
     async def run_throughput_benchmark(
         self,
         algorithms: list[str],
-        dataset_sizes: list[int] = None,
+        data_collection_sizes: list[int] = None,
         duration_seconds: int = 60,
     ) -> dict[str, Any]:
         """Run throughput benchmark."""
-        if dataset_sizes is None:
-            dataset_sizes = [1000, 5000, 10000, 25000]
+        if data_collection_sizes is None:
+            data_collection_sizes = [1000, 5000, 10000, 25000]
 
         results = {}
 
         for algorithm in algorithms:
             algorithm_results = []
 
-            for size in dataset_sizes:
-                # Generate dataset
-                dataset = await self._generate_synthetic_dataset(
+            for size in data_collection_sizes:
+                # Generate data_collection
+                data_collection = await self._generate_synthetic_data_collection(
                     size=size, features=20, contamination=0.1
                 )
 
                 # Measure throughput
-                throughput_metrics = await self._measure_throughput(
+                throughput_measurements = await self._measure_throughput(
                     algorithm_name=algorithm,
-                    dataset=dataset,
+                    data_collection=data_collection,
                     duration_seconds=duration_seconds,
                 )
 
-                algorithm_results.append(throughput_metrics)
+                algorithm_results.append(throughput_measurements)
 
             results[algorithm] = algorithm_results
 
@@ -361,30 +361,30 @@ class PerformanceBenchmarkingService:
     async def compare_algorithms(
         self,
         algorithms: list[str],
-        dataset_sizes: list[int] = None,
-        metrics: list[str] = None,
+        data_collection_sizes: list[int] = None,
+        measurements: list[str] = None,
     ) -> dict[str, Any]:
-        """Compare algorithms across multiple metrics."""
-        if dataset_sizes is None:
-            dataset_sizes = [1000, 5000, 10000]
+        """Compare algorithms across multiple measurements."""
+        if data_collection_sizes is None:
+            data_collection_sizes = [1000, 5000, 10000]
 
-        if metrics is None:
-            metrics = ["execution_time", "memory_usage", "accuracy", "throughput"]
+        if measurements is None:
+            measurements = ["execution_time", "memory_usage", "accuracy", "throughput"]
 
         comparison_results = defaultdict(dict)
 
         for algorithm in algorithms:
-            for size in dataset_sizes:
-                # Generate test dataset
-                dataset = await self._generate_synthetic_dataset(
+            for size in data_collection_sizes:
+                # Generate test data_collection
+                data_collection = await self._generate_synthetic_data_collection(
                     size=size, features=20, contamination=0.1
                 )
 
                 # Run benchmark
                 result = await self._benchmark_single_run(
                     algorithm_name=algorithm,
-                    dataset=dataset,
-                    dataset_size=size,
+                    data_collection=data_collection,
+                    data_collection_size=size,
                     feature_dimension=20,
                     contamination_rate=0.1,
                 )
@@ -393,13 +393,13 @@ class PerformanceBenchmarkingService:
 
         # Generate comparative analysis
         analysis = await self._generate_algorithm_comparison(
-            comparison_results, metrics
+            comparison_results, measurements
         )
 
         return {
             "algorithms": algorithms,
-            "dataset_sizes": dataset_sizes,
-            "metrics": metrics,
+            "data_collection_sizes": data_collection_sizes,
+            "measurements": measurements,
             "results": dict(comparison_results),
             "analysis": analysis,
         }
@@ -458,55 +458,55 @@ class PerformanceBenchmarkingService:
         """Benchmark single algorithm across all test configurations."""
         config = suite.config
 
-        for dataset in datasets:
+        for data_collection in datasets:
             for contamination_rate in config.contamination_rates:
                 # Run multiple iterations
                 iteration_results = []
 
                 for _i in range(config.iterations):
                     try:
-                        metrics = await self._benchmark_single_run(
+                        measurements = await self._benchmark_single_run(
                             algorithm_name=algorithm,
-                            dataset=dataset,
-                            dataset_size=len(dataset),
-                            feature_dimension=dataset.shape[1],
+                            data_collection=data_collection,
+                            data_collection_size=len(data_collection),
+                            feature_dimension=data_collection.shape[1],
                             contamination_rate=contamination_rate,
                         )
 
-                        iteration_results.append(metrics)
+                        iteration_results.append(measurements)
 
                     except Exception as e:
                         # Record failed run
-                        metrics = PerformanceMetrics(
+                        measurements = PerformanceMetrics(
                             algorithm_name=algorithm,
-                            dataset_size=len(dataset),
-                            feature_dimension=dataset.shape[1],
+                            data_collection_size=len(data_collection),
+                            feature_dimension=data_collection.shape[1],
                             contamination_rate=contamination_rate,
                             error_message=str(e),
                             success=False,
                         )
-                        iteration_results.append(metrics)
+                        iteration_results.append(measurements)
 
-                # Calculate average metrics for this configuration
+                # Calculate average measurements for this configuration
                 if iteration_results:
-                    avg_metrics = await self._calculate_average_metrics(
+                    avg_measurements = await self._calculate_average_measurements(
                         iteration_results
                     )
-                    suite.individual_results.append(avg_metrics)
-                    self.performance_history.append(avg_metrics)
+                    suite.individual_results.append(avg_measurements)
+                    self.performance_history.append(avg_measurements)
 
     async def _benchmark_single_run(
         self,
         algorithm_name: str,
-        dataset: pd.DataFrame,
-        dataset_size: int,
+        data_collection: pd.DataFrame,
+        data_collection_size: int,
         feature_dimension: int,
         contamination_rate: float,
     ) -> PerformanceMetrics:
         """Run single benchmark iteration."""
-        metrics = PerformanceMetrics(
+        measurements = PerformanceMetrics(
             algorithm_name=algorithm_name,
-            dataset_size=dataset_size,
+            data_collection_size=data_collection_size,
             feature_dimension=feature_dimension,
             contamination_rate=contamination_rate,
         )
@@ -518,78 +518,78 @@ class PerformanceBenchmarkingService:
             start_time = time.time()
             psutil.virtual_memory().used / 1024 / 1024
 
-            # Run the actual algorithm (placeholder - would integrate with actual detection service)
-            await self._run_detection_algorithm(
-                algorithm_name, dataset, contamination_rate
+            # Run the actual algorithm (placeholder - would integrate with actual processing service)
+            await self._run_processing_algorithm(
+                algorithm_name, data_collection, contamination_rate
             )
 
             end_time = time.time()
             memory_after = psutil.virtual_memory().used / 1024 / 1024
 
-            # Stop monitoring and collect metrics
+            # Stop monitoring and collect measurements
             monitoring_data = await self.system_monitor.stop_monitoring(monitor)
 
-            # Calculate metrics
-            metrics.execution_time_seconds = end_time - start_time
-            metrics.peak_memory_mb = monitoring_data.get("peak_memory_mb", memory_after)
-            metrics.average_memory_mb = monitoring_data.get(
+            # Calculate measurements
+            measurements.execution_time_seconds = end_time - start_time
+            measurements.peak_memory_mb = monitoring_data.get("peak_memory_mb", memory_after)
+            measurements.average_memory_mb = monitoring_data.get(
                 "avg_memory_mb", memory_after
             )
-            metrics.cpu_usage_percent = monitoring_data.get("avg_cpu_percent", 0.0)
-            metrics.training_throughput = dataset_size / metrics.execution_time_seconds
+            measurements.cpu_usage_percent = monitoring_data.get("avg_cpu_percent", 0.0)
+            measurements.training_throughput = data_collection_size / measurements.execution_time_seconds
 
-            # Calculate quality metrics (placeholder)
-            metrics.accuracy_score = 0.85 + np.random.normal(0, 0.05)
-            metrics.precision_score = 0.80 + np.random.normal(0, 0.05)
-            metrics.recall_score = 0.75 + np.random.normal(0, 0.05)
-            metrics.f1_score = (
+            # Calculate quality measurements (placeholder)
+            measurements.accuracy_score = 0.85 + np.random.normal(0, 0.05)
+            measurements.precision_score = 0.80 + np.random.normal(0, 0.05)
+            measurements.recall_score = 0.75 + np.random.normal(0, 0.05)
+            measurements.f1_score = (
                 2
-                * (metrics.precision_score * metrics.recall_score)
-                / (metrics.precision_score + metrics.recall_score)
+                * (measurements.precision_score * measurements.recall_score)
+                / (measurements.precision_score + measurements.recall_score)
             )
 
-            metrics.success = True
+            measurements.success = True
 
         except Exception as e:
-            metrics.error_message = str(e)
-            metrics.success = False
+            measurements.error_message = str(e)
+            measurements.success = False
 
-        return metrics
+        return measurements
 
-    async def _run_detection_algorithm(
-        self, algorithm_name: str, dataset: pd.DataFrame, contamination_rate: float
+    async def _run_processing_algorithm(
+        self, algorithm_name: str, data_collection: pd.DataFrame, contamination_rate: float
     ) -> Any:
-        """Run detection algorithm (placeholder implementation)."""
+        """Run processing algorithm (placeholder implementation)."""
         # Placeholder for actual algorithm execution
-        # This would integrate with the actual detection service
+        # This would integrate with the actual processing service
 
-        # Simulate processing time based on dataset size
-        processing_time = len(dataset) / 10000.0  # Base processing time
+        # Simulate processing time based on data_collection size
+        processing_time = len(data_collection) / 10000.0  # Base processing time
         await asyncio.sleep(
             min(processing_time, 2.0)
         )  # Cap at 2 seconds for simulation
 
-        return {"anomalies": np.random.randint(0, 2, len(dataset))}
+        return {"anomalies": np.random.randint(0, 2, len(data_collection))}
 
-    async def _generate_benchmark_datasets(
+    async def _generate_benchmark_data_collections(
         self, config: BenchmarkConfig
     ) -> list[pd.DataFrame]:
         """Generate synthetic datasets for benchmarking."""
         datasets = []
 
-        for size in config.dataset_sizes:
+        for size in config.data_collection_sizes:
             for dimension in config.feature_dimensions:
-                dataset = await self._generate_synthetic_dataset(
+                data_collection = await self._generate_synthetic_data_collection(
                     size=size, features=dimension, contamination=0.1
                 )
-                datasets.append(dataset)
+                datasets.append(data_collection)
 
         return datasets
 
-    async def _generate_synthetic_dataset(
+    async def _generate_synthetic_data_collection(
         self, size: int, features: int, contamination: float
     ) -> pd.DataFrame:
-        """Generate synthetic dataset for testing."""
+        """Generate synthetic data_collection for testing."""
         # Generate normal data
         normal_size = int(size * (1 - contamination))
         normal_data = np.random.multivariate_normal(
@@ -616,53 +616,53 @@ class PerformanceBenchmarkingService:
 
         return df
 
-    async def _calculate_average_metrics(
-        self, metrics_list: list[PerformanceMetrics]
+    async def _calculate_average_measurements(
+        self, measurements_list: list[PerformanceMetrics]
     ) -> PerformanceMetrics:
-        """Calculate average metrics from multiple runs."""
-        if not metrics_list:
+        """Calculate average measurements from multiple runs."""
+        if not measurements_list:
             return PerformanceMetrics()
 
-        successful_runs = [m for m in metrics_list if m.success]
+        successful_runs = [m for m in measurements_list if m.success]
 
         if not successful_runs:
-            return metrics_list[0]  # Return the failed run
+            return measurements_list[0]  # Return the failed run
 
-        avg_metrics = PerformanceMetrics(
+        avg_measurements = PerformanceMetrics(
             algorithm_name=successful_runs[0].algorithm_name,
-            dataset_size=successful_runs[0].dataset_size,
+            data_collection_size=successful_runs[0].data_collection_size,
             feature_dimension=successful_runs[0].feature_dimension,
             contamination_rate=successful_runs[0].contamination_rate,
         )
 
         # Calculate averages
-        avg_metrics.execution_time_seconds = statistics.mean(
+        avg_measurements.execution_time_seconds = statistics.mean(
             m.execution_time_seconds for m in successful_runs
         )
-        avg_metrics.peak_memory_mb = statistics.mean(
+        avg_measurements.peak_memory_mb = statistics.mean(
             m.peak_memory_mb for m in successful_runs
         )
-        avg_metrics.average_memory_mb = statistics.mean(
+        avg_measurements.average_memory_mb = statistics.mean(
             m.average_memory_mb for m in successful_runs
         )
-        avg_metrics.cpu_usage_percent = statistics.mean(
+        avg_measurements.cpu_usage_percent = statistics.mean(
             m.cpu_usage_percent for m in successful_runs
         )
-        avg_metrics.training_throughput = statistics.mean(
+        avg_measurements.training_throughput = statistics.mean(
             m.training_throughput for m in successful_runs
         )
-        avg_metrics.accuracy_score = statistics.mean(
+        avg_measurements.accuracy_score = statistics.mean(
             m.accuracy_score for m in successful_runs
         )
-        avg_metrics.precision_score = statistics.mean(
+        avg_measurements.precision_score = statistics.mean(
             m.precision_score for m in successful_runs
         )
-        avg_metrics.recall_score = statistics.mean(
+        avg_measurements.recall_score = statistics.mean(
             m.recall_score for m in successful_runs
         )
-        avg_metrics.f1_score = statistics.mean(m.f1_score for m in successful_runs)
+        avg_measurements.f1_score = statistics.mean(m.f1_score for m in successful_runs)
 
-        return avg_metrics
+        return avg_measurements
 
     async def _calculate_summary_statistics(self, suite: BenchmarkSuite) -> None:
         """Calculate summary statistics for benchmark suite."""
@@ -842,18 +842,18 @@ class PerformanceBenchmarkingService:
         self, results: list[PerformanceMetrics]
     ) -> dict[str, Any]:
         """Analyze memory usage patterns."""
-        dataset_sizes = [r.dataset_size for r in results]
+        data_collection_sizes = [r.data_collection_size for r in results]
         memory_usage = [r.peak_memory_mb for r in results]
         memory_growth = [r.memory_growth_mb for r in results]
 
         return {
             "memory_efficiency": statistics.mean(
-                m / s * 1000 for m, s in zip(memory_usage, dataset_sizes, strict=False)
+                m / s * 1000 for m, s in zip(memory_usage, data_collection_sizes, strict=False)
             ),
             "memory_growth_rate": statistics.mean(memory_growth),
             "max_memory_tested": max(memory_usage),
             "memory_scalability": self._assess_memory_scalability(
-                dataset_sizes, memory_usage
+                data_collection_sizes, memory_usage
             ),
         }
 
@@ -881,7 +881,7 @@ class PerformanceBenchmarkingService:
             return "exponential"
 
     async def _measure_throughput(
-        self, algorithm_name: str, dataset: pd.DataFrame, duration_seconds: int
+        self, algorithm_name: str, data_collection: pd.DataFrame, duration_seconds: int
     ) -> dict[str, Any]:
         """Measure algorithm throughput."""
         start_time = time.time()
@@ -891,9 +891,9 @@ class PerformanceBenchmarkingService:
         iterations = 0
 
         while time.time() < end_time:
-            # Process dataset chunk
-            await self._run_detection_algorithm(algorithm_name, dataset, 0.1)
-            samples_processed += len(dataset)
+            # Process data_collection chunk
+            await self._run_processing_algorithm(algorithm_name, data_collection, 0.1)
+            samples_processed += len(data_collection)
             iterations += 1
 
         actual_duration = time.time() - start_time
@@ -901,12 +901,12 @@ class PerformanceBenchmarkingService:
 
         return {
             "algorithm": algorithm_name,
-            "dataset_size": len(dataset),
+            "data_collection_size": len(data_collection),
             "duration_seconds": actual_duration,
             "samples_processed": samples_processed,
             "iterations": iterations,
             "throughput_samples_per_second": throughput,
-            "throughput_datasets_per_second": iterations / actual_duration,
+            "throughput_data_collections_per_second": iterations / actual_duration,
         }
 
     async def _analyze_throughput(self, results: dict[str, list]) -> dict[str, Any]:
@@ -917,7 +917,7 @@ class PerformanceBenchmarkingService:
             throughputs = [
                 r["throughput_samples_per_second"] for r in algorithm_results
             ]
-            dataset_sizes = [r["dataset_size"] for r in algorithm_results]
+            data_collection_sizes = [r["data_collection_size"] for r in algorithm_results]
 
             analysis[algorithm] = {
                 "avg_throughput": statistics.mean(throughputs),
@@ -925,7 +925,7 @@ class PerformanceBenchmarkingService:
                 "min_throughput": min(throughputs),
                 "throughput_stability": 1.0
                 - (statistics.stdev(throughputs) / statistics.mean(throughputs)),
-                "best_dataset_size": dataset_sizes[throughputs.index(max(throughputs))],
+                "best_data_collection_size": data_collection_sizes[throughputs.index(max(throughputs))],
             }
 
         # Find best overall algorithm
@@ -935,12 +935,12 @@ class PerformanceBenchmarkingService:
         return analysis
 
     async def _generate_algorithm_comparison(
-        self, results: dict[str, dict[int, PerformanceMetrics]], metrics: list[str]
+        self, results: dict[str, dict[int, PerformanceMetrics]], measurements: list[str]
     ) -> dict[str, Any]:
         """Generate comprehensive algorithm comparison."""
         comparison = {}
 
-        for metric in metrics:
+        for metric in measurements:
             metric_comparison = {}
 
             for algorithm, algorithm_results in results.items():
@@ -982,7 +982,7 @@ class PerformanceBenchmarkingService:
         # Sort by timestamp
         sorted_data = sorted(historical_data, key=lambda x: x.timestamp)
 
-        # Calculate trends for different metrics
+        # Calculate trends for different measurements
         timestamps = [d.timestamp for d in sorted_data]
         execution_times = [d.execution_time_seconds for d in sorted_data]
         memory_usage = [d.peak_memory_mb for d in sorted_data]
@@ -1057,7 +1057,7 @@ class PerformanceBenchmarkingService:
             accuracy_trend.get("direction") == "decreasing"
             and abs(accuracy_trend.get("change_percent", 0)) > 5
         ):
-            recommendations.append("Accuracy is decreasing - model may need retraining")
+            recommendations.append("Accuracy is decreasing - processor may need retraining")
 
         return recommendations
 
@@ -1164,7 +1164,7 @@ class PerformanceBenchmarkingService:
             "individual_results": [
                 {
                     "algorithm_name": r.algorithm_name,
-                    "dataset_size": r.dataset_size,
+                    "data_collection_size": r.data_collection_size,
                     "feature_dimension": r.feature_dimension,
                     "contamination_rate": r.contamination_rate,
                     "execution_time_seconds": r.execution_time_seconds,
@@ -1201,7 +1201,7 @@ class PerformanceBenchmarkingService:
             writer.writerow(
                 [
                     "Algorithm",
-                    "Dataset Size",
+                    "DataCollection Size",
                     "Feature Dimension",
                     "Contamination Rate",
                     "Execution Time (s)",
@@ -1221,7 +1221,7 @@ class PerformanceBenchmarkingService:
                 writer.writerow(
                     [
                         result.algorithm_name,
-                        result.dataset_size,
+                        result.data_collection_size,
                         result.feature_dimension,
                         result.contamination_rate,
                         result.execution_time_seconds,

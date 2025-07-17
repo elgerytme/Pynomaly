@@ -1,4 +1,4 @@
-"""Continuous learning service for autonomous model adaptation."""
+"""Continuous learning service for autonomous processor adaptation."""
 
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ class LearningSessionNotFoundError(ContinuousLearningError):
 
 
 class ModelAdaptationError(ContinuousLearningError):
-    """Model adaptation error."""
+    """Processor adaptation error."""
 
     pass
 
@@ -104,7 +104,7 @@ class FeedbackBatch:
 
 @dataclass
 class ModelUpdateResult:
-    """Result of model update operation."""
+    """Result of processor update operation."""
 
     success: bool
     adaptation: ModelAdaptation | None = None
@@ -157,9 +157,9 @@ class ContinuousLearningService:
 
     This service orchestrates the continuous learning lifecycle including:
     - Learning session management
-    - Model adaptation based on new data and feedback
+    - Processor adaptation based on new data and feedback
     - Performance monitoring and assessment
-    - Convergence detection and optimization
+    - Convergence processing and optimization
     """
 
     def __init__(
@@ -179,8 +179,8 @@ class ContinuousLearningService:
         # Active learning sessions
         self.active_sessions: dict[UUID, LearningSession] = {}
 
-        # Model registry for adaptive models
-        self.adaptive_models: dict[UUID, BaseEstimator] = {}
+        # Processor registry for adaptive models
+        self.adaptive_processors: dict[UUID, BaseEstimator] = {}
 
         # Feedback processors
         self.feedback_processors: dict[str, Any] = {}
@@ -209,14 +209,14 @@ class ContinuousLearningService:
 
     async def initiate_learning_session(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         learning_config: LearningConfiguration | None = None,
         initial_baseline: PerformanceBaseline | None = None,
     ) -> LearningSession:
         """Initiate a new continuous learning session.
 
         Args:
-            model_id: ID of the model to adapt
+            processor_id: ID of the processor to adapt
             learning_config: Learning configuration
             initial_baseline: Initial performance baseline
 
@@ -227,17 +227,17 @@ class ContinuousLearningService:
 
         # Create learning session
         session = LearningSession(
-            model_version_id=model_id,
+            processor_version_id=processor_id,
             learning_strategy=config.learning_strategy,
             performance_baseline=initial_baseline,
             convergence_criteria=config.convergence_criteria,
             learning_rate=config.learning_rate,
         )
 
-        # Initialize adaptive model
-        if model_id not in self.adaptive_models:
-            adaptive_model = await self._create_adaptive_model(model_id, config)
-            self.adaptive_models[model_id] = adaptive_model
+        # Initialize adaptive processor
+        if processor_id not in self.adaptive_processors:
+            adaptive_processor = await self._create_adaptive_processor(processor_id, config)
+            self.adaptive_processors[processor_id] = adaptive_processor
 
         # Initialize performance tracker
         self.performance_trackers[session.session_id] = PerformanceTracker(
@@ -261,21 +261,21 @@ class ContinuousLearningService:
             self._background_tasks.append(task)
 
         logger.info(
-            f"Initiated learning session {session.session_id} for model {model_id}"
+            f"Initiated learning session {session.session_id} for processor {processor_id}"
         )
         return session
 
     async def process_feedback_batch(
         self, session_id: UUID, feedback_data: FeedbackBatch
     ) -> ModelUpdateResult:
-        """Process a batch of user feedback for model improvement.
+        """Process a batch of user feedback for processor improvement.
 
         Args:
             session_id: Learning session ID
             feedback_data: Batch of feedback data
 
         Returns:
-            Model update result
+            Processor update result
 
         Raises:
             LearningSessionNotFoundError: If session not found
@@ -293,14 +293,14 @@ class ContinuousLearningService:
             processor = self.feedback_processors[session_id]
             processed_feedback = await processor.process_feedback_batch(feedback_data)
 
-            # Get adaptive model
-            adaptive_model = self.adaptive_models[session.model_version_id]
+            # Get adaptive processor
+            adaptive_processor = self.adaptive_processors[session.processor_version_id]
 
-            # Apply feedback to model
+            # Apply feedback to processor
             performance_before = await self._get_current_performance(session_id)
 
-            adaptation_result = await self._apply_feedback_to_model(
-                adaptive_model, processed_feedback, session
+            adaptation_result = await self._apply_feedback_to_processor(
+                adaptive_processor, processed_feedback, session
             )
 
             performance_after = await self._get_current_performance(session_id)
@@ -385,7 +385,7 @@ class ContinuousLearningService:
         session = self.active_sessions[session_id]
         self.performance_trackers[session_id]
 
-        # Calculate effectiveness metrics
+        # Calculate effectiveness measurements
         performance_trend = session.get_performance_trend()
         adaptation_success_rate = session.get_adaptation_success_rate()
 
@@ -434,7 +434,7 @@ class ContinuousLearningService:
         drift_event: DriftEvent,
         adaptation_data: np.ndarray | None = None,
     ) -> ModelUpdateResult:
-        """Adapt model in response to detected drift.
+        """Adapt processor in response to detected drift.
 
         Args:
             session_id: Learning session ID
@@ -442,7 +442,7 @@ class ContinuousLearningService:
             adaptation_data: Optional data for adaptation
 
         Returns:
-            Model update result
+            Processor update result
         """
         if session_id not in self.active_sessions:
             raise LearningSessionNotFoundError(f"Session {session_id} not found")
@@ -452,8 +452,8 @@ class ContinuousLearningService:
         try:
             start_time = datetime.utcnow()
 
-            # Get adaptive model
-            adaptive_model = self.adaptive_models[session.model_version_id]
+            # Get adaptive processor
+            adaptive_processor = self.adaptive_processors[session.processor_version_id]
 
             # Determine adaptation strategy based on drift type and severity
             adaptation_strategy = self._select_drift_adaptation_strategy(drift_event)
@@ -463,7 +463,7 @@ class ContinuousLearningService:
 
             # Apply drift adaptation
             adaptation_result = await self._apply_drift_adaptation(
-                adaptive_model, drift_event, adaptation_data, adaptation_strategy
+                adaptive_processor, drift_event, adaptation_data, adaptation_strategy
             )
 
             # Get updated performance
@@ -547,7 +547,7 @@ class ContinuousLearningService:
 
         status = {
             "session_id": str(session_id),
-            "model_id": str(session.model_version_id),
+            "processor_id": str(session.processor_version_id),
             "learning_strategy": session.learning_strategy.value,
             "is_active": session.is_active,
             "started_at": session.started_at.isoformat(),
@@ -622,18 +622,18 @@ class ContinuousLearningService:
 
     # Private helper methods
 
-    async def _create_adaptive_model(
-        self, model_id: UUID, config: LearningConfiguration
+    async def _create_adaptive_processor(
+        self, processor_id: UUID, config: LearningConfiguration
     ) -> BaseEstimator:
-        """Create adaptive model wrapper."""
-        # This would integrate with the model registry to get the base model
+        """Create adaptive processor wrapper."""
+        # This would integrate with the processor registry to get the base processor
         # For now, return a placeholder
         from sklearn.ensemble import IsolationForest
 
         return IsolationForest(contamination=0.1, random_state=42)
 
     async def _get_current_performance(self, session_id: UUID) -> PerformanceBaseline:
-        """Get current performance metrics."""
+        """Get current performance measurements."""
         # Placeholder implementation
         return PerformanceBaseline(
             accuracy=0.85,
@@ -644,7 +644,7 @@ class ContinuousLearningService:
             pr_auc=0.84,
             false_positive_rate=0.15,
             false_negative_rate=0.13,
-            detection_rate=0.87,
+            processing_rate=0.87,
             established_at=datetime.utcnow(),
             sample_size=1000,
         )
@@ -706,7 +706,7 @@ class ContinuousLearningService:
         # Convert session to serializable format
         session_data = {
             "session_id": str(session.session_id),
-            "model_version_id": str(session.model_version_id),
+            "processor_version_id": str(session.processor_version_id),
             "learning_strategy": session.learning_strategy.value,
             "learning_rate": session.learning_rate,
             "started_at": session.started_at.isoformat(),
@@ -729,7 +729,7 @@ class ContinuousLearningService:
         # Simplified loading - in practice would reconstruct full session
         session = LearningSession(
             session_id=UUID(data["session_id"]),
-            model_version_id=UUID(data["model_version_id"]),
+            processor_version_id=UUID(data["processor_version_id"]),
             learning_strategy=LearningStrategy(data["learning_strategy"]),
             learning_rate=data["learning_rate"],
             current_epoch=data["current_epoch"],
@@ -744,7 +744,7 @@ class ContinuousLearningService:
 
 
 class PerformanceTracker:
-    """Tracks performance metrics over time."""
+    """Tracks performance measurements over time."""
 
     def __init__(self, window_size: int = 100):
         self.window_size = window_size
@@ -792,7 +792,7 @@ class PerformanceTracker:
 
 
 class FeedbackProcessor:
-    """Processes user feedback for model improvement."""
+    """Processes user feedback for processor improvement."""
 
     def __init__(self, session_id: UUID, config: LearningConfiguration):
         self.session_id = session_id

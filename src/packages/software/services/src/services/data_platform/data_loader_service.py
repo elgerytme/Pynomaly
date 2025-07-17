@@ -1,4 +1,4 @@
-"""Data loading service for autonomous detection."""
+"""Data loading service for autonomous processing."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from monorepo.shared.protocols import DataLoaderProtocol
 
 
 class DataLoaderService:
-    """Service responsible for automatic data loading and format detection."""
+    """Service responsible for automatic data loading and format processing."""
 
     def __init__(self, data_loaders: dict[str, DataLoaderProtocol]):
         """Initialize data loader service.
@@ -30,23 +30,23 @@ class DataLoaderService:
         data_source: str | Path | pd.DataFrame,
         name: str = "autonomous_data",
         verbose: bool = False,
-    ) -> Dataset:
+    ) -> DataCollection:
         """Automatically detect and load data source.
 
         Args:
             data_source: Path to data file, connection string, or DataFrame
-            name: Name for the dataset
+            name: Name for the data_collection
             verbose: Enable verbose logging
 
         Returns:
-            Loaded dataset
+            Loaded data_collection
 
         Raises:
             DataValidationError: If data format is unsupported
         """
         if isinstance(data_source, pd.DataFrame):
             # Direct DataFrame
-            return Dataset(
+            return DataCollection(
                 name=name,
                 data=data_source,
                 metadata={"source": "dataframe", "loader": "direct"},
@@ -81,7 +81,7 @@ class DataLoaderService:
         """
         extension = source_path.suffix.lower()
 
-        # Extension-based detection
+        # Extension-based processing
         format_map = {
             ".csv": "csv",
             ".json": "json",
@@ -107,7 +107,7 @@ class DataLoaderService:
         if extension in format_map:
             return format_map[extension]
 
-        # Content-based detection for ambiguous extensions
+        # Content-based processing for ambiguous extensions
         if extension in [".txt", ".log"]:
             return self._detect_text_format(source_path)
 

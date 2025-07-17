@@ -1,10 +1,10 @@
-"""Automated Model Training Service with Real-Time Monitoring.
+"""Automated Processor Training Service with Real-Time Monitoring.
 
 This service provides comprehensive automated training capabilities including:
 - Scheduled training pipelines with hyperparameter optimization
 - Real-time training progress monitoring via WebSocket
 - Performance-based retraining triggers
-- Model versioning and experiment tracking
+- Processor versioning and experiment tracking
 - Integration with existing AutoML and training infrastructure
 """
 
@@ -65,7 +65,7 @@ class TrainingConfig:
 
     # Basic settings
     detector_id: UUID
-    dataset_id: str
+    data_collection_id: str
     experiment_name: str | None = None
 
     # AutoML settings
@@ -96,10 +96,10 @@ class TrainingConfig:
     enable_notifications: bool = True
     notification_channels: list[str] = field(default_factory=lambda: ["websocket"])
 
-    # Model management
+    # Processor management
     auto_deploy: bool = False
-    keep_model_versions: int = 5
-    enable_model_comparison: bool = True
+    keep_processor_versions: int = 5
+    enable_processor_comparison: bool = True
 
 
 @dataclass
@@ -113,7 +113,7 @@ class TrainingProgress:
     start_time: datetime
     estimated_completion: datetime | None = None
 
-    # Current metrics
+    # Current measurements
     current_algorithm: str | None = None
     current_trial: int | None = None
     total_trials: int | None = None
@@ -156,31 +156,31 @@ class TrainingProgress:
 
 @dataclass
 class TrainingResult:
-    """Complete training result with comprehensive metrics."""
+    """Complete training result with comprehensive measurements."""
 
     training_id: str
     detector_id: UUID
     status: TrainingStatus
     trigger_type: TriggerType
 
-    # Training metrics
+    # Training measurements
     best_algorithm: str | None = None
     best_params: dict[str, Any] | None = None
     best_score: float | None = None
     training_time_seconds: float | None = None
     trials_completed: int | None = None
 
-    # Model information
-    model_version: str | None = None
-    model_path: str | None = None
-    model_size_mb: float | None = None
+    # Processor information
+    processor_version: str | None = None
+    processor_path: str | None = None
+    processor_size_mb: float | None = None
 
     # Performance comparison
     previous_score: float | None = None
     performance_improvement: float | None = None
 
     # Metadata
-    dataset_id: str | None = None
+    data_collection_id: str | None = None
     experiment_name: str | None = None
     start_time: datetime | None = None
     completion_time: datetime | None = None
@@ -193,14 +193,14 @@ class TrainingResult:
 
 
 class AutomatedTrainingService:
-    """Service for automated model training with real-time monitoring."""
+    """Service for automated processor training with real-time monitoring."""
 
     def __init__(
         self,
         train_detector_use_case: TrainDetectorUseCase,
         automl_service: AutoMLService,
         detector_repository: DetectorRepositoryProtocol,
-        model_persistence_service: EnhancedModelPersistenceService,
+        processor_persistence_service: EnhancedModelPersistenceService,
         websocket_broadcaster: Callable[[str, dict], None] | None = None,
     ):
         """Initialize the automated training service.
@@ -209,13 +209,13 @@ class AutomatedTrainingService:
             train_detector_use_case: Use case for detector training
             automl_service: AutoML service for optimization
             detector_repository: Repository for detector storage
-            model_persistence_service: Service for model persistence
+            processor_persistence_service: Service for processor persistence
             websocket_broadcaster: Function to broadcast WebSocket messages
         """
         self.train_detector_use_case = train_detector_use_case
         self.automl_service = automl_service
         self.detector_repository = detector_repository
-        self.model_persistence_service = model_persistence_service
+        self.processor_persistence_service = processor_persistence_service
         self.websocket_broadcaster = websocket_broadcaster
 
         # Training state management
@@ -309,7 +309,7 @@ class AutomatedTrainingService:
     async def start_training(
         self,
         detector_id: UUID,
-        dataset_id: str,
+        data_collection_id: str,
         config: TrainingConfig | None = None,
         trigger_type: TriggerType = TriggerType.MANUAL,
     ) -> str:
@@ -317,7 +317,7 @@ class AutomatedTrainingService:
 
         Args:
             detector_id: ID of detector to train
-            dataset_id: ID of dataset to use
+            data_collection_id: ID of data_collection to use
             config: Optional training configuration
             trigger_type: What triggered this training
 
@@ -327,7 +327,7 @@ class AutomatedTrainingService:
         if config is None:
             config = TrainingConfig(
                 detector_id=detector_id,
-                dataset_id=dataset_id,
+                data_collection_id=data_collection_id,
                 experiment_name=f"automated_training_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
             )
 
@@ -484,7 +484,7 @@ class AutomatedTrainingService:
             if detector:
                 config = TrainingConfig(
                     detector_id=detector_id,
-                    dataset_id="auto",  # Would need to determine appropriate dataset
+                    data_collection_id="auto",  # Would need to determine appropriate data_collection
                     experiment_name=f"auto_retrain_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
                 )
                 await self.schedule_training(config, TriggerType.PERFORMANCE_THRESHOLD)
@@ -509,7 +509,7 @@ class AutomatedTrainingService:
             detector_id=config.detector_id,
             status=TrainingStatus.RUNNING,
             trigger_type=trigger_type,
-            dataset_id=config.dataset_id,
+            data_collection_id=config.data_collection_id,
             experiment_name=config.experiment_name,
             start_time=start_time,
         )
@@ -522,10 +522,10 @@ class AutomatedTrainingService:
             progress.current_message = "Starting training pipeline"
             await self._broadcast_progress(progress)
 
-            # Step 1: Load detector and dataset
+            # Step 1: Load detector and data_collection
             progress.current_step = "Loading data"
             progress.progress_percentage = 10.0
-            progress.current_message = "Loading detector and dataset"
+            progress.current_message = "Loading detector and data_collection"
             await self._broadcast_progress(progress)
 
             detector = self.detector_repository.find_by_id(config.detector_id)
@@ -547,7 +547,7 @@ class AutomatedTrainingService:
                 await self._broadcast_progress(progress)
 
                 automl_result = await self.automl_service.auto_select_and_optimize(
-                    dataset_id=config.dataset_id,
+                    data_collection_id=config.data_collection_id,
                     objective=config.optimization_objective,
                     max_algorithms=config.max_algorithms,
                     enable_ensemble=config.enable_ensemble,
@@ -575,35 +575,35 @@ class AutomatedTrainingService:
             progress.status = TrainingStatus.RUNNING
             progress.current_step = "Final training"
             progress.progress_percentage = 70.0
-            progress.current_message = "Training final model"
+            progress.current_message = "Training final processor"
             await self._broadcast_progress(progress)
 
             # Create training request
             training_request = TrainDetectorRequest(
                 detector_id=config.detector_id,
-                training_data=None,  # Would need to load dataset
+                training_data=None,  # Would need to load data_collection
                 validation_split=config.validation_split,
                 cv_folds=config.cv_folds,
-                save_model=True,
+                save_processor=True,
                 early_stopping=config.enable_early_stopping,
                 max_training_time=config.max_training_time,
                 experiment_name=config.experiment_name,
             )
 
-            # Execute training (this would need dataset loading)
+            # Execute training (this would need data_collection loading)
             # training_response = await self.train_detector_use_case.execute(training_request)
 
-            # Step 4: Model persistence and versioning
-            progress.current_step = "Saving model"
+            # Step 4: Processor persistence and versioning
+            progress.current_step = "Saving processor"
             progress.progress_percentage = 85.0
-            progress.current_message = "Saving trained model"
+            progress.current_message = "Saving trained processor"
             await self._broadcast_progress(progress)
 
             # Step 5: Performance evaluation
             progress.status = TrainingStatus.EVALUATING
             progress.current_step = "Evaluating performance"
             progress.progress_percentage = 90.0
-            progress.current_message = "Evaluating model performance"
+            progress.current_message = "Evaluating processor performance"
             await self._broadcast_progress(progress)
 
             # Calculate performance improvement
@@ -674,7 +674,7 @@ class AutomatedTrainingService:
                         if not active_detector_trainings:
                             config = TrainingConfig(
                                 detector_id=detector_id,
-                                dataset_id="auto",
+                                data_collection_id="auto",
                                 experiment_name=f"auto_retrain_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
                             )
                             await self.schedule_training(
@@ -696,7 +696,7 @@ class AutomatedTrainingService:
                 # Update resource usage for active trainings
                 for training_id, progress in self.active_trainings.items():
                     if progress.status == TrainingStatus.RUNNING:
-                        # Update resource metrics (simplified)
+                        # Update resource measurements (simplified)
                         progress.memory_usage_mb = self._get_memory_usage()
                         progress.cpu_usage_percent = self._get_cpu_usage()
 

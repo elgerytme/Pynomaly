@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Advanced Model Optimization Service
+Advanced Processor Optimization Service
 Extends the existing AutoML service with state-of-the-art optimization techniques including
 Bayesian optimization, multi-objective optimization, neural architecture search, and advanced ensemble methods
 """
@@ -99,7 +99,7 @@ class ObjectiveFunction(Enum):
     ROC_AUC = "roc_auc"
     TRAINING_TIME = "training_time"
     INFERENCE_TIME = "inference_time"
-    MODEL_SIZE = "model_size"
+    MODEL_SIZE = "processor_size"
     MEMORY_USAGE = "memory_usage"
 
 
@@ -170,7 +170,7 @@ class AdvancedOptimizationConfig:
 class OptimizationResult:
     """Result of advanced optimization"""
 
-    best_model: BaseEstimator
+    best_processor: BaseEstimator
     best_params: dict[str, Any]
     best_scores: dict[str, float]
     optimization_history: list[dict[str, Any]]
@@ -180,7 +180,7 @@ class OptimizationResult:
     dominated_solutions: list[dict[str, Any]] = field(default_factory=list)
 
     # Ensemble results
-    ensemble_model: BaseEstimator | None = None
+    ensemble_processor: BaseEstimator | None = None
     ensemble_weights: list[float] = field(default_factory=list)
     ensemble_diversity_score: float = 0.0
 
@@ -189,14 +189,14 @@ class OptimizationResult:
     total_trials: int = 0
     successful_trials: int = 0
 
-    # Model analysis
+    # Processor analysis
     feature_importance: dict[str, float] = field(default_factory=dict)
-    model_complexity: dict[str, Any] = field(default_factory=dict)
+    processor_complexity: dict[str, Any] = field(default_factory=dict)
     performance_trade_offs: dict[str, Any] = field(default_factory=dict)
 
 
 class AdvancedModelOptimizationService:
-    """Advanced Model Optimization Service with state-of-the-art techniques"""
+    """Advanced Processor Optimization Service with state-of-the-art techniques"""
 
     def __init__(self, config: AdvancedOptimizationConfig | None = None):
         self.config = config or AdvancedOptimizationConfig()
@@ -212,52 +212,52 @@ class AdvancedModelOptimizationService:
         # Ensemble registry
         self.ensemble_registry: dict[str, dict[str, Any]] = {}
 
-    async def optimize_model_advanced(
+    async def optimize_processor_advanced(
         self,
         X: pd.DataFrame,
         y: pd.Series | None = None,
-        model_types: list[str] | None = None,
+        processor_types: list[str] | None = None,
         custom_objective: Callable | None = None,
     ) -> OptimizationResult:
         """
-        Perform advanced multi-objective model optimization
+        Perform advanced multi-objective processor optimization
 
         Args:
             X: Training features
             y: Training labels (optional for unsupervised)
-            model_types: List of model types to optimize
+            processor_types: List of processor types to optimize
             custom_objective: Custom objective function
 
         Returns:
             Advanced optimization result with Pareto front
         """
-        logger.info("🚀 Starting advanced model optimization")
+        logger.info("🚀 Starting advanced processor optimization")
         start_time = time.time()
 
         try:
             # Preprocessing and feature engineering
             X_processed = await self._advanced_preprocessing(X)
 
-            # Model space definition
-            if model_types is None:
-                model_types = self._get_default_model_types()
+            # Processor space definition
+            if processor_types is None:
+                processor_types = self._get_default_processor_types()
 
             # Multi-objective optimization
             if len(self.config.objectives) > 1:
                 result = await self._multi_objective_optimization(
-                    X_processed, y, model_types, custom_objective
+                    X_processed, y, processor_types, custom_objective
                 )
             else:
                 result = await self._single_objective_optimization(
-                    X_processed, y, model_types, custom_objective
+                    X_processed, y, processor_types, custom_objective
                 )
 
             # Ensemble creation
             if self.config.ensemble_strategy != EnsembleStrategy.VOTING_SOFT:
-                ensemble_model = await self._create_advanced_ensemble(
+                ensemble_processor = await self._create_advanced_ensemble(
                     X_processed, y, result.optimization_history
                 )
-                result.ensemble_model = ensemble_model
+                result.ensemble_processor = ensemble_processor
 
             # Performance analysis
             await self._analyze_performance_trade_offs(result, X_processed, y)
@@ -340,7 +340,7 @@ class AdvancedModelOptimizationService:
         return X_engineered
 
     def _get_default_model_types(self) -> list[str]:
-        """Get default model types for optimization"""
+        """Get default processor types for optimization"""
         return [
             "isolation_forest",
             "one_class_svm",
@@ -355,7 +355,7 @@ class AdvancedModelOptimizationService:
         self,
         X: pd.DataFrame,
         y: pd.Series | None,
-        model_types: list[str],
+        processor_types: list[str],
         custom_objective: Callable | None = None,
     ) -> OptimizationResult:
         """Perform multi-objective optimization using NSGA-II"""
@@ -381,7 +381,7 @@ class AdvancedModelOptimizationService:
         # Define objective function
         def objective(trial):
             return self._evaluate_multi_objective_trial(
-                trial, X, y, model_types, custom_objective
+                trial, X, y, processor_types, custom_objective
             )
 
         # Optimize
@@ -399,7 +399,7 @@ class AdvancedModelOptimizationService:
                 {
                     "params": trial.params,
                     "values": trial.values,
-                    "model_type": trial.user_attrs.get("model_type"),
+                    "processor_type": trial.user_attrs.get("processor_type"),
                     "trial_number": trial.number,
                 }
             )
@@ -409,7 +409,7 @@ class AdvancedModelOptimizationService:
 
         # Create result
         result = OptimizationResult(
-            best_model=best_trial.user_attrs.get("model"),
+            best_processor=best_trial.user_attrs.get("processor"),
             best_params=best_trial.params,
             best_scores={
                 obj.function.value: val
@@ -440,23 +440,23 @@ class AdvancedModelOptimizationService:
         trial,
         X: pd.DataFrame,
         y: pd.Series | None,
-        model_types: list[str],
+        processor_types: list[str],
         custom_objective: Callable | None = None,
     ) -> list[float]:
         """Evaluate a single trial for multi-objective optimization"""
 
         try:
-            # Sample model type
-            model_type = trial.suggest_categorical("model_type", model_types)
+            # Sample processor type
+            processor_type = trial.suggest_categorical("processor_type", processor_types)
 
-            # Sample hyperparameters for the chosen model
-            params = self._sample_hyperparameters(trial, model_type)
+            # Sample hyperparameters for the chosen processor
+            params = self._sample_hyperparameters(trial, processor_type)
 
-            # Create and train model
-            model = self._create_model(model_type, params)
+            # Create and train processor
+            processor = self._create_processor(processor_type, params)
 
             start_time = time.time()
-            model.fit(X, y)
+            processor.fit(X, y)
             training_time = time.time() - start_time
 
             # Calculate objectives
@@ -464,26 +464,26 @@ class AdvancedModelOptimizationService:
 
             for objective in self.config.objectives:
                 if objective.function == ObjectiveFunction.F1_SCORE and y is not None:
-                    y_pred = model.predict(X)
+                    y_pred = processor.predict(X)
                     value = f1_score(y, y_pred, average="weighted")
                 elif objective.function == ObjectiveFunction.ACCURACY and y is not None:
-                    y_pred = model.predict(X)
+                    y_pred = processor.predict(X)
                     value = accuracy_score(y, y_pred)
                 elif objective.function == ObjectiveFunction.TRAINING_TIME:
                     value = training_time
                 elif objective.function == ObjectiveFunction.MODEL_SIZE:
-                    value = len(pickle.dumps(model)) / (1024 * 1024)  # MB
+                    value = len(pickle.dumps(processor)) / (1024 * 1024)  # MB
                 elif custom_objective:
-                    value = custom_objective(model, X, y)
+                    value = custom_objective(processor, X, y)
                 else:
                     # Default fallback
                     value = 0.5
 
                 objective_values.append(value)
 
-            # Store model in trial attributes
-            trial.set_user_attr("model", model)
-            trial.set_user_attr("model_type", model_type)
+            # Store processor in trial attributes
+            trial.set_user_attr("processor", processor)
+            trial.set_user_attr("processor_type", processor_type)
             trial.set_user_attr("training_time", training_time)
 
             return objective_values
@@ -497,11 +497,11 @@ class AdvancedModelOptimizationService:
             ]
 
     def _sample_hyperparameters(self, trial, model_type: str) -> dict[str, Any]:
-        """Sample hyperparameters for a specific model type"""
+        """Sample hyperparameters for a specific processor type"""
 
         params = {}
 
-        if model_type == "isolation_forest":
+        if processor_type == "isolation_forest":
             params = {
                 "n_estimators": trial.suggest_int("n_estimators", 50, 500),
                 "max_samples": trial.suggest_categorical(
@@ -511,7 +511,7 @@ class AdvancedModelOptimizationService:
                 "max_features": trial.suggest_float("max_features", 0.5, 1.0),
                 "bootstrap": trial.suggest_categorical("bootstrap", [True, False]),
             }
-        elif model_type == "random_forest":
+        elif processor_type == "random_forest":
             params = {
                 "n_estimators": trial.suggest_int("n_estimators", 50, 500),
                 "max_depth": trial.suggest_int("max_depth", 3, 20),
@@ -521,7 +521,7 @@ class AdvancedModelOptimizationService:
                     "max_features", ["sqrt", "log2", None]
                 ),
             }
-        elif model_type == "gradient_boosting":
+        elif processor_type == "gradient_boosting":
             params = {
                 "n_estimators": trial.suggest_int("n_estimators", 50, 300),
                 "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
@@ -529,31 +529,31 @@ class AdvancedModelOptimizationService:
                 "subsample": trial.suggest_float("subsample", 0.6, 1.0),
                 "min_samples_split": trial.suggest_int("min_samples_split", 2, 20),
             }
-        # Add more model types as needed
+        # Add more processor types as needed
 
         return params
 
     def _create_model(self, model_type: str, params: dict[str, Any]) -> BaseEstimator:
-        """Create a model instance with given parameters"""
+        """Create a processor instance with given parameters"""
 
-        if model_type == "isolation_forest":
+        if processor_type == "isolation_forest":
             from sklearn.ensemble import IsolationForest
 
             return IsolationForest(**params, random_state=self.config.random_state)
-        elif model_type == "random_forest":
+        elif processor_type == "random_forest":
             return RandomForestClassifier(
                 **params, random_state=self.config.random_state
             )
-        elif model_type == "gradient_boosting":
+        elif processor_type == "gradient_boosting":
             return GradientBoostingClassifier(
                 **params, random_state=self.config.random_state
             )
-        elif model_type == "extra_trees":
+        elif processor_type == "extra_trees":
             return ExtraTreesClassifier(**params, random_state=self.config.random_state)
-        elif model_type == "ada_boost":
+        elif processor_type == "ada_boost":
             return AdaBoostClassifier(**params, random_state=self.config.random_state)
         else:
-            raise ValueError(f"Unsupported model type: {model_type}")
+            raise ValueError(f"Unsupported processor type: {processor_type}")
 
     def _select_best_from_pareto(self, pareto_trials) -> Any:
         """Select best trial from Pareto front using weighted sum"""
@@ -580,20 +580,20 @@ class AdvancedModelOptimizationService:
         self,
         X: pd.DataFrame,
         y: pd.Series | None,
-        model_types: list[str],
+        processor_types: list[str],
         custom_objective: Callable | None = None,
     ) -> OptimizationResult:
         """Perform single-objective optimization"""
 
         logger.info("🎯 Starting single-objective optimization")
 
-        best_model = None
+        best_processor = None
         best_score = float("-inf")
         best_params = {}
         optimization_history = []
 
-        for model_type in model_types:
-            logger.info(f"Optimizing {model_type}")
+        for processor_type in processor_types:
+            logger.info(f"Optimizing {processor_type}")
 
             # Use appropriate optimization strategy
             if (
@@ -601,26 +601,26 @@ class AdvancedModelOptimizationService:
                 and SCIKIT_OPTIMIZE_AVAILABLE
             ):
                 result = await self._bayesian_optimization_gp(
-                    X, y, model_type, custom_objective
+                    X, y, processor_type, custom_objective
                 )
             elif OPTUNA_AVAILABLE:
                 result = await self._optuna_optimization(
-                    X, y, model_type, custom_objective
+                    X, y, processor_type, custom_objective
                 )
             else:
                 result = await self._grid_search_optimization(
-                    X, y, model_type, custom_objective
+                    X, y, processor_type, custom_objective
                 )
 
             optimization_history.extend(result["history"])
 
             if result["best_score"] > best_score:
                 best_score = result["best_score"]
-                best_model = result["best_model"]
+                best_processor = result["best_processor"]
                 best_params = result["best_params"]
 
         return OptimizationResult(
-            best_model=best_model,
+            best_processor=best_processor,
             best_params=best_params,
             best_scores={self.config.objectives[0].function.value: best_score},
             optimization_history=optimization_history,
@@ -634,7 +634,7 @@ class AdvancedModelOptimizationService:
         self,
         X: pd.DataFrame,
         y: pd.Series | None,
-        model_type: str,
+        processor_type: str,
         custom_objective: Callable | None = None,
     ) -> dict[str, Any]:
         """Bayesian optimization using Gaussian Process"""
@@ -643,18 +643,18 @@ class AdvancedModelOptimizationService:
             raise ValueError("scikit-optimize is required for Bayesian optimization")
 
         # Define search space
-        space = self._get_search_space(model_type)
+        space = self._get_search_space(processor_type)
 
         @use_named_args(space)
         def objective(**params):
             try:
-                model = self._create_model(model_type, params)
-                model.fit(X, y)
+                processor = self._create_processor(processor_type, params)
+                processor.fit(X, y)
 
                 if custom_objective:
-                    score = custom_objective(model, X, y)
+                    score = custom_objective(processor, X, y)
                 elif y is not None:
-                    y_pred = model.predict(X)
+                    y_pred = processor.predict(X)
                     score = f1_score(y, y_pred, average="weighted")
                 else:
                     score = 0.5
@@ -669,18 +669,18 @@ class AdvancedModelOptimizationService:
         result = gp_minimize(
             func=objective,
             dimensions=space,
-            n_calls=self.config.n_trials // len(self._get_default_model_types()),
+            n_calls=self.config.n_trials // len(self._get_default_processor_types()),
             n_initial_points=10,
             random_state=self.config.random_state,
         )
 
         # Extract best parameters
         best_params = dict(zip([dim.name for dim in space], result.x, strict=False))
-        best_model = self._create_model(model_type, best_params)
-        best_model.fit(X, y)
+        best_processor = self._create_processor(processor_type, best_params)
+        best_processor.fit(X, y)
 
         return {
-            "best_model": best_model,
+            "best_processor": best_processor,
             "best_params": best_params,
             "best_score": -result.fun,
             "history": [
@@ -700,7 +700,7 @@ class AdvancedModelOptimizationService:
 
         from skopt.space import Categorical, Integer, Real
 
-        if model_type == "isolation_forest":
+        if processor_type == "isolation_forest":
             return [
                 Integer(50, 500, name="n_estimators"),
                 Categorical(["auto", 256, 512, 1024], name="max_samples"),
@@ -708,7 +708,7 @@ class AdvancedModelOptimizationService:
                 Real(0.5, 1.0, name="max_features"),
                 Categorical([True, False], name="bootstrap"),
             ]
-        elif model_type == "random_forest":
+        elif processor_type == "random_forest":
             return [
                 Integer(50, 500, name="n_estimators"),
                 Integer(3, 20, name="max_depth"),
@@ -716,7 +716,7 @@ class AdvancedModelOptimizationService:
                 Integer(1, 10, name="min_samples_leaf"),
                 Categorical(["sqrt", "log2", None], name="max_features"),
             ]
-        # Add more model types as needed
+        # Add more processor types as needed
 
         return []
 
@@ -724,7 +724,7 @@ class AdvancedModelOptimizationService:
         self,
         X: pd.DataFrame,
         y: pd.Series | None,
-        model_type: str,
+        processor_type: str,
         custom_objective: Callable | None = None,
     ) -> dict[str, Any]:
         """Optimization using Optuna"""
@@ -745,16 +745,16 @@ class AdvancedModelOptimizationService:
         )
 
         def objective(trial):
-            params = self._sample_hyperparameters(trial, model_type)
+            params = self._sample_hyperparameters(trial, processor_type)
 
             try:
-                model = self._create_model(model_type, params)
-                model.fit(X, y)
+                processor = self._create_processor(processor_type, params)
+                processor.fit(X, y)
 
                 if custom_objective:
-                    score = custom_objective(model, X, y)
+                    score = custom_objective(processor, X, y)
                 elif y is not None:
-                    y_pred = model.predict(X)
+                    y_pred = processor.predict(X)
                     score = f1_score(y, y_pred, average="weighted")
                 else:
                     score = 0.5
@@ -768,16 +768,16 @@ class AdvancedModelOptimizationService:
         # Optimize
         study.optimize(
             objective,
-            n_trials=self.config.n_trials // len(self._get_default_model_types()),
-            timeout=self.config.timeout_seconds // len(self._get_default_model_types()),
+            n_trials=self.config.n_trials // len(self._get_default_processor_types()),
+            timeout=self.config.timeout_seconds // len(self._get_default_processor_types()),
         )
 
-        # Create best model
-        best_model = self._create_model(model_type, study.best_params)
-        best_model.fit(X, y)
+        # Create best processor
+        best_processor = self._create_processor(processor_type, study.best_params)
+        best_processor.fit(X, y)
 
         return {
-            "best_model": best_model,
+            "best_processor": best_processor,
             "best_params": study.best_params,
             "best_score": study.best_value,
             "history": [
@@ -791,7 +791,7 @@ class AdvancedModelOptimizationService:
         self,
         X: pd.DataFrame,
         y: pd.Series | None,
-        model_type: str,
+        processor_type: str,
         custom_objective: Callable | None = None,
     ) -> dict[str, Any]:
         """Fallback grid search optimization"""
@@ -799,22 +799,22 @@ class AdvancedModelOptimizationService:
         from sklearn.model_selection import GridSearchCV
 
         # Define parameter grid
-        param_grid = self._get_param_grid(model_type)
+        param_grid = self._get_param_grid(processor_type)
 
-        # Create base model
-        base_model = self._create_model(model_type, {})
+        # Create base processor
+        base_processor = self._create_processor(processor_type, {})
 
         # Custom scoring function
         if custom_objective:
             scorer = make_scorer(
-                lambda y_true, y_pred: custom_objective(base_model, X, y)
+                lambda y_true, y_pred: custom_objective(base_processor, X, y)
             )
         else:
             scorer = make_scorer(f1_score, average="weighted")
 
         # Grid search
         grid_search = GridSearchCV(
-            base_model,
+            base_processor,
             param_grid,
             scoring=scorer,
             cv=self.config.cv_folds,
@@ -824,7 +824,7 @@ class AdvancedModelOptimizationService:
         grid_search.fit(X, y)
 
         return {
-            "best_model": grid_search.best_estimator_,
+            "best_processor": grid_search.best_estimator_,
             "best_params": grid_search.best_params_,
             "best_score": grid_search.best_score_,
             "history": [
@@ -840,13 +840,13 @@ class AdvancedModelOptimizationService:
     def _get_param_grid(self, model_type: str) -> dict[str, list[Any]]:
         """Get parameter grid for grid search"""
 
-        if model_type == "isolation_forest":
+        if processor_type == "isolation_forest":
             return {
                 "n_estimators": [50, 100, 200],
                 "contamination": [0.05, 0.1, 0.15],
                 "max_features": [0.7, 0.8, 0.9, 1.0],
             }
-        elif model_type == "random_forest":
+        elif processor_type == "random_forest":
             return {
                 "n_estimators": [50, 100, 200],
                 "max_depth": [5, 10, 15, None],
@@ -868,16 +868,16 @@ class AdvancedModelOptimizationService:
         )
 
         # Select diverse models from history
-        top_models = sorted(
+        top_processors = sorted(
             optimization_history, key=lambda x: x.get("score", 0), reverse=True
         )[: self.config.ensemble_size]
 
         if self.config.ensemble_strategy == EnsembleStrategy.STACKING:
             # Stacking ensemble
             base_estimators = []
-            for i, model_info in enumerate(top_models):
-                if "model" in model_info:  # Assuming model is stored
-                    base_estimators.append((f"model_{i}", model_info["model"]))
+            for i, processor_info in enumerate(top_processors):
+                if "processor" in processor_info:  # Assuming processor is stored
+                    base_estimators.append((f"processor_{i}", processor_info["processor"]))
 
             if base_estimators:
                 from sklearn.linear_model import LogisticRegression
@@ -893,11 +893,11 @@ class AdvancedModelOptimizationService:
         elif self.config.ensemble_strategy == EnsembleStrategy.VOTING_SOFT:
             # Soft voting ensemble
             estimators = []
-            for i, model_info in enumerate(top_models):
-                if "model" in model_info and hasattr(
-                    model_info["model"], "predict_proba"
+            for i, processor_info in enumerate(top_processors):
+                if "processor" in processor_info and hasattr(
+                    processor_info["processor"], "predict_proba"
                 ):
-                    estimators.append((f"model_{i}", model_info["model"]))
+                    estimators.append((f"processor_{i}", processor_info["processor"]))
 
             if estimators:
                 ensemble = VotingClassifier(estimators=estimators, voting="soft")
@@ -906,9 +906,9 @@ class AdvancedModelOptimizationService:
 
         # Fallback to simple voting
         estimators = []
-        for i, model_info in enumerate(top_models):
-            if "model" in model_info:
-                estimators.append((f"model_{i}", model_info["model"]))
+        for i, processor_info in enumerate(top_processors):
+            if "processor" in processor_info:
+                estimators.append((f"processor_{i}", processor_info["processor"]))
 
         if estimators:
             ensemble = VotingClassifier(estimators=estimators, voting="hard")
@@ -958,8 +958,8 @@ class AdvancedModelOptimizationService:
     ):
         """Update meta-learning database with optimization results"""
 
-        # Dataset characteristics
-        dataset_features = {
+        # DataCollection characteristics
+        data_collection_features = {
             "n_samples": len(X),
             "n_features": len(X.columns),
             "sparsity": (X == 0).sum().sum() / (len(X) * len(X.columns)),
@@ -980,14 +980,14 @@ class AdvancedModelOptimizationService:
         # Store in meta-learning database
         meta_entry = {
             "timestamp": datetime.now().isoformat(),
-            "dataset_features": dataset_features,
+            "data_collection_features": data_collection_features,
             "performance": performance_summary,
-            "best_algorithm": result.best_params.get("model_type", "unknown"),
+            "best_algorithm": result.best_params.get("processor_type", "unknown"),
             "best_params": result.best_params,
         }
 
-        dataset_hash = hash(str(sorted(dataset_features.items())))
-        self.meta_learning_db[dataset_hash] = meta_entry
+        data_collection_hash = hash(str(sorted(data_collection_features.items())))
+        self.meta_learning_db[data_collection_hash] = meta_entry
 
         logger.info("📚 Meta-learning database updated")
 
@@ -999,7 +999,7 @@ class AdvancedModelOptimizationService:
         if not self.meta_learning_db:
             return []
 
-        # Calculate dataset features
+        # Calculate data_collection features
         current_features = {
             "n_samples": len(X),
             "n_features": len(X.columns),
@@ -1011,9 +1011,9 @@ class AdvancedModelOptimizationService:
 
         # Find similar datasets
         similarities = []
-        for dataset_hash, meta_entry in self.meta_learning_db.items():
-            similarity = self._calculate_dataset_similarity(
-                current_features, meta_entry["dataset_features"]
+        for data_collection_hash, meta_entry in self.meta_learning_db.items():
+            similarity = self._calculate_data_collection_similarity(
+                current_features, meta_entry["data_collection_features"]
             )
             similarities.append((similarity, meta_entry))
 
@@ -1094,17 +1094,17 @@ class AdvancedModelOptimizationService:
                 "timestamp": datetime.now().isoformat(),
             }
 
-            # Save model separately
-            if result.best_model:
-                model_path = export_path.replace(".json", "_model.pkl")
-                with open(model_path, "wb") as f:
-                    pickle.dump(result.best_model, f)
-                export_data["model_path"] = model_path
+            # Save processor separately
+            if result.best_processor:
+                processor_path = export_path.replace(".json", "_processor.pkl")
+                with open(processor_path, "wb") as f:
+                    pickle.dump(result.best_processor, f)
+                export_data["processor_path"] = processor_path
 
-            if result.ensemble_model:
+            if result.ensemble_processor:
                 ensemble_path = export_path.replace(".json", "_ensemble.pkl")
                 with open(ensemble_path, "wb") as f:
-                    pickle.dump(result.ensemble_model, f)
+                    pickle.dump(result.ensemble_processor, f)
                 export_data["ensemble_path"] = ensemble_path
 
             # Save results
@@ -1120,7 +1120,7 @@ class AdvancedModelOptimizationService:
 
 
 async def main():
-    """Example usage of Advanced Model Optimization Service"""
+    """Example usage of Advanced Processor Optimization Service"""
 
     # Create sample data
     np.random.seed(42)
@@ -1150,9 +1150,9 @@ async def main():
     optimization_service = AdvancedModelOptimizationService(config)
 
     # Perform optimization
-    result = await optimization_service.optimize_model_advanced(X, y)
+    result = await optimization_service.optimize_processor_advanced(X, y)
 
-    print(f"Best model type: {result.best_params.get('model_type', 'unknown')}")
+    print(f"Best processor type: {result.best_params.get('processor_type', 'unknown')}")
     print(f"Best scores: {result.best_scores}")
     print(f"Optimization time: {result.optimization_time:.2f}s")
     print(f"Pareto front size: {len(result.pareto_front)}")

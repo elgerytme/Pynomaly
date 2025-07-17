@@ -1,4 +1,4 @@
-"""Shared utilities and protocols for Pynomaly package."""
+"""Shared utilities and protocols for Software package."""
 
 from . import protocols
 from .error_handling import *

@@ -1,11 +1,11 @@
-# Pynomaly Web API Setup Guide
+# Software Web API Setup Guide
 
 🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🔌 [API Integration](README.md) > 📄 Web_Api_Setup_Guide
 
 ---
 
 
-This guide provides comprehensive instructions for setting up and running the Pynomaly web API across different environments and shells.
+This guide provides comprehensive instructions for setting up and running the Software web API across different environments and shells.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ This guide provides comprehensive instructions for setting up and running the Py
 ### Option 1: Automated Setup Script
 ```bash
 # Clone repository and navigate to project
-cd /path/to/Pynomaly
+cd /path/to/Software
 
 # Run automated setup (recommended for fresh environments)
 ./scripts/setup_fresh_environment.sh
@@ -41,10 +41,10 @@ pip install --break-system-packages fastapi uvicorn pydantic structlog dependenc
     jinja2 python-multipart passlib bcrypt prometheus-fastapi-instrumentator
 
 # Set Python path
-export PYTHONPATH=/path/to/Pynomaly/src
+export PYTHONPATH=/path/to/Software/src
 
 # Start server
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## Environment Setup
@@ -54,10 +54,10 @@ If you have dependencies already installed:
 
 ```bash
 # Set environment variable
-export PYTHONPATH=/path/to/Pynomaly/src
+export PYTHONPATH=/path/to/Software/src
 
 # Start server with auto-reload
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 
 # Access API at http://localhost:8000
 ```
@@ -88,8 +88,8 @@ source .fresh_venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # Set Python path and start
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000
 ```
 
 ## Multi-Shell Support
@@ -100,8 +100,8 @@ uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
 ./scripts/start_api_bash.sh [PORT] [HOST]
 
 # Manual
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### PowerShell (Windows)
@@ -110,35 +110,35 @@ uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 pwsh -File scripts/test_api_powershell.ps1
 
 # Manual
-$env:PYTHONPATH = "C:\Users\your-user\Pynomaly\src"
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+$env:PYTHONPATH = "C:\Users\your-user\Software\src"
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Command Prompt (Windows)
 ```cmd
 REM Set environment variable
-set PYTHONPATH=C:\Users\your-user\Pynomaly\src
+set PYTHONPATH=C:\Users\your-user\Software\src
 
 REM Start server
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Fish Shell
 ```fish
 # Set environment variable
-set -x PYTHONPATH /path/to/Pynomaly/src
+set -x PYTHONPATH /path/to/Software/src
 
 # Start server
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Zsh
 ```zsh
 # Set environment variable
-export PYTHONPATH=/path/to/Pynomaly/src
+export PYTHONPATH=/path/to/Software/src
 
 # Start server
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## API Endpoints
@@ -149,7 +149,7 @@ Once the server is running, you can access these endpoints:
 - **Root API**: `http://localhost:8000/api`
   - Basic API information and version
 - **Health Check**: `http://localhost:8000/api/health/`
-  - System health status and metrics
+  - System health status and measurements
 - **Interactive Documentation**: `http://localhost:8000/api/docs`
   - Swagger UI for API exploration
 - **OpenAPI Schema**: `http://localhost:8000/api/openapi.json`
@@ -188,14 +188,14 @@ curl -s http://localhost:8000/api | jq '.'
 ### Manual Testing
 ```bash
 # Test current environment
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8001 &
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --host 127.0.0.1 --port 8001 &
 curl http://127.0.0.1:8001/
 pkill -f "uvicorn.*8001"
 
 # Test different ports
-uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8002 &
-uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8003 &
+uvicorn software.presentation.api:app --host 127.0.0.1 --port 8002 &
+uvicorn software.presentation.api:app --host 127.0.0.1 --port 8003 &
 curl http://127.0.0.1:8002/
 curl http://127.0.0.1:8003/
 pkill -f uvicorn
@@ -218,9 +218,9 @@ curl -s http://localhost:8000/api/health/ | grep '"overall_status"'
 
 #### 1. Module Not Found Error
 ```bash
-# Error: ModuleNotFoundError: No module named 'pynomaly'
+# Error: ModuleNotFoundError: No module named 'software'
 # Solution: Set PYTHONPATH correctly
-export PYTHONPATH=/absolute/path/to/Pynomaly/src
+export PYTHONPATH=/absolute/path/to/Software/src
 ```
 
 #### 2. Missing Dependencies
@@ -234,7 +234,7 @@ pip install --break-system-packages fastapi uvicorn pydantic structlog dependenc
 ```bash
 # Error: [Errno 98] error while attempting to bind on address
 # Solution: Use different port or kill existing process
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8001
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8001
 # Or kill existing processes
 pkill -f uvicorn
 ```
@@ -256,8 +256,8 @@ pip install --break-system-packages <package>
 ### Debug Mode
 ```bash
 # Start server with debug logging
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --log-level debug
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --log-level debug
 
 # Check logs for detailed error information
 tail -f /tmp/api.log  # If logging to file
@@ -269,16 +269,16 @@ tail -f /tmp/api.log  # If logging to file
 python3 --version  # Should be 3.11+
 
 # 2. Check PYTHONPATH
-echo $PYTHONPATH  # Should include /path/to/Pynomaly/src
+echo $PYTHONPATH  # Should include /path/to/Software/src
 
 # 3. Test import
-python3 -c "from pynomaly.presentation.api import app; print('Import successful')"
+python3 -c "from software.presentation.api import app; print('Import successful')"
 
 # 4. Check dependencies
 python3 -c "import fastapi, uvicorn, pydantic; print('Dependencies OK')"
 
 # 5. Test server startup
-timeout 10 uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8080
+timeout 10 uvicorn software.presentation.api:app --host 127.0.0.1 --port 8080
 ```
 
 ## Production Deployment
@@ -286,10 +286,10 @@ timeout 10 uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8080
 ### Docker Deployment
 ```bash
 # Build Docker image
-docker build -f deploy/docker/Dockerfile -t pynomaly:latest .
+docker build -f deploy/docker/Dockerfile -t software:latest .
 
 # Run container
-docker run -p 8000:8000 -e PYTHONPATH=/app/src pynomaly:latest
+docker run -p 8000:8000 -e PYTHONPATH=/app/src software:latest
 ```
 
 ### Kubernetes Deployment
@@ -298,23 +298,23 @@ docker run -p 8000:8000 -e PYTHONPATH=/app/src pynomaly:latest
 kubectl apply -f deploy/kubernetes/
 
 # Check deployment status
-kubectl get pods -l app=pynomaly
+kubectl get pods -l app=software
 ```
 
 ### Systemd Service (Linux)
 ```bash
 # Create service file
-sudo tee /etc/systemd/system/pynomaly-api.service << EOF
+sudo tee /etc/systemd/system/software-api.service << EOF
 [Unit]
-Description=Pynomaly API Server
+Description=Software API Server
 After=network.target
 
 [Service]
 Type=simple
-User=pynomaly
-WorkingDirectory=/opt/pynomaly
-Environment=PYTHONPATH=/opt/pynomaly/src
-ExecStart=/usr/local/bin/uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
+User=software
+WorkingDirectory=/opt/software
+Environment=PYTHONPATH=/opt/software/src
+ExecStart=/usr/local/bin/uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000
 Restart=always
 
 [Install]
@@ -322,15 +322,15 @@ WantedBy=multi-user.target
 EOF
 
 # Enable and start service
-sudo systemctl enable pynomaly-api
-sudo systemctl start pynomaly-api
-sudo systemctl status pynomaly-api
+sudo systemctl enable software-api
+sudo systemctl start software-api
+sudo systemctl status software-api
 ```
 
 ### Environment Variables
 ```bash
 # Production environment variables
-export PYTHONPATH=/opt/pynomaly/src
+export PYTHONPATH=/opt/software/src
 export PYNOMALY_ENV=production
 export PYNOMALY_LOG_LEVEL=info
 export PYNOMALY_HOST=0.0.0.0
@@ -341,7 +341,7 @@ export PYNOMALY_WORKERS=4
 ### Performance Tuning
 ```bash
 # Production server with multiple workers
-uvicorn pynomaly.presentation.api:app \
+uvicorn software.presentation.api:app \
     --host 0.0.0.0 \
     --port 8000 \
     --workers 4 \

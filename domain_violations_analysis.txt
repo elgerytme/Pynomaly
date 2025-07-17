@@ -1,0 +1,23 @@
+
+🔍 Domain Boundary Validation Results
+==================================================
+Packages checked: 3
+Packages with violations: 1
+Total violations: 23479
+
+📊 Violations by Package:
+  software: 23479 violations
+
+🚨 Most Common Violations:
+  dataset: 2991 occurrences
+  detection: 2062 occurrences
+  metrics: 1933 occurrences
+  pynomaly: 1915 occurrences
+  model: 1903 occurrences
+  anomaly: 1775 occurrences
+  alert: 1278 occurrences
+  severity: 746 occurrences
+  threshold: 687 occurrences
+  contamination: 686 occurrences
+
+❌ Domain boundary violations detected. Please review and fix.

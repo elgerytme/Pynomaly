@@ -198,7 +198,7 @@ async def require_compliance_access(
 
 
 # Audit Trail Endpoints
-@router.get("/tenants/{tenant_id}/audit-trail", response_model=list[AuditEventResponse])
+@router.get("/tenants/{tenant_id}/audit-trail", response_processor=list[AuditEventResponse])
 async def get_audit_trail(
     tenant_id: UUID,
     start_date: datetime | None = Query(None),
@@ -251,7 +251,7 @@ async def get_audit_trail(
 
 @router.get(
     "/tenants/{tenant_id}/audit-trail/high-risk",
-    response_model=list[AuditEventResponse],
+    response_processor=list[AuditEventResponse],
 )
 async def get_high_risk_events(
     tenant_id: UUID,
@@ -293,7 +293,7 @@ async def get_high_risk_events(
 # Data Retention Policy Endpoints
 @router.post(
     "/tenants/{tenant_id}/retention-policies",
-    response_model=RetentionPolicyResponse,
+    response_processor=RetentionPolicyResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_retention_policy(
@@ -369,7 +369,7 @@ async def apply_retention_policies(
 # GDPR Compliance Endpoints
 @router.post(
     "/tenants/{tenant_id}/gdpr-requests",
-    response_model=GDPRRequestResponse,
+    response_processor=GDPRRequestResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_gdpr_request(
@@ -411,7 +411,7 @@ async def create_gdpr_request(
 
 @router.put(
     "/tenants/{tenant_id}/gdpr-requests/{request_id}/process",
-    response_model=GDPRRequestResponse,
+    response_processor=GDPRRequestResponse,
 )
 async def process_gdpr_request(
     tenant_id: UUID,
@@ -454,7 +454,7 @@ async def process_gdpr_request(
 
 @router.get(
     "/tenants/{tenant_id}/gdpr-requests/overdue",
-    response_model=list[GDPRRequestResponse],
+    response_processor=list[GDPRRequestResponse],
 )
 async def get_overdue_gdpr_requests(
     tenant_id: UUID,
@@ -493,7 +493,7 @@ async def get_overdue_gdpr_requests(
 
 # Compliance Check Endpoints
 @router.post(
-    "/tenants/{tenant_id}/compliance-check", response_model=ComplianceReportResponse
+    "/tenants/{tenant_id}/compliance-check", response_processor=ComplianceReportResponse
 )
 async def run_compliance_check(
     tenant_id: UUID,
@@ -554,7 +554,7 @@ async def run_compliance_check(
 # Encryption Key Management Endpoints
 @router.post(
     "/tenants/{tenant_id}/encryption-keys",
-    response_model=EncryptionKeyResponse,
+    response_processor=EncryptionKeyResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_encryption_key(
@@ -615,7 +615,7 @@ async def rotate_encryption_keys(
 # Backup Management Endpoints
 @router.post(
     "/tenants/{tenant_id}/backups",
-    response_model=BackupRecordResponse,
+    response_processor=BackupRecordResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_backup_record(

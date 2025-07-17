@@ -1,8 +1,8 @@
 """
-Pynomaly Core Package
+Software Core Package
 
 This package contains the core domain logic, business rules, and use cases
-for the Pynomaly anomaly detection platform. It is dependency-free and
+for the Software anomaly processing platform. It is dependency-free and
 contains pure business logic that can be used across all interfaces.
 
 Core Components:
@@ -14,11 +14,11 @@ Core Components:
 
 from .domain.entities import (
     Anomaly,
-    Dataset,
+    DataCollection,
     DetectionResult,
     Detector,
     Experiment,
-    Model,
+    Processor,
     Pipeline,
 )
 from .domain.value_objects import (
@@ -33,10 +33,10 @@ __version__ = "0.1.1"
 __all__ = [
     # Entities
     "Anomaly",
-    "Dataset",
+    "DataCollection",
     "Detector",
     "DetectionResult",
-    "Model",
+    "Processor",
     "Pipeline",
     "Experiment",
     # Value Objects
@@ -47,6 +47,6 @@ __all__ = [
     # Use Cases
     "detect_anomalies",
     "train_detector",
-    "evaluate_model",
+    "evaluate_processor",
     "explain_anomaly",
 ]

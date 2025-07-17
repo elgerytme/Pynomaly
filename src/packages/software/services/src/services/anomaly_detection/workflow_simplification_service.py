@@ -1,7 +1,7 @@
 """Workflow simplification service for enhanced user experience.
 
-This service provides intelligent workflow automation, guided detection processes,
-and simplified interfaces for common anomaly detection tasks.
+This service provides intelligent workflow automation, guided processing processes,
+and simplified interfaces for common anomaly processing tasks.
 """
 
 from __future__ import annotations
@@ -108,14 +108,14 @@ class WorkflowSimplificationService:
     def recommend_workflow(
         self,
         user_context: dict[str, Any],
-        dataset_info: dict[str, Any] | None = None,
+        data_collection_info: dict[str, Any] | None = None,
         user_experience: UserExperience = UserExperience.BEGINNER,
     ) -> WorkflowRecommendation:
         """Recommend optimal workflow based on user context and data.
 
         Args:
             user_context: Information about user's goals and constraints
-            dataset_info: Information about the dataset to analyze
+            data_collection_info: Information about the data_collection to analyze
             user_experience: User's experience level
 
         Returns:
@@ -124,19 +124,19 @@ class WorkflowSimplificationService:
         # Analyze user intent
         intent = self._analyze_user_intent(user_context)
 
-        # Analyze dataset characteristics if provided
-        dataset_profile = (
-            self._analyze_dataset_for_workflow(dataset_info) if dataset_info else {}
+        # Analyze data_collection characteristics if provided
+        data_collection_profile = (
+            self._analyze_data_collection_for_workflow(data_collection_info) if data_collection_info else {}
         )
 
         # Select appropriate workflow template
         workflow_template = self._select_workflow_template(
-            intent, dataset_profile, user_experience
+            intent, data_collection_profile, user_experience
         )
 
         # Customize workflow for user
         customized_workflow = self._customize_workflow(
-            workflow_template, user_context, dataset_profile, user_experience
+            workflow_template, user_context, data_collection_profile, user_experience
         )
 
         return customized_workflow
@@ -209,40 +209,40 @@ class WorkflowSimplificationService:
     @require_feature("cli_simplification")
     def simplify_detection_workflow(
         self,
-        dataset: Dataset,
-        detection_goals: dict[str, Any],
+        data_collection: DataCollection,
+        processing_goals: dict[str, Any],
         automation_level: str = "balanced",  # "minimal", "balanced", "maximum"
     ) -> dict[str, Any]:
-        """Simplify the anomaly detection workflow with intelligent automation.
+        """Simplify the anomaly processing workflow with intelligent automation.
 
         Args:
-            dataset: Dataset to analyze
-            detection_goals: User's detection goals and requirements
+            data_collection: DataCollection to analyze
+            processing_goals: User's processing goals and requirements
             automation_level: Level of automation to apply
 
         Returns:
             Simplified workflow execution results
         """
-        # Analyze dataset for automatic recommendations
-        dataset_analysis = self._analyze_dataset_comprehensively(dataset)
+        # Analyze data_collection for automatic recommendations
+        data_collection_analysis = self._analyze_data_collection_comprehensively(data_collection)
 
         # Generate intelligent recommendations
         recommendations = self._generate_intelligent_recommendations(
-            dataset_analysis, detection_goals, automation_level
+            data_collection_analysis, processing_goals, automation_level
         )
 
         # Execute simplified workflow based on automation level
         if automation_level == "maximum":
             return self._execute_fully_automated_workflow(
-                dataset, recommendations, detection_goals
+                data_collection, recommendations, processing_goals
             )
         elif automation_level == "balanced":
             return self._execute_guided_workflow(
-                dataset, recommendations, detection_goals
+                data_collection, recommendations, processing_goals
             )
         else:  # minimal
             return self._provide_manual_guidance(
-                dataset, recommendations, detection_goals
+                data_collection, recommendations, processing_goals
             )
 
     @require_feature("error_recovery")
@@ -335,21 +335,21 @@ class WorkflowSimplificationService:
         # Quick Start Workflow
         templates["quick_start"] = WorkflowRecommendation(
             workflow_id="quick_start",
-            name="Quick Anomaly Detection",
-            description="Fast anomaly detection for beginners with automatic algorithm selection",
+            name="Quick Anomaly Processing",
+            description="Fast anomaly processing for beginners with automatic algorithm selection",
             estimated_duration_minutes=5,
             confidence_score=0.9,
             steps=[
                 WorkflowStep(
                     step_id="data_upload",
                     name="Upload Data",
-                    description="Upload your dataset (CSV, Excel, or JSON format)",
+                    description="Upload your data_collection (CSV, Excel, or JSON format)",
                     estimated_time_seconds=60,
                 ),
                 WorkflowStep(
                     step_id="auto_analysis",
                     name="Automatic Analysis",
-                    description="Let Pynomaly automatically analyze your data and select the best algorithm",
+                    description="Let Software automatically analyze your data and select the best algorithm",
                     estimated_time_seconds=30,
                 ),
                 WorkflowStep(
@@ -384,27 +384,27 @@ class WorkflowSimplificationService:
                 WorkflowStep(
                     step_id="algorithm_selection",
                     name="Algorithm Selection",
-                    description="Choose algorithms or let Pynomaly recommend the best combination",
+                    description="Choose algorithms or let Software recommend the best combination",
                     estimated_time_seconds=120,
                     complexity=WorkflowComplexity.INTERMEDIATE,
                 ),
                 WorkflowStep(
                     step_id="parameter_tuning",
                     name="Parameter Optimization",
-                    description="Optimize algorithm parameters for your dataset",
+                    description="Optimize algorithm parameters for your data_collection",
                     estimated_time_seconds=300,
                     complexity=WorkflowComplexity.ADVANCED,
                 ),
                 WorkflowStep(
-                    step_id="detection_execution",
-                    name="Run Detection",
-                    description="Execute anomaly detection with selected algorithms",
+                    step_id="processing_execution",
+                    name="Run Processing",
+                    description="Execute anomaly processing with selected algorithms",
                     estimated_time_seconds=180,
                 ),
                 WorkflowStep(
                     step_id="results_analysis",
                     name="Analyze Results",
-                    description="Review results, explanations, and performance metrics",
+                    description="Review results, explanations, and performance measurements",
                     estimated_time_seconds=300,
                     complexity=WorkflowComplexity.INTERMEDIATE,
                 ),
@@ -420,14 +420,14 @@ class WorkflowSimplificationService:
         templates["production"] = WorkflowRecommendation(
             workflow_id="production",
             name="Production Deployment",
-            description="Deploy anomaly detection models to production environment",
+            description="Deploy anomaly processing models to production environment",
             estimated_duration_minutes=30,
             confidence_score=0.8,
             steps=[
                 WorkflowStep(
-                    step_id="model_validation",
-                    name="Model Validation",
-                    description="Validate model performance on test data",
+                    step_id="processor_validation",
+                    name="Processor Validation",
+                    description="Validate processor performance on test data",
                     estimated_time_seconds=300,
                     complexity=WorkflowComplexity.ADVANCED,
                 ),
@@ -440,8 +440,8 @@ class WorkflowSimplificationService:
                 ),
                 WorkflowStep(
                     step_id="deployment",
-                    name="Deploy Model",
-                    description="Deploy model to production environment",
+                    name="Deploy Processor",
+                    description="Deploy processor to production environment",
                     estimated_time_seconds=300,
                     complexity=WorkflowComplexity.EXPERT,
                 ),
@@ -486,9 +486,9 @@ class WorkflowSimplificationService:
         return intent
 
     def _analyze_dataset_for_workflow(
-        self, dataset_info: dict[str, Any]
+        self, data_collection_info: dict[str, Any]
     ) -> dict[str, Any]:
-        """Analyze dataset characteristics for workflow selection."""
+        """Analyze data_collection characteristics for workflow selection."""
         profile = {
             "size_category": "unknown",
             "complexity": "unknown",
@@ -497,8 +497,8 @@ class WorkflowSimplificationService:
         }
 
         # Analyze size
-        n_rows = dataset_info.get("n_rows", 0)
-        n_cols = dataset_info.get("n_columns", 0)
+        n_rows = data_collection_info.get("n_rows", 0)
+        n_cols = data_collection_info.get("n_columns", 0)
 
         if n_rows < 1000:
             profile["size_category"] = "small"
@@ -516,7 +516,7 @@ class WorkflowSimplificationService:
             profile["complexity"] = "complex"
 
         # Check for preprocessing needs
-        missing_ratio = dataset_info.get("missing_values_ratio", 0)
+        missing_ratio = data_collection_info.get("missing_values_ratio", 0)
         if missing_ratio > 0.1:
             profile["preprocessing_needed"] = True
 
@@ -525,7 +525,7 @@ class WorkflowSimplificationService:
     def _select_workflow_template(
         self,
         intent: dict[str, Any],
-        dataset_profile: dict[str, Any],
+        data_collection_profile: dict[str, Any],
         user_experience: UserExperience,
     ) -> WorkflowRecommendation:
         """Select appropriate workflow template."""
@@ -544,7 +544,7 @@ class WorkflowSimplificationService:
         self,
         workflow: WorkflowRecommendation,
         user_context: dict[str, Any],
-        dataset_profile: dict[str, Any],
+        data_collection_profile: dict[str, Any],
         user_experience: UserExperience,
     ) -> WorkflowRecommendation:
         """Customize workflow based on specific context."""
@@ -557,12 +557,12 @@ class WorkflowSimplificationService:
             steps=workflow.steps.copy(),
         )
 
-        # Adjust based on dataset size
-        if dataset_profile.get("size_category") == "large":
+        # Adjust based on data_collection size
+        if data_collection_profile.get("size_category") == "large":
             customized.estimated_duration_minutes = int(
                 workflow.estimated_duration_minutes * 1.5
             )
-            customized.reasoning.append("Extended time for large dataset processing")
+            customized.reasoning.append("Extended time for large data_collection processing")
 
         # Adjust based on user experience
         if user_experience == UserExperience.BEGINNER:
@@ -573,8 +573,8 @@ class WorkflowSimplificationService:
         return customized
 
     def _analyze_dataset_comprehensively(self, dataset: Dataset) -> dict[str, Any]:
-        """Perform comprehensive dataset analysis for workflow automation."""
-        data = dataset.data
+        """Perform comprehensive data_collection analysis for workflow automation."""
+        data = data_collection.data
 
         # Handle pandas DataFrame vs numpy array
         if hasattr(data, "values"):
@@ -613,15 +613,15 @@ class WorkflowSimplificationService:
 
     def _generate_intelligent_recommendations(
         self,
-        dataset_analysis: dict[str, Any],
-        detection_goals: dict[str, Any],
+        data_collection_analysis: dict[str, Any],
+        processing_goals: dict[str, Any],
         automation_level: str,
     ) -> dict[str, Any]:
         """Generate intelligent recommendations based on analysis."""
         recommendations = {
             "algorithms": ["IsolationForest"],  # Simplified recommendation
             "parameters": {
-                "contamination": dataset_analysis["anomaly_indicators"][
+                "contamination": data_collection_analysis["anomaly_indicators"][
                     "recommended_contamination"
                 ],
                 "n_estimators": 100,
@@ -631,13 +631,13 @@ class WorkflowSimplificationService:
         }
 
         # Add preprocessing if needed
-        if dataset_analysis["data_quality"]["missing_values"] > 0:
+        if data_collection_analysis["data_quality"]["missing_values"] > 0:
             recommendations["preprocessing"].append("handle_missing_values")
 
         return recommendations
 
     def _execute_fully_automated_workflow(
-        self, dataset: Dataset, recommendations: dict[str, Any], goals: dict[str, Any]
+        self, data_collection: DataCollection, recommendations: dict[str, Any], goals: dict[str, Any]
     ) -> dict[str, Any]:
         """Execute fully automated workflow."""
         # Create detector with recommended settings
@@ -648,8 +648,8 @@ class WorkflowSimplificationService:
         )
 
         # Fit and detect
-        detector.fit(dataset)
-        result = detector.detect(dataset)
+        detector.fit(data_collection)
+        result = detector.detect(data_collection)
 
         return {
             "execution_type": "fully_automated",
@@ -664,7 +664,7 @@ class WorkflowSimplificationService:
         }
 
     def _execute_guided_workflow(
-        self, dataset: Dataset, recommendations: dict[str, Any], goals: dict[str, Any]
+        self, data_collection: DataCollection, recommendations: dict[str, Any], goals: dict[str, Any]
     ) -> dict[str, Any]:
         """Execute guided workflow with user interaction points."""
         return {
@@ -687,7 +687,7 @@ class WorkflowSimplificationService:
         }
 
     def _provide_manual_guidance(
-        self, dataset: Dataset, recommendations: dict[str, Any], goals: dict[str, Any]
+        self, data_collection: DataCollection, recommendations: dict[str, Any], goals: dict[str, Any]
     ) -> dict[str, Any]:
         """Provide manual guidance without automation."""
         return {
@@ -696,13 +696,13 @@ class WorkflowSimplificationService:
                 "step_1": "Choose an algorithm from: IsolationForest, LocalOutlierFactor, OneClassSVM",
                 "step_2": "Set contamination rate (typically 0.05-0.15)",
                 "step_3": "Configure algorithm-specific parameters",
-                "step_4": "Run detection and analyze results",
+                "step_4": "Run processing and analyze results",
             },
             "recommendations": recommendations,
             "helpful_hints": [
                 "Start with IsolationForest for general use",
-                "Use LocalOutlierFactor for density-based detection",
-                "Consider ensemble methods for robust detection",
+                "Use LocalOutlierFactor for density-based processing",
+                "Consider ensemble methods for robust processing",
             ],
         }
 
@@ -876,8 +876,8 @@ class WorkflowSimplificationService:
         """Provide concept explanations."""
         return {
             "type": "concept_explanation",
-            "explanation": "Anomaly detection identifies unusual patterns in data",
-            "examples": ["Fraud detection", "System monitoring", "Quality control"],
+            "explanation": "Anomaly processing identifies unusual patterns in data",
+            "examples": ["Fraud processing", "System monitoring", "Quality control"],
             "related_concepts": [
                 "Machine learning",
                 "Statistical analysis",
@@ -904,7 +904,7 @@ class WorkflowSimplificationService:
             "common_issues": [
                 "Data format not supported",
                 "Too many missing values",
-                "Dataset too large for available memory",
+                "DataCollection too large for available memory",
             ],
             "solutions": [
                 "Convert to supported format (CSV, Excel, JSON)",
@@ -930,7 +930,7 @@ class WorkflowSimplificationService:
         return {
             "type": "general_help",
             "help_topics": [
-                "Getting started with anomaly detection",
+                "Getting started with anomaly processing",
                 "Choosing the right algorithm",
                 "Understanding results",
                 "Troubleshooting common issues",

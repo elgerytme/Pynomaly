@@ -19,7 +19,7 @@ from monorepo.domain.entities import (
     ExperimentRun,
     ExperimentStatus,
     ExperimentType,
-    Model,
+    Processor,
     ModelStatus,
     ModelVersion,
 )
@@ -40,41 +40,41 @@ logger = logging.getLogger(__name__)
 class AdvancedMLLifecycleService:
     """Advanced ML lifecycle management with enterprise-grade features.
 
-    Provides comprehensive model lifecycle management including:
+    Provides comprehensive processor lifecycle management including:
     - Automated experiment tracking with MLflow-style interface
-    - Intelligent model versioning with semantic versioning
-    - Model governance with approval workflows
-    - Performance monitoring and drift detection
-    - A/B testing framework for model comparison
-    - Automated model registry with lineage tracking
+    - Intelligent processor versioning with semantic versioning
+    - Processor governance with approval workflows
+    - Performance monitoring and drift processing
+    - A/B testing framework for processor comparison
+    - Automated processor registry with lineage tracking
     """
 
     def __init__(
         self,
         experiment_repository: ExperimentRepositoryProtocol,
-        model_repository: ModelRepositoryProtocol,
-        model_version_repository: ModelVersionRepositoryProtocol,
+        processor_repository: ModelRepositoryProtocol,
+        processor_version_repository: ModelVersionRepositoryProtocol,
         artifact_storage_path: Path,
-        model_registry_path: Path,
+        processor_registry_path: Path,
     ):
         """Initialize the advanced ML lifecycle service.
 
         Args:
             experiment_repository: Repository for experiments
-            model_repository: Repository for models
-            model_version_repository: Repository for model versions
+            processor_repository: Repository for models
+            processor_version_repository: Repository for processor versions
             artifact_storage_path: Path for storing artifacts
-            model_registry_path: Path for model registry
+            processor_registry_path: Path for processor registry
         """
         self.experiment_repository = experiment_repository
-        self.model_repository = model_repository
-        self.model_version_repository = model_version_repository
+        self.processor_repository = processor_repository
+        self.processor_version_repository = processor_version_repository
         self.artifact_storage_path = artifact_storage_path
-        self.model_registry_path = model_registry_path
+        self.processor_registry_path = processor_registry_path
 
         # Create directories
         self.artifact_storage_path.mkdir(parents=True, exist_ok=True)
-        self.model_registry_path.mkdir(parents=True, exist_ok=True)
+        self.processor_registry_path.mkdir(parents=True, exist_ok=True)
 
         # Track active experiments and runs
         self._active_experiments = {}
@@ -90,7 +90,7 @@ class AdvancedMLLifecycleService:
         objective: str,
         created_by: str,
         auto_log_parameters: bool = True,
-        auto_log_metrics: bool = True,
+        auto_log_measurements: bool = True,
         auto_log_artifacts: bool = True,
         tags: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
@@ -104,7 +104,7 @@ class AdvancedMLLifecycleService:
             objective: Primary objective
             created_by: User starting the experiment
             auto_log_parameters: Automatically log parameters
-            auto_log_metrics: Automatically log metrics
+            auto_log_measurements: Automatically log measurements
             auto_log_artifacts: Automatically log artifacts
             tags: Experiment tags
             metadata: Additional metadata
@@ -126,13 +126,13 @@ class AdvancedMLLifecycleService:
         experiment.metadata.update(
             {
                 "auto_log_parameters": auto_log_parameters,
-                "auto_log_metrics": auto_log_metrics,
+                "auto_log_measurements": auto_log_measurements,
                 "auto_log_artifacts": auto_log_artifacts,
                 "tracking_config": {
                     "parameter_logging": auto_log_parameters,
-                    "metric_logging": auto_log_metrics,
+                    "metric_logging": auto_log_measurements,
                     "artifact_logging": auto_log_artifacts,
-                    "model_signature_logging": True,
+                    "processor_signature_logging": True,
                     "environment_logging": True,
                 },
             }
@@ -156,7 +156,7 @@ class AdvancedMLLifecycleService:
         experiment_id: str,
         run_name: str,
         detector_id: UUID,
-        dataset_id: UUID,
+        data_collection_id: UUID,
         parameters: dict[str, Any],
         created_by: str,
         parent_run_id: str | None = None,
@@ -169,7 +169,7 @@ class AdvancedMLLifecycleService:
             experiment_id: Parent experiment ID
             run_name: Name for this run
             detector_id: Detector being used
-            dataset_id: Dataset being used
+            data_collection_id: DataCollection being used
             parameters: Run parameters
             created_by: User starting the run
             parent_run_id: Parent run ID for nested runs
@@ -193,7 +193,7 @@ class AdvancedMLLifecycleService:
         run = ExperimentRun(
             name=run_name,
             detector_id=detector_id,
-            dataset_id=dataset_id,
+            data_collection_id=data_collection_id,
             parameters=parameters,
             metadata={
                 "created_by": created_by,
@@ -218,7 +218,7 @@ class AdvancedMLLifecycleService:
             "run": run,
             "experiment_id": experiment_id,
             "run_dir": run_dir,
-            "logged_metrics": {},
+            "logged_measurements": {},
             "logged_parameters": parameters.copy(),
             "logged_artifacts": {},
         }
@@ -261,7 +261,7 @@ class AdvancedMLLifecycleService:
             run_id: Run ID
             key: Metric name
             value: Metric value
-            step: Step number for time series metrics
+            step: Step number for time series measurements
             timestamp: Timestamp for the metric
         """
         if run_id not in self._active_runs:
@@ -269,8 +269,8 @@ class AdvancedMLLifecycleService:
 
         run_info = self._active_runs[run_id]
 
-        if key not in run_info["logged_metrics"]:
-            run_info["logged_metrics"][key] = []
+        if key not in run_info["logged_measurements"]:
+            run_info["logged_measurements"][key] = []
 
         metric_entry = {
             "value": value,
@@ -278,8 +278,8 @@ class AdvancedMLLifecycleService:
             "timestamp": (timestamp or datetime.utcnow()).isoformat(),
         }
 
-        run_info["logged_metrics"][key].append(metric_entry)
-        run_info["run"].metrics[key] = value  # Store latest value
+        run_info["logged_measurements"][key].append(metric_entry)
+        run_info["run"].measurements[key] = value  # Store latest value
 
         logger.debug(f"Logged metric {key}={value} for run {run_id}")
 
@@ -349,64 +349,64 @@ class AdvancedMLLifecycleService:
         logger.info(f"Logged artifact '{artifact_name}' for run {run_id}")
         return str(artifact_path)
 
-    async def log_model(
+    async def log_processor(
         self,
         run_id: str,
-        model: Any,
-        model_name: str,
-        model_signature: dict[str, Any] | None = None,
+        processor: Any,
+        processor_name: str,
+        processor_signature: dict[str, Any] | None = None,
         input_example: Any | None = None,
-        registered_model_name: str | None = None,
+        registered_processor_name: str | None = None,
         await_registration_for: int = 300,
     ) -> str:
-        """Log a trained model with the run.
+        """Log a trained processor with the run.
 
         Args:
             run_id: Run ID
-            model: Trained model object
-            model_name: Name for the model
-            model_signature: Model signature (input/output schema)
-            input_example: Example input for the model
-            registered_model_name: Name for registered model
+            processor: Trained processor object
+            processor_name: Name for the processor
+            processor_signature: Processor signature (input/output schema)
+            input_example: Example input for the processor
+            registered_processor_name: Name for registered processor
             await_registration_for: Seconds to wait for registration
 
         Returns:
-            Model version ID
+            Processor version ID
         """
         if run_id not in self._active_runs:
             raise ValueError(f"Run {run_id} not found or not active")
 
         run_info = self._active_runs[run_id]
 
-        # Store model artifact
-        model_path = await self.log_artifact(
-            run_id, f"model_{model_name}", model, "pickle"
+        # Store processor artifact
+        processor_path = await self.log_artifact(
+            run_id, f"processor_{processor_name}", processor, "pickle"
         )
 
-        # Store model signature
-        if model_signature:
+        # Store processor signature
+        if processor_signature:
             await self.log_artifact(
-                run_id, f"model_signature_{model_name}", model_signature, "json"
+                run_id, f"processor_signature_{processor_name}", processor_signature, "json"
             )
 
         # Store input example
         if input_example is not None:
             await self.log_artifact(
-                run_id, f"input_example_{model_name}", input_example, "pickle"
+                run_id, f"input_example_{processor_name}", input_example, "pickle"
             )
 
-        # Generate model version
-        if registered_model_name:
-            model_version_id = await self._register_model_version(
+        # Generate processor version
+        if registered_processor_name:
+            processor_version_id = await self._register_processor_version(
                 run_id=run_id,
-                model=model,
-                model_name=registered_model_name,
-                model_path=model_path,
-                model_signature=model_signature,
+                processor=processor,
+                processor_name=registered_processor_name,
+                processor_path=processor_path,
+                processor_signature=processor_signature,
             )
-            return model_version_id
+            return processor_version_id
 
-        return model_path
+        return processor_path
 
     async def end_run(
         self,
@@ -434,11 +434,11 @@ class AdvancedMLLifecycleService:
         run.completed_at = end_time or datetime.utcnow()
         run.status = status
 
-        # Store final metrics and artifacts
-        run.metadata["final_metrics"] = run_info["logged_metrics"]
+        # Store final measurements and artifacts
+        run.metadata["final_measurements"] = run_info["logged_measurements"]
         run.metadata["final_artifacts"] = run_info["logged_artifacts"]
         run.metadata["total_parameters"] = len(run_info["logged_parameters"])
-        run.metadata["total_metrics"] = len(run_info["logged_metrics"])
+        run.metadata["total_measurements"] = len(run_info["logged_measurements"])
         run.metadata["total_artifacts"] = len(run_info["logged_artifacts"])
 
         # Save run summary
@@ -449,8 +449,8 @@ class AdvancedMLLifecycleService:
             "status": status,
             "duration_seconds": run.duration_seconds,
             "parameters": run_info["logged_parameters"],
-            "metrics": {
-                k: v[-1] if v else None for k, v in run_info["logged_metrics"].items()
+            "measurements": {
+                k: v[-1] if v else None for k, v in run_info["logged_measurements"].items()
             },
             "artifacts": list(run_info["logged_artifacts"].keys()),
             "metadata": run.metadata,
@@ -461,7 +461,7 @@ class AdvancedMLLifecycleService:
 
         # Mark as completed
         if status == "FINISHED" and not run.error_message:
-            run.complete(run.metrics)
+            run.complete(run.measurements)
         else:
             run.fail(f"Run ended with status: {status}")
 
@@ -471,79 +471,79 @@ class AdvancedMLLifecycleService:
         logger.info(f"Ended run {run_id} with status {status}")
         return run
 
-    # ==================== Model Versioning ====================
+    # ==================== Processor Versioning ====================
 
-    async def create_model_version(
+    async def create_processor_version(
         self,
-        model_name: str,
+        processor_name: str,
         run_id: str,
-        model_path: str,
-        performance_metrics: dict[str, float],
+        processor_path: str,
+        performance_measurements: dict[str, float],
         description: str = "",
         tags: list[str] | None = None,
         auto_version: bool = True,
     ) -> str:
-        """Create a new model version with intelligent versioning.
+        """Create a new processor version with intelligent versioning.
 
         Args:
-            model_name: Name of the model
+            processor_name: Name of the processor
             run_id: Associated run ID
-            model_path: Path to the model artifact
-            performance_metrics: Performance metrics
+            processor_path: Path to the processor artifact
+            performance_measurements: Performance measurements
             description: Version description
             tags: Version tags
             auto_version: Automatically determine version number
 
         Returns:
-            Model version ID
+            Processor version ID
         """
-        # Get or create model
-        existing_models = await self.model_repository.find_by_name(model_name)
-        if existing_models:
-            model = existing_models[0]
+        # Get or create processor
+        existing_processors = await self.processor_repository.find_by_name(processor_name)
+        if existing_processors:
+            processor = existing_processors[0]
         else:
-            # Create new model
+            # Create new processor
             run_info = self._active_runs.get(run_id)
             if not run_info:
                 raise ValueError(f"Run {run_id} not found")
 
-            model = Model(
-                name=model_name,
-                description=f"Model created from run {run_id}",
-                model_type="anomaly_detection",
+            processor = Processor(
+                name=processor_name,
+                description=f"Processor created from run {run_id}",
+                processor_type="anomaly_processing",
                 algorithm_family="ensemble",
                 created_by=run_info["run"].metadata.get("created_by", "system"),
             )
-            await self.model_repository.save(model)
+            await self.processor_repository.save(processor)
 
         # Determine version number
         if auto_version:
-            version = await self._determine_next_version(model.id, performance_metrics)
+            version = await self._determine_next_version(processor.id, performance_measurements)
         else:
             # Use simple incremental versioning
-            existing_versions = await self.model_version_repository.find_by_model_id(
-                model.id
+            existing_versions = await self.processor_version_repository.find_by_processor_id(
+                processor.id
             )
             version_number = len(existing_versions) + 1
             version = SemanticVersion(major=1, minor=0, patch=version_number)
 
-        # Create performance metrics object
-        perf_metrics = PerformanceMetrics(
-            accuracy=performance_metrics.get("accuracy", 0.0),
-            precision=performance_metrics.get("precision", 0.0),
-            recall=performance_metrics.get("recall", 0.0),
-            f1_score=performance_metrics.get("f1_score", 0.0),
-            training_time=performance_metrics.get("training_time", 0.0),
-            inference_time=performance_metrics.get("inference_time", 0.0),
+        # Create performance measurements object
+        perf_measurements = PerformanceMetrics(
+            accuracy=performance_measurements.get("accuracy", 0.0),
+            precision=performance_measurements.get("precision", 0.0),
+            recall=performance_measurements.get("recall", 0.0),
+            f1_score=performance_measurements.get("f1_score", 0.0),
+            training_time=performance_measurements.get("training_time", 0.0),
+            inference_time=performance_measurements.get("inference_time", 0.0),
         )
 
         # Create storage info
         storage_info = ModelStorageInfo(
-            storage_path=model_path,
+            storage_path=processor_path,
             storage_type="local_file",
             compression="none",
-            size_bytes=Path(model_path).stat().st_size,
-            checksum=await self._calculate_checksum(Path(model_path)),
+            size_bytes=Path(processor_path).stat().st_size,
+            checksum=await self._calculate_checksum(Path(processor_path)),
         )
 
         # Get run info
@@ -555,60 +555,60 @@ class AdvancedMLLifecycleService:
         )
         detector_id = run_info["run"].detector_id if run_info else uuid4()
 
-        # Create model version
-        model_version = ModelVersion(
-            model_id=model.id,
+        # Create processor version
+        processor_version = ModelVersion(
+            processor_id=processor.id,
             detector_id=detector_id,
             version=version,
-            performance_metrics=perf_metrics,
+            performance_measurements=perf_measurements,
             storage_info=storage_info,
             created_by=created_by,
             description=description,
             tags=tags or [],
         )
 
-        await self.model_version_repository.save(model_version)
+        await self.processor_version_repository.save(processor_version)
 
-        # Update model's latest version
-        model.set_latest_version(model_version.id)
-        await self.model_repository.save(model)
+        # Update processor's latest version
+        processor.set_latest_version(processor_version.id)
+        await self.processor_repository.save(processor)
 
         logger.info(
-            f"Created model version {version.version_string} for model {model_name}"
+            f"Created processor version {version.version_string} for processor {processor_name}"
         )
-        return str(model_version.id)
+        return str(processor_version.id)
 
-    async def promote_model_version(
+    async def promote_processor_version(
         self,
-        model_version_id: str,
+        processor_version_id: str,
         stage: str,
         promoted_by: str,
         approval_workflow: bool = True,
         validation_tests: list[str] | None = None,
     ) -> dict[str, Any]:
-        """Promote a model version to a specific stage.
+        """Promote a processor version to a specific stage.
 
         Args:
-            model_version_id: Model version ID
+            processor_version_id: Processor version ID
             stage: Target stage (staging, production, archived)
-            promoted_by: User promoting the model
+            promoted_by: User promoting the processor
             approval_workflow: Whether to use approval workflow
             validation_tests: List of validation tests to run
 
         Returns:
             Promotion result
         """
-        version_uuid = UUID(model_version_id)
-        model_version = await self.model_version_repository.find_by_id(version_uuid)
+        version_uuid = UUID(processor_version_id)
+        processor_version = await self.processor_version_repository.find_by_id(version_uuid)
 
-        if not model_version:
-            raise ValueError(f"Model version {model_version_id} not found")
+        if not processor_version:
+            raise ValueError(f"Processor version {processor_version_id} not found")
 
         # Run validation tests if specified
         validation_results = {}
         if validation_tests:
             validation_results = await self._run_validation_tests(
-                model_version, validation_tests
+                processor_version, validation_tests
             )
 
         # Check if validation passed
@@ -631,23 +631,23 @@ class AdvancedMLLifecycleService:
         }
 
         new_status = status_mapping.get(stage, ModelStatus.DRAFT)
-        model_version.update_status(new_status)
+        processor_version.update_status(new_status)
 
         # Log promotion
-        model_version.update_metadata("promoted_by", promoted_by)
-        model_version.update_metadata("promoted_to", stage)
-        model_version.update_metadata(
+        processor_version.update_metadata("promoted_by", promoted_by)
+        processor_version.update_metadata("promoted_to", stage)
+        processor_version.update_metadata(
             "promotion_timestamp", datetime.utcnow().isoformat()
         )
 
         if validation_results:
-            model_version.update_metadata("validation_results", validation_results)
+            processor_version.update_metadata("validation_results", validation_results)
 
-        await self.model_version_repository.save(model_version)
+        await self.processor_version_repository.save(processor_version)
 
         return {
             "success": True,
-            "model_version_id": model_version_id,
+            "processor_version_id": processor_version_id,
             "new_stage": stage,
             "new_status": new_status.value,
             "validation_results": validation_results,
@@ -655,9 +655,9 @@ class AdvancedMLLifecycleService:
             "promoted_at": datetime.utcnow().isoformat(),
         }
 
-    # ==================== Model Registry ====================
+    # ==================== Processor Registry ====================
 
-    async def search_models(
+    async def search_processors(
         self,
         query: str,
         max_results: int = 50,
@@ -677,64 +677,64 @@ class AdvancedMLLifecycleService:
         """
         # This would implement full-text search
         # For now, implement basic name matching
-        all_models = await self.model_repository.find_all()
+        all_processors = await self.processor_repository.find_all()
 
         # Filter by query
-        matching_models = []
-        for model in all_models:
+        matching_processors = []
+        for processor in all_processors:
             if (
-                query.lower() in model.name.lower()
-                or query.lower() in model.description.lower()
+                query.lower() in processor.name.lower()
+                or query.lower() in processor.description.lower()
             ):
-                matching_models.append(model)
+                matching_processors.append(processor)
 
         # Apply additional filters
         if filter_dict:
-            filtered_models = []
-            for model in matching_models:
+            filtered_processors = []
+            for processor in matching_processors:
                 match = True
                 for key, value in filter_dict.items():
-                    if hasattr(model, key) and getattr(model, key) != value:
+                    if hasattr(processor, key) and getattr(processor, key) != value:
                         match = False
                         break
                 if match:
-                    filtered_models.append(model)
-            matching_models = filtered_models
+                    filtered_processors.append(processor)
+            matching_processors = filtered_processors
 
         # Convert to dict format
         results = []
-        for model in matching_models[:max_results]:
-            model_info = model.get_info()
+        for processor in matching_processors[:max_results]:
+            processor_info = processor.get_info()
 
             # Add latest version info
-            if model.latest_version_id:
-                latest_version = await self.model_version_repository.find_by_id(
-                    model.latest_version_id
+            if processor.latest_version_id:
+                latest_version = await self.processor_version_repository.find_by_id(
+                    processor.latest_version_id
                 )
                 if latest_version:
-                    model_info["latest_version"] = latest_version.get_info()
+                    processor_info["latest_version"] = latest_version.get_info()
 
-            results.append(model_info)
+            results.append(processor_info)
 
         return results
 
-    async def get_model_registry_stats(self) -> dict[str, Any]:
-        """Get comprehensive model registry statistics.
+    async def get_processor_registry_stats(self) -> dict[str, Any]:
+        """Get comprehensive processor registry statistics.
 
         Returns:
             Registry statistics
         """
-        all_models = await self.model_repository.find_all()
-        all_versions = await self.model_version_repository.find_all()
+        all_processors = await self.processor_repository.find_all()
+        all_versions = await self.processor_version_repository.find_all()
 
         # Calculate statistics
-        total_models = len(all_models)
+        total_processors = len(all_processors)
         total_versions = len(all_versions)
 
         # Models by status
         status_counts = {}
-        for model in all_models:
-            status = model.stage.value if hasattr(model, "stage") else "unknown"
+        for processor in all_processors:
+            status = processor.stage.value if hasattr(processor, "stage") else "unknown"
             status_counts[status] = status_counts.get(status, 0) + 1
 
         # Versions by status
@@ -744,7 +744,7 @@ class AdvancedMLLifecycleService:
             version_status_counts[status] = version_status_counts.get(status, 0) + 1
 
         # Recent activity
-        recent_models = sorted(all_models, key=lambda m: m.created_at, reverse=True)[:5]
+        recent_processors = sorted(all_processors, key=lambda m: m.created_at, reverse=True)[:5]
         recent_versions = sorted(
             all_versions, key=lambda v: v.created_at, reverse=True
         )[:5]
@@ -753,25 +753,25 @@ class AdvancedMLLifecycleService:
         performance_trends = await self._calculate_performance_trends(all_versions)
 
         return {
-            "total_models": total_models,
+            "total_processors": total_processors,
             "total_versions": total_versions,
-            "average_versions_per_model": (
-                total_versions / total_models if total_models > 0 else 0
+            "average_versions_per_processor": (
+                total_versions / total_processors if total_processors > 0 else 0
             ),
-            "model_status_distribution": status_counts,
+            "processor_status_distribution": status_counts,
             "version_status_distribution": version_status_counts,
-            "recent_models": [model.get_info() for model in recent_models],
+            "recent_processors": [processor.get_info() for processor in recent_processors],
             "recent_versions": [version.get_info() for version in recent_versions],
             "performance_trends": performance_trends,
             "registry_health": {
                 "models_with_production_versions": len(
                     [
                         m
-                        for m in all_models
+                        for m in all_processors
                         if any(
                             v.status == ModelStatus.DEPLOYED
                             for v in all_versions
-                            if v.model_id == m.id
+                            if v.processor_id == m.id
                         )
                     ]
                 ),
@@ -779,13 +779,13 @@ class AdvancedMLLifecycleService:
                     [
                         v
                         for v in all_versions
-                        if not any(m.id == v.model_id for m in all_models)
+                        if not any(m.id == v.processor_id for m in all_processors)
                     ]
                 ),
-                "stale_models": len(
+                "stale_processors": len(
                     [
                         m
-                        for m in all_models
+                        for m in all_processors
                         if (datetime.utcnow() - m.created_at).days > 90
                     ]
                 ),
@@ -794,38 +794,38 @@ class AdvancedMLLifecycleService:
 
     # ==================== Helper Methods ====================
 
-    async def _register_model_version(
+    async def _register_processor_version(
         self,
         run_id: str,
-        model: Any,
-        model_name: str,
-        model_path: str,
-        model_signature: dict[str, Any] | None = None,
+        processor: Any,
+        processor_name: str,
+        processor_path: str,
+        processor_signature: dict[str, Any] | None = None,
     ) -> str:
-        """Register a model version from a run."""
-        # Calculate performance metrics from the run
+        """Register a processor version from a run."""
+        # Calculate performance measurements from the run
         run_info = self._active_runs[run_id]
-        metrics = run_info["logged_metrics"]
+        measurements = run_info["logged_measurements"]
 
         # Extract latest metric values
-        performance_metrics = {}
-        for metric_name, metric_history in metrics.items():
+        performance_measurements = {}
+        for metric_name, metric_history in measurements.items():
             if metric_history:
-                performance_metrics[metric_name] = metric_history[-1]["value"]
+                performance_measurements[metric_name] = metric_history[-1]["value"]
 
-        return await self.create_model_version(
-            model_name=model_name,
+        return await self.create_processor_version(
+            processor_name=processor_name,
             run_id=run_id,
-            model_path=model_path,
-            performance_metrics=performance_metrics,
+            processor_path=processor_path,
+            performance_measurements=performance_measurements,
         )
 
     async def _determine_next_version(
-        self, model_id: UUID, performance_metrics: dict[str, float]
+        self, processor_id: UUID, performance_measurements: dict[str, float]
     ) -> SemanticVersion:
         """Determine the next semantic version based on performance changes."""
-        existing_versions = await self.model_version_repository.find_by_model_id(
-            model_id
+        existing_versions = await self.processor_version_repository.find_by_processor_id(
+            processor_id
         )
 
         if not existing_versions:
@@ -833,16 +833,16 @@ class AdvancedMLLifecycleService:
 
         # Get latest version
         latest_version = max(existing_versions, key=lambda v: v.version.to_tuple())
-        latest_metrics = latest_version.get_performance_summary()
+        latest_measurements = latest_version.get_performance_summary()
 
         # Calculate performance changes
         significant_improvement = False
         breaking_change = False
         minor_improvement = False
 
-        for metric_name, new_value in performance_metrics.items():
-            if metric_name in latest_metrics:
-                old_value = latest_metrics[metric_name]
+        for metric_name, new_value in performance_measurements.items():
+            if metric_name in latest_measurements:
+                old_value = latest_measurements[metric_name]
                 change_percent = (
                     (new_value - old_value) / old_value if old_value > 0 else 0
                 )
@@ -870,21 +870,21 @@ class AdvancedMLLifecycleService:
             )
 
     async def _run_validation_tests(
-        self, model_version: ModelVersion, validation_tests: list[str]
+        self, processor_version: ModelVersion, validation_tests: list[str]
     ) -> dict[str, dict[str, Any]]:
-        """Run validation tests on a model version."""
+        """Run validation tests on a processor version."""
         results = {}
 
         for test_name in validation_tests:
             try:
                 if test_name == "performance_baseline":
-                    result = await self._validate_performance_baseline(model_version)
+                    result = await self._validate_performance_baseline(processor_version)
                 elif test_name == "data_drift":
-                    result = await self._validate_data_drift(model_version)
-                elif test_name == "model_signature":
-                    result = await self._validate_model_signature(model_version)
+                    result = await self._validate_data_drift(processor_version)
+                elif test_name == "processor_signature":
+                    result = await self._validate_processor_signature(processor_version)
                 elif test_name == "resource_usage":
-                    result = await self._validate_resource_usage(model_version)
+                    result = await self._validate_resource_usage(processor_version)
                 else:
                     result = {"passed": False, "reason": f"Unknown test: {test_name}"}
 
@@ -899,9 +899,9 @@ class AdvancedMLLifecycleService:
         return results
 
     async def _validate_performance_baseline(
-        self, model_version: ModelVersion
+        self, processor_version: ModelVersion
     ) -> dict[str, Any]:
-        """Validate that model meets performance baseline."""
+        """Validate that processor meets performance baseline."""
         # Define minimum performance thresholds
         thresholds = {
             "accuracy": 0.8,
@@ -910,7 +910,7 @@ class AdvancedMLLifecycleService:
             "f1_score": 0.75,
         }
 
-        performance = model_version.get_performance_summary()
+        performance = processor_version.get_performance_summary()
 
         for metric, threshold in thresholds.items():
             if metric in performance and performance[metric] < threshold:
@@ -927,9 +927,9 @@ class AdvancedMLLifecycleService:
             "thresholds": thresholds,
         }
 
-    async def _validate_data_drift(self, model_version: ModelVersion) -> dict[str, Any]:
-        """Validate data drift for the model."""
-        # This would implement actual drift detection
+    async def _validate_data_drift(self, processor_version: ModelVersion) -> dict[str, Any]:
+        """Validate data drift for the processor."""
+        # This would implement actual drift processing
         # For now, return a placeholder
         return {
             "passed": True,
@@ -938,10 +938,10 @@ class AdvancedMLLifecycleService:
             "message": "No significant data drift detected",
         }
 
-    async def _validate_model_signature(
-        self, model_version: ModelVersion
+    async def _validate_processor_signature(
+        self, processor_version: ModelVersion
     ) -> dict[str, Any]:
-        """Validate model signature compatibility."""
+        """Validate processor signature compatibility."""
         # This would check input/output schemas
         return {
             "passed": True,
@@ -951,11 +951,11 @@ class AdvancedMLLifecycleService:
         }
 
     async def _validate_resource_usage(
-        self, model_version: ModelVersion
+        self, processor_version: ModelVersion
     ) -> dict[str, Any]:
-        """Validate model resource usage."""
+        """Validate processor resource usage."""
         # Check inference time threshold
-        inference_time = model_version.performance_metrics.inference_time
+        inference_time = processor_version.performance_measurements.inference_time
         max_inference_time = 1000  # milliseconds
 
         return {
@@ -1000,35 +1000,35 @@ class AdvancedMLLifecycleService:
     async def _calculate_performance_trends(
         self, versions: list[ModelVersion]
     ) -> dict[str, Any]:
-        """Calculate performance trends across model versions."""
+        """Calculate performance trends across processor versions."""
         if len(versions) < 2:
             return {"trend": "insufficient_data"}
 
-        # Group by model
-        model_versions = {}
+        # Group by processor
+        processor_versions = {}
         for version in versions:
-            model_id = str(version.model_id)
-            if model_id not in model_versions:
-                model_versions[model_id] = []
-            model_versions[model_id].append(version)
+            processor_id = str(version.processor_id)
+            if processor_id not in processor_versions:
+                processor_versions[processor_id] = []
+            processor_versions[processor_id].append(version)
 
         trends = {}
-        for model_id, model_version_list in model_versions.items():
-            if len(model_version_list) < 2:
+        for processor_id, processor_version_list in processor_versions.items():
+            if len(processor_version_list) < 2:
                 continue
 
             # Sort by creation time
-            model_version_list.sort(key=lambda v: v.created_at)
+            processor_version_list.sort(key=lambda v: v.created_at)
 
             # Calculate trends for each metric
-            model_trends = {}
-            metrics = ["accuracy", "precision", "recall", "f1_score"]
+            processor_trends = {}
+            measurements = ["accuracy", "precision", "recall", "f1_score"]
 
-            for metric in metrics:
+            for metric in measurements:
                 values = []
                 timestamps = []
 
-                for version in model_version_list:
+                for version in processor_version_list:
                     perf = version.get_performance_summary()
                     if metric in perf:
                         values.append(perf[metric])
@@ -1050,7 +1050,7 @@ class AdvancedMLLifecycleService:
                     else:
                         trend = "stable"
 
-                    model_trends[metric] = {
+                    processor_trends[metric] = {
                         "trend": trend,
                         "change": change,
                         "percent_change": percent_change,
@@ -1059,6 +1059,6 @@ class AdvancedMLLifecycleService:
                         "data_points": len(values),
                     }
 
-            trends[model_id] = model_trends
+            trends[processor_id] = processor_trends
 
         return trends

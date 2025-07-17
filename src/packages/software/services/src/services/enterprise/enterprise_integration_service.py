@@ -1,7 +1,7 @@
-"""Enterprise integration service connecting dashboard, alerting, and autonomous detection.
+"""Enterprise integration service connecting dashboard, alerting, and autonomous processing.
 
 This service provides seamless integration between the enterprise dashboard,
-intelligent alerting system, and autonomous anomaly detection capabilities.
+intelligent alerting system, and autonomous anomaly processing capabilities.
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ class IntegrationConfig:
 
     # Dashboard settings
     dashboard_update_interval_seconds: int = 30
-    business_metrics_enabled: bool = True
+    business_measurements_enabled: bool = True
     operational_monitoring_enabled: bool = True
     compliance_tracking_enabled: bool = True
 
@@ -87,7 +87,7 @@ class IntegrationConfig:
 
 
 class EnterpriseIntegrationService:
-    """Enterprise integration service for connecting dashboard, alerting, and autonomous detection."""
+    """Enterprise integration service for connecting dashboard, alerting, and autonomous processing."""
 
     def __init__(self, config: IntegrationConfig = None):
         """Initialize enterprise integration service.
@@ -108,11 +108,11 @@ class EnterpriseIntegrationService:
         self.background_tasks: list[asyncio.Task] = []
 
         # Performance tracking
-        self.integration_metrics = {
+        self.integration_measurements = {
             "dashboard_updates": 0,
             "alerts_generated": 0,
             "notifications_sent": 0,
-            "autonomous_detections_tracked": 0,
+            "autonomous_processings_tracked": 0,
             "last_update": None,
         }
 
@@ -148,7 +148,7 @@ class EnterpriseIntegrationService:
         """Initialize enterprise dashboard service."""
 
         self.dashboard_service = EnterpriseDashboardService(
-            enable_business_metrics=self.config.business_metrics_enabled,
+            enable_business_measurements=self.config.business_measurements_enabled,
             enable_operational_monitoring=self.config.operational_monitoring_enabled,
             enable_compliance_tracking=self.config.compliance_tracking_enabled,
         )
@@ -257,9 +257,9 @@ class EnterpriseIntegrationService:
                 escalation_delay_minutes=15,
             ),
             AlertRule(
-                id="autonomous_detection_failure_rate",
-                name="Autonomous Detection Failure Rate",
-                description="High failure rate in autonomous detection pipeline",
+                id="autonomous_processing_failure_rate",
+                name="Autonomous Processing Failure Rate",
+                description="High failure rate in autonomous processing pipeline",
                 category=AlertCategory.PERFORMANCE,
                 severity=AlertSeverity.WARNING,
                 condition="autonomous_failure_rate > 10.0",
@@ -290,11 +290,11 @@ class EnterpriseIntegrationService:
         self.logger.info(f"Added {len(enterprise_rules)} enterprise alert rules")
 
     async def _initialize_autonomous_integration(self):
-        """Initialize integration with autonomous detection service."""
+        """Initialize integration with autonomous processing service."""
 
         # This would be injected in a real implementation
         # For now, we'll log the integration setup
-        self.logger.info("Autonomous detection integration configured")
+        self.logger.info("Autonomous processing integration configured")
 
     async def _start_background_tasks(self):
         """Start background monitoring and integration tasks."""
@@ -320,13 +320,13 @@ class EnterpriseIntegrationService:
 
         while self.integration_active:
             try:
-                # Update dashboard metrics
-                await self._update_dashboard_metrics()
+                # Update dashboard measurements
+                await self._update_dashboard_measurements()
 
                 # Check for dashboard-related alerts
                 await self._check_dashboard_alerts()
 
-                self.integration_metrics["dashboard_updates"] += 1
+                self.integration_measurements["dashboard_updates"] += 1
 
                 await asyncio.sleep(self.config.dashboard_update_interval_seconds)
 
@@ -342,8 +342,8 @@ class EnterpriseIntegrationService:
                 # Monitor alerting engine health
                 stats = self.alerting_engine.get_alert_statistics()
 
-                # Update integration metrics
-                self.integration_metrics["alerts_generated"] = stats.get(
+                # Update integration measurements
+                self.integration_measurements["alerts_generated"] = stats.get(
                     "alerts_last_hour", 0
                 )
 
@@ -365,7 +365,7 @@ class EnterpriseIntegrationService:
         while self.integration_active:
             try:
                 # Update last update timestamp
-                self.integration_metrics["last_update"] = datetime.now().isoformat()
+                self.integration_measurements["last_update"] = datetime.now().isoformat()
 
                 # Log periodic health status
                 self.logger.debug("Enterprise integration health check passed")
@@ -376,31 +376,31 @@ class EnterpriseIntegrationService:
                 self.logger.error(f"Error in integration health loop: {e}")
                 await asyncio.sleep(60)
 
-    async def _update_dashboard_metrics(self):
-        """Update dashboard metrics from various sources."""
+    async def _update_dashboard_measurements(self):
+        """Update dashboard measurements from various sources."""
 
         if not self.dashboard_service:
             return
 
-        # This would collect metrics from various sources
+        # This would collect measurements from various sources
         # For now, we'll simulate some metric updates
 
-        # Update operational metrics based on system state
+        # Update operational measurements based on system state
         # In a real implementation, this would collect from monitoring systems
         pass
 
     async def _check_dashboard_alerts(self):
-        """Check dashboard metrics against alert thresholds."""
+        """Check dashboard measurements against alert thresholds."""
 
         if not self.alerting_engine or not self.dashboard_service:
             return
 
-        # Get current dashboard metrics
+        # Get current dashboard measurements
         realtime_data = self.dashboard_service.get_real_time_dashboard_data()
 
-        # Check business metrics
-        business_metrics = realtime_data.get("business_metrics", {})
-        for metric_name, metric_data in business_metrics.items():
+        # Check business measurements
+        business_measurements = realtime_data.get("business_measurements", {})
+        for metric_name, metric_data in business_measurements.items():
             value = metric_data.get("value", 0)
 
             await self.alerting_engine.evaluate_metric(
@@ -411,9 +411,9 @@ class EnterpriseIntegrationService:
                 tags={"metric_type": "business"},
             )
 
-        # Check operational metrics
-        operational_metrics = realtime_data.get("operational_metrics", {})
-        for metric_name, metric_data in operational_metrics.items():
+        # Check operational measurements
+        operational_measurements = realtime_data.get("operational_measurements", {})
+        for metric_name, metric_data in operational_measurements.items():
             value = metric_data.get("current_value", 0)
 
             await self.alerting_engine.evaluate_metric(
@@ -424,33 +424,33 @@ class EnterpriseIntegrationService:
                 tags={"metric_type": "operational"},
             )
 
-    async def process_autonomous_detection_event(
+    async def process_autonomous_processing_event(
         self,
-        detection_id: str,
+        processing_id: str,
         success: bool,
         execution_time: float,
         algorithm_used: str,
         anomalies_found: int,
-        dataset_size: int,
+        data_collection_size: int,
         cost_usd: float = 0.0,
         metadata: dict[str, Any] = None,
     ):
-        """Process an autonomous detection event through the integration pipeline.
+        """Process an autonomous processing event through the integration pipeline.
 
-        This method updates dashboard metrics, checks alert conditions,
+        This method updates dashboard measurements, checks alert conditions,
         and tracks performance for enterprise monitoring.
         """
 
         try:
-            # Update dashboard metrics
+            # Update dashboard measurements
             if self.dashboard_service:
-                self.dashboard_service.record_detection_event(
-                    detection_id=detection_id,
+                self.dashboard_service.record_processing_event(
+                    processing_id=processing_id,
                     success=success,
                     execution_time=execution_time,
                     algorithm_used=algorithm_used,
                     anomalies_found=anomalies_found,
-                    dataset_size=dataset_size,
+                    data_collection_size=data_collection_size,
                     cost_usd=cost_usd,
                 )
 
@@ -458,13 +458,13 @@ class EnterpriseIntegrationService:
             if self.alerting_engine:
                 # Check execution time alerts
                 await self.alerting_engine.evaluate_metric(
-                    metric_name="detection_execution_time",
+                    metric_name="processing_execution_time",
                     metric_value=execution_time,
-                    source_service="autonomous_detection",
+                    source_service="autonomous_processing",
                     environment="production",
                     tags={
                         "algorithm": algorithm_used,
-                        "detection_id": detection_id,
+                        "processing_id": processing_id,
                         "success": str(success),
                     },
                     metadata=metadata or {},
@@ -473,21 +473,21 @@ class EnterpriseIntegrationService:
                 # Check success rate (this would be calculated from recent history)
                 if not success:
                     await self.alerting_engine.evaluate_metric(
-                        metric_name="detection_failure",
+                        metric_name="processing_failure",
                         metric_value=1.0,
-                        source_service="autonomous_detection",
+                        source_service="autonomous_processing",
                         environment="production",
                         tags={"algorithm": algorithm_used},
                     )
 
-            # Update integration metrics
-            self.integration_metrics["autonomous_detections_tracked"] += 1
+            # Update integration measurements
+            self.integration_measurements["autonomous_processings_tracked"] += 1
 
-            self.logger.debug(f"Processed autonomous detection event: {detection_id}")
+            self.logger.debug(f"Processed autonomous processing event: {processing_id}")
 
         except Exception as e:
             self.logger.error(
-                f"Failed to process autonomous detection event {detection_id}: {e}"
+                f"Failed to process autonomous processing event {processing_id}: {e}"
             )
 
     async def create_custom_alert(
@@ -536,7 +536,7 @@ class EnterpriseIntegrationService:
                     source_service=source_service,
                 )
 
-                self.integration_metrics["alerts_generated"] += 1
+                self.integration_measurements["alerts_generated"] += 1
 
                 self.logger.info(f"Created custom alert: {alert_id}")
                 return alert_id
@@ -547,7 +547,7 @@ class EnterpriseIntegrationService:
         return None
 
     def get_integration_status(self) -> dict[str, Any]:
-        """Get current integration status and metrics."""
+        """Get current integration status and measurements."""
 
         return {
             "integration_active": self.integration_active,
@@ -561,7 +561,7 @@ class EnterpriseIntegrationService:
                 "alerting_integration": self.config.enable_alerting_integration,
                 "autonomous_monitoring": self.config.enable_autonomous_monitoring,
             },
-            "metrics": self.integration_metrics.copy(),
+            "measurements": self.integration_measurements.copy(),
             "background_tasks": len(self.background_tasks),
             "notification_providers": (
                 len(self.alerting_engine.notification_providers)

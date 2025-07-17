@@ -1,0 +1,295 @@
+name: Feature Architecture Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-feature-architecture:
+    name: Validate Feature Architecture
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ast-tools
+    
+    - name: Run Feature Architecture Validator
+      run: |
+        python scripts/feature_architecture_validator.py
+    
+    - name: Upload Feature Architecture Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: feature-architecture-report
+        path: |
+          feature_architecture_validation_report.md
+          feature_architecture_validation_report.json
+    
+    - name: Comment PR with Architecture Violations
+      if: github.event_name == 'pull_request' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('feature_architecture_validation_report.json')) {
+            const report = JSON.parse(fs.readFileSync('feature_architecture_validation_report.json', 'utf8'));
+            
+            let comment = `## 🏗️ Feature Architecture Violations Found\\n\\n`;
+            
+            const totalViolations = Object.values(report).reduce((sum, violations) => sum + violations.length, 0);
+            comment += `**Total Violations:** ${totalViolations}\\n`;
+            comment += `**Features Affected:** ${Object.keys(report).length}\\n\\n`;
+            
+            // Group violations by type
+            const violationsByType = {};
+            Object.values(report).flat().forEach(violation => {
+              const type = violation.violation_type;
+              if (!violationsByType[type]) violationsByType[type] = [];
+              violationsByType[type].push(violation);
+            });
+            
+            comment += `### Violations by Type:\\n\\n`;
+            Object.entries(violationsByType).forEach(([type, violations]) => {
+              comment += `- **${type}**: ${violations.length} violations\\n`;
+            });
+            
+            comment += `\\n### Top Violations:\\n\\n`;
+            let count = 0;
+            Object.entries(report).forEach(([feature, violations]) => {
+              if (count >= 10) return; // Limit to top 10
+              
+              violations.slice(0, 3).forEach(violation => {
+                if (count >= 10) return;
+                comment += `- **${feature}**: ${violation.message}\\n`;
+                comment += `  - File: \`${violation.file_path}\`\\n`;
+                if (violation.suggestion) {
+                  comment += `  - Suggestion: ${violation.suggestion}\\n`;
+                }
+                comment += `\\n`;
+                count++;
+              });
+            });
+            
+            comment += `### Action Required:\\n`;
+            comment += `Please fix the architecture violations before merging.\\n\\n`;
+            comment += `For detailed information, see the [Feature Architecture Standards](ARCHITECTURAL_LAYERS_STANDARDS.md).\\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  validate-feature-domain-boundaries:
+    name: Validate Feature Domain Boundaries
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Run Feature Domain Boundary Validator
+      run: |
+        python scripts/updated_domain_boundary_validator.py
+    
+    - name: Upload Domain Boundary Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: feature-domain-boundary-report
+        path: feature_domain_violations_report.json
+    
+    - name: Comment PR with Domain Violations
+      if: github.event_name == 'pull_request' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('feature_domain_violations_report.json')) {
+            const report = JSON.parse(fs.readFileSync('feature_domain_violations_report.json', 'utf8'));
+            
+            let comment = `## 🚨 Feature Domain Boundary Violations Found\\n\\n`;
+            comment += `**Total Violations:** ${report.summary.total_violations}\\n`;
+            comment += `**Features Affected:** ${report.summary.features_with_violations}\\n\\n`;
+            
+            if (Object.keys(report.violations_by_domain).length > 0) {
+              comment += `### Violations by Domain:\\n\\n`;
+              Object.entries(report.violations_by_domain).forEach(([domain, info]) => {
+                comment += `- **${domain}**: ${info.total_violations} violations across ${info.features_affected} features\\n`;
+              });
+            }
+            
+            comment += `\\n### Most Common Violations:\\n\\n`;
+            const commonViolations = Object.entries(report.most_common_violations).slice(0, 10);
+            commonViolations.forEach(([term, count]) => {
+              comment += `- **${term}**: ${count} occurrences\\n`;
+            });
+            
+            comment += `\\n### Action Required:\\n`;
+            comment += `Please remove domain-specific terms from generic packages or move code to appropriate domains.\\n\\n`;
+            comment += `For more information, see the [Domain Boundary Rules](DOMAIN_BOUNDARY_RULES.md).\\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  validate-layer-dependencies:
+    name: Validate Layer Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ast
+    
+    - name: Find changed Python files
+      id: changed-files
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- "src/packages_new/**/*.py" | tr '\\n' ' ')
+        else
+          CHANGED_FILES=$(find src/packages_new -name "*.py" | tr '\\n' ' ')
+        fi
+        echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+    
+    - name: Validate Layer Dependencies
+      run: |
+        if [ -n "${{ steps.changed-files.outputs.files }}" ]; then
+          python scripts/validate_layer_dependencies.py ${{ steps.changed-files.outputs.files }}
+        else
+          echo "No Python files to validate"
+        fi
+
+  feature-metrics:
+    name: Feature Metrics
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install networkx matplotlib
+    
+    - name: Calculate Feature Metrics
+      run: |
+        python scripts/calculate_feature_metrics.py --output-json feature-metrics.json
+    
+    - name: Upload Feature Metrics
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: feature-metrics
+        path: feature-metrics.json
+    
+    - name: Generate Architecture Visualization
+      run: |
+        python scripts/generate_architecture_visualization.py --output-image architecture-diagram.png
+    
+    - name: Upload Architecture Diagram
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: architecture-diagram
+        path: architecture-diagram.png
+
+  test-feature-isolation:
+    name: Test Feature Isolation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install test dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+    
+    - name: Run Feature Isolation Tests
+      run: |
+        python -m pytest src/packages_new/*/tests/test_feature_isolation.py -v
+    
+    - name: Test Layer Boundaries
+      run: |
+        python -m pytest src/packages_new/*/tests/test_layer_boundaries.py -v
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: feature-isolation-test-results
+        path: test-results.xml
+
+  documentation-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check Feature Documentation
+      run: |
+        python scripts/check_feature_documentation.py
+    
+    - name: Validate User Stories
+      run: |
+        python scripts/validate_user_stories.py
+    
+    - name: Check API Documentation
+      run: |
+        python scripts/check_api_documentation.py
+    
+    - name: Upload Documentation Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: documentation-report
+        path: documentation-report.md

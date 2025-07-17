@@ -1,4 +1,4 @@
-"""Automated model retraining service with performance validation."""
+"""Automated processor retraining service with performance validation."""
 
 from __future__ import annotations
 
@@ -47,14 +47,14 @@ class DataCurationError(AutoRetrainingError):
 
 @dataclass
 class PerformanceDegradation:
-    """Represents model performance degradation."""
+    """Represents processor performance degradation."""
 
     metric_name: str
     current_value: float
     baseline_value: float
     degradation_percentage: float
     threshold_violated: bool
-    detection_timestamp: datetime = field(default_factory=datetime.utcnow)
+    processing_timestamp: datetime = field(default_factory=datetime.utcnow)
 
     def __post_init__(self):
         """Calculate degradation percentage."""
@@ -76,7 +76,7 @@ class PerformanceDegradation:
 
 @dataclass
 class RetrainingDecision:
-    """Decision about whether to retrain a model."""
+    """Decision about whether to retrain a processor."""
 
     should_retrain: bool
     confidence: float
@@ -102,10 +102,10 @@ class RetrainingDecision:
 
 @dataclass
 class RetrainingPlan:
-    """Comprehensive plan for model retraining."""
+    """Comprehensive plan for processor retraining."""
 
     plan_id: UUID = field(default_factory=uuid4)
-    model_id: UUID = field(default_factory=uuid4)
+    processor_id: UUID = field(default_factory=uuid4)
     retraining_strategy: str = "incremental"
     data_requirements: dict[str, Any] = field(default_factory=dict)
     hyperparameter_optimization: bool = True
@@ -127,7 +127,7 @@ class RetrainingPlan:
                 if self.hyperparameter_optimization
                 else "skip_hyperopt"
             ),
-            "model_training_with_validation",
+            "processor_training_with_validation",
             "performance_comparison_and_testing",
             "champion_challenger_deployment",
             "monitoring_and_validation",
@@ -137,15 +137,15 @@ class RetrainingPlan:
 
 @dataclass
 class RetrainingResult:
-    """Result of model retraining process."""
+    """Result of processor retraining process."""
 
     plan_id: UUID
     success: bool
-    retrained_model_id: UUID | None = None
+    retrained_processor_id: UUID | None = None
     performance_improvement: PerformanceDelta | None = None
-    knowledge_transfer_metrics: KnowledgeTransferMetrics | None = None
+    knowledge_transfer_measurements: KnowledgeTransferMetrics | None = None
     execution_time: timedelta = field(default_factory=lambda: timedelta(0))
-    training_metrics: dict[str, float] = field(default_factory=dict)
+    training_measurements: dict[str, float] = field(default_factory=dict)
     validation_results: dict[str, Any] = field(default_factory=dict)
     error_message: str | None = None
     rollback_performed: bool = False
@@ -185,19 +185,19 @@ class CurationCriteria:
 
 @dataclass
 class CuratedDataset:
-    """Intelligently curated dataset for retraining."""
+    """Intelligently curated data_collection for retraining."""
 
     data: np.ndarray
     labels: np.ndarray | None = None
     feature_names: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    curation_metrics: dict[str, Any] | None = None
+    curation_measurements: dict[str, Any] | None = None
     quality_scores: np.ndarray | None = None
     diversity_score: float = 0.0
     temporal_coverage: dict[str, Any] = field(default_factory=dict)
 
     def get_dataset_summary(self) -> dict[str, Any]:
-        """Get summary of curated dataset."""
+        """Get summary of curated data_collection."""
         return {
             "sample_count": len(self.data),
             "feature_count": self.data.shape[1] if len(self.data.shape) > 1 else 1,
@@ -214,7 +214,7 @@ class CuratedDataset:
 
 
 class AutoRetrainingService:
-    """Service for autonomous model retraining with performance validation.
+    """Service for autonomous processor retraining with performance validation.
 
     This service provides comprehensive automated retraining capabilities including:
     - Intelligent retraining decision making
@@ -227,7 +227,7 @@ class AutoRetrainingService:
     def __init__(
         self,
         continuous_learning_service: ContinuousLearningService,
-        drift_detection_service: DriftDetectionService,
+        drift_processing_service: DriftDetectionService,
         storage_path: Path,
         default_success_criteria: dict[str, float] | None = None,
     ):
@@ -235,12 +235,12 @@ class AutoRetrainingService:
 
         Args:
             continuous_learning_service: Continuous learning service
-            drift_detection_service: Drift detection service
+            drift_processing_service: Drift processing service
             storage_path: Storage path for retraining artifacts
             default_success_criteria: Default success criteria for retraining
         """
         self.continuous_learning_service = continuous_learning_service
-        self.drift_detection_service = drift_detection_service
+        self.drift_processing_service = drift_processing_service
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
@@ -273,16 +273,16 @@ class AutoRetrainingService:
 
     async def evaluate_retraining_necessity(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         drift_events: list[DriftEvent],
         performance_degradation: PerformanceDegradation,
     ) -> RetrainingDecision:
-        """Evaluate whether model retraining is necessary.
+        """Evaluate whether processor retraining is necessary.
 
         Args:
-            model_id: Model ID to evaluate
+            processor_id: Processor ID to evaluate
             drift_events: Detected drift events
-            performance_degradation: Performance degradation metrics
+            performance_degradation: Performance degradation measurements
 
         Returns:
             Retraining decision with detailed reasoning
@@ -323,7 +323,7 @@ class AutoRetrainingService:
 
             # Evaluate data volume (simplified check)
             data_volume_score = await self._evaluate_data_volume_for_retraining(
-                model_id
+                processor_id
             )
             if data_volume_score > 0.8:
                 triggering_factors.append("Sufficient new data available")
@@ -361,7 +361,7 @@ class AutoRetrainingService:
 
             # Risk assessment
             risk_assessment = await self._assess_retraining_risks(
-                model_id, performance_degradation, drift_events
+                processor_id, performance_degradation, drift_events
             )
 
             decision = RetrainingDecision(
@@ -382,7 +382,7 @@ class AutoRetrainingService:
             )
 
             logger.info(
-                f"Retraining evaluation for model {model_id}: "
+                f"Retraining evaluation for processor {processor_id}: "
                 f"recommend={should_retrain}, confidence={overall_confidence:.3f}"
             )
 
@@ -390,20 +390,20 @@ class AutoRetrainingService:
 
         except Exception as e:
             logger.error(
-                f"Failed to evaluate retraining necessity for model {model_id}: {e}"
+                f"Failed to evaluate retraining necessity for processor {processor_id}: {e}"
             )
             raise AutoRetrainingError(f"Retraining evaluation failed: {e}") from e
 
     async def execute_smart_retraining(
         self, retraining_plan: RetrainingPlan
     ) -> RetrainingResult:
-        """Execute intelligent model retraining.
+        """Execute intelligent processor retraining.
 
         Args:
             retraining_plan: Comprehensive retraining plan
 
         Returns:
-            Retraining result with performance metrics
+            Retraining result with performance measurements
         """
         start_time = datetime.utcnow()
         plan_id = retraining_plan.plan_id
@@ -416,12 +416,12 @@ class AutoRetrainingService:
 
             # Step 1: Data curation
             logger.info(f"Step 1: Curating training data for plan {plan_id}")
-            curated_dataset = await self._curate_training_data(retraining_plan)
+            curated_data_collection = await self._curate_training_data(retraining_plan)
 
             # Step 2: Baseline measurement
             logger.info(f"Step 2: Measuring baseline performance for plan {plan_id}")
             baseline_performance = await self._measure_baseline_performance(
-                retraining_plan.model_id
+                retraining_plan.processor_id
             )
 
             # Step 3: Hyperparameter optimization (if enabled)
@@ -429,19 +429,19 @@ class AutoRetrainingService:
             if retraining_plan.hyperparameter_optimization:
                 logger.info(f"Step 3: Optimizing hyperparameters for plan {plan_id}")
                 optimized_params = await self._optimize_hyperparameters(
-                    retraining_plan, curated_dataset
+                    retraining_plan, curated_data_collection
                 )
 
-            # Step 4: Model training
-            logger.info(f"Step 4: Training new model for plan {plan_id}")
-            new_model, training_metrics = await self._train_new_model(
-                retraining_plan, curated_dataset, optimized_params
+            # Step 4: Processor training
+            logger.info(f"Step 4: Training new processor for plan {plan_id}")
+            new_processor, training_measurements = await self._train_new_processor(
+                retraining_plan, curated_data_collection, optimized_params
             )
 
             # Step 5: Performance validation
-            logger.info(f"Step 5: Validating new model performance for plan {plan_id}")
-            validation_results = await self._validate_new_model(
-                new_model, curated_dataset, retraining_plan.validation_strategy
+            logger.info(f"Step 5: Validating new processor performance for plan {plan_id}")
+            validation_results = await self._validate_new_processor(
+                new_processor, curated_data_collection, retraining_plan.validation_strategy
             )
 
             # Step 6: Champion/challenger comparison
@@ -449,7 +449,7 @@ class AutoRetrainingService:
                 f"Step 6: Running champion/challenger comparison for plan {plan_id}"
             )
             comparison_results = await self._compare_champion_challenger(
-                retraining_plan.model_id, new_model, curated_dataset
+                retraining_plan.processor_id, new_processor, curated_data_collection
             )
 
             # Step 7: Performance improvement calculation
@@ -463,8 +463,8 @@ class AutoRetrainingService:
             )
 
             # Step 9: Knowledge transfer assessment
-            knowledge_transfer_metrics = await self._assess_knowledge_transfer(
-                retraining_plan.model_id, new_model
+            knowledge_transfer_measurements = await self._assess_knowledge_transfer(
+                retraining_plan.processor_id, new_processor
             )
 
             execution_time = datetime.utcnow() - start_time
@@ -473,11 +473,11 @@ class AutoRetrainingService:
             result = RetrainingResult(
                 plan_id=plan_id,
                 success=meets_criteria,
-                retrained_model_id=uuid4() if meets_criteria else None,
+                retrained_processor_id=uuid4() if meets_criteria else None,
                 performance_improvement=performance_improvement,
-                knowledge_transfer_metrics=knowledge_transfer_metrics,
+                knowledge_transfer_measurements=knowledge_transfer_measurements,
                 execution_time=execution_time,
-                training_metrics=training_metrics,
+                training_measurements=training_measurements,
                 validation_results=validation_results,
                 champion_challenger_results=comparison_results,
             )
@@ -509,17 +509,17 @@ class AutoRetrainingService:
                 error_message=error_msg,
             )
 
-    async def validate_retrained_model(
+    async def validate_retrained_processor(
         self,
-        original_model: BaseEstimator,
-        retrained_model: BaseEstimator,
+        original_processor: BaseEstimator,
+        retrained_processor: BaseEstimator,
         validation_strategy: str = "cross_validation",
     ) -> dict[str, Any]:
-        """Validate retrained model against original.
+        """Validate retrained processor against original.
 
         Args:
-            original_model: Original model
-            retrained_model: Retrained model
+            original_processor: Original processor
+            retrained_processor: Retrained processor
             validation_strategy: Validation strategy to use
 
         Returns:
@@ -529,16 +529,16 @@ class AutoRetrainingService:
             validation_results = {
                 "validation_strategy": validation_strategy,
                 "validation_timestamp": datetime.utcnow().isoformat(),
-                "comparison_metrics": {},
+                "comparison_measurements": {},
                 "statistical_tests": {},
                 "recommendation": "inconclusive",
             }
 
-            # This would implement comprehensive model validation
+            # This would implement comprehensive processor validation
             # For now, return placeholder results
             validation_results.update(
                 {
-                    "comparison_metrics": {
+                    "comparison_measurements": {
                         "accuracy_improvement": 0.03,
                         "f1_improvement": 0.025,
                         "precision_improvement": 0.02,
@@ -549,23 +549,23 @@ class AutoRetrainingService:
                         "paired_t_test_p_value": 0.01,
                         "effect_size": 0.15,
                     },
-                    "recommendation": "deploy_retrained_model",
+                    "recommendation": "deploy_retrained_processor",
                 }
             )
 
-            logger.info("Model validation completed successfully")
+            logger.info("Processor validation completed successfully")
             return validation_results
 
         except Exception as e:
-            logger.error(f"Model validation failed: {e}")
-            raise RetrainingValidationError(f"Model validation failed: {e}") from e
+            logger.error(f"Processor validation failed: {e}")
+            raise RetrainingValidationError(f"Processor validation failed: {e}") from e
 
     # Private helper methods
 
     async def _curate_training_data(self, plan: RetrainingPlan) -> CuratedDataset:
         """Curate training data based on plan requirements."""
         # This would implement smart data curation
-        # For now, return mock curated dataset
+        # For now, return mock curated data_collection
 
         mock_data = np.random.randn(1000, 10)
         mock_labels = np.random.choice([0, 1], size=1000, p=[0.9, 0.1])
@@ -578,8 +578,8 @@ class AutoRetrainingService:
             temporal_coverage={"start": "2025-01-01", "end": "2025-06-24"},
         )
 
-    async def _measure_baseline_performance(self, model_id: UUID) -> dict[str, float]:
-        """Measure baseline performance of current model."""
+    async def _measure_baseline_performance(self, processor_id: UUID) -> dict[str, float]:
+        """Measure baseline performance of current processor."""
         # Mock baseline performance
         return {
             "accuracy": 0.82,
@@ -590,7 +590,7 @@ class AutoRetrainingService:
         }
 
     async def _optimize_hyperparameters(
-        self, plan: RetrainingPlan, dataset: CuratedDataset
+        self, plan: RetrainingPlan, data_collection: CuratedDataset
     ) -> dict[str, Any]:
         """Optimize hyperparameters for retraining."""
         # Mock optimized parameters
@@ -602,35 +602,35 @@ class AutoRetrainingService:
             "optimization_iterations": 50,
         }
 
-    async def _train_new_model(
+    async def _train_new_processor(
         self,
         plan: RetrainingPlan,
-        dataset: CuratedDataset,
+        data_collection: CuratedDataset,
         optimized_params: dict[str, Any] | None,
     ) -> tuple[BaseEstimator, dict[str, float]]:
-        """Train new model with curated data."""
-        # Mock model training
+        """Train new processor with curated data."""
+        # Mock processor training
         from sklearn.ensemble import IsolationForest
 
         params = optimized_params or {"contamination": 0.1}
-        model = IsolationForest(**params, random_state=42)
+        processor = IsolationForest(**params, random_state=42)
 
         # Simulate training
         await asyncio.sleep(0.1)  # Simulate training time
 
-        training_metrics = {
+        training_measurements = {
             "training_time_seconds": 120.5,
             "convergence_iterations": 45,
             "final_loss": 0.023,
-            "training_samples": len(dataset.data),
+            "training_samples": len(data_collection.data),
         }
 
-        return model, training_metrics
+        return processor, training_measurements
 
-    async def _validate_new_model(
-        self, model: BaseEstimator, dataset: CuratedDataset, validation_strategy: str
+    async def _validate_new_processor(
+        self, processor: BaseEstimator, data_collection: CuratedDataset, validation_strategy: str
     ) -> dict[str, Any]:
-        """Validate new model performance."""
+        """Validate new processor performance."""
         # Mock validation results
         return {
             "cross_validation_scores": [0.85, 0.87, 0.84, 0.86, 0.88],
@@ -643,9 +643,9 @@ class AutoRetrainingService:
 
     async def _compare_champion_challenger(
         self,
-        champion_model_id: UUID,
-        challenger_model: BaseEstimator,
-        dataset: CuratedDataset,
+        champion_processor_id: UUID,
+        challenger_processor: BaseEstimator,
+        data_collection: CuratedDataset,
     ) -> dict[str, Any]:
         """Compare champion and challenger models."""
         # Mock comparison results
@@ -704,7 +704,7 @@ class AutoRetrainingService:
         )
 
     async def _assess_knowledge_transfer(
-        self, original_model_id: UUID, new_model: BaseEstimator
+        self, original_processor_id: UUID, new_processor: BaseEstimator
     ) -> KnowledgeTransferMetrics:
         """Assess knowledge transfer quality."""
         return KnowledgeTransferMetrics(
@@ -719,7 +719,7 @@ class AutoRetrainingService:
 
 
 class SmartDataCurator:
-    """Intelligent data curation for model retraining."""
+    """Intelligent data curation for processor retraining."""
 
     def __init__(self):
         pass

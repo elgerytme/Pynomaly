@@ -67,7 +67,7 @@ class DataProcessingService:
         # Basic validation
         if X.empty:
             validation_results["valid"] = False
-            validation_results["issues"].append("Dataset is empty")
+            validation_results["issues"].append("DataCollection is empty")
             return validation_results
 
         # Check for missing values
@@ -97,7 +97,7 @@ class DataProcessingService:
         # Check sample size
         if len(X) < 100:
             validation_results["warnings"].append(
-                "Small dataset size, consider collecting more data"
+                "Small data_collection size, consider collecting more data"
             )
 
         # Target validation
@@ -131,7 +131,7 @@ class DataProcessingService:
     async def profile_data(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> DatasetProfile:
-        """Profile the dataset to understand its characteristics"""
+        """Profile the data_collection to understand its characteristics"""
 
         # Feature analysis
         numeric_features = X.select_dtypes(include=[np.number]).columns.tolist()
@@ -164,7 +164,7 @@ class DataProcessingService:
             time_series_features=[],  # Could be detected in future
             sparsity_ratio=sparsity_ratio,
             dimensionality_ratio=len(X.columns) / len(X),
-            dataset_size_mb=X.memory_usage(deep=True).sum() / (1024**2),
+            data_collection_size_mb=X.memory_usage(deep=True).sum() / (1024**2),
         )
 
         return profile
@@ -224,7 +224,7 @@ class DataProcessingService:
         return X_engineered
 
     def _handle_missing_values(self, X: pd.DataFrame) -> pd.DataFrame:
-        """Handle missing values in the dataset"""
+        """Handle missing values in the data_collection"""
         X_filled = X.copy()
 
         for col in X_filled.columns:

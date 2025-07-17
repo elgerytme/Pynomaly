@@ -1,20 +1,9 @@
-"""API endpoints."""
+"""
+Generic Software API Endpoints
 
-from . import (  # admin,  # Temporarily disabled due to UserModel forward reference issue; autonomous,  # Temporarily disabled for testing; datasets,  # Temporarily disabled due to forward reference issue; detectors,  # Temporarily disabled for testing; experiments,  # Temporarily disabled for testing; export,  # Temporarily disabled for testing; performance,  # Temporarily disabled for testing
-    auth,
-    detection,
-    health,
-)
+This module provides generic API endpoints for software applications.
+Contains only domain-agnostic endpoints.
+"""
 
-__all__ = [
-    # "admin",  # Temporarily disabled due to UserModel forward reference issue
-    "auth",
-    "autonomous",
-    # "datasets",  # Temporarily disabled due to forward reference issue
-    "detection",
-    "detectors",
-    "experiments",
-    "export",
-    "health",
-    "performance",
-]
+__version__ = "0.1.0"
+__all__ = ["health", "version", "auth", "admin"]

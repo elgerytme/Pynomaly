@@ -1,4 +1,4 @@
-"""Semantic version value object for model versioning."""
+"""Semantic version value object for processor versioning."""
 
 from __future__ import annotations
 

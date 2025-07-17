@@ -1,4 +1,4 @@
-"""Autonomous anomaly detection service with self-configuration."""
+"""Autonomous anomaly processing service with self-configuration."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from monorepo.shared.protocols import (
 
 @dataclass
 class AutonomousConfig:
-    """Configuration for autonomous detection."""
+    """Configuration for autonomous processing."""
 
     max_samples_analysis: int = 10000
     confidence_threshold: float = 0.8
@@ -86,9 +86,9 @@ class AnomalyExplanation:
 
 @dataclass
 class AutonomousExplanationReport:
-    """Comprehensive explanation report for autonomous detection."""
+    """Comprehensive explanation report for autonomous processing."""
 
-    dataset_profile: DataProfile
+    data_collection_profile: DataProfile
     algorithm_explanations: list[AlgorithmExplanation]
     selected_algorithms: list[str]
     rejected_algorithms: list[str]
@@ -138,7 +138,7 @@ class AlgorithmRecommendation:
 
 
 class AutonomousDetectionService:
-    """Service for fully autonomous anomaly detection."""
+    """Service for fully autonomous anomaly processing."""
 
     def __init__(
         self,
@@ -169,53 +169,53 @@ class AutonomousDetectionService:
         data_source: str | Path | pd.DataFrame,
         config: AutonomousConfig | None = None,
     ) -> dict[str, Any]:
-        """Run fully autonomous anomaly detection.
+        """Run fully autonomous anomaly processing.
 
         Args:
             data_source: Path to data file, connection string, or DataFrame
             config: Configuration options
 
         Returns:
-            Complete detection results with metadata
+            Complete processing results with metadata
         """
         config = config or AutonomousConfig()
 
         if config.verbose:
-            self.logger.info("Starting autonomous anomaly detection")
+            self.logger.info("Starting autonomous anomaly processing")
 
         # Step 1: Auto-detect data source and load
-        dataset = await self._auto_load_data(data_source, config)
+        data_collection = await self._auto_load_data(data_source, config)
 
         # Step 2: Assess data quality and preprocess if needed
-        dataset, profile = await self._assess_and_preprocess_data(dataset, config)
+        data_collection, profile = await self._assess_and_preprocess_data(data_collection, config)
 
         # Step 3: Profile the processed data
-        profile = await self._profile_data(dataset, config, profile)
+        profile = await self._profile_data(data_collection, config, profile)
 
         # Step 4: Recommend algorithms
         recommendations = await self._recommend_algorithms(profile, config)
 
-        # Step 5: Auto-tune and run detection
-        results = await self._run_detection_pipeline(dataset, recommendations, config)
+        # Step 5: Auto-tune and run processing
+        results = await self._run_processing_pipeline(data_collection, recommendations, config)
 
         # Step 6: Post-process and export
         final_results = await self._finalize_results(
-            dataset, profile, recommendations, results, config
+            data_collection, profile, recommendations, results, config
         )
 
         if config.verbose:
-            self.logger.info("Autonomous detection completed")
+            self.logger.info("Autonomous processing completed")
 
         return final_results
 
     async def _auto_load_data(
         self, data_source: str | Path | pd.DataFrame, config: AutonomousConfig
-    ) -> Dataset:
+    ) -> DataCollection:
         """Automatically detect and load data source."""
 
         if isinstance(data_source, pd.DataFrame):
             # Direct DataFrame
-            return Dataset(
+            return DataCollection(
                 name="autonomous_data",
                 data=data_source,
                 metadata={"source": "dataframe", "loader": "direct"},
@@ -244,7 +244,7 @@ class AutonomousDetectionService:
 
         extension = source_path.suffix.lower()
 
-        # Extension-based detection
+        # Extension-based processing
         format_map = {
             ".csv": "csv",
             ".tsv": "csv",
@@ -261,7 +261,7 @@ class AutonomousDetectionService:
         if extension in format_map:
             return format_map[extension]
 
-        # Content-based detection for ambiguous files
+        # Content-based processing for ambiguous files
         try:
             with open(source_path, encoding="utf-8") as f:
                 first_line = f.readline()
@@ -322,24 +322,24 @@ class AutonomousDetectionService:
         return options
 
     async def _assess_and_preprocess_data(
-        self, dataset: Dataset, config: AutonomousConfig
-    ) -> tuple[Dataset, DataProfile]:
+        self, data_collection: DataCollection, config: AutonomousConfig
+    ) -> tuple[DataCollection, DataProfile]:
         """Assess data quality and apply preprocessing if needed.
 
         Args:
-            dataset: Original dataset
+            data_collection: Original data_collection
             config: Autonomous configuration
 
         Returns:
-            Tuple of (processed_dataset, initial_profile_with_quality_info)
+            Tuple of (processed_data_collection, initial_profile_with_quality_info)
         """
         if config.verbose:
             self.logger.info("Assessing data quality for preprocessing needs")
 
         # Initialize partial profile for quality assessment
         initial_profile = DataProfile(
-            n_samples=len(dataset.data),
-            n_features=len(dataset.data.columns),
+            n_samples=len(data_collection.data),
+            n_features=len(data_collection.data.columns),
             numeric_features=0,  # Will be filled later
             categorical_features=0,  # Will be filled later
             temporal_features=0,  # Will be filled later
@@ -358,14 +358,14 @@ class AutonomousDetectionService:
             if config.verbose:
                 self.logger.info("Preprocessing disabled, skipping quality assessment")
             initial_profile.preprocessing_applied = False
-            return dataset, initial_profile
+            return data_collection, initial_profile
 
         # Assess data quality
         (
             should_preprocess,
             quality_report,
         ) = self.preprocessing_orchestrator.should_preprocess(
-            dataset, config.quality_threshold
+            data_collection, config.quality_threshold
         )
 
         # Update profile with quality information
@@ -384,7 +384,7 @@ class AutonomousDetectionService:
             if config.verbose:
                 self.logger.info("Data quality sufficient, skipping preprocessing")
             initial_profile.preprocessing_applied = False
-            return dataset, initial_profile
+            return data_collection, initial_profile
 
         # Apply preprocessing
         if config.verbose:
@@ -393,10 +393,10 @@ class AutonomousDetectionService:
             )
 
         (
-            processed_dataset,
+            processed_data_collection,
             preprocessing_metadata,
-        ) = self.preprocessing_orchestrator.preprocess_for_autonomous_detection(
-            dataset, quality_report, config.max_preprocessing_time
+        ) = self.preprocessing_orchestrator.preprocess_for_autonomous_processing(
+            data_collection, quality_report, config.max_preprocessing_time
         )
 
         # Update profile with preprocessing results
@@ -422,17 +422,17 @@ class AutonomousDetectionService:
                 reason = preprocessing_metadata.get("reason", "Unknown")
                 self.logger.info(f"Preprocessing skipped: {reason}")
 
-        return processed_dataset, initial_profile
+        return processed_data_collection, initial_profile
 
     async def _profile_data(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: AutonomousConfig,
         initial_profile: DataProfile | None = None,
     ) -> DataProfile:
-        """Profile dataset to understand its characteristics."""
+        """Profile data_collection to understand its characteristics."""
 
-        df = dataset.data
+        df = data_collection.data
         n_samples, n_features = df.shape
 
         # Sample data if too large
@@ -507,7 +507,7 @@ class AutonomousDetectionService:
         trend_detected = False
 
         if temporal_features > 0 and numeric_features > 0:
-            # Simple trend detection
+            # Simple trend processing
             for col in numeric_cols:
                 values = sample_df[col].dropna().values
                 if len(values) > 10:
@@ -678,13 +678,13 @@ class AutonomousDetectionService:
         recommendations.sort(key=lambda x: x.confidence, reverse=True)
         return recommendations[: config.max_algorithms]
 
-    async def _run_detection_pipeline(
+    async def _run_processing_pipeline(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         recommendations: list[AlgorithmRecommendation],
         config: AutonomousConfig,
     ) -> dict[str, DetectionResult]:
-        """Run the detection pipeline with recommended algorithms."""
+        """Run the processing pipeline with recommended algorithms."""
 
         results = {}
 
@@ -699,36 +699,36 @@ class AutonomousDetectionService:
                     self.logger.info(f"Creating detector for {rec.algorithm}")
 
                 # Create detector
-                detector = self._create_detector(rec, dataset)
+                detector = self._create_detector(rec, data_collection)
 
                 if config.verbose:
                     self.logger.info(f"Auto-tuning {rec.algorithm}")
 
                 # Auto-tune if requested
                 if config.auto_tune_hyperparams:
-                    detector = await self._auto_tune_detector(detector, dataset, config)
+                    detector = await self._auto_tune_detector(detector, data_collection, config)
 
                 if config.verbose:
                     self.logger.info(f"Training {rec.algorithm}")
 
                 # Train and detect using adapter registry
-                self.adapter_registry.fit_detector(detector, dataset)
+                self.adapter_registry.fit_detector(detector, data_collection)
                 detector.is_fitted = True
                 detector.trained_at = pd.Timestamp.now().to_pydatetime()
 
                 if config.verbose:
-                    self.logger.info(f"Running detection with {rec.algorithm}")
+                    self.logger.info(f"Running processing with {rec.algorithm}")
 
-                # Perform detection
-                scores = self.adapter_registry.score_with_detector(detector, dataset)
+                # Perform processing
+                scores = self.adapter_registry.score_with_detector(detector, data_collection)
                 predictions = self.adapter_registry.predict_with_detector(
-                    detector, dataset
+                    detector, data_collection
                 )
 
                 if config.verbose:
                     self.logger.info(f"Processing results for {rec.algorithm}")
 
-                # Create detection result
+                # Create processing result
                 from monorepo.domain.entities import Anomaly
 
                 anomalies = []
@@ -738,7 +738,7 @@ class AutonomousDetectionService:
                     if pred == 1:  # Is anomaly
                         anomaly = Anomaly(
                             score=score,
-                            data_point=dataset.data.iloc[i].to_dict(),
+                            data_point=data_collection.data.iloc[i].to_dict(),
                             detector_name=detector.name,
                         )
                         anomalies.append(anomaly)
@@ -765,7 +765,7 @@ class AutonomousDetectionService:
 
                 result = DetectionResult(
                     detector_id=detector.id,
-                    dataset_id=dataset.id,
+                    data_collection_id=data_collection.id,
                     anomalies=anomalies,
                     scores=scores,
                     labels=predictions,
@@ -800,7 +800,7 @@ class AutonomousDetectionService:
         return results
 
     def _create_detector(
-        self, recommendation: AlgorithmRecommendation, dataset: Dataset
+        self, recommendation: AlgorithmRecommendation, data_collection: DataCollection
     ) -> Detector:
         """Create detector instance from recommendation."""
 
@@ -827,7 +827,7 @@ class AutonomousDetectionService:
         return detector
 
     async def _auto_tune_detector(
-        self, detector: Detector, dataset: Dataset, config: AutonomousConfig
+        self, detector: Detector, data_collection: DataCollection, config: AutonomousConfig
     ) -> Detector:
         """Auto-tune detector hyperparameters."""
 
@@ -855,9 +855,9 @@ class AutonomousDetectionService:
                     )
 
                     try:
-                        self.adapter_registry.fit_detector(test_detector, dataset)
+                        self.adapter_registry.fit_detector(test_detector, data_collection)
                         scores = self.adapter_registry.score_with_detector(
-                            test_detector, dataset
+                            test_detector, data_collection
                         )
                         score_values = [s.value for s in scores]
 
@@ -877,7 +877,7 @@ class AutonomousDetectionService:
 
     async def _finalize_results(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: DataProfile,
         recommendations: list[AlgorithmRecommendation],
         results: dict[str, DetectionResult],
@@ -896,7 +896,7 @@ class AutonomousDetectionService:
             for algo, result in results.items():
                 score = 0.0
 
-                # Factor 1: Anomaly detection rate should be reasonable
+                # Factor 1: Anomaly processing rate should be reasonable
                 rate_score = 1.0 - abs(
                     result.anomaly_rate - profile.recommended_contamination
                 )
@@ -924,7 +924,7 @@ class AutonomousDetectionService:
 
         # Create comprehensive output
         output = {
-            "autonomous_detection_results": {
+            "autonomous_processing_results": {
                 "success": best_result is not None,
                 "best_algorithm": best_algorithm,
                 "data_profile": {
@@ -944,13 +944,13 @@ class AutonomousDetectionService:
                     }
                     for rec in recommendations
                 ],
-                "detection_results": {},
+                "processing_results": {},
             }
         }
 
         # Add detailed results
         for algo, result in results.items():
-            output["autonomous_detection_results"]["detection_results"][algo] = {
+            output["autonomous_processing_results"]["processing_results"][algo] = {
                 "anomalies_found": result.n_anomalies,
                 "anomaly_rate": result.anomaly_rate,
                 "threshold": result.threshold,
@@ -960,7 +960,7 @@ class AutonomousDetectionService:
 
         # Add best result details
         if best_result:
-            output["autonomous_detection_results"]["best_result"] = {
+            output["autonomous_processing_results"]["best_result"] = {
                 "algorithm": best_algorithm,
                 "anomalies": [
                     {
@@ -984,18 +984,18 @@ class AutonomousDetectionService:
 
         # Export results if requested
         if config.export_results and best_result:
-            await self._export_results(dataset, best_result, config)
-            output["autonomous_detection_results"]["exported"] = True
+            await self._export_results(data_collection, best_result, config)
+            output["autonomous_processing_results"]["exported"] = True
 
         return output
 
     async def _export_results(
-        self, dataset: Dataset, result: DetectionResult, config: AutonomousConfig
+        self, data_collection: DataCollection, result: DetectionResult, config: AutonomousConfig
     ) -> None:
         """Export results to file."""
 
         # Create results DataFrame
-        df = dataset.data.copy()
+        df = data_collection.data.copy()
 
         # Add anomaly scores and labels
         scores = [s.value for s in result.scores]
@@ -1005,7 +1005,7 @@ class AutonomousDetectionService:
 
         # Export based on format
         timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"autonomous_detection_results_{timestamp}"
+        filename = f"autonomous_processing_results_{timestamp}"
 
         if config.export_format.lower() == "csv":
             df.to_csv(f"{filename}.csv", index=False)
@@ -1081,14 +1081,14 @@ class AutonomousDetectionService:
         rejections = {
             "LOF": {
                 "condition": profile.numeric_features < profile.n_features * 0.7,
-                "reason": "Dataset contains too many categorical features for LOF (requires 70%+ numeric)",
+                "reason": "DataCollection contains too many categorical features for LOF (requires 70%+ numeric)",
                 "confidence": 0.3,
                 "performance": 0.45,
             },
             "OneClassSVM": {
                 "condition": profile.n_samples >= 50000
                 or profile.complexity_score <= 0.5,
-                "reason": "Dataset too large for efficient SVM computation or insufficient complexity",
+                "reason": "DataCollection too large for efficient SVM computation or insufficient complexity",
                 "confidence": 0.35,
                 "performance": 0.50,
             },
@@ -1119,7 +1119,7 @@ class AutonomousDetectionService:
 
         return (
             0.20,
-            f"Algorithm {algorithm} did not meet selection criteria for this dataset",
+            f"Algorithm {algorithm} did not meet selection criteria for this data_collection",
             0.35,
         )
 
@@ -1129,7 +1129,7 @@ class AutonomousDetectionService:
         """Calculate the decision factors that influenced algorithm selection."""
 
         factors = {
-            "dataset_size_match": 0.0,
+            "data_collection_size_match": 0.0,
             "feature_type_compatibility": 0.0,
             "complexity_alignment": 0.0,
             "performance_expectation": 0.0,
@@ -1137,13 +1137,13 @@ class AutonomousDetectionService:
             "interpretability_requirement": 0.0,
         }
 
-        # Dataset size matching
+        # DataCollection size matching
         if algorithm == "IsolationForest":
-            factors["dataset_size_match"] = min(1.0, profile.n_samples / 10000)
+            factors["data_collection_size_match"] = min(1.0, profile.n_samples / 10000)
         elif algorithm == "LOF":
-            factors["dataset_size_match"] = 1.0 - min(1.0, profile.n_samples / 50000)
+            factors["data_collection_size_match"] = 1.0 - min(1.0, profile.n_samples / 50000)
         elif algorithm == "AutoEncoder":
-            factors["dataset_size_match"] = min(1.0, profile.n_samples / 5000)
+            factors["data_collection_size_match"] = min(1.0, profile.n_samples / 5000)
 
         # Feature type compatibility
         if algorithm in ["LOF", "OneClassSVM", "EllipticEnvelope"]:
@@ -1280,7 +1280,7 @@ class AutonomousDetectionService:
             "LOF": f"High - O(n²) for distance matrix of {n}² elements",
             "OneClassSVM": "Medium - O(n×support_vectors) depends on complexity",
             "EllipticEnvelope": f"Low - O(d²) for covariance matrix of {d}×{d}",
-            "AutoEncoder": "High - O(model_parameters + batch_size×features)",
+            "AutoEncoder": "High - O(processor_parameters + batch_size×features)",
             "ECOD": "Very Low - O(d) for feature statistics",
             "COPOD": "Low - O(d²) for copula computations",
         }
@@ -1306,7 +1306,7 @@ class AutonomousDetectionService:
 
     async def explain_anomalies(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         result: DetectionResult,
         detector: Detector,
         config: AutonomousConfig,
@@ -1333,7 +1333,7 @@ class AutonomousDetectionService:
         ):
             try:
                 explanation = await self._explain_single_anomaly(
-                    dataset, idx, score, detector, config
+                    data_collection, idx, score, detector, config
                 )
                 explanations.append(explanation)
             except Exception as e:
@@ -1344,7 +1344,7 @@ class AutonomousDetectionService:
 
     async def _explain_single_anomaly(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         sample_idx: int,
         anomaly_score: float,
         detector: Detector,
@@ -1352,7 +1352,7 @@ class AutonomousDetectionService:
     ) -> AnomalyExplanation:
         """Explain a single anomaly."""
 
-        sample = dataset.data.iloc[sample_idx]
+        sample = data_collection.data.iloc[sample_idx]
 
         # Calculate feature contributions (basic implementation)
         feature_contributions = {}
@@ -1360,13 +1360,13 @@ class AutonomousDetectionService:
         normal_range_deviations = {}
 
         # Get normal samples for comparison
-        normal_indices = self._find_similar_normal_samples(dataset, sample_idx, sample)
+        normal_indices = self._find_similar_normal_samples(data_collection, sample_idx, sample)
 
         # Calculate feature-level explanations
-        for col in dataset.data.columns:
-            if pd.api.types.is_numeric_dtype(dataset.data[col]):
+        for col in data_collection.data.columns:
+            if pd.api.types.is_numeric_dtype(data_collection.data[col]):
                 # Calculate deviation from normal range
-                normal_values = dataset.data.iloc[normal_indices][col]
+                normal_values = data_collection.data.iloc[normal_indices][col]
                 sample_value = sample[col]
 
                 mean_normal = normal_values.mean()
@@ -1396,7 +1396,7 @@ class AutonomousDetectionService:
 
     def _find_similar_normal_samples(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         anomaly_idx: int,
         anomaly_sample: pd.Series,
         n_similar: int = 20,
@@ -1404,16 +1404,16 @@ class AutonomousDetectionService:
         """Find normal samples similar to the anomaly for comparison."""
 
         # Simple implementation: find samples with smallest Euclidean distance
-        numeric_cols = dataset.data.select_dtypes(include=[np.number]).columns
+        numeric_cols = data_collection.data.select_dtypes(include=[np.number]).columns
 
         if len(numeric_cols) == 0:
-            return list(range(min(n_similar, len(dataset.data))))
+            return list(range(min(n_similar, len(data_collection.data))))
 
         # Calculate distances
         distances = []
         anomaly_values = anomaly_sample[numeric_cols].values
 
-        for i, row in dataset.data[numeric_cols].iterrows():
+        for i, row in data_collection.data[numeric_cols].iterrows():
             if i != anomaly_idx:  # Exclude the anomaly itself
                 distance = np.linalg.norm(row.values - anomaly_values)
                 distances.append((i, distance))
@@ -1424,7 +1424,7 @@ class AutonomousDetectionService:
 
     async def generate_explanation_report(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: DataProfile,
         recommendations: list[AlgorithmRecommendation],
         results: dict[str, DetectionResult],
@@ -1445,7 +1445,7 @@ class AutonomousDetectionService:
 
             if config.explain_anomalies and best_result.anomalies:
                 anomaly_explanations = await self.explain_anomalies(
-                    dataset, best_result, best_detector, config
+                    data_collection, best_result, best_detector, config
                 )
 
         # Generate recommendations
@@ -1457,7 +1457,7 @@ class AutonomousDetectionService:
         decision_tree = self._build_decision_tree(profile, recommendations)
 
         return AutonomousExplanationReport(
-            dataset_profile=profile,
+            data_collection_profile=profile,
             algorithm_explanations=algorithm_explanations,
             selected_algorithms=[rec.algorithm for rec in recommendations],
             rejected_algorithms=[
@@ -1490,7 +1490,7 @@ class AutonomousDetectionService:
 
         if profile.outlier_ratio > 0.2:
             recommendations.append(
-                "High outlier ratio detected - consider data cleaning before anomaly detection"
+                "High outlier ratio detected - consider data cleaning before anomaly processing"
             )
 
         # Algorithm recommendations
@@ -1525,7 +1525,7 @@ class AutonomousDetectionService:
         return (
             f"Ensemble of {len(recommendations)} algorithms recommended for improved robustness. "
             f"Combining {', '.join(rec.algorithm for rec in recommendations)} "
-            f"balances different detection approaches and reduces false positives."
+            f"balances different processing approaches and reduces false positives."
         )
 
     def _generate_processing_explanation(
@@ -1563,7 +1563,7 @@ class AutonomousDetectionService:
 
         tree = {
             "root": "Algorithm Selection Process",
-            "dataset_analysis": {
+            "data_collection_analysis": {
                 "sample_size": {
                     "value": profile.n_samples,
                     "category": (
@@ -1610,7 +1610,7 @@ class AutonomousDetectionService:
                 "confidence_threshold": 0.8,
                 "max_algorithms": len(recommendations),
                 "primary_factors": [
-                    "dataset_size",
+                    "data_collection_size",
                     "feature_types",
                     "complexity",
                     "computational_efficiency",

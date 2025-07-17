@@ -1,5 +1,5 @@
 """
-Centralized security manager for Pynomaly API.
+Centralized security manager for Software API.
 
 This module integrates all security components and provides a unified interface
 for security operations throughout the application.
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class SecurityManager:
-    """Centralized security manager for the Pynomaly platform."""
+    """Centralized security manager for the Software platform."""
 
     def __init__(self, config_path: str | None = None):
         """Initialize security manager with configuration."""
@@ -504,7 +504,7 @@ class SecurityManager:
         )
 
     def get_security_metrics(self) -> dict[str, Any]:
-        """Get comprehensive security metrics."""
+        """Get comprehensive security measurements."""
         return {
             "monitoring": self.security_monitor.get_security_summary(),
             "authentication": {

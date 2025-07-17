@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 class DataQualityReport:
     """Report of data quality assessment"""
 
-    dataset_id: str
+    data_collection_id: str
     assessment_time: datetime
 
-    # Quality metrics
+    # Quality measurements
     missing_values_ratio: float
     duplicate_rows_ratio: float
     outlier_ratio: float
@@ -74,7 +74,7 @@ class FeatureEngineeringResult:
 class PreprocessingResult:
     """Complete preprocessing result"""
 
-    dataset_id: str
+    data_collection_id: str
     start_time: datetime
     end_time: datetime
 
@@ -110,9 +110,9 @@ class DataPreprocessingService:
         self.imputers: dict[str, Any] = {}
 
     @require_feature("automl_feature_engineering")
-    async def preprocess_dataset(
+    async def preprocess_data_collection(
         self,
-        dataset_id: str,
+        data_collection_id: str,
         data: pd.DataFrame,
         target: pd.Series | None = None,
         enable_feature_engineering: bool = True,
@@ -120,10 +120,10 @@ class DataPreprocessingService:
         max_features: int | None = None,
     ) -> PreprocessingResult:
         """
-        Complete preprocessing pipeline for a dataset
+        Complete preprocessing pipeline for a data_collection
 
         Args:
-            dataset_id: Unique identifier for the dataset
+            data_collection_id: Unique identifier for the data_collection
             data: Input DataFrame
             target: Optional target variable
             enable_feature_engineering: Whether to perform feature engineering
@@ -134,16 +134,16 @@ class DataPreprocessingService:
             Complete preprocessing result
         """
         start_time = datetime.now()
-        logger.info(f"Starting preprocessing for dataset {dataset_id}")
+        logger.info(f"Starting preprocessing for data_collection {data_collection_id}")
 
         try:
-            # Create dataset profile
-            original_profile = self._create_dataset_profile(data)
+            # Create data_collection profile
+            original_profile = self._create_data_collection_profile(data)
             original_shape = data.shape
 
             # Initialize result
             result = PreprocessingResult(
-                dataset_id=dataset_id,
+                data_collection_id=data_collection_id,
                 start_time=start_time,
                 end_time=start_time,  # Will be updated
                 original_shape=original_shape,
@@ -154,9 +154,9 @@ class DataPreprocessingService:
 
             # Step 1: Data quality assessment
             if enable_quality_assessment:
-                logger.info(f"Assessing data quality for dataset {dataset_id}")
+                logger.info(f"Assessing data quality for data_collection {data_collection_id}")
                 result.quality_report = await self._assess_data_quality(
-                    dataset_id, data, target
+                    data_collection_id, data, target
                 )
 
                 # Check if data quality is sufficient
@@ -168,12 +168,12 @@ class DataPreprocessingService:
                     return result
 
             # Step 2: Basic data cleaning
-            logger.info(f"Cleaning data for dataset {dataset_id}")
+            logger.info(f"Cleaning data for data_collection {data_collection_id}")
             result.processed_data = await self._clean_data(result.processed_data)
             result.transformations_applied.append("data_cleaning")
 
             # Step 3: Handle missing values
-            logger.info(f"Handling missing values for dataset {dataset_id}")
+            logger.info(f"Handling missing values for data_collection {data_collection_id}")
             result.processed_data = await self._handle_missing_values(
                 result.processed_data
             )
@@ -181,7 +181,7 @@ class DataPreprocessingService:
 
             # Step 4: Feature engineering (if enabled)
             if enable_feature_engineering:
-                logger.info(f"Performing feature engineering for dataset {dataset_id}")
+                logger.info(f"Performing feature engineering for data_collection {data_collection_id}")
                 result.feature_engineering_result = await self._engineer_features(
                     result.processed_data, target, max_features
                 )
@@ -195,7 +195,7 @@ class DataPreprocessingService:
                 result.transformations_applied.append("feature_engineering")
 
             # Step 5: Final data validation
-            logger.info(f"Validating processed data for dataset {dataset_id}")
+            logger.info(f"Validating processed data for data_collection {data_collection_id}")
             await self._validate_processed_data(result.processed_data)
 
             # Update timing and success status
@@ -206,22 +206,22 @@ class DataPreprocessingService:
             result.success = True
 
             logger.info(
-                f"Preprocessing completed for dataset {dataset_id} in "
+                f"Preprocessing completed for data_collection {data_collection_id} in "
                 f"{result.processing_time_seconds:.2f}s"
             )
 
             return result
 
         except Exception as e:
-            logger.error(f"Preprocessing failed for dataset {dataset_id}: {str(e)}")
+            logger.error(f"Preprocessing failed for data_collection {data_collection_id}: {str(e)}")
             end_time = datetime.now()
 
             return PreprocessingResult(
-                dataset_id=dataset_id,
+                data_collection_id=data_collection_id,
                 start_time=start_time,
                 end_time=end_time,
                 original_shape=data.shape,
-                original_profile=self._create_dataset_profile(data),
+                original_profile=self._create_data_collection_profile(data),
                 processed_data=data,
                 success=False,
                 error_message=str(e),
@@ -229,7 +229,7 @@ class DataPreprocessingService:
             )
 
     def _create_dataset_profile(self, data: pd.DataFrame) -> DatasetProfile:
-        """Create a basic dataset profile"""
+        """Create a basic data_collection profile"""
         n_samples, n_features = data.shape
 
         # Analyze feature types
@@ -249,7 +249,7 @@ class DataPreprocessingService:
                 feature_types[col] = "categorical"
                 categorical_features.append(col)
 
-        # Calculate basic metrics
+        # Calculate basic measurements
         missing_ratio = data.isnull().sum().sum() / (n_samples * n_features)
 
         # Sparsity for numerical features
@@ -275,24 +275,24 @@ class DataPreprocessingService:
             time_series_features=time_series_features,
             sparsity_ratio=sparsity,
             dimensionality_ratio=n_features / n_samples,
-            dataset_size_mb=data.memory_usage(deep=True).sum() / (1024 * 1024),
+            data_collection_size_mb=data.memory_usage(deep=True).sum() / (1024 * 1024),
             has_temporal_structure=len(time_series_features) > 0,
         )
 
     async def _assess_data_quality(
         self,
-        dataset_id: str,
+        data_collection_id: str,
         data: pd.DataFrame,
         target: pd.Series | None = None,
     ) -> DataQualityReport:
         """Assess data quality and identify issues"""
         n_samples, n_features = data.shape
 
-        # Calculate quality metrics
+        # Calculate quality measurements
         missing_ratio = data.isnull().sum().sum() / (n_samples * n_features)
         duplicate_ratio = data.duplicated().sum() / n_samples
 
-        # Outlier detection using IQR method for numerical columns
+        # Outlier processing using IQR method for numerical columns
         numerical_cols = data.select_dtypes(include=[np.number]).columns
         outlier_count = 0
 
@@ -362,7 +362,7 @@ class DataPreprocessingService:
         quality_score = max(quality_score, 0.0)
 
         return DataQualityReport(
-            dataset_id=dataset_id,
+            data_collection_id=data_collection_id,
             assessment_time=datetime.now(),
             missing_values_ratio=missing_ratio,
             duplicate_rows_ratio=duplicate_ratio,
@@ -559,7 +559,7 @@ class DataPreprocessingService:
     def get_preprocessing_summary(self, result: PreprocessingResult) -> dict[str, Any]:
         """Get a summary of preprocessing results"""
         summary = {
-            "dataset_id": result.dataset_id,
+            "data_collection_id": result.data_collection_id,
             "success": result.success,
             "processing_time_seconds": result.processing_time_seconds,
             "original_shape": result.original_shape,

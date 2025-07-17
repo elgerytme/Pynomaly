@@ -1,4 +1,4 @@
-"""Explainable AI (XAI) service with SHAP/LIME integration for model interpretability."""
+"""Explainable AI (XAI) service with SHAP/LIME integration for processor interpretability."""
 
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ class ExplainabilityError(Exception):
 
 
 class ExplanationNotSupportedError(ExplainabilityError):
-    """Explanation method not supported for model type."""
+    """Explanation method not supported for processor type."""
 
     pass
 
@@ -75,7 +75,7 @@ class ExplanationConfiguration:
     num_samples: int = 1000
     background_sample_size: int = 100
     enable_interaction_analysis: bool = True
-    enable_bias_detection: bool = True
+    enable_bias_processing: bool = True
     enable_counterfactual_analysis: bool = False
     confidence_threshold: float = 0.8
     explanation_timeout_seconds: int = 300
@@ -97,7 +97,7 @@ class ExplanationCache:
     """Cache for storing explanation results."""
 
     cache_id: UUID = field(default_factory=uuid4)
-    model_id: UUID = field(default_factory=uuid4)
+    processor_id: UUID = field(default_factory=uuid4)
     explanation_method: ExplanationMethod = ExplanationMethod.SHAP_TREE
     cached_explanations: dict[str, Any] = field(default_factory=dict)
     creation_timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -131,14 +131,14 @@ class ExplanationCache:
 
 
 class ExplainableAIService:
-    """Service for generating model explanations and interpretability insights.
+    """Service for generating processor explanations and interpretability insights.
 
     This service provides comprehensive explainable AI capabilities including:
     - SHAP (SHapley Additive exPlanations) integration
-    - LIME (Local Interpretable Model-agnostic Explanations) integration
-    - Global and local model interpretability
+    - LIME (Local Interpretable Processor-agnostic Explanations) integration
+    - Global and local processor interpretability
     - Feature importance analysis
-    - Bias detection and fairness analysis
+    - Bias processing and fairness analysis
     - Counterfactual explanations
     - Trust scoring and confidence assessment
     """
@@ -162,8 +162,8 @@ class ExplainableAIService:
         # Explanation generators
         self.explanation_generators: dict[ExplanationMethod, Any] = {}
 
-        # Model explainers cache
-        self.model_explainers: dict[UUID, Any] = {}
+        # Processor explainers cache
+        self.processor_explainers: dict[UUID, Any] = {}
 
         # Explanation cache
         self.explanation_cache: dict[UUID, ExplanationCache] = {}
@@ -216,7 +216,7 @@ class ExplainableAIService:
 
     async def explain_prediction(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         instance: np.ndarray,
         feature_names: list[str] | None = None,
         config: ExplanationConfiguration | None = None,
@@ -224,7 +224,7 @@ class ExplainableAIService:
         """Generate explanation for a single prediction.
 
         Args:
-            model: Trained model to explain
+            processor: Trained processor to explain
             instance: Input instance to explain
             feature_names: Names of input features
             config: Explanation configuration
@@ -233,37 +233,37 @@ class ExplainableAIService:
             Explanation result with feature importances and metadata
         """
         config = config or self.default_config
-        model_id = self._get_model_id(model)
+        processor_id = self._get_processor_id(processor)
 
         try:
             # Create explanation request
             request = ExplanationRequest(
-                model_id=model_id,
+                processor_id=processor_id,
                 explanation_method=config.explanation_method,
                 explanation_scope=ExplanationScope.LOCAL,
                 input_data=instance.reshape(1, -1),
                 feature_names=feature_names
                 or [f"feature_{i}" for i in range(len(instance))],
-                target_class=None,  # For anomaly detection, typically binary
+                target_class=None,  # For anomaly processing, typically binary
                 explanation_config=config.__dict__,
             )
 
             # Check cache first
             cache_key = self._generate_cache_key(request, instance)
             if config.cache_explanations:
-                cached_result = self._get_cached_explanation(model_id, cache_key)
+                cached_result = self._get_cached_explanation(processor_id, cache_key)
                 if cached_result:
                     logger.debug("Retrieved cached explanation for instance")
                     return cached_result
 
             # Generate explanation
             explanation_result = await self._generate_instance_explanation(
-                model, instance, request, config
+                processor, instance, request, config
             )
 
             # Cache result
             if config.cache_explanations:
-                self._cache_explanation(model_id, cache_key, explanation_result)
+                self._cache_explanation(processor_id, cache_key, explanation_result)
 
             logger.info(
                 f"Generated explanation for instance using {config.explanation_method.value}"
@@ -274,17 +274,17 @@ class ExplainableAIService:
             logger.error(f"Failed to explain prediction: {e}")
             raise ExplainabilityError(f"Prediction explanation failed: {e}") from e
 
-    async def explain_model_global(
+    async def explain_processor_global(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         training_data: np.ndarray,
         feature_names: list[str] | None = None,
         config: ExplanationConfiguration | None = None,
     ) -> GlobalExplanation:
-        """Generate global explanation for entire model.
+        """Generate global explanation for entire processor.
 
         Args:
-            model: Trained model to explain
+            processor: Trained processor to explain
             training_data: Training data for explanation
             feature_names: Names of input features
             config: Explanation configuration
@@ -293,7 +293,7 @@ class ExplainableAIService:
             Global explanation with overall feature importances
         """
         config = config or self.default_config
-        model_id = self._get_model_id(model)
+        processor_id = self._get_processor_id(processor)
 
         try:
             # Store background data for SHAP
@@ -307,13 +307,13 @@ class ExplainableAIService:
                     size=config.background_sample_size,
                     replace=False,
                 )
-                self.background_data[model_id] = training_data[indices]
+                self.background_data[processor_id] = training_data[indices]
             else:
-                self.background_data[model_id] = training_data
+                self.background_data[processor_id] = training_data
 
             # Create explanation request
             request = ExplanationRequest(
-                model_id=model_id,
+                processor_id=processor_id,
                 explanation_method=config.explanation_method,
                 explanation_scope=ExplanationScope.GLOBAL,
                 input_data=training_data,
@@ -324,20 +324,20 @@ class ExplainableAIService:
 
             # Generate global explanation
             global_explanation = await self._generate_global_explanation(
-                model, training_data, request, config
+                processor, training_data, request, config
             )
 
             # Analyze feature interactions if enabled
             if config.enable_interaction_analysis:
                 interactions = await self._analyze_feature_interactions(
-                    model, training_data, request, config
+                    processor, training_data, request, config
                 )
                 global_explanation.feature_interactions = interactions
 
             # Detect bias if enabled
-            if config.enable_bias_detection:
-                bias_analysis = await self._detect_model_bias(
-                    model, training_data, request, config
+            if config.enable_bias_processing:
+                bias_analysis = await self._detect_processor_bias(
+                    processor, training_data, request, config
                 )
                 global_explanation.bias_analysis = bias_analysis
 
@@ -347,12 +347,12 @@ class ExplainableAIService:
             return global_explanation
 
         except Exception as e:
-            logger.error(f"Failed to generate global model explanation: {e}")
+            logger.error(f"Failed to generate global processor explanation: {e}")
             raise ExplainabilityError(f"Global explanation failed: {e}") from e
 
     async def analyze_feature_importance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         feature_names: list[str] | None = None,
         method: ExplanationMethod = ExplanationMethod.PERMUTATION_IMPORTANCE,
@@ -360,7 +360,7 @@ class ExplainableAIService:
         """Analyze feature importance using specified method.
 
         Args:
-            model: Trained model
+            processor: Trained processor
             data: Data for importance analysis
             feature_names: Names of features
             method: Explanation method to use
@@ -376,7 +376,7 @@ class ExplainableAIService:
 
             explainer = self.explanation_generators[method]
             importances = await explainer.get_feature_importance(
-                model, data, feature_names
+                processor, data, feature_names
             )
 
             # Sort by importance (descending)
@@ -391,7 +391,7 @@ class ExplainableAIService:
 
     async def generate_counterfactual_explanations(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         instance: np.ndarray,
         feature_names: list[str] | None = None,
         num_counterfactuals: int = 5,
@@ -399,7 +399,7 @@ class ExplainableAIService:
         """Generate counterfactual explanations for an instance.
 
         Args:
-            model: Trained model
+            processor: Trained processor
             instance: Input instance
             feature_names: Names of features
             num_counterfactuals: Number of counterfactuals to generate
@@ -412,7 +412,7 @@ class ExplainableAIService:
             # In practice, would use specialized libraries like DiCE or Alibi
 
             counterfactuals = []
-            original_prediction = model.predict(instance.reshape(1, -1))[0]
+            original_prediction = processor.predict(instance.reshape(1, -1))[0]
 
             for _i in range(num_counterfactuals):
                 # Generate perturbation
@@ -420,7 +420,7 @@ class ExplainableAIService:
                 counterfactual = instance + perturbation
 
                 # Check if prediction changes
-                cf_prediction = model.predict(counterfactual.reshape(1, -1))[0]
+                cf_prediction = processor.predict(counterfactual.reshape(1, -1))[0]
 
                 if cf_prediction != original_prediction:
                     # Calculate feature changes
@@ -458,35 +458,35 @@ class ExplainableAIService:
     async def assess_explanation_trust(
         self,
         explanation_result: ExplanationResult,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         validation_data: np.ndarray | None = None,
     ) -> TrustScore:
         """Assess trustworthiness of explanation.
 
         Args:
             explanation_result: Explanation to assess
-            model: Model that generated the explanation
+            processor: Processor that generated the explanation
             validation_data: Data for trust assessment
 
         Returns:
-            Trust score with confidence metrics
+            Trust score with confidence measurements
         """
         try:
-            # Calculate various trust metrics
+            # Calculate various trust measurements
 
             # Consistency: How consistent are explanations for similar instances
             consistency_score = await self._calculate_explanation_consistency(
-                explanation_result, model, validation_data
+                explanation_result, processor, validation_data
             )
 
             # Stability: How stable are explanations under small perturbations
             stability_score = await self._calculate_explanation_stability(
-                explanation_result, model
+                explanation_result, processor
             )
 
-            # Fidelity: How well does explanation represent model behavior
+            # Fidelity: How well does explanation represent processor behavior
             fidelity_score = await self._calculate_explanation_fidelity(
-                explanation_result, model
+                explanation_result, processor
             )
 
             # Overall trust score
@@ -521,15 +521,15 @@ class ExplainableAIService:
 
     async def detect_explanation_bias(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         protected_attributes: list[str],
         feature_names: list[str],
     ) -> BiasAnalysis:
-        """Detect bias in model explanations.
+        """Detect bias in processor explanations.
 
         Args:
-            model: Model to analyze
+            processor: Processor to analyze
             data: Data for bias analysis
             protected_attributes: Protected attribute names
             feature_names: All feature names
@@ -548,7 +548,7 @@ class ExplainableAIService:
                 raise ValueError("Protected attributes not found in feature names")
 
             # Generate explanations for subgroups
-            bias_metrics = {}
+            bias_measurements = {}
 
             for attr_idx in protected_indices:
                 attr_name = feature_names[attr_idx]
@@ -563,23 +563,23 @@ class ExplainableAIService:
 
                     if len(group_data) > 10:  # Minimum group size
                         importances = await self.analyze_feature_importance(
-                            model, group_data, feature_names
+                            processor, group_data, feature_names
                         )
                         group_importances[f"{attr_name}={value}"] = importances
 
-                # Calculate bias metrics
+                # Calculate bias measurements
                 if len(group_importances) >= 2:
                     bias_score = self._calculate_group_bias_score(group_importances)
-                    bias_metrics[attr_name] = bias_score
+                    bias_measurements[attr_name] = bias_score
 
             # Overall bias assessment
-            overall_bias = np.mean(list(bias_metrics.values())) if bias_metrics else 0.0
+            overall_bias = np.mean(list(bias_measurements.values())) if bias_measurements else 0.0
 
             bias_analysis = BiasAnalysis(
                 overall_bias_score=overall_bias,
-                protected_attribute_bias=bias_metrics,
-                bias_detected=overall_bias > 0.3,  # Threshold for bias detection
-                fairness_metrics={
+                protected_attribute_bias=bias_measurements,
+                bias_detected=overall_bias > 0.3,  # Threshold for bias processing
+                fairness_measurements={
                     "demographic_parity": 1.0 - overall_bias,
                     "equalized_odds": 1.0 - overall_bias * 0.8,
                 },
@@ -591,15 +591,15 @@ class ExplainableAIService:
 
         except Exception as e:
             logger.error(f"Failed to detect explanation bias: {e}")
-            raise ExplainabilityError(f"Bias detection failed: {e}") from e
+            raise ExplainabilityError(f"Bias processing failed: {e}") from e
 
     async def get_explanation_summary(
-        self, model_id: UUID, time_window: timedelta | None = None
+        self, processor_id: UUID, time_window: timedelta | None = None
     ) -> dict[str, Any]:
-        """Get summary of explanations for a model.
+        """Get summary of explanations for a processor.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             time_window: Time window for summary (defaults to last 24 hours)
 
         Returns:
@@ -610,7 +610,7 @@ class ExplainableAIService:
 
         try:
             summary = {
-                "model_id": str(model_id),
+                "processor_id": str(processor_id),
                 "time_window_hours": time_window.total_seconds() / 3600,
                 "explanation_stats": {
                     "total_explanations": 0,
@@ -632,8 +632,8 @@ class ExplainableAIService:
             }
 
             # Analyze cached explanations
-            if model_id in self.explanation_cache:
-                cache = self.explanation_cache[model_id]
+            if processor_id in self.explanation_cache:
+                cache = self.explanation_cache[processor_id]
                 if cache.creation_timestamp >= cutoff_time:
                     summary["explanation_stats"]["total_explanations"] = (
                         cache.access_count
@@ -643,7 +643,7 @@ class ExplainableAIService:
                     )
 
             # This would be enhanced with actual explanation tracking
-            logger.info(f"Generated explanation summary for model {model_id}")
+            logger.info(f"Generated explanation summary for processor {processor_id}")
             return summary
 
         except Exception as e:
@@ -653,10 +653,10 @@ class ExplainableAIService:
     # Private helper methods
 
     def _get_model_id(self, model: BaseEstimator) -> UUID:
-        """Get or generate model ID."""
-        # In practice, would use model registry
-        model_hash = hash(str(model.__dict__))
-        return UUID(int=abs(model_hash) % (2**128))
+        """Get or generate processor ID."""
+        # In practice, would use processor registry
+        processor_hash = hash(str(processor.__dict__))
+        return UUID(int=abs(processor_hash) % (2**128))
 
     def _generate_cache_key(
         self, request: ExplanationRequest, instance: np.ndarray
@@ -666,25 +666,25 @@ class ExplainableAIService:
         return f"{request.explanation_method.value}_{instance_hash}"
 
     def _get_cached_explanation(
-        self, model_id: UUID, cache_key: str
+        self, processor_id: UUID, cache_key: str
     ) -> ExplanationResult | None:
         """Get cached explanation."""
-        if model_id in self.explanation_cache:
-            return self.explanation_cache[model_id].get_explanation(cache_key)
+        if processor_id in self.explanation_cache:
+            return self.explanation_cache[processor_id].get_explanation(cache_key)
         return None
 
     def _cache_explanation(
-        self, model_id: UUID, cache_key: str, result: ExplanationResult
+        self, processor_id: UUID, cache_key: str, result: ExplanationResult
     ) -> None:
         """Cache explanation result."""
-        if model_id not in self.explanation_cache:
-            self.explanation_cache[model_id] = ExplanationCache(model_id=model_id)
+        if processor_id not in self.explanation_cache:
+            self.explanation_cache[processor_id] = ExplanationCache(processor_id=processor_id)
 
-        self.explanation_cache[model_id].store_explanation(cache_key, result)
+        self.explanation_cache[processor_id].store_explanation(cache_key, result)
 
     async def _generate_instance_explanation(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         instance: np.ndarray,
         request: ExplanationRequest,
         config: ExplanationConfiguration,
@@ -697,12 +697,12 @@ class ExplainableAIService:
 
         explainer = self.explanation_generators[method]
 
-        # Get model background data if needed
-        background_data = self.background_data.get(request.model_id)
+        # Get processor background data if needed
+        background_data = self.background_data.get(request.processor_id)
 
         # Generate explanation
         explanation = await explainer.explain_instance(
-            model, instance, request.feature_names, background_data
+            processor, instance, request.feature_names, background_data
         )
 
         # Create result
@@ -723,12 +723,12 @@ class ExplainableAIService:
 
     async def _generate_global_explanation(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         request: ExplanationRequest,
         config: ExplanationConfiguration,
     ) -> GlobalExplanation:
-        """Generate global model explanation."""
+        """Generate global processor explanation."""
         method = config.explanation_method
 
         if method not in self.explanation_generators:
@@ -738,14 +738,14 @@ class ExplainableAIService:
 
         # Generate global explanation
         global_explanation = await explainer.explain_global(
-            model, data, request.feature_names
+            processor, data, request.feature_names
         )
 
         return global_explanation
 
     async def _analyze_feature_interactions(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         request: ExplanationRequest,
         config: ExplanationConfiguration,
@@ -762,22 +762,22 @@ class ExplainableAIService:
 
         return interactions
 
-    async def _detect_model_bias(
+    async def _detect_processor_bias(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         request: ExplanationRequest,
         config: ExplanationConfiguration,
     ) -> BiasAnalysis:
-        """Detect bias in model behavior."""
-        # Simplified bias detection
-        # In practice, would analyze protected attributes and fairness metrics
+        """Detect bias in processor behavior."""
+        # Simplified bias processing
+        # In practice, would analyze protected attributes and fairness measurements
 
         bias_analysis = BiasAnalysis(
             overall_bias_score=0.1,  # Low bias
             protected_attribute_bias={},
             bias_detected=False,
-            fairness_metrics={"demographic_parity": 0.95},
+            fairness_measurements={"demographic_parity": 0.95},
             bias_sources=[],
         )
 
@@ -786,7 +786,7 @@ class ExplainableAIService:
     async def _calculate_explanation_consistency(
         self,
         explanation_result: ExplanationResult,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         validation_data: np.ndarray | None,
     ) -> float:
         """Calculate explanation consistency score across similar instances."""
@@ -844,7 +844,7 @@ class ExplainableAIService:
             return 0.6  # Conservative default on error
 
     async def _calculate_explanation_stability(
-        self, explanation_result: ExplanationResult, model: BaseEstimator
+        self, explanation_result: ExplanationResult, processor: BaseEstimator
     ) -> float:
         """Calculate explanation stability score under small perturbations."""
         try:
@@ -896,9 +896,9 @@ class ExplainableAIService:
             return 0.6  # Conservative default on error
 
     async def _calculate_explanation_fidelity(
-        self, explanation_result: ExplanationResult, model: BaseEstimator
+        self, explanation_result: ExplanationResult, processor: BaseEstimator
     ) -> float:
-        """Calculate explanation fidelity score based on model predictions."""
+        """Calculate explanation fidelity score based on processor predictions."""
         try:
             # Check if we have local explanations to work with
             if not explanation_result.local_explanations:
@@ -997,7 +997,7 @@ class SHAPExplainer:
 
     async def explain_instance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         instance: np.ndarray,
         feature_names: list[str],
         background_data: np.ndarray | None = None,
@@ -1008,10 +1008,10 @@ class SHAPExplainer:
 
         try:
             # Create appropriate SHAP explainer
-            if hasattr(model, "predict_proba"):
-                explainer = shap.Explainer(model, background_data)
+            if hasattr(processor, "predict_proba"):
+                explainer = shap.Explainer(processor, background_data)
             else:
-                explainer = shap.Explainer(model)
+                explainer = shap.Explainer(processor)
 
             # Generate SHAP values
             shap_values = explainer(instance.reshape(1, -1))
@@ -1041,7 +1041,7 @@ class SHAPExplainer:
 
             explanation = InstanceExplanation(
                 instance_id=str(uuid4()),
-                prediction_value=model.predict(instance.reshape(1, -1))[0],
+                prediction_value=processor.predict(instance.reshape(1, -1))[0],
                 feature_importances=feature_importances,
                 explanation_method=ExplanationMethod.SHAP_TREE,
                 base_value=(
@@ -1058,7 +1058,7 @@ class SHAPExplainer:
             raise ExplainabilityError(f"SHAP explanation failed: {e}") from e
 
     async def explain_global(
-        self, model: BaseEstimator, data: np.ndarray, feature_names: list[str]
+        self, processor: BaseEstimator, data: np.ndarray, feature_names: list[str]
     ) -> GlobalExplanation:
         """Generate global SHAP explanation."""
         if not SHAP_AVAILABLE:
@@ -1073,7 +1073,7 @@ class SHAPExplainer:
             sample_data = data[sample_indices]
 
             # Create explainer
-            explainer = shap.Explainer(model)
+            explainer = shap.Explainer(processor)
 
             # Generate SHAP values for sample
             shap_values = explainer(sample_data)
@@ -1103,7 +1103,7 @@ class SHAPExplainer:
                 importance.rank = i + 1
 
             global_explanation = GlobalExplanation(
-                model_id=uuid4(),
+                processor_id=uuid4(),
                 global_feature_importances=global_importances,
                 explanation_method=ExplanationMethod.SHAP_TREE,
                 data_coverage=sample_size / len(data),
@@ -1117,18 +1117,18 @@ class SHAPExplainer:
 
     async def get_feature_importance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         feature_names: list[str] | None = None,
     ) -> list[FeatureImportance]:
         """Get feature importance using SHAP."""
         feature_names = feature_names or [f"feature_{i}" for i in range(data.shape[1])]
-        global_explanation = await self.explain_global(model, data, feature_names)
+        global_explanation = await self.explain_global(processor, data, feature_names)
         return global_explanation.global_feature_importances
 
 
 class SHAPKernelExplainer(SHAPExplainer):
-    """SHAP Kernel explainer for model-agnostic explanations."""
+    """SHAP Kernel explainer for processor-agnostic explanations."""
 
     pass
 
@@ -1150,7 +1150,7 @@ class LIMEExplainer:
 
     async def explain_instance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         instance: np.ndarray,
         feature_names: list[str],
         background_data: np.ndarray | None = None,
@@ -1177,9 +1177,9 @@ class LIMEExplainer:
             explanation = explainer.explain_instance(
                 instance,
                 (
-                    model.predict_proba
-                    if hasattr(model, "predict_proba")
-                    else model.predict
+                    processor.predict_proba
+                    if hasattr(processor, "predict_proba")
+                    else processor.predict
                 ),
                 num_features=len(feature_names),
             )
@@ -1205,7 +1205,7 @@ class LIMEExplainer:
 
             instance_explanation = InstanceExplanation(
                 instance_id=str(uuid4()),
-                prediction_value=model.predict(instance.reshape(1, -1))[0],
+                prediction_value=processor.predict(instance.reshape(1, -1))[0],
                 feature_importances=feature_importances,
                 explanation_method=ExplanationMethod.LIME,
                 base_value=0.0,  # LIME doesn't provide base value
@@ -1219,7 +1219,7 @@ class LIMEExplainer:
 
     async def get_feature_importance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         feature_names: list[str] | None = None,
     ) -> list[FeatureImportance]:
@@ -1233,7 +1233,7 @@ class LIMEExplainer:
         all_importances = []
         for idx in sample_indices:
             instance_explanation = await self.explain_instance(
-                model, data[idx], feature_names, data
+                processor, data[idx], feature_names, data
             )
             all_importances.append(instance_explanation.feature_importances)
 
@@ -1275,7 +1275,7 @@ class PermutationImportanceExplainer:
 
     async def get_feature_importance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         feature_names: list[str] | None = None,
     ) -> list[FeatureImportance]:
@@ -1292,13 +1292,13 @@ class PermutationImportanceExplainer:
             else:
                 sample_data = data
 
-            # Generate dummy targets (for anomaly detection)
+            # Generate dummy targets (for anomaly processing)
             # In practice, would use actual labels
-            dummy_targets = model.predict(sample_data)
+            dummy_targets = processor.predict(sample_data)
 
             # Calculate permutation importance
             perm_importance = permutation_importance(
-                model, sample_data, dummy_targets, n_repeats=5, random_state=42
+                processor, sample_data, dummy_targets, n_repeats=5, random_state=42
             )
 
             # Create feature importance objects
@@ -1317,7 +1317,7 @@ class PermutationImportanceExplainer:
                     importance_type="permutation_importance",
                     confidence=1.0 - min(0.5, std / max(0.001, abs(importance))),
                     rank=i + 1,
-                    additional_metrics={"std": float(std)},
+                    additional_measurements={"std": float(std)},
                 )
                 importances.append(feature_importance)
 
@@ -1340,7 +1340,7 @@ class FeatureAblationExplainer:
 
     async def get_feature_importance(
         self,
-        model: BaseEstimator,
+        processor: BaseEstimator,
         data: np.ndarray,
         feature_names: list[str] | None = None,
     ) -> list[FeatureImportance]:
@@ -1349,7 +1349,7 @@ class FeatureAblationExplainer:
 
         try:
             # Calculate baseline performance
-            baseline_predictions = model.predict(data)
+            baseline_predictions = processor.predict(data)
             baseline_score = np.mean(baseline_predictions)  # Simplified metric
 
             importances = []
@@ -1360,7 +1360,7 @@ class FeatureAblationExplainer:
                 ablated_data[:, i] = np.mean(data[:, i])
 
                 # Calculate performance with ablated feature
-                ablated_predictions = model.predict(ablated_data)
+                ablated_predictions = processor.predict(ablated_data)
                 ablated_score = np.mean(ablated_predictions)
 
                 # Importance is the difference

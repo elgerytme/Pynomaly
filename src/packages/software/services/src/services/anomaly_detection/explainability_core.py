@@ -26,7 +26,7 @@ class ExplanationConfig(BaseModel):
         default="technical", description="Target audience level"
     )
     include_confidence: bool = Field(
-        default=True, description="Include confidence metrics"
+        default=True, description="Include confidence measurements"
     )
     generate_plots: bool = Field(
         default=True, description="Generate visualization plots"
@@ -37,8 +37,8 @@ class BiasAnalysisConfig(BaseModel):
     """Configuration for bias analysis."""
 
     protected_attributes: list[str] = Field(description="Protected attribute names")
-    fairness_metrics: list[str] = Field(
-        default=["demographic_parity", "equalized_odds"], description="Fairness metrics"
+    fairness_measurements: list[str] = Field(
+        default=["demographic_parity", "equalized_odds"], description="Fairness measurements"
     )
     threshold: float = Field(default=0.5, description="Decision threshold")
     reference_group: str | None = Field(
@@ -73,7 +73,7 @@ class LocalExplanation(BaseModel):
     """Local explanation for individual predictions."""
 
     sample_id: str = Field(description="Sample identifier")
-    prediction: float = Field(description="Model prediction")
+    prediction: float = Field(description="Processor prediction")
     confidence: float = Field(description="Prediction confidence")
     feature_contributions: dict[str, float] = Field(
         description="Feature contribution scores"
@@ -86,7 +86,7 @@ class LocalExplanation(BaseModel):
 
 
 class GlobalExplanation(BaseModel):
-    """Global explanation for model behavior."""
+    """Global explanation for processor behavior."""
 
     feature_importance: dict[str, float] = Field(
         description="Global feature importance"
@@ -94,7 +94,7 @@ class GlobalExplanation(BaseModel):
     feature_interactions: dict[str, float] = Field(
         default_factory=dict, description="Feature interactions"
     )
-    model_summary: dict[str, Any] = Field(description="Model summary statistics")
+    processor_summary: dict[str, Any] = Field(description="Processor summary statistics")
     explanation_method: str = Field(description="Method used for explanation")
     coverage: float = Field(description="Explanation coverage percentage")
     reliability: float = Field(description="Explanation reliability score")
@@ -104,7 +104,7 @@ class BiasAnalysisResult(BaseModel):
     """Results of bias analysis."""
 
     protected_attribute: str = Field(description="Protected attribute analyzed")
-    fairness_metrics: dict[str, float] = Field(description="Fairness metric values")
+    fairness_measurements: dict[str, float] = Field(description="Fairness metric values")
     group_statistics: dict[str, dict[str, float]] = Field(
         description="Statistics by group"
     )
@@ -117,7 +117,7 @@ class TrustScoreResult(BaseModel):
     """Trust score assessment results."""
 
     overall_trust_score: float = Field(description="Overall trust score (0-1)")
-    consistency_score: float = Field(description="Model consistency score")
+    consistency_score: float = Field(description="Processor consistency score")
     stability_score: float = Field(description="Prediction stability score")
     fidelity_score: float = Field(description="Explanation fidelity score")
     trust_factors: dict[str, float] = Field(description="Individual trust factors")
@@ -127,8 +127,8 @@ class TrustScoreResult(BaseModel):
 class ExplanationReport(BaseModel):
     """Comprehensive explanation report."""
 
-    model_info: dict[str, Any] = Field(description="Model information")
-    dataset_summary: dict[str, Any] = Field(description="Dataset summary")
+    processor_info: dict[str, Any] = Field(description="Processor information")
+    data_collection_summary: dict[str, Any] = Field(description="DataCollection summary")
     local_explanations: list[LocalExplanation] = Field(description="Local explanations")
     global_explanation: GlobalExplanation = Field(description="Global explanation")
     bias_analysis: list[BiasAnalysisResult] = Field(description="Bias analysis results")

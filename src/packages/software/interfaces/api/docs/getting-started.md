@@ -1,19 +1,19 @@
-# Getting Started with Pynomaly API
+# Getting Started with Software API
 
-This guide will help you get started with the Pynomaly API for anomaly detection. You'll learn how to authenticate, upload data, create detectors, and perform anomaly detection.
+This guide will help you get started with the Software API for anomaly processing. You'll learn how to authenticate, upload data, create detectors, and perform anomaly processing.
 
 ## Prerequisites
 
 - Python 3.7+ (for Python examples)
 - Node.js 14+ (for JavaScript examples)
 - curl (for command-line examples)
-- A Pynomaly account with API access
+- A Software account with API access
 
 ## Step 1: Authentication
 
 ### Obtain API Credentials
 
-1. Log in to your Pynomaly account
+1. Log in to your Software account
 2. Navigate to Settings > API Keys
 3. Create a new API key with appropriate permissions
 4. Store your API key securely (never commit it to version control)
@@ -80,11 +80,11 @@ Expected response:
 }
 ```
 
-## Step 3: Upload a Dataset
+## Step 3: Upload a DataCollection
 
 ### Prepare Your Data
 
-Your dataset should be in one of the supported formats:
+Your data_collection should be in one of the supported formats:
 - CSV (comma-separated values)
 - JSON (array of objects)
 - Parquet (Apache Parquet format)
@@ -117,7 +117,7 @@ import requests
 
 headers = {"Authorization": "Bearer YOUR_JWT_TOKEN"}
 
-# Upload dataset
+# Upload data_collection
 with open('sensor_data.csv', 'rb') as f:
     files = {'file': f}
     data = {
@@ -133,9 +133,9 @@ with open('sensor_data.csv', 'rb') as f:
         data=data
     )
     
-    dataset = response.json()
-    dataset_id = dataset['id']
-    print(f"Dataset uploaded with ID: {dataset_id}")
+    data_collection = response.json()
+    data_collection_id = data_collection['id']
+    print(f"DataCollection uploaded with ID: {data_collection_id}")
 ```
 
 ### JavaScript Example
@@ -155,20 +155,20 @@ const response = await fetch('https://api.pynomaly.com/v1/datasets/upload', {
     body: formData
 });
 
-const dataset = await response.json();
-console.log('Dataset uploaded:', dataset);
+const data_collection = await response.json();
+console.log('DataCollection uploaded:', data_collection);
 ```
 
 ## Step 4: Create an Anomaly Detector
 
 ### Choose an Algorithm
 
-Pynomaly supports multiple anomaly detection algorithms:
+Software supports multiple anomaly processing algorithms:
 
 - **Isolation Forest**: Good for high-dimensional data
 - **Local Outlier Factor**: Effective for local anomalies
 - **One-Class SVM**: Robust for various data types
-- **Autoencoder**: Neural network-based detection
+- **Autoencoder**: Neural network-based processing
 - **DBSCAN**: Density-based clustering
 - **And many more...**
 
@@ -182,7 +182,7 @@ curl -X POST https://api.pynomaly.com/v1/detectors/ \
     "name": "IoT Anomaly Detector",
     "description": "Detector for IoT sensor anomalies",
     "algorithm": "isolation_forest",
-    "dataset_id": "YOUR_DATASET_ID",
+    "data_collection_id": "YOUR_DATASET_ID",
     "hyperparameters": {
       "n_estimators": 100,
       "contamination": 0.1,
@@ -198,7 +198,7 @@ detector_data = {
     "name": "IoT Anomaly Detector",
     "description": "Detector for IoT sensor anomalies",
     "algorithm": "isolation_forest",
-    "dataset_id": dataset_id,
+    "data_collection_id": data_collection_id,
     "hyperparameters": {
         "n_estimators": 100,
         "contamination": 0.1,
@@ -227,7 +227,7 @@ curl -X POST https://api.pynomaly.com/v1/detection/train \
   -H "Content-Type: application/json" \
   -d '{
     "detector_id": "YOUR_DETECTOR_ID",
-    "dataset_id": "YOUR_DATASET_ID",
+    "data_collection_id": "YOUR_DATASET_ID",
     "validation_split": 0.2,
     "cross_validation": true
   }'
@@ -238,7 +238,7 @@ curl -X POST https://api.pynomaly.com/v1/detection/train \
 ```python
 train_data = {
     "detector_id": detector_id,
-    "dataset_id": dataset_id,
+    "data_collection_id": data_collection_id,
     "validation_split": 0.2,
     "cross_validation": True
 }
@@ -310,7 +310,7 @@ curl -X POST https://api.pynomaly.com/v1/detection/detect \
 ### Python Example
 
 ```python
-detection_data = {
+processing_data = {
     "detector_id": detector_id,
     "data": [
         {
@@ -333,11 +333,11 @@ detection_data = {
 response = requests.post(
     'https://api.pynomaly.com/v1/detection/detect',
     headers=headers,
-    json=detection_data
+    json=processing_data
 )
 
 results = response.json()
-print("Detection results:")
+print("Processing results:")
 for i, anomaly in enumerate(results['anomalies']):
     print(f"Data point {i}: {'ANOMALY' if anomaly['is_anomaly'] else 'NORMAL'}")
     print(f"  Score: {anomaly['score']:.3f}")
@@ -350,7 +350,7 @@ for i, anomaly in enumerate(results['anomalies']):
 
 ```json
 {
-  "detection_id": "det_123456789",
+  "processing_id": "det_123456789",
   "detector_id": "YOUR_DETECTOR_ID",
   "anomalies": [
     {
@@ -397,9 +397,9 @@ for i, anomaly in enumerate(results['anomalies']):
 }
 ```
 
-## Step 7: Batch Detection
+## Step 7: Batch Processing
 
-For processing large amounts of data, use batch detection:
+For processing large amounts of data, use batch processing:
 
 ```python
 batch_data = {
@@ -424,7 +424,7 @@ response = requests.post(
 )
 
 batch_job = response.json()
-print(f"Batch detection started: {batch_job['batch_id']}")
+print(f"Batch processing started: {batch_job['batch_id']}")
 ```
 
 ## Step 8: Evaluate Detector Performance
@@ -434,9 +434,9 @@ If you have labeled data, evaluate your detector's performance:
 ```python
 evaluation_data = {
     "detector_id": detector_id,
-    "test_dataset_id": test_dataset_id,
+    "test_data_collection_id": test_data_collection_id,
     "ground_truth_column": "anomaly_label",
-    "metrics": ["precision", "recall", "f1_score", "auc_roc"]
+    "measurements": ["precision", "recall", "f1_score", "auc_roc"]
 }
 
 response = requests.post(
@@ -446,11 +446,11 @@ response = requests.post(
 )
 
 evaluation = response.json()
-print("Performance metrics:")
-print(f"  Precision: {evaluation['metrics']['precision']:.3f}")
-print(f"  Recall: {evaluation['metrics']['recall']:.3f}")
-print(f"  F1-Score: {evaluation['metrics']['f1_score']:.3f}")
-print(f"  AUC-ROC: {evaluation['metrics']['auc_roc']:.3f}")
+print("Performance measurements:")
+print(f"  Precision: {evaluation['measurements']['precision']:.3f}")
+print(f"  Recall: {evaluation['measurements']['recall']:.3f}")
+print(f"  F1-Score: {evaluation['measurements']['f1_score']:.3f}")
+print(f"  AUC-ROC: {evaluation['measurements']['auc_roc']:.3f}")
 ```
 
 ## Error Handling
@@ -462,7 +462,7 @@ try:
     response = requests.post(
         'https://api.pynomaly.com/v1/detection/detect',
         headers=headers,
-        json=detection_data
+        json=processing_data
     )
     
     # Check for HTTP errors
@@ -476,7 +476,7 @@ try:
         return
     
     # Process results
-    process_detection_results(results)
+    process_processing_results(results)
     
 except requests.exceptions.RequestException as e:
     print(f"Request failed: {e}")
@@ -491,7 +491,7 @@ except Exception as e:
 ### 1. Data Preparation
 
 - **Clean your data**: Remove duplicates and handle missing values
-- **Feature engineering**: Create relevant features for better detection
+- **Feature engineering**: Create relevant features for better processing
 - **Normalization**: Consider normalizing numerical features
 - **Validation**: Use a validation set to tune hyperparameters
 
@@ -499,15 +499,15 @@ except Exception as e:
 
 - **Start simple**: Begin with Isolation Forest or LOF
 - **Consider data characteristics**: Choose algorithms suitable for your data type
-- **Use AutoML**: Let Pynomaly automatically select the best algorithm
+- **Use AutoML**: Let Software automatically select the best algorithm
 - **Ensemble methods**: Combine multiple algorithms for better performance
 
 ### 3. Performance Optimization
 
-- **Batch processing**: Use batch detection for large datasets
+- **Batch processing**: Use batch processing for large datasets
 - **Caching**: Cache detector objects to avoid re-training
 - **Parallel processing**: Enable parallel processing for batch operations
-- **Monitoring**: Monitor API usage and performance metrics
+- **Monitoring**: Monitor API usage and performance measurements
 
 ### 4. Security
 
@@ -521,7 +521,7 @@ except Exception as e:
 - **Explore AutoML**: Use automated machine learning for optimal results
 - **Try ensemble methods**: Combine multiple detectors for better accuracy
 - **Set up monitoring**: Monitor your detectors in production
-- **Implement streaming**: Use WebSocket for real-time detection
+- **Implement streaming**: Use WebSocket for real-time processing
 - **Add explainability**: Understand why anomalies are detected
 
 ## Additional Resources
@@ -537,5 +537,5 @@ except Exception as e:
 If you need help:
 - Check the [FAQ](./faq.md)
 - Visit our [Community Forum](https://community.pynomaly.com)
-- Contact support at [support@pynomaly.com](mailto:support@pynomaly.com)
+- Contact support at [support@software.com](mailto:support@software.com)
 - Report issues on [GitHub](https://github.com/pynomaly/pynomaly/issues)

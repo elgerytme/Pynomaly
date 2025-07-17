@@ -1,12 +1,12 @@
 """
-Security monitoring and logging for Pynomaly API.
+Security monitoring and logging for Software API.
 
 This module provides:
 - Security event logging
-- Intrusion detection
-- Anomaly detection for security events
+- Intrusion processing
+- Anomaly processing for security events
 - Real-time alerting
-- Security metrics and reporting
+- Security measurements and reporting
 """
 
 import json
@@ -85,7 +85,7 @@ class SecurityMonitor:
         self.alert_thresholds = self._initialize_thresholds()
         self.alert_callbacks = []
         self.monitoring_rules = []
-        self.metrics = SecurityMetrics()
+        self.measurements = SecurityMetrics()
         self.lock = threading.Lock()
 
     def _initialize_thresholds(self) -> dict[SecurityEventType, dict[str, Any]]:
@@ -135,8 +135,8 @@ class SecurityMonitor:
             if event.user_id:
                 self.user_events[event.user_id].append(event)
 
-            # Update metrics
-            self.metrics.record_event(event)
+            # Update measurements
+            self.measurements.record_event(event)
 
             # Log to application logger
             self._log_event_to_file(event)
@@ -393,10 +393,10 @@ class MonitoringRule:
 
 
 class SecurityMetrics:
-    """Security metrics collection and analysis."""
+    """Security measurements collection and analysis."""
 
     def __init__(self):
-        self.event_metrics = defaultdict(int)
+        self.event_measurements = defaultdict(int)
         self.risk_scores = deque(maxlen=1000)
         self.response_times = deque(maxlen=1000)
         self.blocked_ips = set()
@@ -404,9 +404,9 @@ class SecurityMetrics:
         self.true_positives = 0
 
     def record_event(self, event: SecurityEvent) -> None:
-        """Record event metrics."""
-        self.event_metrics[event.event_type] += 1
-        self.event_metrics[f"{event.event_type}_{event.severity}"] += 1
+        """Record event measurements."""
+        self.event_measurements[event.event_type] += 1
+        self.event_measurements[f"{event.event_type}_{event.severity}"] += 1
         self.risk_scores.append(event.risk_score)
 
     def record_response_time(self, response_time: float) -> None:
@@ -414,23 +414,23 @@ class SecurityMetrics:
         self.response_times.append(response_time)
 
     def record_false_positive(self) -> None:
-        """Record false positive detection."""
+        """Record false positive processing."""
         self.false_positives += 1
 
     def record_true_positive(self) -> None:
-        """Record true positive detection."""
+        """Record true positive processing."""
         self.true_positives += 1
 
     def get_accuracy_metrics(self) -> dict[str, float]:
-        """Get detection accuracy metrics."""
-        total_detections = self.true_positives + self.false_positives
+        """Get processing accuracy measurements."""
+        total_processings = self.true_positives + self.false_positives
 
-        if total_detections == 0:
+        if total_processings == 0:
             return {"accuracy": 0.0, "precision": 0.0, "false_positive_rate": 0.0}
 
-        accuracy = self.true_positives / total_detections
-        precision = self.true_positives / total_detections
-        false_positive_rate = self.false_positives / total_detections
+        accuracy = self.true_positives / total_processings
+        precision = self.true_positives / total_processings
+        false_positive_rate = self.false_positives / total_processings
 
         return {
             "accuracy": accuracy,
@@ -439,7 +439,7 @@ class SecurityMetrics:
         }
 
     def get_performance_metrics(self) -> dict[str, Any]:
-        """Get performance metrics."""
+        """Get performance measurements."""
         if not self.response_times:
             return {"average_response_time": 0.0, "max_response_time": 0.0}
 
@@ -452,7 +452,7 @@ class SecurityMetrics:
 
 
 class IntrusionDetectionSystem:
-    """Intrusion detection system for advanced threat detection."""
+    """Intrusion processing system for advanced threat processing."""
 
     def __init__(self, security_monitor: SecurityMonitor):
         self.security_monitor = security_monitor
@@ -545,7 +545,7 @@ def create_default_monitoring_rules() -> list[MonitoringRule]:
     """Create default monitoring rules."""
     rules = []
 
-    # SQL injection detection rule
+    # SQL injection processing rule
     def sql_injection_condition(event: SecurityEvent) -> bool:
         return event.event_type == SecurityEventType.SQL_INJECTION_ATTEMPT
 
@@ -559,7 +559,7 @@ def create_default_monitoring_rules() -> list[MonitoringRule]:
         )
     )
 
-    # Brute force detection rule
+    # Brute force processing rule
     def brute_force_condition(event: SecurityEvent) -> bool:
         if event.event_type != SecurityEventType.AUTHENTICATION_FAILURE:
             return False
@@ -594,7 +594,7 @@ def create_default_monitoring_rules() -> list[MonitoringRule]:
 
     rules.append(
         MonitoringRule(
-            "Brute Force Detection", brute_force_condition, brute_force_action
+            "Brute Force Processing", brute_force_condition, brute_force_action
         )
     )
 

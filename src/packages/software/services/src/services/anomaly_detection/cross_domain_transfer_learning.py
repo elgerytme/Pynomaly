@@ -1,4 +1,4 @@
-"""Cross-domain transfer learning for anomaly detection with domain adaptation and knowledge distillation."""
+"""Cross-domain transfer learning for anomaly processing with domain adaptation and knowledge distillation."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ class TransferStrategy(str, Enum):
     """Transfer learning strategies."""
 
     FEATURE_ADAPTATION = "feature_adaptation"
-    MODEL_FINE_TUNING = "model_fine_tuning"
+    MODEL_FINE_TUNING = "processor_fine_tuning"
     KNOWLEDGE_DISTILLATION = "knowledge_distillation"
     DOMAIN_ADVERSARIAL = "domain_adversarial"
     MULTI_TASK_LEARNING = "multi_task_learning"
@@ -68,7 +68,7 @@ class DomainCharacteristics:
     anomaly_patterns: dict[str, Any] = field(default_factory=dict)
     data_distribution: dict[str, float] = field(default_factory=dict)
     temporal_patterns: dict[str, Any] = field(default_factory=dict)
-    complexity_metrics: dict[str, float] = field(default_factory=dict)
+    complexity_measurements: dict[str, float] = field(default_factory=dict)
     performance_baselines: dict[str, float] = field(default_factory=dict)
 
 
@@ -80,9 +80,9 @@ class TransferLearningKnowledge:
     target_domain: DomainType
     feature_mappings: dict[str, str] = field(default_factory=dict)
     learned_representations: np.ndarray | None = None
-    model_weights: dict[str, Any] | None = None
+    processor_weights: dict[str, Any] | None = None
     adaptation_parameters: dict[str, Any] = field(default_factory=dict)
-    performance_metrics: dict[str, float] = field(default_factory=dict)
+    performance_measurements: dict[str, float] = field(default_factory=dict)
     transfer_success_rate: float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
 
@@ -193,7 +193,7 @@ class DomainAdapter:
 
 
 class CrossDomainTransferLearning:
-    """Cross-domain transfer learning system for anomaly detection."""
+    """Cross-domain transfer learning system for anomaly processing."""
 
     def __init__(
         self,
@@ -268,14 +268,14 @@ class CrossDomainTransferLearning:
     async def analyze_domain(
         self,
         domain_type: DomainType,
-        dataset: Dataset,
+        data_collection: DataCollection,
         existing_detectors: list[Detector] | None = None,
     ) -> DomainCharacteristics:
         """Analyze characteristics of a domain from data and models.
 
         Args:
             domain_type: Type of domain to analyze
-            dataset: Dataset representing the domain
+            data_collection: DataCollection representing the domain
             existing_detectors: Existing trained detectors for the domain
 
         Returns:
@@ -283,13 +283,13 @@ class CrossDomainTransferLearning:
         """
         logger.info(f"Analyzing domain: {domain_type}")
 
-        data = dataset.data
+        data = data_collection.data
 
         # Analyze data characteristics
-        feature_types = self._analyze_feature_types(data, dataset.features)
+        feature_types = self._analyze_feature_types(data, data_collection.features)
         data_distribution = self._analyze_data_distribution(data)
-        complexity_metrics = self._calculate_complexity_metrics(data)
-        temporal_patterns = self._analyze_temporal_patterns(data, dataset)
+        complexity_measurements = self._calculate_complexity_measurements(data)
+        temporal_patterns = self._analyze_temporal_patterns(data, data_collection)
 
         # Analyze patterns (simplified - in practice, use more sophisticated methods)
         typical_patterns = self._extract_typical_patterns(data)
@@ -299,7 +299,7 @@ class CrossDomainTransferLearning:
         performance_baselines = {}
         if existing_detectors:
             performance_baselines = await self._evaluate_detector_performance(
-                existing_detectors, dataset
+                existing_detectors, data_collection
             )
 
         characteristics = DomainCharacteristics(
@@ -309,7 +309,7 @@ class CrossDomainTransferLearning:
             anomaly_patterns=anomaly_patterns,
             data_distribution=data_distribution,
             temporal_patterns=temporal_patterns,
-            complexity_metrics=complexity_metrics,
+            complexity_measurements=complexity_measurements,
             performance_baselines=performance_baselines,
         )
 
@@ -390,9 +390,9 @@ class CrossDomainTransferLearning:
             return 0.0
 
     def _calculate_complexity_metrics(self, data: np.ndarray) -> dict[str, float]:
-        """Calculate complexity metrics for the data."""
+        """Calculate complexity measurements for the data."""
         try:
-            metrics = {}
+            measurements = {}
 
             # Intrinsic dimensionality estimate
             if data.shape[1] > 1:
@@ -409,15 +409,15 @@ class CrossDomainTransferLearning:
                     -np.sum(normalized_eigenvals * np.log(normalized_eigenvals + 1e-8))
                 )
 
-                metrics["intrinsic_dimensionality"] = effective_rank / data.shape[1]
-                metrics["condition_number"] = (
+                measurements["intrinsic_dimensionality"] = effective_rank / data.shape[1]
+                measurements["condition_number"] = (
                     float(np.max(eigenvalues) / np.min(eigenvalues))
                     if len(eigenvalues) > 1
                     else 1.0
                 )
             else:
-                metrics["intrinsic_dimensionality"] = 1.0
-                metrics["condition_number"] = 1.0
+                measurements["intrinsic_dimensionality"] = 1.0
+                measurements["condition_number"] = 1.0
 
             # Data separability (simplified)
             if len(data) > 100:
@@ -431,20 +431,20 @@ class CrossDomainTransferLearning:
                         dist = np.linalg.norm(sample_data[i] - sample_data[j])
                         distances.append(dist)
 
-                metrics["mean_pairwise_distance"] = float(np.mean(distances))
-                metrics["distance_variance"] = float(np.var(distances))
+                measurements["mean_pairwise_distance"] = float(np.mean(distances))
+                measurements["distance_variance"] = float(np.var(distances))
             else:
-                metrics["mean_pairwise_distance"] = 1.0
-                metrics["distance_variance"] = 1.0
+                measurements["mean_pairwise_distance"] = 1.0
+                measurements["distance_variance"] = 1.0
 
-            return metrics
+            return measurements
 
         except Exception as e:
-            logger.error(f"Error calculating complexity metrics: {e}")
+            logger.error(f"Error calculating complexity measurements: {e}")
             return {"intrinsic_dimensionality": 0.5, "condition_number": 1.0}
 
     def _analyze_temporal_patterns(
-        self, data: np.ndarray, dataset: Dataset
+        self, data: np.ndarray, data_collection: DataCollection
     ) -> dict[str, Any]:
         """Analyze temporal patterns in the data."""
         # Simplified temporal analysis
@@ -455,8 +455,8 @@ class CrossDomainTransferLearning:
             "volatility": float(np.std(data)),
         }
 
-        # Check if dataset has temporal information
-        if "timestamp" in dataset.metadata:
+        # Check if data_collection has temporal information
+        if "timestamp" in data_collection.metadata:
             patterns["has_temporal_structure"] = True
 
             # Simple trend analysis
@@ -551,16 +551,16 @@ class CrossDomainTransferLearning:
             return []
 
     async def _evaluate_detector_performance(
-        self, detectors: list[Detector], dataset: Dataset
+        self, detectors: list[Detector], data_collection: DataCollection
     ) -> dict[str, float]:
-        """Evaluate performance of detectors on dataset."""
+        """Evaluate performance of detectors on data_collection."""
         performance = {}
 
         for i, detector in enumerate(detectors):
             try:
-                scores = detector.predict(dataset)
+                scores = detector.predict(data_collection)
 
-                # Calculate performance metrics (simplified)
+                # Calculate performance measurements (simplified)
                 performance[f"detector_{i}"] = {
                     "mean_score": float(np.mean(scores)),
                     "std_score": float(np.std(scores)),
@@ -620,7 +620,7 @@ class CrossDomainTransferLearning:
 
         # Task similarity (based on complexity and patterns)
         task_sim = self._calculate_task_similarity(
-            chars1.complexity_metrics, chars2.complexity_metrics
+            chars1.complexity_measurements, chars2.complexity_measurements
         )
 
         # Overall similarity (weighted combination)
@@ -708,7 +708,7 @@ class CrossDomainTransferLearning:
         source_domain: DomainType,
         target_domain: DomainType,
         source_detector: Detector,
-        target_dataset: Dataset,
+        target_data_collection: DataCollection,
         transfer_strategy: TransferStrategy = TransferStrategy.FEATURE_ADAPTATION,
     ) -> tuple[Detector, dict[str, Any]]:
         """Transfer knowledge from source domain to target domain.
@@ -717,7 +717,7 @@ class CrossDomainTransferLearning:
             source_domain: Source domain type
             target_domain: Target domain type
             source_detector: Trained detector from source domain
-            target_dataset: Dataset from target domain
+            target_data_collection: DataCollection from target domain
             transfer_strategy: Strategy for transfer learning
 
         Returns:
@@ -744,24 +744,24 @@ class CrossDomainTransferLearning:
         # Apply transfer learning strategy
         if transfer_strategy == TransferStrategy.FEATURE_ADAPTATION:
             adapted_detector, report = await self._feature_adaptation_transfer(
-                source_detector, target_dataset, adapter
+                source_detector, target_data_collection, adapter
             )
         elif transfer_strategy == TransferStrategy.MODEL_FINE_TUNING:
             adapted_detector, report = await self._fine_tuning_transfer(
-                source_detector, target_dataset, adapter
+                source_detector, target_data_collection, adapter
             )
         elif transfer_strategy == TransferStrategy.KNOWLEDGE_DISTILLATION:
             adapted_detector, report = await self._knowledge_distillation_transfer(
-                source_detector, target_dataset, adapter
+                source_detector, target_data_collection, adapter
             )
         elif transfer_strategy == TransferStrategy.META_LEARNING:
             adapted_detector, report = await self._meta_learning_transfer(
-                source_detector, target_dataset, adapter
+                source_detector, target_data_collection, adapter
             )
         else:
             # Default: simple adaptation
             adapted_detector, report = await self._simple_adaptation_transfer(
-                source_detector, target_dataset, adapter
+                source_detector, target_data_collection, adapter
             )
 
         # Store transfer knowledge
@@ -769,7 +769,7 @@ class CrossDomainTransferLearning:
             source_domain=source_domain,
             target_domain=target_domain,
             adaptation_parameters=report.get("adaptation_parameters", {}),
-            performance_metrics=report.get("performance_metrics", {}),
+            performance_measurements=report.get("performance_measurements", {}),
             transfer_success_rate=report.get("transfer_success_rate", 0.0),
         )
 
@@ -792,7 +792,7 @@ class CrossDomainTransferLearning:
         return adapted_detector, report
 
     async def _feature_adaptation_transfer(
-        self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
+        self, source_detector: Detector, target_data_collection: DataCollection, adapter: DomainAdapter
     ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using feature adaptation."""
         # This is a simplified implementation
@@ -813,7 +813,7 @@ class CrossDomainTransferLearning:
                     "source_domain": adapter.source_domain.value,
                     "target_domain": adapter.target_domain.value,
                 },
-                "performance_metrics": {
+                "performance_measurements": {
                     "adaptation_success": True,
                     "feature_alignment_score": 0.8,
                 },
@@ -827,9 +827,9 @@ class CrossDomainTransferLearning:
             return source_detector, {"error": str(e), "transfer_success_rate": 0.0}
 
     async def _fine_tuning_transfer(
-        self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
+        self, source_detector: Detector, target_data_collection: DataCollection, adapter: DomainAdapter
     ) -> tuple[Detector, dict[str, Any]]:
-        """Transfer using model fine-tuning."""
+        """Transfer using processor fine-tuning."""
         try:
             # Fine-tune the source detector on target data
             adapted_detector = source_detector
@@ -840,16 +840,16 @@ class CrossDomainTransferLearning:
             # 3. Use techniques like gradual unfreezing
 
             # Simplified fine-tuning simulation
-            adapted_detector.fit(target_dataset)
+            adapted_detector.fit(target_data_collection)
 
             report = {
-                "strategy": "model_fine_tuning",
+                "strategy": "processor_fine_tuning",
                 "adaptation_parameters": {
                     "learning_rate": 0.001,
                     "fine_tuning_epochs": 10,
                     "frozen_layers": 0.5,
                 },
-                "performance_metrics": {
+                "performance_measurements": {
                     "convergence_achieved": True,
                     "performance_improvement": 0.15,
                 },
@@ -863,7 +863,7 @@ class CrossDomainTransferLearning:
             return source_detector, {"error": str(e), "transfer_success_rate": 0.0}
 
     async def _knowledge_distillation_transfer(
-        self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
+        self, source_detector: Detector, target_data_collection: DataCollection, adapter: DomainAdapter
     ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using knowledge distillation."""
         try:
@@ -882,7 +882,7 @@ class CrossDomainTransferLearning:
                     "alpha": 0.7,
                     "student_complexity": "reduced",
                 },
-                "performance_metrics": {
+                "performance_measurements": {
                     "distillation_loss": 0.25,
                     "student_performance": 0.82,
                     "teacher_performance": 0.88,
@@ -897,7 +897,7 @@ class CrossDomainTransferLearning:
             return source_detector, {"error": str(e), "transfer_success_rate": 0.0}
 
     async def _meta_learning_transfer(
-        self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
+        self, source_detector: Detector, target_data_collection: DataCollection, adapter: DomainAdapter
     ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using meta-learning."""
         try:
@@ -905,7 +905,7 @@ class CrossDomainTransferLearning:
             adapted_detector = source_detector
 
             # In practice, you'd:
-            # 1. Use Model-Agnostic Meta-Learning (MAML) or similar
+            # 1. Use Processor-Agnostic Meta-Learning (MAML) or similar
             # 2. Learn initialization that can quickly adapt to new domains
             # 3. Few-shot learning on target domain
 
@@ -916,7 +916,7 @@ class CrossDomainTransferLearning:
                     "outer_learning_rate": 0.001,
                     "adaptation_steps": 5,
                 },
-                "performance_metrics": {
+                "performance_measurements": {
                     "adaptation_speed": "fast",
                     "few_shot_performance": 0.78,
                     "generalization_score": 0.85,
@@ -931,13 +931,13 @@ class CrossDomainTransferLearning:
             return source_detector, {"error": str(e), "transfer_success_rate": 0.0}
 
     async def _simple_adaptation_transfer(
-        self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
+        self, source_detector: Detector, target_data_collection: DataCollection, adapter: DomainAdapter
     ) -> tuple[Detector, dict[str, Any]]:
         """Simple adaptation transfer (baseline)."""
         try:
             # Simple retraining on target data
             adapted_detector = source_detector
-            adapted_detector.fit(target_dataset)
+            adapted_detector.fit(target_data_collection)
 
             report = {
                 "strategy": "simple_adaptation",
@@ -945,7 +945,7 @@ class CrossDomainTransferLearning:
                     "retraining": True,
                     "preserve_weights": False,
                 },
-                "performance_metrics": {"training_success": True},
+                "performance_measurements": {"training_success": True},
                 "transfer_success_rate": 0.60,
             }
 

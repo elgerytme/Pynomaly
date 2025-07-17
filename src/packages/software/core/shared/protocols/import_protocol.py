@@ -1,5 +1,5 @@
 """
-Import Protocol for Pynomaly
+Import Protocol for Software
 
 Defines the interface for importing datasets from various sources.
 """
@@ -17,16 +17,16 @@ class ImportProtocol(ABC):
     @abstractmethod
     def import_dataset(
         self, file_path: str | Path, options: dict[str, Any] = None
-    ) -> Dataset:
+    ) -> DataCollection:
         """
-        Import dataset from a file.
+        Import data_collection from a file.
 
         Args:
             file_path: Path to the file to import
             options: Import configuration options
 
         Returns:
-            Dataset object containing the imported data
+            DataCollection object containing the imported data
         """
         pass
 

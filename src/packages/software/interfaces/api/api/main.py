@@ -35,7 +35,7 @@ security = HTTPBearer()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan management."""
-    logger.info("🚀 Starting Pynomaly API server...")
+    logger.info("🚀 Starting Software API server...")
 
     # Startup
     try:
@@ -45,13 +45,13 @@ async def lifespan(app: FastAPI):
         # Initialize database connections
         logger.info("✅ Database connections initialized")
 
-        # Initialize model registry
-        logger.info("✅ Model registry initialized")
+        # Initialize processor registry
+        logger.info("✅ Processor registry initialized")
 
         # Initialize monitoring
         logger.info("✅ Monitoring systems initialized")
 
-        logger.info("🎉 Pynomaly API server started successfully!")
+        logger.info("🎉 Software API server started successfully!")
 
     except Exception as e:
         logger.error(f"❌ Failed to start server: {e}")
@@ -60,14 +60,14 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    logger.info("⏹️ Shutting down Pynomaly API server...")
-    logger.info("✅ Pynomaly API server stopped")
+    logger.info("⏹️ Shutting down Software API server...")
+    logger.info("✅ Software API server stopped")
 
 
 # Create FastAPI application
 app = FastAPI(
-    title="Pynomaly API",
-    description="Enterprise Anomaly Detection Platform",
+    title="Software API",
+    description="Enterprise Anomaly Processing Platform",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -145,7 +145,7 @@ async def get_current_user_token(
                         "services": {
                             "database": "healthy",
                             "cache": "healthy",
-                            "model_registry": "healthy",
+                            "processor_registry": "healthy",
                             "monitoring": "healthy",
                         },
                     }
@@ -164,7 +164,7 @@ async def health_check():
         "services": {
             "database": "healthy",
             "cache": "healthy",
-            "model_registry": "healthy",
+            "processor_registry": "healthy",
             "monitoring": "healthy",
         },
     }
@@ -174,7 +174,7 @@ async def health_check():
 @app.get(
     "/",
     summary="API information",
-    description="Get basic information about the Pynomaly API",
+    description="Get basic information about the Software API",
     tags=["Information"],
     responses={
         200: {
@@ -182,9 +182,9 @@ async def health_check():
             "content": {
                 "application/json": {
                     "example": {
-                        "name": "Pynomaly API",
+                        "name": "Software API",
                         "version": "1.0.0",
-                        "description": "Enterprise Anomaly Detection Platform",
+                        "description": "Enterprise Anomaly Processing Platform",
                         "documentation": "/docs",
                         "health": "/health",
                     }
@@ -196,15 +196,15 @@ async def health_check():
 async def root():
     """Get API information."""
     return {
-        "name": "Pynomaly API",
+        "name": "Software API",
         "version": "1.0.0",
-        "description": "Enterprise Anomaly Detection Platform",
+        "description": "Enterprise Anomaly Processing Platform",
         "documentation": "/docs",
         "health": "/health",
     }
 
 
-# Anomaly detection endpoints
+# Anomaly processing endpoints
 @app.post(
     "/detect",
     summary="Detect anomalies in data",
@@ -212,14 +212,14 @@ async def root():
     tags=ENDPOINT_METADATA["detect_anomalies"]["tags"],
     responses={
         200: {
-            "description": "Anomaly detection results",
+            "description": "Anomaly processing results",
             "content": {
                 "application/json": {
                     "example": {
                         "anomalies": [3],
                         "scores": [0.1, 0.2, 0.15, 0.95, 0.18, 0.12],
                         "threshold": 0.5,
-                        "model_id": "isolation_forest_20240101_001",
+                        "processor_id": "isolation_forest_20240101_001",
                         "processing_time_ms": 45.6,
                         "metadata": {
                             "algorithm": "isolation_forest",
@@ -244,7 +244,7 @@ async def detect_anomalies(
             "anomalies": [3],
             "scores": [0.1, 0.2, 0.15, 0.95, 0.18, 0.12],
             "threshold": 0.5,
-            "model_id": "isolation_forest_20240101_001",
+            "processor_id": "isolation_forest_20240101_001",
             "processing_time_ms": 45.6,
             "metadata": {
                 "algorithm": request.get("algorithm", "isolation_forest"),
@@ -255,25 +255,25 @@ async def detect_anomalies(
             },
         }
     except Exception as e:
-        logger.error(f"Anomaly detection failed: {e}")
-        raise HTTPException(status_code=500, detail="Anomaly detection failed")
+        logger.error(f"Anomaly processing failed: {e}")
+        raise HTTPException(status_code=500, detail="Anomaly processing failed")
 
 
-# Model management endpoints
+# Processor management endpoints
 @app.post(
     "/models/train",
-    summary="Train a new anomaly detection model",
-    description=ENDPOINT_METADATA["train_model"]["description"],
-    tags=ENDPOINT_METADATA["train_model"]["tags"],
+    summary="Train a new anomaly processing processor",
+    description=ENDPOINT_METADATA["train_processor"]["description"],
+    tags=ENDPOINT_METADATA["train_processor"]["tags"],
     responses={
         201: {
-            "description": "Model trained successfully",
+            "description": "Processor trained successfully",
             "content": {
                 "application/json": {
                     "example": {
-                        "model_id": "isolation_forest_20240101_001",
+                        "processor_id": "isolation_forest_20240101_001",
                         "status": "trained",
-                        "metrics": {
+                        "measurements": {
                             "accuracy": 0.95,
                             "precision": 0.92,
                             "recall": 0.89,
@@ -288,17 +288,17 @@ async def detect_anomalies(
         **COMMON_RESPONSES,
     },
 )
-async def train_model(
+async def train_processor(
     request: dict[str, Any],
     current_user: dict[str, Any] = Depends(get_current_user_token),
 ):
-    """Train a new anomaly detection model."""
+    """Train a new anomaly processing processor."""
     try:
         # Mock response for demonstration
         return {
-            "model_id": "isolation_forest_20240101_001",
+            "processor_id": "isolation_forest_20240101_001",
             "status": "trained",
-            "metrics": {
+            "measurements": {
                 "accuracy": 0.95,
                 "precision": 0.92,
                 "recall": 0.89,
@@ -308,29 +308,29 @@ async def train_model(
             "created_at": "2024-01-01T12:00:00Z",
         }
     except Exception as e:
-        logger.error(f"Model training failed: {e}")
-        raise HTTPException(status_code=500, detail="Model training failed")
+        logger.error(f"Processor training failed: {e}")
+        raise HTTPException(status_code=500, detail="Processor training failed")
 
 
 @app.get(
-    "/models/{model_id}",
-    summary="Get model information",
-    description=ENDPOINT_METADATA["get_model_info"]["description"],
-    tags=ENDPOINT_METADATA["get_model_info"]["tags"],
+    "/models/{processor_id}",
+    summary="Get processor information",
+    description=ENDPOINT_METADATA["get_processor_info"]["description"],
+    tags=ENDPOINT_METADATA["get_processor_info"]["tags"],
     responses={
         200: {
-            "description": "Model information",
+            "description": "Processor information",
             "content": {
                 "application/json": {
                     "example": {
-                        "model_id": "isolation_forest_20240101_001",
+                        "processor_id": "isolation_forest_20240101_001",
                         "name": "Production Anomaly Detector",
                         "version": "1.0.0",
                         "type": "isolation_forest",
                         "status": "active",
                         "author": "data_scientist@company.com",
                         "created_at": "2024-01-01T12:00:00Z",
-                        "metrics": {
+                        "measurements": {
                             "accuracy": 0.95,
                             "precision": 0.92,
                             "recall": 0.89,
@@ -349,32 +349,32 @@ async def train_model(
         **COMMON_RESPONSES,
     },
 )
-async def get_model_info(
-    model_id: str, current_user: dict[str, Any] = Depends(get_current_user_token)
+async def get_processor_info(
+    processor_id: str, current_user: dict[str, Any] = Depends(get_current_user_token)
 ):
-    """Get detailed information about a specific model."""
+    """Get detailed information about a specific processor."""
     try:
         # Mock response for demonstration
         return {
-            "model_id": model_id,
+            "processor_id": processor_id,
             "name": "Production Anomaly Detector",
             "version": "1.0.0",
             "type": "isolation_forest",
             "status": "active",
             "author": "data_scientist@company.com",
             "created_at": "2024-01-01T12:00:00Z",
-            "metrics": {"accuracy": 0.95, "precision": 0.92, "recall": 0.89},
+            "measurements": {"accuracy": 0.95, "precision": 0.92, "recall": 0.89},
             "deployments": {
                 "production": {
                     "status": "active",
                     "deployed_at": "2024-01-01T14:00:00Z",
-                    "endpoint": f"https://api.example.com/models/{model_id}/predict",
+                    "endpoint": f"https://api.example.com/models/{processor_id}/predict",
                 }
             },
         }
     except Exception as e:
-        logger.error(f"Failed to get model info: {e}")
-        raise HTTPException(status_code=404, detail="Model not found")
+        logger.error(f"Failed to get processor info: {e}")
+        raise HTTPException(status_code=404, detail="Processor not found")
 
 
 # Include enterprise router

@@ -156,7 +156,7 @@ def check_resource_access(resource_type: str, resource_id: str):
     """Dependency factory for resource-specific access control.
     
     Args:
-        resource_type: Type of resource (e.g., 'dataset', 'model', 'pipeline')
+        resource_type: Type of resource (e.g., 'data_collection', 'processor', 'pipeline')
         resource_id: ID of the resource
         
     Returns:

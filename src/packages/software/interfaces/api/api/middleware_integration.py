@@ -131,7 +131,7 @@ def add_configuration_endpoints(
 
     @app.get("/api/v1/configurations/endpoints/{endpoint:path}/performance")
     async def get_endpoint_performance(endpoint: str, days: int = 7) -> dict[str, Any]:
-        """Get performance metrics for specific endpoint."""
+        """Get performance measurements for specific endpoint."""
         if not integration_service:
             raise HTTPException(
                 status_code=404, detail="Integration service not available"
@@ -143,10 +143,10 @@ def add_configuration_endpoints(
 
             decoded_endpoint = urllib.parse.unquote(endpoint)
 
-            metrics = await integration_service.get_endpoint_performance_metrics(
+            measurements = await integration_service.get_endpoint_performance_measurements(
                 decoded_endpoint, days
             )
-            return metrics
+            return measurements
         except Exception as e:
             logger.error(f"Endpoint performance analysis failed: {e}")
             raise HTTPException(status_code=500, detail="Analysis failed")
@@ -205,8 +205,8 @@ def create_configured_app(
         Configured FastAPI application
     """
     app = FastAPI(
-        title="Pynomaly API",
-        description="State-of-the-art anomaly detection API with configuration capture",
+        title="Software API",
+        description="State-of-the-art anomaly processing API with configuration capture",
         version="1.0.0",
     )
 

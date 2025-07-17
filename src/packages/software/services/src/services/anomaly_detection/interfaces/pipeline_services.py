@@ -9,7 +9,7 @@ import pandas as pd
 
 
 class DataValidationResult:
-    """Result of data validation containing quality metrics and statistics."""
+    """Result of data validation containing quality measurements and statistics."""
 
     def __init__(
         self,
@@ -27,7 +27,7 @@ class DataValidationResult:
 
 
 class DataProfile:
-    """Profile of a dataset containing characteristics and analysis."""
+    """Profile of a data_collection containing characteristics and analysis."""
 
     def __init__(
         self,
@@ -75,7 +75,7 @@ class IDataValidationService(Protocol):
             y: Target variable (optional)
 
         Returns:
-            Validation result with quality metrics
+            Validation result with quality measurements
         """
         ...
 
@@ -86,7 +86,7 @@ class IDataProfilingService(Protocol):
     async def profile_data(
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> DataProfile:
-        """Profile dataset to understand its characteristics.
+        """Profile data_collection to understand its characteristics.
 
         Args:
             X: Input features
@@ -104,7 +104,7 @@ class IFeatureEngineeringService(Protocol):
     async def engineer_features(
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> FeatureEngineeringResult:
-        """Engineer features for improved model performance.
+        """Engineer features for improved processor performance.
 
         Args:
             X: Input features
@@ -117,19 +117,19 @@ class IFeatureEngineeringService(Protocol):
 
 
 class IModelSelectionService(Protocol):
-    """Interface for model selection service."""
+    """Interface for processor selection service."""
 
-    async def select_models(
-        self, data_profile: DataProfile, max_models: int = 5
+    async def select_processors(
+        self, data_profile: DataProfile, max_processors: int = 5
     ) -> dict[str, Any]:
         """Select candidate models based on data characteristics.
 
         Args:
-            data_profile: Profile of the dataset
-            max_models: Maximum number of models to select
+            data_profile: Profile of the data_collection
+            max_processors: Maximum number of models to select
 
         Returns:
-            Model selection result with candidates and rationale
+            Processor selection result with candidates and rationale
         """
         ...
 

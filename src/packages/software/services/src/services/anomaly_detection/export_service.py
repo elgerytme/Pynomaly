@@ -1,7 +1,7 @@
 """
-Export Service for Pynomaly
+Export Service for Software
 
-Central service for exporting anomaly detection results to various formats.
+Central service for exporting anomaly processing results to various formats.
 """
 
 import logging
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class ExportService:
     """
-    Service for exporting anomaly detection results to various formats.
+    Service for exporting anomaly processing results to various formats.
 
     This service acts as a facade for different export adapters and handles
     the routing of export requests to the appropriate adapter based on the
@@ -50,10 +50,10 @@ class ExportService:
         options: ExportOptions | None = None,
     ) -> dict[str, Any]:
         """
-        Export anomaly detection results to the specified format.
+        Export anomaly processing results to the specified format.
 
         Args:
-            results: Detection results to export
+            results: Processing results to export
             file_path: Output file path
             options: Export configuration options
 
@@ -266,7 +266,7 @@ class ExportService:
         Export results to multiple formats simultaneously.
 
         Args:
-            results: Detection results to export
+            results: Processing results to export
             base_path: Base path for output files (format-specific extensions will be added)
             formats: List of formats to export to
             options_map: Optional mapping of format-specific options

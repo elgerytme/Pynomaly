@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-core"
+name = "software-core"
 version = "0.1.0"
-description = "Core domain logic and business rules for Pynomaly anomaly detection"
-authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+description = "Core domain logic and business rules for generic software applications"
+authors = [{name = "Software Team", email = "team@software.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
-keywords = ["anomaly-detection", "domain-logic", "clean-architecture"]
+keywords = ["software", "domain-logic", "clean-architecture"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
 

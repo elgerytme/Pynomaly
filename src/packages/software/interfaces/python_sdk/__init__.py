@@ -1,5 +1,5 @@
 """
-Pynomaly Python SDK - Data Science Client Library
+Software Python SDK - Data Science Client Library
 
 A comprehensive Python SDK for data science packages with intuitive APIs,
 async support, and integration with popular data science libraries.
@@ -15,7 +15,7 @@ from .infrastructure.adapters.pyod_algorithm_adapter import PyODAlgorithmAdapter
 from .presentation.cli.detection_cli import DetectionCLI
 
 __version__ = "1.0.0"
-__author__ = "Pynomaly Team"
+__author__ = "Software Team"
 __email__ = "support@example.com"
 
 __all__ = [

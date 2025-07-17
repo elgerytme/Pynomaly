@@ -1,4 +1,4 @@
-"""Unified exception hierarchy for Pynomaly application."""
+"""Unified exception hierarchy for Software application."""
 
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ class ErrorDetails:
 
 
 class PynamolyError(Exception):
-    """Base exception for all Pynomaly errors."""
+    """Base exception for all Software errors."""
 
     def __init__(
         self,
@@ -86,7 +86,7 @@ class PynamolyError(Exception):
         retry_possible: bool = False,
         retry_after: int | None = None,
     ):
-        """Initialize unified Pynomaly error.
+        """Initialize unified Software error.
 
         Args:
             error_code: Unique error code for programmatic handling

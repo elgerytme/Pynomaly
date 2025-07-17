@@ -1,7 +1,7 @@
 # API Documentation & OpenAPI Specification - Implementation Summary
 
 ## Overview
-Successfully implemented comprehensive API documentation and OpenAPI specification generation for the Pynomaly platform, providing enterprise-grade API documentation with versioning, client examples, and interactive documentation.
+Successfully implemented comprehensive API documentation and OpenAPI specification generation for the Software platform, providing enterprise-grade API documentation with versioning, client examples, and interactive documentation.
 
 ## ✅ Completed Implementation
 
@@ -14,7 +14,7 @@ Successfully implemented comprehensive API documentation and OpenAPI specificati
   - Server configurations for all environments
 
 ### 2. API Documentation Enhancements
-- **Enhanced API Documentation** (`src/pynomaly/presentation/api/docs.py`)
+- **Enhanced API Documentation** (`src/software/presentation/api/docs.py`)
   - Rich markdown descriptions with code examples
   - Interactive Swagger UI configuration
   - Comprehensive error response documentation
@@ -30,7 +30,7 @@ Successfully implemented comprehensive API documentation and OpenAPI specificati
   - Real-world usage patterns and best practices
 
 ### 4. API Versioning Strategy
-- **Comprehensive Versioning System** (`src/pynomaly/presentation/api/versioning.py`)
+- **Comprehensive Versioning System** (`src/software/presentation/api/versioning.py`)
   - Semantic versioning support (v1, v2, etc.)
   - Multiple versioning strategies (URL path, headers, query params, media types)
   - Deprecation and sunset management
@@ -51,9 +51,9 @@ Successfully implemented comprehensive API documentation and OpenAPI specificati
 
 #### **Comprehensive Endpoint Coverage**
 - **Authentication Endpoints**: Login, refresh, profile management
-- **Anomaly Detection**: Detection, training, batch processing
-- **Model Management**: CRUD operations, deployment
-- **Health Monitoring**: System health and metrics
+- **Anomaly Processing**: Processing, training, batch processing
+- **Processor Management**: CRUD operations, deployment
+- **Health Monitoring**: System health and measurements
 - **Version Management**: Version info and compatibility
 
 #### **Advanced Schema Definitions**
@@ -81,7 +81,7 @@ Successfully implemented comprehensive API documentation and OpenAPI specificati
 - **URL Path**: `/api/v1/endpoint` (default)
 - **Header-based**: `API-Version: v1`
 - **Query Parameter**: `?version=v1`
-- **Media Type**: `Accept: application/vnd.pynomaly.v1+json`
+- **Media Type**: `Accept: application/vnd.software.v1+json`
 
 #### **Compatibility Management**
 - **Version Compatibility**: Automated compatibility checking
@@ -92,7 +92,7 @@ Successfully implemented comprehensive API documentation and OpenAPI specificati
 ### Client Code Examples
 
 #### **Python Client Features**
-- **Complete SDK**: Authentication, detection, training, health checks
+- **Complete SDK**: Authentication, processing, training, health checks
 - **Error Handling**: Comprehensive exception handling
 - **Type Hints**: Full type annotation support
 - **Async Support**: Async/await pattern compatibility
@@ -180,7 +180,7 @@ docs/api/
     ├── javascript_client.js        # JavaScript client
     └── curl_examples.sh            # cURL examples
 
-src/pynomaly/presentation/api/
+src/software/presentation/api/
 ├── docs.py                         # Enhanced API documentation
 ├── versioning.py                   # API versioning system
 └── app.py                          # Main FastAPI application
@@ -252,4 +252,4 @@ With the API documentation and versioning system complete, the next recommended 
 
 **Status: ✅ COMPLETED**
 
-The comprehensive API documentation and OpenAPI specification system is now fully implemented and operational, providing enterprise-grade API documentation with versioning, client examples, and interactive documentation capabilities for the Pynomaly platform.
+The comprehensive API documentation and OpenAPI specification system is now fully implemented and operational, providing enterprise-grade API documentation with versioning, client examples, and interactive documentation capabilities for the Software platform.

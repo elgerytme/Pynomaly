@@ -27,7 +27,7 @@ class AutoMLWithTracking:
 
     async def optimize_with_tracking(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         max_trials: int = 50,
         max_time_seconds: int = 1800,
@@ -36,7 +36,7 @@ class AutoMLWithTracking:
         """Run AutoML optimization with real-time progress tracking."""
 
         # Create progress tracking task
-        task_name = f"AutoML optimization: {algorithm} on {dataset.name}"
+        task_name = f"AutoML optimization: {algorithm} on {data_collection.name}"
         description = f"Optimizing {algorithm} with {max_trials} trials"
 
         with TaskContext(
@@ -52,14 +52,14 @@ class AutoMLWithTracking:
                     current=0,
                     message="Initializing optimization...",
                     algorithm=algorithm,
-                    dataset_name=dataset.name,
+                    data_collection_name=data_collection.name,
                     max_trials=max_trials,
                 )
 
                 # Simulate step-by-step optimization with progress updates
                 result = await self._run_optimization_with_updates(
                     task_context,
-                    dataset,
+                    data_collection,
                     algorithm,
                     max_trials,
                     max_time_seconds,
@@ -75,7 +75,7 @@ class AutoMLWithTracking:
     async def _run_optimization_with_updates(
         self,
         task_context: TaskContext,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         max_trials: int,
         max_time_seconds: int,
@@ -83,11 +83,11 @@ class AutoMLWithTracking:
     ) -> dict[str, Any]:
         """Run optimization with periodic progress updates."""
 
-        # Step 1: Dataset analysis
+        # Step 1: DataCollection analysis
         task_context.update(
             current=1,
-            message="Analyzing dataset characteristics...",
-            phase="dataset_analysis",
+            message="Analyzing data_collection characteristics...",
+            phase="data_collection_analysis",
         )
         await asyncio.sleep(0.5)  # Simulate work
 
@@ -158,7 +158,7 @@ class AutoMLWithTracking:
         # Return results
         return {
             "algorithm": algorithm,
-            "dataset_name": dataset.name,
+            "data_collection_name": data_collection.name,
             "best_score": best_score,
             "best_params": best_params,
             "total_trials": max_trials,
@@ -167,14 +167,14 @@ class AutoMLWithTracking:
 
     async def compare_algorithms_with_tracking(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithms: list[str],
         max_trials_per_algorithm: int = 30,
     ) -> dict[str, Any]:
         """Compare multiple algorithms with progress tracking."""
 
         total_trials = len(algorithms) * max_trials_per_algorithm
-        task_name = f"Algorithm comparison on {dataset.name}"
+        task_name = f"Algorithm comparison on {data_collection.name}"
         description = f"Comparing {len(algorithms)} algorithms"
 
         with TaskContext(
@@ -223,7 +223,7 @@ class AutoMLWithTracking:
             )
 
             return {
-                "dataset_name": dataset.name,
+                "data_collection_name": data_collection.name,
                 "algorithms": algorithms,
                 "results": results,
                 "total_trials": total_trials,

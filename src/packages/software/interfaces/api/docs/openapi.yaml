@@ -1,37 +1,37 @@
 openapi: 3.0.3
 info:
-  title: Pynomaly API
+  title: Software API
   version: 1.0.0
-  description: "\n# Pynomaly - Enterprise Anomaly Detection Platform\n\nA comprehensive,\
-    \ production-ready anomaly detection system with enterprise-grade features.\n\n\
-    ## Features\n\n### Core Detection\n- **Anomaly Detection**: Detect anomalies in\
+  description: "\n# Software - Enterprise Anomaly Processing Platform\n\nA comprehensive,\
+    \ production-ready anomaly processing system with enterprise-grade features.\n\n\
+    ## Features\n\n### Core Processing\n- **Anomaly Processing**: Detect anomalies in\
     \ time series, tabular, and streaming data\n- **Multiple Algorithms**: Support\
     \ for Isolation Forest, One-Class SVM, LSTM Autoencoders, and custom models\n\
-    - **Ensemble Methods**: Combine multiple detection algorithms for improved accuracy\n\
-    - **Real-time Processing**: Stream processing for continuous anomaly detection\n\
-    \n### MLOps Platform\n- **Model Registry**: Centralized model management with\
+    - **Ensemble Methods**: Combine multiple processing algorithms for improved accuracy\n\
+    - **Real-time Processing**: Stream processing for continuous anomaly processing\n\
+    \n### MLOps Platform\n- **Processor Registry**: Centralized processor management with\
     \ versioning and metadata\n- **Experiment Tracking**: Track experiments, parameters,\
-    \ and metrics\n- **Model Deployment**: Deploy models to development, staging,\
-    \ and production environments\n- **Automated Retraining**: Automatic model retraining\
+    \ and measurements\n- **Processor Deployment**: Deploy models to development, staging,\
+    \ and production environments\n- **Automated Retraining**: Automatic processor retraining\
     \ based on data drift and performance degradation\n\n### Enterprise Features\n\
     - **Multi-tenancy**: Complete tenant isolation with role-based access control\n\
     - **Audit Logging**: Comprehensive audit trails with compliance support (GDPR,\
     \ HIPAA, SOX)\n- **Security**: JWT authentication, data encryption, and tamper\
-    \ detection\n- **Analytics Dashboard**: Real-time insights and business metrics\n\
+    \ processing\n- **Analytics Dashboard**: Real-time insights and business measurements\n\
     \n### Monitoring & Observability\n- **Health Monitoring**: System health checks\
-    \ and performance metrics\n- **Alerting**: Real-time alerts for anomalies and\
+    \ and performance measurements\n- **Alerting**: Real-time alerts for anomalies and\
     \ system issues\n- **Compliance Reporting**: Generate compliance reports for regulatory\
-    \ requirements\n- **Performance Tracking**: Track model performance and system\
-    \ metrics\n\n## Quick Start\n\n### 1. Authentication\n```bash\n# Get JWT token\n\
+    \ requirements\n- **Performance Tracking**: Track processor performance and system\
+    \ measurements\n\n## Quick Start\n\n### 1. Authentication\n```bash\n# Get JWT token\n\
     curl -X POST \"https://api.pynomaly.com/api/v1/auth/login\" \\\n  -H \"Content-Type:\
     \ application/json\" \\\n  -d '{\"username\": \"your_username\", \"password\"\
-    : \"your_password\"}'\n```\n\n### 2. Basic Anomaly Detection\n```bash\n# Detect\
-    \ anomalies in data\ncurl -X POST \"https://api.pynomaly.com/api/v1/detection/detect\"\
+    : \"your_password\"}'\n```\n\n### 2. Basic Anomaly Processing\n```bash\n# Detect\
+    \ anomalies in data\ncurl -X POST \"https://api.pynomaly.com/api/v1/processing/detect\"\
     \ \\\n  -H \"Authorization: Bearer YOUR_JWT_TOKEN\" \\\n  -H \"Content-Type: application/json\"\
     \ \\\n  -d '{\n    \"data\": [1.0, 2.0, 3.0, 100.0, 4.0, 5.0],\n    \"algorithm\"\
     : \"isolation_forest\",\n    \"parameters\": {\"contamination\": 0.1}\n  }'\n\
-    ```\n\n### 3. Train Custom Model\n```bash\n# Train a new model\ncurl -X POST \"\
-    https://api.pynomaly.com/api/v1/detection/train\" \\\n  -H \"Authorization: Bearer\
+    ```\n\n### 3. Train Custom Processor\n```bash\n# Train a new model\ncurl -X POST \"\
+    https://api.pynomaly.com/api/v1/processing/train\" \\\n  -H \"Authorization: Bearer\
     \ YOUR_JWT_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n \
     \   \"training_data\": \"path/to/training/data.csv\",\n    \"algorithm\": \"lstm_autoencoder\"\
     ,\n    \"parameters\": {\"epochs\": 100, \"batch_size\": 32}\n  }'\n```\n\n##\
@@ -45,14 +45,14 @@ info:
     \ standard HTTP status codes and returns detailed error messages following RFC\
     \ 7807:\n\n```json\n{\n  \"type\": \"https://pynomaly.com/errors/validation-error\"\
     ,\n  \"title\": \"Validation Error\",\n  \"status\": 422,\n  \"detail\": \"The\
-    \ request data is invalid\",\n  \"instance\": \"/api/v1/detection/detect\",\n\
+    \ request data is invalid\",\n  \"instance\": \"/api/v1/processing/detect\",\n\
     \  \"errors\": [\n    {\n      \"field\": \"data\",\n      \"message\": \"Field\
     \ required\"\n    }\n  ]\n}\n```\n\n## Support\n\n- **Documentation**: https://docs.pynomaly.com\n\
     - **Support**: support@pynomaly.com\n- **Community**: https://community.pynomaly.com\n"
   contact:
     name: Pynomaly Support
     url: https://pynomaly.com/support
-    email: support@pynomaly.com
+    email: support@software.com
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
@@ -69,15 +69,15 @@ tags:
   externalDocs:
     description: Authentication Guide
     url: https://docs.pynomaly.com/authentication
-- name: Anomaly Detection
-  description: Core anomaly detection capabilities
+- name: Anomaly Processing
+  description: Core anomaly processing capabilities
   externalDocs:
     description: Detection Guide
     url: https://docs.pynomaly.com/detection
-- name: Model Management
-  description: Model lifecycle management and deployment
+- name: Processor Management
+  description: Processor lifecycle management and deployment
   externalDocs:
-    description: Model Management Guide
+    description: Processor Management Guide
     url: https://docs.pynomaly.com/models
 - name: MLOps
   description: MLOps platform features
@@ -149,12 +149,12 @@ paths:
           $ref: '#/components/responses/UserProfile'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  /api/v1/detection/detect:
+  /api/v1/processing/detect:
     post:
       tags:
-      - Anomaly Detection
+      - Anomaly Processing
       summary: Detect anomalies in data
-      description: Detect anomalies in the provided dataset using the specified algorithm
+      description: Detect anomalies in the provided data_collection using the specified algorithm
       operationId: detect_anomalies
       security:
       - BearerAuth: []
@@ -169,13 +169,13 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '422':
           $ref: '#/components/responses/ValidationError'
-  /api/v1/detection/train:
+  /api/v1/processing/train:
     post:
       tags:
-      - Anomaly Detection
-      summary: Train anomaly detection model
-      description: Train a new anomaly detection model with the provided data
-      operationId: train_model
+      - Anomaly Processing
+      summary: Train anomaly processing processor
+      description: Train a new anomaly processing processor with the provided data
+      operationId: train_processor
       security:
       - BearerAuth: []
       requestBody:
@@ -189,12 +189,12 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '422':
           $ref: '#/components/responses/ValidationError'
-  /api/v1/detection/batch:
+  /api/v1/processing/batch:
     post:
       tags:
-      - Anomaly Detection
-      summary: Batch anomaly detection
-      description: Perform batch anomaly detection with multiple detectors
+      - Anomaly Processing
+      summary: Batch anomaly processing
+      description: Perform batch anomaly processing with multiple detectors
       operationId: batch_detect
       security:
       - BearerAuth: []
@@ -210,10 +210,10 @@ paths:
   /api/v1/models:
     get:
       tags:
-      - Model Management
+      - Processor Management
       summary: List models
       description: Get a list of all available models
-      operationId: list_models
+      operationId: list_processors
       security:
       - BearerAuth: []
       parameters:
@@ -224,13 +224,13 @@ paths:
           $ref: '#/components/responses/ModelListResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  /api/v1/models/{model_id}:
+  /api/v1/models/{processor_id}:
     get:
       tags:
-      - Model Management
-      summary: Get model details
-      description: Get detailed information about a specific model
-      operationId: get_model
+      - Processor Management
+      summary: Get processor details
+      description: Get detailed information about a specific processor
+      operationId: get_processor
       security:
       - BearerAuth: []
       parameters:
@@ -254,13 +254,13 @@ paths:
           $ref: '#/components/responses/HealthResponse'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
-  /api/v1/health/metrics:
+  /api/v1/health/measurements:
     get:
       tags:
       - Monitoring
-      summary: System metrics
-      description: Get detailed system metrics
-      operationId: get_metrics
+      summary: System measurements
+      description: Get detailed system measurements
+      operationId: get_measurements
       security:
       - BearerAuth: []
       responses:
@@ -312,7 +312,7 @@ components:
           type: array
           items:
             type: number
-          description: Input data for anomaly detection
+          description: Input data for anomaly processing
           example:
           - 1.0
           - 2.0
@@ -327,7 +327,7 @@ components:
           - one_class_svm
           - lstm_autoencoder
           - ensemble
-          description: Anomaly detection algorithm
+          description: Anomaly processing algorithm
           example: isolation_forest
         parameters:
           type: object
@@ -359,11 +359,11 @@ components:
           - 0.12
         threshold:
           type: number
-          description: Anomaly detection threshold
+          description: Anomaly processing threshold
           example: 0.5
-        model_id:
+        processor_id:
           type: string
-          description: ID of the model used for detection
+          description: ID of the processor used for processing
           example: isolation_forest_20240101_001
         processing_time_ms:
           type: number
@@ -395,24 +395,24 @@ components:
             epochs: 100
             batch_size: 32
             learning_rate: 0.001
-        model_name:
+        processor_name:
           type: string
-          description: Name for the trained model
-          example: production_model_v1
+          description: Name for the trained processor
+          example: production_processor_v1
     TrainingResponse:
       type: object
       properties:
-        model_id:
+        processor_id:
           type: string
-          description: ID of the trained model
+          description: ID of the trained processor
           example: lstm_autoencoder_20240101_001
-        model_name:
+        processor_name:
           type: string
-          description: Name of the trained model
-          example: production_model_v1
-        training_metrics:
+          description: Name of the trained processor
+          example: production_processor_v1
+        training_measurements:
           type: object
-          description: Training performance metrics
+          description: Training performance measurements
           example:
             loss: 0.0234
             accuracy: 0.967
@@ -448,7 +448,7 @@ components:
           example:
             database: healthy
             cache: healthy
-            model_registry: healthy
+            processor_registry: healthy
     ErrorResponse:
       type: object
       properties:
@@ -471,7 +471,7 @@ components:
         instance:
           type: string
           description: Request instance that caused the error
-          example: /api/v1/detection/detect
+          example: /api/v1/processing/detect
   responses:
     LoginResponse:
       description: Successful login response
@@ -486,13 +486,13 @@ components:
           schema:
             $ref: '#/components/schemas/TokenResponse'
     DetectionResponse:
-      description: Anomaly detection response
+      description: Anomaly processing response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DetectionResponse'
     TrainingResponse:
-      description: Model training response
+      description: Processor training response
       content:
         application/json:
           schema:
@@ -579,17 +579,17 @@ components:
         maximum: 100
         default: 20
     ModelIdParameter:
-      name: model_id
+      name: processor_id
       in: path
-      description: Unique model identifier
+      description: Unique processor identifier
       required: true
       schema:
         type: string
         format: uuid
   examples:
     SimpleDetectionRequest:
-      summary: Simple anomaly detection
-      description: Basic anomaly detection with Isolation Forest
+      summary: Simple anomaly processing
+      description: Basic anomaly processing with Isolation Forest
       value:
         data:
         - 1.0
@@ -603,8 +603,8 @@ components:
           contamination: 0.1
           n_estimators: 100
     TimeSeriesDetectionRequest:
-      summary: Time series anomaly detection
-      description: Anomaly detection for time series data
+      summary: Time series anomaly processing
+      description: Anomaly processing for time series data
       value:
         data:
         - 1.0
@@ -620,17 +620,17 @@ components:
           sequence_length: 10
           epochs: 50
     ModelTrainingRequest:
-      summary: Model training example
-      description: Training a custom LSTM autoencoder model
+      summary: Processor training example
+      description: Training a custom LSTM autoencoder processor
       value:
-        training_data: s3://pynomaly-data/training/timeseries.csv
+        training_data: s3://software-data/training/timeseries.csv
         algorithm: lstm_autoencoder
         parameters:
           epochs: 100
           batch_size: 32
           learning_rate: 0.001
           hidden_units: 64
-        model_name: production_lstm_v1
+        processor_name: production_lstm_v1
   requestBodies:
     LoginRequest:
       description: User login credentials
@@ -640,7 +640,7 @@ components:
             $ref: '#/components/schemas/LoginRequest'
       required: true
     DetectionRequest:
-      description: Anomaly detection request
+      description: Anomaly processing request
       content:
         application/json:
           schema:
@@ -652,7 +652,7 @@ components:
               $ref: '#/components/examples/TimeSeriesDetectionRequest'
       required: true
     TrainingRequest:
-      description: Model training request
+      description: Processor training request
       content:
         application/json:
           schema:

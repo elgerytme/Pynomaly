@@ -41,7 +41,7 @@ class IntelligentSelectionService:
         enable_performance_prediction: bool = True,
         enable_historical_learning: bool = True,
         selection_history_path: Path | None = None,
-        meta_model_path: Path | None = None,
+        meta_processor_path: Path | None = None,
     ):
         """Initialize intelligent selection service.
 
@@ -50,7 +50,7 @@ class IntelligentSelectionService:
             enable_performance_prediction: Enable performance prediction
             enable_historical_learning: Enable learning from historical data
             selection_history_path: Path to store selection history
-            meta_model_path: Path to store meta-learning models
+            meta_processor_path: Path to store meta-learning models
         """
         self.enable_meta_learning = enable_meta_learning
         self.enable_performance_prediction = enable_performance_prediction
@@ -60,7 +60,7 @@ class IntelligentSelectionService:
         self.selection_history_path = selection_history_path or Path(
             "data/selection_history.json"
         )
-        self.meta_model_path = meta_model_path or Path("data/meta_models")
+        self.meta_processor_path = meta_processor_path or Path("data/meta_processors")
 
         # Initialize components
         self.selection_history: list[SelectionHistoryDTO] = []
@@ -73,7 +73,7 @@ class IntelligentSelectionService:
 
         # Load existing data (handled lazily)
         self._selection_history_loaded = False
-        self._meta_models_loaded = False
+        self._meta_processors_loaded = False
 
     async def _ensure_data_loaded(self) -> None:
         """Ensure selection history and meta models are loaded."""
@@ -81,33 +81,33 @@ class IntelligentSelectionService:
             await self._load_selection_history()
             self._selection_history_loaded = True
 
-        if not self._meta_models_loaded:
-            await self._load_meta_models()
-            self._meta_models_loaded = True
+        if not self._meta_processors_loaded:
+            await self._load_meta_processors()
+            self._meta_processors_loaded = True
 
     async def recommend_algorithm(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         constraints: OptimizationConstraintsDTO | None = None,
         config: MetaLearningConfigDTO | None = None,
     ) -> SelectionRecommendationDTO:
-        """Recommend optimal algorithm for dataset.
+        """Recommend optimal algorithm for data_collection.
 
         Args:
-            dataset: Target dataset
+            data_collection: Target data_collection
             constraints: Optimization constraints
             config: Meta-learning configuration
 
         Returns:
             Algorithm selection recommendation
         """
-        logger.info(f"Generating algorithm recommendation for dataset: {dataset.name}")
+        logger.info(f"Generating algorithm recommendation for data_collection: {data_collection.name}")
 
         # Ensure data is loaded
         await self._ensure_data_loaded()
 
-        # Extract dataset characteristics
-        characteristics = await self._extract_dataset_characteristics(dataset)
+        # Extract data_collection characteristics
+        characteristics = await self._extract_data_collection_characteristics(data_collection)
 
         # Get algorithm candidates
         candidates = self._filter_algorithm_candidates(characteristics, constraints)
@@ -148,7 +148,7 @@ class IntelligentSelectionService:
 
     async def learn_from_result(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         performance: AlgorithmPerformanceDTO,
         selection_context: dict[str, Any],
@@ -156,26 +156,26 @@ class IntelligentSelectionService:
         """Learn from algorithm selection result.
 
         Args:
-            dataset: Dataset used
+            data_collection: DataCollection used
             algorithm: Algorithm selected
             performance: Achieved performance
             selection_context: Context of selection decision
         """
-        logger.info(f"Learning from result: {algorithm} on {dataset.name}")
+        logger.info(f"Learning from result: {algorithm} on {data_collection.name}")
 
         # Ensure data is loaded
         await self._ensure_data_loaded()
 
         # Create history entry
-        characteristics = await self._extract_dataset_characteristics(dataset)
+        characteristics = await self._extract_data_collection_characteristics(data_collection)
 
         history_entry = SelectionHistoryDTO(
-            dataset_characteristics=characteristics,
+            data_collection_characteristics=characteristics,
             selected_algorithm=algorithm,
             performance=performance,
             selection_context=selection_context,
             timestamp=datetime.now(),
-            dataset_hash=self._compute_dataset_hash(dataset),
+            data_collection_hash=self._compute_data_collection_hash(data_collection),
         )
 
         # Add to history
@@ -183,22 +183,22 @@ class IntelligentSelectionService:
 
         # Update meta-learning models
         if self.enable_meta_learning:
-            await self._update_meta_models()
+            await self._update_meta_processors()
 
         # Save updated history
         await self._save_selection_history()
 
     async def benchmark_algorithms(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithms: list[str] | None = None,
         cv_folds: int = 3,
         constraints: OptimizationConstraintsDTO | None = None,
     ) -> list[AlgorithmBenchmarkDTO]:
-        """Benchmark algorithms on dataset.
+        """Benchmark algorithms on data_collection.
 
         Args:
-            dataset: Dataset to benchmark on
+            data_collection: DataCollection to benchmark on
             algorithms: Algorithms to benchmark (all if None)
             cv_folds: Cross-validation folds
             constraints: Resource constraints
@@ -206,10 +206,10 @@ class IntelligentSelectionService:
         Returns:
             Benchmark results for each algorithm
         """
-        logger.info(f"Benchmarking algorithms on dataset: {dataset.name}")
+        logger.info(f"Benchmarking algorithms on data_collection: {data_collection.name}")
 
         if algorithms is None:
-            characteristics = await self._extract_dataset_characteristics(dataset)
+            characteristics = await self._extract_data_collection_characteristics(data_collection)
             algorithms = self._filter_algorithm_candidates(characteristics, constraints)
 
         benchmarks = []
@@ -217,7 +217,7 @@ class IntelligentSelectionService:
         for algorithm in algorithms:
             try:
                 benchmark = await self._benchmark_single_algorithm(
-                    dataset, algorithm, cv_folds, constraints
+                    data_collection, algorithm, cv_folds, constraints
                 )
                 benchmarks.append(benchmark)
 
@@ -252,8 +252,8 @@ class IntelligentSelectionService:
         # Algorithm performance analysis
         algorithm_stats = self._analyze_algorithm_performance()
 
-        # Dataset type preferences
-        dataset_preferences = self._analyze_dataset_preferences()
+        # DataCollection type preferences
+        data_collection_preferences = self._analyze_data_collection_preferences()
 
         # Performance trends
         trends = self._analyze_performance_trends()
@@ -264,10 +264,10 @@ class IntelligentSelectionService:
         return LearningInsightsDTO(
             total_selections=len(self.selection_history),
             algorithm_performance_stats=algorithm_stats,
-            dataset_type_preferences=dataset_preferences,
+            data_collection_type_preferences=data_collection_preferences,
             performance_trends=trends,
             feature_importance_insights=feature_importance,
-            meta_model_accuracy=await self._get_meta_model_accuracy(),
+            meta_processor_accuracy=await self._get_meta_processor_accuracy(),
             recommendation_confidence=self._calculate_recommendation_confidence(),
             generated_at=datetime.now(),
         )
@@ -283,21 +283,21 @@ class IntelligentSelectionService:
             "performance_prediction_enabled": self.enable_performance_prediction,
             "historical_learning_enabled": self.enable_historical_learning,
             "selection_history_size": len(self.selection_history),
-            "meta_model_trained": self.meta_learner is not None,
+            "meta_processor_trained": self.meta_learner is not None,
             "performance_predictor_trained": self.performance_predictor is not None,
             "available_algorithms": list(self.algorithm_registry.keys()),
             "algorithm_count": len(self.algorithm_registry),
             "history_path": str(self.selection_history_path),
-            "model_path": str(self.meta_model_path),
+            "processor_path": str(self.meta_processor_path),
         }
 
     # Private methods
 
-    async def _extract_dataset_characteristics(
-        self, dataset: Dataset
+    async def _extract_data_collection_characteristics(
+        self, data_collection: DataCollection
     ) -> DatasetCharacteristicsDTO:
-        """Extract comprehensive dataset characteristics."""
-        data = dataset.data
+        """Extract comprehensive data_collection characteristics."""
+        data = data_collection.data
         if hasattr(data, "values"):
             X = data.values
         else:
@@ -353,7 +353,7 @@ class IntelligentSelectionService:
                 np.isnan(numeric_data).sum() / numeric_data.size
             )
 
-            # Outlier detection (IQR method)
+            # Outlier processing (IQR method)
             Q1 = np.nanpercentile(numeric_data, 25, axis=0)
             Q3 = np.nanpercentile(numeric_data, 75, axis=0)
             IQR = Q3 - Q1
@@ -465,7 +465,7 @@ class IntelligentSelectionService:
 
         for history in self.selection_history:
             hist_features = self._characteristics_to_features(
-                history.dataset_characteristics
+                history.data_collection_characteristics
             )
             similarity = cosine_similarity([current_features], [hist_features])[0][0]
 
@@ -506,7 +506,7 @@ class IntelligentSelectionService:
         for algo in candidates:
             score = 0.5  # Base score
 
-            # Dataset size rules
+            # DataCollection size rules
             if characteristics.n_samples < 1000:
                 if algo in ["isolation_forest", "local_outlier_factor"]:
                     score += 0.3
@@ -551,7 +551,7 @@ class IntelligentSelectionService:
                 recommended_algorithms=[],
                 confidence_scores={},
                 reasoning=[],
-                dataset_characteristics=characteristics,
+                data_collection_characteristics=characteristics,
                 selection_context={},
                 timestamp=datetime.now(),
             )
@@ -580,13 +580,13 @@ class IntelligentSelectionService:
                 f"Top recommendation: {top_algo} (score: {sorted_algorithms[0][1]:.3f})"
             )
 
-            # Add dataset-specific reasoning
+            # Add data_collection-specific reasoning
             if characteristics.n_samples < 1000:
                 reasoning.append(
-                    "Small dataset: prioritizing algorithms suitable for limited data"
+                    "Small data_collection: prioritizing algorithms suitable for limited data"
                 )
             elif characteristics.n_samples > 100000:
-                reasoning.append("Large dataset: prioritizing scalable algorithms")
+                reasoning.append("Large data_collection: prioritizing scalable algorithms")
 
             if characteristics.n_features > 100:
                 reasoning.append(
@@ -602,7 +602,7 @@ class IntelligentSelectionService:
             recommended_algorithms=[algo for algo, _ in sorted_algorithms[:5]],
             confidence_scores=dict(sorted_algorithms),
             reasoning=reasoning,
-            dataset_characteristics=characteristics,
+            data_collection_characteristics=characteristics,
             selection_context={
                 "recommendation_methods": len(recommendations),
                 "total_candidates": len(all_algorithms),
@@ -643,7 +643,7 @@ class IntelligentSelectionService:
     def _characteristics_to_features(
         self, characteristics: DatasetCharacteristicsDTO
     ) -> list[float]:
-        """Convert dataset characteristics to feature vector."""
+        """Convert data_collection characteristics to feature vector."""
         return [
             float(characteristics.n_samples),
             float(characteristics.n_features),
@@ -661,11 +661,11 @@ class IntelligentSelectionService:
         ]
 
     def _compute_dataset_hash(self, dataset: Dataset) -> str:
-        """Compute hash for dataset identification."""
-        data_str = str(dataset.data.shape) + str(list(dataset.feature_names or []))
+        """Compute hash for data_collection identification."""
+        data_str = str(data_collection.data.shape) + str(list(data_collection.feature_names or []))
         return hashlib.md5(data_str.encode()).hexdigest()
 
-    async def _update_meta_models(self) -> None:
+    async def _update_meta_processors(self) -> None:
         """Update meta-learning models with new data."""
         if len(self.selection_history) < 5:
             return
@@ -676,7 +676,7 @@ class IntelligentSelectionService:
 
         for history in self.selection_history:
             features = self._characteristics_to_features(
-                history.dataset_characteristics
+                history.data_collection_characteristics
             )
             X.append(features)
             y.append(history.selected_algorithm)
@@ -699,11 +699,11 @@ class IntelligentSelectionService:
         self.performance_predictor.fit(X_scaled, y_performance)
 
         # Save models
-        await self._save_meta_models()
+        await self._save_meta_processors()
 
     async def _benchmark_single_algorithm(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         cv_folds: int,
         constraints: OptimizationConstraintsDTO | None,
@@ -719,7 +719,7 @@ class IntelligentSelectionService:
         # Simulate training and evaluation
         await asyncio.sleep(0.1)  # Simulate computation time
 
-        # Generate realistic but fake metrics
+        # Generate realistic but fake measurements
         base_score = np.random.uniform(0.6, 0.9)
         scores = np.random.normal(base_score, 0.05, cv_folds)
         scores = np.clip(scores, 0, 1)
@@ -734,7 +734,7 @@ class IntelligentSelectionService:
             training_time_seconds=training_time,
             memory_usage_mb=np.random.uniform(50, 500),
             hyperparameters={},
-            additional_metrics={},
+            additional_measurements={},
         )
 
     def _analyze_algorithm_performance(self) -> dict[str, dict[str, float]]:
@@ -763,22 +763,22 @@ class IntelligentSelectionService:
         return stats
 
     def _analyze_dataset_preferences(self) -> dict[str, list[str]]:
-        """Analyze dataset type preferences."""
+        """Analyze data_collection type preferences."""
         preferences = {
-            "small_datasets": [],
-            "large_datasets": [],
+            "small_data_collections": [],
+            "large_data_collections": [],
             "high_dimensional": [],
             "sparse_data": [],
         }
 
         for history in self.selection_history:
             algo = history.selected_algorithm
-            chars = history.dataset_characteristics
+            chars = history.data_collection_characteristics
 
             if chars.n_samples < 1000:
-                preferences["small_datasets"].append(algo)
+                preferences["small_data_collections"].append(algo)
             elif chars.n_samples > 100000:
-                preferences["large_datasets"].append(algo)
+                preferences["large_data_collections"].append(algo)
 
             if chars.n_features > 100:
                 preferences["high_dimensional"].append(algo)
@@ -847,8 +847,8 @@ class IntelligentSelectionService:
         except Exception:
             return {}
 
-    async def _get_meta_model_accuracy(self) -> float | None:
-        """Get meta-model accuracy."""
+    async def _get_meta_processor_accuracy(self) -> float | None:
+        """Get meta-processor accuracy."""
         if self.meta_learner is None or len(self.selection_history) < 10:
             return None
 
@@ -858,7 +858,7 @@ class IntelligentSelectionService:
 
             for history in self.selection_history:
                 features = self._characteristics_to_features(
-                    history.dataset_characteristics
+                    history.data_collection_characteristics
                 )
                 X.append(features)
                 y.append(history.selected_algorithm)
@@ -880,13 +880,13 @@ class IntelligentSelectionService:
         history_factor = min(1.0, len(self.selection_history) / 100)
         factors.append(history_factor)
 
-        # Model availability factor
-        model_factor = 0.5
+        # Processor availability factor
+        processor_factor = 0.5
         if self.meta_learner is not None:
-            model_factor += 0.3
+            processor_factor += 0.3
         if self.performance_predictor is not None:
-            model_factor += 0.2
-        factors.append(model_factor)
+            processor_factor += 0.2
+        factors.append(processor_factor)
 
         # Recent performance factor
         if self.selection_history:
@@ -977,13 +977,13 @@ class IntelligentSelectionService:
         except Exception as e:
             logger.error(f"Failed to save selection history: {e}")
 
-    async def _load_meta_models(self) -> None:
+    async def _load_meta_processors(self) -> None:
         """Load meta-learning models from file."""
         try:
-            if self.meta_model_path.exists():
-                scaler_path = self.meta_model_path / "scaler.pkl"
-                meta_learner_path = self.meta_model_path / "meta_learner.pkl"
-                predictor_path = self.meta_model_path / "performance_predictor.pkl"
+            if self.meta_processor_path.exists():
+                scaler_path = self.meta_processor_path / "scaler.pkl"
+                meta_learner_path = self.meta_processor_path / "meta_learner.pkl"
+                predictor_path = self.meta_processor_path / "performance_predictor.pkl"
 
                 if scaler_path.exists():
                     with open(scaler_path, "rb") as f:
@@ -1001,24 +1001,24 @@ class IntelligentSelectionService:
         except Exception as e:
             logger.warning(f"Failed to load meta-learning models: {e}")
 
-    async def _save_meta_models(self) -> None:
+    async def _save_meta_processors(self) -> None:
         """Save meta-learning models to file."""
         try:
-            self.meta_model_path.mkdir(parents=True, exist_ok=True)
+            self.meta_processor_path.mkdir(parents=True, exist_ok=True)
 
             # Save scaler
-            with open(self.meta_model_path / "scaler.pkl", "wb") as f:
+            with open(self.meta_processor_path / "scaler.pkl", "wb") as f:
                 pickle.dump(self.scaler, f)
 
             # Save meta-learner
             if self.meta_learner is not None:
-                with open(self.meta_model_path / "meta_learner.pkl", "wb") as f:
+                with open(self.meta_processor_path / "meta_learner.pkl", "wb") as f:
                     pickle.dump(self.meta_learner, f)
 
             # Save performance predictor
             if self.performance_predictor is not None:
                 with open(
-                    self.meta_model_path / "performance_predictor.pkl", "wb"
+                    self.meta_processor_path / "performance_predictor.pkl", "wb"
                 ) as f:
                     pickle.dump(self.performance_predictor, f)
 

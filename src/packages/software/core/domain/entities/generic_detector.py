@@ -1,4 +1,4 @@
-"""Generic detector entity for any detection algorithm."""
+"""Generic detector entity for any processing algorithm."""
 
 from __future__ import annotations
 
@@ -8,15 +8,15 @@ from datetime import datetime
 from typing import Any, Generic, TypeVar
 from uuid import UUID, uuid4
 
-# Generic type for detection input data
+# Generic type for processing input data
 T = TypeVar('T')
-# Generic type for detection output results  
+# Generic type for processing output results  
 R = TypeVar('R')
 
 
 @dataclass
 class GenericDetector(ABC, Generic[T, R]):
-    """Abstract base class for any detection algorithm.
+    """Abstract base class for any processing algorithm.
     
     This provides a domain-agnostic interface that can be implemented
     by any type of detector (anomaly, fraud, intrusion, etc.).
@@ -58,13 +58,13 @@ class GenericDetector(ABC, Generic[T, R]):
 
     @abstractmethod
     def detect(self, data: T) -> R:
-        """Perform detection on input data.
+        """Perform processing on input data.
         
         Args:
             data: Input data of type T
             
         Returns:
-            Detection results of type R
+            Processing results of type R
         """
 
     @abstractmethod
@@ -102,13 +102,13 @@ class GenericDetector(ABC, Generic[T, R]):
         self.trained_at = None
 
     def validate_for_detection(self) -> None:
-        """Validate that the detector is ready for detection.
+        """Validate that the detector is ready for processing.
         
         Raises:
             ValueError: If detector is not fitted
         """
         if not self.is_fitted:
-            raise ValueError("Detector must be fitted before detection")
+            raise ValueError("Detector must be fitted before processing")
 
     def __repr__(self) -> str:
         """Developer representation."""

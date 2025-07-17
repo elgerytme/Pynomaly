@@ -1,8 +1,8 @@
 """
-Intelligent Model Retraining Service
+Intelligent Processor Retraining Service
 
 Advanced automated retraining system that intelligently decides when and how to retrain models
-based on drift detection, performance metrics, and business rules.
+based on drift processing, performance measurements, and business rules.
 """
 
 import asyncio
@@ -30,7 +30,7 @@ from monorepo.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class RetrainingTrigger(Enum):
-    """Triggers for model retraining."""
+    """Triggers for processor retraining."""
 
     PERFORMANCE_DRIFT = "performance_drift"
     DATA_DRIFT = "data_drift"
@@ -64,7 +64,7 @@ class RetrainingUrgency(Enum):
 class RetrainingConfig:
     """Configuration for intelligent retraining."""
 
-    model_id: str
+    processor_id: str
     retraining_strategy: RetrainingStrategy = RetrainingStrategy.FULL_RETRAIN
     max_retraining_frequency: timedelta = field(
         default_factory=lambda: timedelta(hours=24)
@@ -79,7 +79,7 @@ class RetrainingConfig:
     auto_approve_low_risk: bool = True
     auto_approve_medium_risk: bool = False
     require_human_approval_high_risk: bool = True
-    backup_model_count: int = 3
+    backup_processor_count: int = 3
     validation_split: float = 0.2
     cross_validation_folds: int = 5
     minimum_improvement: float = 0.02  # 2% minimum improvement to deploy
@@ -94,10 +94,10 @@ class RetrainingConfig:
 
 @dataclass
 class RetrainingRequest:
-    """Request for model retraining."""
+    """Request for processor retraining."""
 
     request_id: str
-    model_id: str
+    processor_id: str
     trigger: RetrainingTrigger
     urgency: RetrainingUrgency
     created_at: datetime = field(default_factory=datetime.now)
@@ -121,9 +121,9 @@ class RetrainingJob:
     progress: float = 0.0
     current_stage: str = "initialization"
     experiment_id: str | None = None
-    new_model_performance: dict[str, float] = field(default_factory=dict)
-    old_model_performance: dict[str, float] = field(default_factory=dict)
-    improvement_metrics: dict[str, float] = field(default_factory=dict)
+    new_processor_performance: dict[str, float] = field(default_factory=dict)
+    old_processor_performance: dict[str, float] = field(default_factory=dict)
+    improvement_measurements: dict[str, float] = field(default_factory=dict)
     error_message: str | None = None
     resource_usage: dict[str, float] = field(default_factory=dict)
 
@@ -144,7 +144,7 @@ class IntelligentRetrainingDecisionEngine:
 
         # Risk assessment factors
         self.risk_factors = {
-            "model_criticality": 1.0,
+            "processor_criticality": 1.0,
             "data_volume": 0.3,
             "feature_complexity": 0.2,
             "deployment_complexity": 0.3,
@@ -153,24 +153,24 @@ class IntelligentRetrainingDecisionEngine:
 
     async def should_retrain(
         self,
-        model_id: str,
+        processor_id: str,
         drift_report: DriftReport,
-        performance_metrics: dict[str, float],
+        performance_measurements: dict[str, float],
         config: RetrainingConfig,
         business_context: dict[str, Any] = None,
     ) -> tuple[bool, RetrainingUrgency, str]:
-        """Determine if model should be retrained."""
+        """Determine if processor should be retrained."""
 
-        self.logger.info(f"Evaluating retraining decision for model {model_id}")
+        self.logger.info(f"Evaluating retraining decision for processor {processor_id}")
 
         # Calculate decision score
         decision_score = await self._calculate_decision_score(
-            drift_report, performance_metrics, config, business_context
+            drift_report, performance_measurements, config, business_context
         )
 
         # Determine urgency
         urgency = self._calculate_urgency(
-            drift_report, performance_metrics, decision_score
+            drift_report, performance_measurements, decision_score
         )
 
         # Make decision
@@ -178,11 +178,11 @@ class IntelligentRetrainingDecisionEngine:
 
         # Generate justification
         justification = self._generate_justification(
-            drift_report, performance_metrics, decision_score, urgency
+            drift_report, performance_measurements, decision_score, urgency
         )
 
         self.logger.info(
-            f"Retraining decision for {model_id}: {should_retrain}, "
+            f"Retraining decision for {processor_id}: {should_retrain}, "
             f"Urgency: {urgency.value}, Score: {decision_score:.3f}"
         )
 
@@ -191,7 +191,7 @@ class IntelligentRetrainingDecisionEngine:
     async def _calculate_decision_score(
         self,
         drift_report: DriftReport,
-        performance_metrics: dict[str, float],
+        performance_measurements: dict[str, float],
         config: RetrainingConfig,
         business_context: dict[str, Any],
     ) -> float:
@@ -201,7 +201,7 @@ class IntelligentRetrainingDecisionEngine:
 
         # Performance impact score
         scores["performance_impact"] = self._calculate_performance_impact_score(
-            performance_metrics, config
+            performance_measurements, config
         )
 
         # Drift severity score
@@ -227,27 +227,27 @@ class IntelligentRetrainingDecisionEngine:
         return min(1.0, max(0.0, weighted_score))
 
     def _calculate_performance_impact_score(
-        self, performance_metrics: dict[str, float], config: RetrainingConfig
+        self, performance_measurements: dict[str, float], config: RetrainingConfig
     ) -> float:
         """Calculate performance impact score."""
 
-        if not performance_metrics:
+        if not performance_measurements:
             return 0.0
 
         # Check for performance degradation
         degradation_score = 0.0
 
         # Example: check accuracy degradation
-        if "accuracy_drop" in performance_metrics:
-            accuracy_drop = performance_metrics["accuracy_drop"]
+        if "accuracy_drop" in performance_measurements:
+            accuracy_drop = performance_measurements["accuracy_drop"]
             if accuracy_drop > config.performance_threshold:
                 degradation_score = min(
                     1.0, accuracy_drop / (config.performance_threshold * 2)
                 )
 
-        # Check other metrics
-        if "error_rate_increase" in performance_metrics:
-            error_increase = performance_metrics["error_rate_increase"]
+        # Check other measurements
+        if "error_rate_increase" in performance_measurements:
+            error_increase = performance_measurements["error_rate_increase"]
             degradation_score = max(degradation_score, min(1.0, error_increase * 2))
 
         return degradation_score
@@ -295,7 +295,7 @@ class IntelligentRetrainingDecisionEngine:
         impact_score = 0.0
 
         # Check business criticality
-        if business_context.get("is_critical_model", False):
+        if business_context.get("is_critical_processor", False):
             impact_score += 0.5
 
         # Check user complaints
@@ -322,7 +322,7 @@ class IntelligentRetrainingDecisionEngine:
     def _calculate_urgency(
         self,
         drift_report: DriftReport,
-        performance_metrics: dict[str, float],
+        performance_measurements: dict[str, float],
         decision_score: float,
     ) -> RetrainingUrgency:
         """Calculate retraining urgency."""
@@ -330,7 +330,7 @@ class IntelligentRetrainingDecisionEngine:
         # Critical conditions
         if (
             drift_report.overall_drift_severity == DriftSeverity.CRITICAL
-            or performance_metrics.get("accuracy_drop", 0) > 0.2
+            or performance_measurements.get("accuracy_drop", 0) > 0.2
             or DriftType.CONCEPT_DRIFT in drift_report.drift_types_detected
         ):
             return RetrainingUrgency.CRITICAL
@@ -338,7 +338,7 @@ class IntelligentRetrainingDecisionEngine:
         # High urgency conditions
         if (
             drift_report.overall_drift_severity == DriftSeverity.HIGH
-            or performance_metrics.get("accuracy_drop", 0) > 0.1
+            or performance_measurements.get("accuracy_drop", 0) > 0.1
             or decision_score > 0.8
         ):
             return RetrainingUrgency.HIGH
@@ -346,7 +346,7 @@ class IntelligentRetrainingDecisionEngine:
         # Medium urgency conditions
         if (
             drift_report.overall_drift_severity == DriftSeverity.MEDIUM
-            or performance_metrics.get("accuracy_drop", 0) > 0.05
+            or performance_measurements.get("accuracy_drop", 0) > 0.05
             or decision_score > 0.6
         ):
             return RetrainingUrgency.MEDIUM
@@ -356,7 +356,7 @@ class IntelligentRetrainingDecisionEngine:
     def _generate_justification(
         self,
         drift_report: DriftReport,
-        performance_metrics: dict[str, float],
+        performance_measurements: dict[str, float],
         decision_score: float,
         urgency: RetrainingUrgency,
     ) -> str:
@@ -372,11 +372,11 @@ class IntelligentRetrainingDecisionEngine:
             )
 
         # Performance-based reasons
-        accuracy_drop = performance_metrics.get("accuracy_drop", 0)
+        accuracy_drop = performance_measurements.get("accuracy_drop", 0)
         if accuracy_drop > 0.05:
-            reasons.append(f"Model accuracy dropped by {accuracy_drop:.1%}")
+            reasons.append(f"Processor accuracy dropped by {accuracy_drop:.1%}")
 
-        error_increase = performance_metrics.get("error_rate_increase", 0)
+        error_increase = performance_measurements.get("error_rate_increase", 0)
         if error_increase > 0.02:
             reasons.append(f"Error rate increased by {error_increase:.1%}")
 
@@ -396,17 +396,17 @@ class IntelligentRetrainingDecisionEngine:
 
 
 class IntelligentRetrainingService:
-    """Service for intelligent model retraining."""
+    """Service for intelligent processor retraining."""
 
     def __init__(
         self,
         ml_pipeline_service: AdvancedMLPipelineService,
-        drift_detection_service: ModelDriftDetectionService,
+        drift_processing_service: ModelDriftDetectionService,
     ):
         self.ml_pipeline_service = ml_pipeline_service
-        self.drift_detection_service = drift_detection_service
+        self.drift_processing_service = drift_processing_service
         self.logger = StructuredLogger("intelligent_retraining")
-        self.metrics_service = MetricsService()
+        self.measurements_service = MetricsService()
 
         # Core components
         self.decision_engine = IntelligentRetrainingDecisionEngine()
@@ -424,14 +424,14 @@ class IntelligentRetrainingService:
         # Callbacks
         self.job_callbacks: list[Callable[[RetrainingJob], None]] = []
 
-    async def register_model_for_retraining(
-        self, model_id: str, config: RetrainingConfig
+    async def register_processor_for_retraining(
+        self, processor_id: str, config: RetrainingConfig
     ):
-        """Register a model for intelligent retraining monitoring."""
+        """Register a processor for intelligent retraining monitoring."""
 
-        self.retraining_configs[model_id] = config
+        self.retraining_configs[processor_id] = config
 
-        self.logger.info(f"Registered model {model_id} for intelligent retraining")
+        self.logger.info(f"Registered processor {processor_id} for intelligent retraining")
 
     async def start_monitoring(self):
         """Start the intelligent retraining monitoring system."""
@@ -454,12 +454,12 @@ class IntelligentRetrainingService:
 
         self.logger.debug("Starting monitoring cycle")
 
-        # Check each registered model
-        for model_id, config in self.retraining_configs.items():
+        # Check each registered processor
+        for processor_id, config in self.retraining_configs.items():
             try:
-                await self._check_model_for_retraining(model_id, config)
+                await self._check_processor_for_retraining(processor_id, config)
             except Exception as e:
-                self.logger.error(f"Error checking model {model_id}: {e}")
+                self.logger.error(f"Error checking processor {processor_id}: {e}")
 
         # Process pending requests
         await self._process_pending_requests()
@@ -469,17 +469,17 @@ class IntelligentRetrainingService:
 
         self.logger.debug("Monitoring cycle completed")
 
-    async def _check_model_for_retraining(
-        self, model_id: str, config: RetrainingConfig
+    async def _check_processor_for_retraining(
+        self, processor_id: str, config: RetrainingConfig
     ):
-        """Check if a model needs retraining."""
+        """Check if a processor needs retraining."""
 
         # Skip if already retraining
-        if any(job.request.model_id == model_id for job in self.active_jobs.values()):
+        if any(job.request.processor_id == processor_id for job in self.active_jobs.values()):
             return
 
         # Check minimum interval
-        last_retraining = self._get_last_retraining_time(model_id)
+        last_retraining = self._get_last_retraining_time(processor_id)
         if (
             last_retraining
             and datetime.now() - last_retraining < config.min_retraining_interval
@@ -488,14 +488,14 @@ class IntelligentRetrainingService:
 
         # Get latest drift report
         try:
-            # This would get the latest drift report for the model
+            # This would get the latest drift report for the processor
             # For now, we'll simulate
-            drift_report = await self._get_latest_drift_report(model_id)
+            drift_report = await self._get_latest_drift_report(processor_id)
             if not drift_report:
                 return
 
-            # Get performance metrics
-            performance_metrics = await self._get_performance_metrics(model_id)
+            # Get performance measurements
+            performance_measurements = await self._get_performance_measurements(processor_id)
 
             # Make retraining decision
             (
@@ -503,23 +503,23 @@ class IntelligentRetrainingService:
                 urgency,
                 justification,
             ) = await self.decision_engine.should_retrain(
-                model_id, drift_report, performance_metrics, config
+                processor_id, drift_report, performance_measurements, config
             )
 
             if should_retrain:
                 await self._create_retraining_request(
-                    model_id,
+                    processor_id,
                     RetrainingTrigger.PERFORMANCE_DRIFT,
                     urgency,
                     justification,
                 )
 
         except Exception as e:
-            self.logger.error(f"Error checking model {model_id} for retraining: {e}")
+            self.logger.error(f"Error checking processor {processor_id} for retraining: {e}")
 
     async def _create_retraining_request(
         self,
-        model_id: str,
+        processor_id: str,
         trigger: RetrainingTrigger,
         urgency: RetrainingUrgency,
         justification: str,
@@ -527,11 +527,11 @@ class IntelligentRetrainingService:
     ) -> str:
         """Create a retraining request."""
 
-        request_id = f"retrain_{model_id}_{int(time.time())}"
+        request_id = f"retrain_{processor_id}_{int(time.time())}"
 
         request = RetrainingRequest(
             request_id=request_id,
-            model_id=model_id,
+            processor_id=processor_id,
             trigger=trigger,
             urgency=urgency,
             justification=justification,
@@ -541,7 +541,7 @@ class IntelligentRetrainingService:
         self.pending_requests.append(request)
 
         self.logger.info(
-            f"Created retraining request {request_id} for model {model_id} "
+            f"Created retraining request {request_id} for processor {processor_id} "
             f"(urgency: {urgency.value})"
         )
 
@@ -567,7 +567,7 @@ class IntelligentRetrainingService:
 
         # Process highest priority requests
         for request in self.pending_requests[:]:
-            config = self.retraining_configs.get(request.model_id)
+            config = self.retraining_configs.get(request.processor_id)
             if not config:
                 self.pending_requests.remove(request)
                 continue
@@ -623,7 +623,7 @@ class IntelligentRetrainingService:
         asyncio.create_task(self._execute_retraining_job(job))
 
         self.logger.info(
-            f"Started retraining job {job_id} for model {request.model_id}"
+            f"Started retraining job {job_id} for processor {request.processor_id}"
         )
 
         return job_id
@@ -642,7 +642,7 @@ class IntelligentRetrainingService:
             # Get training data
             await self._update_job_stage(job, "data_collection", 0.2)
             X_train, y_train, X_val, y_val = await self._get_training_data(
-                job.request.model_id
+                job.request.processor_id
             )
 
             # Create experiment
@@ -651,29 +651,29 @@ class IntelligentRetrainingService:
             job.experiment_id = experiment_id
 
             # Run training
-            await self._update_job_stage(job, "model_training", 0.4)
+            await self._update_job_stage(job, "processor_training", 0.4)
             training_results = (
                 await self.ml_pipeline_service.run_hyperparameter_optimization(
                     experiment_id, X_train, y_train, X_val, y_val
                 )
             )
 
-            # Evaluate new model
-            await self._update_job_stage(job, "model_evaluation", 0.7)
-            evaluation_results = await self._evaluate_new_model(job, X_val, y_val)
+            # Evaluate new processor
+            await self._update_job_stage(job, "processor_evaluation", 0.7)
+            evaluation_results = await self._evaluate_new_processor(job, X_val, y_val)
 
-            # Compare with old model
-            await self._update_job_stage(job, "model_comparison", 0.8)
-            comparison_results = await self._compare_models(job, X_val, y_val)
+            # Compare with old processor
+            await self._update_job_stage(job, "processor_comparison", 0.8)
+            comparison_results = await self._compare_processors(job, X_val, y_val)
 
             # Decide on deployment
             await self._update_job_stage(job, "deployment_decision", 0.9)
-            should_deploy = await self._should_deploy_new_model(job, comparison_results)
+            should_deploy = await self._should_deploy_new_processor(job, comparison_results)
 
             if should_deploy:
-                await self._update_job_stage(job, "model_deployment", 0.95)
-                deployment_id = await self.ml_pipeline_service.deploy_model(
-                    experiment_id, f"retrained_{job.request.model_id}"
+                await self._update_job_stage(job, "processor_deployment", 0.95)
+                deployment_id = await self.ml_pipeline_service.deploy_processor(
+                    experiment_id, f"retrained_{job.request.processor_id}"
                 )
                 job.trigger_data["deployment_id"] = deployment_id
 
@@ -684,8 +684,8 @@ class IntelligentRetrainingService:
             job.current_stage = "completed"
 
             # Store results
-            job.new_model_performance = evaluation_results
-            job.improvement_metrics = comparison_results
+            job.new_processor_performance = evaluation_results
+            job.improvement_measurements = comparison_results
 
             self.logger.info(f"Retraining job {job.job_id} completed successfully")
 
@@ -705,9 +705,9 @@ class IntelligentRetrainingService:
             # Notify callbacks
             await self._notify_job_callbacks(job)
 
-            # Record metrics
-            self.metrics_service.record_retraining_job(
-                model_id=job.request.model_id,
+            # Record measurements
+            self.measurements_service.record_retraining_job(
+                processor_id=job.request.processor_id,
                 job_status=job.status,
                 duration=(job.completed_at - job.started_at).total_seconds()
                 if job.completed_at
@@ -736,9 +736,9 @@ class IntelligentRetrainingService:
                 self.logger.error(f"Error in job callback: {e}")
 
     async def _get_training_data(
-        self, model_id: str
+        self, processor_id: str
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Get training data for model retraining."""
+        """Get training data for processor retraining."""
 
         # This would implement actual data retrieval logic
         # For now, return dummy data
@@ -759,16 +759,16 @@ class IntelligentRetrainingService:
     async def _create_retraining_experiment(self, job: RetrainingJob) -> str:
         """Create ML experiment for retraining."""
 
-        experiment_name = f"retrain_{job.request.model_id}_{job.job_id}"
+        experiment_name = f"retrain_{job.request.processor_id}_{job.job_id}"
 
         # Define hyperparameter space based on strategy
         hyperparameter_space = self._get_hyperparameter_space(
             job.config.retraining_strategy
         )
 
-        experiment_id = await self.ml_pipeline_service.create_model_experiment(
+        experiment_id = await self.ml_pipeline_service.create_processor_experiment(
             name=experiment_name,
-            description=f"Retraining for {job.request.model_id} triggered by {job.request.trigger.value}",
+            description=f"Retraining for {job.request.processor_id} triggered by {job.request.trigger.value}",
             algorithm="isolation_forest",
             hyperparameter_space=hyperparameter_space,
             optimization_strategy=OptimizationStrategy.RANDOM_SEARCH,
@@ -792,10 +792,10 @@ class IntelligentRetrainingService:
                 "n_estimators": [100],
             }
 
-    async def _evaluate_new_model(
+    async def _evaluate_new_processor(
         self, job: RetrainingJob, X_val: np.ndarray, y_val: np.ndarray
     ) -> dict[str, float]:
-        """Evaluate the newly trained model."""
+        """Evaluate the newly trained processor."""
 
         if not job.experiment_id:
             return {}
@@ -806,17 +806,17 @@ class IntelligentRetrainingService:
         )
 
         if experiment_status.get("results"):
-            return experiment_status["results"].get("validation_metrics", {})
+            return experiment_status["results"].get("validation_measurements", {})
 
         return {}
 
-    async def _compare_models(
+    async def _compare_processors(
         self, job: RetrainingJob, X_val: np.ndarray, y_val: np.ndarray
     ) -> dict[str, float]:
-        """Compare new model with existing model."""
+        """Compare new processor with existing processor."""
 
-        # This would implement actual model comparison
-        # For now, return simulated improvement metrics
+        # This would implement actual processor comparison
+        # For now, return simulated improvement measurements
 
         return {
             "accuracy_improvement": 0.03,
@@ -825,10 +825,10 @@ class IntelligentRetrainingService:
             "f1_improvement": 0.025,
         }
 
-    async def _should_deploy_new_model(
+    async def _should_deploy_new_processor(
         self, job: RetrainingJob, comparison_results: dict[str, float]
     ) -> bool:
-        """Determine if new model should be deployed."""
+        """Determine if new processor should be deployed."""
 
         min_improvement = job.config.minimum_improvement
 
@@ -837,18 +837,18 @@ class IntelligentRetrainingService:
 
         return accuracy_improvement >= min_improvement
 
-    async def _get_latest_drift_report(self, model_id: str) -> DriftReport | None:
-        """Get the latest drift report for a model."""
+    async def _get_latest_drift_report(self, processor_id: str) -> DriftReport | None:
+        """Get the latest drift report for a processor."""
 
         # This would implement actual drift report retrieval
         # For now, return None to indicate no drift report available
         return None
 
-    async def _get_performance_metrics(self, model_id: str) -> dict[str, float]:
-        """Get current performance metrics for a model."""
+    async def _get_performance_measurements(self, processor_id: str) -> dict[str, float]:
+        """Get current performance measurements for a processor."""
 
         # This would implement actual performance metric retrieval
-        # For now, return simulated metrics
+        # For now, return simulated measurements
 
         return {
             "accuracy_drop": 0.03,
@@ -857,17 +857,17 @@ class IntelligentRetrainingService:
         }
 
     def _get_last_retraining_time(self, model_id: str) -> datetime | None:
-        """Get the last retraining time for a model."""
+        """Get the last retraining time for a processor."""
 
-        # Find most recent completed job for this model
-        model_jobs = [
+        # Find most recent completed job for this processor
+        processor_jobs = [
             job
             for job in self.job_history
-            if job.request.model_id == model_id and job.status == "completed"
+            if job.request.processor_id == processor_id and job.status == "completed"
         ]
 
-        if model_jobs:
-            latest_job = max(model_jobs, key=lambda j: j.completed_at or datetime.min)
+        if processor_jobs:
+            latest_job = max(processor_jobs, key=lambda j: j.completed_at or datetime.min)
             return latest_job.completed_at
 
         return None
@@ -888,14 +888,14 @@ class IntelligentRetrainingService:
         return list(self.active_jobs.values())
 
     def get_job_history(
-        self, model_id: str = None, limit: int = 50
+        self, processor_id: str = None, limit: int = 50
     ) -> list[RetrainingJob]:
         """Get retraining job history."""
 
         jobs = self.job_history
 
-        if model_id:
-            jobs = [job for job in jobs if job.request.model_id == model_id]
+        if processor_id:
+            jobs = [job for job in jobs if job.request.processor_id == processor_id]
 
         # Sort by completion time (most recent first)
         jobs.sort(key=lambda j: j.completed_at or datetime.min, reverse=True)
@@ -904,18 +904,18 @@ class IntelligentRetrainingService:
 
     async def request_manual_retraining(
         self,
-        model_id: str,
+        processor_id: str,
         urgency: RetrainingUrgency = RetrainingUrgency.MEDIUM,
         justification: str = "Manual retraining request",
         requested_by: str = "user",
     ) -> str:
-        """Request manual retraining for a model."""
+        """Request manual retraining for a processor."""
 
-        if model_id not in self.retraining_configs:
-            raise ValueError(f"Model {model_id} not registered for retraining")
+        if processor_id not in self.retraining_configs:
+            raise ValueError(f"Processor {processor_id} not registered for retraining")
 
         return await self._create_retraining_request(
-            model_id, RetrainingTrigger.MANUAL, urgency, justification, requested_by
+            processor_id, RetrainingTrigger.MANUAL, urgency, justification, requested_by
         )
 
     async def cancel_retraining_job(self, job_id: str) -> bool:
@@ -948,7 +948,7 @@ class IntelligentRetrainingService:
         """Get service statistics."""
 
         return {
-            "registered_models": len(self.retraining_configs),
+            "registered_processors": len(self.retraining_configs),
             "active_jobs": len(self.active_jobs),
             "pending_requests": len(self.pending_requests),
             "completed_jobs": len(

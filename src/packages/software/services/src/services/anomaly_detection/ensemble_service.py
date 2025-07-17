@@ -1,4 +1,4 @@
-"""Application service for ensemble detection."""
+"""Application service for ensemble processing."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from monorepo.shared.protocols import DetectorProtocol, DetectorRepositoryProtoc
 
 
 class EnsembleService:
-    """Service for managing ensemble anomaly detection."""
+    """Service for managing ensemble anomaly processing."""
 
     def __init__(
         self,
@@ -85,24 +85,24 @@ class EnsembleService:
     async def optimize_ensemble_weights(
         self,
         ensemble: EnsembleDetector,
-        validation_dataset: Dataset,
+        validation_data_collection: DataCollection,
         optimization_metric: str = "f1",
     ) -> dict[str, float]:
         """Optimize ensemble weights using validation data.
 
         Args:
             ensemble: Ensemble to optimize
-            validation_dataset: Dataset with labels
+            validation_data_collection: DataCollection with labels
             optimization_metric: Metric to optimize
 
         Returns:
             Optimized weights
         """
-        if not validation_dataset.has_target:
-            raise ValueError("Validation dataset must have labels")
+        if not validation_data_collection.has_target:
+            raise ValueError("Validation data_collection must have labels")
 
         # Get true labels
-        true_labels = validation_dataset.target.values  # type: ignore
+        true_labels = validation_data_collection.target.values  # type: ignore
 
         # Try different weight combinations
         best_weights = ensemble.get_current_weights()
@@ -131,7 +131,7 @@ class EnsembleService:
             ensemble.update_weights(test_weights)
 
             # Evaluate
-            result = ensemble.detect(validation_dataset)
+            result = ensemble.detect(validation_data_collection)
 
             # Calculate metric
             if optimization_metric == "f1":
@@ -160,16 +160,16 @@ class EnsembleService:
         return best_weights
 
     async def analyze_ensemble_diversity(
-        self, ensemble: EnsembleDetector, dataset: Dataset
+        self, ensemble: EnsembleDetector, data_collection: DataCollection
     ) -> dict[str, Any]:
         """Analyze diversity of ensemble members.
 
         Args:
             ensemble: Ensemble to analyze
-            dataset: Dataset to use for analysis
+            data_collection: DataCollection to use for analysis
 
         Returns:
-            Diversity metrics
+            Diversity measurements
         """
         # Get predictions from all members
         all_results = {}
@@ -177,7 +177,7 @@ class EnsembleService:
         all_labels = {}
 
         for detector in ensemble.base_detectors:
-            result = detector.detect(dataset)
+            result = detector.detect(data_collection)
             all_results[detector.name] = result
             all_scores[detector.name] = [s.value for s in result.scores]
             all_labels[detector.name] = result.labels
@@ -194,7 +194,7 @@ class EnsembleService:
         score_df = pd.DataFrame(all_scores)
         correlation_matrix = score_df.corr()
 
-        # Calculate diversity metrics
+        # Calculate diversity measurements
         avg_correlation = correlation_matrix.values[
             np.triu_indices_from(correlation_matrix.values, k=1)
         ].mean()
@@ -221,13 +221,13 @@ class EnsembleService:
         }
 
     async def get_ensemble_explanations(
-        self, ensemble: EnsembleDetector, dataset: Dataset, anomaly_indices: list[int]
+        self, ensemble: EnsembleDetector, data_collection: DataCollection, anomaly_indices: list[int]
     ) -> dict[int, dict[str, Any]]:
         """Get explanations from ensemble perspective.
 
         Args:
             ensemble: Ensemble detector
-            dataset: Dataset containing anomalies
+            data_collection: DataCollection containing anomalies
             anomaly_indices: Indices to explain
 
         Returns:
@@ -240,7 +240,7 @@ class EnsembleService:
             detector_opinions = {}
 
             for detector in ensemble.base_detectors:
-                result = detector.detect(dataset)
+                result = detector.detect(data_collection)
                 score = result.scores[idx].value
                 label = result.labels[idx]
 
@@ -251,7 +251,7 @@ class EnsembleService:
                 }
 
             # Get ensemble result
-            ensemble_result = ensemble.detect(dataset)
+            ensemble_result = ensemble.detect(data_collection)
             ensemble_label = ensemble_result.labels[idx]
 
             # Mark agreement
@@ -321,7 +321,7 @@ class EnsembleDetector:
         all_labels = {}
 
         for detector in self.base_detectors:
-            result = detector.detect(dataset)
+            result = detector.detect(data_collection)
             all_scores[detector.name] = result.scores
             all_labels[detector.name] = result.labels
 
@@ -353,14 +353,14 @@ class EnsembleDetector:
         for idx in anomaly_indices:
             anomaly = Anomaly(
                 score=aggregated_scores[idx],
-                data_point=dataset.data.iloc[idx].to_dict(),
+                data_point=data_collection.data.iloc[idx].to_dict(),
                 detector_name=self.name,
             )
             anomalies.append(anomaly)
 
         return DetectionResult(
             detector_id=self.id,
-            dataset_id=dataset.id,
+            data_collection_id=data_collection.id,
             anomalies=anomalies,
             scores=aggregated_scores,
             labels=aggregated_labels,

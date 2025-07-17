@@ -27,7 +27,7 @@ class DataProfilingService(IDataProfilingService):
     async def profile_data(
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> DataProfile:
-        """Profile dataset to understand its characteristics.
+        """Profile data_collection to understand its characteristics.
 
         Args:
             X: Input features
@@ -36,7 +36,7 @@ class DataProfilingService(IDataProfilingService):
         Returns:
             Data profile with characteristics
         """
-        logger.info("📊 Profiling dataset characteristics")
+        logger.info("📊 Profiling data_collection characteristics")
 
         try:
             # Basic statistics
@@ -61,7 +61,7 @@ class DataProfilingService(IDataProfilingService):
                 basic_stats["target_analysis"] = target_analysis
 
             logger.info(
-                f"Dataset profiling completed. Complexity score: {complexity_score:.3f}"
+                f"DataCollection profiling completed. Complexity score: {complexity_score:.3f}"
             )
 
             return DataProfile(
@@ -86,7 +86,7 @@ class DataProfilingService(IDataProfilingService):
             )
 
     def _calculate_basic_stats(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Calculate basic dataset statistics."""
+        """Calculate basic data_collection statistics."""
         n_samples, n_features = X.shape
         memory_usage_mb = X.memory_usage(deep=True).sum() / (1024 * 1024)
 
@@ -164,7 +164,7 @@ class DataProfilingService(IDataProfilingService):
         }
 
     def _analyze_data_quality(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze data quality metrics."""
+        """Analyze data quality measurements."""
         # Missing values analysis
         missing_per_column = X.isnull().sum()
         missing_ratios = missing_per_column / len(X)
@@ -256,7 +256,7 @@ class DataProfilingService(IDataProfilingService):
     def _calculate_complexity_score(
         self, X: pd.DataFrame, sparsity_ratio: float, missing_values_ratio: float
     ) -> float:
-        """Calculate dataset complexity score (0-1)."""
+        """Calculate data_collection complexity score (0-1)."""
         complexity_factors = []
 
         # Size factor (30%)
@@ -298,7 +298,7 @@ class DataProfilingService(IDataProfilingService):
             "data_type": str(y.dtype),
         }
 
-        # Classification vs regression detection
+        # Classification vs regression processing
         if unique_values <= 20:  # Likely classification
             analysis["task_type"] = "classification"
             analysis["class_distribution"] = value_counts.to_dict()
@@ -335,7 +335,7 @@ class DataProfilingService(IDataProfilingService):
         memory_mb = profile.basic_stats["memory_usage_mb"]
 
         summary = {
-            "dataset_size": f"{n_samples:,} samples × {n_features} features",
+            "data_collection_size": f"{n_samples:,} samples × {n_features} features",
             "memory_usage": f"{memory_mb:.1f} MB",
             "feature_breakdown": {
                 "numeric": profile.feature_analysis["numeric_count"],
@@ -388,20 +388,20 @@ class DataProfilingService(IDataProfilingService):
         """Generate key insights from the profile."""
         insights = []
 
-        # Dataset size insights
+        # DataCollection size insights
         n_samples = profile.basic_stats["n_samples"]
         n_features = profile.basic_stats["n_features"]
 
         if n_samples < 100:
             insights.append(
-                "Very small dataset - may need more data for reliable models"
+                "Very small data_collection - may need more data for reliable models"
             )
         elif n_samples > 100000:
-            insights.append("Large dataset - consider sampling for faster prototyping")
+            insights.append("Large data_collection - consider sampling for faster prototyping")
 
         if n_features > n_samples:
             insights.append(
-                "High-dimensional dataset - feature selection may be beneficial"
+                "High-dimensional data_collection - feature selection may be beneficial"
             )
 
         # Feature type insights
@@ -425,9 +425,9 @@ class DataProfilingService(IDataProfilingService):
 
         # Complexity insights
         if profile.complexity_score > 0.7:
-            insights.append("Complex dataset - may require advanced preprocessing")
+            insights.append("Complex data_collection - may require advanced preprocessing")
         elif profile.complexity_score < 0.3:
-            insights.append("Simple dataset - basic algorithms should work well")
+            insights.append("Simple data_collection - basic algorithms should work well")
 
         return insights
 
@@ -468,7 +468,7 @@ class DataProfilingService(IDataProfilingService):
         # Performance recommendations
         if profile.basic_stats["memory_usage_mb"] > 1000:
             recommendations.append(
-                "Consider data sampling or chunked processing for large dataset"
+                "Consider data sampling or chunked processing for large data_collection"
             )
 
         consistency_issues = profile.data_quality.get("consistency", {}).get(

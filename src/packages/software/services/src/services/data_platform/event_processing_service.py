@@ -37,7 +37,7 @@ class EventProcessingService:
         Args:
             event_repository: Event repository
             notification_service: Notification service
-            pattern_detector: Pattern detection service
+            pattern_detector: Pattern processing service
         """
         self.event_repository = event_repository
         self.notification_service = notification_service
@@ -473,7 +473,7 @@ class EventProcessingService:
         confidence: float = 0.8,
         alert_threshold: int = 1,
     ) -> EventPattern:
-        """Create an event pattern for detection.
+        """Create an event pattern for processing.
 
         Args:
             name: Pattern name

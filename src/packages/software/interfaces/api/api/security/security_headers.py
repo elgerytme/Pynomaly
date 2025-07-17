@@ -1,5 +1,5 @@
 """
-Security headers and CORS policies for Pynomaly API.
+Security headers and CORS policies for Software API.
 
 This module provides:
 - Security headers (HSTS, CSP, etc.)
@@ -65,7 +65,7 @@ class SecurityHeaders:
             # Expires
             "Expires": "0",
             # Server
-            "Server": "Pynomaly/1.0",
+            "Server": "Software/1.0",
         }
 
         self.custom_headers = {}

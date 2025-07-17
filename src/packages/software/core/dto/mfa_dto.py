@@ -32,8 +32,8 @@ class MFAMethodStatus(str, Enum):
 class TOTPSetupRequest(BaseModel):
     """Request to initiate TOTP setup."""
 
-    app_name: str = Field(default="Pynomaly", description="Name of the application")
-    issuer: str = Field(default="Pynomaly Security", description="Issuer name for TOTP")
+    app_name: str = Field(default="Software", description="Name of the application")
+    issuer: str = Field(default="Software Security", description="Issuer name for TOTP")
 
 
 class TOTPSetupResponse(BaseModel):
@@ -47,7 +47,7 @@ class TOTPSetupResponse(BaseModel):
     backup_codes: list[str] = Field(..., description="One-time backup codes")        json_schema_extra = {
             "example": {
                 "secret": "JBSWY3DPEHPK3PXP",
-                "qr_code_url": "otpauth://totp/Pynomaly:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Pynomaly",
+                "qr_code_url": "otpauth://totp/Software:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Software",
                 "manual_entry_key": "JBSWY3DPEHPK3PXP",
                 "backup_codes": ["123456", "789012", "345678"],
             }

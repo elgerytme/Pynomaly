@@ -71,13 +71,13 @@ async def get_mobile_dashboard(
 
 @mobile_quality_router.post("/dashboard")
 async def create_mobile_dashboard(
-    favorite_datasets: List[str] = None,
+    favorite_data_collections: List[str] = None,
     current_user: dict = Depends(get_current_user)
 ) -> APIResponse:
     """Create mobile quality dashboard.
     
     Args:
-        favorite_datasets: List of favorite dataset IDs
+        favorite_data_collections: List of favorite data_collection IDs
         current_user: Current authenticated user
         
     Returns:
@@ -86,7 +86,7 @@ async def create_mobile_dashboard(
     try:
         dashboard = await mobile_quality_service.create_mobile_dashboard(
             user_id=current_user["user_id"],
-            favorite_datasets=favorite_datasets or []
+            favorite_data_collections=favorite_data_collections or []
         )
         
         return create_success_response(
@@ -194,7 +194,7 @@ async def create_mobile_alert(
     """
     try:
         # Validate required fields
-        required_fields = ['dataset_id', 'metric_name', 'alert_type', 'severity', 'title', 'message']
+        required_fields = ['data_collection_id', 'metric_name', 'alert_type', 'severity', 'title', 'message']
         for field in required_fields:
             if field not in alert_data:
                 raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
@@ -204,7 +204,7 @@ async def create_mobile_alert(
         severity = AlertSeverity(alert_data['severity'].lower())
         
         alert = await mobile_quality_service.create_mobile_alert(
-            dataset_id=alert_data['dataset_id'],
+            data_collection_id=alert_data['data_collection_id'],
             metric_name=alert_data['metric_name'],
             alert_type=alert_type,
             severity=severity,
@@ -316,7 +316,7 @@ async def create_mobile_incident(
     """
     try:
         # Validate required fields
-        required_fields = ['title', 'description', 'severity', 'affected_datasets']
+        required_fields = ['title', 'description', 'severity', 'affected_data_collections']
         for field in required_fields:
             if field not in incident_data:
                 raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
@@ -328,8 +328,8 @@ async def create_mobile_incident(
             title=incident_data['title'],
             description=incident_data['description'],
             severity=severity,
-            affected_datasets=incident_data['affected_datasets'],
-            affected_metrics=incident_data.get('affected_metrics', [])
+            affected_data_collections=incident_data['affected_data_collections'],
+            affected_measurements=incident_data.get('affected_measurements', [])
         )
         
         return create_success_response(
@@ -385,32 +385,32 @@ async def update_mobile_incident(
         )
 
 
-@mobile_quality_router.get("/metrics/{dataset_id}")
-async def get_mobile_quality_metrics(
-    dataset_id: str,
+@mobile_quality_router.get("/measurements/{data_collection_id}")
+async def get_mobile_quality_measurements(
+    data_collection_id: str,
     current_user: dict = Depends(get_current_user)
 ) -> APIResponse:
-    """Get quality metrics for mobile display.
+    """Get quality measurements for mobile display.
     
     Args:
-        dataset_id: Dataset identifier
+        data_collection_id: DataCollection identifier
         current_user: Current authenticated user
         
     Returns:
-        Mobile-optimized quality metrics
+        Mobile-optimized quality measurements
     """
     try:
-        metrics = await mobile_quality_service.get_quality_metrics_for_mobile(dataset_id)
+        measurements = await mobile_quality_service.get_quality_measurements_for_mobile(data_collection_id)
         
         return create_success_response(
-            data=metrics,
-            message=f"Retrieved mobile quality metrics for dataset {dataset_id}"
+            data=measurements,
+            message=f"Retrieved mobile quality measurements for data_collection {data_collection_id}"
         )
     
     except Exception as e:
-        logger.error(f"Error retrieving mobile quality metrics for {dataset_id}: {e}")
+        logger.error(f"Error retrieving mobile quality measurements for {data_collection_id}: {e}")
         return create_error_response(
-            message="Failed to retrieve quality metrics",
+            message="Failed to retrieve quality measurements",
             details=str(e)
         )
 

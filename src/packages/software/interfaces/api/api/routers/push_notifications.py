@@ -2,7 +2,7 @@
 Push Notifications Router
 
 Handles PWA push notification subscriptions and message sending
-for real-time anomaly detection alerts and system notifications.
+for real-time anomaly processing alerts and system notifications.
 """
 
 import json
@@ -103,7 +103,7 @@ class BroadcastMessage(BaseModel):
 
 
 # In-memory subscription storage (replace with proper database in production)
-# This should be moved to a proper database model
+# This should be moved to a proper database processor
 push_subscriptions: dict[int, list[dict[str, Any]]] = {}
 
 
@@ -551,7 +551,7 @@ async def send_to_subscriptions(
             failure_count += 1
             logger.error(f"Unexpected error sending push notification: {e}")
 
-    # Track sending metrics
+    # Track sending measurements
     await track_event(
         "push_notification_sent",
         {
@@ -573,8 +573,8 @@ async def send_welcome_notification(user_id: int, subscription: dict[str, Any]):
     """Send welcome notification to new subscription"""
 
     welcome_message = {
-        "title": "🎉 Welcome to Pynomaly!",
-        "body": "Push notifications are now enabled. You'll receive alerts about anomaly detection results and system updates.",
+        "title": "🎉 Welcome to Software!",
+        "body": "Push notifications are now enabled. You'll receive alerts about anomaly processing results and system updates.",
         "icon": "/static/icons/icon-192x192.png",
         "badge": "/static/icons/badge-72x72.png",
         "data": {"type": "welcome", "url": "/dashboard"},
@@ -586,17 +586,17 @@ async def send_welcome_notification(user_id: int, subscription: dict[str, Any]):
     await send_to_subscriptions([subscription], welcome_message, user_id)
 
 
-# Utility functions for anomaly detection integration
+# Utility functions for anomaly processing integration
 
 
 async def send_anomaly_alert(user_id: int, anomaly_data: dict[str, Any]):
-    """Send push notification for anomaly detection results"""
+    """Send push notification for anomaly processing results"""
 
     if user_id not in push_subscriptions:
         return
 
     anomaly_count = anomaly_data.get("anomaly_count", 0)
-    dataset_name = anomaly_data.get("dataset_name", "Unknown Dataset")
+    data_collection_name = anomaly_data.get("data_collection_name", "Unknown DataCollection")
     severity = anomaly_data.get("severity", "medium")
 
     # Determine priority based on severity
@@ -606,18 +606,18 @@ async def send_anomaly_alert(user_id: int, anomaly_data: dict[str, Any]):
     # Create notification message
     message = {
         "title": f"🚨 {anomaly_count} Anomalies Detected",
-        "body": f"Found {anomaly_count} anomalies in {dataset_name}. Click to view details.",
+        "body": f"Found {anomaly_count} anomalies in {data_collection_name}. Click to view details.",
         "icon": "/static/icons/alert-icon.png",
         "badge": "/static/icons/alert-badge.png",
         "data": {
             "type": "anomaly_alert",
             "anomaly_count": anomaly_count,
-            "dataset_name": dataset_name,
+            "data_collection_name": data_collection_name,
             "severity": severity,
-            "detection_id": anomaly_data.get("detection_id"),
-            "url": f"/results/{anomaly_data.get('detection_id')}",
+            "processing_id": anomaly_data.get("processing_id"),
+            "url": f"/results/{anomaly_data.get('processing_id')}",
         },
-        "url": f"/results/{anomaly_data.get('detection_id')}",
+        "url": f"/results/{anomaly_data.get('processing_id')}",
         "actions": [
             {"action": "view", "title": "View Results"},
             {"action": "dismiss", "title": "Dismiss"},

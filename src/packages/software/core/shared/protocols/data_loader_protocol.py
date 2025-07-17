@@ -19,16 +19,16 @@ class DataLoaderProtocol(Protocol):
 
     def load(
         self, source: str | Path, name: str | None = None, **kwargs: Any
-    ) -> Dataset:
-        """Load data from a source into a Dataset.
+    ) -> DataCollection:
+        """Load data from a source into a DataCollection.
 
         Args:
             source: Path or connection string to data source
-            name: Optional name for the dataset
+            name: Optional name for the data_collection
             **kwargs: Additional loader-specific arguments
 
         Returns:
-            Loaded dataset
+            Loaded data_collection
         """
         ...
 
@@ -59,7 +59,7 @@ class BatchDataLoaderProtocol(DataLoaderProtocol, Protocol):
         batch_size: int,
         name: str | None = None,
         **kwargs: Any,
-    ) -> Iterator[Dataset]:
+    ) -> Iterator[DataCollection]:
         """Load data in batches.
 
         Args:
@@ -69,7 +69,7 @@ class BatchDataLoaderProtocol(DataLoaderProtocol, Protocol):
             **kwargs: Additional loader-specific arguments
 
         Yields:
-            Dataset batches
+            DataCollection batches
         """
         ...
 
@@ -91,7 +91,7 @@ class StreamingDataLoaderProtocol(DataLoaderProtocol, Protocol):
 
     def stream(
         self, source: str | Path, window_size: int | None = None, **kwargs: Any
-    ) -> Iterator[Dataset]:
+    ) -> Iterator[DataCollection]:
         """Stream data from source.
 
         Args:
@@ -100,7 +100,7 @@ class StreamingDataLoaderProtocol(DataLoaderProtocol, Protocol):
             **kwargs: Additional loader-specific arguments
 
         Yields:
-            Dataset windows/chunks
+            DataCollection windows/chunks
         """
         ...
 
@@ -133,17 +133,17 @@ class DatabaseLoaderProtocol(DataLoaderProtocol, Protocol):
         connection: str | Any,
         name: str | None = None,
         **kwargs: Any,
-    ) -> Dataset:
+    ) -> DataCollection:
         """Load data using SQL query.
 
         Args:
             query: SQL query to execute
             connection: Database connection string or object
-            name: Optional name for the dataset
+            name: Optional name for the data_collection
             **kwargs: Additional query parameters
 
         Returns:
-            Query result as dataset
+            Query result as data_collection
         """
         ...
 
@@ -154,18 +154,18 @@ class DatabaseLoaderProtocol(DataLoaderProtocol, Protocol):
         schema: str | None = None,
         name: str | None = None,
         **kwargs: Any,
-    ) -> Dataset:
-        """Load entire table as dataset.
+    ) -> DataCollection:
+        """Load entire table as data_collection.
 
         Args:
             table_name: Name of the table
             connection: Database connection string or object
             schema: Optional database schema
-            name: Optional name for the dataset
+            name: Optional name for the data_collection
             **kwargs: Additional parameters
 
         Returns:
-            Table data as dataset
+            Table data as data_collection
         """
         ...
 

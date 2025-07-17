@@ -46,7 +46,7 @@ class ExperimentManagementService:
         experiment_type: ExperimentType,
         objective: str,
         created_by: str,
-        optimization_metrics: list[dict[str, str]] | None = None,
+        optimization_measurements: list[dict[str, str]] | None = None,
         tags: list[str] | None = None,
     ) -> Experiment:
         """Create a new experiment.
@@ -57,7 +57,7 @@ class ExperimentManagementService:
             experiment_type: Type of experiment
             objective: Objective of the experiment
             created_by: User creating the experiment
-            optimization_metrics: List of metrics to optimize
+            optimization_measurements: List of measurements to optimize
             tags: Tags for the experiment
 
         Returns:
@@ -77,9 +77,9 @@ class ExperimentManagementService:
             tags=tags or [],
         )
 
-        # Add optimization metrics
-        if optimization_metrics:
-            for metric in optimization_metrics:
+        # Add optimization measurements
+        if optimization_measurements:
+            for metric in optimization_measurements:
                 experiment.add_optimization_metric(
                     metric["name"], metric.get("direction", "maximize")
                 )
@@ -92,7 +92,7 @@ class ExperimentManagementService:
         experiment_id: UUID,
         run_name: str,
         detector_id: UUID,
-        dataset_id: UUID,
+        data_collection_id: UUID,
         parameters: dict[str, Any],
         created_by: str,
         description: str = "",
@@ -104,7 +104,7 @@ class ExperimentManagementService:
             experiment_id: ID of the experiment
             run_name: Name of the run
             detector_id: ID of the detector used
-            dataset_id: ID of the dataset used
+            data_collection_id: ID of the data_collection used
             parameters: Run parameters
             created_by: User creating the run
             description: Description of the run
@@ -130,7 +130,7 @@ class ExperimentManagementService:
         run = ExperimentRun(
             name=run_name,
             detector_id=detector_id,
-            dataset_id=dataset_id,
+            data_collection_id=data_collection_id,
             parameters=parameters,
             created_by=created_by,
             description=description,
@@ -166,14 +166,14 @@ class ExperimentManagementService:
     async def complete_experiment_run(
         self,
         run_id: UUID,
-        metrics: dict[str, float],
+        measurements: dict[str, float],
         artifacts: dict[str, str] | None = None,
     ) -> ExperimentRun:
         """Complete an experiment run with results.
 
         Args:
             run_id: ID of the run to complete
-            metrics: Performance metrics achieved
+            measurements: Performance measurements achieved
             artifacts: Artifacts produced by the run
 
         Returns:
@@ -183,7 +183,7 @@ class ExperimentManagementService:
         if not run:
             raise ValueError(f"Run {run_id} not found")
 
-        run.complete(metrics)
+        run.complete(measurements)
 
         if artifacts:
             for name, path in artifacts.items():
@@ -306,13 +306,13 @@ class ExperimentManagementService:
                 "id": str(run1.id),
                 "name": run1.name,
                 "parameters": run1.parameters,
-                "metrics": run1.metrics,
+                "measurements": run1.measurements,
             },
             "run2": {
                 "id": str(run2.id),
                 "name": run2.name,
                 "parameters": run2.parameters,
-                "metrics": run2.metrics,
+                "measurements": run2.measurements,
             },
             "metric_differences": comparison,
             "recommendation": self._get_run_recommendation(comparison),
@@ -338,14 +338,14 @@ class ExperimentManagementService:
         runs = await self.experiment_run_repository.find_by_experiment_id(experiment_id)
 
         # Filter runs with the metric and sort
-        valid_runs = [run for run in runs if metric_name in run.metrics]
+        valid_runs = [run for run in runs if metric_name in run.measurements]
 
         # Get optimization direction for the metric
-        metric_direction = experiment.optimization_metrics.get(metric_name, "maximize")
+        metric_direction = experiment.optimization_measurements.get(metric_name, "maximize")
         reverse = metric_direction == "maximize"
 
         sorted_runs = sorted(
-            valid_runs, key=lambda r: r.metrics[metric_name], reverse=reverse
+            valid_runs, key=lambda r: r.measurements[metric_name], reverse=reverse
         )
 
         top_runs = sorted_runs[:top_k]
@@ -361,7 +361,7 @@ class ExperimentManagementService:
                     "rank": i + 1,
                     "run_id": str(run.id),
                     "run_name": run.name,
-                    "metric_value": run.metrics[metric_name],
+                    "metric_value": run.measurements[metric_name],
                     "parameters": run.parameters,
                     "created_at": run.created_at.isoformat(),
                 }
@@ -372,10 +372,10 @@ class ExperimentManagementService:
     def _get_metric_summaries(
         self, experiment: Experiment, runs: list[ExperimentRun]
     ) -> dict[str, dict[str, float]]:
-        """Get summary statistics for all metrics."""
+        """Get summary statistics for all measurements."""
         summaries = {}
 
-        for metric_name in experiment.optimization_metrics:
+        for metric_name in experiment.optimization_measurements:
             summary = experiment.get_metric_summary(metric_name)
             if summary:
                 summaries[metric_name] = summary
@@ -385,7 +385,7 @@ class ExperimentManagementService:
     def _get_run_recommendation(self, comparison: dict[str, float]) -> str:
         """Get recommendation based on run comparison."""
         if not comparison:
-            return "No metrics to compare"
+            return "No measurements to compare"
 
         positive_diffs = sum(1 for diff in comparison.values() if diff > 0)
         negative_diffs = sum(1 for diff in comparison.values() if diff < 0)
@@ -395,7 +395,7 @@ class ExperimentManagementService:
         elif negative_diffs > positive_diffs:
             return "Run 2 shows better overall performance"
         else:
-            return "Runs show similar performance, review specific metrics"
+            return "Runs show similar performance, review specific measurements"
 
     async def get_active_experiments(self) -> list[Experiment]:
         """Get all active experiments.
@@ -444,7 +444,7 @@ class ExperimentManagementService:
             "failed_runs": failed_runs,
             "success_rate": experiment.success_rate,
             "average_duration_seconds": avg_duration,
-            "optimization_metrics": list(experiment.optimization_metrics.keys()),
+            "optimization_measurements": list(experiment.optimization_measurements.keys()),
             "run_timeline": [
                 {
                     "run_id": str(run.id),
@@ -456,10 +456,10 @@ class ExperimentManagementService:
                         run.completed_at.isoformat() if run.completed_at else None
                     ),
                     "status": run.status,
-                    "key_metrics": {
+                    "key_measurements": {
                         k: v
-                        for k, v in run.metrics.items()
-                        if k in experiment.optimization_metrics
+                        for k, v in run.measurements.items()
+                        if k in experiment.optimization_measurements
                     },
                 }
                 for run in sorted(runs, key=lambda r: r.created_at)

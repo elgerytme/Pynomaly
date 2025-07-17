@@ -113,18 +113,18 @@ class PipelineOrchestrator:
             X = processed_data.get("X", X)
             y = processed_data.get("y", y)
 
-        # Stage 2: Model Optimization
+        # Stage 2: Processor Optimization
         optimization_result = await self.monitoring_service.run_monitored_stage(
             result,
             PipelineStage.HYPERPARAMETER_OPTIMIZATION,
-            self.optimization_service.optimize_models,
+            self.optimization_service.optimize_processors,
             X,
             y,
         )
 
         if optimization_result:
-            result.best_model = optimization_result.get("best_model")
-            result.best_model_params = optimization_result.get("best_params", {})
-            result.best_model_performance = optimization_result.get(
+            result.best_processor = optimization_result.get("best_processor")
+            result.best_processor_params = optimization_result.get("best_params", {})
+            result.best_processor_performance = optimization_result.get(
                 "best_performance", {}
             )

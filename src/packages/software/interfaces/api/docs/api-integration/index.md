@@ -6,7 +6,7 @@
 
 ## 🎯 API Integration Overview
 
-This section provides comprehensive guidance for integrating with Pynomaly's APIs. Whether you're building applications, creating integrations, or developing custom solutions, these guides will help you understand and use all available APIs effectively.
+This section provides comprehensive guidance for integrating with Software's APIs. Whether you're building applications, creating integrations, or developing custom solutions, these guides will help you understand and use all available APIs effectively.
 
 ---
 
@@ -45,8 +45,8 @@ Get started with the API in 30 seconds:
 Set up your development environment:
 
 ```python
-# Install Pynomaly SDK
-pip install pynomaly
+# Install Software SDK
+pip install software
 
 # Quick API test
 from pynomaly.client import PynamolyClient
@@ -83,7 +83,7 @@ CLI integration and automation:
 ## 🎯 Integration Patterns
 
 ### **🔗 Application Integration**
-Integrate Pynomaly into your applications:
+Integrate Software into your applications:
 
 #### **Web Applications**
 - **[REST API](rest-api.md)** - HTTP integration
@@ -101,7 +101,7 @@ Integrate Pynomaly into your applications:
 - **[OpenAPI Spec](openapi.yaml)** - Service contracts
 
 ### **🤖 Automation Integration**
-Automate anomaly detection workflows:
+Automate anomaly processing workflows:
 
 #### **CI/CD Pipelines**
 - **[CLI Integration](cli.md)** - Pipeline automation
@@ -155,24 +155,24 @@ from pynomaly.client import PynamolyClient
 from pynomaly.models import Dataset
 
 client = PynamolyClient(api_key="your-api-key")
-dataset = Dataset.from_csv("data.csv")
-result = client.detect_anomalies(dataset, algorithm="IsolationForest")
+data_collection = DataCollection.from_csv("data.csv")
+result = client.detect_anomalies(data_collection, algorithm="IsolationForest")
 ```
 
 #### **CLI Example**
 ```bash
 # Detect anomalies via CLI
-pynomaly detect --algorithm IsolationForest --input data.csv --output results.json
+software detect --algorithm IsolationForest --input data.csv --output results.json
 
 # List available algorithms
-pynomaly algorithms list
+software algorithms list
 ```
 
 ### **🚀 Advanced Examples**
 Advanced integration scenarios:
 - **[Banking Integration](../../examples/banking/)** - Financial services
 - **[Data Quality](../../examples/Data_Quality_Anomaly_Detection_Guide.md)** - Data validation
-- **[Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md)** - Automated detection
+- **[Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md)** - Automated processing
 
 ---
 

@@ -168,7 +168,7 @@ async def require_tenant_access(
 # Integration Management Endpoints
 @router.post(
     "/tenants/{tenant_id}/integrations",
-    response_model=IntegrationResponse,
+    response_processor=IntegrationResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_integration(
@@ -211,7 +211,7 @@ async def create_integration(
 
 
 @router.get(
-    "/tenants/{tenant_id}/integrations", response_model=list[IntegrationResponse]
+    "/tenants/{tenant_id}/integrations", response_processor=list[IntegrationResponse]
 )
 async def list_integrations(
     tenant_id: UUID,
@@ -251,7 +251,7 @@ async def list_integrations(
 
 @router.get(
     "/tenants/{tenant_id}/integrations/{integration_id}",
-    response_model=IntegrationResponse,
+    response_processor=IntegrationResponse,
 )
 async def get_integration(
     tenant_id: UUID,
@@ -362,7 +362,7 @@ async def send_notification(
 
 @router.get(
     "/tenants/{tenant_id}/integrations/{integration_id}/history",
-    response_model=list[NotificationHistoryResponse],
+    response_processor=list[NotificationHistoryResponse],
 )
 async def get_notification_history(
     tenant_id: UUID,
@@ -403,42 +403,42 @@ async def get_notification_history(
 
 
 @router.get(
-    "/tenants/{tenant_id}/integrations/{integration_id}/metrics",
-    response_model=IntegrationMetricsResponse,
+    "/tenants/{tenant_id}/integrations/{integration_id}/measurements",
+    response_processor=IntegrationMetricsResponse,
 )
-async def get_integration_metrics(
+async def get_integration_measurements(
     tenant_id: UUID,
     integration_id: str,
     current_user: User = Depends(require_tenant_access),
     integration_service: IntegrationService = Depends(get_integration_service),
 ):
-    """Get performance metrics for an integration."""
+    """Get performance measurements for an integration."""
     try:
-        metrics = await integration_service.get_integration_metrics(integration_id)
+        measurements = await integration_service.get_integration_measurements(integration_id)
 
-        if not metrics:
+        if not measurements:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Integration metrics not found",
+                detail="Integration measurements not found",
             )
 
         return IntegrationMetricsResponse(
-            integration_id=metrics.integration_id,
-            total_notifications=metrics.total_notifications,
-            successful_notifications=metrics.successful_notifications,
-            failed_notifications=metrics.failed_notifications,
-            success_rate=metrics.success_rate,
-            failure_rate=metrics.failure_rate,
-            average_delivery_time_ms=metrics.average_delivery_time_ms,
-            last_success=metrics.last_success,
-            last_failure=metrics.last_failure,
-            uptime_percentage=metrics.uptime_percentage,
-            rate_limit_hits=metrics.rate_limit_hits,
+            integration_id=measurements.integration_id,
+            total_notifications=measurements.total_notifications,
+            successful_notifications=measurements.successful_notifications,
+            failed_notifications=measurements.failed_notifications,
+            success_rate=measurements.success_rate,
+            failure_rate=measurements.failure_rate,
+            average_delivery_time_ms=measurements.average_delivery_time_ms,
+            last_success=measurements.last_success,
+            last_failure=measurements.last_failure,
+            uptime_percentage=measurements.uptime_percentage,
+            rate_limit_hits=measurements.rate_limit_hits,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve integration metrics: {str(e)}",
+            detail=f"Failed to retrieve integration measurements: {str(e)}",
         )
 
 
@@ -467,7 +467,7 @@ async def retry_notification(
 # Template Management Endpoints
 @router.post(
     "/tenants/{tenant_id}/templates",
-    response_model=TemplateResponse,
+    response_processor=TemplateResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_notification_template(
@@ -510,7 +510,7 @@ async def create_notification_template(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/templates", response_model=list[TemplateResponse])
+@router.get("/tenants/{tenant_id}/templates", response_processor=list[TemplateResponse])
 async def list_notification_templates(
     tenant_id: UUID,
     integration_type: IntegrationType | None = None,
@@ -562,7 +562,7 @@ async def test_integration(
         test_payload = NotificationPayload(
             trigger_type=TriggerType.CUSTOM_ALERT,
             level=NotificationLevel.INFO,
-            title="Pynomaly Integration Test",
+            title="Software Integration Test",
             message="This is a test notification to verify your integration is working correctly.",
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id),

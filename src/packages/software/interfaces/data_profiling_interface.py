@@ -33,7 +33,7 @@ class ColumnProfile:
 class DataProfile:
     """Complete data profile."""
     profile_id: str
-    dataset_id: str
+    data_collection_id: str
     profile_type: ProfileType
     column_profiles: List[ColumnProfile]
     schema_info: Dict[str, Any]
@@ -47,7 +47,7 @@ class DataProfilingProtocol(Protocol):
     """Protocol for data profiling service interactions."""
     
     def profile_dataset(self, data: Any, profile_type: ProfileType) -> DataProfile:
-        """Profile a dataset."""
+        """Profile a data_collection."""
         ...
     
     def get_schema_info(self, data: Any) -> Dict[str, Any]:
@@ -60,7 +60,7 @@ class DataProfilingInterface(ABC):
     
     @abstractmethod
     def create_profile(self, dataset_id: str, profile_type: ProfileType) -> DataProfile:
-        """Create a data profile for a dataset."""
+        """Create a data profile for a data_collection."""
         pass
     
     @abstractmethod

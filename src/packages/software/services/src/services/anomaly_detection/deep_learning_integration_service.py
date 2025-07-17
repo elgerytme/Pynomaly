@@ -70,7 +70,7 @@ class DLFrameworkInfo(BaseModel):
 
 
 class DLModelPerformance(BaseModel):
-    """Performance metrics for deep learning models."""
+    """Performance measurements for deep learning models."""
 
     framework: str = Field(description="Framework name")
     algorithm: str = Field(description="Algorithm name")
@@ -78,8 +78,8 @@ class DLModelPerformance(BaseModel):
     inference_time: float = Field(description="Average inference time per sample")
     memory_usage: float = Field(description="Memory usage in MB")
     accuracy_score: float = Field(description="Accuracy score")
-    parameters_count: int = Field(description="Number of model parameters")
-    dataset_size: int = Field(description="Training dataset size")
+    parameters_count: int = Field(description="Number of processor parameters")
+    data_collection_size: int = Field(description="Training data_collection size")
 
 
 class DLOptimizationConfig(BaseModel):
@@ -175,7 +175,7 @@ class DeepLearningIntegrationService:
 
     def recommend_framework(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         config: DLOptimizationConfig | None = None,
     ) -> str:
@@ -194,7 +194,7 @@ class DeepLearningIntegrationService:
 
         # Auto-select based on criteria
         if config.auto_select_framework:
-            return self._auto_select_framework(dataset, algorithm, config)
+            return self._auto_select_framework(data_collection, algorithm, config)
 
         # Default fallback
         for framework_name in ["tensorflow", "pytorch", "jax"]:
@@ -206,7 +206,7 @@ class DeepLearningIntegrationService:
         raise ValueError(f"No available framework supports algorithm: {algorithm}")
 
     def _auto_select_framework(
-        self, dataset: Dataset, algorithm: str, config: DLOptimizationConfig
+        self, data_collection: DataCollection, algorithm: str, config: DLOptimizationConfig
     ) -> str:
         """Automatically select best framework based on criteria."""
         scores = {}
@@ -216,7 +216,7 @@ class DeepLearningIntegrationService:
                 continue
 
             score = self._calculate_framework_score(
-                framework_name, framework_info, dataset, algorithm, config
+                framework_name, framework_info, data_collection, algorithm, config
             )
             scores[framework_name] = score
 
@@ -235,7 +235,7 @@ class DeepLearningIntegrationService:
         self,
         framework_name: str,
         framework_info: DLFrameworkInfo,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         config: DLOptimizationConfig,
     ) -> float:
@@ -246,9 +246,9 @@ class DeepLearningIntegrationService:
         performance_scores = {"very_high": 1.0, "high": 0.8, "medium": 0.6, "low": 0.4}
         score += performance_scores.get(framework_info.performance_tier, 0.5) * 0.3
 
-        # Dataset size considerations
-        if hasattr(dataset.data, "shape"):
-            n_samples, n_features = dataset.data.shape
+        # DataCollection size considerations
+        if hasattr(data_collection.data, "shape"):
+            n_samples, n_features = data_collection.data.shape
 
             # Large datasets favor production frameworks
             if n_samples > 100000:
@@ -295,10 +295,10 @@ class DeepLearningIntegrationService:
 
     async def create_deep_learning_detector(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         framework: str | None = None,
-        model_config: dict[str, Any] | None = None,
+        processor_config: dict[str, Any] | None = None,
         optimization_config: DLOptimizationConfig | None = None,
     ) -> DetectorProtocol:
         """Create deep learning detector with optimal framework."""
@@ -306,7 +306,7 @@ class DeepLearningIntegrationService:
             # Recommend framework if not specified
             if not framework:
                 framework = self.recommend_framework(
-                    dataset, algorithm, optimization_config
+                    data_collection, algorithm, optimization_config
                 )
 
             # Validate framework availability
@@ -319,7 +319,7 @@ class DeepLearningIntegrationService:
 
             # Create detector based on framework
             detector = await self._create_framework_detector(
-                framework, algorithm, model_config, optimization_config
+                framework, algorithm, processor_config, optimization_config
             )
 
             logger.info(f"Created {framework} detector for {algorithm}")
@@ -333,14 +333,14 @@ class DeepLearningIntegrationService:
         self,
         framework: str,
         algorithm: str,
-        model_config: dict[str, Any] | None,
+        processor_config: dict[str, Any] | None,
         optimization_config: DLOptimizationConfig | None,
     ) -> DetectorProtocol:
         """Create detector for specific framework."""
-        config = model_config or {}
+        config = processor_config or {}
         opt_config = optimization_config or DLOptimizationConfig()
 
-        # Add optimization settings to model config
+        # Add optimization settings to processor config
         if opt_config.enable_gpu:
             if framework == "pytorch":
                 config["device"] = "auto"
@@ -352,15 +352,15 @@ class DeepLearningIntegrationService:
         # Create detector
         if framework == "pytorch":
             detector = PyTorchAdapter(
-                algorithm=algorithm, model_config=config, random_state=42
+                algorithm=algorithm, processor_config=config, random_state=42
             )
         elif framework == "tensorflow":
             detector = TensorFlowAdapter(
-                algorithm=algorithm, model_config=config, random_state=42
+                algorithm=algorithm, processor_config=config, random_state=42
             )
         elif framework == "jax":
             detector = JAXAdapter(
-                algorithm=algorithm, model_config=config, random_state=42
+                algorithm=algorithm, processor_config=config, random_state=42
             )
         else:
             raise ValueError(f"Unknown framework: {framework}")
@@ -369,10 +369,10 @@ class DeepLearningIntegrationService:
 
     async def benchmark_frameworks(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         frameworks: list[str] | None = None,
-        model_config: dict[str, Any] | None = None,
+        processor_config: dict[str, Any] | None = None,
     ) -> list[DLModelPerformance]:
         """Benchmark multiple frameworks on same task."""
         if not frameworks:
@@ -390,16 +390,16 @@ class DeepLearningIntegrationService:
 
                 # Create detector
                 detector = await self._create_framework_detector(
-                    framework, algorithm, model_config, None
+                    framework, algorithm, processor_config, None
                 )
 
                 # Measure training time
                 start_time = datetime.now()
-                await detector.async_fit(dataset.data.values)
+                await detector.async_fit(data_collection.data.values)
                 training_time = (datetime.now() - start_time).total_seconds()
 
                 # Measure inference time
-                sample_data = dataset.data.values[:100]  # Use subset for timing
+                sample_data = data_collection.data.values[:100]  # Use subset for timing
                 start_time = datetime.now()
                 await detector.async_predict(sample_data)
                 end_time = datetime.now()
@@ -407,8 +407,8 @@ class DeepLearningIntegrationService:
                     sample_data
                 )
 
-                # Get model info
-                model_info = detector.get_model_info()
+                # Get processor info
+                processor_info = detector.get_processor_info()
 
                 performance = DLModelPerformance(
                     framework=framework,
@@ -417,8 +417,8 @@ class DeepLearningIntegrationService:
                     inference_time=inference_time,
                     memory_usage=0.0,  # Would need proper memory tracking
                     accuracy_score=0.0,  # Would need labeled data
-                    parameters_count=model_info.get("total_parameters", 0),
-                    dataset_size=len(dataset.data),
+                    parameters_count=processor_info.get("total_parameters", 0),
+                    data_collection_size=len(data_collection.data),
                 )
 
                 results.append(performance)
@@ -435,7 +435,7 @@ class DeepLearningIntegrationService:
         return results
 
     def get_performance_recommendations(
-        self, dataset: Dataset, requirements: dict[str, Any]
+        self, data_collection: DataCollection, requirements: dict[str, Any]
     ) -> dict[str, Any]:
         """Get performance-based recommendations."""
         recommendations = {
@@ -446,11 +446,11 @@ class DeepLearningIntegrationService:
             "performance_expectations": {},
         }
 
-        # Analyze dataset characteristics
-        if hasattr(dataset.data, "shape"):
-            n_samples, n_features = dataset.data.shape
+        # Analyze data_collection characteristics
+        if hasattr(data_collection.data, "shape"):
+            n_samples, n_features = data_collection.data.shape
 
-            # Large dataset recommendations
+            # Large data_collection recommendations
             if n_samples > 100000:
                 recommendations["configuration_tips"].append(
                     "Consider batch processing for large datasets"
@@ -467,10 +467,10 @@ class DeepLearningIntegrationService:
                 if "jax" in self.available_frameworks:
                     recommendations["primary_framework"] = "jax"
 
-            # Small dataset
+            # Small data_collection
             if n_samples < 1000:
                 recommendations["configuration_tips"].append(
-                    "Small dataset: consider data augmentation or simpler models"
+                    "Small data_collection: consider data augmentation or simpler models"
                 )
                 recommendations["primary_framework"] = (
                     "pytorch"  # Good for experimentation

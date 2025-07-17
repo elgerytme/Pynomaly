@@ -1,7 +1,7 @@
 """
-Export Protocol for Pynomaly
+Export Protocol for Software
 
-Defines the interface for exporting anomaly detection results to various formats.
+Defines the interface for exporting anomaly processing results to various formats.
 """
 
 from abc import ABC, abstractmethod
@@ -13,7 +13,7 @@ from ...domain.entities.detection_result import DetectionResult
 
 
 class ExportProtocol(ABC):
-    """Protocol for exporting anomaly detection results."""
+    """Protocol for exporting anomaly processing results."""
 
     @abstractmethod
     def export_results(
@@ -23,10 +23,10 @@ class ExportProtocol(ABC):
         options: ExportOptions = None,
     ) -> dict[str, Any]:
         """
-        Export anomaly detection results to a file.
+        Export anomaly processing results to a file.
 
         Args:
-            results: Detection results to export
+            results: Processing results to export
             file_path: Output file path
             options: Export configuration options
 

@@ -20,14 +20,14 @@ router = APIRouter(prefix="/active-learning", tags=["active-learning"])
 
 
 class CreateSessionModel(BaseModel):
-    """Pydantic model for session creation request."""
+    """Pydantic processor for session creation request."""
 
     annotator_id: str = Field(..., description="ID of the human annotator")
-    model_version: str = Field(..., description="Version of the model being improved")
+    processor_version: str = Field(..., description="Version of the processor being improved")
     sampling_strategy: str = Field(
         "uncertainty",
         description="Strategy for selecting samples",
-        regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
+        regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_processor_change|random)$",
     )
     max_samples: int = Field(20, ge=1, le=1000, description="Maximum number of samples")
     timeout_minutes: int | None = Field(60, ge=1, le=480, description="Session timeout")
@@ -41,28 +41,28 @@ class CreateSessionModel(BaseModel):
 
 
 class DetectionResultModel(BaseModel):
-    """Pydantic model for detection result."""
+    """Pydantic processor for processing result."""
 
     sample_id: str = Field(..., description="Sample identifier")
     score: float = Field(..., ge=0.0, le=1.0, description="Anomaly score")
     is_anomaly: bool = Field(..., description="Anomaly classification")
-    timestamp: str | None = Field(None, description="Detection timestamp")
-    model_version: str = Field(..., description="Model version")
+    timestamp: str | None = Field(None, description="Processing timestamp")
+    processor_version: str = Field(..., description="Processor version")
     metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
 
 class SelectSamplesModel(BaseModel):
-    """Pydantic model for sample selection request."""
+    """Pydantic processor for sample selection request."""
 
     session_id: str = Field(..., description="Active learning session ID")
-    detection_results: list[DetectionResultModel] = Field(
-        ..., min_items=1, description="Available detection results"
+    processing_results: list[DetectionResultModel] = Field(
+        ..., min_items=1, description="Available processing results"
     )
     n_samples: int = Field(..., ge=1, le=100, description="Number of samples to select")
     sampling_strategy: str = Field(
         "uncertainty",
         description="Strategy for sample selection",
-        regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
+        regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_processor_change|random)$",
     )
     strategy_params: dict = Field(
         default_factory=dict, description="Strategy parameters"
@@ -70,7 +70,7 @@ class SelectSamplesModel(BaseModel):
 
 
 class SubmitFeedbackModel(BaseModel):
-    """Pydantic model for feedback submission."""
+    """Pydantic processor for feedback submission."""
 
     session_id: str = Field(..., description="Session ID")
     sample_id: str = Field(..., description="Sample ID")
@@ -94,7 +94,7 @@ class SubmitFeedbackModel(BaseModel):
 
 
 class SessionStatusModel(BaseModel):
-    """Pydantic model for session status request."""
+    """Pydantic processor for session status request."""
 
     session_id: str = Field(..., description="Session ID")
     include_details: bool = Field(True, description="Include detailed information")
@@ -102,7 +102,7 @@ class SessionStatusModel(BaseModel):
 
 
 class UpdateModelModel(BaseModel):
-    """Pydantic model for model update request."""
+    """Pydantic processor for processor update request."""
 
     session_id: str = Field(..., description="Session ID")
     learning_rate: float = Field(0.1, ge=0.001, le=1.0, description="Learning rate")
@@ -125,7 +125,7 @@ def _convert_to_sampling_strategy(strategy_str: str) -> SamplingStrategy:
         "margin": SamplingStrategy.MARGIN,
         "entropy": SamplingStrategy.ENTROPY,
         "committee_disagreement": SamplingStrategy.COMMITTEE_DISAGREEMENT,
-        "expected_model_change": SamplingStrategy.EXPECTED_MODEL_CHANGE,
+        "expected_processor_change": SamplingStrategy.EXPECTED_MODEL_CHANGE,
         "random": SamplingStrategy.RANDOM,
     }
 
@@ -168,13 +168,13 @@ def _convert_to_feedback_confidence(confidence_str: str) -> FeedbackConfidence:
 
 @router.post(
     "/sessions",
-    response_model=dict,
+    response_processor=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Create new active learning session",
     description="""
     Create a new active learning session for human-in-the-loop training.
 
-    The session will manage sample selection, feedback collection, and model updates
+    The session will manage sample selection, feedback collection, and processor updates
     based on the specified sampling strategy and configuration.
 
     **Sampling Strategies:**
@@ -182,7 +182,7 @@ def _convert_to_feedback_confidence(confidence_str: str) -> FeedbackConfidence:
     - **diversity**: Select diverse samples to cover feature space
     - **margin**: Select samples close to decision boundary
     - **committee_disagreement**: Select samples where ensemble models disagree
-    - **expected_model_change**: Select samples likely to cause large model updates
+    - **expected_processor_change**: Select samples likely to cause large processor updates
     - **random**: Random selection baseline
     """,
 )
@@ -195,7 +195,7 @@ async def create_session(
         # Convert to domain request
         domain_request = CreateSessionRequest(
             annotator_id=request.annotator_id,
-            model_version=request.model_version,
+            processor_version=request.processor_version,
             sampling_strategy=_convert_to_sampling_strategy(request.sampling_strategy),
             max_samples=request.max_samples,
             timeout_minutes=request.timeout_minutes,
@@ -229,7 +229,7 @@ async def create_session(
 
 @router.post(
     "/sessions/{session_id}/start",
-    response_model=dict,
+    response_processor=dict,
     status_code=status.HTTP_200_OK,
     summary="Start active learning session",
     description="""
@@ -249,7 +249,7 @@ async def start_session(
             "session_id": response.session_id,
             "status": response.status.value,
             "progress": response.progress,
-            "quality_metrics": response.quality_metrics,
+            "quality_measurements": response.quality_measurements,
             "message": response.message,
         }
 
@@ -266,7 +266,7 @@ async def start_session(
 
 @router.post(
     "/sessions/{session_id}/select-samples",
-    response_model=dict,
+    response_processor=dict,
     status_code=status.HTTP_200_OK,
     summary="Select samples for annotation",
     description="""
@@ -275,11 +275,11 @@ async def start_session(
 
     **Returns samples with:**
     - Sample identification and metadata
-    - Current model predictions
+    - Current processor predictions
     - Annotation value score
     - Selection reasoning
 
-    The selection algorithm considers uncertainty, diversity, expected model
+    The selection algorithm considers uncertainty, diversity, expected processor
     impact, and other factors depending on the chosen strategy.
     """,
 )
@@ -294,29 +294,29 @@ async def select_samples(
         if request.session_id != session_id:
             raise ValueError("Session ID mismatch")
 
-        # Convert detection results to domain entities
+        # Convert processing results to domain entities
         from interfaces.domain.entities.detection_result import DetectionResult
         from interfaces.domain.value_objects.anomaly_score import AnomalyScore
 
-        detection_results = []
-        for result_model in request.detection_results:
-            score = AnomalyScore(value=result_model.score)
+        processing_results = []
+        for result_processor in request.processing_results:
+            score = AnomalyScore(value=result_processor.score)
             result = DetectionResult(
-                sample_id=result_model.sample_id,
+                sample_id=result_processor.sample_id,
                 score=score,
-                is_anomaly=result_model.is_anomaly,
-                timestamp=result_model.timestamp,
-                model_version=result_model.model_version,
-                metadata=result_model.metadata,
+                is_anomaly=result_processor.is_anomaly,
+                timestamp=result_processor.timestamp,
+                processor_version=result_processor.processor_version,
+                metadata=result_processor.metadata,
             )
-            detection_results.append(result)
+            processing_results.append(result)
 
         # Create domain request
         from interfaces.application.dto.active_learning_dto import SelectSamplesRequest
 
         domain_request = SelectSamplesRequest(
             session_id=request.session_id,
-            detection_results=detection_results,
+            processing_results=processing_results,
             n_samples=request.n_samples,
             sampling_strategy=_convert_to_sampling_strategy(request.sampling_strategy),
             strategy_params=request.strategy_params,
@@ -346,7 +346,7 @@ async def select_samples(
 
 @router.post(
     "/sessions/{session_id}/feedback",
-    response_model=dict,
+    response_processor=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Submit human feedback",
     description="""
@@ -366,7 +366,7 @@ async def select_samples(
     - **expert**: Domain expert level confidence
 
     The system tracks annotation time and quality to improve future
-    sample selection and model updates.
+    sample selection and processor updates.
     """,
 )
 async def submit_feedback(
@@ -426,14 +426,14 @@ async def submit_feedback(
 
 @router.get(
     "/sessions/{session_id}/status",
-    response_model=dict,
+    response_processor=dict,
     status_code=status.HTTP_200_OK,
     summary="Get session status",
     description="""
     Get current status and progress of an active learning session.
 
     **Returns:**
-    - Session status and progress metrics
+    - Session status and progress measurements
     - Feedback quality indicators
     - Recent session activity
     - Completion percentage and timing
@@ -466,7 +466,7 @@ async def get_session_status(
             "session_id": response.session_id,
             "status": response.status.value,
             "progress": response.progress,
-            "quality_metrics": response.quality_metrics,
+            "quality_measurements": response.quality_measurements,
         }
 
         if response.recent_activity:
@@ -489,16 +489,16 @@ async def get_session_status(
 
 
 @router.post(
-    "/sessions/{session_id}/update-model",
-    response_model=dict,
+    "/sessions/{session_id}/update-processor",
+    response_processor=dict,
     status_code=status.HTTP_200_OK,
-    summary="Update model with feedback",
+    summary="Update processor with feedback",
     description="""
-    Update the anomaly detection model using collected human feedback.
+    Update the anomaly processing processor using collected human feedback.
 
     **Process:**
     1. Analyzes collected feedback patterns
-    2. Calculates model update parameters
+    2. Calculates processor update parameters
     3. Applies incremental learning updates
     4. Validates performance impact
     5. Provides recommendations for next session
@@ -506,17 +506,17 @@ async def get_session_status(
     **Returns:**
     - Update statistics and performance impact
     - Feedback pattern analysis
-    - Recommendations for model improvement
+    - Recommendations for processor improvement
     - Suggestions for next active learning session
     """,
 )
-async def update_model(
+async def update_processor(
     session_id: str,
     request: UpdateModelModel,
     background_tasks: BackgroundTasks,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
 ) -> dict:
-    """Update model with collected feedback from session."""
+    """Update processor with collected feedback from session."""
     try:
         # Validate session ID matches
         if request.session_id != session_id:
@@ -535,12 +535,12 @@ async def update_model(
         )
 
         # Execute use case
-        response = use_case.update_model_with_feedback(domain_request)
+        response = use_case.update_processor_with_feedback(domain_request)
 
-        # Schedule background model retraining if needed
+        # Schedule background processor retraining if needed
         if response.update_statistics.get("total_corrections", 0) > 5:
             background_tasks.add_task(
-                _schedule_model_retraining, session_id, response.update_statistics
+                _schedule_processor_retraining, session_id, response.update_statistics
             )
 
         # Convert to API response
@@ -568,7 +568,7 @@ async def update_model(
 
 @router.get(
     "/strategies",
-    response_model=dict[str, dict[str, str]],
+    response_processor=dict[str, dict[str, str]],
     status_code=status.HTTP_200_OK,
     summary="Get available sampling strategies",
     description="""
@@ -603,11 +603,11 @@ async def get_sampling_strategies() -> dict[str, dict[str, str]]:
             "computational_cost": "Low",
             "requires": "Ensemble predictions",
         },
-        "expected_model_change": {
-            "description": "Select samples likely to cause large model updates",
+        "expected_processor_change": {
+            "description": "Select samples likely to cause large processor updates",
             "best_for": "Maximizing learning efficiency",
             "computational_cost": "High",
-            "requires": "Model gradients (optional)",
+            "requires": "Processor gradients (optional)",
         },
         "entropy": {
             "description": "Select samples with high prediction entropy",
@@ -626,7 +626,7 @@ async def get_sampling_strategies() -> dict[str, dict[str, str]]:
 
 @router.get(
     "/feedback-types",
-    response_model=dict[str, dict[str, str]],
+    response_processor=dict[str, dict[str, str]],
     status_code=status.HTTP_200_OK,
     summary="Get available feedback types",
     description="""
@@ -649,10 +649,10 @@ async def get_feedback_types() -> dict[str, dict[str, str]]:
             "example": "0.85 (high anomaly probability)",
         },
         "confidence_rating": {
-            "description": "Confidence in model prediction",
+            "description": "Confidence in processor prediction",
             "input_type": "float (0.0 to 1.0)",
             "use_case": "Assessing prediction reliability",
-            "example": "0.3 (low confidence in model)",
+            "example": "0.3 (low confidence in processor)",
         },
         "explanation": {
             "description": "Text explanation of reasoning",
@@ -669,12 +669,12 @@ async def get_feedback_types() -> dict[str, dict[str, str]]:
     }
 
 
-async def _schedule_model_retraining(session_id: str, update_stats: dict):
-    """Background task for scheduling model retraining."""
+async def _schedule_processor_retraining(session_id: str, update_stats: dict):
+    """Background task for scheduling processor retraining."""
     # This would typically trigger a background ML pipeline
     # For now, just log the event
     print(
-        f"Scheduling model retraining for session {session_id} with stats: {update_stats}"
+        f"Scheduling processor retraining for session {session_id} with stats: {update_stats}"
     )
 
 

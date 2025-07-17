@@ -1,0 +1,245 @@
+name: Domain Boundary Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  domain-boundary-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install toml
+    
+    - name: Run Domain Boundary Validation
+      run: |
+        echo "🔍 Running domain boundary validation..."
+        python3 scripts/domain_boundary_validator.py
+        
+        # Store the exit code
+        validation_result=$?
+        
+        # Generate detailed report
+        echo "📊 Generating detailed violation report..."
+        python3 scripts/domain_boundary_validator.py > domain_violations_report.txt 2>&1
+        
+        # Check if violations exist
+        if [ $validation_result -ne 0 ]; then
+          echo ""
+          echo "❌ Domain boundary violations detected!"
+          echo "📋 Violation summary:"
+          cat domain_violations_report.txt
+          echo ""
+          echo "🔧 To fix violations:"
+          echo "1. Review DOMAIN_BOUNDARY_RULES.md"
+          echo "2. Follow DOMAIN_COMPLIANCE_PLAN.md"
+          echo "3. Move domain-specific code to appropriate packages"
+          echo "4. Use generic abstractions in software package"
+          echo ""
+          exit 1
+        fi
+        
+        echo "✅ Domain boundary validation passed!"
+    
+    - name: Upload violation report
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: domain-violations-report
+        path: domain_violations_report.txt
+    
+    - name: Comment on PR
+      if: failure() && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read violation report
+          let report = '';
+          try {
+            report = fs.readFileSync('domain_violations_report.txt', 'utf8');
+          } catch (error) {
+            report = 'Could not read violation report';
+          }
+          
+          // Extract summary
+          const lines = report.split('\n');
+          const summaryStart = lines.findIndex(line => line.includes('Domain Boundary Validation Results'));
+          const summaryEnd = lines.findIndex(line => line.includes('Most Common Violations:')) + 10;
+          const summary = lines.slice(summaryStart, summaryEnd).join('\n');
+          
+          // Create comment
+          const comment = `## ❌ Domain Boundary Violations Detected
+          
+          This PR contains domain boundary violations that must be fixed before merging.
+          
+          ### Violation Summary
+          \`\`\`
+          ${summary}
+          \`\`\`
+          
+          ### How to Fix
+          1. Review the [Domain Boundary Rules](DOMAIN_BOUNDARY_RULES.md)
+          2. Follow the [Domain Compliance Plan](DOMAIN_COMPLIANCE_PLAN.md)
+          3. Move domain-specific code to appropriate packages:
+             - \`anomaly_detection/\` for anomaly detection logic
+             - \`machine_learning/\` for ML infrastructure
+             - \`data_science/\` for data science workflows
+          4. Use generic abstractions in the \`software/\` package
+          
+          ### Validation
+          Run locally: \`python3 scripts/domain_boundary_validator.py\`
+          
+          The full violation report is available in the [workflow artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  domain-compliance-monitoring:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: domain-boundary-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install toml
+    
+    - name: Generate compliance metrics
+      run: |
+        echo "📊 Generating compliance metrics..."
+        
+        # Run validator and capture output
+        python3 scripts/domain_boundary_validator.py > compliance_report.txt 2>&1 || true
+        
+        # Extract metrics
+        total_violations=$(grep "Total violations:" compliance_report.txt | awk '{print $3}' || echo "0")
+        packages_with_violations=$(grep "Packages with violations:" compliance_report.txt | awk '{print $4}' || echo "0")
+        
+        # Calculate compliance percentage
+        if [ "$total_violations" -eq 0 ]; then
+          compliance_percentage=100
+        else
+          # Assume baseline of 26062 violations from initial state
+          baseline=26062
+          compliance_percentage=$(echo "scale=2; (1 - $total_violations / $baseline) * 100" | bc -l)
+        fi
+        
+        echo "TOTAL_VIOLATIONS=$total_violations" >> $GITHUB_ENV
+        echo "PACKAGES_WITH_VIOLATIONS=$packages_with_violations" >> $GITHUB_ENV
+        echo "COMPLIANCE_PERCENTAGE=$compliance_percentage" >> $GITHUB_ENV
+        
+        # Store metrics
+        echo "📈 Compliance Metrics:"
+        echo "Total violations: $total_violations"
+        echo "Packages with violations: $packages_with_violations"
+        echo "Compliance percentage: $compliance_percentage%"
+    
+    - name: Update compliance badge
+      run: |
+        # Create badge data
+        if [ "$TOTAL_VIOLATIONS" -eq 0 ]; then
+          color="brightgreen"
+          message="100%25%20compliant"
+        elif [ "${COMPLIANCE_PERCENTAGE%.*}" -ge 80 ]; then
+          color="green"
+          message="${COMPLIANCE_PERCENTAGE%.*}%25%20compliant"
+        elif [ "${COMPLIANCE_PERCENTAGE%.*}" -ge 60 ]; then
+          color="yellow"
+          message="${COMPLIANCE_PERCENTAGE%.*}%25%20compliant"
+        else
+          color="red"
+          message="${COMPLIANCE_PERCENTAGE%.*}%25%20compliant"
+        fi
+        
+        # Create badge URL
+        badge_url="https://img.shields.io/badge/Domain%20Boundary-$message-$color"
+        
+        echo "Badge URL: $badge_url"
+        echo "BADGE_URL=$badge_url" >> $GITHUB_ENV
+    
+    - name: Create compliance report
+      run: |
+        cat > COMPLIANCE_STATUS.md << EOF
+        # Domain Boundary Compliance Status
+        
+        ![Domain Boundary Compliance](${BADGE_URL})
+        
+        **Last Updated:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        
+        ## Current Status
+        - **Total Violations:** $TOTAL_VIOLATIONS
+        - **Packages with Violations:** $PACKAGES_WITH_VIOLATIONS
+        - **Compliance Percentage:** $COMPLIANCE_PERCENTAGE%
+        
+        ## Progress Tracking
+        - **Baseline (Initial):** 26,062 violations
+        - **Current:** $TOTAL_VIOLATIONS violations
+        - **Improvement:** $(echo "scale=0; 26062 - $TOTAL_VIOLATIONS" | bc -l) violations fixed
+        
+        ## Compliance Goals
+        - **Target:** 0 violations (100% compliance)
+        - **Current Progress:** $COMPLIANCE_PERCENTAGE% complete
+        - **Remaining Work:** $TOTAL_VIOLATIONS violations to fix
+        
+        ## Next Steps
+        1. Review [Domain Boundary Rules](DOMAIN_BOUNDARY_RULES.md)
+        2. Follow [Domain Compliance Plan](DOMAIN_COMPLIANCE_PLAN.md)
+        3. Run validation: \`python3 scripts/domain_boundary_validator.py\`
+        4. Fix violations systematically
+        
+        ## Automation
+        - **Pre-commit Hooks:** Install with \`python3 scripts/install_domain_hooks.py\`
+        - **CI/CD Integration:** Automatic validation on all PRs
+        - **Monitoring:** Daily compliance reports
+        
+        ---
+        *This report is automatically generated by the Domain Boundary Compliance workflow.*
+        EOF
+    
+    - name: Commit compliance report
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Only commit if there are changes
+        if ! git diff --quiet HEAD -- COMPLIANCE_STATUS.md; then
+          git add COMPLIANCE_STATUS.md
+          git commit -m "chore: update domain boundary compliance status
+          
+          - Total violations: $TOTAL_VIOLATIONS
+          - Compliance: $COMPLIANCE_PERCENTAGE%
+          - Auto-generated by compliance workflow"
+          
+          git push
+        else
+          echo "No changes to compliance status"
+        fi

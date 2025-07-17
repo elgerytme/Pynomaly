@@ -5,7 +5,7 @@
 ---
 
 
-The Pynomaly CLI provides a comprehensive command-line interface for all anomaly detection operations, from data management to model training and deployment.
+The Software CLI provides a comprehensive command-line interface for all anomaly processing operations, from data management to processor training and deployment.
 
 ## Overview
 
@@ -13,7 +13,7 @@ The CLI is built with Click and provides intuitive commands organized into logic
 
 - **Detectors**: Create, train, and manage anomaly detectors
 - **Datasets**: Upload, analyze, and manage datasets
-- **Detection**: Run anomaly detection on data
+- **Processing**: Run anomaly processing on data
 - **Server**: Start the API server and web interface
 - **Experiments**: Manage and run experiments
 - **Export**: Export models and results
@@ -21,14 +21,14 @@ The CLI is built with Click and provides intuitive commands organized into logic
 ## Installation and Setup
 
 ```bash
-# Install Pynomaly CLI
-pip install pynomaly
+# Install Software CLI
+pip install software
 
 # Verify installation
-pynomaly --version
+software --version
 
 # Get help
-pynomaly --help
+software --help
 ```
 
 ## Global Options
@@ -36,7 +36,7 @@ pynomaly --help
 All commands support these global options:
 
 ```bash
---config PATH     Configuration file path (default: ~/.pynomaly/config.yml)
+--config PATH     Configuration file path (default: ~/.software/config.yml)
 --log-level TEXT  Logging level (DEBUG, INFO, WARNING, ERROR)
 --output FORMAT   Output format: json, yaml, table (default: table)
 --quiet          Suppress non-essential output
@@ -46,7 +46,7 @@ All commands support these global options:
 
 ## Commands
 
-### pynomaly detectors
+### software detectors
 
 Manage anomaly detectors.
 
@@ -55,7 +55,7 @@ Manage anomaly detectors.
 List all available detectors.
 
 ```bash
-pynomaly detectors list [OPTIONS]
+software detectors list [OPTIONS]
 
 Options:
   --algorithm TEXT    Filter by algorithm name
@@ -67,13 +67,13 @@ Options:
 **Examples:**
 ```bash
 # List all detectors
-pynomaly detectors list
+software detectors list
 
 # List only trained detectors
-pynomaly detectors list --trained
+software detectors list --trained
 
 # List IsolationForest detectors in JSON format
-pynomaly detectors list --algorithm IsolationForest --format json
+software detectors list --algorithm IsolationForest --format json
 ```
 
 #### detectors create
@@ -81,7 +81,7 @@ pynomaly detectors list --algorithm IsolationForest --format json
 Create a new anomaly detector.
 
 ```bash
-pynomaly detectors create [OPTIONS] NAME ALGORITHM
+software detectors create [OPTIONS] NAME ALGORITHM
 
 Arguments:
   NAME        Detector name
@@ -97,16 +97,16 @@ Options:
 **Examples:**
 ```bash
 # Create basic IsolationForest detector
-pynomaly detectors create "Fraud Detector" IsolationForest
+software detectors create "Fraud Detector" IsolationForest
 
 # Create detector with custom parameters
-pynomaly detectors create "Advanced Fraud" IsolationForest \
+software detectors create "Advanced Fraud" IsolationForest \
   --contamination 0.05 \
   --parameter n_estimators=200 \
   --parameter random_state=42
 
 # Create LOF detector with description
-pynomaly detectors create "Local Outlier Detector" LOF \
+software detectors create "Local Outlier Detector" LOF \
   --description "Detects local anomalies in customer behavior" \
   --parameter n_neighbors=20
 ```
@@ -116,48 +116,48 @@ pynomaly detectors create "Local Outlier Detector" LOF \
 Show detailed information about a detector.
 
 ```bash
-pynomaly detectors show [OPTIONS] DETECTOR_ID
+software detectors show [OPTIONS] DETECTOR_ID
 
 Options:
-  --include-metrics    Show performance metrics
+  --include-measurements    Show performance measurements
   --include-config     Show full configuration
 ```
 
 **Examples:**
 ```bash
 # Show basic detector info
-pynomaly detectors show detector_123
+software detectors show detector_123
 
-# Show with metrics and configuration
-pynomaly detectors show detector_123 --include-metrics --include-config
+# Show with measurements and configuration
+software detectors show detector_123 --include-measurements --include-config
 ```
 
 #### detectors train
 
-Train a detector with a dataset.
+Train a detector with a data_collection.
 
 ```bash
-pynomaly detectors train [OPTIONS] DETECTOR_ID DATASET_ID
+software detectors train [OPTIONS] DETECTOR_ID DATASET_ID
 
 Options:
   --validation-split FLOAT    Validation split ratio (default: 0.2)
   --cross-validation          Use cross-validation
-  --save-model PATH          Save trained model to file
+  --save-processor PATH          Save trained processor to file
   --force                    Force retaining if already trained
 ```
 
 **Examples:**
 ```bash
 # Train detector with default settings
-pynomaly detectors train detector_123 dataset_456
+software detectors train detector_123 data_collection_456
 
 # Train with custom validation split
-pynomaly detectors train detector_123 dataset_456 --validation-split 0.3
+software detectors train detector_123 data_collection_456 --validation-split 0.3
 
-# Train with cross-validation and save model
-pynomaly detectors train detector_123 dataset_456 \
+# Train with cross-validation and save processor
+software detectors train detector_123 data_collection_456 \
   --cross-validation \
-  --save-model /path/to/model.pkl
+  --save-processor /path/to/processor.pkl
 ```
 
 #### detectors delete
@@ -165,7 +165,7 @@ pynomaly detectors train detector_123 dataset_456 \
 Delete a detector.
 
 ```bash
-pynomaly detectors delete [OPTIONS] DETECTOR_ID
+software detectors delete [OPTIONS] DETECTOR_ID
 
 Options:
   --force    Skip confirmation prompt
@@ -176,7 +176,7 @@ Options:
 List available algorithms and their parameters.
 
 ```bash
-pynomaly detectors algorithms [OPTIONS]
+software detectors algorithms [OPTIONS]
 
 Options:
   --category TEXT    Filter by algorithm category
@@ -186,25 +186,25 @@ Options:
 **Examples:**
 ```bash
 # List all algorithms
-pynomaly detectors algorithms
+software detectors algorithms
 
 # Show detailed parameter information
-pynomaly detectors algorithms --detailed
+software detectors algorithms --detailed
 
 # Filter by category
-pynomaly detectors algorithms --category tree_based
+software detectors algorithms --category tree_based
 ```
 
-### pynomaly datasets
+### software datasets
 
-Manage datasets for anomaly detection.
+Manage datasets for anomaly processing.
 
 #### datasets list
 
 List all datasets.
 
 ```bash
-pynomaly datasets list [OPTIONS]
+software datasets list [OPTIONS]
 
 Options:
   --format TEXT      Filter by data format (csv, parquet, json)
@@ -214,14 +214,14 @@ Options:
 
 #### datasets upload
 
-Upload a dataset from file.
+Upload a data_collection from file.
 
 ```bash
-pynomaly datasets upload [OPTIONS] FILE_PATH
+software datasets upload [OPTIONS] FILE_PATH
 
 Options:
-  --name TEXT           Dataset name (default: filename)
-  --description TEXT    Dataset description
+  --name TEXT           DataCollection name (default: filename)
+  --description TEXT    DataCollection description
   --format TEXT         Force format (csv, parquet, json, excel)
   --separator TEXT      CSV separator (default: ',')
   --encoding TEXT       File encoding (default: utf-8)
@@ -233,53 +233,53 @@ Options:
 **Examples:**
 ```bash
 # Upload CSV file
-pynomaly datasets upload transactions.csv \
+software datasets upload transactions.csv \
   --name "Credit Card Transactions" \
-  --description "Historical transaction data for fraud detection"
+  --description "Historical transaction data for fraud processing"
 
 # Upload with custom settings
-pynomaly datasets upload data.csv \
+software datasets upload data.csv \
   --separator ";" \
   --encoding "latin1" \
   --target-column "is_fraud"
 
 # Upload sample of large file
-pynomaly datasets upload large_dataset.csv \
+software datasets upload large_data_collection.csv \
   --sample-size 10000 \
-  --name "Sample Dataset"
+  --name "Sample DataCollection"
 ```
 
 #### datasets create
 
-Create a dataset from JSON data.
+Create a data_collection from JSON data.
 
 ```bash
-pynomaly datasets create [OPTIONS] NAME
+software datasets create [OPTIONS] NAME
 
 Options:
   --data TEXT           JSON data string
   --file PATH          Read JSON data from file
-  --description TEXT    Dataset description
+  --description TEXT    DataCollection description
 ```
 
 **Examples:**
 ```bash
 # Create from JSON string
-pynomaly datasets create "Test Data" \
+software datasets create "Test Data" \
   --data '[{"feature1": 1.0, "feature2": 2.0}, {"feature1": 3.0, "feature2": 4.0}]'
 
 # Create from JSON file
-pynomaly datasets create "API Data" \
+software datasets create "API Data" \
   --file api_data.json \
   --description "Data from API endpoint"
 ```
 
 #### datasets show
 
-Show dataset information and statistics.
+Show data_collection information and statistics.
 
 ```bash
-pynomaly datasets show [OPTIONS] DATASET_ID
+software datasets show [OPTIONS] DATASET_ID
 
 Options:
   --sample-size INT    Number of sample rows to show (default: 10)
@@ -289,10 +289,10 @@ Options:
 
 #### datasets validate
 
-Validate dataset quality and detect issues.
+Validate data_collection quality and detect issues.
 
 ```bash
-pynomaly datasets validate [OPTIONS] DATASET_ID
+software datasets validate [OPTIONS] DATASET_ID
 
 Options:
   --check-duplicates     Check for duplicate rows
@@ -304,10 +304,10 @@ Options:
 **Examples:**
 ```bash
 # Basic validation
-pynomaly datasets validate dataset_123
+software datasets validate data_collection_123
 
 # Comprehensive validation with report
-pynomaly datasets validate dataset_123 \
+software datasets validate data_collection_123 \
   --check-duplicates \
   --check-outliers \
   --check-missing \
@@ -316,10 +316,10 @@ pynomaly datasets validate dataset_123 \
 
 #### datasets sample
 
-Extract a sample from a dataset.
+Extract a sample from a data_collection.
 
 ```bash
-pynomaly datasets sample [OPTIONS] DATASET_ID
+software datasets sample [OPTIONS] DATASET_ID
 
 Options:
   --size INTEGER       Sample size (default: 100)
@@ -330,30 +330,30 @@ Options:
 
 #### datasets delete
 
-Delete a dataset.
+Delete a data_collection.
 
 ```bash
-pynomaly datasets delete [OPTIONS] DATASET_ID
+software datasets delete [OPTIONS] DATASET_ID
 
 Options:
   --force    Skip confirmation prompt
 ```
 
-### pynomaly detect
+### software detect
 
-Run anomaly detection operations.
+Run anomaly processing operations.
 
 #### detect run
 
-Run detection on data.
+Run processing on data.
 
 ```bash
-pynomaly detect run [OPTIONS] DETECTOR_ID
+software detect run [OPTIONS] DETECTOR_ID
 
 Options:
   --data TEXT          JSON data string
   --file PATH          Read data from file
-  --dataset ID         Use existing dataset
+  --data_collection ID         Use existing data_collection
   --output PATH        Save results to file
   --threshold FLOAT    Anomaly threshold (0.0-1.0)
   --explain           Include explanations for anomalies
@@ -363,28 +363,28 @@ Options:
 **Examples:**
 ```bash
 # Detect on JSON data
-pynomaly detect run detector_123 \
+software detect run detector_123 \
   --data '[{"amount": 100.0, "merchant": "grocery"}]'
 
 # Detect on file
-pynomaly detect run detector_123 \
+software detect run detector_123 \
   --file new_transactions.csv \
   --output results.json \
   --explain
 
-# Detect on existing dataset
-pynomaly detect run detector_123 \
-  --dataset dataset_456 \
+# Detect on existing data_collection
+software detect run detector_123 \
+  --data_collection data_collection_456 \
   --threshold 0.8 \
   --batch-size 1000
 ```
 
 #### detect batch
 
-Run batch detection on large datasets.
+Run batch processing on large datasets.
 
 ```bash
-pynomaly detect batch [OPTIONS] DETECTOR_ID DATASET_ID
+software detect batch [OPTIONS] DETECTOR_ID DATASET_ID
 
 Options:
   --output-format TEXT    Output format: json, csv, parquet
@@ -396,10 +396,10 @@ Options:
 
 #### detect stream
 
-Run real-time detection on streaming data.
+Run real-time processing on streaming data.
 
 ```bash
-pynomaly detect stream [OPTIONS] DETECTOR_ID
+software detect stream [OPTIONS] DETECTOR_ID
 
 Options:
   --input-format TEXT     Input format: json, csv
@@ -411,16 +411,16 @@ Options:
 
 **Examples:**
 ```bash
-# Stream detection from stdin
-echo '{"amount": 5000}' | pynomaly detect stream detector_123
+# Stream processing from stdin
+echo '{"amount": 5000}' | software detect stream detector_123
 
 # Stream with webhook notifications
-pynomaly detect stream detector_123 \
+software detect stream detector_123 \
   --webhook-url https://api.example.com/alerts \
   --buffer-size 100
 ```
 
-### pynomaly server
+### software server
 
 Manage the API server and web interface.
 
@@ -429,7 +429,7 @@ Manage the API server and web interface.
 Start the API server.
 
 ```bash
-pynomaly server start [OPTIONS]
+software server start [OPTIONS]
 
 Options:
   --host TEXT        Host address (default: 127.0.0.1)
@@ -444,16 +444,16 @@ Options:
 **Examples:**
 ```bash
 # Start development server
-pynomaly server start --reload
+software server start --reload
 
 # Start production server
-pynomaly server start \
+software server start \
   --host 0.0.0.0 \
   --port 8000 \
   --workers 4
 
 # Start with SSL
-pynomaly server start \
+software server start \
   --ssl-cert cert.pem \
   --ssl-key key.pem \
   --port 8443
@@ -464,29 +464,29 @@ pynomaly server start \
 Check server status.
 
 ```bash
-pynomaly server status [OPTIONS]
+software server status [OPTIONS]
 
 Options:
   --url TEXT    Server URL (default: http://localhost:8000)
   --timeout INT Timeout in seconds
 ```
 
-### pynomaly experiments
+### software experiments
 
-Manage experiments and model comparisons.
+Manage experiments and processor comparisons.
 
 #### experiments create
 
 Create a new experiment.
 
 ```bash
-pynomaly experiments create [OPTIONS] NAME DATASET_ID
+software experiments create [OPTIONS] NAME DATASET_ID
 
 Options:
   --description TEXT          Experiment description
   --algorithm TEXT            Algorithm to test (can be used multiple times)
   --parameter KEY=VALUE       Parameters for algorithms
-  --metric TEXT              Evaluation metrics
+  --metric TEXT              Evaluation measurements
   --cross-validation INTEGER  Number of CV folds
   --test-split FLOAT         Test set split ratio
 ```
@@ -494,7 +494,7 @@ Options:
 **Examples:**
 ```bash
 # Compare multiple algorithms
-pynomaly experiments create "Algorithm Comparison" dataset_123 \
+software experiments create "Algorithm Comparison" data_collection_123 \
   --algorithm IsolationForest \
   --algorithm LOF \
   --algorithm OCSVM \
@@ -503,7 +503,7 @@ pynomaly experiments create "Algorithm Comparison" dataset_123 \
   --metric f1_score
 
 # Custom parameters experiment
-pynomaly experiments create "Parameter Tuning" dataset_123 \
+software experiments create "Parameter Tuning" data_collection_123 \
   --algorithm IsolationForest \
   --parameter contamination=0.05 \
   --parameter contamination=0.1 \
@@ -515,7 +515,7 @@ pynomaly experiments create "Parameter Tuning" dataset_123 \
 List experiments.
 
 ```bash
-pynomaly experiments list [OPTIONS]
+software experiments list [OPTIONS]
 
 Options:
   --status TEXT     Filter by status: running, completed, failed
@@ -527,7 +527,7 @@ Options:
 Show experiment results.
 
 ```bash
-pynomaly experiments show [OPTIONS] EXPERIMENT_ID
+software experiments show [OPTIONS] EXPERIMENT_ID
 
 Options:
   --detailed        Show detailed results
@@ -539,23 +539,23 @@ Options:
 Run an experiment.
 
 ```bash
-pynomaly experiments run [OPTIONS] EXPERIMENT_ID
+software experiments run [OPTIONS] EXPERIMENT_ID
 
 Options:
   --async          Run asynchronously
   --timeout INT    Timeout in seconds
 ```
 
-### pynomaly export
+### software export
 
 Export models, results, and configurations.
 
-#### export model
+#### export processor
 
-Export a trained model.
+Export a trained processor.
 
 ```bash
-pynomaly export model [OPTIONS] DETECTOR_ID OUTPUT_PATH
+software export processor [OPTIONS] DETECTOR_ID OUTPUT_PATH
 
 Options:
   --format TEXT     Export format: pickle, joblib, onnx
@@ -565,21 +565,21 @@ Options:
 
 **Examples:**
 ```bash
-# Export model as pickle
-pynomaly export model detector_123 fraud_model.pkl
+# Export processor as pickle
+software export processor detector_123 fraud_processor.pkl
 
 # Export with configuration
-pynomaly export model detector_123 model.pkl \
+software export processor detector_123 processor.pkl \
   --include-config \
   --compress
 ```
 
 #### export results
 
-Export detection results.
+Export processing results.
 
 ```bash
-pynomaly export results [OPTIONS] DETECTOR_ID OUTPUT_PATH
+software export results [OPTIONS] DETECTOR_ID OUTPUT_PATH
 
 Options:
   --format TEXT        Export format: csv, json, parquet
@@ -590,13 +590,13 @@ Options:
 
 #### export config
 
-Export detector or dataset configuration.
+Export detector or data_collection configuration.
 
 ```bash
-pynomaly export config [OPTIONS] RESOURCE_ID OUTPUT_PATH
+software export config [OPTIONS] RESOURCE_ID OUTPUT_PATH
 
 Options:
-  --type TEXT    Resource type: detector, dataset, experiment
+  --type TEXT    Resource type: detector, data_collection, experiment
   --format TEXT  Config format: yaml, json
 ```
 
@@ -604,7 +604,7 @@ Options:
 
 ### Configuration File
 
-Create a configuration file at `~/.pynomaly/config.yml`:
+Create a configuration file at `~/.software/config.yml`:
 
 ```yaml
 # API Configuration
@@ -621,7 +621,7 @@ defaults:
 
 # Database Configuration
 database:
-  url: "postgresql://user:pass@localhost/pynomaly"
+  url: "postgresql://user:pass@localhost/software"
 
 # Cache Configuration
 cache:
@@ -638,11 +638,11 @@ export PYNOMALY_API_URL="http://localhost:8000"
 export PYNOMALY_API_KEY="your-api-key"
 
 # Database
-export PYNOMALY_DATABASE_URL="postgresql://user:pass@localhost/pynomaly"
+export PYNOMALY_DATABASE_URL="postgresql://user:pass@localhost/software"
 
 # Logging
 export PYNOMALY_LOG_LEVEL="INFO"
-export PYNOMALY_LOG_FILE="/var/log/pynomaly.log"
+export PYNOMALY_LOG_FILE="/var/log/software.log"
 
 # Cache
 export PYNOMALY_CACHE_BACKEND="redis"
@@ -654,52 +654,52 @@ export PYNOMALY_REDIS_URL="redis://localhost:6379"
 ### 1. Quick Start Workflow
 
 ```bash
-# 1. Upload dataset
-pynomaly datasets upload transactions.csv --name "Transactions"
+# 1. Upload data_collection
+software datasets upload transactions.csv --name "Transactions"
 
 # 2. Create detector
-pynomaly detectors create "Fraud Detector" IsolationForest
+software detectors create "Fraud Detector" IsolationForest
 
 # 3. Train detector
-pynomaly detectors train detector_123 dataset_456
+software detectors train detector_123 data_collection_456
 
-# 4. Run detection
-pynomaly detect run detector_123 --file new_data.csv --output results.json
+# 4. Run processing
+software detect run detector_123 --file new_data.csv --output results.json
 ```
 
 ### 2. Experiment Workflow
 
 ```bash
 # 1. Create experiment
-pynomaly experiments create "Algorithm Comparison" dataset_123 \
+software experiments create "Algorithm Comparison" data_collection_123 \
   --algorithm IsolationForest \
   --algorithm LOF \
   --algorithm OCSVM
 
 # 2. Run experiment
-pynomaly experiments run experiment_789
+software experiments run experiment_789
 
 # 3. View results
-pynomaly experiments show experiment_789 --detailed
+software experiments show experiment_789 --detailed
 
-# 4. Export best model
-pynomaly export model best_detector_id fraud_model.pkl
+# 4. Export best processor
+software export processor best_detector_id fraud_processor.pkl
 ```
 
 ### 3. Production Deployment Workflow
 
 ```bash
 # 1. Start server in production mode
-pynomaly server start \
+software server start \
   --host 0.0.0.0 \
   --port 8000 \
   --workers 4
 
 # 2. Check server status
-pynomaly server status
+software server status
 
 # 3. Set up monitoring (separate terminal)
-pynomaly detect stream detector_123 \
+software detect stream detector_123 \
   --webhook-url https://monitoring.example.com/alerts
 ```
 
@@ -726,7 +726,7 @@ Error: Missing argument 'DETECTOR_ID'
 Exit code: 2
 
 # Configuration file not found
-Error: Configuration file '~/.pynomaly/config.yml' not found
+Error: Configuration file '~/.software/config.yml' not found
 Exit code: 3
 
 # API server unreachable
@@ -740,31 +740,31 @@ Exit code: 4
 
 ```bash
 # Set debug level
-pynomaly --log-level DEBUG detectors list
+software --log-level DEBUG detectors list
 
 # Or via environment variable
 export PYNOMALY_LOG_LEVEL=DEBUG
-pynomaly detectors list
+software detectors list
 ```
 
 ### Verbose Output
 
 ```bash
 # Enable verbose output
-pynomaly --verbose detectors create "Test" IsolationForest
+software --verbose detectors create "Test" IsolationForest
 
 # Quiet mode (minimal output)
-pynomaly --quiet detectors list
+software --quiet detectors list
 ```
 
 ### Check Configuration
 
 ```bash
 # Show current configuration
-pynomaly config show
+software config show
 
 # Validate configuration
-pynomaly config validate
+software config validate
 ```
 
 ## Integration Examples
@@ -773,22 +773,22 @@ pynomaly config validate
 
 ```bash
 #!/bin/bash
-# Automated detection pipeline
+# Automated processing pipeline
 
-DATASET_ID=$(pynomaly datasets upload data.csv --format json | jq -r '.id')
-DETECTOR_ID=$(pynomaly detectors create "Auto Detector" IsolationForest --format json | jq -r '.id')
+DATASET_ID=$(software datasets upload data.csv --format json | jq -r '.id')
+DETECTOR_ID=$(software detectors create "Auto Detector" IsolationForest --format json | jq -r '.id')
 
-pynomaly detectors train $DETECTOR_ID $DATASET_ID
-pynomaly detect run $DETECTOR_ID --dataset $DATASET_ID --output results.json
+software detectors train $DETECTOR_ID $DATASET_ID
+software detect run $DETECTOR_ID --data_collection $DATASET_ID --output results.json
 
-echo "Detection completed. Results saved to results.json"
+echo "Processing completed. Results saved to results.json"
 ```
 
 ### CI/CD Integration
 
 ```yaml
-# .github/workflows/anomaly-detection.yml
-name: Anomaly Detection Pipeline
+# .github/workflows/anomaly-processing.yml
+name: Anomaly Processing Pipeline
 
 on:
   schedule:
@@ -805,14 +805,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Pynomaly
-        run: pip install pynomaly
+      - name: Install Software
+        run: pip install software
 
-      - name: Run Detection
+      - name: Run Processing
         env:
           PYNOMALY_API_KEY: ${{ secrets.PYNOMALY_API_KEY }}
         run: |
-          pynomaly detect run $DETECTOR_ID \
+          software detect run $DETECTOR_ID \
             --file latest_data.csv \
             --output results.json \
             --anomalies-only
@@ -820,11 +820,11 @@ jobs:
       - name: Upload Results
         uses: actions/upload-artifact@v2
         with:
-          name: detection-results
+          name: processing-results
           path: results.json
 ```
 
-This CLI reference provides comprehensive documentation for all Pynomaly command-line operations, making it easy for users to integrate anomaly detection into their workflows and automation pipelines.
+This CLI reference provides comprehensive documentation for all Software command-line operations, making it easy for users to integrate anomaly processing into their workflows and automation pipelines.
 
 ---
 

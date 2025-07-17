@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Simplified lifespan manager for OpenAPI generation."""
     # Startup
-    print("Starting Pynomaly API...")
+    print("Starting Software API...")
 
     # Apply dependency overrides to fix forward reference issues
     apply_openapi_overrides(app)
@@ -50,7 +50,7 @@ def create_minimal_app(container: Container | None = None) -> FastAPI:
     app = FastAPI(
         title=settings.app.name,
         version=settings.app.version,
-        description="Pynomaly - Advanced Anomaly Detection Platform",
+        description="Software - Advanced Anomaly Processing Platform",
         docs_url="/api/v1/docs" if settings.docs_enabled else None,
         redoc_url="/api/v1/redoc" if settings.docs_enabled else None,
         openapi_url="/api/v1/openapi.json" if settings.docs_enabled else None,
@@ -73,14 +73,14 @@ def create_minimal_app(container: Container | None = None) -> FastAPI:
     @app.get("/api/health")
     async def health():
         """Health check endpoint."""
-        return {"status": "healthy", "service": "pynomaly-api"}
+        return {"status": "healthy", "service": "software-api"}
 
     # Add root endpoint
     @app.get("/")
     async def root():
         """API root endpoint."""
         return {
-            "message": "Pynomaly API",
+            "message": "Software API",
             "version": settings.app.version,
             "docs": "/api/v1/docs",
             "health": "/api/health",

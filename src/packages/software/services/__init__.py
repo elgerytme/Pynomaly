@@ -1,5 +1,5 @@
 """
-Pynomaly Services Package
+Software Services Package
 
 Application-level services that orchestrate business logic by combining
 core domain functionality with infrastructure capabilities.

@@ -9,7 +9,7 @@ from monorepo.domain.value_objects import (
 
 __all__ = [
     "Anomaly",
-    "Dataset",
+    "DataCollection",
     "Detector",
     "DetectionResult",
     "AnomalyScore",

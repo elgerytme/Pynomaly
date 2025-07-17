@@ -1,5 +1,5 @@
 """
-Pynomaly Interfaces Package
+Software Interfaces Package
 
 All user-facing interfaces including:
 - REST API (FastAPI)
@@ -11,4 +11,4 @@ This package groups all presentation layer components that users interact with.
 """
 
 __version__ = "1.0.0"
-__author__ = "Pynomaly Team"
+__author__ = "Software Team"

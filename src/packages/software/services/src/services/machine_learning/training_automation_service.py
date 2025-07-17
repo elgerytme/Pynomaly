@@ -1,10 +1,10 @@
-"""Comprehensive model training automation service.
+"""Comprehensive processor training automation service.
 
 This module provides enterprise-grade training automation with:
 - Automated hyperparameter optimization using Optuna
 - Training pipeline orchestration with experiment tracking
 - AutoML capabilities for algorithm selection and tuning
-- Model lifecycle management and versioning
+- Processor lifecycle management and versioning
 """
 
 from __future__ import annotations
@@ -94,7 +94,7 @@ class TrainingConfiguration:
 
     # Optimization objectives
     primary_metric: str = "roc_auc"
-    secondary_metrics: list[str] = field(
+    secondary_measurements: list[str] = field(
         default_factory=lambda: ["precision", "recall", "f1"]
     )
     optimization_direction: str = "maximize"  # or "minimize"
@@ -113,7 +113,7 @@ class TrainingConfiguration:
     # Experiment tracking
     experiment_name: str | None = None
     track_artifacts: bool = True
-    save_models: bool = True
+    save_processors: bool = True
 
     # AutoML specific
     algorithm_whitelist: list[str] | None = None
@@ -170,7 +170,7 @@ class TrainingJob:
 
     # Configuration
     configuration: TrainingConfiguration = field(default_factory=TrainingConfiguration)
-    dataset_id: str = ""
+    data_collection_id: str = ""
     target_algorithms: list[str] = field(default_factory=list)
 
     # Execution tracking
@@ -180,19 +180,19 @@ class TrainingJob:
     error_message: str | None = None
 
     # Results
-    best_model: dict[str, Any] | None = None
+    best_processor: dict[str, Any] | None = None
     best_score: float | None = None
     best_parameters: dict[str, Any] | None = None
     trial_history: list[dict[str, Any]] = field(default_factory=list)
 
-    # Metrics
+    # Measurements
     total_trials: int = 0
     successful_trials: int = 0
     failed_trials: int = 0
     execution_time_seconds: float = 0.0
 
     # Artifacts
-    model_path: str | None = None
+    processor_path: str | None = None
     experiment_id: str | None = None
     study_id: str | None = None
 
@@ -220,21 +220,21 @@ class TrainingJobRepository(Protocol):
 
 
 class ModelTrainer(Protocol):
-    """Protocol for model training implementations."""
+    """Protocol for processor training implementations."""
 
     async def train(
-        self, detector: Detector, dataset: Dataset, parameters: dict[str, Any]
+        self, detector: Detector, data_collection: DataCollection, parameters: dict[str, Any]
     ) -> DetectionResult:
-        """Train model with given parameters."""
+        """Train processor with given parameters."""
         ...
 
     async def evaluate(
         self,
         detector: Detector,
-        dataset: Dataset,
-        validation_data: Dataset | None = None,
+        data_collection: DataCollection,
+        validation_data: DataCollection | None = None,
     ) -> dict[str, float]:
-        """Evaluate trained model."""
+        """Evaluate trained processor."""
         ...
 
 
@@ -244,11 +244,11 @@ class TrainingAutomationService:
     def __init__(
         self,
         job_repository: TrainingJobRepository,
-        model_trainer: ModelTrainer,
+        processor_trainer: ModelTrainer,
         storage_path: Path | None = None,
     ):
         self.job_repository = job_repository
-        self.model_trainer = model_trainer
+        self.processor_trainer = processor_trainer
         self.storage_path = storage_path or Path("./training_artifacts")
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
@@ -343,7 +343,7 @@ class TrainingAutomationService:
     async def create_training_job(
         self,
         name: str,
-        dataset_id: str,
+        data_collection_id: str,
         configuration: TrainingConfiguration,
         target_algorithms: list[str] | None = None,
     ) -> TrainingJob:
@@ -371,7 +371,7 @@ class TrainingAutomationService:
         job = TrainingJob(
             name=name,
             configuration=configuration,
-            dataset_id=dataset_id,
+            data_collection_id=data_collection_id,
             target_algorithms=target_algorithms,
         )
 
@@ -437,14 +437,14 @@ class TrainingAutomationService:
             # Select best overall result
             if best_results:
                 best_result = max(best_results, key=lambda x: x["best_score"])
-                job.best_model = best_result["best_model"]
+                job.best_processor = best_result["best_processor"]
                 job.best_score = best_result["best_score"]
                 job.best_parameters = best_result["best_parameters"]
 
-                # Save best model if configured
-                if job.configuration.save_models:
-                    model_path = await self._save_best_model(job, best_result)
-                    job.model_path = str(model_path)
+                # Save best processor if configured
+                if job.configuration.save_processors:
+                    processor_path = await self._save_best_processor(job, best_result)
+                    job.processor_path = str(processor_path)
 
             # Update job completion
             job.status = TrainingStatus.COMPLETED
@@ -525,7 +525,7 @@ class TrainingAutomationService:
                 "algorithm": algorithm,
                 "best_score": best_trial.value,
                 "best_parameters": best_trial.params,
-                "best_model": None,  # Will be trained separately
+                "best_processor": None,  # Will be trained separately
                 "n_trials": len(study.trials),
                 "study": study,
             }
@@ -553,19 +553,19 @@ class TrainingAutomationService:
             parameters=parameters,
         )
 
-        # Load dataset (this would need to be implemented)
+        # Load data_collection (this would need to be implemented)
         # For now, we'll use a placeholder
-        dataset = await self._load_dataset(job.dataset_id)
+        data_collection = await self._load_data_collection(job.data_collection_id)
 
         try:
-            # Train model
-            result = await self.model_trainer.train(detector, dataset, parameters)
+            # Train processor
+            result = await self.processor_trainer.train(detector, data_collection, parameters)
 
-            # Evaluate model
-            metrics = await self.model_trainer.evaluate(detector, dataset)
+            # Evaluate processor
+            measurements = await self.processor_trainer.evaluate(detector, data_collection)
 
             # Return primary metric
-            primary_score = metrics.get(job.configuration.primary_metric, 0.0)
+            primary_score = measurements.get(job.configuration.primary_metric, 0.0)
 
             # Log trial results
             trial_info = {
@@ -573,7 +573,7 @@ class TrainingAutomationService:
                 "algorithm": algorithm,
                 "parameters": parameters,
                 "score": primary_score,
-                "metrics": metrics,
+                "measurements": measurements,
                 "timestamp": datetime.now().isoformat(),
             }
             job.trial_history.append(trial_info)
@@ -651,19 +651,19 @@ class TrainingAutomationService:
             parameters=default_params,
         )
 
-        dataset = await self._load_dataset(job.dataset_id)
+        data_collection = await self._load_data_collection(job.data_collection_id)
 
         try:
-            result = await self.model_trainer.train(detector, dataset, default_params)
-            metrics = await self.model_trainer.evaluate(detector, dataset)
+            result = await self.processor_trainer.train(detector, data_collection, default_params)
+            measurements = await self.processor_trainer.evaluate(detector, data_collection)
 
-            primary_score = metrics.get(job.configuration.primary_metric, 0.0)
+            primary_score = measurements.get(job.configuration.primary_metric, 0.0)
 
             return {
                 "algorithm": algorithm,
                 "best_score": primary_score,
                 "best_parameters": default_params,
-                "best_model": detector,
+                "best_processor": detector,
                 "n_trials": 1,
                 "study": None,
             }
@@ -672,24 +672,24 @@ class TrainingAutomationService:
             logger.error(f"Default training failed for {algorithm}: {e}")
             return None
 
-    async def _load_dataset(self, dataset_id: str) -> Dataset:
-        """Load dataset by ID."""
-        # This would be implemented to load from the dataset repository
+    async def _load_data_collection(self, data_collection_id: str) -> DataCollection:
+        """Load data_collection by ID."""
+        # This would be implemented to load from the data_collection repository
         # For now, return a placeholder
-        return Dataset(name="placeholder", data=pd.DataFrame(), id=dataset_id)
+        return DataCollection(name="placeholder", data=pd.DataFrame(), id=data_collection_id)
 
-    async def _save_best_model(self, job: TrainingJob, result: dict[str, Any]) -> Path:
-        """Save the best trained model."""
-        model_dir = self.storage_path / "models" / job.job_id
-        model_dir.mkdir(parents=True, exist_ok=True)
+    async def _save_best_processor(self, job: TrainingJob, result: dict[str, Any]) -> Path:
+        """Save the best trained processor."""
+        processor_dir = self.storage_path / "models" / job.job_id
+        processor_dir.mkdir(parents=True, exist_ok=True)
 
-        model_path = model_dir / f"best_model_{result['algorithm']}.pkl"
+        processor_path = processor_dir / f"best_processor_{result['algorithm']}.pkl"
 
-        # Save model (implementation depends on model type)
+        # Save processor (implementation depends on processor type)
         # This would use joblib, pickle, or framework-specific saving
 
-        logger.info(f"Saved best model to {model_path}")
-        return model_path
+        logger.info(f"Saved best processor to {processor_path}")
+        return processor_path
 
     async def get_job_status(self, job_id: str) -> TrainingJob | None:
         """Get current status of training job."""
@@ -718,13 +718,13 @@ class TrainingAutomationService:
         """List training jobs with optional filtering."""
         return await self.job_repository.list_jobs(status, limit)
 
-    async def get_training_metrics(self, job_id: str) -> dict[str, Any]:
-        """Get comprehensive training metrics for a job."""
+    async def get_training_measurements(self, job_id: str) -> dict[str, Any]:
+        """Get comprehensive training measurements for a job."""
         job = await self.job_repository.get_job(job_id)
         if not job:
             raise TrainingError(f"Training job {job_id} not found")
 
-        metrics = {
+        measurements = {
             "job_id": job.job_id,
             "status": job.status.value,
             "execution_time": job.execution_time_seconds,
@@ -737,10 +737,10 @@ class TrainingAutomationService:
             "trial_history": job.trial_history,
         }
 
-        if job.best_model:
-            metrics["best_algorithm"] = job.best_model.get("algorithm")
+        if job.best_processor:
+            measurements["best_algorithm"] = job.best_processor.get("algorithm")
 
-        return metrics
+        return measurements
 
     async def cleanup_old_jobs(self, days: int = 30) -> int:
         """Clean up old training jobs and artifacts."""
@@ -755,8 +755,8 @@ class TrainingAutomationService:
                 TrainingStatus.CANCELLED,
             ]:
                 # Clean up artifacts
-                if job.model_path and Path(job.model_path).exists():
-                    Path(job.model_path).unlink()
+                if job.processor_path and Path(job.processor_path).exists():
+                    Path(job.processor_path).unlink()
 
                 # Could also clean up MLflow experiments, logs, etc.
                 cleaned_count += 1
@@ -769,7 +769,7 @@ class TrainingAutomationService:
 
 
 async def quick_optimize(
-    dataset_id: str,
+    data_collection_id: str,
     algorithms: list[str] | None = None,
     max_trials: int = 50,
     timeout_minutes: int = 30,
@@ -795,7 +795,7 @@ async def quick_optimize(
 
     job = await service.create_training_job(
         name=f"Quick optimization {datetime.now().strftime('%Y%m%d_%H%M%S')}",
-        dataset_id=dataset_id,
+        data_collection_id=data_collection_id,
         configuration=config,
         target_algorithms=algorithms,
     )
@@ -805,7 +805,7 @@ async def quick_optimize(
 
 
 async def production_optimize(
-    dataset_id: str,
+    data_collection_id: str,
     experiment_name: str,
     algorithms: list[str] | None = None,
     max_trials: int = 200,
@@ -830,14 +830,14 @@ async def production_optimize(
         pruning_strategy=PruningStrategy.HYPERBAND,
         experiment_name=experiment_name,
         track_artifacts=True,
-        save_models=True,
+        save_processors=True,
         cross_validation_folds=5,
         early_stopping_patience=20,
     )
 
     job = await service.create_training_job(
         name=experiment_name,
-        dataset_id=dataset_id,
+        data_collection_id=data_collection_id,
         configuration=config,
         target_algorithms=algorithms,
     )

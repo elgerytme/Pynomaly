@@ -1,4 +1,4 @@
-"""Streaming pipeline manager for orchestrating real-time anomaly detection."""
+"""Streaming pipeline manager for orchestrating real-time anomaly processing."""
 
 import logging
 from datetime import datetime
@@ -63,15 +63,15 @@ class StreamingPipelineManager:
 
     def _register_default_templates(self) -> None:
         """Register default pipeline templates."""
-        # Kafka fraud detection template
+        # Kafka fraud processing template
         fraud_template = PipelineTemplate(
-            name="fraud_detection_kafka",
-            description="Real-time fraud detection from Kafka stream",
+            name="fraud_processing_kafka",
+            description="Real-time fraud processing from Kafka stream",
             data_source_type="kafka",
             data_source_config={
                 "bootstrap_servers": "localhost:9092",
                 "topic": "transactions",
-                "group_id": "fraud_detection",
+                "group_id": "fraud_processing",
                 "auto_offset_reset": "latest",
             },
             detector_config={
@@ -93,12 +93,12 @@ class StreamingPipelineManager:
                 },
             },
         )
-        self.templates["fraud_detection_kafka"] = fraud_template
+        self.templates["fraud_processing_kafka"] = fraud_template
 
         # WebSocket IoT sensor template
         iot_template = PipelineTemplate(
             name="iot_sensors_websocket",
-            description="Real-time IoT sensor anomaly detection",
+            description="Real-time IoT sensor anomaly processing",
             data_source_type="websocket",
             data_source_config={
                 "websocket_url": "wss://iot-gateway.example.com/sensors",
@@ -127,8 +127,8 @@ class StreamingPipelineManager:
 
         # High-frequency trading template
         trading_template = PipelineTemplate(
-            name="hft_anomaly_detection",
-            description="High-frequency trading anomaly detection",
+            name="hft_anomaly_processing",
+            description="High-frequency trading anomaly processing",
             data_source_type="kafka",
             data_source_config={
                 "bootstrap_servers": "localhost:9092",
@@ -155,7 +155,7 @@ class StreamingPipelineManager:
                 },
             },
         )
-        self.templates["hft_anomaly_detection"] = trading_template
+        self.templates["hft_anomaly_processing"] = trading_template
 
     async def create_pipeline_from_template(
         self,
@@ -358,13 +358,13 @@ class StreamingPipelineManager:
         return status
 
     def get_pipeline_metrics(self, pipeline_id: str) -> dict[str, Any]:
-        """Get metrics for a specific pipeline.
+        """Get measurements for a specific pipeline.
 
         Args:
             pipeline_id: Pipeline ID
 
         Returns:
-            Pipeline metrics
+            Pipeline measurements
 
         Raises:
             ValueError: If pipeline doesn't exist
@@ -373,13 +373,13 @@ class StreamingPipelineManager:
             raise ValueError(f"Pipeline '{pipeline_id}' not found")
 
         pipeline = self.pipelines[pipeline_id]
-        return pipeline.get_metrics().dict()
+        return pipeline.get_measurements().dict()
 
     def get_aggregated_metrics(self) -> dict[str, Any]:
-        """Get aggregated metrics across all pipelines.
+        """Get aggregated measurements across all pipelines.
 
         Returns:
-            Aggregated metrics
+            Aggregated measurements
         """
         total_processed = 0
         total_anomalies = 0
@@ -390,11 +390,11 @@ class StreamingPipelineManager:
         for pipeline in self.pipelines.values():
             if pipeline.is_running:
                 running_pipelines += 1
-                metrics = pipeline.get_metrics()
-                total_processed += metrics.processed_records
-                total_anomalies += metrics.anomalies_detected
-                total_errors += metrics.error_count
-                average_latency += metrics.average_latency
+                measurements = pipeline.get_measurements()
+                total_processed += measurements.processed_records
+                total_anomalies += measurements.anomalies_detected
+                total_errors += measurements.error_count
+                average_latency += measurements.average_latency
 
         if running_pipelines > 0:
             average_latency /= running_pipelines
@@ -559,7 +559,7 @@ class StreamingPipelineManager:
         for pipeline_id, pipeline in self.pipelines.items():
             try:
                 status = pipeline.get_status()
-                metrics = pipeline.get_metrics()
+                measurements = pipeline.get_measurements()
 
                 # Check for issues
                 issues = []
@@ -567,13 +567,13 @@ class StreamingPipelineManager:
                 if not pipeline.is_running:
                     issues.append("Pipeline not running")
 
-                if metrics.error_count > 0:
-                    error_rate = metrics.error_count / max(metrics.processed_records, 1)
+                if measurements.error_count > 0:
+                    error_rate = measurements.error_count / max(measurements.processed_records, 1)
                     if error_rate > 0.05:  # >5% error rate
                         issues.append(f"High error rate: {error_rate:.2%}")
 
-                if metrics.average_latency > 1000:  # >1 second latency
-                    issues.append(f"High latency: {metrics.average_latency:.1f}ms")
+                if measurements.average_latency > 1000:  # >1 second latency
+                    issues.append(f"High latency: {measurements.average_latency:.1f}ms")
 
                 pipeline_status = "healthy" if not issues else "unhealthy"
                 if issues:
@@ -582,9 +582,9 @@ class StreamingPipelineManager:
                 health_status["pipeline_health"][pipeline_id] = {
                     "status": pipeline_status,
                     "is_running": pipeline.is_running,
-                    "processed_records": metrics.processed_records,
-                    "error_count": metrics.error_count,
-                    "average_latency": metrics.average_latency,
+                    "processed_records": measurements.processed_records,
+                    "error_count": measurements.error_count,
+                    "average_latency": measurements.average_latency,
                     "issues": issues,
                 }
 

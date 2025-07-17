@@ -198,7 +198,7 @@ class PrivacyComplianceService:
             DataCategory.USAGE: RetentionPolicy.MEDIUM_TERM,
         }
 
-        # Sensitive data patterns for automatic detection
+        # Sensitive data patterns for automatic processing
         self.sensitive_patterns = {
             "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
             "phone": re.compile(r"(\+\d{1,3}[-.]?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}"),

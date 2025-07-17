@@ -13,7 +13,7 @@ from ...domain.value_objects.algorithm_config import AlgorithmConfig
 
 class AlgorithmResult:
     """
-    Result of an anomaly detection algorithm execution.
+    Result of an anomaly processing algorithm execution.
     
     Encapsulates the output of algorithm execution including
     anomaly predictions, scores, and metadata.
@@ -46,10 +46,10 @@ class AlgorithmResult:
 
 class AlgorithmAdapter(ABC):
     """
-    Abstract adapter for anomaly detection algorithm execution.
+    Abstract adapter for anomaly processing algorithm execution.
     
     This interface defines the contract that infrastructure
-    implementations must follow to execute anomaly detection algorithms.
+    implementations must follow to execute anomaly processing algorithms.
     """
     
     @abstractmethod
@@ -59,14 +59,14 @@ class AlgorithmAdapter(ABC):
         algorithm_config: AlgorithmConfig
     ) -> AlgorithmResult:
         """
-        Execute anomaly detection on the provided data.
+        Execute anomaly processing on the provided data.
         
         Args:
-            data: Input data for anomaly detection.
+            data: Input data for anomaly processing.
             algorithm_config: Configuration for the algorithm.
             
         Returns:
-            AlgorithmResult: Results of the anomaly detection.
+            AlgorithmResult: Results of the anomaly processing.
             
         Raises:
             AlgorithmExecutionError: If algorithm execution fails.

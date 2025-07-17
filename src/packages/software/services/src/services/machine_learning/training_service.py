@@ -1,9 +1,9 @@
 """
-Automated Model Training Service
+Automated Processor Training Service
 
-Production-ready service for automated machine learning model training
+Production-ready service for automated machine learning processor training
 with hyperparameter optimization, performance monitoring, and intelligent
-model selection for anomaly detection algorithms.
+processor selection for anomaly processing algorithms.
 """
 
 import asyncio
@@ -42,13 +42,13 @@ logger = logging.getLogger(__name__)
 
 class AutomatedTrainingService:
     """
-    Automated training service with hyperparameter optimization and intelligent model selection.
+    Automated training service with hyperparameter optimization and intelligent processor selection.
 
     Features:
     - Multi-algorithm parallel training
     - Automated hyperparameter optimization
-    - Cross-validation and model evaluation
-    - Performance-based model selection
+    - Cross-validation and processor evaluation
+    - Performance-based processor selection
     - Experiment tracking and versioning
     - Resource-aware training scheduling
     """
@@ -56,14 +56,14 @@ class AutomatedTrainingService:
     def __init__(
         self,
         training_repository: TrainingRepository,
-        model_repository: ModelRepositoryProtocol,
-        model_service: ModelPersistenceService,
+        processor_repository: ModelRepositoryProtocol,
+        processor_service: ModelPersistenceService,
         algorithm_adapters: dict[str, AlgorithmAdapter],
         config: dict[str, Any] | None = None,
     ):
         self.training_repository = training_repository
-        self.model_repository = model_repository
-        self.model_service = model_service
+        self.processor_repository = processor_repository
+        self.processor_service = processor_service
         self.algorithm_adapters = algorithm_adapters
         self.config = config
 
@@ -73,8 +73,8 @@ class AutomatedTrainingService:
         self.resource_lock = asyncio.Lock()
 
         # Performance tracking
-        self.training_metrics = {}
-        self.best_models = {}
+        self.training_measurements = {}
+        self.best_processors = {}
 
     async def start_automated_training(
         self, request: TrainingRequestDTO
@@ -83,12 +83,12 @@ class AutomatedTrainingService:
         Start automated training pipeline with multiple algorithms and optimization.
 
         Args:
-            request: Training request with dataset, algorithms, and configuration
+            request: Training request with data_collection, algorithms, and configuration
 
         Returns:
             Any: Created training job  # TrainingJob
         """
-        logger.info(f"Starting automated training for dataset: {request.dataset_id}")
+        logger.info(f"Starting automated training for data_collection: {request.data_collection_id}")
 
         # Validate request
         await self._validate_training_request(request)
@@ -96,7 +96,7 @@ class AutomatedTrainingService:
         # Create training job
         job = {
             "id": str(uuid.uuid4()),
-            "dataset_id": request.dataset_id,
+            "data_collection_id": request.data_collection_id,
             "algorithms": request.algorithms or self._get_default_algorithms(),
             "config": request.config,
             "status": "PENDING",  # TrainingStatus.PENDING
@@ -124,9 +124,9 @@ class AutomatedTrainingService:
         try:
             await self._update_job_status(job, "RUNNING")  # TrainingStatus.RUNNING
 
-            # Load and prepare dataset
-            dataset = await self._load_dataset(job.dataset_id)
-            X, y = await self._prepare_training_data(dataset, job.config)
+            # Load and prepare data_collection
+            data_collection = await self._load_data_collection(job.data_collection_id)
+            X, y = await self._prepare_training_data(data_collection, job.config)
 
             # Split data for training and validation
             X_train, X_val, y_train, y_val = train_test_split(
@@ -162,9 +162,9 @@ class AutomatedTrainingService:
                 job.progress = progress
                 await self._update_job_progress(job)
 
-            # Select best model
-            best_model = await self._select_best_model(training_results, job.config)
-            job.best_model_id = best_model.id if best_model else None
+            # Select best processor
+            best_processor = await self._select_best_processor(training_results, job.config)
+            job.best_processor_id = best_processor.id if best_processor else None
 
             # Finalize job
             job.results = training_results
@@ -206,7 +206,7 @@ class AutomatedTrainingService:
             job: Training job context
 
         Returns:
-            Training result with model and metrics
+            Training result with processor and measurements
         """
         adapter = self.algorithm_adapters.get(algorithm_name)
         if not adapter:
@@ -234,63 +234,63 @@ class AutomatedTrainingService:
             contamination_rate=ContaminationRate(0.1),  # Default value
         )
 
-        # Create training dataset entity
+        # Create training data_collection entity
         train_df = pd.DataFrame(
             X_train, columns=[f"feature_{i}" for i in range(X_train.shape[1])]
         )
         if y_train is not None:
             train_df["target"] = y_train
 
-        training_dataset = Dataset(
+        training_data_collection = DataCollection(
             name=f"training_data_{job.id}",
             data=train_df,
             feature_names=[f"feature_{i}" for i in range(X_train.shape[1])],
             target_column="target" if y_train is not None else None,
         )
 
-        # Fit the model using the adapter
-        adapter.fit(detector, training_dataset)
+        # Fit the processor using the adapter
+        adapter.fit(detector, training_data_collection)
 
-        # Create validation dataset for evaluation
+        # Create validation data_collection for evaluation
         val_df = pd.DataFrame(
             X_val, columns=[f"feature_{i}" for i in range(X_val.shape[1])]
         )
         if y_val is not None:
             val_df["target"] = y_val
 
-        val_dataset = Dataset(
+        val_data_collection = DataCollection(
             name=f"validation_data_{job.id}",
             data=val_df,
             feature_names=[f"feature_{i}" for i in range(X_val.shape[1])],
             target_column="target" if y_val is not None else None,
         )
 
-        # Evaluate model
-        metrics = await self._evaluate_model(
-            detector, adapter, val_dataset, algorithm_name
+        # Evaluate processor
+        measurements = await self._evaluate_processor(
+            detector, adapter, val_data_collection, algorithm_name
         )
 
-        # Create model version
-        model_version = ModelVersion(
+        # Create processor version
+        processor_version = ModelVersion(
             id=str(uuid.uuid4()),
             algorithm=algorithm_name,
             hyperparameters=best_params,  # HyperparameterSet(best_params)
-            metrics=metrics,
+            measurements=measurements,
             training_job_id=job.id,
             created_at=datetime.utcnow(),
-            model_data=await self._serialize_model(detector),
+            processor_data=await self._serialize_processor(detector),
         )
 
-        # Save model
-        await self.model_repository.save_version(model_version)
+        # Save processor
+        await self.processor_repository.save_version(processor_version)
 
         return {
             "algorithm": algorithm_name,
-            "model_id": model_version.id,
+            "processor_id": processor_version.id,
             "hyperparameters": best_params,
-            "metrics": metrics.to_dict(),
+            "measurements": measurements.to_dict(),
             "optimization_history": optimization_history,
-            "training_time": metrics.training_time,
+            "training_time": measurements.training_time,
         }
 
     async def _optimize_hyperparameters(
@@ -417,17 +417,17 @@ class AutomatedTrainingService:
                 temp_detector = self._create_temp_detector(
                     "grid_search", params, f"trial_{trial_num}"
                 )
-                temp_train_dataset = self._create_temp_dataset(
+                temp_train_data_collection = self._create_temp_data_collection(
                     X_train, y_train, f"train_trial_{trial_num}"
                 )
 
-                # Train and evaluate model
-                adapter.fit(temp_detector, temp_train_dataset)
-                temp_val_dataset = self._create_temp_dataset(
+                # Train and evaluate processor
+                adapter.fit(temp_detector, temp_train_data_collection)
+                temp_val_data_collection = self._create_temp_data_collection(
                     X_val, y_val, f"val_trial_{trial_num}"
                 )
-                score = await self._evaluate_model_score(
-                    temp_detector, adapter, temp_val_dataset
+                score = await self._evaluate_processor_score(
+                    temp_detector, adapter, temp_val_data_collection
                 )
 
                 # Track history
@@ -535,17 +535,17 @@ class AutomatedTrainingService:
                 temp_detector = self._create_temp_detector(
                     "random_search", params, f"trial_{trial_num}"
                 )
-                temp_train_dataset = self._create_temp_dataset(
+                temp_train_data_collection = self._create_temp_data_collection(
                     X_train, y_train, f"train_trial_{trial_num}"
                 )
 
-                # Train and evaluate model
-                adapter.fit(temp_detector, temp_train_dataset)
-                temp_val_dataset = self._create_temp_dataset(
+                # Train and evaluate processor
+                adapter.fit(temp_detector, temp_train_data_collection)
+                temp_val_data_collection = self._create_temp_data_collection(
                     X_val, y_val, f"val_trial_{trial_num}"
                 )
-                score = await self._evaluate_model_score(
-                    temp_detector, adapter, temp_val_dataset
+                score = await self._evaluate_processor_score(
+                    temp_detector, adapter, temp_val_data_collection
                 )
 
                 # Track history
@@ -644,21 +644,21 @@ class AutomatedTrainingService:
                         param_name, param_config["low"], param_config["high"]
                     )
 
-            # Train and evaluate model
+            # Train and evaluate processor
             try:
                 temp_detector = self._create_temp_detector(
                     "optuna", params, f"trial_{trial.number}"
                 )
-                temp_train_dataset = self._create_temp_dataset(
+                temp_train_data_collection = self._create_temp_data_collection(
                     X_train, y_train, f"train_trial_{trial.number}"
                 )
 
-                adapter.fit(temp_detector, temp_train_dataset)
-                temp_val_dataset = self._create_temp_dataset(
+                adapter.fit(temp_detector, temp_train_data_collection)
+                temp_val_data_collection = self._create_temp_data_collection(
                     X_val, y_val, f"val_trial_{trial.number}"
                 )
                 score = asyncio.run(
-                    self._evaluate_model_score(temp_detector, adapter, temp_val_dataset)
+                    self._evaluate_processor_score(temp_detector, adapter, temp_val_data_collection)
                 )
                 return score
             except Exception as e:
@@ -683,48 +683,48 @@ class AutomatedTrainingService:
 
         return best_params, optimization_history
 
-    async def _evaluate_model(
+    async def _evaluate_processor(
         self,
         detector: Any,
         adapter: AlgorithmAdapter,
-        val_dataset: Dataset,
+        val_data_collection: DataCollection,
         algorithm_name: str,
     ) -> ModelMetrics:
-        """Evaluate a trained model and return comprehensive metrics."""
+        """Evaluate a trained processor and return comprehensive measurements."""
         start_time = datetime.utcnow()
 
         try:
             # Get predictions and scores using the adapter
-            predictions = adapter.predict(detector, val_dataset)
-            scores = adapter.score(detector, val_dataset)
+            predictions = adapter.predict(detector, val_data_collection)
+            scores = adapter.score(detector, val_data_collection)
 
             # Extract actual score values
             score_values = np.array([score.value for score in scores])
 
             # Get true labels if available
-            if val_dataset.has_target:
-                y_true = val_dataset.target.values
+            if val_data_collection.has_target:
+                y_true = val_data_collection.target.values
 
-                # Handle anomaly detection vs classification
-                if self._is_anomaly_detection_task(y_true):
-                    metrics_dict = self._calculate_anomaly_metrics(
+                # Handle anomaly processing vs classification
+                if self._is_anomaly_processing_task(y_true):
+                    measurements_dict = self._calculate_anomaly_measurements(
                         y_true, score_values, np.array(predictions)
                     )
                 else:
                     # For classification, use predictions directly
-                    metrics_dict = self._calculate_classification_metrics(
+                    measurements_dict = self._calculate_classification_measurements(
                         y_true, np.array(predictions), score_values
                     )
             else:
-                # For unsupervised learning, create dummy metrics
-                metrics_dict = {
+                # For unsupervised learning, create dummy measurements
+                measurements_dict = {
                     "accuracy": 0.0,
                     "precision": 0.0,
                     "recall": 0.0,
                     "f1_score": 0.0,
                     "roc_auc": 0.0,
                     "confusion_matrix": [[0, 0], [0, 0]],
-                    "additional_metrics": {
+                    "additional_measurements": {
                         "anomaly_ratio": np.mean(predictions),
                         "score_mean": np.mean(score_values),
                         "score_std": np.std(score_values),
@@ -734,21 +734,21 @@ class AutomatedTrainingService:
             inference_time = (datetime.utcnow() - start_time).total_seconds()
 
             return ModelMetrics(
-                accuracy=metrics_dict["accuracy"],
-                precision=metrics_dict["precision"],
-                recall=metrics_dict["recall"],
-                f1_score=metrics_dict["f1_score"],
-                roc_auc=metrics_dict["roc_auc"],
-                confusion_matrix=metrics_dict["confusion_matrix"],
+                accuracy=measurements_dict["accuracy"],
+                precision=measurements_dict["precision"],
+                recall=measurements_dict["recall"],
+                f1_score=measurements_dict["f1_score"],
+                roc_auc=measurements_dict["roc_auc"],
+                confusion_matrix=measurements_dict["confusion_matrix"],
                 training_time=0.0,  # Will be set by caller
                 inference_time=inference_time,
                 algorithm=algorithm_name,
-                additional_metrics=metrics_dict.get("additional_metrics", {}),
+                additional_measurements=measurements_dict.get("additional_measurements", {}),
             )
 
         except Exception as e:
-            logger.error(f"Error evaluating model: {e}")
-            # Return default metrics
+            logger.error(f"Error evaluating processor: {e}")
+            # Return default measurements
             return ModelMetrics(
                 accuracy=0.0,
                 precision=0.0,
@@ -759,13 +759,13 @@ class AutomatedTrainingService:
                 training_time=0.0,
                 inference_time=0.0,
                 algorithm=algorithm_name,
-                additional_metrics={},
+                additional_measurements={},
             )
 
     def _calculate_anomaly_metrics(
         self, y_true: np.ndarray, y_scores: np.ndarray, y_pred: np.ndarray
     ) -> dict[str, Any]:
-        """Calculate metrics for anomaly detection tasks."""
+        """Calculate measurements for anomaly processing tasks."""
         return {
             "accuracy": accuracy_score(y_true, y_pred),
             "precision": precision_score(y_true, y_pred, zero_division=0),
@@ -775,7 +775,7 @@ class AutomatedTrainingService:
                 roc_auc_score(y_true, y_scores) if len(np.unique(y_true)) > 1 else 0.0
             ),
             "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
-            "additional_metrics": {
+            "additional_measurements": {
                 "anomaly_ratio": np.mean(y_pred),
                 "score_mean": np.mean(y_scores),
                 "score_std": np.std(y_scores),
@@ -785,7 +785,7 @@ class AutomatedTrainingService:
     def _calculate_classification_metrics(
         self, y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.ndarray
     ) -> dict[str, Any]:
-        """Calculate metrics for classification tasks."""
+        """Calculate measurements for classification tasks."""
         return {
             "accuracy": accuracy_score(y_true, y_pred),
             "precision": precision_score(
@@ -799,25 +799,25 @@ class AutomatedTrainingService:
                 else 0.0
             ),
             "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
-            "additional_metrics": {
+            "additional_measurements": {
                 "classification_report": classification_report(
                     y_true, y_pred, output_dict=True
                 )
             },
         }
 
-    async def _select_best_model(
+    async def _select_best_processor(
         self, training_results: list[dict[str, Any]], config: TrainingConfigDTO
     ) -> ModelVersion | None:
         """
-        Select the best model based on specified criteria.
+        Select the best processor based on specified criteria.
 
         Args:
             training_results: Results from all trained models
             config: Training configuration with selection criteria
 
         Returns:
-            Best model version or None if no models trained successfully
+            Best processor version or None if no models trained successfully
         """
         if not training_results:
             return None
@@ -827,13 +827,13 @@ class AutomatedTrainingService:
         selection_strategy = config.selection_strategy or "best_single_metric"
 
         if selection_strategy == "best_single_metric":
-            # Select model with best primary metric
+            # Select processor with best primary metric
             best_result = max(
-                training_results, key=lambda x: x["metrics"].get(primary_metric, 0.0)
+                training_results, key=lambda x: x["measurements"].get(primary_metric, 0.0)
             )
 
         elif selection_strategy == "weighted_score":
-            # Select model with best weighted score across multiple metrics
+            # Select processor with best weighted score across multiple measurements
             weights = config.metric_weights or {
                 "f1_score": 0.4,
                 "precision": 0.3,
@@ -841,9 +841,9 @@ class AutomatedTrainingService:
             }
 
             def calculate_weighted_score(result):
-                metrics = result["metrics"]
+                measurements = result["measurements"]
                 return sum(
-                    weights.get(metric, 0.0) * metrics.get(metric, 0.0)
+                    weights.get(metric, 0.0) * measurements.get(metric, 0.0)
                     for metric in weights
                 )
 
@@ -851,18 +851,18 @@ class AutomatedTrainingService:
 
         elif selection_strategy == "pareto_optimal":
             # Select from Pareto-optimal solutions
-            pareto_optimal = self._find_pareto_optimal_models(training_results)
+            pareto_optimal = self._find_pareto_optimal_processors(training_results)
             # For simplicity, select the one with best F1 score among Pareto-optimal
             best_result = max(
-                pareto_optimal, key=lambda x: x["metrics"].get("f1_score", 0.0)
+                pareto_optimal, key=lambda x: x["measurements"].get("f1_score", 0.0)
             )
 
         else:
             raise TrainingError(f"Unknown selection strategy: {selection_strategy}")
 
-        # Load and return the best model
-        model_id = best_result["model_id"]
-        return await self.model_repository.get_version(model_id)
+        # Load and return the best processor
+        processor_id = best_result["processor_id"]
+        return await self.processor_repository.get_version(processor_id)
 
     def _find_pareto_optimal_models(
         self, training_results: list[dict[str, Any]]
@@ -884,8 +884,8 @@ class AutomatedTrainingService:
             strictly_better_in_one = False
 
             for objective in objectives:
-                val1 = result1["metrics"].get(objective, 0.0)
-                val2 = result2["metrics"].get(objective, 0.0)
+                val1 = result1["measurements"].get(objective, 0.0)
+                val2 = result2["measurements"].get(objective, 0.0)
 
                 if val1 < val2:
                     better_in_all = False
@@ -913,13 +913,13 @@ class AutomatedTrainingService:
     # Helper methods
     async def _validate_training_request(self, request: TrainingRequestDTO) -> None:
         """Validate training request."""
-        if not request.dataset_id:
-            raise DataValidationError("Dataset ID is required")
+        if not request.data_collection_id:
+            raise DataValidationError("DataCollection ID is required")
 
-        # Check if dataset exists
-        dataset = await self._load_dataset(request.dataset_id)
-        if not dataset:
-            raise DataValidationError(f"Dataset not found: {request.dataset_id}")
+        # Check if data_collection exists
+        data_collection = await self._load_data_collection(request.data_collection_id)
+        if not data_collection:
+            raise DataValidationError(f"DataCollection not found: {request.data_collection_id}")
 
         # Validate algorithms
         if request.algorithms:
@@ -927,30 +927,30 @@ class AutomatedTrainingService:
                 if algorithm not in self.algorithm_adapters:
                     raise TrainingError(f"Algorithm not supported: {algorithm}")
 
-    async def _load_dataset(self, dataset_id: str) -> Dataset:
-        """Load dataset by ID."""
-        # Try to load from dataset repository if available
+    async def _load_data_collection(self, data_collection_id: str) -> DataCollection:
+        """Load data_collection by ID."""
+        # Try to load from data_collection repository if available
         try:
             from monorepo.infrastructure.config.container import Container
 
-            # Get dataset repository from container
+            # Get data_collection repository from container
             container = Container()
-            dataset_repo = container.get_dataset_repository()
+            data_collection_repo = container.get_data_collection_repository()
 
-            # Find dataset by ID
-            dataset = dataset_repo.find_by_id(dataset_id)
-            if dataset:
-                return dataset
+            # Find data_collection by ID
+            data_collection = data_collection_repo.find_by_id(data_collection_id)
+            if data_collection:
+                return data_collection
 
         except Exception as e:
-            logger.warning(f"Could not load dataset from repository: {e}")
+            logger.warning(f"Could not load data_collection from repository: {e}")
 
-        # Fallback: generate synthetic dataset for testing
-        logger.info(f"Generating synthetic dataset for ID: {dataset_id}")
+        # Fallback: generate synthetic data_collection for testing
+        logger.info(f"Generating synthetic data_collection for ID: {data_collection_id}")
 
-        # Create different types of synthetic data based on dataset_id
-        if "anomaly" in dataset_id.lower():
-            # Generate anomaly detection dataset
+        # Create different types of synthetic data based on data_collection_id
+        if "anomaly" in data_collection_id.lower():
+            # Generate anomaly processing data_collection
             n_samples = 1000
             n_features = 10
             contamination = 0.1
@@ -980,8 +980,8 @@ class AutomatedTrainingService:
             X = X[indices]
             y = y[indices]
 
-        elif "classification" in dataset_id.lower():
-            # Generate classification dataset
+        elif "classification" in data_collection_id.lower():
+            # Generate classification data_collection
             from sklearn.datasets import make_classification
 
             X, y = make_classification(
@@ -994,7 +994,7 @@ class AutomatedTrainingService:
             )
 
         else:
-            # Generate general dataset
+            # Generate general data_collection
             n_samples = 1000
             n_features = 10
             X = np.random.randn(n_samples, n_features)
@@ -1005,9 +1005,9 @@ class AutomatedTrainingService:
         data_df = pd.DataFrame(X, columns=feature_names)
         data_df["target"] = y
 
-        # Create Dataset entity
-        dataset = Dataset(
-            name=f"synthetic_dataset_{dataset_id}",
+        # Create DataCollection entity
+        data_collection = DataCollection(
+            name=f"synthetic_data_collection_{data_collection_id}",
             data=data_df,
             feature_names=feature_names,
             target_column="target",
@@ -1016,24 +1016,24 @@ class AutomatedTrainingService:
                 "n_samples": len(X),
                 "n_features": X.shape[1],
                 "contamination": np.mean(y)
-                if "anomaly" in dataset_id.lower()
+                if "anomaly" in data_collection_id.lower()
                 else None,
             },
         )
 
-        return dataset
+        return data_collection
 
     async def _prepare_training_data(
-        self, dataset: Dataset, config: TrainingConfigDTO
+        self, data_collection: DataCollection, config: TrainingConfigDTO
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Prepare training data from dataset."""
+        """Prepare training data from data_collection."""
         try:
             # Get feature data
-            X = dataset.features.values
+            X = data_collection.features.values
 
             # Get target data
-            if dataset.has_target:
-                y = dataset.target.values
+            if data_collection.has_target:
+                y = data_collection.target.values
             else:
                 # For unsupervised learning, create dummy targets
                 y = np.zeros(len(X))
@@ -1061,9 +1061,9 @@ class AutomatedTrainingService:
         except Exception as e:
             logger.error(f"Error preparing training data: {e}")
             # Fallback to basic data extraction
-            X = dataset.data.select_dtypes(include=[np.number]).values
-            if dataset.has_target:
-                y = dataset.target.values
+            X = data_collection.data.select_dtypes(include=[np.number]).values
+            if data_collection.has_target:
+                y = data_collection.target.values
             else:
                 y = np.zeros(len(X))
 
@@ -1198,14 +1198,14 @@ class AutomatedTrainingService:
         return len(np.unique(y)) <= 10  # Arbitrary threshold
 
     def _is_anomaly_detection_task(self, y: np.ndarray) -> bool:
-        """Check if this is an anomaly detection task."""
+        """Check if this is an anomaly processing task."""
         return len(np.unique(y)) == 2 and np.min(y) == 0 and np.max(y) == 1
 
-    async def _serialize_model(self, model: Any) -> bytes:
-        """Serialize model for storage."""
+    async def _serialize_processor(self, processor: Any) -> bytes:
+        """Serialize processor for storage."""
         import pickle
 
-        return pickle.dumps(model)
+        return pickle.dumps(processor)
 
     async def _update_job_status(
         self,
@@ -1229,13 +1229,13 @@ class AutomatedTrainingService:
 
     async def list_training_jobs(
         self,
-        dataset_id: str | None = None,
+        data_collection_id: str | None = None,
         status: str | None = None,  # TrainingStatus
         limit: int = 100,
     ) -> list[Any]:  # list[TrainingJob]
         """List training jobs with optional filtering."""
         return await self.training_repository.list_jobs(
-            dataset_id=dataset_id, status=status, limit=limit
+            data_collection_id=data_collection_id, status=status, limit=limit
         )
 
     async def cancel_training_job(self, job_id: str) -> bool:
@@ -1255,13 +1255,13 @@ class AutomatedTrainingService:
 
         return False
 
-    async def get_training_metrics(self) -> dict[str, Any]:
-        """Get training service metrics."""
+    async def get_training_measurements(self) -> dict[str, Any]:
+        """Get training service measurements."""
         return {
             "active_jobs": len(self.active_jobs),
             "queued_jobs": len(self.job_queue),
-            "training_metrics": self.training_metrics,
-            "best_models": self.best_models,
+            "training_measurements": self.training_measurements,
+            "best_processors": self.best_processors,
         }
 
     def _get_default_hyperparameter_space(self, algorithm_name: str) -> dict[str, Any]:
@@ -1359,7 +1359,7 @@ class AutomatedTrainingService:
         )
 
     def _create_temp_dataset(self, X: np.ndarray, y: np.ndarray, name: str) -> Dataset:
-        """Create a temporary dataset for hyperparameter optimization."""
+        """Create a temporary data_collection for hyperparameter optimization."""
         # Create DataFrame
         feature_names = [f"feature_{i}" for i in range(X.shape[1])]
         data_df = pd.DataFrame(X, columns=feature_names)
@@ -1370,35 +1370,35 @@ class AutomatedTrainingService:
         else:
             target_column = None
 
-        return Dataset(
+        return DataCollection(
             name=name,
             data=data_df,
             feature_names=feature_names,
             target_column=target_column,
         )
 
-    async def _evaluate_model_score(
-        self, detector: Any, adapter: AlgorithmAdapter, val_dataset: Dataset
+    async def _evaluate_processor_score(
+        self, detector: Any, adapter: AlgorithmAdapter, val_data_collection: DataCollection
     ) -> float:
-        """Get a single score for model comparison during optimization."""
+        """Get a single score for processor comparison during optimization."""
         try:
             # Get predictions using the adapter
-            predictions = adapter.predict(detector, val_dataset)
-            scores = adapter.score(detector, val_dataset)
+            predictions = adapter.predict(detector, val_data_collection)
+            scores = adapter.score(detector, val_data_collection)
 
             # Extract actual scores as floats
             score_values = [score.value for score in scores]
 
             # Get true labels
-            if val_dataset.has_target:
-                y_true = val_dataset.target.values
+            if val_data_collection.has_target:
+                y_true = val_data_collection.target.values
 
                 # Calculate F1 score if we have binary classification
                 if len(np.unique(y_true)) == 2:
                     return f1_score(
                         y_true, predictions, average="weighted", zero_division=0
                     )
-                # For anomaly detection, use AUC if possible
+                # For anomaly processing, use AUC if possible
                 elif len(np.unique(y_true)) > 1:
                     return roc_auc_score(y_true, score_values)
                 else:
@@ -1408,5 +1408,5 @@ class AutomatedTrainingService:
                 return np.mean(score_values)
 
         except Exception as e:
-            logger.warning(f"Error evaluating model score: {e}")
+            logger.warning(f"Error evaluating processor score: {e}")
             return 0.0

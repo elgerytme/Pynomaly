@@ -1,4 +1,4 @@
-"""Autonomous data loading and format detection."""
+"""Autonomous data loading and format processing."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class AutonomousDataLoader:
-    """Service for autonomous data loading with format detection."""
+    """Service for autonomous data loading with format processing."""
 
     def __init__(self, data_loaders: dict[str, DataLoaderProtocol]):
         """Initialize data loader.
@@ -29,7 +29,7 @@ class AutonomousDataLoader:
 
     async def auto_load_data(
         self, data_source: str | Path | pd.DataFrame, config: AutonomousConfig
-    ) -> Dataset:
+    ) -> DataCollection:
         """Automatically detect and load data source.
 
         Args:
@@ -37,11 +37,11 @@ class AutonomousDataLoader:
             config: Configuration options
 
         Returns:
-            Loaded dataset
+            Loaded data_collection
         """
         if isinstance(data_source, pd.DataFrame):
             # Direct DataFrame
-            return Dataset(
+            return DataCollection(
                 name="autonomous_data",
                 data=data_source,
                 metadata={"source": "dataframe", "loader": "direct"},
@@ -76,7 +76,7 @@ class AutonomousDataLoader:
         """
         extension = source_path.suffix.lower()
 
-        # Extension-based detection
+        # Extension-based processing
         format_map = {
             ".csv": "csv",
             ".tsv": "csv",
@@ -93,7 +93,7 @@ class AutonomousDataLoader:
         if extension in format_map:
             return format_map[extension]
 
-        # Content-based detection for ambiguous files
+        # Content-based processing for ambiguous files
         try:
             with open(source_path, encoding="utf-8") as f:
                 first_line = f.readline()

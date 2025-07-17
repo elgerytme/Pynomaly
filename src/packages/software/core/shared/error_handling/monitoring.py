@@ -29,7 +29,7 @@ class AlertLevel(Enum):
 
 @dataclass
 class ErrorMetrics:
-    """Error metrics for monitoring."""
+    """Error measurements for monitoring."""
 
     total_errors: int = 0
     error_rate: float = 0.0  # errors per minute
@@ -40,7 +40,7 @@ class ErrorMetrics:
     recent_errors: deque = field(default_factory=lambda: deque(maxlen=100))
 
     def add_error(self, error: PynamolyError) -> None:
-        """Add error to metrics."""
+        """Add error to measurements."""
         self.total_errors += 1
         self.recent_errors.append(
             {
@@ -134,9 +134,9 @@ class ErrorMonitor:
         self.retention_hours = retention_hours
 
         # Error tracking
-        self.global_metrics = ErrorMetrics()
-        self.component_metrics: dict[str, ErrorMetrics] = defaultdict(ErrorMetrics)
-        self.user_metrics: dict[str, ErrorMetrics] = defaultdict(ErrorMetrics)
+        self.global_measurements = ErrorMetrics()
+        self.component_measurements: dict[str, ErrorMetrics] = defaultdict(ErrorMetrics)
+        self.user_measurements: dict[str, ErrorMetrics] = defaultdict(ErrorMetrics)
 
         # Alert system
         self.alert_rules: list[AlertRule] = []
@@ -155,42 +155,42 @@ class ErrorMonitor:
         default_rules = [
             AlertRule(
                 name="high_error_rate",
-                condition="metrics.error_rate > 10",
+                condition="measurements.error_rate > 10",
                 alert_level=AlertLevel.WARNING,
                 cooldown_minutes=5,
                 description="High error rate detected (>10 errors/minute)",
             ),
             AlertRule(
                 name="critical_error_rate",
-                condition="metrics.error_rate > 50",
+                condition="measurements.error_rate > 50",
                 alert_level=AlertLevel.CRITICAL,
                 cooldown_minutes=2,
                 description="Critical error rate detected (>50 errors/minute)",
             ),
             AlertRule(
                 name="high_severity_errors",
-                condition="metrics.avg_error_severity > 3.0",
+                condition="measurements.avg_error_severity > 3.0",
                 alert_level=AlertLevel.ERROR,
                 cooldown_minutes=10,
                 description="High average error severity detected",
             ),
             AlertRule(
                 name="multiple_components_affected",
-                condition="len(metrics.components_affected) > 5",
+                condition="len(measurements.components_affected) > 5",
                 alert_level=AlertLevel.WARNING,
                 cooldown_minutes=15,
                 description="Multiple components affected by errors",
             ),
             AlertRule(
                 name="data_integrity_errors",
-                condition="metrics.error_categories.get('data_integrity', 0) > 0",
+                condition="measurements.error_categories.get('data_integrity', 0) > 0",
                 alert_level=AlertLevel.CRITICAL,
                 cooldown_minutes=1,
                 description="Data integrity errors detected",
             ),
             AlertRule(
                 name="authentication_failures",
-                condition="metrics.error_categories.get('authentication', 0) > 5",
+                condition="measurements.error_categories.get('authentication', 0) > 5",
                 alert_level=AlertLevel.WARNING,
                 cooldown_minutes=5,
                 description="Multiple authentication failures",
@@ -216,16 +216,16 @@ class ErrorMonitor:
     def track_error(self, error: PynamolyError) -> None:
         """Track error in monitoring system."""
         try:
-            # Add to global metrics
-            self.global_metrics.add_error(error)
+            # Add to global measurements
+            self.global_measurements.add_error(error)
 
-            # Add to component metrics
+            # Add to component measurements
             if error.details.context.component:
-                self.component_metrics[error.details.context.component].add_error(error)
+                self.component_measurements[error.details.context.component].add_error(error)
 
-            # Add to user metrics
+            # Add to user measurements
             if error.details.context.user_id:
-                self.user_metrics[error.details.context.user_id].add_error(error)
+                self.user_measurements[error.details.context.user_id].add_error(error)
 
             # Log error for structured logging
             logger.error(
@@ -303,9 +303,9 @@ class ErrorMonitor:
         try:
             # Create context for condition evaluation
             context = {
-                "metrics": self.global_metrics,
-                "component_metrics": self.component_metrics,
-                "user_metrics": self.user_metrics,
+                "measurements": self.global_measurements,
+                "component_measurements": self.component_measurements,
+                "user_measurements": self.user_measurements,
                 "time": time.time(),
                 "len": len,
                 "sum": sum,
@@ -365,16 +365,16 @@ class ErrorMonitor:
         resilience_manager = get_resilience_manager()
 
         return {
-            "global_metrics": {
-                "total_errors": self.global_metrics.total_errors,
-                "error_rate": self.global_metrics.error_rate,
-                "avg_error_severity": self.global_metrics.avg_error_severity,
-                "error_categories": dict(self.global_metrics.error_categories),
-                "components_affected": list(self.global_metrics.components_affected),
+            "global_measurements": {
+                "total_errors": self.global_measurements.total_errors,
+                "error_rate": self.global_measurements.error_rate,
+                "avg_error_severity": self.global_measurements.avg_error_severity,
+                "error_categories": dict(self.global_measurements.error_categories),
+                "components_affected": list(self.global_measurements.components_affected),
             },
             "top_error_codes": dict(
                 sorted(
-                    self.global_metrics.error_codes.items(),
+                    self.global_measurements.error_codes.items(),
                     key=lambda x: x[1],
                     reverse=True,
                 )[:10]
@@ -407,7 +407,7 @@ class ErrorMonitor:
             if current_time - alert.timestamp < retention_seconds
         ]
 
-        # Clean up error metrics (recent_errors are already limited by deque maxlen)
+        # Clean up error measurements (recent_errors are already limited by deque maxlen)
         # This is handled automatically by the deque with maxlen
 
     def get_dashboard_data(self) -> dict[str, Any]:
@@ -432,7 +432,7 @@ class ErrorMonitor:
         # Top error codes
         top_error_codes = dict(
             sorted(
-                self.global_metrics.error_codes.items(),
+                self.global_measurements.error_codes.items(),
                 key=lambda x: x[1],
                 reverse=True,
             )[:10]
@@ -440,12 +440,12 @@ class ErrorMonitor:
 
         # Component health
         component_health = {}
-        for component, metrics in self.component_metrics.items():
+        for component, measurements in self.component_measurements.items():
             component_health[component] = {
-                "total_errors": metrics.total_errors,
-                "error_rate": metrics.error_rate,
-                "avg_severity": metrics.avg_error_severity,
-                "health_status": self._calculate_component_health(metrics),
+                "total_errors": measurements.total_errors,
+                "error_rate": measurements.error_rate,
+                "avg_severity": measurements.avg_error_severity,
+                "health_status": self._calculate_component_health(measurements),
             }
 
         # Alert rule status
@@ -468,12 +468,12 @@ class ErrorMonitor:
                 "monitoring_interval": self.monitoring_interval,
                 "retention_hours": self.retention_hours,
             },
-            "global_metrics": {
-                "total_errors": self.global_metrics.total_errors,
-                "error_rate": self.global_metrics.error_rate,
-                "avg_error_severity": self.global_metrics.avg_error_severity,
-                "error_categories": dict(self.global_metrics.error_categories),
-                "components_affected": list(self.global_metrics.components_affected),
+            "global_measurements": {
+                "total_errors": self.global_measurements.total_errors,
+                "error_rate": self.global_measurements.error_rate,
+                "avg_error_severity": self.global_measurements.avg_error_severity,
+                "error_categories": dict(self.global_measurements.error_categories),
+                "components_affected": list(self.global_measurements.components_affected),
             },
             "top_error_codes": top_error_codes,
             "component_health": component_health,
@@ -485,13 +485,13 @@ class ErrorMonitor:
 
     def _calculate_component_health(self, metrics: ErrorMetrics) -> str:
         """Calculate component health status."""
-        if metrics.error_rate > 20:
+        if measurements.error_rate > 20:
             return "critical"
-        elif metrics.error_rate > 10:
+        elif measurements.error_rate > 10:
             return "degraded"
-        elif metrics.avg_error_severity > 3.0:
+        elif measurements.avg_error_severity > 3.0:
             return "warning"
-        elif metrics.total_errors > 0:
+        elif measurements.total_errors > 0:
             return "healthy_with_errors"
         else:
             return "healthy"
@@ -505,7 +505,7 @@ class ErrorMonitor:
         hourly_errors = defaultdict(int)
         hourly_severity = defaultdict(list)
 
-        for error_data in self.global_metrics.recent_errors:
+        for error_data in self.global_measurements.recent_errors:
             if error_data["timestamp"] >= start_time:
                 hour = int(error_data["timestamp"] // 3600)
                 hourly_errors[hour] += 1

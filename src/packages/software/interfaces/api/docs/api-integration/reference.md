@@ -5,7 +5,7 @@
 ---
 
 
-This comprehensive API reference provides complete documentation for all Pynomaly REST API endpoints, including request/response schemas, authentication, error handling, and code examples.
+This comprehensive API reference provides complete documentation for all Software REST API endpoints, including request/response schemas, authentication, error handling, and code examples.
 
 ## Table of Contents
 
@@ -15,10 +15,10 @@ This comprehensive API reference provides complete documentation for all Pynomal
 4. [Rate Limiting](#rate-limiting)
 5. [Core Endpoints](#core-endpoints)
 6. [Detector Management](#detector-management)
-7. [Dataset Management](#dataset-management)
-8. [Detection Operations](#detection-operations)
+7. [DataCollection Management](#data_collection-management)
+8. [Processing Operations](#processing-operations)
 9. [Experiment Management](#experiment-management)
-10. [Model Management](#model-management)
+10. [Processor Management](#processor-management)
 11. [WebSocket API](#websocket-api)
 12. [SDK Examples](#sdk-examples)
 
@@ -231,7 +231,7 @@ All error responses follow this format:
   "RESOURCE_CONFLICT": "Resource already exists",
   "RATE_LIMIT_EXCEEDED": "API rate limit exceeded",
   "DETECTOR_TRAINING_FAILED": "Detector training failed",
-  "DATASET_INVALID": "Dataset validation failed",
+  "DATASET_INVALID": "DataCollection validation failed",
   "INTERNAL_ERROR": "Internal server error occurred"
 }
 ```
@@ -283,9 +283,9 @@ Detailed system status.
     "cpu_usage": 0.25,
     "disk_usage": 0.45
   },
-  "metrics": {
+  "measurements": {
     "active_detectors": 15,
-    "total_datasets": 42,
+    "total_data_collections": 42,
     "detections_today": 1234
   }
 }
@@ -298,7 +298,7 @@ API version information.
 ```json
 {
   "api_version": "1.0.0",
-  "pynomaly_version": "1.0.0",
+  "software_version": "1.0.0",
   "supported_algorithms": ["IsolationForest", "LOF", "OCSVM"],
   "features": ["ensemble", "streaming", "explainability"]
 }
@@ -363,7 +363,7 @@ Create a new detector.
     "n_estimators": 100,
     "max_samples": "auto"
   },
-  "tags": ["production", "fraud-detection"]
+  "tags": ["production", "fraud-processing"]
 }
 ```
 
@@ -380,7 +380,7 @@ Create a new detector.
     "n_estimators": 100,
     "max_samples": "auto"
   },
-  "tags": ["production", "fraud-detection"],
+  "tags": ["production", "fraud-processing"],
   "created_at": "2024-01-01T00:00:00Z"
 }
 ```
@@ -410,10 +410,10 @@ Get detector details.
   },
   "training_history": [
     {
-      "dataset_id": "uuid",
+      "data_collection_id": "uuid",
       "started_at": "2024-01-01T00:00:00Z",
       "completed_at": "2024-01-01T00:00:10Z",
-      "metrics": {
+      "measurements": {
         "accuracy": 0.95,
         "f1_score": 0.92
       }
@@ -451,12 +451,12 @@ Delete detector.
 ```
 
 ### POST /detectors/{detector_id}/train
-Train detector with dataset.
+Train detector with data_collection.
 
 **Request:**
 ```json
 {
-  "dataset_id": "uuid",
+  "data_collection_id": "uuid",
   "validation_split": 0.2,
   "cross_validation": {
     "enabled": true,
@@ -491,7 +491,7 @@ Get training status.
   "progress": 0.65,
   "current_step": "validation",
   "estimated_remaining": 120,
-  "metrics": {
+  "measurements": {
     "current_accuracy": 0.87,
     "best_accuracy": 0.89,
     "training_loss": 0.23
@@ -506,8 +506,8 @@ Evaluate detector performance.
 **Request:**
 ```json
 {
-  "dataset_id": "uuid",
-  "metrics": ["accuracy", "precision", "recall", "f1_score", "auc"],
+  "data_collection_id": "uuid",
+  "measurements": ["accuracy", "precision", "recall", "f1_score", "auc"],
   "cross_validation": {
     "enabled": true,
     "folds": 5
@@ -519,7 +519,7 @@ Evaluate detector performance.
 ```json
 {
   "evaluation_id": "uuid",
-  "metrics": {
+  "measurements": {
     "accuracy": 0.95,
     "precision": 0.94,
     "recall": 0.90,
@@ -539,7 +539,7 @@ Evaluate detector performance.
 }
 ```
 
-## Dataset Management
+## DataCollection Management
 
 ### GET /datasets
 List all datasets.
@@ -549,7 +549,7 @@ List all datasets.
 - `limit`: Items per page
 - `format`: Filter by format (csv, parquet, json)
 - `status`: Filter by status (valid, invalid, processing)
-- `search`: Search in dataset names
+- `search`: Search in data_collection names
 
 **Response:**
 ```json
@@ -584,13 +584,13 @@ List all datasets.
 ```
 
 ### POST /datasets
-Create dataset by uploading file.
+Create data_collection by uploading file.
 
 **Request (multipart/form-data):**
 ```
 file: [binary data]
-name: "My Dataset"
-description: "Sample dataset for testing"
+name: "My DataCollection"
+description: "Sample data_collection for testing"
 format: "csv"
 has_header: true
 delimiter: ","
@@ -601,8 +601,8 @@ encoding: "utf-8"
 ```json
 {
   "id": "uuid",
-  "name": "My Dataset",
-  "description": "Sample dataset for testing",
+  "name": "My DataCollection",
+  "description": "Sample data_collection for testing",
   "format": "csv",
   "size_bytes": 1048576,
   "status": "processing",
@@ -611,8 +611,8 @@ encoding: "utf-8"
 }
 ```
 
-### GET /datasets/{dataset_id}
-Get dataset details.
+### GET /datasets/{data_collection_id}
+Get data_collection details.
 
 **Response:**
 ```json
@@ -655,8 +655,8 @@ Get dataset details.
 }
 ```
 
-### GET /datasets/{dataset_id}/sample
-Get sample data from dataset.
+### GET /datasets/{data_collection_id}/sample
+Get sample data from data_collection.
 
 **Query Parameters:**
 - `rows`: Number of rows to return (default: 100, max: 1000)
@@ -676,8 +676,8 @@ Get sample data from dataset.
 }
 ```
 
-### POST /datasets/{dataset_id}/validate
-Validate dataset for anomaly detection.
+### POST /datasets/{data_collection_id}/validate
+Validate data_collection for anomaly processing.
 
 **Request:**
 ```json
@@ -723,20 +723,20 @@ Validate dataset for anomaly detection.
 }
 ```
 
-### DELETE /datasets/{dataset_id}
-Delete dataset.
+### DELETE /datasets/{data_collection_id}
+Delete data_collection.
 
 **Response:**
 ```json
 {
-  "message": "Dataset deleted successfully"
+  "message": "DataCollection deleted successfully"
 }
 ```
 
-## Detection Operations
+## Processing Operations
 
 ### POST /detect
-Perform anomaly detection on new data.
+Perform anomaly processing on new data.
 
 **Request:**
 ```json
@@ -758,7 +758,7 @@ Perform anomaly detection on new data.
 **Response:**
 ```json
 {
-  "detection_id": "uuid",
+  "processing_id": "uuid",
   "predictions": [0, 1, 0],
   "scores": [0.25, 0.85, 0.15],
   "explanations": [
@@ -779,13 +779,13 @@ Perform anomaly detection on new data.
 ```
 
 ### POST /detect/batch
-Batch anomaly detection on dataset.
+Batch anomaly processing on data_collection.
 
 **Request:**
 ```json
 {
   "detector_id": "uuid",
-  "dataset_id": "uuid",
+  "data_collection_id": "uuid",
   "options": {
     "return_scores": true,
     "return_explanations": false,
@@ -807,7 +807,7 @@ Batch anomaly detection on dataset.
 ```
 
 ### GET /detect/batch/{job_id}
-Get batch detection status.
+Get batch processing status.
 
 **Response:**
 ```json
@@ -830,7 +830,7 @@ Get batch detection status.
 ```
 
 ### POST /detect/stream
-Start streaming detection.
+Start streaming processing.
 
 **Request:**
 ```json
@@ -861,7 +861,7 @@ Start streaming detection.
 ```
 
 ### GET /detect/stream/{stream_id}
-Get streaming detection status.
+Get streaming processing status.
 
 **Response:**
 ```json
@@ -879,7 +879,7 @@ Get streaming detection status.
 ```
 
 ### DELETE /detect/stream/{stream_id}
-Stop streaming detection.
+Stop streaming processing.
 
 **Response:**
 ```json
@@ -913,7 +913,7 @@ List experiments.
           "parameters": {"contamination": 0.1}
         }
       ],
-      "dataset_id": "uuid",
+      "data_collection_id": "uuid",
       "results": {
         "best_algorithm": "IsolationForest",
         "best_score": 0.95,
@@ -932,8 +932,8 @@ Create new experiment.
 ```json
 {
   "name": "Algorithm Comparison",
-  "description": "Compare different algorithms on fraud dataset",
-  "dataset_id": "uuid",
+  "description": "Compare different algorithms on fraud data_collection",
+  "data_collection_id": "uuid",
   "detector_configs": [
     {
       "algorithm": "IsolationForest",
@@ -944,7 +944,7 @@ Create new experiment.
       "parameters": {"contamination": 0.1, "n_neighbors": 20}
     }
   ],
-  "evaluation_metrics": ["accuracy", "precision", "recall", "f1_score"],
+  "evaluation_measurements": ["accuracy", "precision", "recall", "f1_score"],
   "cross_validation": {
     "enabled": true,
     "folds": 5
@@ -976,7 +976,7 @@ Get experiment results.
     "algorithms": [
       {
         "algorithm": "IsolationForest",
-        "metrics": {
+        "measurements": {
           "accuracy": 0.95,
           "precision": 0.92,
           "recall": 0.88,
@@ -987,7 +987,7 @@ Get experiment results.
       },
       {
         "algorithm": "LOF",
-        "metrics": {
+        "measurements": {
           "accuracy": 0.91,
           "precision": 0.89,
           "recall": 0.85,
@@ -1005,7 +1005,7 @@ Get experiment results.
 }
 ```
 
-## Model Management
+## Processor Management
 
 ### GET /models
 List trained models.
@@ -1030,8 +1030,8 @@ List trained models.
 }
 ```
 
-### POST /models/{model_id}/export
-Export trained model.
+### POST /models/{processor_id}/export
+Export trained processor.
 
 **Request:**
 ```json
@@ -1045,18 +1045,18 @@ Export trained model.
 ```json
 {
   "export_id": "uuid",
-  "download_url": "https://api.pynomaly.com/downloads/model_uuid.pkl",
+  "download_url": "https://api.pynomaly.com/downloads/processor_uuid.pkl",
   "expires_at": "2024-01-01T01:00:00Z",
   "size_bytes": 1048576
 }
 ```
 
 ### POST /models/import
-Import pre-trained model.
+Import pre-trained processor.
 
 **Request (multipart/form-data):**
 ```
-file: [binary model file]
+file: [binary processor file]
 metadata: {
   "algorithm": "IsolationForest",
   "version": "1.0.0",
@@ -1067,7 +1067,7 @@ metadata: {
 **Response:**
 ```json
 {
-  "model_id": "uuid",
+  "processor_id": "uuid",
   "detector_id": "uuid",
   "status": "imported",
   "validation_results": {
@@ -1085,7 +1085,7 @@ metadata: {
 Connect to WebSocket for real-time updates:
 
 ```javascript
-const ws = new WebSocket('wss://api.pynomaly.com/ws');
+const ws = new WebSocket('wss://api.software.com/ws');
 ```
 
 ### Authentication
@@ -1106,7 +1106,7 @@ Subscribe to specific events:
 ```json
 {
   "type": "subscribe",
-  "channels": ["detector.training", "detection.anomaly", "system.alerts"]
+  "channels": ["detector.training", "processing.anomaly", "system.alerts"]
 }
 ```
 
@@ -1119,7 +1119,7 @@ Subscribe to specific events:
   "detector_id": "uuid",
   "status": "training",
   "progress": 0.65,
-  "metrics": {
+  "measurements": {
     "current_accuracy": 0.87
   },
   "timestamp": "2024-01-01T00:00:00Z"
@@ -1129,7 +1129,7 @@ Subscribe to specific events:
 #### Anomaly Alerts
 ```json
 {
-  "type": "detection.anomaly",
+  "type": "processing.anomaly",
   "detector_id": "uuid",
   "anomaly": {
     "score": 0.95,
@@ -1174,8 +1174,8 @@ detector = client.detectors.create(
     parameters={"contamination": 0.1, "n_estimators": 100}
 )
 
-# Upload dataset
-dataset = client.datasets.upload(
+# Upload data_collection
+data_collection = client.datasets.upload(
     file_path="data.csv",
     name="Training Data",
     has_header=True
@@ -1184,13 +1184,13 @@ dataset = client.datasets.upload(
 # Train detector
 training_job = client.detectors.train(
     detector_id=detector.id,
-    dataset_id=dataset.id
+    data_collection_id=data_collection.id
 )
 
 # Wait for training completion
 training_job.wait_for_completion()
 
-# Perform detection
+# Perform processing
 results = client.detect(
     detector_id=detector.id,
     data=[[1.5, 2.3, 4.1], [2.1, 3.7, 5.2]],
@@ -1219,8 +1219,8 @@ const detector = await client.detectors.create({
   parameters: { contamination: 0.1, n_estimators: 100 }
 });
 
-// Upload dataset
-const dataset = await client.datasets.upload({
+// Upload data_collection
+const data_collection = await client.datasets.upload({
   file: fileObject,
   name: 'Training Data',
   hasHeader: true
@@ -1229,7 +1229,7 @@ const dataset = await client.datasets.upload({
 // Train detector
 const trainingJob = await client.detectors.train({
   detectorId: detector.id,
-  datasetId: dataset.id
+  datasetId: data_collection.id
 });
 
 // Monitor training progress
@@ -1239,7 +1239,7 @@ trainingJob.onProgress((progress) => {
 
 await trainingJob.waitForCompletion();
 
-// Perform detection
+// Perform processing
 const results = await client.detect({
   detectorId: detector.id,
   data: [[1.5, 2.3, 4.1], [2.1, 3.7, 5.2]],
@@ -1328,7 +1328,7 @@ try {
 }
 ```
 
-This comprehensive API reference provides complete documentation for all Pynomaly endpoints, including authentication, error handling, and practical examples for common use cases. The API is designed to be RESTful, well-documented, and easy to integrate with various programming languages and frameworks.
+This comprehensive API reference provides complete documentation for all Software endpoints, including authentication, error handling, and practical examples for common use cases. The API is designed to be RESTful, well-documented, and easy to integrate with various programming languages and frameworks.
 
 ---
 

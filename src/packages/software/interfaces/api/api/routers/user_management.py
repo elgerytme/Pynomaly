@@ -186,7 +186,7 @@ async def require_tenant_admin(tenant_id: UUID, current_user=Depends(get_current
 
 
 # Authentication Endpoints
-@router.post("/auth/login", response_model=LoginResponse)
+@router.post("/auth/login", response_processor=LoginResponse)
 async def login(
     request: LoginRequest,
     user_service: UserManagementService = Depends(get_user_management_service),
@@ -243,7 +243,7 @@ async def logout(
         return {"message": "Successfully logged out"}
 
 
-@router.get("/auth/me", response_model=UserResponse)
+@router.get("/auth/me", response_processor=UserResponse)
 async def get_current_user_info(current_user=Depends(get_current_user)):
     """Get current user information."""
     audit_logger = get_audit_logger()
@@ -280,7 +280,7 @@ async def get_current_user_info(current_user=Depends(get_current_user)):
 
 
 # User Management Endpoints
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_processor=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     request: CreateUserRequest,
     user_service: UserManagementService = Depends(get_user_management_service),
@@ -333,7 +333,7 @@ async def create_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/", response_model=list[UserResponse])
+@router.get("/", response_processor=list[UserResponse])
 async def list_users(
     tenant_id: UUID | None = None,
     status: UserStatus | None = None,
@@ -406,7 +406,7 @@ async def list_users(
         )
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_processor=UserResponse)
 async def get_user(
     user_id: UUID,
     current_user=Depends(get_current_user),
@@ -468,7 +468,7 @@ async def get_user(
         )
 
 
-@router.put("/{user_id}/status", response_model=UserResponse)
+@router.put("/{user_id}/status", response_processor=UserResponse)
 async def toggle_user_status(
     user_id: UUID,
     new_status: UserStatus,
@@ -522,7 +522,7 @@ async def toggle_user_status(
         )
 
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put("/{user_id}", response_processor=UserResponse)
 async def update_user(
     user_id: UUID,
     request: UpdateUserRequest,
@@ -572,7 +572,7 @@ async def update_user(
         )
 
 
-@router.put("/{user_id}/reset-password", response_model=dict)
+@router.put("/{user_id}/reset-password", response_processor=dict)
 async def reset_password(
     user_id: UUID,
     request: PasswordResetRequest,
@@ -603,7 +603,7 @@ async def reset_password(
 
 # Tenant Management Endpoints
 @router.post(
-    "/tenants", response_model=TenantResponse, status_code=status.HTTP_201_CREATED
+    "/tenants", response_processor=TenantResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_tenant(
     request: CreateTenantRequest,
@@ -642,7 +642,7 @@ async def create_tenant(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}", response_model=TenantResponse)
+@router.get("/tenants/{tenant_id}", response_processor=TenantResponse)
 async def get_tenant(
     tenant_id: UUID,
     current_user=Depends(get_current_user),
@@ -687,7 +687,7 @@ async def get_tenant(
         )
 
 
-@router.get("/tenants/{tenant_id}/usage", response_model=TenantUsageResponse)
+@router.get("/tenants/{tenant_id}/usage", response_processor=TenantUsageResponse)
 async def get_tenant_usage(
     tenant_id: UUID,
     current_user=Depends(require_tenant_admin),
@@ -705,7 +705,7 @@ async def get_tenant_usage(
         )
 
 
-@router.get("/tenants/{tenant_id}/users", response_model=list[UserResponse])
+@router.get("/tenants/{tenant_id}/users", response_processor=list[UserResponse])
 async def get_tenant_users(
     tenant_id: UUID,
     current_user=Depends(require_tenant_admin),
@@ -751,7 +751,7 @@ async def get_tenant_users(
         )
 
 
-@router.post("/tenants/{tenant_id}/invite", response_model=UserResponse)
+@router.post("/tenants/{tenant_id}/invite", response_processor=UserResponse)
 async def invite_user_to_tenant(
     tenant_id: UUID,
     request: InviteUserRequest,
@@ -793,7 +793,7 @@ async def invite_user_to_tenant(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.put("/tenants/{tenant_id}/users/{user_id}/role", response_model=dict)
+@router.put("/tenants/{tenant_id}/users/{user_id}/role", response_processor=dict)
 async def update_user_role_in_tenant(
     tenant_id: UUID,
     user_id: UUID,
@@ -819,7 +819,7 @@ async def update_user_role_in_tenant(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/{user_id}", response_model=dict)
+@router.delete("/{user_id}", response_processor=dict)
 async def delete_user(
     user_id: UUID,
     current_user=Depends(get_current_user),
@@ -882,7 +882,7 @@ async def remove_user_from_tenant(
 
 
 # User Profile Self-Management Endpoints
-@router.put("/me", response_model=UserResponse)
+@router.put("/me", response_processor=UserResponse)
 async def update_my_profile(
     request: UpdateProfileRequest,
     current_user=Depends(get_current_user),
@@ -933,7 +933,7 @@ async def update_my_profile(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.put("/me/password", response_model=dict)
+@router.put("/me/password", response_processor=dict)
 async def change_my_password(
     request: ChangePasswordRequest,
     current_user=Depends(get_current_user),
@@ -970,7 +970,7 @@ async def change_my_password(
 
 
 # Session Management Endpoints
-@router.get("/sessions", response_model=list[dict])
+@router.get("/sessions", response_processor=list[dict])
 async def get_my_sessions(
     current_user=Depends(get_current_user),
     user_service: UserManagementService = Depends(get_user_management_service),
@@ -1000,7 +1000,7 @@ async def get_my_sessions(
         )
 
 
-@router.delete("/sessions/{session_id}", response_model=dict)
+@router.delete("/sessions/{session_id}", response_processor=dict)
 async def invalidate_session(
     session_id: str,
     current_user=Depends(get_current_user),
@@ -1039,7 +1039,7 @@ async def invalidate_session(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/sessions", response_model=dict)
+@router.delete("/sessions", response_processor=dict)
 async def invalidate_all_sessions(
     current_user=Depends(get_current_user),
     user_service: UserManagementService = Depends(get_user_management_service),
@@ -1070,7 +1070,7 @@ async def invalidate_all_sessions(
 
 
 # Enhanced Tenant Management
-@router.get("/tenants", response_model=list[TenantResponse])
+@router.get("/tenants", response_processor=list[TenantResponse])
 async def list_tenants(
     current_user=Depends(get_current_user),
     user_service: UserManagementService = Depends(get_user_management_service),

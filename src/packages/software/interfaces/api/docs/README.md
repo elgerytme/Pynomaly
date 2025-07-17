@@ -1,35 +1,35 @@
-# Pynomaly API Documentation
+# Software API Documentation
 
 
-# Pynomaly - Enterprise Anomaly Detection Platform
+# Software - Enterprise Anomaly Processing Platform
 
-A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+A comprehensive, production-ready anomaly processing system with enterprise-grade features.
 
 ## Features
 
-### Core Detection
-- **Anomaly Detection**: Detect anomalies in time series, tabular, and streaming data
+### Core Processing
+- **Anomaly Processing**: Detect anomalies in time series, tabular, and streaming data
 - **Multiple Algorithms**: Support for Isolation Forest, One-Class SVM, LSTM Autoencoders, and custom models
-- **Ensemble Methods**: Combine multiple detection algorithms for improved accuracy
-- **Real-time Processing**: Stream processing for continuous anomaly detection
+- **Ensemble Methods**: Combine multiple processing algorithms for improved accuracy
+- **Real-time Processing**: Stream processing for continuous anomaly processing
 
 ### MLOps Platform
-- **Model Registry**: Centralized model management with versioning and metadata
-- **Experiment Tracking**: Track experiments, parameters, and metrics
-- **Model Deployment**: Deploy models to development, staging, and production environments
-- **Automated Retraining**: Automatic model retraining based on data drift and performance degradation
+- **Processor Registry**: Centralized processor management with versioning and metadata
+- **Experiment Tracking**: Track experiments, parameters, and measurements
+- **Processor Deployment**: Deploy models to development, staging, and production environments
+- **Automated Retraining**: Automatic processor retraining based on data drift and performance degradation
 
 ### Enterprise Features
 - **Multi-tenancy**: Complete tenant isolation with role-based access control
 - **Audit Logging**: Comprehensive audit trails with compliance support (GDPR, HIPAA, SOX)
-- **Security**: JWT authentication, data encryption, and tamper detection
-- **Analytics Dashboard**: Real-time insights and business metrics
+- **Security**: JWT authentication, data encryption, and tamper processing
+- **Analytics Dashboard**: Real-time insights and business measurements
 
 ### Monitoring & Observability
-- **Health Monitoring**: System health checks and performance metrics
+- **Health Monitoring**: System health checks and performance measurements
 - **Alerting**: Real-time alerts for anomalies and system issues
 - **Compliance Reporting**: Generate compliance reports for regulatory requirements
-- **Performance Tracking**: Track model performance and system metrics
+- **Performance Tracking**: Track processor performance and system measurements
 
 ## Quick Start
 
@@ -41,10 +41,10 @@ curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
   -d '{"username": "your_username", "password": "your_password"}'
 ```
 
-### 2. Basic Anomaly Detection
+### 2. Basic Anomaly Processing
 ```bash
 # Detect anomalies in data
-curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
+curl -X POST "https://api.pynomaly.com/api/v1/processing/detect" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -54,10 +54,10 @@ curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
   }'
 ```
 
-### 3. Train Custom Model
+### 3. Train Custom Processor
 ```bash
 # Train a new model
-curl -X POST "https://api.pynomaly.com/api/v1/detection/train" \
+curl -X POST "https://api.pynomaly.com/api/v1/processing/train" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -99,7 +99,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
   "title": "Validation Error",
   "status": 422,
   "detail": "The request data is invalid",
-  "instance": "/api/v1/detection/detect",
+  "instance": "/api/v1/processing/detect",
   "errors": [
     {
       "field": "data",
@@ -118,7 +118,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
 ## Generated Documentation
 
-This directory contains comprehensive API documentation for the Pynomaly platform:
+This directory contains comprehensive API documentation for the Software platform:
 
 - **`openapi.json`** - OpenAPI 3.0 specification in JSON format
 - **`openapi.yaml`** - OpenAPI 3.0 specification in YAML format
@@ -131,18 +131,18 @@ This directory contains comprehensive API documentation for the Pynomaly platfor
 - `POST /api/v1/auth/refresh` - Token refresh
 - `GET /api/v1/auth/me` - Get current user profile
 
-### Anomaly Detection
-- `POST /api/v1/detection/detect` - Detect anomalies in data
-- `POST /api/v1/detection/train` - Train anomaly detection model
-- `POST /api/v1/detection/batch` - Batch anomaly detection
+### Anomaly Processing
+- `POST /api/v1/processing/detect` - Detect anomalies in data
+- `POST /api/v1/processing/train` - Train anomaly processing processor
+- `POST /api/v1/processing/batch` - Batch anomaly processing
 
-### Model Management
+### Processor Management
 - `GET /api/v1/models` - List available models
-- `GET /api/v1/models/{model_id}` - Get model details
+- `GET /api/v1/models/{processor_id}` - Get processor details
 
 ### Health & Monitoring
 - `GET /api/v1/health` - System health check
-- `GET /api/v1/health/metrics` - System metrics
+- `GET /api/v1/health/measurements` - System measurements
 
 ## Usage Examples
 
@@ -155,7 +155,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
 
 ### Anomaly Detection
 ```bash
-curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
+curl -X POST "https://api.pynomaly.com/api/v1/processing/detect" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

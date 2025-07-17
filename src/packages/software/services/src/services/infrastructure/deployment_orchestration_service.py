@@ -1,4 +1,4 @@
-"""Deployment orchestration service for managing model deployments."""
+"""Deployment orchestration service for managing processor deployments."""
 
 from __future__ import annotations
 
@@ -47,10 +47,10 @@ class DeploymentValidationError(DeploymentOrchestrationError):
 
 
 class DeploymentOrchestrationService:
-    """Service for orchestrating model deployments across environments.
+    """Service for orchestrating processor deployments across environments.
 
     This service provides comprehensive deployment lifecycle management including:
-    - Model deployment across multiple environments
+    - Processor deployment across multiple environments
     - Blue-green, canary, and rolling deployment strategies
     - Health monitoring and automatic rollback
     - Environment promotion workflows
@@ -59,20 +59,20 @@ class DeploymentOrchestrationService:
 
     def __init__(
         self,
-        model_registry_service: ModelRegistryService,
+        processor_registry_service: ModelRegistryService,
         storage_path: Path,
-        container_registry_url: str = "pynomaly-registry.local",
+        container_registry_url: str = "software-registry.local",
         kubernetes_config_path: Path | None = None,
     ):
         """Initialize deployment orchestration service.
 
         Args:
-            model_registry_service: Model registry service
+            processor_registry_service: Processor registry service
             storage_path: Path for deployment persistence
             container_registry_url: Container registry URL
             kubernetes_config_path: Kubernetes configuration file path
         """
-        self.model_registry_service = model_registry_service
+        self.processor_registry_service = processor_registry_service
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
@@ -106,19 +106,19 @@ class DeploymentOrchestrationService:
                 # Skip corrupted deployment files
                 continue
 
-    async def deploy_model(
+    async def deploy_processor(
         self,
-        model_version_id: UUID,
+        processor_version_id: UUID,
         target_environment: Environment,
         strategy: DeploymentStrategy,
         deployment_config: DeploymentConfig | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> Deployment:
-        """Deploy a model version to a target environment.
+        """Deploy a processor version to a target environment.
 
         Args:
-            model_version_id: Model version to deploy
+            processor_version_id: Processor version to deploy
             target_environment: Target deployment environment
             strategy: Deployment strategy to use
             deployment_config: Deployment configuration
@@ -132,8 +132,8 @@ class DeploymentOrchestrationService:
             DeploymentValidationError: If validation fails
             EnvironmentNotReadyError: If environment not ready
         """
-        # Validate model version exists
-        model_version = await self._get_model_version(model_version_id, user, groups)
+        # Validate processor version exists
+        processor_version = await self._get_processor_version(processor_version_id, user, groups)
 
         # Validate environment readiness
         await self._validate_environment_readiness(target_environment)
@@ -149,13 +149,13 @@ class DeploymentOrchestrationService:
 
         # Create deployment
         deployment = Deployment(
-            model_version_id=model_version_id,
+            processor_version_id=processor_version_id,
             environment=target_environment,
             deployment_config=deployment_config,
             strategy=strategy,
             created_by=user,
             rollback_version_id=(
-                existing_deployment.model_version_id if existing_deployment else None
+                existing_deployment.processor_version_id if existing_deployment else None
             ),
         )
 
@@ -165,7 +165,7 @@ class DeploymentOrchestrationService:
 
         try:
             # Execute deployment based on strategy
-            await self._execute_deployment_strategy(deployment, model_version)
+            await self._execute_deployment_strategy(deployment, processor_version)
 
             # Mark as deployed and start monitoring
             deployment.mark_deployed()
@@ -219,8 +219,8 @@ class DeploymentOrchestrationService:
             raise DeploymentValidationError("Can only promote healthy, deployed models")
 
         # Create production deployment with same configuration
-        production_deployment = await self.deploy_model(
-            model_version_id=staging_deployment.model_version_id,
+        production_deployment = await self.deploy_processor(
+            processor_version_id=staging_deployment.processor_version_id,
             target_environment=Environment.PRODUCTION,
             strategy=staging_deployment.strategy,
             deployment_config=staging_deployment.deployment_config,
@@ -273,8 +273,8 @@ class DeploymentOrchestrationService:
 
         try:
             # Deploy previous version
-            rollback_deployment = await self.deploy_model(
-                model_version_id=deployment.rollback_version_id,
+            rollback_deployment = await self.deploy_processor(
+                processor_version_id=deployment.rollback_version_id,
                 target_environment=deployment.environment,
                 strategy=DeploymentStrategy(strategy_type=StrategyType.DIRECT),
                 deployment_config=deployment.deployment_config,
@@ -333,7 +333,7 @@ class DeploymentOrchestrationService:
         self,
         environment: Environment | None = None,
         status: DeploymentStatus | None = None,
-        model_version_id: UUID | None = None,
+        processor_version_id: UUID | None = None,
         limit: int | None = None,
     ) -> list[Deployment]:
         """List deployments with optional filtering.
@@ -341,7 +341,7 @@ class DeploymentOrchestrationService:
         Args:
             environment: Filter by environment
             status: Filter by status
-            model_version_id: Filter by model version
+            processor_version_id: Filter by processor version
             limit: Maximum results
 
         Returns:
@@ -358,7 +358,7 @@ class DeploymentOrchestrationService:
                 continue
             if status and deployment.status != status:
                 continue
-            if model_version_id and deployment.model_version_id != model_version_id:
+            if processor_version_id and deployment.processor_version_id != processor_version_id:
                 continue
 
             filtered_deployments.append(deployment)
@@ -398,7 +398,7 @@ class DeploymentOrchestrationService:
                 {
                     "is_healthy": active_deployment.is_healthy,
                     "deployment_id": str(active_deployment.id),
-                    "model_version_id": str(active_deployment.model_version_id),
+                    "processor_version_id": str(active_deployment.processor_version_id),
                     "status": active_deployment.status.value,
                     "health_score": active_deployment.health_score,
                     "traffic_percentage": active_deployment.traffic_percentage,
@@ -420,16 +420,16 @@ class DeploymentOrchestrationService:
         return status
 
     async def update_deployment_health(
-        self, deployment_id: UUID, health_metrics: HealthMetrics
+        self, deployment_id: UUID, health_measurements: HealthMetrics
     ) -> None:
-        """Update health metrics for a deployment.
+        """Update health measurements for a deployment.
 
         Args:
             deployment_id: Deployment ID
-            health_metrics: New health metrics
+            health_measurements: New health measurements
         """
         deployment = await self.get_deployment(deployment_id)
-        deployment.update_health_metrics(health_metrics)
+        deployment.update_health_measurements(health_measurements)
 
         # Check if rollback is needed
         if deployment.is_deployed and deployment.should_rollback(
@@ -437,31 +437,31 @@ class DeploymentOrchestrationService:
         ):  # Assuming 100 requests
             await self.rollback_deployment(
                 deployment_id,
-                f"Automatic rollback due to health degradation: {health_metrics.error_rate:.1f}% error rate",
+                f"Automatic rollback due to health degradation: {health_measurements.error_rate:.1f}% error rate",
             )
 
         await self._save_deployment(deployment)
 
     async def _execute_deployment_strategy(
-        self, deployment: Deployment, model_version: ModelVersion
+        self, deployment: Deployment, processor_version: ModelVersion
     ) -> None:
         """Execute deployment based on strategy."""
         if deployment.strategy.strategy_type == StrategyType.BLUE_GREEN:
-            await self._execute_blue_green_deployment(deployment, model_version)
+            await self._execute_blue_green_deployment(deployment, processor_version)
         elif deployment.strategy.strategy_type == StrategyType.CANARY:
-            await self._execute_canary_deployment(deployment, model_version)
+            await self._execute_canary_deployment(deployment, processor_version)
         elif deployment.strategy.strategy_type == StrategyType.ROLLING:
-            await self._execute_rolling_deployment(deployment, model_version)
+            await self._execute_rolling_deployment(deployment, processor_version)
         else:  # DIRECT
-            await self._execute_direct_deployment(deployment, model_version)
+            await self._execute_direct_deployment(deployment, processor_version)
 
     async def _execute_blue_green_deployment(
-        self, deployment: Deployment, model_version: ModelVersion
+        self, deployment: Deployment, processor_version: ModelVersion
     ) -> None:
         """Execute blue-green deployment strategy."""
         # Create new deployment (green)
         await self._create_kubernetes_deployment(
-            deployment, model_version, suffix="green"
+            deployment, processor_version, suffix="green"
         )
 
         # Wait for green deployment to be ready
@@ -484,12 +484,12 @@ class DeploymentOrchestrationService:
         await self._cleanup_deployment(deployment, suffix="blue")
 
     async def _execute_canary_deployment(
-        self, deployment: Deployment, model_version: ModelVersion
+        self, deployment: Deployment, processor_version: ModelVersion
     ) -> None:
         """Execute canary deployment strategy."""
         # Create canary deployment with initial traffic
         await self._create_kubernetes_deployment(
-            deployment, model_version, suffix="canary"
+            deployment, processor_version, suffix="canary"
         )
 
         # Start with initial traffic percentage
@@ -503,7 +503,7 @@ class DeploymentOrchestrationService:
         deployment.traffic_percentage = initial_percentage
 
     async def _execute_rolling_deployment(
-        self, deployment: Deployment, model_version: ModelVersion
+        self, deployment: Deployment, processor_version: ModelVersion
     ) -> None:
         """Execute rolling deployment strategy."""
         max_unavailable = deployment.strategy.configuration.get("max_unavailable", 1)
@@ -511,18 +511,18 @@ class DeploymentOrchestrationService:
 
         # Update existing deployment with rolling update strategy
         await self._update_kubernetes_deployment(
-            deployment, model_version, max_unavailable, max_surge
+            deployment, processor_version, max_unavailable, max_surge
         )
 
         # Wait for rollout to complete
         await self._wait_for_rollout_complete(deployment)
 
     async def _execute_direct_deployment(
-        self, deployment: Deployment, model_version: ModelVersion
+        self, deployment: Deployment, processor_version: ModelVersion
     ) -> None:
         """Execute direct deployment strategy."""
         # Replace existing deployment immediately
-        await self._create_kubernetes_deployment(deployment, model_version)
+        await self._create_kubernetes_deployment(deployment, processor_version)
         await self._wait_for_deployment_ready(deployment)
 
     async def _start_monitoring(self, deployment: Deployment) -> None:
@@ -549,10 +549,10 @@ class DeploymentOrchestrationService:
         """Monitor deployment health continuously."""
         while deployment.is_deployed:
             try:
-                # Simulate health metrics collection
+                # Simulate health measurements collection
                 # In real implementation, this would query Kubernetes/Prometheus
-                health_metrics = await self._collect_health_metrics(deployment)
-                deployment.update_health_metrics(health_metrics)
+                health_measurements = await self._collect_health_measurements(deployment)
+                deployment.update_health_measurements(health_measurements)
 
                 # Update traffic for canary deployments
                 if deployment.strategy.strategy_type == StrategyType.CANARY:
@@ -570,9 +570,9 @@ class DeploymentOrchestrationService:
                 # Log error but continue monitoring
                 await asyncio.sleep(60)  # Longer sleep on error
 
-    async def _collect_health_metrics(self, deployment: Deployment) -> HealthMetrics:
-        """Collect health metrics for a deployment."""
-        # Simulate metrics collection
+    async def _collect_health_measurements(self, deployment: Deployment) -> HealthMetrics:
+        """Collect health measurements for a deployment."""
+        # Simulate measurements collection
         # In real implementation, this would query monitoring systems
         return HealthMetrics(
             cpu_usage=45.0,
@@ -585,7 +585,7 @@ class DeploymentOrchestrationService:
 
     # Kubernetes integration methods (simplified stubs)
     async def _create_kubernetes_deployment(
-        self, deployment: Deployment, model_version: ModelVersion, suffix: str = ""
+        self, deployment: Deployment, processor_version: ModelVersion, suffix: str = ""
     ) -> None:
         """Create Kubernetes deployment."""
         # In real implementation, this would use Kubernetes client
@@ -614,7 +614,7 @@ class DeploymentOrchestrationService:
     async def _update_kubernetes_deployment(
         self,
         deployment: Deployment,
-        model_version: ModelVersion,
+        processor_version: ModelVersion,
         max_unavailable: int,
         max_surge: int,
     ) -> None:
@@ -626,11 +626,11 @@ class DeploymentOrchestrationService:
         await asyncio.sleep(10)  # Simulate rollout completion
 
     # Utility methods
-    async def _get_model_version(
-        self, model_version_id: UUID, user: str, groups: list[str] | None
+    async def _get_processor_version(
+        self, processor_version_id: UUID, user: str, groups: list[str] | None
     ) -> ModelVersion:
-        """Get and validate model version."""
-        # This would integrate with model registry service
+        """Get and validate processor version."""
+        # This would integrate with processor registry service
         # For now, return a mock version
         from monorepo.domain.value_objects.model_storage_info import (
             ModelStorageInfo,
@@ -641,15 +641,15 @@ class DeploymentOrchestrationService:
         from monorepo.domain.value_objects.semantic_version import SemanticVersion
 
         return ModelVersion(
-            model_id=model_version_id,
+            processor_id=processor_version_id,
             version=SemanticVersion(1, 0, 0),
-            detector_id=model_version_id,
+            detector_id=processor_version_id,
             created_by=user,
-            performance_metrics=PerformanceMetrics(),
+            performance_measurements=PerformanceMetrics(),
             storage_info=ModelStorageInfo(
                 storage_backend=StorageBackend.FILESYSTEM,
                 serialization_format=SerializationFormat.PICKLE,
-                storage_path=f"/models/{model_version_id}",
+                storage_path=f"/models/{processor_version_id}",
                 file_size_bytes=1024000,
             ),
         )
@@ -724,7 +724,7 @@ class DeploymentOrchestrationService:
         strategy = DeploymentStrategy(strategy_type=StrategyType.DIRECT)
 
         deployment = Deployment(
-            model_version_id=UUID(data["model_version_id"]),
+            processor_version_id=UUID(data["processor_version_id"]),
             environment=Environment(data["environment"]),
             deployment_config=deployment_config,
             strategy=strategy,

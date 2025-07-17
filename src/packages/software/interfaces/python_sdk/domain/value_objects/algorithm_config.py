@@ -1,7 +1,7 @@
 """
 Algorithm Configuration Value Object
 
-Represents immutable configuration for anomaly detection algorithms.
+Represents immutable configuration for anomaly processing algorithms.
 """
 
 from typing import Any, Dict, Optional
@@ -10,7 +10,7 @@ from enum import Enum
 
 
 class AlgorithmType(Enum):
-    """Supported anomaly detection algorithms."""
+    """Supported anomaly processing algorithms."""
     ISOLATION_FOREST = "isolation_forest"
     LOCAL_OUTLIER_FACTOR = "local_outlier_factor"
     ONE_CLASS_SVM = "one_class_svm"
@@ -22,10 +22,10 @@ class AlgorithmType(Enum):
 @dataclass(frozen=True)
 class AlgorithmConfig:
     """
-    Immutable configuration for anomaly detection algorithms.
+    Immutable configuration for anomaly processing algorithms.
     
     This value object encapsulates all configuration parameters
-    needed to configure and run an anomaly detection algorithm.
+    needed to configure and run an anomaly processing algorithm.
     """
     
     algorithm_type: AlgorithmType

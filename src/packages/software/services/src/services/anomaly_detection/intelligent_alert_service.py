@@ -185,7 +185,7 @@ class AlertCorrelationEngine:
         # Basic features
         features.append(float(alert.severity.value == "critical"))
         features.append(float(alert.severity.value == "high"))
-        features.append(float(alert.category.value == "anomaly_detection"))
+        features.append(float(alert.category.value == "anomaly_processing"))
         features.append(float(alert.category.value == "system_performance"))
         features.append(float(alert.source.value == "detector"))
 
@@ -207,7 +207,7 @@ class AlertCorrelationEngine:
 
         # Resource impact
         features.append(len(alert.metadata.affected_resources))
-        features.append(len(alert.metadata.related_metrics))
+        features.append(len(alert.metadata.related_measurements))
         features.append(float(alert.metadata.customer_affected or False))
 
         return np.array(features)
@@ -292,7 +292,7 @@ class AlertCorrelationEngine:
 
 
 class NoiseClassificationModel:
-    """ML model for classifying alerts as signal vs noise."""
+    """ML processor for classifying alerts as signal vs noise."""
 
     def __init__(self):
         self.classifier = RandomForestClassifier(
@@ -351,8 +351,8 @@ class NoiseClassificationModel:
         features.memory_pressure = alert.metadata.memory_usage or 0.0
         features.cpu_utilization = alert.metadata.cpu_usage or 0.0
 
-        # Detection quality features
-        features.model_confidence = alert.metadata.confidence_level or 0.0
+        # Processing quality features
+        features.processor_confidence = alert.metadata.confidence_level or 0.0
         features.anomaly_score_percentile = self._calculate_percentile(
             alert.metadata.anomaly_score or 0.0,
             [
@@ -396,10 +396,10 @@ class NoiseClassificationModel:
     ) -> tuple[NoiseClassification, float]:
         """Predict if an alert is noise and return confidence."""
         if not self.is_trained:
-            # Use heuristic rules if model isn't trained
+            # Use heuristic rules if processor isn't trained
             return self._heuristic_classification(features)
 
-        # Use trained ML model
+        # Use trained ML processor
         feature_vector = np.array(features.to_feature_vector()).reshape(1, -1)
         feature_vector_scaled = self.scaler.transform(feature_vector)
 
@@ -422,16 +422,16 @@ class NoiseClassificationModel:
         return classification, confidence
 
     def add_training_sample(self, features: MLNoiseFeatures, is_signal: bool):
-        """Add a training sample to improve the model."""
+        """Add a training sample to improve the processor."""
         self.training_features.append(features.to_feature_vector())
         self.training_labels.append(1 if is_signal else 0)
 
         # Retrain if we have enough samples
         if len(self.training_features) >= 100 and len(self.training_features) % 50 == 0:
-            self._retrain_model()
+            self._retrain_processor()
 
     def _retrain_model(self):
-        """Retrain the classification model with accumulated data."""
+        """Retrain the classification processor with accumulated data."""
         if len(self.training_features) < 50:
             return
 
@@ -458,7 +458,7 @@ class NoiseClassificationModel:
                 "system_load_percentile",
                 "memory_pressure",
                 "cpu_utilization",
-                "model_confidence",
+                "processor_confidence",
                 "anomaly_score_percentile",
                 "feature_stability",
                 "false_positive_rate_7d",
@@ -474,16 +474,16 @@ class NoiseClassificationModel:
             )
 
             logger.info(
-                f"Retrained noise classification model with {len(self.training_features)} samples"
+                f"Retrained noise classification processor with {len(self.training_features)} samples"
             )
 
         except Exception as e:
-            logger.error(f"Error retraining noise classification model: {e}")
+            logger.error(f"Error retraining noise classification processor: {e}")
 
     def _heuristic_classification(
         self, features: MLNoiseFeatures
     ) -> tuple[NoiseClassification, float]:
-        """Fallback heuristic classification when ML model isn't available."""
+        """Fallback heuristic classification when ML processor isn't available."""
         score = 0.0
 
         # High frequency of similar alerts suggests noise
@@ -495,7 +495,7 @@ class NoiseClassificationModel:
             score += 0.4
 
         # Low confidence suggests noise
-        if features.model_confidence < 0.3:
+        if features.processor_confidence < 0.3:
             score += 0.2
 
         # During non-business hours with no correlation
@@ -543,8 +543,8 @@ class IntelligentAlertService:
         self.processing_queue: asyncio.Queue = asyncio.Queue()
         self.suppression_rules: dict[str, dict] = {}
 
-        # Performance metrics
-        self.metrics = {
+        # Performance measurements
+        self.measurements = {
             "total_alerts": 0,
             "suppressed_alerts": 0,
             "correlated_alerts": 0,
@@ -583,7 +583,7 @@ class IntelligentAlertService:
         # Store alert
         self.alerts[alert.alert_id] = alert
         self.alert_history.append(alert)
-        self.metrics["total_alerts"] += 1
+        self.measurements["total_alerts"] += 1
 
         return alert
 
@@ -599,7 +599,7 @@ class IntelligentAlertService:
                 alert.correlation = max(
                     correlations, key=lambda c: c.correlation_strength
                 )
-                self.metrics["correlated_alerts"] += 1
+                self.measurements["correlated_alerts"] += 1
 
             # Step 2: ML-based noise classification
             features = self.noise_classifier.extract_features(
@@ -611,20 +611,20 @@ class IntelligentAlertService:
             ) = self.noise_classifier.predict_noise_probability(features)
 
             alert.update_ml_classification(classification, confidence, features)
-            self.metrics["noise_classifications"][classification.value] += 1
+            self.measurements["noise_classifications"][classification.value] += 1
 
             # Step 3: Apply intelligent suppression
             should_suppress, reason = await self._should_suppress_alert(alert)
             if should_suppress:
                 alert.suppress(reason, "intelligent_system")
-                self.metrics["suppressed_alerts"] += 1
+                self.measurements["suppressed_alerts"] += 1
 
             # Step 4: Add to correlation engine for future correlations
             self.correlation_engine.add_alert(alert)
 
             # Record processing time
             processing_time = (datetime.utcnow() - start_time).total_seconds()
-            self.metrics["processing_times"].append(processing_time)
+            self.measurements["processing_times"].append(processing_time)
 
             logger.info(
                 f"Processed alert {alert.alert_id} - Classification: {classification.value}, "
@@ -773,7 +773,7 @@ class IntelligentAlertService:
 
         alert.acknowledge(acknowledged_by, note)
 
-        # Provide feedback to ML model
+        # Provide feedback to ML processor
         self.noise_classifier.add_training_sample(alert.ml_features, is_signal=True)
 
         return True
@@ -792,7 +792,7 @@ class IntelligentAlertService:
 
         alert.resolve(resolved_by, resolution_note, quality_score)
 
-        # Provide feedback to ML model
+        # Provide feedback to ML processor
         is_signal = quality_score is None or quality_score > 0.5
         self.noise_classifier.add_training_sample(
             alert.ml_features, is_signal=is_signal
@@ -814,7 +814,7 @@ class IntelligentAlertService:
 
         alert.suppress(reason, suppressed_by, duration_minutes)
 
-        # Provide feedback to ML model (suppressed alerts are likely noise)
+        # Provide feedback to ML processor (suppressed alerts are likely noise)
         self.noise_classifier.add_training_sample(alert.ml_features, is_signal=False)
 
         return True
@@ -866,15 +866,15 @@ class IntelligentAlertService:
                 "avg_correlation_strength": 0.0,
                 "correlation_types": defaultdict(int),
             },
-            "performance_metrics": {
+            "performance_measurements": {
                 "avg_processing_time": (
-                    statistics.mean(self.metrics["processing_times"][-1000:])
-                    if self.metrics["processing_times"]
+                    statistics.mean(self.measurements["processing_times"][-1000:])
+                    if self.measurements["processing_times"]
                     else 0.0
                 ),
-                "total_processed": self.metrics["total_alerts"],
-                "suppression_rate": self.metrics["suppressed_alerts"]
-                / max(1, self.metrics["total_alerts"]),
+                "total_processed": self.measurements["total_alerts"],
+                "suppression_rate": self.measurements["suppressed_alerts"]
+                / max(1, self.measurements["total_alerts"]),
             },
         }
 

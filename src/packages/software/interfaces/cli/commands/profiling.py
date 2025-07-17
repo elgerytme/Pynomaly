@@ -26,7 +26,7 @@ profiling_app = typer.Typer(
 
 @profiling_app.command("profile")
 def profile_dataset(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_dir: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output directory for profiling results"
     ),
@@ -55,7 +55,7 @@ def profile_dataset(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ) -> None:
-    """Profile a dataset to discover schema, statistics, and data quality issues."""
+    """Profile a data_collection to discover schema, statistics, and data quality issues."""
     
     if not input_file.exists():
         console.print(f"[red]Error: Input file {input_file} does not exist[/red]")
@@ -71,8 +71,8 @@ def profile_dataset(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        # Load dataset
-        task = progress.add_task("Loading dataset...", total=None)
+        # Load data_collection
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import profiling packages
@@ -83,11 +83,11 @@ def profile_dataset(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
-            if sample_size and len(dataset) > sample_size:
-                dataset = dataset.sample(n=sample_size, random_state=42)
-                console.print(f"[yellow]Sampled {sample_size} rows from {len(dataset)} total rows[/yellow]")
+            if sample_size and len(data_collection) > sample_size:
+                data_collection = data_collection.sample(n=sample_size, random_state=42)
+                console.print(f"[yellow]Sampled {sample_size} rows from {len(data_collection)} total rows[/yellow]")
             
             progress.update(task, description="Discovering schema...")
             
@@ -107,25 +107,25 @@ def profile_dataset(
             # Perform profiling based on type
             if profile_type == "comprehensive":
                 progress.update(task, description="Performing comprehensive profiling...")
-                profile_results = orchestrator.profile_dataset_comprehensive(dataset, config)
+                profile_results = orchestrator.profile_data_collection_comprehensive(data_collection, config)
                 
             elif profile_type == "basic":
                 progress.update(task, description="Performing basic profiling...")
-                profile_results = orchestrator.profile_dataset_basic(dataset)
+                profile_results = orchestrator.profile_data_collection_basic(data_collection)
                 
             elif profile_type == "statistical":
                 progress.update(task, description="Performing statistical profiling...")
-                profile_results = stats_profiler.generate_statistical_profile(dataset)
+                profile_results = stats_profiler.generate_statistical_profile(data_collection)
                 
             elif profile_type == "schema":
                 progress.update(task, description="Discovering schema...")
-                profile_results = schema_service.discover_schema(dataset)
+                profile_results = schema_service.discover_schema(data_collection)
                 
             elif profile_type == "quality":
                 progress.update(task, description="Analyzing data quality...")
                 from packages.data_quality.application.services.quality_assessment_service import QualityAssessmentService
                 quality_service = QualityAssessmentService()
-                profile_results = quality_service.assess_dataset_quality(dataset)
+                profile_results = quality_service.assess_data_collection_quality(data_collection)
                 
             else:
                 console.print(f"[red]Unknown profile type: {profile_type}[/red]")
@@ -154,7 +154,7 @@ def profile_dataset(
                 from packages.data_profiling.application.services.profile_report_generator import ProfileReportGenerator
                 report_generator = ProfileReportGenerator()
                 report_file = output_dir / "profile_report.html"
-                report_generator.generate_html_report(profile_results, dataset, report_file)
+                report_generator.generate_html_report(profile_results, data_collection, report_file)
             
             progress.update(task, description="Profiling complete!")
             
@@ -168,7 +168,7 @@ def profile_dataset(
             raise typer.Exit(1)
     
     # Display results summary
-    console.print("\n[green]✓ Dataset profiling completed successfully![/green]")
+    console.print("\n[green]✓ DataCollection profiling completed successfully![/green]")
     console.print(f"Profile saved to: {output_file}")
     
     if generate_report:
@@ -179,7 +179,7 @@ def profile_dataset(
         summary = profile_results["summary"]
         
         panel_content = f"""
-[bold]Dataset Overview[/bold]
+[bold]DataCollection Overview[/bold]
 • Rows: {summary.get('total_rows', 'N/A'):,}
 • Columns: {summary.get('total_columns', 'N/A')}
 • Missing Values: {summary.get('total_missing', 'N/A'):,} ({summary.get('missing_percentage', 0):.1f}%)
@@ -292,7 +292,7 @@ def compare_profiles(
 
 @profiling_app.command("schema")
 def discover_schema(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for schema definition"
     ),
@@ -310,7 +310,7 @@ def discover_schema(
     ),
     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ) -> None:
-    """Automatically discover and generate schema definition from dataset."""
+    """Automatically discover and generate schema definition from data_collection."""
     
     if not input_file.exists():
         console.print(f"[red]Error: Input file {input_file} does not exist[/red]")
@@ -324,7 +324,7 @@ def discover_schema(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import schema discovery packages
@@ -333,10 +333,10 @@ def discover_schema(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
-            if sample_size and len(dataset) > sample_size:
-                dataset = dataset.sample(n=sample_size, random_state=42)
+            if sample_size and len(data_collection) > sample_size:
+                data_collection = data_collection.sample(n=sample_size, random_state=42)
             
             progress.update(task, description="Discovering schema...")
             
@@ -345,7 +345,7 @@ def discover_schema(
             
             # Discover schema
             schema = schema_service.discover_schema(
-                dataset,
+                data_collection,
                 infer_relationships=infer_relationships,
                 confidence_threshold=confidence_threshold
             )
@@ -408,7 +408,7 @@ def discover_schema(
 
 @profiling_app.command("patterns")
 def detect_patterns(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for pattern analysis"
     ),
@@ -438,16 +438,16 @@ def detect_patterns(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
-            # Import pattern detection packages
+            # Import pattern processing packages
             from packages.data_profiling.application.services.pattern_recognition_service import PatternRecognitionService
             from packages.data_profiling.application.services.data_source_adapter import DataSourceAdapter
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Detecting patterns...")
             
@@ -456,7 +456,7 @@ def detect_patterns(
             
             # Detect patterns
             patterns = pattern_service.detect_patterns(
-                dataset,
+                data_collection,
                 pattern_types=pattern_types,
                 min_frequency=min_frequency,
                 max_patterns=max_patterns
@@ -468,18 +468,18 @@ def detect_patterns(
             with open(output_file, 'w') as f:
                 json.dump(patterns, f, indent=2, default=str)
             
-            progress.update(task, description="Pattern detection complete!")
+            progress.update(task, description="Pattern processing complete!")
             
         except ImportError as e:
             console.print(f"[red]Error: Required packages not available: {e}[/red]")
             raise typer.Exit(1)
         except Exception as e:
-            console.print(f"[red]Error during pattern detection: {e}[/red]")
+            console.print(f"[red]Error during pattern processing: {e}[/red]")
             if verbose:
                 console.print_exception()
             raise typer.Exit(1)
     
-    console.print("\n[green]✓ Pattern detection completed successfully![/green]")
+    console.print("\n[green]✓ Pattern processing completed successfully![/green]")
     console.print(f"Patterns saved to: {output_file}")
     
     # Display pattern summary

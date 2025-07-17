@@ -6,7 +6,7 @@
 
 ## Overview
 
-User interfaces and external APIs for the Pynomaly anomaly detection platform.
+User interfaces and external APIs for the Pynomaly platform.
 
 **Architecture Layer**: Presentation Layer  
 **Package Type**: User Interfaces  
@@ -28,7 +28,7 @@ This package provides all user-facing interfaces for the Pynomaly platform, incl
 
 ### Use Cases
 
-- Building web applications for anomaly detection
+- Building web applications for data processing
 - Creating command-line tools for batch processing
 - Integrating Pynomaly into existing systems via APIs
 - Developing custom client applications
@@ -91,7 +91,7 @@ interfaces/
 
 ```bash
 # Install from source (development)
-cd src/packages/interfaces
+cd src/packages/software/interfaces
 pip install -e .
 
 # Install with all interface types
@@ -148,7 +148,7 @@ from pynomaly.interfaces.api.middleware import setup_middleware
 # Create FastAPI application
 app = FastAPI(
     title="Pynomaly API",
-    description="Advanced anomaly detection platform",
+    description="Advanced data processing platform",
     version="1.0.0"
 )
 
@@ -449,4 +449,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+**Part of the [Pynomaly](../../../) monorepo** - Advanced platform interfaces

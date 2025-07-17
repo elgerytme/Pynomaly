@@ -5,7 +5,7 @@ This service provides enterprise-grade governance capabilities including:
 - Policy management with enforcement and compliance monitoring
 - Data lineage tracking for full data lifecycle visibility
 - Access control governance with permission auditing
-- Model governance with version control and approval workflows
+- Processor governance with version control and approval workflows
 - Regulatory compliance with automated reporting and alerts
 - Risk management with assessment and mitigation tracking
 - Change management with approval workflows and rollback capabilities
@@ -54,7 +54,7 @@ class PolicyType(Enum):
     """Types of governance policies."""
 
     DATA_ACCESS = "data_access"
-    MODEL_DEPLOYMENT = "model_deployment"
+    MODEL_DEPLOYMENT = "processor_deployment"
     ALGORITHM_USAGE = "algorithm_usage"
     DATA_RETENTION = "data_retention"
     EXPORT_CONTROL = "export_control"
@@ -357,7 +357,7 @@ class DataLineageEntry:
 
     lineage_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    source_type: str = ""  # dataset, model, result, export
+    source_type: str = ""  # data_collection, processor, result, export
     source_id: str = ""
     source_name: str = ""
     operation: str = ""  # transform, train, predict, export
@@ -365,7 +365,7 @@ class DataLineageEntry:
     destination_id: str = ""
     destination_name: str = ""
     transformation_details: dict[str, Any] = field(default_factory=dict)
-    quality_metrics: dict[str, Any] = field(default_factory=dict)
+    quality_measurements: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -381,7 +381,7 @@ class DataLineageEntry:
             "destination_id": self.destination_id,
             "destination_name": self.destination_name,
             "transformation_details": self.transformation_details,
-            "quality_metrics": self.quality_metrics,
+            "quality_measurements": self.quality_measurements,
             "metadata": self.metadata,
         }
 
@@ -480,9 +480,9 @@ class GovernanceFrameworkService:
         self.compliance_violations: list[dict[str, Any]] = []
         self.compliance_file = self.storage_path / "compliance_violations.json"
 
-        # Compliance metrics storage
-        self.compliance_metrics: dict[str, ComplianceMetric] = {}
-        self.compliance_metrics_file = self.storage_path / "compliance_metrics.json"
+        # Compliance measurements storage
+        self.compliance_measurements: dict[str, ComplianceMetric] = {}
+        self.compliance_measurements_file = self.storage_path / "compliance_measurements.json"
 
         # Load existing data
         self._load_policies()
@@ -689,12 +689,12 @@ class GovernanceFrameworkService:
         destination_id: str,
         destination_name: str,
         transformation_details: dict[str, Any] | None = None,
-        quality_metrics: dict[str, Any] | None = None,
+        quality_measurements: dict[str, Any] | None = None,
     ) -> DataLineageEntry:
         """Track data lineage for complete lifecycle visibility.
 
         Args:
-            source_type: Type of source (dataset, model, result)
+            source_type: Type of source (data_collection, processor, result)
             source_id: Source identifier
             source_name: Source name
             operation: Operation performed (transform, train, predict)
@@ -702,7 +702,7 @@ class GovernanceFrameworkService:
             destination_id: Destination identifier
             destination_name: Destination name
             transformation_details: Details of transformation
-            quality_metrics: Data quality metrics
+            quality_measurements: Data quality measurements
 
         Returns:
             Created lineage entry
@@ -717,7 +717,7 @@ class GovernanceFrameworkService:
                 destination_id=destination_id,
                 destination_name=destination_name,
                 transformation_details=transformation_details or {},
-                quality_metrics=quality_metrics or {},
+                quality_measurements=quality_measurements or {},
             )
 
             self.data_lineage.append(lineage_entry)
@@ -753,7 +753,7 @@ class GovernanceFrameworkService:
                 if start_date <= entry.timestamp <= end_date
             ]
 
-            # Calculate compliance metrics
+            # Calculate compliance measurements
             total_entries = len(period_entries)
             violation_entries = [
                 entry for entry in period_entries if entry.policy_violations
@@ -1149,7 +1149,7 @@ class GovernanceFrameworkService:
                                 transformation_details=lineage_dict.get(
                                     "transformation_details", {}
                                 ),
-                                quality_metrics=lineage_dict.get("quality_metrics", {}),
+                                quality_measurements=lineage_dict.get("quality_measurements", {}),
                                 metadata=lineage_dict.get("metadata", {}),
                             )
 

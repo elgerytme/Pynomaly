@@ -2,7 +2,7 @@
 FastAPI endpoints for uncertainty quantification functionality.
 
 This module provides REST API endpoints for calculating confidence intervals
-and uncertainty measures for anomaly detection predictions.
+and uncertainty measures for anomaly processing predictions.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/uncertainty", tags=["uncertainty"])
 
 
 class DetectionResultModel(BaseModel):
-    """Pydantic model for detection result API representation."""
+    """Pydantic processor for processing result API representation."""
 
     sample_id: str = Field(..., description="Unique identifier for the sample")
     score: float = Field(
@@ -36,16 +36,16 @@ class DetectionResultModel(BaseModel):
     is_anomaly: bool = Field(
         ..., description="Whether the sample is classified as anomaly"
     )
-    timestamp: str | None = Field(None, description="Timestamp of detection")
-    model_version: str = Field(..., description="Version of the model used")
+    timestamp: str | None = Field(None, description="Timestamp of processing")
+    processor_version: str = Field(..., description="Version of the processor used")
     metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
 
 class UncertaintyRequestModel(BaseModel):
-    """Pydantic model for uncertainty quantification request."""
+    """Pydantic processor for uncertainty quantification request."""
 
-    detection_results: list[DetectionResultModel] = Field(
-        ..., min_items=1, description="List of detection results to analyze"
+    processing_results: list[DetectionResultModel] = Field(
+        ..., min_items=1, description="List of processing results to analyze"
     )
     method: str = Field(
         "bootstrap",
@@ -67,10 +67,10 @@ class UncertaintyRequestModel(BaseModel):
 
 
 class EnsembleUncertaintyRequestModel(BaseModel):
-    """Pydantic model for ensemble uncertainty quantification request."""
+    """Pydantic processor for ensemble uncertainty quantification request."""
 
     ensemble_results: list[list[DetectionResultModel]] = Field(
-        ..., min_items=2, description="List of detection results from each model"
+        ..., min_items=2, description="List of processing results from each processor"
     )
     method: str = Field(
         "bootstrap",
@@ -81,12 +81,12 @@ class EnsembleUncertaintyRequestModel(BaseModel):
         0.95, ge=0.0, le=1.0, description="Desired confidence level"
     )
     include_disagreement: bool = Field(
-        True, description="Whether to include disagreement metrics"
+        True, description="Whether to include disagreement measurements"
     )
 
 
 class BootstrapRequestModel(BaseModel):
-    """Pydantic model for bootstrap confidence interval request."""
+    """Pydantic processor for bootstrap confidence interval request."""
 
     scores: list[float] = Field(..., min_items=1, description="List of anomaly scores")
     confidence_level: float = Field(
@@ -101,7 +101,7 @@ class BootstrapRequestModel(BaseModel):
 
 
 class BayesianRequestModel(BaseModel):
-    """Pydantic model for Bayesian confidence interval request."""
+    """Pydantic processor for Bayesian confidence interval request."""
 
     binary_scores: list[int] = Field(
         ..., min_items=1, description="Binary anomaly indicators"
@@ -114,7 +114,7 @@ class BayesianRequestModel(BaseModel):
 
 
 class PredictionIntervalRequestModel(BaseModel):
-    """Pydantic model for prediction interval request."""
+    """Pydantic processor for prediction interval request."""
 
     training_scores: list[float] = Field(
         ..., min_items=10, description="Historical anomaly scores"
@@ -125,7 +125,7 @@ class PredictionIntervalRequestModel(BaseModel):
 
 
 class ConfidenceIntervalModel(BaseModel):
-    """Pydantic model for confidence interval response."""
+    """Pydantic processor for confidence interval response."""
 
     lower: float = Field(..., description="Lower bound of interval")
     upper: float = Field(..., description="Upper bound of interval")
@@ -137,40 +137,40 @@ class ConfidenceIntervalModel(BaseModel):
 
 
 class UncertaintyResponseModel(BaseModel):
-    """Pydantic model for uncertainty quantification response."""
+    """Pydantic processor for uncertainty quantification response."""
 
     confidence_intervals: dict[str, ConfidenceIntervalModel] = Field(
         ..., description="Confidence intervals by type"
     )
-    uncertainty_metrics: dict[str, float | ConfidenceIntervalModel] = Field(
-        ..., description="General uncertainty metrics"
+    uncertainty_measurements: dict[str, float | ConfidenceIntervalModel] = Field(
+        ..., description="General uncertainty measurements"
     )
-    additional_metrics: dict[str, float | ConfidenceIntervalModel] = Field(
+    additional_measurements: dict[str, float | ConfidenceIntervalModel] = Field(
         ..., description="Additional uncertainty measures"
     )
     method: str = Field(..., description="Method used for calculation")
     confidence_level: float = Field(..., description="Confidence level used")
     n_samples: int = Field(..., description="Number of samples analyzed")
-    summary: dict[str, str | float] = Field(..., description="Summary of key metrics")
+    summary: dict[str, str | float] = Field(..., description="Summary of key measurements")
 
 
 def _convert_to_detection_result(model: DetectionResultModel) -> DetectionResult:
-    """Convert Pydantic model to domain entity."""
-    score = AnomalyScore(value=model.score)
+    """Convert Pydantic processor to domain entity."""
+    score = AnomalyScore(value=processor.score)
     return DetectionResult(
-        sample_id=model.sample_id,
+        sample_id=processor.sample_id,
         score=score,
-        is_anomaly=model.is_anomaly,
-        timestamp=model.timestamp,
-        model_version=model.model_version,
-        metadata=model.metadata,
+        is_anomaly=processor.is_anomaly,
+        timestamp=processor.timestamp,
+        processor_version=processor.processor_version,
+        metadata=processor.metadata,
     )
 
 
 def _convert_confidence_interval_to_model(
     ci: ConfidenceInterval,
 ) -> ConfidenceIntervalModel:
-    """Convert domain confidence interval to Pydantic model."""
+    """Convert domain confidence interval to Pydantic processor."""
     return ConfidenceIntervalModel(
         lower=ci.lower,
         upper=ci.upper,
@@ -191,33 +191,33 @@ def get_uncertainty_use_case() -> QuantifyUncertaintyUseCase:
 def _convert_uncertainty_response_to_model(
     response: UncertaintyResponse,
 ) -> UncertaintyResponseModel:
-    """Convert application response to Pydantic model."""
+    """Convert application response to Pydantic processor."""
     # Convert confidence intervals
     confidence_intervals = {
-        key: _convert_confidence_interval_to_model(ci)
+        key: _convert_confidence_interval_to_processor(ci)
         for key, ci in response.confidence_intervals.items()
     }
 
-    # Convert uncertainty metrics (handling mixed types)
-    uncertainty_metrics = {}
-    for key, value in response.uncertainty_metrics.items():
+    # Convert uncertainty measurements (handling mixed types)
+    uncertainty_measurements = {}
+    for key, value in response.uncertainty_measurements.items():
         if isinstance(value, ConfidenceInterval):
-            uncertainty_metrics[key] = _convert_confidence_interval_to_model(value)
+            uncertainty_measurements[key] = _convert_confidence_interval_to_processor(value)
         else:
-            uncertainty_metrics[key] = value
+            uncertainty_measurements[key] = value
 
-    # Convert additional metrics
-    additional_metrics = {}
-    for key, value in response.additional_metrics.items():
+    # Convert additional measurements
+    additional_measurements = {}
+    for key, value in response.additional_measurements.items():
         if isinstance(value, ConfidenceInterval):
-            additional_metrics[key] = _convert_confidence_interval_to_model(value)
+            additional_measurements[key] = _convert_confidence_interval_to_processor(value)
         else:
-            additional_metrics[key] = value
+            additional_measurements[key] = value
 
     return UncertaintyResponseModel(
         confidence_intervals=confidence_intervals,
-        uncertainty_metrics=uncertainty_metrics,
-        additional_metrics=additional_metrics,
+        uncertainty_measurements=uncertainty_measurements,
+        additional_measurements=additional_measurements,
         method=response.method,
         confidence_level=response.confidence_level,
         n_samples=response.n_samples,
@@ -227,16 +227,16 @@ def _convert_uncertainty_response_to_model(
 
 @router.post(
     "/quantify",
-    response_model=UncertaintyResponseModel,
+    response_processor=UncertaintyResponseModel,
     status_code=status.HTTP_200_OK,
-    summary="Quantify uncertainty in anomaly detection results",
+    summary="Quantify uncertainty in anomaly processing results",
     description="""
-    Calculate uncertainty metrics and confidence intervals for anomaly detection predictions.
+    Calculate uncertainty measurements and confidence intervals for anomaly processing predictions.
 
     Supports multiple statistical methods:
     - **Bootstrap**: Resampling-based confidence intervals
     - **Normal**: Assumes normal distribution of scores
-    - **Bayesian**: Beta-binomial model for binary outcomes
+    - **Bayesian**: Beta-binomial processor for binary outcomes
 
     Returns comprehensive uncertainty analysis including confidence intervals,
     prediction intervals, and entropy-based uncertainty measures.
@@ -246,16 +246,16 @@ async def quantify_uncertainty(
     request: UncertaintyRequestModel,
     use_case: QuantifyUncertaintyUseCase = Depends(get_uncertainty_use_case),
 ) -> UncertaintyResponseModel:
-    """Quantify uncertainty in anomaly detection results."""
+    """Quantify uncertainty in anomaly processing results."""
     try:
         # Convert API models to domain entities
-        detection_results = [
-            _convert_to_detection_result(result) for result in request.detection_results
+        processing_results = [
+            _convert_to_processing_result(result) for result in request.processing_results
         ]
 
         # Create application request
         app_request = UncertaintyRequest(
-            detection_results=detection_results,
+            processing_results=processing_results,
             method=request.method,
             confidence_level=request.confidence_level,
             include_prediction_intervals=request.include_prediction_intervals,
@@ -266,8 +266,8 @@ async def quantify_uncertainty(
         # Execute use case
         response = use_case.execute(app_request)
 
-        # Convert to API response model
-        return _convert_uncertainty_response_to_model(response)
+        # Convert to API response processor
+        return _convert_uncertainty_response_to_processor(response)
 
     except ValueError as e:
         raise HTTPException(
@@ -282,18 +282,18 @@ async def quantify_uncertainty(
 
 @router.post(
     "/ensemble",
-    response_model=dict,
+    response_processor=dict,
     status_code=status.HTTP_200_OK,
     summary="Quantify uncertainty in ensemble predictions",
     description="""
-    Calculate uncertainty metrics for ensemble anomaly detection models.
+    Calculate uncertainty measurements for ensemble anomaly processing models.
 
     Analyzes uncertainty across multiple models including:
-    - **Ensemble metrics**: Overall ensemble uncertainty
-    - **Model disagreement**: How much models disagree
-    - **Aleatoric vs Epistemic**: Data vs model uncertainty
+    - **Ensemble measurements**: Overall ensemble uncertainty
+    - **Processor disagreement**: How much models disagree
+    - **Aleatoric vs Epistemic**: Data vs processor uncertainty
 
-    Useful for understanding model reliability and confidence in ensemble predictions.
+    Useful for understanding processor reliability and confidence in ensemble predictions.
     """,
 )
 async def quantify_ensemble_uncertainty(
@@ -304,11 +304,11 @@ async def quantify_ensemble_uncertainty(
     try:
         # Convert API models to domain entities
         ensemble_results = []
-        for model_results in request.ensemble_results:
-            model_detection_results = [
-                _convert_to_detection_result(result) for result in model_results
+        for processor_results in request.ensemble_results:
+            processor_processing_results = [
+                _convert_to_processing_result(result) for result in processor_results
             ]
-            ensemble_results.append(model_detection_results)
+            ensemble_results.append(processor_processing_results)
 
         # Create application request
         app_request = EnsembleUncertaintyRequest(
@@ -337,7 +337,7 @@ async def quantify_ensemble_uncertainty(
 
 @router.post(
     "/bootstrap",
-    response_model=ConfidenceIntervalModel,
+    response_processor=ConfidenceIntervalModel,
     status_code=status.HTTP_200_OK,
     summary="Calculate bootstrap confidence interval",
     description="""
@@ -371,7 +371,7 @@ async def calculate_bootstrap_interval(
             statistic=request.statistic,
         )
 
-        return _convert_confidence_interval_to_model(ci)
+        return _convert_confidence_interval_to_processor(ci)
 
     except ValueError as e:
         raise HTTPException(
@@ -386,7 +386,7 @@ async def calculate_bootstrap_interval(
 
 @router.post(
     "/bayesian",
-    response_model=ConfidenceIntervalModel,
+    response_processor=ConfidenceIntervalModel,
     status_code=status.HTTP_200_OK,
     summary="Calculate Bayesian confidence interval",
     description="""
@@ -419,7 +419,7 @@ async def calculate_bayesian_interval(
             prior_beta=request.prior_beta,
         )
 
-        return _convert_confidence_interval_to_model(ci)
+        return _convert_confidence_interval_to_processor(ci)
 
     except ValueError as e:
         raise HTTPException(
@@ -434,7 +434,7 @@ async def calculate_bayesian_interval(
 
 @router.post(
     "/prediction-interval",
-    response_model=ConfidenceIntervalModel,
+    response_processor=ConfidenceIntervalModel,
     status_code=status.HTTP_200_OK,
     summary="Calculate prediction interval",
     description="""
@@ -465,7 +465,7 @@ async def calculate_prediction_interval(
             confidence_level=request.confidence_level,
         )
 
-        return _convert_confidence_interval_to_model(ci)
+        return _convert_confidence_interval_to_processor(ci)
 
     except ValueError as e:
         raise HTTPException(
@@ -480,7 +480,7 @@ async def calculate_prediction_interval(
 
 @router.get(
     "/methods",
-    response_model=dict[str, dict[str, str]],
+    response_processor=dict[str, dict[str, str]],
     status_code=status.HTTP_200_OK,
     summary="Get available uncertainty quantification methods",
     description="""
@@ -506,7 +506,7 @@ async def get_uncertainty_methods() -> dict[str, dict[str, str]]:
             "sample_size": "Works better with larger samples (n>30)",
         },
         "bayesian": {
-            "description": "Incorporates prior knowledge using Beta-binomial model",
+            "description": "Incorporates prior knowledge using Beta-binomial processor",
             "assumptions": "Beta prior distribution for parameters",
             "use_case": "Binary outcomes with prior knowledge",
             "computational_cost": "Low",

@@ -2,7 +2,7 @@
 Multi-Tenant Management Service
 
 Advanced multi-tenant architecture service that provides secure isolation,
-resource management, and tenant-specific configurations for anomaly detection.
+resource management, and tenant-specific configurations for anomaly processing.
 """
 
 import asyncio
@@ -55,8 +55,8 @@ class ResourceQuota:
     storage_gb: float = 100.0
     api_requests_per_hour: int = 1000
     concurrent_sessions: int = 10
-    max_models: int = 5
-    max_datasets: int = 20
+    max_processors: int = 5
+    max_data_collections: int = 20
     max_users: int = 50
     network_bandwidth_mbps: float = 100.0
 
@@ -97,7 +97,7 @@ class TenantConfiguration:
 
 @dataclass
 class TenantUsageMetrics:
-    """Tenant resource usage metrics."""
+    """Tenant resource usage measurements."""
 
     tenant_id: str
     period_start: datetime
@@ -143,8 +143,8 @@ class TenantResourceManager:
                 storage_gb=100.0,
                 api_requests_per_hour=1000,
                 concurrent_sessions=10,
-                max_models=5,
-                max_datasets=20,
+                max_processors=5,
+                max_data_collections=20,
                 max_users=50,
             ),
             ResourceTier.STANDARD: ResourceQuota(
@@ -153,8 +153,8 @@ class TenantResourceManager:
                 storage_gb=500.0,
                 api_requests_per_hour=5000,
                 concurrent_sessions=25,
-                max_models=15,
-                max_datasets=100,
+                max_processors=15,
+                max_data_collections=100,
                 max_users=200,
             ),
             ResourceTier.PREMIUM: ResourceQuota(
@@ -163,8 +163,8 @@ class TenantResourceManager:
                 storage_gb=1000.0,
                 api_requests_per_hour=10000,
                 concurrent_sessions=50,
-                max_models=50,
-                max_datasets=500,
+                max_processors=50,
+                max_data_collections=500,
                 max_users=1000,
             ),
             ResourceTier.ENTERPRISE: ResourceQuota(
@@ -173,8 +173,8 @@ class TenantResourceManager:
                 storage_gb=5000.0,
                 api_requests_per_hour=50000,
                 concurrent_sessions=100,
-                max_models=200,
-                max_datasets=2000,
+                max_processors=200,
+                max_data_collections=2000,
                 max_users=5000,
             ),
         }
@@ -243,7 +243,7 @@ class TenantResourceManager:
         return compliance
 
     def update_usage_metrics(self, tenant_id: str, usage_delta: dict[str, float]):
-        """Update usage metrics for a tenant."""
+        """Update usage measurements for a tenant."""
 
         if tenant_id not in self.usage_tracking:
             self.usage_tracking[tenant_id] = TenantUsageMetrics(
@@ -254,7 +254,7 @@ class TenantResourceManager:
 
         usage = self.usage_tracking[tenant_id]
 
-        # Update metrics
+        # Update measurements
         usage.cpu_hours_used += usage_delta.get("cpu_hours", 0.0)
         usage.memory_gb_hours += usage_delta.get("memory_gb_hours", 0.0)
         usage.storage_gb_used = max(
@@ -264,7 +264,7 @@ class TenantResourceManager:
         usage.data_processed_gb += usage_delta.get("data_processed_gb", 0.0)
         usage.models_trained += int(usage_delta.get("models_trained", 0))
 
-        # Update concurrent metrics
+        # Update concurrent measurements
         if "active_sessions" in usage_delta:
             usage.active_sessions = int(usage_delta["active_sessions"])
 
@@ -455,7 +455,7 @@ class MultiTenantManagementService:
 
     def __init__(self):
         self.logger = StructuredLogger("multi_tenant_management")
-        self.metrics_service = MetricsService()
+        self.measurements_service = MetricsService()
 
         # Core components
         self.resource_manager = TenantResourceManager()
@@ -909,7 +909,7 @@ class MultiTenantManagementService:
                         )
 
                         # Record metric
-                        self.metrics_service.record_quota_violation(
+                        self.measurements_service.record_quota_violation(
                             tenant_id=tenant_id,
                             resource_type=resource,
                         )

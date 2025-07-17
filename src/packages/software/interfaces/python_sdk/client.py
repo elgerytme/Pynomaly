@@ -1,7 +1,7 @@
 """
-Pynomaly Python SDK Client
+Software Python SDK Client
 
-Main client class for interacting with Pynomaly data science services.
+Main client class for interacting with Software data science services.
 Provides high-level API with async support and integration with popular libraries.
 """
 
@@ -19,7 +19,7 @@ from datetime import datetime
 import time
 
 # Remove services dependency - interfaces should not depend on services
-# from .application.services.detection_service import DetectionService
+# from .application.services.processing_service import DetectionService
 from .application.dto.detection_dto import DetectionRequestDTO, DetectionResponseDTO
 from .domain.value_objects.algorithm_config import AlgorithmConfig
 from .domain.value_objects.detection_metadata import DetectionMetadata
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ClientConfig:
-    """Configuration for Pynomaly SDK client."""
+    """Configuration for Software SDK client."""
     base_url: str = "https://api.example.com/v1"
     api_key: Optional[str] = None
     timeout: int = 30
@@ -58,18 +58,18 @@ class RetryConfig:
 
 class PynomagyClient:
     """
-    Main client for Pynomaly data science services.
+    Main client for Software data science services.
     
     Provides high-level API with async support, connection management,
     error handling, and integration with popular data science libraries.
     """
     
     def __init__(self, config: Optional[ClientConfig] = None):
-        """Initialize the Pynomaly client."""
+        """Initialize the Software client."""
         self.config = config or ClientConfig()
         self.retry_config = RetryConfig()
         self._session: Optional[aiohttp.ClientSession] = None
-        self._detection_service: Optional[DetectionService] = None
+        self._processing_service: Optional[DetectionService] = None
         self._pyod_adapter: Optional[PyODAlgorithmAdapter] = None
         self._cache: Dict[str, Any] = {}
         self._executor = ThreadPoolExecutor(max_workers=self.config.max_concurrent_requests)
@@ -78,7 +78,7 @@ class PynomagyClient:
         if self.config.debug:
             logging.basicConfig(level=logging.DEBUG)
         
-        logger.info(f"Pynomaly client initialized with base URL: {self.config.base_url}")
+        logger.info(f"Software client initialized with base URL: {self.config.base_url}")
     
     async def __aenter__(self):
         """Async context manager entry."""
@@ -100,7 +100,7 @@ class PynomagyClient:
         timeout = aiohttp.ClientTimeout(total=self.config.timeout)
         
         headers = {
-            "User-Agent": "Pynomaly-Python-SDK/1.0.0",
+            "User-Agent": "Software-Python-SDK/1.0.0",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -117,7 +117,7 @@ class PynomagyClient:
         )
         
         # Initialize services
-        self._detection_service = DetectionService()
+        self._processing_service = DetectionService()
         self._pyod_adapter = PyODAlgorithmAdapter()
         
         logger.debug("HTTP session and services initialized")
@@ -222,7 +222,7 @@ class PynomagyClient:
         
         return result
     
-    # Anomaly Detection Methods
+    # Anomaly Processing Methods
     
     async def detect_anomalies(
         self,
@@ -237,15 +237,15 @@ class PynomagyClient:
         
         Args:
             data: Input data as DataFrame, numpy array, or list of lists
-            algorithm: Algorithm to use for detection
+            algorithm: Algorithm to use for processing
             algorithm_params: Parameters for the algorithm
-            metadata: Additional metadata for the detection
+            metadata: Additional metadata for the processing
             use_cache: Whether to use caching for the request
             
         Returns:
-            DetectionResponseDTO with anomaly detection results
+            DetectionResponseDTO with anomaly processing results
         """
-        logger.info(f"Starting anomaly detection with algorithm: {algorithm}")
+        logger.info(f"Starting anomaly processing with algorithm: {algorithm}")
         
         # Convert data to appropriate format
         if isinstance(data, pd.DataFrame):
@@ -262,28 +262,28 @@ class PynomagyClient:
             version="1.0.0"
         )
         
-        # Create detection metadata
-        detection_metadata = DetectionMetadata(
+        # Create processing metadata
+        processing_metadata = DetectionMetadata(
             timestamp=datetime.now(),
             source="python_sdk",
             additional_info=metadata or {}
         )
         
-        # Create detection request
+        # Create processing request
         request_dto = DetectionRequestDTO(
             data=data_array,
             algorithm_config=algo_config,
-            metadata=detection_metadata
+            metadata=processing_metadata
         )
         
-        # Use local detection service if available, otherwise make API call
-        if self._detection_service:
+        # Use local processing service if available, otherwise make API call
+        if self._processing_service:
             try:
-                response = await self._detection_service.detect_anomalies(request_dto)
-                logger.info("Local detection completed successfully")
+                response = await self._processing_service.detect_anomalies(request_dto)
+                logger.info("Local processing completed successfully")
                 return response
             except Exception as e:
-                logger.warning(f"Local detection failed: {e}, falling back to API")
+                logger.warning(f"Local processing failed: {e}, falling back to API")
         
         # Make API call
         request_data = {
@@ -295,7 +295,7 @@ class PynomagyClient:
         
         result = await self._cached_request(
             "POST",
-            "/anomaly-detection/detect",
+            "/anomaly-processing/detect",
             data=request_data,
             use_cache=use_cache
         )
@@ -319,7 +319,7 @@ class PynomagyClient:
         Detect anomalies in multiple datasets concurrently.
         
         Args:
-            datasets: List of dataset configurations
+            datasets: List of data_collection configurations
             max_concurrent: Maximum concurrent requests
             progress_callback: Callback for progress updates
             
@@ -330,11 +330,11 @@ class PynomagyClient:
         
         semaphore = asyncio.Semaphore(max_concurrent)
         
-        async def process_dataset(dataset_config: Dict) -> DetectionResponseDTO:
+        async def process_data_collection(data_collection_config: Dict) -> DetectionResponseDTO:
             async with semaphore:
-                return await self.detect_anomalies(**dataset_config)
+                return await self.detect_anomalies(**data_collection_config)
         
-        tasks = [process_dataset(config) for config in datasets]
+        tasks = [process_data_collection(config) for config in datasets]
         results = []
         
         for i, task in enumerate(asyncio.as_completed(tasks)):
@@ -351,15 +351,15 @@ class PynomagyClient:
     async def assess_data_quality(
         self,
         data: Union[pd.DataFrame, np.ndarray],
-        quality_metrics: Optional[List[str]] = None,
+        quality_measurements: Optional[List[str]] = None,
         use_cache: bool = True
     ) -> Dict:
         """
-        Assess data quality using specified metrics.
+        Assess data quality using specified measurements.
         
         Args:
             data: Input data to assess
-            quality_metrics: List of quality metrics to compute
+            quality_measurements: List of quality measurements to compute
             use_cache: Whether to use caching
             
         Returns:
@@ -377,7 +377,7 @@ class PynomagyClient:
         
         request_data = {
             "data": data_dict,
-            "quality_metrics": quality_metrics or ["completeness", "uniqueness", "validity", "consistency"]
+            "quality_measurements": quality_measurements or ["completeness", "uniqueness", "validity", "consistency"]
         }
         
         result = await self._cached_request(
@@ -389,28 +389,28 @@ class PynomagyClient:
         
         return result
     
-    # Model Performance Methods
+    # Processor Performance Methods
     
-    async def evaluate_model_performance(
+    async def evaluate_processor_performance(
         self,
-        model_id: str,
+        processor_id: str,
         test_data: Union[pd.DataFrame, np.ndarray],
-        metrics: Optional[List[str]] = None,
+        measurements: Optional[List[str]] = None,
         use_cache: bool = True
     ) -> Dict:
         """
-        Evaluate model performance on test data.
+        Evaluate processor performance on test data.
         
         Args:
-            model_id: ID of the model to evaluate
+            processor_id: ID of the processor to evaluate
             test_data: Test data for evaluation
-            metrics: List of metrics to compute
+            measurements: List of measurements to compute
             use_cache: Whether to use caching
             
         Returns:
-            Dictionary containing performance metrics
+            Dictionary containing performance measurements
         """
-        logger.info(f"Evaluating model performance for model: {model_id}")
+        logger.info(f"Evaluating processor performance for processor: {processor_id}")
         
         # Convert data to appropriate format
         if isinstance(test_data, pd.DataFrame):
@@ -421,14 +421,14 @@ class PynomagyClient:
             raise ValidationError("Test data must be pandas DataFrame or numpy array")
         
         request_data = {
-            "model_id": model_id,
+            "processor_id": processor_id,
             "test_data": data_dict,
-            "metrics": metrics or ["accuracy", "precision", "recall", "f1_score"]
+            "measurements": measurements or ["accuracy", "precision", "recall", "f1_score"]
         }
         
         result = await self._cached_request(
             "POST",
-            "/model-performance/evaluate",
+            "/processor-performance/evaluate",
             data=request_data,
             use_cache=use_cache
         )
@@ -477,7 +477,7 @@ def create_client(
     **kwargs
 ) -> PynomagyClient:
     """
-    Create a Pynomaly client with convenient configuration.
+    Create a Software client with convenient configuration.
     
     Args:
         api_key: API key for authentication

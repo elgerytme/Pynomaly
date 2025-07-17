@@ -35,7 +35,7 @@ class RealTimeMonitoringService:
         self,
         max_events_buffer: int = 10000,
         max_sessions_buffer: int = 1000,
-        metrics_retention_hours: int = 24,
+        measurements_retention_hours: int = 24,
         enable_privacy_mode: bool = True,
     ):
         """Initialize real-time monitoring service.
@@ -43,12 +43,12 @@ class RealTimeMonitoringService:
         Args:
             max_events_buffer: Maximum events to keep in memory
             max_sessions_buffer: Maximum sessions to keep in memory
-            metrics_retention_hours: Hours to retain metrics
+            measurements_retention_hours: Hours to retain measurements
             enable_privacy_mode: Enable privacy compliance features
         """
         self.max_events_buffer = max_events_buffer
         self.max_sessions_buffer = max_sessions_buffer
-        self.metrics_retention_hours = metrics_retention_hours
+        self.measurements_retention_hours = measurements_retention_hours
         self.enable_privacy_mode = enable_privacy_mode
 
         # In-memory storage for real-time data
@@ -57,8 +57,8 @@ class RealTimeMonitoringService:
         self.web_vitals_buffer: deque = deque(maxlen=max_events_buffer)
         self.performance_snapshots: deque = deque(maxlen=1000)
 
-        # Real-time metrics
-        self.current_metrics = {
+        # Real-time measurements
+        self.current_measurements = {
             "active_users": 0,
             "active_sessions": 0,
             "requests_per_second": 0.0,
@@ -102,7 +102,7 @@ class RealTimeMonitoringService:
             asyncio.create_task(self._performance_snapshot_task()),
             asyncio.create_task(self._session_cleanup_task()),
             asyncio.create_task(self._alert_evaluation_task()),
-            asyncio.create_task(self._metrics_cleanup_task()),
+            asyncio.create_task(self._measurements_cleanup_task()),
         ]
 
     async def stop_monitoring(self) -> None:
@@ -170,8 +170,8 @@ class RealTimeMonitoringService:
         if error_message:
             await self._track_error(error_message, event)
 
-        # Update real-time metrics
-        await self._update_real_time_metrics()
+        # Update real-time measurements
+        await self._update_real_time_measurements()
 
         # Notify subscribers
         await self._notify_subscribers("user_event", event.__dict__)
@@ -225,8 +225,8 @@ class RealTimeMonitoringService:
             )
             await self.end_user_session(oldest_session_id)
 
-        # Update metrics
-        await self._update_real_time_metrics()
+        # Update measurements
+        await self._update_real_time_measurements()
 
         # Notify subscribers
         await self._notify_subscribers("session_start", session.__dict__)
@@ -252,8 +252,8 @@ class RealTimeMonitoringService:
         # Remove from active sessions
         del self.active_sessions[session_id]
 
-        # Update metrics
-        await self._update_real_time_metrics()
+        # Update measurements
+        await self._update_real_time_measurements()
 
         # Notify subscribers
         await self._notify_subscribers("session_end", session.__dict__)
@@ -346,8 +346,8 @@ class RealTimeMonitoringService:
                 endpoint, method, status_code, error_message, user_id, session_id
             )
 
-        # Update metrics
-        await self._update_real_time_metrics()
+        # Update measurements
+        await self._update_real_time_measurements()
 
         # Check for alerts
         await self._check_performance_alerts(response_time_ms, status_code)
@@ -356,9 +356,9 @@ class RealTimeMonitoringService:
         """Create a real-time performance snapshot.
 
         Returns:
-            SystemPerformanceSnapshot with current metrics
+            SystemPerformanceSnapshot with current measurements
         """
-        # Calculate API performance metrics
+        # Calculate API performance measurements
         recent_requests = [
             req
             for req in self.request_times
@@ -471,7 +471,7 @@ class RealTimeMonitoringService:
         return {
             "time_window_hours": time_window.total_seconds() / 3600,
             "total_errors": len(recent_errors),
-            "error_rate": self.current_metrics["error_rate"],
+            "error_rate": self.current_measurements["error_rate"],
             "errors_by_type": dict(error_by_type),
             "errors_by_endpoint": dict(error_by_endpoint),
             "errors_by_status_code": dict(error_by_status_code),
@@ -498,7 +498,7 @@ class RealTimeMonitoringService:
             event for event in self.events_buffer if event.timestamp > cutoff_time
         ]
 
-        # Calculate metrics
+        # Calculate measurements
         unique_users = len(
             set(event.user_id for event in recent_events if event.user_id)
         )
@@ -563,8 +563,8 @@ class RealTimeMonitoringService:
             if latest_snapshot
             else {},
             "users": {
-                "active_users": self.current_metrics["active_users"],
-                "active_sessions": self.current_metrics["active_sessions"],
+                "active_users": self.current_measurements["active_users"],
+                "active_sessions": self.current_measurements["active_sessions"],
                 "total_events_last_hour": len(
                     [
                         e
@@ -574,9 +574,9 @@ class RealTimeMonitoringService:
                 ),
             },
             "api": {
-                "requests_per_second": self.current_metrics["requests_per_second"],
-                "avg_response_time": self.current_metrics["avg_response_time"],
-                "error_rate": self.current_metrics["error_rate"],
+                "requests_per_second": self.current_measurements["requests_per_second"],
+                "avg_response_time": self.current_measurements["avg_response_time"],
+                "error_rate": self.current_measurements["error_rate"],
             },
             "errors": await self.get_error_analytics(timedelta(hours=1)),
             "alerts": [alert.__dict__ for alert in self.active_alerts.values()],
@@ -598,13 +598,13 @@ class RealTimeMonitoringService:
         """
         self.subscribers.discard(subscriber)
 
-    async def _update_real_time_metrics(self) -> None:
-        """Update real-time metrics."""
+    async def _update_real_time_measurements(self) -> None:
+        """Update real-time measurements."""
         # Update active users and sessions
-        self.current_metrics["active_users"] = len(
+        self.current_measurements["active_users"] = len(
             set(s.user_id for s in self.active_sessions.values() if s.user_id)
         )
-        self.current_metrics["active_sessions"] = len(self.active_sessions)
+        self.current_measurements["active_sessions"] = len(self.active_sessions)
 
         # Calculate requests per second (last 60 seconds)
         recent_requests = [
@@ -612,22 +612,22 @@ class RealTimeMonitoringService:
             for req in self.request_times
             if req["timestamp"] > datetime.utcnow() - timedelta(seconds=60)
         ]
-        self.current_metrics["requests_per_second"] = len(recent_requests) / 60.0
+        self.current_measurements["requests_per_second"] = len(recent_requests) / 60.0
 
         # Calculate average response time (last 100 requests)
         if recent_requests:
-            self.current_metrics["avg_response_time"] = sum(
+            self.current_measurements["avg_response_time"] = sum(
                 req["response_time"] for req in recent_requests[-100:]
             ) / min(len(recent_requests), 100)
 
             # Calculate error rate
             error_count = sum(1 for req in recent_requests if req["status_code"] >= 400)
-            self.current_metrics["error_rate"] = (
+            self.current_measurements["error_rate"] = (
                 error_count / len(recent_requests)
             ) * 100
         else:
-            self.current_metrics["avg_response_time"] = 0
-            self.current_metrics["error_rate"] = 0
+            self.current_measurements["avg_response_time"] = 0
+            self.current_measurements["error_rate"] = 0
 
     async def _track_error(self, error_message: str, event: UserEvent) -> None:
         """Track an error for analytics."""
@@ -729,7 +729,7 @@ class RealTimeMonitoringService:
         """Background task to evaluate alert rules."""
         while self._is_running:
             try:
-                # This would evaluate alert rules against current metrics
+                # This would evaluate alert rules against current measurements
                 # Implementation depends on alert rule configuration
                 await asyncio.sleep(60)  # Check every minute
             except asyncio.CancelledError:
@@ -737,12 +737,12 @@ class RealTimeMonitoringService:
             except Exception:
                 await asyncio.sleep(60)
 
-    async def _metrics_cleanup_task(self) -> None:
-        """Background task to clean up old metrics."""
+    async def _measurements_cleanup_task(self) -> None:
+        """Background task to clean up old measurements."""
         while self._is_running:
             try:
                 cutoff_time = datetime.utcnow() - timedelta(
-                    hours=self.metrics_retention_hours
+                    hours=self.measurements_retention_hours
                 )
 
                 # Clean up old events
@@ -806,7 +806,7 @@ class RealTimeMonitoringService:
     async def _check_performance_alerts(
         self, response_time_ms: int, status_code: int
     ) -> None:
-        """Check if performance metrics trigger alerts."""
+        """Check if performance measurements trigger alerts."""
         # This would check against configured alert rules
         # Implementation depends on alert rule configuration
         pass

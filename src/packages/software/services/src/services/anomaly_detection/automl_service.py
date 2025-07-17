@@ -1,6 +1,6 @@
 """AutoML service for automated algorithm selection and hyperparameter optimization.
 
-This module provides automated machine learning capabilities for anomaly detection,
+This module provides automated machine learning capabilities for anomaly processing,
 including algorithm selection, hyperparameter optimization, and ensemble creation.
 """
 
@@ -71,7 +71,7 @@ class OptimizationObjective(Enum):
     RECALL = "recall"
     F1_SCORE = "f1_score"
     BALANCED_ACCURACY = "balanced_accuracy"
-    DETECTION_RATE = "detection_rate"
+    DETECTION_RATE = "processing_rate"
 
 
 class AlgorithmFamily(Enum):
@@ -88,7 +88,7 @@ class AlgorithmFamily(Enum):
 
 @dataclass
 class AlgorithmConfig:
-    """Configuration for an anomaly detection algorithm."""
+    """Configuration for an anomaly processing algorithm."""
 
     name: str
     family: AlgorithmFamily
@@ -121,7 +121,7 @@ class AutoMLResult:
 
 @dataclass
 class DatasetProfile:
-    """Profile of a dataset for algorithm selection."""
+    """Profile of a data_collection for algorithm selection."""
 
     n_samples: int
     n_features: int
@@ -133,7 +133,7 @@ class DatasetProfile:
     time_series_features: list[str]
     sparsity_ratio: float
     dimensionality_ratio: float  # n_features / n_samples
-    dataset_size_mb: float
+    data_collection_size_mb: float
     has_temporal_structure: bool = False
     has_graph_structure: bool = False
     complexity_score: float = field(init=False)
@@ -143,7 +143,7 @@ class DatasetProfile:
         self.complexity_score = self._calculate_complexity()
 
     def _calculate_complexity(self) -> float:
-        """Calculate dataset complexity score."""
+        """Calculate data_collection complexity score."""
         # Normalize factors to 0-1 scale
         size_factor = min(self.n_samples / 10000, 1.0)
         dim_factor = min(self.n_features / 1000, 1.0)
@@ -162,12 +162,12 @@ class DatasetProfile:
 
 
 class AutoMLService:
-    """Automated machine learning service for anomaly detection."""
+    """Automated machine learning service for anomaly processing."""
 
     def __init__(
         self,
         detector_repository,
-        dataset_repository,
+        data_collection_repository,
         adapter_registry,
         max_optimization_time: int = 3600,
         n_trials: int = 100,
@@ -178,7 +178,7 @@ class AutoMLService:
 
         Args:
             detector_repository: Repository for detector storage
-            dataset_repository: Repository for dataset access
+            data_collection_repository: Repository for data_collection access
             adapter_registry: Registry for algorithm adapters
             max_optimization_time: Maximum optimization time in seconds
             n_trials: Maximum number of optimization trials
@@ -186,7 +186,7 @@ class AutoMLService:
             random_state: Random state for reproducibility
         """
         self.detector_repository = detector_repository
-        self.dataset_repository = dataset_repository
+        self.data_collection_repository = data_collection_repository
         self.adapter_registry = adapter_registry
         self.max_optimization_time = max_optimization_time
         self.n_trials = n_trials
@@ -295,31 +295,31 @@ class AutoMLService:
 
         return configs
 
-    async def profile_dataset(self, dataset_id: str) -> DatasetProfile:
-        """Profile a dataset to understand its characteristics.
+    async def profile_data_collection(self, data_collection_id: str) -> DatasetProfile:
+        """Profile a data_collection to understand its characteristics.
 
         Args:
-            dataset_id: ID of the dataset to profile
+            data_collection_id: ID of the data_collection to profile
 
         Returns:
-            Dataset profile with characteristics
+            DataCollection profile with characteristics
         """
         try:
-            dataset = await self.dataset_repository.get(dataset_id)
-            if not dataset:
-                raise AutoMLError(f"Dataset {dataset_id} not found")
+            data_collection = await self.data_collection_repository.get(data_collection_id)
+            if not data_collection:
+                raise AutoMLError(f"DataCollection {data_collection_id} not found")
 
-            logger.info(f"Profiling dataset {dataset_id}")
+            logger.info(f"Profiling data_collection {data_collection_id}")
 
-            # Load dataset features
-            if dataset.features is None:
-                raise AutoMLError("Dataset features are not available")
+            # Load data_collection features
+            if data_collection.features is None:
+                raise AutoMLError("DataCollection features are not available")
 
-            df = dataset.features
+            df = data_collection.features
 
             # Basic statistics
             n_samples, n_features = df.shape
-            dataset_size_mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
+            data_collection_size_mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
 
             # Feature type analysis
             feature_types = {}
@@ -338,7 +338,7 @@ class AutoMLService:
                     feature_types[col] = "categorical"
                     categorical_features.append(col)
 
-            # Data quality metrics
+            # Data quality measurements
             missing_values_ratio = df.isnull().sum().sum() / (n_samples * n_features)
 
             # Sparsity analysis (for numerical features)
@@ -373,10 +373,10 @@ class AutoMLService:
                     ).any(axis=1)
                     contamination_estimate = min(outliers.sum() / n_samples, 0.5)
 
-            # Temporal structure detection
+            # Temporal structure processing
             has_temporal_structure = len(time_series_features) > 0
 
-            # Graph structure detection (heuristic)
+            # Graph structure processing (heuristic)
             has_graph_structure = False
             if any(
                 "edge" in col.lower() or "node" in col.lower() or "graph" in col.lower()
@@ -395,27 +395,27 @@ class AutoMLService:
                 time_series_features=time_series_features,
                 sparsity_ratio=sparsity_ratio,
                 dimensionality_ratio=dimensionality_ratio,
-                dataset_size_mb=dataset_size_mb,
+                data_collection_size_mb=data_collection_size_mb,
                 has_temporal_structure=has_temporal_structure,
                 has_graph_structure=has_graph_structure,
             )
 
             logger.info(
-                f"Dataset profiling completed. Complexity score: {profile.complexity_score:.3f}"
+                f"DataCollection profiling completed. Complexity score: {profile.complexity_score:.3f}"
             )
             return profile
 
         except Exception as e:
-            logger.error(f"Error profiling dataset: {str(e)}")
-            raise AutoMLError(f"Dataset profiling failed: {str(e)}") from e
+            logger.error(f"Error profiling data_collection: {str(e)}")
+            raise AutoMLError(f"DataCollection profiling failed: {str(e)}") from e
 
     def recommend_algorithms(
         self, profile: DatasetProfile, max_algorithms: int = 5
     ) -> list[str]:
-        """Recommend algorithms based on dataset profile.
+        """Recommend algorithms based on data_collection profile.
 
         Args:
-            profile: Dataset profile
+            profile: DataCollection profile
             max_algorithms: Maximum number of algorithms to recommend
 
         Returns:
@@ -423,7 +423,7 @@ class AutoMLService:
         """
         try:
             logger.info(
-                f"Recommending algorithms for dataset with {profile.n_samples} samples, "
+                f"Recommending algorithms for data_collection with {profile.n_samples} samples, "
                 f"{profile.n_features} features"
             )
 
@@ -449,7 +449,7 @@ class AutoMLService:
     def _calculate_algorithm_score(
         self, config: AlgorithmConfig, profile: DatasetProfile
     ) -> float:
-        """Calculate suitability score for an algorithm given a dataset profile."""
+        """Calculate suitability score for an algorithm given a data_collection profile."""
         score = 1.0
 
         # Sample size suitability
@@ -471,7 +471,7 @@ class AutoMLService:
             score *= 0.8
 
         # Memory considerations for large datasets
-        if profile.dataset_size_mb > 1000:  # > 1GB
+        if profile.data_collection_size_mb > 1000:  # > 1GB
             score *= 1.0 - config.memory_factor * 0.3
 
         # Training time considerations
@@ -495,7 +495,7 @@ class AutoMLService:
 
     async def optimize_hyperparameters(
         self,
-        dataset_id: str,
+        data_collection_id: str,
         algorithm: str,
         objective: OptimizationObjective = OptimizationObjective.AUC,
         direction: str = "maximize",
@@ -503,7 +503,7 @@ class AutoMLService:
         """Optimize hyperparameters for a specific algorithm.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
             algorithm: Algorithm name
             objective: Optimization objective
             direction: "maximize" or "minimize"
@@ -518,10 +518,10 @@ class AutoMLService:
             start_time = time.time()
             logger.info(f"Starting hyperparameter optimization for {algorithm}")
 
-            # Get dataset and algorithm config
-            dataset = await self.dataset_repository.get(dataset_id)
-            if not dataset:
-                raise AutoMLError(f"Dataset {dataset_id} not found")
+            # Get data_collection and algorithm config
+            data_collection = await self.data_collection_repository.get(data_collection_id)
+            if not data_collection:
+                raise AutoMLError(f"DataCollection {data_collection_id} not found")
 
             if algorithm not in self.algorithm_configs:
                 raise AutoMLError(f"Algorithm {algorithm} not supported")
@@ -536,7 +536,7 @@ class AutoMLService:
 
             # Define objective function
             def objective_func(trial):
-                return self._evaluate_trial(trial, dataset, config, objective)
+                return self._evaluate_trial(trial, data_collection, config, objective)
 
             # Optimize
             study.optimize(
@@ -574,7 +574,7 @@ class AutoMLService:
     def _evaluate_trial(
         self,
         trial,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: AlgorithmConfig,
         objective: OptimizationObjective,
     ) -> float:
@@ -609,10 +609,10 @@ class AutoMLService:
             adapter = self.adapter_registry.get_adapter(config.adapter_type)
 
             # Prepare data
-            X = dataset.features.values
+            X = data_collection.features.values
 
             # For simulation purposes, create synthetic labels
-            # In practice, this would use semi-supervised evaluation or unsupervised metrics
+            # In practice, this would use semi-supervised evaluation or unsupervised measurements
             contamination = params.get("contamination", 0.1)
             n_anomalies = int(len(X) * contamination)
             y_true = np.zeros(len(X))
@@ -654,7 +654,7 @@ class AutoMLService:
 
     async def auto_select_and_optimize(
         self,
-        dataset_id: str,
+        data_collection_id: str,
         objective: OptimizationObjective = OptimizationObjective.AUC,
         max_algorithms: int = 3,
         enable_ensemble: bool = True,
@@ -662,7 +662,7 @@ class AutoMLService:
         """Automatically select and optimize the best algorithm.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
             objective: Optimization objective
             max_algorithms: Maximum algorithms to try
             enable_ensemble: Whether to create ensemble if beneficial
@@ -672,10 +672,10 @@ class AutoMLService:
         """
         try:
             start_time = time.time()
-            logger.info(f"Starting AutoML for dataset {dataset_id}")
+            logger.info(f"Starting AutoML for data_collection {data_collection_id}")
 
-            # Profile dataset
-            profile = await self.profile_dataset(dataset_id)
+            # Profile data_collection
+            profile = await self.profile_data_collection(data_collection_id)
 
             # Recommend algorithms
             recommended_algorithms = self.recommend_algorithms(profile, max_algorithms)
@@ -685,7 +685,7 @@ class AutoMLService:
             for algorithm in recommended_algorithms:
                 try:
                     result = await self.optimize_hyperparameters(
-                        dataset_id, algorithm, objective
+                        data_collection_id, algorithm, objective
                     )
                     optimization_results.append(result)
                 except Exception as e:
@@ -829,7 +829,7 @@ class AutoMLService:
 
         if automl_result.ensemble_config:
             summary["recommendations"].append(
-                "Ensemble model created for improved performance"
+                "Ensemble processor created for improved performance"
             )
 
         if automl_result.optimization_time > self.max_optimization_time * 0.9:

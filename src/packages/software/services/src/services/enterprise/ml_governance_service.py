@@ -27,35 +27,35 @@ class MLGovernanceApplicationService:
         """Initialize the ML governance application service."""
         self.governance_framework = governance_framework
 
-    async def onboard_model(
+    async def onboard_processor(
         self,
-        model: Model,
+        processor: Processor,
         validation_data: pd.DataFrame,
-        model_info: dict[str, Any],
+        processor_info: dict[str, Any],
         created_by: str,
         policy_name: str = "default",
     ) -> ModelGovernanceRecord:
-        """Onboard a new model to the governance framework."""
-        logger.info(f"Onboarding model {model.id} to governance framework")
+        """Onboard a new processor to the governance framework."""
+        logger.info(f"Onboarding processor {processor.id} to governance framework")
 
         try:
-            # Register model
-            record = await self.governance_framework.register_model(
-                model=model, policy_name=policy_name, created_by=created_by
+            # Register processor
+            record = await self.governance_framework.register_processor(
+                processor=processor, policy_name=policy_name, created_by=created_by
             )
 
-            # Create model card
-            await self.governance_framework.create_model_card(
-                record_id=record.record_id, model_info=model_info, created_by=created_by
+            # Create processor card
+            await self.governance_framework.create_processor_card(
+                record_id=record.record_id, processor_info=processor_info, created_by=created_by
             )
 
             # Run validation
-            validation_results = await self.governance_framework.validate_model(
+            validation_results = await self.governance_framework.validate_processor(
                 record_id=record.record_id, validation_data=validation_data
             )
 
             logger.info(
-                f"Model {model.id} validation completed: {validation_results['passed']}"
+                f"Processor {processor.id} validation completed: {validation_results['passed']}"
             )
 
             # Run compliance check if validation passed
@@ -66,33 +66,33 @@ class MLGovernanceApplicationService:
                     )
                 )
                 logger.info(
-                    f"Model {model.id} compliance check completed: {compliance_results['overall_score']}"
+                    f"Processor {processor.id} compliance check completed: {compliance_results['overall_score']}"
                 )
 
             return record
 
         except Exception as e:
-            logger.error(f"Failed to onboard model {model.id}: {str(e)}")
+            logger.error(f"Failed to onboard processor {processor.id}: {str(e)}")
             raise
 
-    async def request_model_approval(
+    async def request_processor_approval(
         self, record_id: UUID, requested_by: str
     ) -> list[dict[str, Any]]:
-        """Request approval for model deployment."""
+        """Request approval for processor deployment."""
         logger.info(f"Requesting approval for governance record {record_id}")
 
         try:
-            record = self.governance_framework.get_model_governance_record(record_id)
+            record = self.governance_framework.get_processor_governance_record(record_id)
             if not record:
                 raise ValueError(f"Governance record {record_id} not found")
 
-            # Check if model is ready for approval
+            # Check if processor is ready for approval
             if record.status not in [
                 GovernanceStatus.APPROVED,
                 GovernanceStatus.UNDER_REVIEW,
             ]:
                 raise ValueError(
-                    f"Model not ready for approval. Current status: {record.status}"
+                    f"Processor not ready for approval. Current status: {record.status}"
                 )
 
             # Request approvals from all required roles
@@ -110,7 +110,7 @@ class MLGovernanceApplicationService:
                     approval_requests.append(approval_request)
 
             logger.info(
-                f"Approval requests created for model {record.model_id}: {len(approval_requests)} requests"
+                f"Approval requests created for processor {record.processor_id}: {len(approval_requests)} requests"
             )
             return approval_requests
 
@@ -118,58 +118,58 @@ class MLGovernanceApplicationService:
             logger.error(f"Failed to request approval for record {record_id}: {str(e)}")
             raise
 
-    async def approve_model_deployment(
+    async def approve_processor_deployment(
         self, record_id: UUID, approval_id: str, approver: str, comments: str = ""
     ) -> dict[str, Any]:
-        """Approve model for deployment."""
+        """Approve processor for deployment."""
         logger.info(f"Processing approval {approval_id} for record {record_id}")
 
         try:
-            approval = await self.governance_framework.approve_model(
+            approval = await self.governance_framework.approve_processor(
                 record_id=record_id,
                 approval_id=approval_id,
                 approver=approver,
                 comments=comments,
             )
 
-            logger.info(f"Model approval processed by {approver}")
+            logger.info(f"Processor approval processed by {approver}")
             return approval
 
         except Exception as e:
             logger.error(f"Failed to process approval {approval_id}: {str(e)}")
             raise
 
-    async def deploy_model_to_stage(
+    async def deploy_processor_to_stage(
         self,
         record_id: UUID,
         target_stage: ModelStage,
         deployment_strategy: DeploymentStrategy | None = None,
     ) -> dict[str, Any]:
-        """Deploy model to specified stage."""
-        logger.info(f"Deploying model from record {record_id} to {target_stage.value}")
+        """Deploy processor to specified stage."""
+        logger.info(f"Deploying processor from record {record_id} to {target_stage.value}")
 
         try:
-            deployment_result = await self.governance_framework.deploy_model(
+            deployment_result = await self.governance_framework.deploy_processor(
                 record_id=record_id,
                 target_stage=target_stage,
                 deployment_strategy=deployment_strategy,
             )
 
-            logger.info(f"Model deployment completed: {deployment_result['status']}")
+            logger.info(f"Processor deployment completed: {deployment_result['status']}")
             return deployment_result
 
         except Exception as e:
-            logger.error(f"Failed to deploy model from record {record_id}: {str(e)}")
+            logger.error(f"Failed to deploy processor from record {record_id}: {str(e)}")
             raise
 
-    async def promote_model_through_stages(
+    async def promote_processor_through_stages(
         self, record_id: UUID, auto_approve: bool = False
     ) -> list[dict[str, Any]]:
-        """Promote model through development -> staging -> production stages."""
-        logger.info(f"Promoting model from record {record_id} through stages")
+        """Promote processor through development -> staging -> production stages."""
+        logger.info(f"Promoting processor from record {record_id} through stages")
 
         try:
-            record = self.governance_framework.get_model_governance_record(record_id)
+            record = self.governance_framework.get_processor_governance_record(record_id)
             if not record:
                 raise ValueError(f"Governance record {record_id} not found")
 
@@ -188,13 +188,13 @@ class MLGovernanceApplicationService:
                 # Check if approvals are needed
                 if not auto_approve and target_stage == ModelStage.PRODUCTION:
                     # Request approvals for production deployment
-                    approval_requests = await self.request_model_approval(
+                    approval_requests = await self.request_processor_approval(
                         record_id=record_id, requested_by="system"
                     )
 
                     # For demo purposes, auto-approve all requests
                     for approval_request in approval_requests:
-                        await self.approve_model_deployment(
+                        await self.approve_processor_deployment(
                             record_id=record_id,
                             approval_id=approval_request["approval_id"],
                             approver="system_admin",
@@ -202,7 +202,7 @@ class MLGovernanceApplicationService:
                         )
 
                 # Deploy to stage
-                deployment_result = await self.deploy_model_to_stage(
+                deployment_result = await self.deploy_processor_to_stage(
                     record_id=record_id,
                     target_stage=target_stage,
                     deployment_strategy=deployment_strategy,
@@ -213,17 +213,17 @@ class MLGovernanceApplicationService:
                 )
 
                 # Update record reference
-                record = self.governance_framework.get_model_governance_record(
+                record = self.governance_framework.get_processor_governance_record(
                     record_id
                 )
 
             logger.info(
-                f"Model promotion completed through {len(promotion_results)} stages"
+                f"Processor promotion completed through {len(promotion_results)} stages"
             )
             return promotion_results
 
         except Exception as e:
-            logger.error(f"Failed to promote model from record {record_id}: {str(e)}")
+            logger.error(f"Failed to promote processor from record {record_id}: {str(e)}")
             raise
 
     async def run_governance_audit(self, record_id: UUID) -> dict[str, Any]:
@@ -249,10 +249,10 @@ class MLGovernanceApplicationService:
             recommendations = []
 
             # Check documentation completeness
-            if not report["documentation_status"]["model_card_exists"]:
-                findings.append("Missing model card documentation")
+            if not report["documentation_status"]["processor_card_exists"]:
+                findings.append("Missing processor card documentation")
                 recommendations.append(
-                    "Create comprehensive model card with performance metrics and limitations"
+                    "Create comprehensive processor card with performance measurements and limitations"
                 )
 
             # Check approval status
@@ -294,7 +294,7 @@ class MLGovernanceApplicationService:
         try:
             dashboard_data = await self.governance_framework.get_governance_dashboard()
 
-            # Add additional dashboard metrics
+            # Add additional dashboard measurements
             dashboard_data["governance_health_score"] = (
                 self._calculate_overall_governance_health()
             )
@@ -319,9 +319,9 @@ class MLGovernanceApplicationService:
             records = self.governance_framework.list_governance_records(stage=stage)
 
             compliance_results = {
-                "total_models": len(records),
-                "compliant_models": 0,
-                "non_compliant_models": 0,
+                "total_processors": len(records),
+                "compliant_processors": 0,
+                "non_compliant_processors": 0,
                 "results": [],
             }
 
@@ -346,9 +346,9 @@ class MLGovernanceApplicationService:
                     )
 
                     if result["overall_score"] >= 0.8:
-                        compliance_results["compliant_models"] += 1
+                        compliance_results["compliant_processors"] += 1
                     else:
-                        compliance_results["non_compliant_models"] += 1
+                        compliance_results["non_compliant_processors"] += 1
 
                 except Exception as e:
                     logger.error(
@@ -362,10 +362,10 @@ class MLGovernanceApplicationService:
                             "error": str(e),
                         }
                     )
-                    compliance_results["non_compliant_models"] += 1
+                    compliance_results["non_compliant_processors"] += 1
 
             logger.info(
-                f"Bulk compliance check completed: {compliance_results['compliant_models']}/{compliance_results['total_models']} compliant"
+                f"Bulk compliance check completed: {compliance_results['compliant_processors']}/{compliance_results['total_processors']} compliant"
             )
             return compliance_results
 
@@ -389,7 +389,7 @@ class MLGovernanceApplicationService:
 
         # Documentation completeness (20% weight)
         doc_score = 0
-        if report["documentation_status"]["model_card_exists"]:
+        if report["documentation_status"]["processor_card_exists"]:
             doc_score += 0.5
         if report["documentation_status"]["data_sheet_exists"]:
             doc_score += 0.5
@@ -421,7 +421,7 @@ class MLGovernanceApplicationService:
         recommendations = []
 
         # Check compliance
-        non_compliant = dashboard_data["compliance_overview"]["non_compliant_models"]
+        non_compliant = dashboard_data["compliance_overview"]["non_compliant_processors"]
         if non_compliant > 0:
             recommendations.append(
                 f"Address compliance issues for {non_compliant} non-compliant models"

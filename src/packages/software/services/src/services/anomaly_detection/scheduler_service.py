@@ -553,7 +553,7 @@ class SchedulerService:
         common_schedules = [
             {
                 "name": "Daily Anomaly Report",
-                "description": "Daily summary of anomaly detection results",
+                "description": "Daily summary of anomaly processing results",
                 "cron_expression": "0 9 * * *",  # Daily at 9 AM
                 "task_type": "report",
                 "export_format": "excel",

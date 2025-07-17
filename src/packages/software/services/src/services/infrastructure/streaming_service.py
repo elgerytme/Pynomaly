@@ -1,4 +1,4 @@
-"""Real-time streaming service for anomaly detection."""
+"""Real-time streaming service for anomaly processing."""
 
 from __future__ import annotations
 
@@ -31,11 +31,11 @@ logger = logging.getLogger(__name__)
 
 
 class StreamingService:
-    """Service for managing real-time anomaly detection streaming."""
+    """Service for managing real-time anomaly processing streaming."""
 
     def __init__(
         self,
-        model_repository: ModelRepositoryProtocol,
+        processor_repository: ModelRepositoryProtocol,
         streaming_repository: Any,  # StreamingRepositoryProtocol when implemented
         event_repository: Any,  # EventRepositoryProtocol when implemented
         detector_service: Any,  # DetectorService when implemented
@@ -44,13 +44,13 @@ class StreamingService:
         """Initialize the streaming service.
 
         Args:
-            model_repository: Model repository
+            processor_repository: Processor repository
             streaming_repository: Streaming session repository
             event_repository: Event repository
             detector_service: Detector service for predictions
             notification_service: Notification service
         """
-        self.model_repository = model_repository
+        self.processor_repository = processor_repository
         self.streaming_repository = streaming_repository
         self.event_repository = event_repository
         self.detector_service = detector_service
@@ -67,7 +67,7 @@ class StreamingService:
         created_by: str,
         description: str | None = None,
         data_sink: StreamingDataSink | None = None,
-        model_version: str | None = None,
+        processor_version: str | None = None,
         max_duration: timedelta | None = None,
         tags: list[str] | None = None,
     ) -> StreamingSession:
@@ -75,13 +75,13 @@ class StreamingService:
 
         Args:
             name: Session name
-            detector_id: Detector to use for anomaly detection
+            detector_id: Detector to use for anomaly processing
             data_source: Input data source configuration
             configuration: Streaming configuration
             created_by: User creating the session
             description: Session description
             data_sink: Output data sink configuration
-            model_version: Specific model version to use
+            processor_version: Specific processor version to use
             max_duration: Maximum session duration
             tags: Session tags
 
@@ -89,7 +89,7 @@ class StreamingService:
             Created streaming session
         """
         # Validate detector exists
-        detector = await self.model_repository.get_by_id(detector_id)
+        detector = await self.processor_repository.get_by_id(detector_id)
         if not detector:
             raise ValueError(f"Detector {detector_id} does not exist")
 
@@ -98,7 +98,7 @@ class StreamingService:
             name=name,
             description=description,
             detector_id=detector_id,
-            model_version=model_version,
+            processor_version=processor_version,
             data_source=data_source,
             data_sink=data_sink,
             configuration=configuration,
@@ -223,20 +223,20 @@ class StreamingService:
 
         return updated_session
 
-    async def get_session_metrics(self, session_id: UUID) -> StreamingMetrics:
-        """Get current metrics for a streaming session.
+    async def get_session_measurements(self, session_id: UUID) -> StreamingMetrics:
+        """Get current measurements for a streaming session.
 
         Args:
             session_id: Session identifier
 
         Returns:
-            Current streaming metrics
+            Current streaming measurements
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
 
-        return session.current_metrics
+        return session.current_measurements
 
     async def get_session_summary(self, session_id: UUID) -> SessionSummary:
         """Get summary for a streaming session.
@@ -265,12 +265,12 @@ class StreamingService:
             started_at=session.started_at,
             stopped_at=session.stopped_at,
             uptime_seconds=uptime_seconds,
-            messages_processed=session.current_metrics.messages_processed,
-            anomalies_detected=session.current_metrics.anomalies_detected,
-            current_throughput=session.current_metrics.messages_per_second,
+            messages_processed=session.current_measurements.messages_processed,
+            anomalies_detected=session.current_measurements.anomalies_detected,
+            current_throughput=session.current_measurements.messages_per_second,
             avg_throughput=throughput_summary["avg_throughput"],
-            error_rate=session.current_metrics.error_rate,
-            anomaly_rate=session.current_metrics.anomaly_rate,
+            error_rate=session.current_measurements.error_rate,
+            anomaly_rate=session.current_measurements.anomaly_rate,
             created_by=session.created_by,
         )
 
@@ -371,7 +371,7 @@ class StreamingService:
             data: Input data to process
 
         Returns:
-            Processing result including anomaly detection
+            Processing result including anomaly processing
         """
         session = self._active_sessions.get(session_id)
         if not session or not session.is_active():
@@ -381,8 +381,8 @@ class StreamingService:
             # Preprocess data
             processed_data = await self._preprocess_data(data, session.configuration)
 
-            # Run anomaly detection
-            detection_result = await self.detector_service.predict(
+            # Run anomaly processing
+            processing_result = await self.detector_service.predict(
                 session.detector_id, processed_data
             )
 
@@ -392,21 +392,21 @@ class StreamingService:
                 "timestamp": datetime.utcnow().isoformat(),
                 "input_data": data,
                 "processed_data": processed_data,
-                "anomaly_score": detection_result.get("anomaly_score", 0.0),
-                "is_anomaly": detection_result.get("is_anomaly", False),
-                "confidence": detection_result.get("confidence", 0.0),
-                "feature_contributions": detection_result.get(
+                "anomaly_score": processing_result.get("anomaly_score", 0.0),
+                "is_anomaly": processing_result.get("is_anomaly", False),
+                "confidence": processing_result.get("confidence", 0.0),
+                "feature_contributions": processing_result.get(
                     "feature_contributions", {}
                 ),
-                "explanation": detection_result.get("explanation"),
+                "explanation": processing_result.get("explanation"),
             }
 
             # Generate event if anomaly detected
             if result["is_anomaly"]:
-                await self._generate_anomaly_event(session, data, detection_result)
+                await self._generate_anomaly_event(session, data, processing_result)
 
-            # Update session metrics
-            await self._update_session_metrics(session, result)
+            # Update session measurements
+            await self._update_session_measurements(session, result)
 
             # Check alerts
             await self._check_session_alerts(session)
@@ -577,24 +577,24 @@ class StreamingService:
         self,
         session: StreamingSession,
         data: dict[str, Any],
-        detection_result: dict[str, Any],
+        processing_result: dict[str, Any],
     ) -> None:
         """Generate anomaly event."""
         anomaly_data = AnomalyEventData(
-            anomaly_score=detection_result["anomaly_score"],
-            confidence=detection_result["confidence"],
-            feature_contributions=detection_result.get("feature_contributions", {}),
-            explanation=detection_result.get("explanation"),
-            model_version=session.model_version,
+            anomaly_score=processing_result["anomaly_score"],
+            confidence=processing_result["confidence"],
+            feature_contributions=processing_result.get("feature_contributions", {}),
+            explanation=processing_result.get("explanation"),
+            processor_version=session.processor_version,
         )
 
         event = AnomalyEvent(
             event_type=EventType.ANOMALY_DETECTED,
-            severity=self._determine_severity(detection_result["anomaly_score"]),
+            severity=self._determine_severity(processing_result["anomaly_score"]),
             source_session_id=session.id,
             detector_id=session.detector_id,
             title=f"Anomaly detected in {session.name}",
-            description=f"Anomaly score: {detection_result['anomaly_score']:.3f}",
+            description=f"Anomaly score: {processing_result['anomaly_score']:.3f}",
             raw_data=data,
             anomaly_data=anomaly_data,
             event_time=datetime.utcnow(),
@@ -613,29 +613,29 @@ class StreamingService:
         else:
             return EventSeverity.LOW
 
-    async def _update_session_metrics(
+    async def _update_session_measurements(
         self, session: StreamingSession, result: dict[str, Any]
     ) -> None:
-        """Update session metrics."""
-        metrics = session.current_metrics
+        """Update session measurements."""
+        measurements = session.current_measurements
 
         # Update counters
-        metrics.messages_processed += 1
+        measurements.messages_processed += 1
         if result["is_anomaly"]:
-            metrics.anomalies_detected += 1
+            measurements.anomalies_detected += 1
 
         # Update rates
         uptime = session.get_uptime()
         if uptime and uptime.total_seconds() > 0:
-            metrics.messages_per_second = (
-                metrics.messages_processed / uptime.total_seconds()
+            measurements.messages_per_second = (
+                measurements.messages_processed / uptime.total_seconds()
             )
-            metrics.anomaly_rate = (
-                metrics.anomalies_detected / metrics.messages_processed
+            measurements.anomaly_rate = (
+                measurements.anomalies_detected / measurements.messages_processed
             )
 
         # Update in session
-        session.update_metrics(metrics)
+        session.update_measurements(measurements)
 
         # Persist to repository
         await self.streaming_repository.update_session(session)
@@ -649,7 +649,7 @@ class StreamingService:
                 continue
 
             # Get current metric value
-            current_value = getattr(session.current_metrics, alert.metric_name, 0.0)
+            current_value = getattr(session.current_measurements, alert.metric_name, 0.0)
 
             # Check condition
             if alert.evaluate_condition(current_value):
@@ -700,18 +700,18 @@ class StreamingService:
     async def _checkpoint_session(self, session: StreamingSession) -> None:
         """Create checkpoint for session."""
         # This would implement checkpointing logic
-        session.current_metrics.last_checkpoint = datetime.utcnow()
+        session.current_measurements.last_checkpoint = datetime.utcnow()
 
     async def _handle_processing_error(
         self, session: StreamingSession, error: str
     ) -> None:
         """Handle processing error."""
-        metrics = session.current_metrics
-        metrics.failed_messages += 1
+        measurements = session.current_measurements
+        measurements.failed_messages += 1
 
         uptime = session.get_uptime()
         if uptime and uptime.total_seconds() > 0:
-            metrics.error_rate = metrics.failed_messages / metrics.messages_processed
+            measurements.error_rate = measurements.failed_messages / measurements.messages_processed
 
-        session.update_metrics(metrics)
+        session.update_measurements(measurements)
         await self.streaming_repository.update_session(session)

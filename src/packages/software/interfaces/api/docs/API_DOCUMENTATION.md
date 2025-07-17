@@ -1,8 +1,8 @@
-# 🔌 Pynomaly API Documentation
+# 🔌 Software API Documentation
 
 ## Overview
 
-The Pynomaly API provides comprehensive REST endpoints for anomaly detection, model management, and system monitoring. This documentation covers all 65+ available endpoints with detailed examples and usage instructions.
+The Software API provides comprehensive REST endpoints for anomaly processing, processor management, and system monitoring. This documentation covers all 65+ available endpoints with detailed examples and usage instructions.
 
 ## Base URL
 
@@ -84,7 +84,7 @@ Detailed system health information.
       "redis": "healthy",
       "workers": "healthy"
     },
-    "metrics": {
+    "measurements": {
       "cpu_usage": 45.2,
       "memory_usage": 1024,
       "disk_usage": 15.5
@@ -200,7 +200,7 @@ Get detector details.
     "training_history": [
       {
         "timestamp": "2023-12-01T10:00:00Z",
-        "dataset_size": 10000,
+        "data_collection_size": 10000,
         "training_time": 45.2,
         "accuracy": 0.95
       }
@@ -246,7 +246,7 @@ Train a detector with provided data.
 **Request Body:**
 ```json
 {
-  "dataset_id": "dataset_abc123",
+  "data_collection_id": "data_collection_abc123",
   "validation_split": 0.2,
   "cross_validation": true,
   "cv_folds": 5
@@ -277,7 +277,7 @@ Get training status.
     "status": "training",
     "progress": 0.65,
     "estimated_remaining": 120,
-    "current_metrics": {
+    "current_measurements": {
       "accuracy": 0.92,
       "loss": 0.08
     }
@@ -285,10 +285,10 @@ Get training status.
 }
 ```
 
-### 4. Detection
+### 4. Processing
 
 #### POST /api/v1/detectors/{detector_id}/detect
-Perform anomaly detection on new data.
+Perform anomaly processing on new data.
 
 **Request Body:**
 ```json
@@ -335,12 +335,12 @@ Perform anomaly detection on new data.
 ```
 
 #### POST /api/v1/detectors/{detector_id}/batch-detect
-Batch detection for large datasets.
+Batch processing for large datasets.
 
 **Request Body:**
 ```json
 {
-  "dataset_id": "dataset_abc123",
+  "data_collection_id": "data_collection_abc123",
   "batch_size": 1000,
   "async": true
 }
@@ -358,7 +358,7 @@ Batch detection for large datasets.
 }
 ```
 
-### 5. Dataset Management
+### 5. DataCollection Management
 
 #### GET /api/v1/datasets
 List all datasets.
@@ -370,7 +370,7 @@ List all datasets.
   "data": {
     "datasets": [
       {
-        "id": "dataset_abc123",
+        "id": "data_collection_abc123",
         "name": "Production Data",
         "size": 100000,
         "features": 25,
@@ -383,13 +383,13 @@ List all datasets.
 ```
 
 #### POST /api/v1/datasets
-Upload a new dataset.
+Upload a new data_collection.
 
 **Request Body (multipart/form-data):**
 ```
 file: [CSV/Parquet file]
-name: "Dataset Name"
-description: "Dataset description"
+name: "DataCollection Name"
+description: "DataCollection description"
 ```
 
 **Response:**
@@ -397,23 +397,23 @@ description: "Dataset description"
 {
   "success": true,
   "data": {
-    "dataset_id": "dataset_abc123",
-    "name": "Dataset Name",
+    "data_collection_id": "data_collection_abc123",
+    "name": "DataCollection Name",
     "status": "processing",
     "upload_id": "upload_abc123"
   }
 }
 ```
 
-#### GET /api/v1/datasets/{dataset_id}
-Get dataset details.
+#### GET /api/v1/datasets/{data_collection_id}
+Get data_collection details.
 
 **Response:**
 ```json
 {
   "success": true,
   "data": {
-    "id": "dataset_abc123",
+    "id": "data_collection_abc123",
     "name": "Production Data",
     "size": 100000,
     "features": 25,
@@ -424,7 +424,7 @@ Get dataset details.
       "min": [0.1, 0.5, 1.0],
       "max": [5.0, 10.0, 15.0]
     },
-    "quality_metrics": {
+    "quality_measurements": {
       "completeness": 0.95,
       "consistency": 0.92,
       "validity": 0.98
@@ -443,7 +443,7 @@ Start AutoML optimization.
 **Request Body:**
 ```json
 {
-  "dataset_id": "dataset_abc123",
+  "data_collection_id": "data_collection_abc123",
   "algorithms": ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"],
   "objectives": ["accuracy", "speed", "interpretability"],
   "constraints": {
@@ -495,7 +495,7 @@ Get optimization status.
 ### 7. Explainability
 
 #### POST /api/v1/explainability/explain
-Generate explanations for model predictions.
+Generate explanations for processor predictions.
 
 **Request Body:**
 ```json
@@ -543,10 +543,10 @@ Generate explanations for model predictions.
 }
 ```
 
-### 8. Monitoring & Metrics
+### 8. Monitoring & Measurements
 
-#### GET /api/v1/metrics
-Get system metrics.
+#### GET /api/v1/measurements
+Get system measurements.
 
 **Response:**
 ```json
@@ -559,28 +559,28 @@ Get system metrics.
       "disk_usage": 15.5,
       "uptime": 86400
     },
-    "detection": {
-      "total_detections": 1000000,
+    "processing": {
+      "total_processings": 1000000,
       "anomalies_detected": 50000,
       "average_accuracy": 0.95,
       "average_response_time": 0.15
     },
     "models": {
-      "total_models": 25,
-      "active_models": 20,
-      "training_models": 2
+      "total_processors": 25,
+      "active_processors": 20,
+      "training_processors": 2
     }
   }
 }
 ```
 
-#### GET /api/v1/metrics/performance
-Get performance metrics.
+#### GET /api/v1/measurements/performance
+Get performance measurements.
 
 **Query Parameters:**
-- `start_time` (ISO datetime): Start time for metrics
-- `end_time` (ISO datetime): End time for metrics
-- `granularity` (string): Metrics granularity (hour, day, week)
+- `start_time` (ISO datetime): Start time for measurements
+- `end_time` (ISO datetime): End time for measurements
+- `granularity` (string): Measurements granularity (hour, day, week)
 
 **Response:**
 ```json
@@ -591,7 +591,7 @@ Get performance metrics.
       "start": "2023-12-01T00:00:00Z",
       "end": "2023-12-01T23:59:59Z"
     },
-    "metrics": [
+    "measurements": [
       {
         "timestamp": "2023-12-01T10:00:00Z",
         "accuracy": 0.95,
@@ -606,7 +606,7 @@ Get performance metrics.
 }
 ```
 
-### 9. Drift Detection
+### 9. Drift Processing
 
 #### POST /api/v1/drift/detect
 Detect data drift.
@@ -614,8 +614,8 @@ Detect data drift.
 **Request Body:**
 ```json
 {
-  "reference_dataset_id": "dataset_abc123",
-  "current_dataset_id": "dataset_def456",
+  "reference_data_collection_id": "data_collection_abc123",
+  "current_data_collection_id": "data_collection_def456",
   "methods": ["ks_test", "psi", "wasserstein"],
   "threshold": 0.05
 }
@@ -637,7 +637,7 @@ Detect data drift.
       }
     },
     "recommendations": [
-      "Retrain model with recent data",
+      "Retrain processor with recent data",
       "Investigate feature1 distribution change"
     ]
   }
@@ -647,7 +647,7 @@ Detect data drift.
 ### 10. Results & Reports
 
 #### GET /api/v1/results
-Get detection results.
+Get processing results.
 
 **Query Parameters:**
 - `detector_id` (string): Filter by detector
@@ -664,7 +664,7 @@ Get detection results.
       {
         "id": "result_abc123",
         "detector_id": "detector_abc123",
-        "dataset_id": "dataset_abc123",
+        "data_collection_id": "data_collection_abc123",
         "timestamp": "2023-12-01T10:00:00Z",
         "summary": {
           "total_samples": 1000,
@@ -688,7 +688,7 @@ Get detailed result.
   "data": {
     "id": "result_abc123",
     "detector_id": "detector_abc123",
-    "dataset_id": "dataset_abc123",
+    "data_collection_id": "data_collection_abc123",
     "timestamp": "2023-12-01T10:00:00Z",
     "predictions": [
       {
@@ -719,21 +719,21 @@ Get detailed result.
 
 ## Advanced Features
 
-### 11. Real-time Detection
+### 11. Real-time Processing
 
-#### WebSocket: /ws/detection/{detector_id}
-Real-time anomaly detection stream.
+#### WebSocket: /ws/processing/{detector_id}
+Real-time anomaly processing stream.
 
 **Connection Example:**
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/detection/detector_abc123');
+const ws = new WebSocket('ws://localhost:8000/ws/processing/detector_abc123');
 
 ws.onmessage = function(event) {
   const result = JSON.parse(event.data);
   console.log('Anomaly detected:', result);
 };
 
-// Send data for detection
+// Send data for processing
 ws.send(JSON.stringify({
   data: [1.2, 3.4, 5.6],
   timestamp: new Date().toISOString()
@@ -748,9 +748,9 @@ Submit batch processing job.
 **Request Body:**
 ```json
 {
-  "job_type": "detection",
+  "job_type": "processing",
   "detector_id": "detector_abc123",
-  "dataset_id": "dataset_abc123",
+  "data_collection_id": "data_collection_abc123",
   "parameters": {
     "batch_size": 1000,
     "parallel_jobs": 4
@@ -764,10 +764,10 @@ List batch jobs.
 #### GET /api/v1/batch/jobs/{job_id}
 Get batch job status.
 
-### 13. Model Management
+### 13. Processor Management
 
 #### POST /api/v1/models/export
-Export trained model.
+Export trained processor.
 
 **Request Body:**
 ```json
@@ -779,13 +779,13 @@ Export trained model.
 ```
 
 #### POST /api/v1/models/import
-Import external model.
+Import external processor.
 
 **Request Body (multipart/form-data):**
 ```
-file: [Model file]
+file: [Processor file]
 format: "onnx"
-name: "Imported Model"
+name: "Imported Processor"
 ```
 
 ### 14. A/B Testing
@@ -796,7 +796,7 @@ Create A/B test experiment.
 **Request Body:**
 ```json
 {
-  "name": "Model Comparison",
+  "name": "Processor Comparison",
   "detector_a": "detector_abc123",
   "detector_b": "detector_def456",
   "traffic_split": 0.5,
@@ -826,7 +826,7 @@ Get A/B test results.
 - **Default**: 1000 requests per minute
 - **Burst**: 100 requests per second
 - **Training**: 10 concurrent jobs per user
-- **Detection**: 10,000 requests per minute
+- **Processing**: 10,000 requests per minute
 
 ## SDKs & Libraries
 
@@ -878,16 +878,16 @@ Create webhook endpoint.
 ```json
 {
   "url": "https://your-app.com/webhook",
-  "events": ["detection.completed", "training.finished", "drift.detected"],
+  "events": ["processing.completed", "training.finished", "drift.detected"],
   "secret": "webhook-secret"
 }
 ```
 
 ### Webhook Events
 
-- `detection.completed`: Anomaly detection finished
-- `training.started`: Model training started
-- `training.finished`: Model training completed
+- `processing.completed`: Anomaly processing finished
+- `training.started`: Processor training started
+- `training.finished`: Processor training completed
 - `drift.detected`: Data drift detected
 - `alert.triggered`: System alert triggered
 

@@ -1,4 +1,4 @@
-"""Real-time model ensemble optimization service with dynamic selection and multi-armed bandit algorithms."""
+"""Real-time processor ensemble optimization service with dynamic selection and multi-armed bandit algorithms."""
 
 from __future__ import annotations
 
@@ -34,9 +34,9 @@ class OptimizationStrategy(str, Enum):
 
 
 class ModelArm(BaseModel):
-    """Model arm for multi-armed bandit optimization."""
+    """Processor arm for multi-armed bandit optimization."""
 
-    model_id: str
+    processor_id: str
     algorithm_name: str
     total_rewards: float = 0.0
     total_pulls: int = 0
@@ -61,7 +61,7 @@ class ModelArm(BaseModel):
 
 @dataclass
 class EnsemblePerformanceMetrics:
-    """Performance metrics for ensemble tracking."""
+    """Performance measurements for ensemble tracking."""
 
     accuracy: float = 0.0
     precision: float = 0.0
@@ -90,12 +90,12 @@ class DataContext:
 
 
 class RealTimeEnsembleOptimizer:
-    """Real-time ensemble optimization with dynamic model selection."""
+    """Real-time ensemble optimization with dynamic processor selection."""
 
     def __init__(
         self,
         base_ensemble_service: AdvancedEnsembleService,
-        drift_detection_service: DriftDetectionService,
+        drift_processing_service: DriftDetectionService,
         optimization_strategy: OptimizationStrategy = OptimizationStrategy.UCB,
         optimization_window: int = 1000,
         min_samples_for_optimization: int = 100,
@@ -106,7 +106,7 @@ class RealTimeEnsembleOptimizer:
 
         Args:
             base_ensemble_service: Base ensemble service for creating ensembles
-            drift_detection_service: Service for detecting data drift
+            drift_processing_service: Service for detecting data drift
             optimization_strategy: Strategy for ensemble optimization
             optimization_window: Number of predictions to consider for optimization
             min_samples_for_optimization: Minimum samples before optimization starts
@@ -114,15 +114,15 @@ class RealTimeEnsembleOptimizer:
             learning_rate: Learning rate for gradient-based optimization
         """
         self.base_ensemble_service = base_ensemble_service
-        self.drift_detection_service = drift_detection_service
+        self.drift_processing_service = drift_processing_service
         self.optimization_strategy = optimization_strategy
         self.optimization_window = optimization_window
         self.min_samples_for_optimization = min_samples_for_optimization
         self.exploration_rate = exploration_rate
         self.learning_rate = learning_rate
 
-        # Model arms for bandit algorithms
-        self.model_arms: dict[str, ModelArm] = {}
+        # Processor arms for bandit algorithms
+        self.processor_arms: dict[str, ModelArm] = {}
 
         # Performance tracking
         self.performance_history: deque = deque(maxlen=optimization_window)
@@ -138,7 +138,7 @@ class RealTimeEnsembleOptimizer:
         self.current_context: DataContext | None = None
         self.context_history: deque = deque(maxlen=100)
 
-        # Drift detection state
+        # Drift processing state
         self.drift_detected = False
         self.last_drift_check = datetime.now()
 
@@ -149,35 +149,35 @@ class RealTimeEnsembleOptimizer:
             f"Initialized real-time ensemble optimizer with strategy: {optimization_strategy}"
         )
 
-    async def initialize_ensemble(self, initial_dataset: Dataset) -> list[Detector]:
+    async def initialize_ensemble(self, initial_data_collection: DataCollection) -> list[Detector]:
         """Initialize the ensemble with base algorithms."""
         logger.info("Initializing base ensemble")
 
         # Create initial ensemble using base service
         ensemble, report = await self.base_ensemble_service.create_intelligent_ensemble(
-            initial_dataset
+            initial_data_collection
         )
 
-        # Initialize model arms
+        # Initialize processor arms
         for i, detector in enumerate(ensemble):
-            arm_id = f"model_{i}"
+            arm_id = f"processor_{i}"
             algorithm_name = getattr(detector, "algorithm_name", f"algorithm_{i}")
 
-            self.model_arms[arm_id] = ModelArm(
-                model_id=arm_id, algorithm_name=algorithm_name
+            self.processor_arms[arm_id] = ModelArm(
+                processor_id=arm_id, algorithm_name=algorithm_name
             )
 
         self.current_ensemble = ensemble
 
         # Initialize equal weights
         weight = 1.0 / len(ensemble)
-        self.ensemble_weights = {f"model_{i}": weight for i in range(len(ensemble))}
+        self.ensemble_weights = {f"processor_{i}": weight for i in range(len(ensemble))}
 
         logger.info(f"Initialized ensemble with {len(ensemble)} models")
         return ensemble
 
     async def predict_with_optimization(
-        self, data: Dataset, feedback: np.ndarray | None = None
+        self, data: DataCollection, feedback: np.ndarray | None = None
     ) -> tuple[np.ndarray, dict[str, Any]]:
         """Make predictions while optimizing ensemble in real-time.
 
@@ -197,29 +197,29 @@ class RealTimeEnsembleOptimizer:
         await self._check_drift(data)
 
         # Select optimal ensemble composition
-        selected_models = await self._select_optimal_models()
+        selected_processors = await self._select_optimal_processors()
 
         # Make predictions
-        predictions = await self._make_ensemble_prediction(data, selected_models)
+        predictions = await self._make_ensemble_prediction(data, selected_processors)
 
-        # Calculate performance metrics
+        # Calculate performance measurements
         prediction_time = time.time() - start_time
-        metrics = EnsemblePerformanceMetrics(
+        measurements = EnsemblePerformanceMetrics(
             prediction_latency=prediction_time,
             throughput=len(data.data) / prediction_time if prediction_time > 0 else 0,
         )
 
-        # Update model arms with feedback
+        # Update processor arms with feedback
         if feedback is not None:
-            await self._update_model_arms(predictions, feedback, selected_models)
+            await self._update_processor_arms(predictions, feedback, selected_processors)
 
-            # Calculate accuracy metrics
-            metrics.accuracy = (
+            # Calculate accuracy measurements
+            measurements.accuracy = (
                 np.mean(predictions == feedback) if len(feedback) > 0 else 0.0
             )
 
-        # Store performance metrics
-        self.performance_buffer.append(metrics)
+        # Store performance measurements
+        self.performance_buffer.append(measurements)
         self.total_predictions += len(data.data)
 
         # Trigger optimization if needed
@@ -228,7 +228,7 @@ class RealTimeEnsembleOptimizer:
         # Add prediction info
         optimization_info.update(
             {
-                "selected_models": [arm.model_id for arm in selected_models],
+                "selected_processors": [arm.processor_id for arm in selected_processors],
                 "prediction_latency": prediction_time,
                 "total_predictions": self.total_predictions,
                 "drift_detected": self.drift_detected,
@@ -240,7 +240,7 @@ class RealTimeEnsembleOptimizer:
 
         return predictions, optimization_info
 
-    async def _update_context(self, data: Dataset) -> None:
+    async def _update_context(self, data: DataCollection) -> None:
         """Update context information for contextual bandits."""
         # Calculate data characteristics
         context = DataContext(
@@ -252,8 +252,8 @@ class RealTimeEnsembleOptimizer:
         )
 
         # Add drift scores if available
-        if hasattr(self.drift_detection_service, "get_latest_drift_scores"):
-            drift_scores = await self.drift_detection_service.get_latest_drift_scores()
+        if hasattr(self.drift_processing_service, "get_latest_drift_scores"):
+            drift_scores = await self.drift_processing_service.get_latest_drift_scores()
             if drift_scores:
                 context.feature_drift_score = drift_scores.get("feature_drift", 0.0)
                 context.concept_drift_score = drift_scores.get("concept_drift", 0.0)
@@ -323,15 +323,15 @@ class RealTimeEnsembleOptimizer:
         except Exception:
             return 0.1
 
-    async def _check_drift(self, data: Dataset) -> None:
+    async def _check_drift(self, data: DataCollection) -> None:
         """Check for data drift and trigger reoptimization if needed."""
         current_time = datetime.now()
 
         # Check drift periodically
         if current_time - self.last_drift_check > timedelta(minutes=1):
             try:
-                # Use drift detection service
-                drift_results = await self.drift_detection_service.detect_drift(data)
+                # Use drift processing service
+                drift_results = await self.drift_processing_service.detect_drift(data)
 
                 # Check if significant drift detected
                 drift_threshold = 0.7
@@ -349,11 +349,11 @@ class RealTimeEnsembleOptimizer:
                 self.last_drift_check = current_time
 
             except Exception as e:
-                logger.error(f"Error during drift detection: {e}")
+                logger.error(f"Error during drift processing: {e}")
 
-    async def _trigger_ensemble_reoptimization(self, data: Dataset) -> None:
+    async def _trigger_ensemble_reoptimization(self, data: DataCollection) -> None:
         """Trigger complete ensemble reoptimization due to drift."""
-        logger.info("Reoptimizing ensemble due to drift detection")
+        logger.info("Reoptimizing ensemble due to drift processing")
 
         # Create new ensemble
         (
@@ -361,12 +361,12 @@ class RealTimeEnsembleOptimizer:
             report,
         ) = await self.base_ensemble_service.create_intelligent_ensemble(data)
 
-        # Update model arms with new models
-        old_arms = self.model_arms.copy()
-        self.model_arms.clear()
+        # Update processor arms with new models
+        old_arms = self.processor_arms.copy()
+        self.processor_arms.clear()
 
         for i, detector in enumerate(new_ensemble):
-            arm_id = f"model_{i}"
+            arm_id = f"processor_{i}"
             algorithm_name = getattr(detector, "algorithm_name", f"algorithm_{i}")
 
             # Transfer knowledge from old arms if similar algorithm exists
@@ -378,8 +378,8 @@ class RealTimeEnsembleOptimizer:
 
             if old_arm:
                 # Transfer partial knowledge
-                self.model_arms[arm_id] = ModelArm(
-                    model_id=arm_id,
+                self.processor_arms[arm_id] = ModelArm(
+                    processor_id=arm_id,
                     algorithm_name=algorithm_name,
                     total_rewards=old_arm.total_rewards * 0.5,  # Decay old rewards
                     total_pulls=max(1, old_arm.total_pulls // 2),  # Reduce pull count
@@ -387,8 +387,8 @@ class RealTimeEnsembleOptimizer:
                 )
             else:
                 # New algorithm
-                self.model_arms[arm_id] = ModelArm(
-                    model_id=arm_id, algorithm_name=algorithm_name
+                self.processor_arms[arm_id] = ModelArm(
+                    processor_id=arm_id, algorithm_name=algorithm_name
                 )
 
         self.current_ensemble = new_ensemble
@@ -396,11 +396,11 @@ class RealTimeEnsembleOptimizer:
 
         # Reset weights
         weight = 1.0 / len(new_ensemble)
-        self.ensemble_weights = {f"model_{i}": weight for i in range(len(new_ensemble))}
+        self.ensemble_weights = {f"processor_{i}": weight for i in range(len(new_ensemble))}
 
-    async def _select_optimal_models(self) -> list[ModelArm]:
+    async def _select_optimal_processors(self) -> list[ModelArm]:
         """Select optimal models based on optimization strategy."""
-        if not self.model_arms:
+        if not self.processor_arms:
             return []
 
         if self.optimization_strategy == OptimizationStrategy.MULTI_ARMED_BANDIT:
@@ -415,19 +415,19 @@ class RealTimeEnsembleOptimizer:
             return await self._select_with_contextual_bandit()
         else:
             # Default: select all models with equal weights
-            return list(self.model_arms.values())
+            return list(self.processor_arms.values())
 
     async def _select_with_multi_armed_bandit(self) -> list[ModelArm]:
         """Select models using multi-armed bandit algorithm."""
-        total_pulls = sum(arm.total_pulls for arm in self.model_arms.values())
+        total_pulls = sum(arm.total_pulls for arm in self.processor_arms.values())
 
         if total_pulls < self.min_samples_for_optimization:
             # Exploration phase: select all models
-            return list(self.model_arms.values())
+            return list(self.processor_arms.values())
 
         # Calculate UCB scores for all arms
         arm_scores = []
-        for arm in self.model_arms.values():
+        for arm in self.processor_arms.values():
             ucb_score = arm.get_ucb_score(total_pulls)
             arm_scores.append((arm, ucb_score))
 
@@ -435,8 +435,8 @@ class RealTimeEnsembleOptimizer:
         arm_scores.sort(key=lambda x: x[1], reverse=True)
 
         # Select top 3-5 models
-        max_models = min(5, len(arm_scores))
-        selected_arms = [arm for arm, _ in arm_scores[:max_models]]
+        max_processors = min(5, len(arm_scores))
+        selected_arms = [arm for arm, _ in arm_scores[:max_processors]]
 
         return selected_arms
 
@@ -448,11 +448,11 @@ class RealTimeEnsembleOptimizer:
         """Select models using epsilon-greedy strategy."""
         if np.random.random() < self.exploration_rate:
             # Exploration: random selection
-            return list(self.model_arms.values())
+            return list(self.processor_arms.values())
         else:
             # Exploitation: select best performing models
             sorted_arms = sorted(
-                self.model_arms.values(),
+                self.processor_arms.values(),
                 key=lambda arm: arm.get_average_reward(),
                 reverse=True,
             )
@@ -464,7 +464,7 @@ class RealTimeEnsembleOptimizer:
         # Sample from beta distribution for each arm
         arm_samples = []
 
-        for arm in self.model_arms.values():
+        for arm in self.processor_arms.values():
             if arm.total_pulls > 0:
                 # Beta distribution parameters
                 successes = arm.total_rewards
@@ -482,8 +482,8 @@ class RealTimeEnsembleOptimizer:
         arm_samples.sort(key=lambda x: x[1], reverse=True)
 
         # Select top models (adaptive number based on diversity)
-        max_models = min(4, len(arm_samples))
-        selected_arms = [arm for arm, _ in arm_samples[:max_models]]
+        max_processors = min(4, len(arm_samples))
+        selected_arms = [arm for arm, _ in arm_samples[:max_processors]]
 
         return selected_arms
 
@@ -496,8 +496,8 @@ class RealTimeEnsembleOptimizer:
         context_vector = self._vectorize_context(self.current_context)
         arm_scores = []
 
-        for arm in self.model_arms.values():
-            # Update arm's context features (simplified linear model)
+        for arm in self.processor_arms.values():
+            # Update arm's context features (simplified linear processor)
             if not arm.context_features:
                 # Initialize with random weights
                 arm.context_features = {
@@ -522,8 +522,8 @@ class RealTimeEnsembleOptimizer:
         # Sort and select top models
         arm_scores.sort(key=lambda x: x[1], reverse=True)
 
-        max_models = min(4, len(arm_scores))
-        selected_arms = [arm for arm, _ in arm_scores[:max_models]]
+        max_processors = min(4, len(arm_scores))
+        selected_arms = [arm for arm, _ in arm_scores[:max_processors]]
 
         return selected_arms
 
@@ -545,37 +545,37 @@ class RealTimeEnsembleOptimizer:
         return np.array(features)
 
     async def _make_ensemble_prediction(
-        self, data: Dataset, selected_models: list[ModelArm]
+        self, data: DataCollection, selected_processors: list[ModelArm]
     ) -> np.ndarray:
         """Make ensemble prediction using selected models."""
-        if not selected_models or not self.current_ensemble:
+        if not selected_processors or not self.current_ensemble:
             return np.array([])
 
         # Get predictions from selected models
         predictions = []
-        model_weights = []
+        processor_weights = []
 
-        for arm in selected_models:
-            model_index = int(arm.model_id.split("_")[1])
-            if model_index < len(self.current_ensemble):
-                detector = self.current_ensemble[model_index]
+        for arm in selected_processors:
+            processor_index = int(arm.processor_id.split("_")[1])
+            if processor_index < len(self.current_ensemble):
+                detector = self.current_ensemble[processor_index]
 
                 try:
                     pred = detector.predict(data)
                     predictions.append(pred)
 
                     # Use adaptive weight based on recent performance
-                    weight = self.ensemble_weights.get(arm.model_id, 1.0)
+                    weight = self.ensemble_weights.get(arm.processor_id, 1.0)
                     performance_weight = (
                         arm.get_average_reward() if arm.total_pulls > 0 else 0.5
                     )
                     adaptive_weight = 0.7 * weight + 0.3 * performance_weight
 
-                    model_weights.append(adaptive_weight)
+                    processor_weights.append(adaptive_weight)
 
                 except Exception as e:
                     logger.error(
-                        f"Error making prediction with model {arm.model_id}: {e}"
+                        f"Error making prediction with processor {arm.processor_id}: {e}"
                     )
                     continue
 
@@ -584,7 +584,7 @@ class RealTimeEnsembleOptimizer:
 
         # Weighted ensemble prediction
         predictions = np.array(predictions)
-        weights = np.array(model_weights)
+        weights = np.array(processor_weights)
         weights = weights / np.sum(weights)  # Normalize weights
 
         # Weighted average
@@ -592,28 +592,28 @@ class RealTimeEnsembleOptimizer:
 
         return ensemble_prediction
 
-    async def _update_model_arms(
+    async def _update_processor_arms(
         self,
         predictions: np.ndarray,
         feedback: np.ndarray,
-        selected_models: list[ModelArm],
+        selected_processors: list[ModelArm],
     ) -> None:
-        """Update model arms with feedback."""
+        """Update processor arms with feedback."""
         if len(predictions) == 0 or len(feedback) == 0:
             return
 
         # Calculate reward for ensemble
         ensemble_reward = np.mean(predictions == feedback) if len(feedback) > 0 else 0.0
 
-        # Update each selected model arm
-        for arm in selected_models:
-            model_index = int(arm.model_id.split("_")[1])
-            if model_index < len(self.current_ensemble):
+        # Update each selected processor arm
+        for arm in selected_processors:
+            processor_index = int(arm.processor_id.split("_")[1])
+            if processor_index < len(self.current_ensemble):
                 try:
-                    # Get individual model prediction
-                    detector = self.current_ensemble[model_index]
+                    # Get individual processor prediction
+                    detector = self.current_ensemble[processor_index]
                     individual_pred = detector.predict(
-                        Dataset(name="feedback", data=np.array([feedback]), features=[])
+                        DataCollection(name="feedback", data=np.array([feedback]), features=[])
                     )
 
                     # Calculate individual reward
@@ -641,7 +641,7 @@ class RealTimeEnsembleOptimizer:
                         await self._update_contextual_features(arm, individual_reward)
 
                 except Exception as e:
-                    logger.error(f"Error updating arm {arm.model_id}: {e}")
+                    logger.error(f"Error updating arm {arm.processor_id}: {e}")
 
     async def _update_contextual_features(self, arm: ModelArm, reward: float) -> None:
         """Update contextual features for an arm using gradient descent."""
@@ -674,7 +674,7 @@ class RealTimeEnsembleOptimizer:
                     )
 
         except Exception as e:
-            logger.error(f"Error updating contextual features for {arm.model_id}: {e}")
+            logger.error(f"Error updating contextual features for {arm.processor_id}: {e}")
 
     async def _trigger_optimization_if_needed(self) -> dict[str, Any]:
         """Trigger optimization if conditions are met."""
@@ -682,7 +682,7 @@ class RealTimeEnsembleOptimizer:
         optimization_info = {
             "optimization_triggered": False,
             "optimization_reason": None,
-            "model_arm_stats": self._get_model_arm_statistics(),
+            "processor_arm_stats": self._get_processor_arm_statistics(),
         }
 
         # Check if optimization should be triggered
@@ -713,7 +713,7 @@ class RealTimeEnsembleOptimizer:
 
     async def _optimize_ensemble_weights(self) -> None:
         """Optimize ensemble weights based on recent performance."""
-        if not self.model_arms:
+        if not self.processor_arms:
             return
 
         logger.info("Optimizing ensemble weights")
@@ -722,7 +722,7 @@ class RealTimeEnsembleOptimizer:
         total_performance = 0.0
         arm_performances = {}
 
-        for arm_id, arm in self.model_arms.items():
+        for arm_id, arm in self.processor_arms.items():
             if arm.total_pulls > 0:
                 # Use recent performance with decay
                 recent_performance = (
@@ -757,7 +757,7 @@ class RealTimeEnsembleOptimizer:
 
     def _smooth_ensemble_weights(self) -> None:
         """Apply smoothing to ensemble weights to prevent extreme values."""
-        min_weight = 0.05  # Minimum weight for any model
+        min_weight = 0.05  # Minimum weight for any processor
 
         # Ensure minimum weight
         for arm_id in self.ensemble_weights:
@@ -771,20 +771,20 @@ class RealTimeEnsembleOptimizer:
                 self.ensemble_weights[arm_id] /= total_weight
 
     def _get_model_arm_statistics(self) -> dict[str, Any]:
-        """Get statistics about model arms."""
+        """Get statistics about processor arms."""
         stats = {
-            "total_arms": len(self.model_arms),
+            "total_arms": len(self.processor_arms),
             "arms_with_experience": sum(
-                1 for arm in self.model_arms.values() if arm.total_pulls > 0
+                1 for arm in self.processor_arms.values() if arm.total_pulls > 0
             ),
             "average_pulls": (
-                np.mean([arm.total_pulls for arm in self.model_arms.values()])
-                if self.model_arms
+                np.mean([arm.total_pulls for arm in self.processor_arms.values()])
+                if self.processor_arms
                 else 0
             ),
             "average_reward": (
-                np.mean([arm.get_average_reward() for arm in self.model_arms.values()])
-                if self.model_arms
+                np.mean([arm.get_average_reward() for arm in self.processor_arms.values()])
+                if self.processor_arms
                 else 0
             ),
             "best_performing_arm": None,
@@ -792,32 +792,32 @@ class RealTimeEnsembleOptimizer:
             "arm_details": {},
         }
 
-        if self.model_arms:
+        if self.processor_arms:
             # Find best and worst performing arms
             best_arm = max(
-                self.model_arms.values(), key=lambda arm: arm.get_average_reward()
+                self.processor_arms.values(), key=lambda arm: arm.get_average_reward()
             )
             worst_arm = min(
-                self.model_arms.values(), key=lambda arm: arm.get_average_reward()
+                self.processor_arms.values(), key=lambda arm: arm.get_average_reward()
             )
 
             stats["best_performing_arm"] = {
-                "model_id": best_arm.model_id,
+                "processor_id": best_arm.processor_id,
                 "algorithm": best_arm.algorithm_name,
                 "average_reward": best_arm.get_average_reward(),
                 "total_pulls": best_arm.total_pulls,
             }
 
             stats["worst_performing_arm"] = {
-                "model_id": worst_arm.model_id,
+                "processor_id": worst_arm.processor_id,
                 "algorithm": worst_arm.algorithm_name,
                 "average_reward": worst_arm.get_average_reward(),
                 "total_pulls": worst_arm.total_pulls,
             }
 
             # Detailed statistics for each arm
-            for arm in self.model_arms.values():
-                stats["arm_details"][arm.model_id] = {
+            for arm in self.processor_arms.values():
+                stats["arm_details"][arm.processor_id] = {
                     "algorithm": arm.algorithm_name,
                     "average_reward": arm.get_average_reward(),
                     "total_pulls": arm.total_pulls,
@@ -827,7 +827,7 @@ class RealTimeEnsembleOptimizer:
                     "last_selected": (
                         arm.last_selected.isoformat() if arm.last_selected else None
                     ),
-                    "current_weight": self.ensemble_weights.get(arm.model_id, 0.0),
+                    "current_weight": self.ensemble_weights.get(arm.processor_id, 0.0),
                 }
 
         return stats
@@ -846,17 +846,17 @@ class RealTimeEnsembleOptimizer:
                 "exploration_rate": self.exploration_rate,
             },
             "ensemble_composition": {
-                "total_models": (
+                "total_processors": (
                     len(self.current_ensemble) if self.current_ensemble else 0
                 ),
-                "active_models": len(
-                    [arm for arm in self.model_arms.values() if arm.total_pulls > 0]
+                "active_processors": len(
+                    [arm for arm in self.processor_arms.values() if arm.total_pulls > 0]
                 ),
                 "current_weights": self.ensemble_weights.copy(),
             },
-            "performance_metrics": {
+            "performance_measurements": {
                 "recent_performance": self._calculate_recent_performance(),
-                "model_arm_statistics": self._get_model_arm_statistics(),
+                "processor_arm_statistics": self._get_processor_arm_statistics(),
                 "optimization_effectiveness": self._calculate_optimization_effectiveness(),
             },
             "context_analysis": {
@@ -871,31 +871,31 @@ class RealTimeEnsembleOptimizer:
         return report
 
     def _calculate_recent_performance(self) -> dict[str, float]:
-        """Calculate recent performance metrics."""
+        """Calculate recent performance measurements."""
         if not self.performance_buffer:
             return {"no_data": True}
 
-        recent_metrics = self.performance_buffer[-20:]  # Last 20 predictions
+        recent_measurements = self.performance_buffer[-20:]  # Last 20 predictions
 
         return {
             "average_accuracy": np.mean(
-                [m.accuracy for m in recent_metrics if m.accuracy > 0]
+                [m.accuracy for m in recent_measurements if m.accuracy > 0]
             ),
-            "average_latency": np.mean([m.prediction_latency for m in recent_metrics]),
+            "average_latency": np.mean([m.prediction_latency for m in recent_measurements]),
             "average_throughput": np.mean(
-                [m.throughput for m in recent_metrics if m.throughput > 0]
+                [m.throughput for m in recent_measurements if m.throughput > 0]
             ),
-            "performance_trend": self._calculate_performance_trend(recent_metrics),
+            "performance_trend": self._calculate_performance_trend(recent_measurements),
         }
 
     def _calculate_performance_trend(
-        self, metrics: list[EnsemblePerformanceMetrics]
+        self, measurements: list[EnsemblePerformanceMetrics]
     ) -> str:
         """Calculate performance trend."""
-        if len(metrics) < 5:
+        if len(measurements) < 5:
             return "insufficient_data"
 
-        accuracies = [m.accuracy for m in metrics if m.accuracy > 0]
+        accuracies = [m.accuracy for m in measurements if m.accuracy > 0]
         if len(accuracies) < 3:
             return "insufficient_data"
 
@@ -917,13 +917,13 @@ class RealTimeEnsembleOptimizer:
 
     def _calculate_optimization_effectiveness(self) -> dict[str, float]:
         """Calculate how effective the optimization has been."""
-        if not self.model_arms:
+        if not self.processor_arms:
             return {"no_data": True}
 
         # Calculate variance in arm performance
         arm_rewards = [
             arm.get_average_reward()
-            for arm in self.model_arms.values()
+            for arm in self.processor_arms.values()
             if arm.total_pulls > 0
         ]
 
@@ -933,8 +933,8 @@ class RealTimeEnsembleOptimizer:
         reward_variance = np.var(arm_rewards)
         reward_range = max(arm_rewards) - min(arm_rewards)
         exploration_ratio = len(
-            [arm for arm in self.model_arms.values() if arm.total_pulls > 0]
-        ) / len(self.model_arms)
+            [arm for arm in self.processor_arms.values() if arm.total_pulls > 0]
+        ) / len(self.processor_arms)
 
         return {
             "reward_variance": reward_variance,
@@ -984,11 +984,11 @@ class RealTimeEnsembleOptimizer:
         recommendations = []
 
         # Check exploration vs exploitation balance
-        if self.model_arms:
+        if self.processor_arms:
             unexplored_arms = [
-                arm for arm in self.model_arms.values() if arm.total_pulls == 0
+                arm for arm in self.processor_arms.values() if arm.total_pulls == 0
             ]
-            if len(unexplored_arms) > len(self.model_arms) * 0.3:
+            if len(unexplored_arms) > len(self.processor_arms) * 0.3:
                 recommendations.append(
                     "Consider increasing exploration rate to better evaluate all models"
                 )

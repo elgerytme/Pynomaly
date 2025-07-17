@@ -114,7 +114,7 @@ class TenantIsolationService:
             "encryption_key_id": f"key-{str(tenant.tenant_id)[:8]}",
             "database_schema": tenant.database_schema,
             "network_policy": network_policy,
-            "storage_bucket": f"pynomaly-tenant-{str(tenant.tenant_id)[:8]}",
+            "storage_bucket": f"software-tenant-{str(tenant.tenant_id)[:8]}",
         }
 
     async def get_tenant_encryption_key(self, tenant_id: UUID) -> str | None:
@@ -398,8 +398,8 @@ class MultiTenantService:
 
         return path_valid
 
-    async def get_tenant_metrics(self, tenant_id: UUID) -> dict[str, any]:
-        """Get comprehensive tenant metrics."""
+    async def get_tenant_measurements(self, tenant_id: UUID) -> dict[str, any]:
+        """Get comprehensive tenant measurements."""
         tenant = self.tenants.get(tenant_id)
         if not tenant:
             return {}

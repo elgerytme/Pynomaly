@@ -1,0 +1,66 @@
+title: "User Login"
+as_a: "Registered User"
+i_want: "to log into my account"
+so_that: "I can access the application features"
+
+acceptance_criteria:
+  - given: "I have a valid email/username and password"
+    when: "I submit the login form"
+    then: "I should be logged in successfully"
+    and: "I should receive an access token"
+    and: "I should be redirected to the dashboard"
+  
+  - given: "I enter an invalid email/username or password"
+    when: "I submit the login form"
+    then: "I should see an error message"
+    and: "I should remain on the login page"
+    and: "My failed login attempts should be incremented"
+  
+  - given: "I have exceeded the maximum failed login attempts"
+    when: "I try to login"
+    then: "I should see an account locked message"
+    and: "I should not be able to login until the lockout period expires"
+  
+  - given: "I have an unverified account"
+    when: "I try to login"
+    then: "I should see an account verification message"
+    and: "I should not be able to access the application"
+  
+  - given: "I have a deactivated account"
+    when: "I try to login"
+    then: "I should see an account deactivated message"
+    and: "I should not be able to login"
+
+technical_notes:
+  - "Password should be hashed using PBKDF2 with SHA-256"
+  - "Account lockout after 5 failed attempts for 30 minutes"
+  - "JWT tokens should be used for authentication"
+  - "Access token expires in 1 hour"
+  - "Refresh token expires in 7 days"
+  - "All login attempts should be logged for security"
+
+related_use_cases:
+  - "LoginUserUseCase"
+  - "GenerateTokenUseCase"
+  - "ValidateTokenUseCase"
+
+business_rules:
+  - "Users must be verified to login"
+  - "Users must be active to login"
+  - "Account locks after 5 failed attempts"
+  - "Tokens expire after defined periods"
+
+ui_requirements:
+  - "Login form with email/username and password fields"
+  - "Remember me checkbox"
+  - "Forgot password link"
+  - "Clear error messages for invalid credentials"
+  - "Loading state during authentication"
+  - "Redirect to intended page after successful login"
+
+api_requirements:
+  - "POST /auth/login endpoint"
+  - "Request body: {identifier, password, remember_me}"
+  - "Response: {success, access_token, refresh_token, expires_in, error}"
+  - "Rate limiting: 5 attempts per minute per IP"
+  - "HTTPS required for all authentication endpoints"

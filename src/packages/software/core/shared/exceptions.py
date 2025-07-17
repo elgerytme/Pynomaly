@@ -1,12 +1,12 @@
 """
-Shared exception classes for the Pynomaly application.
+Shared exception classes for the Software application.
 """
 
 from typing import Any
 
 
 class PynomaryError(Exception):
-    """Base exception class for all Pynomaly errors."""
+    """Base exception class for all Software errors."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
         self.message = message
@@ -96,13 +96,13 @@ class DataError(PynomaryError):
 
 
 class DatasetNotFoundError(DataError):
-    """Raised when a dataset is not found."""
+    """Raised when a data_collection is not found."""
 
     pass
 
 
 class DatasetValidationError(DataError):
-    """Raised when dataset validation fails."""
+    """Raised when data_collection validation fails."""
 
     pass
 
@@ -113,27 +113,27 @@ class DataFormatError(DataError):
     pass
 
 
-# Model-related exceptions
+# Processor-related exceptions
 class ModelError(PynomaryError):
-    """Base class for model-related errors."""
+    """Base class for processor-related errors."""
 
     pass
 
 
 class ModelNotFoundError(ModelError):
-    """Raised when a model is not found."""
+    """Raised when a processor is not found."""
 
     pass
 
 
 class ModelTrainingError(ModelError):
-    """Raised when model training fails."""
+    """Raised when processor training fails."""
 
     pass
 
 
 class ModelPredictionError(ModelError):
-    """Raised when model prediction fails."""
+    """Raised when processor prediction fails."""
 
     pass
 
@@ -144,9 +144,9 @@ class UnsupportedAlgorithmError(ModelError):
     pass
 
 
-# Detection-related exceptions
+# Processing-related exceptions
 class DetectionError(PynomaryError):
-    """Base class for detection-related errors."""
+    """Base class for processing-related errors."""
 
     pass
 
@@ -158,7 +158,7 @@ class DetectorNotFoundError(DetectionError):
 
 
 class DetectionConfigurationError(DetectionError):
-    """Raised when detection configuration is invalid."""
+    """Raised when processing configuration is invalid."""
 
     pass
 
@@ -320,7 +320,7 @@ class DataIngestionError(InfrastructureError):
 
 
 class AnomalyDetectionError(DetectionError):
-    """Raised when anomaly detection operations fail."""
+    """Raised when anomaly processing operations fail."""
 
     pass
 

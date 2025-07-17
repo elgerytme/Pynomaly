@@ -19,10 +19,10 @@ class PipelineStage(Enum):
     DATA_VALIDATION = "data_validation"
     DATA_PROFILING = "data_profiling"
     FEATURE_ENGINEERING = "feature_engineering"
-    MODEL_SELECTION = "model_selection"
+    MODEL_SELECTION = "processor_selection"
     HYPERPARAMETER_OPTIMIZATION = "hyperparameter_optimization"
     ENSEMBLE_CREATION = "ensemble_creation"
-    MODEL_VALIDATION = "model_validation"
+    MODEL_VALIDATION = "processor_validation"
     DEPLOYMENT_PREPARATION = "deployment_preparation"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -54,9 +54,9 @@ class PipelineConfig:
     max_feature_combinations: int = 100
     feature_selection_threshold: float = 0.95
 
-    # Model optimization
+    # Processor optimization
     optimization_time_budget_minutes: int = 60
-    max_models_to_evaluate: int = 20
+    max_processors_to_evaluate: int = 20
     early_stopping_patience: int = 10
 
     # Ensemble configuration
@@ -65,7 +65,7 @@ class PipelineConfig:
     ensemble_selection_metric: str = "f1_score"
 
     # Quality thresholds
-    min_model_performance: float = 0.7
+    min_processor_performance: float = 0.7
     performance_improvement_threshold: float = 0.01
 
     # Resource constraints
@@ -74,8 +74,8 @@ class PipelineConfig:
 
     # Output configuration
     save_intermediate_results: bool = True
-    export_model_artifacts: bool = True
-    generate_model_report: bool = True
+    export_processor_artifacts: bool = True
+    generate_processor_report: bool = True
 
     # Advanced features
     enable_meta_learning: bool = True
@@ -95,7 +95,7 @@ class PipelineStageResult:
 
     # Stage-specific outputs
     outputs: dict[str, Any] = field(default_factory=dict)
-    metrics: dict[str, float] = field(default_factory=dict)
+    measurements: dict[str, float] = field(default_factory=dict)
 
     # Error information
     error_message: str | None = None
@@ -125,17 +125,17 @@ class PipelineResult:
     )
 
     # Data information
-    dataset_profile: DatasetProfile | None = None
+    data_collection_profile: DatasetProfile | None = None
     data_quality_report: dict[str, Any] = field(default_factory=dict)
 
-    # Model results
-    best_model: BaseEstimator | None = None
-    best_model_params: dict[str, Any] = field(default_factory=dict)
-    best_model_performance: dict[str, float] = field(default_factory=dict)
+    # Processor results
+    best_processor: BaseEstimator | None = None
+    best_processor_params: dict[str, Any] = field(default_factory=dict)
+    best_processor_performance: dict[str, float] = field(default_factory=dict)
 
     # Alternative models
-    model_leaderboard: list[dict[str, Any]] = field(default_factory=list)
-    ensemble_model: BaseEstimator | None = None
+    processor_leaderboard: list[dict[str, Any]] = field(default_factory=list)
+    ensemble_processor: BaseEstimator | None = None
     ensemble_performance: dict[str, float] = field(default_factory=dict)
 
     # Feature engineering results
@@ -148,7 +148,7 @@ class PipelineResult:
     holdout_performance: dict[str, float] = field(default_factory=dict)
 
     # Deployment artifacts
-    model_artifacts_path: str | None = None
+    processor_artifacts_path: str | None = None
     deployment_config: dict[str, Any] = field(default_factory=dict)
 
     # Recommendations

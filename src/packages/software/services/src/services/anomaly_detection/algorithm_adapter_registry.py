@@ -1,4 +1,4 @@
-"""Algorithm adapter registry for managing different detection algorithms."""
+"""Algorithm adapter registry for managing different processing algorithms."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ class BaseAlgorithmAdapter(ABC):
 
     def __init__(self):
         """Initialize the adapter."""
-        self._fitted_models: dict[str, Any] = {}
+        self._fitted_processors: dict[str, Any] = {}
 
     @abstractmethod
     def _create_algorithm_instance(self, detector: Detector) -> Any:
@@ -68,45 +68,45 @@ class BaseAlgorithmAdapter(ABC):
             algorithm = self._create_algorithm_instance(detector)
 
             # Prepare data
-            feature_data = self._prepare_data(dataset)
+            feature_data = self._prepare_data(data_collection)
 
             # Fit algorithm
             fitted_algorithm = self._fit_algorithm(algorithm, feature_data)
 
-            # Store fitted model
-            self._fitted_models[str(detector.id)] = fitted_algorithm
+            # Store fitted processor
+            self._fitted_processors[str(detector.id)] = fitted_algorithm
 
         except Exception as e:
             raise FittingError(
-                detector_name=detector.name, reason=str(e), dataset_name=dataset.name
+                detector_name=detector.name, reason=str(e), data_collection_name=data_collection.name
             ) from e
 
     def predict(self, detector: Detector, dataset: Dataset) -> list[int]:
         """Predict anomaly labels."""
-        if str(detector.id) not in self._fitted_models:
+        if str(detector.id) not in self._fitted_processors:
             raise FittingError(
                 detector_name=detector.name,
                 reason="Detector not fitted",
-                dataset_name=dataset.name,
+                data_collection_name=data_collection.name,
             )
 
-        algorithm = self._fitted_models[str(detector.id)]
-        feature_data = self._prepare_data(dataset)
+        algorithm = self._fitted_processors[str(detector.id)]
+        feature_data = self._prepare_data(data_collection)
 
         predictions = self._predict_algorithm(algorithm, feature_data)
         return predictions.tolist()
 
     def score(self, detector: Detector, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores."""
-        if str(detector.id) not in self._fitted_models:
+        if str(detector.id) not in self._fitted_processors:
             raise FittingError(
                 detector_name=detector.name,
                 reason="Detector not fitted",
-                dataset_name=dataset.name,
+                data_collection_name=data_collection.name,
             )
 
-        algorithm = self._fitted_models[str(detector.id)]
-        feature_data = self._prepare_data(dataset)
+        algorithm = self._fitted_processors[str(detector.id)]
+        feature_data = self._prepare_data(data_collection)
 
         scores = self._score_algorithm(algorithm, feature_data)
 
@@ -121,10 +121,10 @@ class BaseAlgorithmAdapter(ABC):
     def _prepare_data(self, dataset: Dataset) -> pd.DataFrame:
         """Prepare data for algorithm."""
         # Get numeric features only
-        numeric_data = dataset.data.select_dtypes(include=[np.number])
+        numeric_data = data_collection.data.select_dtypes(include=[np.number])
 
         if numeric_data.empty:
-            raise ValueError("No numeric features found in dataset")
+            raise ValueError("No numeric features found in data_collection")
 
         # Handle missing values
         numeric_data = numeric_data.fillna(numeric_data.mean())
@@ -148,7 +148,7 @@ class BaseAlgorithmAdapter(ABC):
 
     def is_fitted(self, detector: Detector) -> bool:
         """Check if detector is fitted."""
-        return str(detector.id) in self._fitted_models
+        return str(detector.id) in self._fitted_processors
 
 
 class PyODAlgorithmAdapter(BaseAlgorithmAdapter):
@@ -224,7 +224,7 @@ class PyODAlgorithmAdapter(BaseAlgorithmAdapter):
         """Get PyOD algorithm information."""
         return {
             "name": "PyOD",
-            "description": "Python Outlier Detection Library",
+            "description": "Python Outlier Processing Library",
             "supported_algorithms": list(self.ALGORITHM_MAPPING.keys()),
             "type": "unsupervised",
             "supports_streaming": False,
@@ -354,7 +354,7 @@ class AlgorithmAdapterRegistry:
                 supported_algorithms=self.get_supported_algorithms(),
             )
 
-        adapter.fit(detector, dataset)
+        adapter.fit(detector, data_collection)
 
     def predict_with_detector(self, detector: Detector, dataset: Dataset) -> list[int]:
         """Predict with a detector using the appropriate adapter."""
@@ -365,10 +365,10 @@ class AlgorithmAdapterRegistry:
                 supported_algorithms=self.get_supported_algorithms(),
             )
 
-        return adapter.predict(detector, dataset)
+        return adapter.predict(detector, data_collection)
 
     def score_with_detector(
-        self, detector: Detector, dataset: Dataset
+        self, detector: Detector, data_collection: DataCollection
     ) -> list[AnomalyScore]:
         """Score with a detector using the appropriate adapter."""
         adapter = self.get_adapter_for_algorithm(detector.algorithm_name)
@@ -378,4 +378,4 @@ class AlgorithmAdapterRegistry:
                 supported_algorithms=self.get_supported_algorithms(),
             )
 
-        return adapter.score(detector, dataset)
+        return adapter.score(detector, data_collection)

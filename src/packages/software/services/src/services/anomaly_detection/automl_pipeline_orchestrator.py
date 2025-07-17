@@ -2,7 +2,7 @@
 """
 AutoML Pipeline Orchestrator
 Coordinates and orchestrates the complete AutoML pipeline including data preprocessing,
-feature engineering, model optimization, ensemble creation, and deployment
+feature engineering, processor optimization, ensemble creation, and deployment
 """
 
 import asyncio
@@ -36,10 +36,10 @@ class PipelineStage(Enum):
     DATA_VALIDATION = "data_validation"
     DATA_PROFILING = "data_profiling"
     FEATURE_ENGINEERING = "feature_engineering"
-    MODEL_SELECTION = "model_selection"
+    MODEL_SELECTION = "processor_selection"
     HYPERPARAMETER_OPTIMIZATION = "hyperparameter_optimization"
     ENSEMBLE_CREATION = "ensemble_creation"
-    MODEL_VALIDATION = "model_validation"
+    MODEL_VALIDATION = "processor_validation"
     DEPLOYMENT_PREPARATION = "deployment_preparation"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -71,9 +71,9 @@ class PipelineConfig:
     max_feature_combinations: int = 100
     feature_selection_threshold: float = 0.95
 
-    # Model optimization
+    # Processor optimization
     optimization_time_budget_minutes: int = 60
-    max_models_to_evaluate: int = 20
+    max_processors_to_evaluate: int = 20
     early_stopping_patience: int = 10
 
     # Ensemble configuration
@@ -82,7 +82,7 @@ class PipelineConfig:
     ensemble_selection_metric: str = "f1_score"
 
     # Quality thresholds
-    min_model_performance: float = 0.7
+    min_processor_performance: float = 0.7
     performance_improvement_threshold: float = 0.01
 
     # Resource constraints
@@ -91,8 +91,8 @@ class PipelineConfig:
 
     # Output configuration
     save_intermediate_results: bool = True
-    export_model_artifacts: bool = True
-    generate_model_report: bool = True
+    export_processor_artifacts: bool = True
+    generate_processor_report: bool = True
 
     # Advanced features
     enable_meta_learning: bool = True
@@ -112,7 +112,7 @@ class PipelineStageResult:
 
     # Stage-specific outputs
     outputs: dict[str, Any] = field(default_factory=dict)
-    metrics: dict[str, float] = field(default_factory=dict)
+    measurements: dict[str, float] = field(default_factory=dict)
 
     # Error information
     error_message: str | None = None
@@ -142,17 +142,17 @@ class PipelineResult:
     )
 
     # Data information
-    dataset_profile: DatasetProfile | None = None
+    data_collection_profile: DatasetProfile | None = None
     data_quality_report: dict[str, Any] = field(default_factory=dict)
 
-    # Model results
-    best_model: BaseEstimator | None = None
-    best_model_params: dict[str, Any] = field(default_factory=dict)
-    best_model_performance: dict[str, float] = field(default_factory=dict)
+    # Processor results
+    best_processor: BaseEstimator | None = None
+    best_processor_params: dict[str, Any] = field(default_factory=dict)
+    best_processor_performance: dict[str, float] = field(default_factory=dict)
 
     # Alternative models
-    model_leaderboard: list[dict[str, Any]] = field(default_factory=list)
-    ensemble_model: BaseEstimator | None = None
+    processor_leaderboard: list[dict[str, Any]] = field(default_factory=list)
+    ensemble_processor: BaseEstimator | None = None
     ensemble_performance: dict[str, float] = field(default_factory=dict)
 
     # Feature engineering results
@@ -165,7 +165,7 @@ class PipelineResult:
     holdout_performance: dict[str, float] = field(default_factory=dict)
 
     # Deployment artifacts
-    model_artifacts_path: str | None = None
+    processor_artifacts_path: str | None = None
     deployment_config: dict[str, Any] = field(default_factory=dict)
 
     # Recommendations
@@ -252,9 +252,9 @@ class AutoMLPipelineOrchestrator:
                 if X_engineered is not None:
                     X = X_engineered
 
-            # Stage 5: Model Selection
+            # Stage 5: Processor Selection
             await self._run_stage(
-                result, PipelineStage.MODEL_SELECTION, self._select_models, X, y
+                result, PipelineStage.MODEL_SELECTION, self._select_processors, X, y
             )
 
             # Stage 6: Hyperparameter Optimization
@@ -272,9 +272,9 @@ class AutoMLPipelineOrchestrator:
                     result, PipelineStage.ENSEMBLE_CREATION, self._create_ensemble, X, y
                 )
 
-            # Stage 8: Model Validation
+            # Stage 8: Processor Validation
             await self._run_stage(
-                result, PipelineStage.MODEL_VALIDATION, self._validate_models, X, y
+                result, PipelineStage.MODEL_VALIDATION, self._validate_processors, X, y
             )
 
             # Stage 9: Deployment Preparation
@@ -405,7 +405,7 @@ class AutoMLPipelineOrchestrator:
 
             self.automl_service = AutoMLService(
                 max_time_minutes=self.config.max_time_minutes,
-                max_models=self.config.max_models,
+                max_processors=self.config.max_processors,
                 include_algorithms=self.config.algorithms,
                 contamination_rate=self.config.contamination_rate,
                 random_state=self.config.random_state,
@@ -420,7 +420,7 @@ class AutoMLPipelineOrchestrator:
                 {
                     "fit": lambda self, X, y=None: None,
                     "predict": lambda self, X: np.zeros(len(X)),
-                    "get_best_model": lambda self: None,
+                    "get_best_processor": lambda self: None,
                     "is_fitted": False,
                 },
             )()
@@ -447,7 +447,7 @@ class AutoMLPipelineOrchestrator:
         # Basic validation
         if X.empty:
             validation_results["valid"] = False
-            validation_results["issues"].append("Dataset is empty")
+            validation_results["issues"].append("DataCollection is empty")
             return validation_results
 
         # Check for missing values
@@ -477,7 +477,7 @@ class AutoMLPipelineOrchestrator:
         # Check sample size
         if len(X) < 100:
             validation_results["warnings"].append(
-                "Small dataset size, consider collecting more data"
+                "Small data_collection size, consider collecting more data"
             )
 
         # Target validation
@@ -511,7 +511,7 @@ class AutoMLPipelineOrchestrator:
     async def _profile_data(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
-        """Profile the dataset to understand its characteristics"""
+        """Profile the data_collection to understand its characteristics"""
 
         profile = {
             "basic_stats": {
@@ -573,7 +573,7 @@ class AutoMLPipelineOrchestrator:
         # Store in pipeline result
         if self.current_pipeline:
             # Create DatasetProfile object for compatibility
-            self.current_pipeline.dataset_profile = DatasetProfile(
+            self.current_pipeline.data_collection_profile = DatasetProfile(
                 n_samples=len(X),
                 n_features=len(X.columns),
                 contamination_estimate=0.1,  # Default
@@ -584,7 +584,7 @@ class AutoMLPipelineOrchestrator:
                 time_series_features=[],
                 sparsity_ratio=sparsity if numeric_features else 0.0,
                 dimensionality_ratio=len(X.columns) / len(X),
-                dataset_size_mb=profile["basic_stats"]["memory_usage_mb"],
+                data_collection_size_mb=profile["basic_stats"]["memory_usage_mb"],
             )
 
         return profile
@@ -647,35 +647,35 @@ class AutoMLPipelineOrchestrator:
 
         return X_engineered
 
-    async def _select_models(
+    async def _select_processors(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
         """Select candidate models for optimization"""
 
-        # Basic model selection based on data characteristics
-        model_candidates = []
+        # Basic processor selection based on data characteristics
+        processor_candidates = []
 
         n_samples, n_features = X.shape
 
         # Size-based selection
         if n_samples < 1000:
-            model_candidates.extend(["one_class_svm", "local_outlier_factor"])
+            processor_candidates.extend(["one_class_svm", "local_outlier_factor"])
         else:
-            model_candidates.extend(["isolation_forest", "random_forest"])
+            processor_candidates.extend(["isolation_forest", "random_forest"])
 
         # Dimensionality-based selection
         if n_features > 50:
-            model_candidates.append("random_forest")
+            processor_candidates.append("random_forest")
 
         # Always include some basic models
-        model_candidates.extend(["isolation_forest", "random_forest"])
+        processor_candidates.extend(["isolation_forest", "random_forest"])
 
         # Remove duplicates and limit to max models
-        model_candidates = list(dict.fromkeys(model_candidates))  # Remove duplicates
-        model_candidates = model_candidates[: self.config.max_models_to_evaluate]
+        processor_candidates = list(dict.fromkeys(processor_candidates))  # Remove duplicates
+        processor_candidates = processor_candidates[: self.config.max_processors_to_evaluate]
 
         return {
-            "selected_models": model_candidates,
+            "selected_processors": processor_candidates,
             "selection_rationale": {
                 "data_size": f"{n_samples} samples, {n_features} features",
                 "recommended_for_size": "SVM for small data, forests for large data",
@@ -693,26 +693,26 @@ class AutoMLPipelineOrchestrator:
             raise ValueError("Optimization service not initialized")
 
         # Get selected models from previous stage
-        selected_models = self.current_pipeline.stage_results[
+        selected_processors = self.current_pipeline.stage_results[
             PipelineStage.MODEL_SELECTION
-        ].outputs.get("selected_models", ["isolation_forest", "random_forest"])
+        ].outputs.get("selected_processors", ["isolation_forest", "random_forest"])
 
         # Run optimization
-        optimization_result = await self.optimization_service.optimize_model_advanced(
-            X, y, selected_models
+        optimization_result = await self.optimization_service.optimize_processor_advanced(
+            X, y, selected_processors
         )
 
-        # Store best model
+        # Store best processor
         if self.current_pipeline:
-            self.current_pipeline.best_model = optimization_result.best_model
-            self.current_pipeline.best_model_params = optimization_result.best_params
-            self.current_pipeline.best_model_performance = (
+            self.current_pipeline.best_processor = optimization_result.best_processor
+            self.current_pipeline.best_processor_params = optimization_result.best_params
+            self.current_pipeline.best_processor_performance = (
                 optimization_result.best_scores
             )
 
         return {
             "optimization_result": optimization_result,
-            "best_model_type": optimization_result.best_params.get("model_type"),
+            "best_processor_type": optimization_result.best_params.get("processor_type"),
             "best_scores": optimization_result.best_scores,
             "optimization_time": optimization_result.optimization_time,
         }
@@ -720,24 +720,24 @@ class AutoMLPipelineOrchestrator:
     async def _create_ensemble(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
-        """Create ensemble model from optimized models"""
+        """Create ensemble processor from optimized models"""
 
-        logger.info("🎼 Creating ensemble model")
+        logger.info("🎼 Creating ensemble processor")
 
         # Get optimization result
         optimization_result = self.current_pipeline.stage_results[
             PipelineStage.HYPERPARAMETER_OPTIMIZATION
         ].outputs.get("optimization_result")
 
-        if not optimization_result or not optimization_result.ensemble_model:
-            return {"ensemble_created": False, "reason": "No ensemble model available"}
+        if not optimization_result or not optimization_result.ensemble_processor:
+            return {"ensemble_created": False, "reason": "No ensemble processor available"}
 
         # Evaluate ensemble
-        ensemble_model = optimization_result.ensemble_model
+        ensemble_processor = optimization_result.ensemble_processor
 
         if y is not None:
-            ensemble_model.fit(X, y)
-            y_pred = ensemble_model.predict(X)
+            ensemble_processor.fit(X, y)
+            y_pred = ensemble_processor.predict(X)
 
             from sklearn.metrics import accuracy_score, f1_score
 
@@ -746,12 +746,12 @@ class AutoMLPipelineOrchestrator:
                 "f1_score": f1_score(y, y_pred, average="weighted"),
             }
         else:
-            ensemble_model.fit(X)
+            ensemble_processor.fit(X)
             ensemble_performance = {"fit_successful": True}
 
         # Store ensemble
         if self.current_pipeline:
-            self.current_pipeline.ensemble_model = ensemble_model
+            self.current_pipeline.ensemble_processor = ensemble_processor
             self.current_pipeline.ensemble_performance = ensemble_performance
 
         return {
@@ -760,7 +760,7 @@ class AutoMLPipelineOrchestrator:
             "ensemble_type": "stacking",  # Default
         }
 
-    async def _validate_models(
+    async def _validate_processors(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
         """Validate final models using cross-validation and holdout sets"""
@@ -778,15 +778,15 @@ class AutoMLPipelineOrchestrator:
             X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
             y_train, y_test = None, None
 
-        # Validate best model
-        best_model = self.current_pipeline.best_model
-        if best_model and y is not None:
-            best_model.fit(X_train, y_train)
-            y_pred = best_model.predict(X_test)
+        # Validate best processor
+        best_processor = self.current_pipeline.best_processor
+        if best_processor and y is not None:
+            best_processor.fit(X_train, y_train)
+            y_pred = best_processor.predict(X_test)
 
             from sklearn.metrics import classification_report, f1_score
 
-            validation_results["best_model"] = {
+            validation_results["best_processor"] = {
                 "holdout_f1": f1_score(y_test, y_pred, average="weighted"),
                 "classification_report": classification_report(
                     y_test, y_pred, output_dict=True
@@ -794,10 +794,10 @@ class AutoMLPipelineOrchestrator:
             }
 
         # Validate ensemble if available
-        ensemble_model = self.current_pipeline.ensemble_model
-        if ensemble_model and y is not None:
-            ensemble_model.fit(X_train, y_train)
-            y_pred_ensemble = ensemble_model.predict(X_test)
+        ensemble_processor = self.current_pipeline.ensemble_processor
+        if ensemble_processor and y is not None:
+            ensemble_processor.fit(X_train, y_train)
+            y_pred_ensemble = ensemble_processor.predict(X_test)
 
             validation_results["ensemble"] = {
                 "holdout_f1": f1_score(y_test, y_pred_ensemble, average="weighted"),
@@ -807,11 +807,11 @@ class AutoMLPipelineOrchestrator:
             }
 
         # Cross-validation
-        if best_model and y is not None:
+        if best_processor and y is not None:
             from sklearn.model_selection import cross_val_score
 
             cv_scores = cross_val_score(
-                best_model,
+                best_processor,
                 X,
                 y,
                 cv=self.config.cross_validation_folds,
@@ -837,51 +837,51 @@ class AutoMLPipelineOrchestrator:
         logger.info("📦 Preparing deployment artifacts")
 
         deployment_config = {
-            "model_ready": False,
+            "processor_ready": False,
             "artifacts_created": False,
             "deployment_config": {},
         }
 
-        # Save best model
-        if self.current_pipeline.best_model:
-            model_path = (
+        # Save best processor
+        if self.current_pipeline.best_processor:
+            processor_path = (
                 self.artifacts_dir
-                / f"{self.current_pipeline.pipeline_id}_best_model.pkl"
+                / f"{self.current_pipeline.pipeline_id}_best_processor.pkl"
             )
 
-            with open(model_path, "wb") as f:
-                pickle.dump(self.current_pipeline.best_model, f)
+            with open(processor_path, "wb") as f:
+                pickle.dump(self.current_pipeline.best_processor, f)
 
-            deployment_config["best_model_path"] = str(model_path)
-            deployment_config["model_ready"] = True
+            deployment_config["best_processor_path"] = str(processor_path)
+            deployment_config["processor_ready"] = True
 
-        # Save ensemble model
-        if self.current_pipeline.ensemble_model:
+        # Save ensemble processor
+        if self.current_pipeline.ensemble_processor:
             ensemble_path = (
                 self.artifacts_dir
-                / f"{self.current_pipeline.pipeline_id}_ensemble_model.pkl"
+                / f"{self.current_pipeline.pipeline_id}_ensemble_processor.pkl"
             )
 
             with open(ensemble_path, "wb") as f:
-                pickle.dump(self.current_pipeline.ensemble_model, f)
+                pickle.dump(self.current_pipeline.ensemble_processor, f)
 
-            deployment_config["ensemble_model_path"] = str(ensemble_path)
+            deployment_config["ensemble_processor_path"] = str(ensemble_path)
 
         # Create deployment configuration
         deployment_config["deployment_config"] = {
-            "model_type": self.current_pipeline.best_model_params.get(
-                "model_type", "unknown"
+            "processor_type": self.current_pipeline.best_processor_params.get(
+                "processor_type", "unknown"
             ),
             "feature_names": list(X.columns),
             "preprocessing_required": True,
             "expected_input_shape": X.shape,
-            "performance_threshold": self.config.min_model_performance,
+            "performance_threshold": self.config.min_processor_performance,
         }
 
         deployment_config["artifacts_created"] = True
 
         if self.current_pipeline:
-            self.current_pipeline.model_artifacts_path = str(
+            self.current_pipeline.processor_artifacts_path = str(
                 self.artifacts_dir / self.current_pipeline.pipeline_id
             )
             self.current_pipeline.deployment_config = deployment_config[
@@ -897,8 +897,8 @@ class AutoMLPipelineOrchestrator:
 
         # Performance-based recommendations
         best_score = (
-            max(result.best_model_performance.values())
-            if result.best_model_performance
+            max(result.best_processor_performance.values())
+            if result.best_processor_performance
             else 0.0
         )
 
@@ -935,21 +935,21 @@ class AutoMLPipelineOrchestrator:
                 )
 
         # Ensemble recommendations
-        if result.ensemble_model and result.ensemble_performance:
+        if result.ensemble_processor and result.ensemble_performance:
             ensemble_score = (
                 max(result.ensemble_performance.values())
                 if result.ensemble_performance
                 else 0.0
             )
             best_single_score = (
-                max(result.best_model_performance.values())
-                if result.best_model_performance
+                max(result.best_processor_performance.values())
+                if result.best_processor_performance
                 else 0.0
             )
 
             if ensemble_score > best_single_score + 0.05:
                 recommendations.append(
-                    "Ensemble model shows significant improvement - consider using for production"
+                    "Ensemble processor shows significant improvement - consider using for production"
                 )
 
         # Resource optimization recommendations
@@ -997,8 +997,8 @@ class AutoMLPipelineOrchestrator:
             "end_time": result.end_time.isoformat() if result.end_time else None,
             "total_duration_seconds": result.total_duration_seconds,
             "final_stage": result.final_stage.value,
-            "best_model_params": result.best_model_params,
-            "best_model_performance": result.best_model_performance,
+            "best_processor_params": result.best_processor_params,
+            "best_processor_performance": result.best_processor_performance,
             "ensemble_performance": result.ensemble_performance,
             "cross_validation_scores": result.cross_validation_scores,
             "improvement_recommendations": result.improvement_recommendations,
@@ -1033,7 +1033,7 @@ class AutoMLPipelineOrchestrator:
             "pipeline_id": pipeline.pipeline_id,
             "status": pipeline.final_stage.value,
             "duration_seconds": pipeline.total_duration_seconds,
-            "best_model_performance": pipeline.best_model_performance,
+            "best_processor_performance": pipeline.best_processor_performance,
             "production_readiness_score": pipeline.production_readiness_score,
             "stage_count": len(pipeline.stage_results),
             "successful_stages": len(
@@ -1092,7 +1092,7 @@ async def main():
     result = await orchestrator.run_complete_pipeline(X, y)
 
     print(f"Pipeline completed: {result.pipeline_id}")
-    print(f"Best model performance: {result.best_model_performance}")
+    print(f"Best processor performance: {result.best_processor_performance}")
     print(f"Production readiness: {result.production_readiness_score:.2f}")
     print(f"Recommendations: {result.improvement_recommendations}")
 

@@ -1,8 +1,8 @@
 """Algorithm optimization service for enhanced performance.
 
-This service provides intelligent optimization of core anomaly detection algorithms,
+This service provides intelligent optimization of core anomaly processing algorithms,
 including parameter tuning, performance optimization, and adaptive configuration
-based on dataset characteristics.
+based on data_collection characteristics.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from ...infrastructure.config.feature_flags import require_feature
 
 
 class AlgorithmOptimizationService:
-    """Service for optimizing anomaly detection algorithms."""
+    """Service for optimizing anomaly processing algorithms."""
 
     def __init__(self):
         """Initialize algorithm optimization service."""
@@ -34,11 +34,11 @@ class AlgorithmOptimizationService:
             "pca": self._optimize_pca,
         }
 
-        # Dataset-aware parameter ranges
+        # DataCollection-aware parameter ranges
         self.adaptive_parameters = {
-            "small_dataset": {"max_samples": 0.8, "n_estimators_range": (50, 100)},
-            "medium_dataset": {"max_samples": 0.6, "n_estimators_range": (100, 200)},
-            "large_dataset": {"max_samples": 0.4, "n_estimators_range": (200, 300)},
+            "small_data_collection": {"max_samples": 0.8, "n_estimators_range": (50, 100)},
+            "medium_data_collection": {"max_samples": 0.6, "n_estimators_range": (100, 200)},
+            "large_data_collection": {"max_samples": 0.4, "n_estimators_range": (200, 300)},
             "high_dimensional": {"max_features": 0.5, "reduce_dimensionality": True},
             "low_dimensional": {"max_features": 1.0, "reduce_dimensionality": False},
         }
@@ -50,16 +50,16 @@ class AlgorithmOptimizationService:
     def optimize_detector(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         optimization_level: str = "balanced",  # "fast", "balanced", "thorough"
         validation_strategy: str = "cross_validation",
         contamination_rate: float | None = None,
     ) -> tuple[Detector, dict[str, Any]]:
-        """Optimize a detector for the given dataset.
+        """Optimize a detector for the given data_collection.
 
         Args:
             detector: The detector to optimize
-            dataset: The dataset to optimize for
+            data_collection: The data_collection to optimize for
             optimization_level: Level of optimization depth
             validation_strategy: Strategy for parameter validation
             contamination_rate: Expected contamination rate
@@ -71,7 +71,7 @@ class AlgorithmOptimizationService:
 
         # Generate cache key
         cache_key = self._generate_cache_key(
-            dataset, algorithm_name, optimization_level
+            data_collection, algorithm_name, optimization_level
         )
 
         # Check cache first
@@ -84,8 +84,8 @@ class AlgorithmOptimizationService:
             )
             return optimized_detector, cached_result
 
-        # Analyze dataset characteristics
-        dataset_profile = self._analyze_dataset_characteristics(dataset)
+        # Analyze data_collection characteristics
+        data_collection_profile = self._analyze_data_collection_characteristics(data_collection)
 
         # Get optimization strategy
         if algorithm_name in self.optimization_strategies:
@@ -96,8 +96,8 @@ class AlgorithmOptimizationService:
         # Perform optimization
         optimization_results = optimization_func(
             detector,
-            dataset,
-            dataset_profile,
+            data_collection,
+            data_collection_profile,
             optimization_level,
             validation_strategy,
             contamination_rate,
@@ -121,7 +121,7 @@ class AlgorithmOptimizationService:
     def optimize_ensemble(
         self,
         detectors: list[Detector],
-        dataset: Dataset,
+        data_collection: DataCollection,
         ensemble_strategy: str = "voting",  # "voting", "stacking", "adaptive"
         optimization_level: str = "balanced",
     ) -> tuple[list[Detector], dict[str, Any]]:
@@ -129,7 +129,7 @@ class AlgorithmOptimizationService:
 
         Args:
             detectors: List of detectors to optimize
-            dataset: Dataset for optimization
+            data_collection: DataCollection for optimization
             ensemble_strategy: Strategy for ensemble combination
             optimization_level: Level of optimization depth
 
@@ -142,14 +142,14 @@ class AlgorithmOptimizationService:
         # Optimize each detector individually
         for detector in detectors:
             opt_detector, opt_results = self.optimize_detector(
-                detector, dataset, optimization_level
+                detector, data_collection, optimization_level
             )
             optimized_detectors.append(opt_detector)
             individual_results.append(opt_results)
 
         # Optimize ensemble combination
         ensemble_results = self._optimize_ensemble_combination(
-            optimized_detectors, dataset, ensemble_strategy, individual_results
+            optimized_detectors, data_collection, ensemble_strategy, individual_results
         )
 
         ensemble_results["individual_optimizations"] = individual_results
@@ -160,27 +160,27 @@ class AlgorithmOptimizationService:
     def adaptive_parameter_selection(
         self,
         algorithm_name: str,
-        dataset: Dataset,
+        data_collection: DataCollection,
         performance_targets: dict[str, float] | None = None,
     ) -> dict[str, Any]:
-        """Select parameters adaptively based on dataset characteristics.
+        """Select parameters adaptively based on data_collection characteristics.
 
         Args:
             algorithm_name: Name of the algorithm
-            dataset: Dataset for parameter selection
-            performance_targets: Target performance metrics
+            data_collection: DataCollection for parameter selection
+            performance_targets: Target performance measurements
 
         Returns:
             Adaptive parameter configuration
         """
-        dataset_profile = self._analyze_dataset_characteristics(dataset)
+        data_collection_profile = self._analyze_data_collection_characteristics(data_collection)
 
         # Base parameters
         base_params = self._get_algorithm_base_parameters(algorithm_name)
 
-        # Apply dataset-specific adaptations
-        adaptive_params = self._apply_dataset_adaptations(
-            base_params, dataset_profile, algorithm_name
+        # Apply data_collection-specific adaptations
+        adaptive_params = self._apply_data_collection_adaptations(
+            base_params, data_collection_profile, algorithm_name
         )
 
         # Apply performance target adjustments
@@ -192,21 +192,21 @@ class AlgorithmOptimizationService:
         return {
             "algorithm_name": algorithm_name,
             "adaptive_parameters": adaptive_params,
-            "dataset_profile": dataset_profile,
+            "data_collection_profile": data_collection_profile,
             "reasoning": self._generate_parameter_reasoning(
-                adaptive_params, dataset_profile, algorithm_name
+                adaptive_params, data_collection_profile, algorithm_name
             ),
         }
 
     @require_feature("algorithm_optimization")
     def benchmark_optimization_impact(
-        self, detector: Detector, dataset: Dataset, n_iterations: int = 5
+        self, detector: Detector, data_collection: DataCollection, n_iterations: int = 5
     ) -> dict[str, Any]:
         """Benchmark the impact of optimization on detector performance.
 
         Args:
             detector: Original detector
-            dataset: Test dataset
+            data_collection: Test data_collection
             n_iterations: Number of benchmark iterations
 
         Returns:
@@ -222,14 +222,14 @@ class AlgorithmOptimizationService:
         original_results = []
         for _i in range(n_iterations):
             result = benchmark_service.benchmark_algorithm(
-                detector.algorithm_name, dataset, detector.parameters, n_runs=1
+                detector.algorithm_name, data_collection, detector.parameters, n_runs=1
             )
             if result:
                 original_results.extend(result)
 
         # Optimize detector
         optimized_detector, optimization_info = self.optimize_detector(
-            detector, dataset
+            detector, data_collection
         )
 
         # Benchmark optimized detector
@@ -237,14 +237,14 @@ class AlgorithmOptimizationService:
         for _i in range(n_iterations):
             result = benchmark_service.benchmark_algorithm(
                 optimized_detector.algorithm_name,
-                dataset,
+                data_collection,
                 optimized_detector.parameters,
                 n_runs=1,
             )
             if result:
                 optimized_results.extend(result)
 
-        # Calculate improvement metrics
+        # Calculate improvement measurements
         improvements = self._calculate_optimization_improvements(
             original_results, optimized_results
         )
@@ -262,8 +262,8 @@ class AlgorithmOptimizationService:
         }
 
     def _analyze_dataset_characteristics(self, dataset: Dataset) -> dict[str, Any]:
-        """Analyze dataset characteristics for optimization."""
-        data = dataset.data
+        """Analyze data_collection characteristics for optimization."""
+        data = data_collection.data
         n_samples, n_features = data.shape
 
         # Basic characteristics
@@ -271,7 +271,7 @@ class AlgorithmOptimizationService:
             "n_samples": n_samples,
             "n_features": n_features,
             "density": np.count_nonzero(data) / data.size,
-            "dataset_size_category": self._categorize_dataset_size(n_samples),
+            "data_collection_size_category": self._categorize_data_collection_size(n_samples),
             "dimensionality_category": self._categorize_dimensionality(n_features),
         }
 
@@ -301,7 +301,7 @@ class AlgorithmOptimizationService:
     def _optimize_isolation_forest(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -317,11 +317,11 @@ class AlgorithmOptimizationService:
             "max_features": [0.5, 1.0],
         }
 
-        # Adapt based on dataset size
-        if profile["dataset_size_category"] == "large":
+        # Adapt based on data_collection size
+        if profile["data_collection_size_category"] == "large":
             base_params["n_estimators"] = [100, 200, 300]
             base_params["max_samples"] = [0.3, 0.5, 0.7]
-        elif profile["dataset_size_category"] == "small":
+        elif profile["data_collection_size_category"] == "small":
             base_params["n_estimators"] = [50, 100]
             base_params["max_samples"] = ["auto", 0.8]
 
@@ -333,7 +333,7 @@ class AlgorithmOptimizationService:
             SklearnAdapter,
             "IsolationForest",
             base_params,
-            dataset,
+            data_collection,
             optimization_level,
             validation_strategy,
         )
@@ -341,7 +341,7 @@ class AlgorithmOptimizationService:
     def _optimize_local_outlier_factor(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -357,14 +357,14 @@ class AlgorithmOptimizationService:
             "leaf_size": [20, 30, 50],
         }
 
-        # Adapt based on dataset size
-        if profile["dataset_size_category"] == "large":
+        # Adapt based on data_collection size
+        if profile["data_collection_size_category"] == "large":
             base_params["algorithm"] = [
                 "ball_tree",
                 "kd_tree",
             ]  # Faster for large datasets
             base_params["n_neighbors"] = [20, 30, 50]
-        elif profile["dataset_size_category"] == "small":
+        elif profile["data_collection_size_category"] == "small":
             base_params["n_neighbors"] = [5, 10, 20]
 
         # Adapt based on dimensionality
@@ -376,7 +376,7 @@ class AlgorithmOptimizationService:
             SklearnAdapter,
             "LocalOutlierFactor",
             base_params,
-            dataset,
+            data_collection,
             optimization_level,
             validation_strategy,
         )
@@ -384,7 +384,7 @@ class AlgorithmOptimizationService:
     def _optimize_one_class_svm(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -398,8 +398,8 @@ class AlgorithmOptimizationService:
             "degree": [2, 3, 4],  # Only for poly kernel
         }
 
-        # Adapt based on dataset size (SVM can be slow on large datasets)
-        if profile["dataset_size_category"] == "large":
+        # Adapt based on data_collection size (SVM can be slow on large datasets)
+        if profile["data_collection_size_category"] == "large":
             base_params["kernel"] = ["linear", "rbf"]  # Faster kernels
             base_params["gamma"] = ["scale", "auto"]
 
@@ -415,7 +415,7 @@ class AlgorithmOptimizationService:
             SklearnAdapter,
             "OneClassSVM",
             base_params,
-            dataset,
+            data_collection,
             optimization_level,
             validation_strategy,
         )
@@ -423,7 +423,7 @@ class AlgorithmOptimizationService:
     def _optimize_elliptic_envelope(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -446,7 +446,7 @@ class AlgorithmOptimizationService:
             SklearnAdapter,
             "EllipticEnvelope",
             base_params,
-            dataset,
+            data_collection,
             optimization_level,
             validation_strategy,
         )
@@ -454,7 +454,7 @@ class AlgorithmOptimizationService:
     def _optimize_knn(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -472,17 +472,17 @@ class AlgorithmOptimizationService:
                 "method": ["largest", "mean", "median"],
             }
 
-            # Adapt based on dataset size
-            if profile["dataset_size_category"] == "large":
+            # Adapt based on data_collection size
+            if profile["data_collection_size_category"] == "large":
                 base_params["n_neighbors"] = [10, 20, 30]
-            elif profile["dataset_size_category"] == "small":
+            elif profile["data_collection_size_category"] == "small":
                 base_params["n_neighbors"] = [3, 5, 10]
 
             return self._perform_parameter_search(
                 PyODAdapter,
                 "KNN",
                 base_params,
-                dataset,
+                data_collection,
                 optimization_level,
                 validation_strategy,
             )
@@ -492,7 +492,7 @@ class AlgorithmOptimizationService:
     def _optimize_abod(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -517,7 +517,7 @@ class AlgorithmOptimizationService:
                 PyODAdapter,
                 "ABOD",
                 base_params,
-                dataset,
+                data_collection,
                 optimization_level,
                 validation_strategy,
             )
@@ -527,7 +527,7 @@ class AlgorithmOptimizationService:
     def _optimize_hbos(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -546,15 +546,15 @@ class AlgorithmOptimizationService:
                 "tol": [0.1, 0.5, 1.0],
             }
 
-            # Adapt based on dataset size
-            if profile["dataset_size_category"] == "large":
+            # Adapt based on data_collection size
+            if profile["data_collection_size_category"] == "large":
                 base_params["n_bins"] = [10, 20]  # Fewer bins for efficiency
 
             return self._perform_parameter_search(
                 PyODAdapter,
                 "HBOS",
                 base_params,
-                dataset,
+                data_collection,
                 optimization_level,
                 validation_strategy,
             )
@@ -564,7 +564,7 @@ class AlgorithmOptimizationService:
     def _optimize_pca(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -592,7 +592,7 @@ class AlgorithmOptimizationService:
                 PyODAdapter,
                 "PCA",
                 base_params,
-                dataset,
+                data_collection,
                 optimization_level,
                 validation_strategy,
             )
@@ -602,7 +602,7 @@ class AlgorithmOptimizationService:
     def _optimize_generic(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
@@ -626,7 +626,7 @@ class AlgorithmOptimizationService:
             "best_params": base_params,
             "optimization_score": 0.5,
             "optimization_type": "generic",
-            "dataset_profile": profile,
+            "data_collection_profile": profile,
         }
 
     def _perform_parameter_search(
@@ -634,7 +634,7 @@ class AlgorithmOptimizationService:
         adapter_class,
         algorithm_name: str,
         param_grid: dict,
-        dataset: Dataset,
+        data_collection: DataCollection,
         optimization_level: str,
         validation_strategy: str,
     ) -> dict[str, Any]:
@@ -650,7 +650,7 @@ class AlgorithmOptimizationService:
 
             # Simple heuristic-based parameter selection
             best_params = self._select_best_params_heuristic(
-                param_combinations, dataset, algorithm_name
+                param_combinations, data_collection, algorithm_name
             )
 
             # Calculate a mock score
@@ -704,14 +704,14 @@ class AlgorithmOptimizationService:
         return param_combinations
 
     def _select_best_params_heuristic(
-        self, param_combinations: list[dict], dataset: Dataset, algorithm_name: str
+        self, param_combinations: list[dict], data_collection: DataCollection, algorithm_name: str
     ) -> dict[str, Any]:
         """Select best parameters using simple heuristics."""
         if not param_combinations:
             return self._get_algorithm_base_parameters(algorithm_name)
 
-        # Dataset characteristics for heuristic selection
-        n_samples, n_features = dataset.data.shape
+        # DataCollection characteristics for heuristic selection
+        n_samples, n_features = data_collection.data.shape
 
         # Simple heuristic rules
         best_params = param_combinations[0].copy()  # Start with first combination
@@ -735,11 +735,11 @@ class AlgorithmOptimizationService:
         return best_params
 
     def _calculate_optimization_score(self, result, dataset: Dataset) -> float:
-        """Calculate optimization score for a detection result."""
+        """Calculate optimization score for a processing result."""
         # Simple scoring based on score distribution
         scores = result.scores
 
-        # Good anomaly detection should have:
+        # Good anomaly processing should have:
         # 1. Wide score distribution (better separation)
         # 2. Reasonable number of anomalies
         # 3. Stable results
@@ -748,7 +748,7 @@ class AlgorithmOptimizationService:
         score_range = np.max(scores) - np.min(scores)
         anomaly_ratio = np.mean(result.labels)
 
-        # Combine metrics (this is simplified)
+        # Combine measurements (this is simplified)
         optimization_score = (
             score_std * 0.4  # Prefer wider distributions
             + score_range * 0.3  # Prefer larger ranges
@@ -758,7 +758,7 @@ class AlgorithmOptimizationService:
         return optimization_score
 
     def _categorize_dataset_size(self, n_samples: int) -> str:
-        """Categorize dataset size."""
+        """Categorize data_collection size."""
         if n_samples < 1000:
             return "small"
         elif n_samples < 10000:
@@ -767,7 +767,7 @@ class AlgorithmOptimizationService:
             return "large"
 
     def _categorize_dimensionality(self, n_features: int) -> str:
-        """Categorize dataset dimensionality."""
+        """Categorize data_collection dimensionality."""
         if n_features < 10:
             return "low"
         elif n_features < 100:
@@ -828,11 +828,11 @@ class AlgorithmOptimizationService:
     def _apply_dataset_adaptations(
         self, base_params: dict[str, Any], profile: dict[str, Any], algorithm_name: str
     ) -> dict[str, Any]:
-        """Apply dataset-specific parameter adaptations."""
+        """Apply data_collection-specific parameter adaptations."""
         adapted_params = base_params.copy()
 
         # Size-based adaptations
-        size_category = profile["dataset_size_category"]
+        size_category = profile["data_collection_size_category"]
         if size_category in self.adaptive_parameters:
             size_adaptations = self.adaptive_parameters[size_category]
             adapted_params.update(size_adaptations)
@@ -875,10 +875,10 @@ class AlgorithmOptimizationService:
         """Generate reasoning for parameter choices."""
         reasoning = []
 
-        # Dataset size reasoning
-        size_category = profile["dataset_size_category"]
+        # DataCollection size reasoning
+        size_category = profile["data_collection_size_category"]
         reasoning.append(
-            f"Dataset size is {size_category} ({profile['n_samples']} samples)"
+            f"DataCollection size is {size_category} ({profile['n_samples']} samples)"
         )
 
         # Dimensionality reasoning
@@ -899,7 +899,7 @@ class AlgorithmOptimizationService:
     def _optimize_ensemble_combination(
         self,
         detectors: list[Detector],
-        dataset: Dataset,
+        data_collection: DataCollection,
         strategy: str,
         individual_results: list[dict],
     ) -> dict[str, Any]:
@@ -929,7 +929,7 @@ class AlgorithmOptimizationService:
         if not original_results or not optimized_results:
             return {"overall_improvement": 0.0}
 
-        # Calculate average metrics
+        # Calculate average measurements
         orig_avg = {
             "execution_time": np.mean([r.execution_time for r in original_results]),
             "memory_usage": np.mean([r.memory_usage for r in original_results]),
@@ -996,14 +996,14 @@ class AlgorithmOptimizationService:
         }
 
     def _generate_cache_key(
-        self, dataset: Dataset, algorithm_name: str, optimization_level: str
+        self, data_collection: DataCollection, algorithm_name: str, optimization_level: str
     ) -> str:
         """Generate cache key for optimization results."""
         # Convert to numpy array if needed and get hash
-        if hasattr(dataset.data, "values"):
-            data_array = dataset.data.values
+        if hasattr(data_collection.data, "values"):
+            data_array = data_collection.data.values
         else:
-            data_array = dataset.data
+            data_array = data_collection.data
 
         # Create a simple hash based on shape and sample of data
         data_hash = hash((data_array.shape, float(data_array.sum())))

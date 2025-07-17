@@ -69,8 +69,8 @@ class UnifiedDataService:
         )
 
         # Processing history and caching
-        self._processing_cache: dict[str, tuple[Dataset, ProcessingReport]] = {}
-        self._dataset_registry: dict[str, Dataset] = {}
+        self._processing_cache: dict[str, tuple[DataCollection, ProcessingReport]] = {}
+        self._data_collection_registry: dict[str, DataCollection] = {}
 
     async def load_and_process(
         self,
@@ -81,12 +81,12 @@ class UnifiedDataService:
         return_report: bool = False,
         cache_result: bool = True,
         **kwargs: Any,
-    ) -> Dataset | tuple[Dataset, ProcessingReport]:
+    ) -> DataCollection | tuple[DataCollection, ProcessingReport]:
         """Load data from source and apply processing pipeline.
 
         Args:
             source: Data source (file, database, DataFrame, etc.)
-            name: Optional dataset name
+            name: Optional data_collection name
             processing_config: Processing configuration
             auto_detect_target: Whether to auto-detect target column
             return_report: Whether to return processing report
@@ -94,25 +94,25 @@ class UnifiedDataService:
             **kwargs: Additional loading/processing options
 
         Returns:
-            Processed dataset, optionally with processing report
+            Processed data_collection, optionally with processing report
         """
         start_time = time.perf_counter()
 
         # Load data
-        raw_dataset = await self._load_data_async(source, name, **kwargs)
+        raw_data_collection = await self._load_data_async(source, name, **kwargs)
 
         # Auto-detect target column if requested
-        if auto_detect_target and not raw_dataset.target_column:
-            target_column = self._auto_detect_target_column(raw_dataset.data)
+        if auto_detect_target and not raw_data_collection.target_column:
+            target_column = self._auto_detect_target_column(raw_data_collection.data)
             if target_column:
-                raw_dataset.target_column = target_column
+                raw_data_collection.target_column = target_column
                 self.logger.info(f"Auto-detected target column: {target_column}")
 
         # Apply processing pipeline
         config = processing_config or self.default_processing_config
 
         # Check cache first
-        cache_key = self._generate_cache_key(raw_dataset, config)
+        cache_key = self._generate_cache_key(raw_data_collection, config)
         if cache_result and cache_key in self._processing_cache:
             self.logger.info("Using cached processing result")
             cached_result = self._processing_cache[cache_key]
@@ -125,39 +125,39 @@ class UnifiedDataService:
 
         # Process data
         if return_report:
-            processed_dataset, report = pipeline.process_dataset(
-                raw_dataset, fit_transformers=True, return_report=True
+            processed_data_collection, report = pipeline.process_data_collection(
+                raw_data_collection, fit_transformers=True, return_report=True
             )
         else:
-            processed_dataset = pipeline.process_dataset(
-                raw_dataset, fit_transformers=True, return_report=False
+            processed_data_collection = pipeline.process_data_collection(
+                raw_data_collection, fit_transformers=True, return_report=False
             )
             report = None
 
         # Cache result
         if cache_result:
             if report:
-                self._processing_cache[cache_key] = (processed_dataset, report)
+                self._processing_cache[cache_key] = (processed_data_collection, report)
             else:
                 # Create a basic report
                 basic_report = ProcessingReport(
-                    original_shape=raw_dataset.data.shape,
-                    final_shape=processed_dataset.data.shape,
+                    original_shape=raw_data_collection.data.shape,
+                    final_shape=processed_data_collection.data.shape,
                     processing_time=time.perf_counter() - start_time,
                     steps_performed=["unified_processing"],
                 )
-                self._processing_cache[cache_key] = (processed_dataset, basic_report)
+                self._processing_cache[cache_key] = (processed_data_collection, basic_report)
 
-        # Register dataset
-        self._dataset_registry[processed_dataset.name] = processed_dataset
+        # Register data_collection
+        self._data_collection_registry[processed_data_collection.name] = processed_data_collection
 
         self.logger.info(
             f"Completed load and process in {time.perf_counter() - start_time:.2f}s"
         )
 
         if return_report:
-            return processed_dataset, report
-        return processed_dataset
+            return processed_data_collection, report
+        return processed_data_collection
 
     async def load_multiple_sources(
         self,
@@ -167,19 +167,19 @@ class UnifiedDataService:
         processing_config: ProcessingConfig | None = None,
         parallel: bool = True,
         **kwargs: Any,
-    ) -> list[Dataset] | Dataset:
+    ) -> list[DataCollection] | DataCollection:
         """Load and process multiple data sources.
 
         Args:
             sources: List of data sources
-            names: Optional list of dataset names
+            names: Optional list of data_collection names
             combine: Whether to combine datasets into one
             processing_config: Processing configuration
             parallel: Whether to process in parallel
             **kwargs: Additional options
 
         Returns:
-            List of datasets or combined dataset
+            List of datasets or combined data_collection
         """
         self.logger.info(f"Loading {len(sources)} data sources")
 
@@ -194,7 +194,7 @@ class UnifiedDataService:
             datasets = await asyncio.gather(*tasks, return_exceptions=True)
 
             # Filter out exceptions
-            valid_datasets = [ds for ds in datasets if isinstance(ds, Dataset)]
+            valid_data_collections = [ds for ds in datasets if isinstance(ds, DataCollection)]
 
             # Log any failures
             for i, result in enumerate(datasets):
@@ -203,38 +203,38 @@ class UnifiedDataService:
 
         else:
             # Process sequentially
-            valid_datasets = []
+            valid_data_collections = []
             for i, source in enumerate(sources):
                 try:
                     name = names[i] if names and i < len(names) else None
-                    dataset = await self.load_and_process(
+                    data_collection = await self.load_and_process(
                         source, name, processing_config, **kwargs
                     )
-                    valid_datasets.append(dataset)
+                    valid_data_collections.append(data_collection)
                 except Exception as e:
                     self.logger.error(f"Failed to load source {i}: {e}")
                     continue
 
-        if not valid_datasets:
+        if not valid_data_collections:
             raise DataValidationError("No sources could be loaded successfully")
 
         if combine:
-            return self._combine_datasets(valid_datasets)
+            return self._combine_data_collections(valid_data_collections)
 
-        return valid_datasets
+        return valid_data_collections
 
     def create_processing_config(
         self,
-        dataset_characteristics: dict[str, Any] | None = None,
-        use_case: str = "anomaly_detection",
+        data_collection_characteristics: dict[str, Any] | None = None,
+        use_case: str = "anomaly_processing",
         performance_preference: str = "balanced",
         **custom_settings: Any,
     ) -> ProcessingConfig:
         """Create optimized processing configuration.
 
         Args:
-            dataset_characteristics: Dataset characteristics for optimization
-            use_case: Use case type (anomaly_detection, classification, etc.)
+            data_collection_characteristics: DataCollection characteristics for optimization
+            use_case: Use case type (anomaly_processing, classification, etc.)
             performance_preference: Performance preference (fast, balanced, thorough)
             **custom_settings: Custom configuration overrides
 
@@ -244,11 +244,11 @@ class UnifiedDataService:
         # Start with base configuration
         config = ProcessingConfig()
 
-        # Optimize based on dataset characteristics
-        if dataset_characteristics:
-            n_samples = dataset_characteristics.get("n_samples", 0)
-            n_features = dataset_characteristics.get("n_features", 0)
-            has_categorical = dataset_characteristics.get("has_categorical", False)
+        # Optimize based on data_collection characteristics
+        if data_collection_characteristics:
+            n_samples = data_collection_characteristics.get("n_samples", 0)
+            n_features = data_collection_characteristics.get("n_features", 0)
+            has_categorical = data_collection_characteristics.get("has_categorical", False)
 
             # Adjust for large datasets
             if n_samples > 100000:
@@ -269,8 +269,8 @@ class UnifiedDataService:
                 config.max_categories = 20 if n_samples > 10000 else 10
 
         # Optimize for use case
-        if use_case == "anomaly_detection":
-            # Anomaly detection specific optimizations
+        if use_case == "anomaly_processing":
+            # Anomaly processing specific optimizations
             config.apply_scaling = True
             config.scaling_method = config.scaling_method  # Keep robust scaling
             config.handle_missing = True
@@ -303,13 +303,13 @@ class UnifiedDataService:
 
     def validate_dataset_quality(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         requirements: dict[str, Any] | None = None,
     ) -> tuple[bool, dict[str, Any]]:
-        """Validate dataset quality for anomaly detection.
+        """Validate data_collection quality for anomaly processing.
 
         Args:
-            dataset: Dataset to validate
+            data_collection: DataCollection to validate
             requirements: Quality requirements
 
         Returns:
@@ -317,21 +317,21 @@ class UnifiedDataService:
         """
         requirements = requirements or {}
 
-        data = dataset.data
+        data = data_collection.data
         quality_report = {
             "overall_quality": "unknown",
             "issues": [],
             "warnings": [],
             "recommendations": [],
-            "metrics": {},
+            "measurements": {},
         }
 
-        # Basic metrics
+        # Basic measurements
         n_samples, n_features = data.shape
         missing_percentage = data.isnull().mean().mean()
         duplicate_rows = data.duplicated().sum()
 
-        quality_report["metrics"] = {
+        quality_report["measurements"] = {
             "n_samples": n_samples,
             "n_features": n_features,
             "missing_percentage": missing_percentage,
@@ -391,7 +391,7 @@ class UnifiedDataService:
 
         # Memory usage check
         max_memory_mb = requirements.get("max_memory_mb", 1000)
-        memory_usage = quality_report["metrics"]["memory_usage_mb"]
+        memory_usage = quality_report["measurements"]["memory_usage_mb"]
         if memory_usage > max_memory_mb:
             warnings.append(f"Large memory usage: {memory_usage:.1f} MB")
             recommendations.append("Consider batch processing or data reduction")
@@ -412,26 +412,26 @@ class UnifiedDataService:
         return is_valid, quality_report
 
     def get_dataset_summary(self, dataset_name: str) -> dict[str, Any] | None:
-        """Get summary information about a registered dataset.
+        """Get summary information about a registered data_collection.
 
         Args:
-            dataset_name: Name of the dataset
+            data_collection_name: Name of the data_collection
 
         Returns:
-            Dataset summary or None if not found
+            DataCollection summary or None if not found
         """
-        if dataset_name not in self._dataset_registry:
+        if data_collection_name not in self._data_collection_registry:
             return None
 
-        dataset = self._dataset_registry[dataset_name]
-        data = dataset.data
+        data_collection = self._data_collection_registry[data_collection_name]
+        data = data_collection.data
 
         # Basic information
         summary = {
-            "name": dataset.name,
+            "name": data_collection.name,
             "shape": data.shape,
-            "target_column": dataset.target_column,
-            "has_target": dataset.has_target,
+            "target_column": data_collection.target_column,
+            "has_target": data_collection.has_target,
             "memory_usage_mb": data.memory_usage(deep=True).sum() / (1024 * 1024),
         }
 
@@ -445,7 +445,7 @@ class UnifiedDataService:
             "datetime": len(data.select_dtypes(include=["datetime64"]).columns),
         }
 
-        # Data quality metrics
+        # Data quality measurements
         summary["quality"] = {
             "missing_values": data.isnull().sum().sum(),
             "missing_percentage": data.isnull().mean().mean(),
@@ -454,22 +454,22 @@ class UnifiedDataService:
         }
 
         # Metadata
-        summary["metadata"] = dataset.metadata
+        summary["metadata"] = data_collection.metadata
 
         return summary
 
     def list_registered_datasets(self) -> list[str]:
-        """Get list of all registered dataset names."""
-        return list(self._dataset_registry.keys())
+        """Get list of all registered data_collection names."""
+        return list(self._data_collection_registry.keys())
 
     def get_registered_dataset(self, name: str) -> Dataset | None:
-        """Get a registered dataset by name."""
-        return self._dataset_registry.get(name)
+        """Get a registered data_collection by name."""
+        return self._data_collection_registry.get(name)
 
     def clear_cache(self) -> None:
         """Clear all caches."""
         self._processing_cache.clear()
-        self._dataset_registry.clear()
+        self._data_collection_registry.clear()
         self.logger.info("Cleared all caches")
 
     async def _load_data_async(
@@ -477,7 +477,7 @@ class UnifiedDataService:
         source: str | Path | pd.DataFrame,
         name: str | None,
         **kwargs: Any,
-    ) -> Dataset:
+    ) -> DataCollection:
         """Load data asynchronously."""
         loop = asyncio.get_event_loop()
 
@@ -491,7 +491,7 @@ class UnifiedDataService:
         source: str | Path | pd.DataFrame,
         name: str | None,
         kwargs: dict[str, Any],
-    ) -> Dataset:
+    ) -> DataCollection:
         """Load data synchronously."""
         # Handle different source types
         if isinstance(source, pd.DataFrame):
@@ -517,15 +517,15 @@ class UnifiedDataService:
 
     def _load_from_dataframe(
         self, df: pd.DataFrame, name: str | None, **kwargs: Any
-    ) -> Dataset:
+    ) -> DataCollection:
         """Load data from pandas DataFrame."""
-        dataset_name = name or "dataframe_dataset"
+        data_collection_name = name or "dataframe_data_collection"
 
         if df.empty:
             raise DataValidationError("DataFrame is empty")
 
-        return Dataset(
-            name=dataset_name,
+        return DataCollection(
+            name=data_collection_name,
             data=df.copy(),
             target_column=kwargs.get("target_column"),
             metadata={
@@ -537,13 +537,13 @@ class UnifiedDataService:
 
     def _load_from_file(
         self, file_path: str | Path, name: str | None, **kwargs: Any
-    ) -> Dataset:
+    ) -> DataCollection:
         """Load data from file."""
         return self.smart_loader.load(file_path, name, **kwargs)
 
     def _load_from_database(
         self, connection_string: str, name: str | None, **kwargs: Any
-    ) -> Dataset:
+    ) -> DataCollection:
         """Load data from database."""
         query = kwargs.get("query")
         table_name = kwargs.get("table_name")
@@ -574,7 +574,7 @@ class UnifiedDataService:
 
     def _auto_detect_target_column(self, data: pd.DataFrame) -> str | None:
         """Auto-detect potential target column."""
-        # Common target column names for anomaly detection
+        # Common target column names for anomaly processing
         target_candidates = [
             "target",
             "label",
@@ -612,7 +612,7 @@ class UnifiedDataService:
         # Combine data
         combined_data = pd.concat([ds.data for ds in datasets], ignore_index=True)
 
-        # Use first dataset's target column
+        # Use first data_collection's target column
         target_column = None
         for ds in datasets:
             if ds.target_column:
@@ -624,12 +624,12 @@ class UnifiedDataService:
             "combined_from": [ds.name for ds in datasets],
             "original_shapes": [ds.data.shape for ds in datasets],
             "combined_shape": combined_data.shape,
-            "source": "combined_datasets",
+            "source": "combined_data_collections",
             "loader": "UnifiedDataService",
         }
 
-        return Dataset(
-            name="combined_dataset",
+        return DataCollection(
+            name="combined_data_collection",
             data=combined_data,
             target_column=target_column,
             metadata=combined_metadata,
@@ -637,12 +637,12 @@ class UnifiedDataService:
 
     def _generate_cache_key(self, dataset: Dataset, config: ProcessingConfig) -> str:
         """Generate cache key for processing results."""
-        # Create a hash of dataset and config
+        # Create a hash of data_collection and config
         import hashlib
 
         data_hash = hashlib.md5(
-            str(dataset.data.values.tobytes()).encode()
+            str(data_collection.data.values.tobytes()).encode()
         ).hexdigest()[:8]
         config_hash = hashlib.md5(str(config.__dict__).encode()).hexdigest()[:8]
 
-        return f"{dataset.name}_{data_hash}_{config_hash}"
+        return f"{data_collection.name}_{data_hash}_{config_hash}"

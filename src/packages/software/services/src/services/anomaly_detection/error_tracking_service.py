@@ -331,7 +331,7 @@ class ErrorTrackingService:
             error for error in self.recent_errors if error.timestamp > cutoff_time
         ]
 
-        # Calculate metrics
+        # Calculate measurements
         total_errors = len(recent_errors)
         error_rate = total_errors / (
             time_window.total_seconds() / 3600
@@ -712,7 +712,7 @@ class ErrorTrackingService:
         ]
 
     def _calculate_user_impact(self, errors: list[ErrorInstance]) -> dict[str, Any]:
-        """Calculate user impact metrics."""
+        """Calculate user impact measurements."""
         affected_users = set(error.user_id for error in errors if error.user_id)
         affected_sessions = set(
             error.session_id for error in errors if error.session_id

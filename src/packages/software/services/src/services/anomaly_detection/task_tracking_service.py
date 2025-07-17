@@ -28,7 +28,7 @@ class TaskType(Enum):
     AUTOML_OPTIMIZATION = "automl_optimization"
     ENSEMBLE_CREATION = "ensemble_creation"
     DETECTOR_TRAINING = "detector_training"
-    BATCH_DETECTION = "batch_detection"
+    BATCH_DETECTION = "batch_processing"
     DATA_PROCESSING = "data_processing"
 
 

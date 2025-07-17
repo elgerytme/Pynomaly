@@ -51,7 +51,7 @@ class ThresholdFeedback:
 
 @dataclass
 class PerformanceMetrics:
-    """Performance metrics for threshold evaluation."""
+    """Performance measurements for threshold evaluation."""
 
     precision: float = 0.0
     recall: float = 0.0
@@ -83,11 +83,11 @@ class ThresholdCandidate(BaseModel):
         return np.mean([perf.f1_score for perf in self.performance_history])
 
     def get_balanced_score(self) -> float:
-        """Get balanced performance score considering multiple metrics."""
+        """Get balanced performance score considering multiple measurements."""
         if not self.performance_history:
             return 0.5
 
-        recent_metrics = self.performance_history[-5:]  # Last 5 evaluations
+        recent_measurements = self.performance_history[-5:]  # Last 5 evaluations
 
         weights = {
             "f1_score": 0.3,
@@ -99,7 +99,7 @@ class ThresholdCandidate(BaseModel):
 
         balanced_score = 0.0
         for metric_name, weight in weights.items():
-            metric_values = [getattr(perf, metric_name) for perf in recent_metrics]
+            metric_values = [getattr(perf, metric_name) for perf in recent_measurements]
             if metric_values:
                 avg_metric = np.mean(metric_values)
                 balanced_score += weight * avg_metric
@@ -349,9 +349,9 @@ class AdaptiveThresholdOptimizer:
 
             # Look at recent performance trends
             if len(self.recent_performance) >= 5:
-                recent_metrics = list(self.recent_performance)[-5:]
-                avg_fpr = np.mean([m.false_positive_rate for m in recent_metrics])
-                avg_fnr = np.mean([m.false_negative_rate for m in recent_metrics])
+                recent_measurements = list(self.recent_performance)[-5:]
+                avg_fpr = np.mean([m.false_positive_rate for m in recent_measurements])
+                avg_fnr = np.mean([m.false_negative_rate for m in recent_measurements])
 
                 # If too many false positives, raise threshold
                 if avg_fpr > 0.1:
@@ -483,11 +483,11 @@ class AdaptiveThresholdOptimizer:
             candidate.feedback_count[feedback.feedback_type] = 0
         candidate.feedback_count[feedback.feedback_type] += 1
 
-        # Calculate performance metrics if we have enough feedback
+        # Calculate performance measurements if we have enough feedback
         total_feedback = sum(candidate.feedback_count.values())
         if total_feedback >= 10:
-            metrics = self._calculate_performance_metrics(candidate.feedback_count)
-            candidate.performance_history.append(metrics)
+            measurements = self._calculate_performance_measurements(candidate.feedback_count)
+            candidate.performance_history.append(measurements)
 
             # Keep only recent performance history
             if len(candidate.performance_history) > 20:
@@ -498,7 +498,7 @@ class AdaptiveThresholdOptimizer:
     def _calculate_performance_metrics(
         self, feedback_count: dict[FeedbackType, int]
     ) -> PerformanceMetrics:
-        """Calculate performance metrics from feedback counts."""
+        """Calculate performance measurements from feedback counts."""
         tp = feedback_count.get(FeedbackType.TRUE_POSITIVE, 0)
         fp = feedback_count.get(FeedbackType.FALSE_POSITIVE, 0)
         tn = feedback_count.get(FeedbackType.TRUE_NEGATIVE, 0)
@@ -508,7 +508,7 @@ class AdaptiveThresholdOptimizer:
         if total == 0:
             return PerformanceMetrics()
 
-        # Calculate metrics
+        # Calculate measurements
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
@@ -546,7 +546,7 @@ class AdaptiveThresholdOptimizer:
     ) -> None:
         """Update performance for specific context."""
         # This is a simplified update - in practice, you'd accumulate feedback
-        # and periodically calculate metrics for each context
+        # and periodically calculate measurements for each context
         pass
 
     async def _check_optimization_trigger(self) -> bool:
@@ -574,11 +574,11 @@ class AdaptiveThresholdOptimizer:
             return False
 
         try:
-            recent_metrics = list(self.recent_performance)
+            recent_measurements = list(self.recent_performance)
 
             # Compare recent performance to historical average
-            recent_f1 = np.mean([m.f1_score for m in recent_metrics[-3:]])
-            historical_f1 = np.mean([m.f1_score for m in recent_metrics[:-3]])
+            recent_f1 = np.mean([m.f1_score for m in recent_measurements[-3:]])
+            historical_f1 = np.mean([m.f1_score for m in recent_measurements[:-3]])
 
             # Trigger optimization if performance dropped significantly
             performance_drop = historical_f1 - recent_f1
@@ -668,7 +668,7 @@ class AdaptiveThresholdOptimizer:
         """Optimize threshold using Bayesian optimization."""
         # Simplified Bayesian optimization using candidate evaluation
 
-        # Evaluate all candidates and build Gaussian Process model
+        # Evaluate all candidates and build Gaussian Process processor
         candidate_performances = {}
         for threshold, candidate in self.threshold_candidates.items():
             performance = candidate.get_balanced_score()
@@ -902,9 +902,9 @@ class AdaptiveThresholdOptimizer:
             else:
                 simulated_feedback[FeedbackType.TRUE_NEGATIVE] += 1
 
-        # Calculate performance metrics
-        metrics = self._calculate_performance_metrics(simulated_feedback)
-        return metrics.f1_score
+        # Calculate performance measurements
+        measurements = self._calculate_performance_measurements(simulated_feedback)
+        return measurements.f1_score
 
     def _get_feedback_summary(self) -> dict[str, Any]:
         """Get summary of recent feedback."""
@@ -983,12 +983,12 @@ class AdaptiveThresholdOptimizer:
 
             if fpr > 0.15:
                 recommendations.append(
-                    "High false positive rate detected - consider increasing threshold or reviewing detection criteria"
+                    "High false positive rate detected - consider increasing threshold or reviewing processing criteria"
                 )
 
             if fnr > 0.15:
                 recommendations.append(
-                    "High false negative rate detected - consider decreasing threshold or improving model sensitivity"
+                    "High false negative rate detected - consider decreasing threshold or improving processor sensitivity"
                 )
 
             if fpr < 0.05 and fnr < 0.05:

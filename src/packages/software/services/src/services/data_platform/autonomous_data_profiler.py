@@ -17,21 +17,21 @@ class AutonomousDataProfiler:
 
     async def profile_data(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: AutonomousConfig,
         initial_profile: DataProfile | None = None,
     ) -> DataProfile:
-        """Profile dataset to understand its characteristics.
+        """Profile data_collection to understand its characteristics.
 
         Args:
-            dataset: Dataset to profile
+            data_collection: DataCollection to profile
             config: Configuration options
             initial_profile: Initial profile with preprocessing info
 
         Returns:
             Complete data profile
         """
-        df = dataset.data
+        df = data_collection.data
         n_samples, n_features = df.shape
 
         # Sample data if too large
@@ -117,7 +117,7 @@ class AutonomousDataProfiler:
         return profile
 
     def _detect_temporal_features(self, df: pd.DataFrame) -> int:
-        """Detect temporal features in the dataset.
+        """Detect temporal features in the data_collection.
 
         Args:
             df: DataFrame to analyze
@@ -218,7 +218,7 @@ class AutonomousDataProfiler:
         trend_detected = False
 
         if temporal_features > 0 and len(numeric_cols) > 0:
-            # Simple trend detection
+            # Simple trend processing
             for col in numeric_cols:
                 values = df[col].dropna().values
                 if len(values) > 10:
@@ -237,7 +237,7 @@ class AutonomousDataProfiler:
         missing_ratio: float,
         sparsity_ratio: float,
     ) -> float:
-        """Calculate dataset complexity score.
+        """Calculate data_collection complexity score.
 
         Args:
             n_features: Number of features

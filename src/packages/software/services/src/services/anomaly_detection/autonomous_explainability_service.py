@@ -1,4 +1,4 @@
-"""Autonomous explainability service for autonomous detection."""
+"""Autonomous explainability service for autonomous processing."""
 
 from __future__ import annotations
 
@@ -49,9 +49,9 @@ class AnomalyExplanation:
 
 @dataclass
 class ExplanationReport:
-    """Comprehensive explanation report for autonomous detection."""
+    """Comprehensive explanation report for autonomous processing."""
 
-    dataset_profile: DataProfile
+    data_collection_profile: DataProfile
     algorithm_explanations: list[AlgorithmExplanation]
     selected_algorithms: list[str]
     rejected_algorithms: list[str]
@@ -63,7 +63,7 @@ class ExplanationReport:
 
 
 class AutonomousExplainabilityService:
-    """Service responsible for generating explanations for autonomous detection."""
+    """Service responsible for generating explanations for autonomous processing."""
 
     def __init__(self):
         """Initialize autonomous explainability service."""
@@ -246,8 +246,8 @@ class AutonomousExplainabilityService:
 
     async def explain_anomalies(
         self,
-        dataset: Dataset,
-        detection_results: dict[str, DetectionResult],
+        data_collection: DataCollection,
+        processing_results: dict[str, DetectionResult],
         max_explanations: int = 10,
         explanation_method: str = "auto",
         verbose: bool = False,
@@ -255,8 +255,8 @@ class AutonomousExplainabilityService:
         """Explain detected anomalies.
 
         Args:
-            dataset: Original dataset
-            detection_results: Detection results by algorithm
+            data_collection: Original data_collection
+            processing_results: Processing results by algorithm
             max_explanations: Maximum number of anomalies to explain
             explanation_method: Method for explanation ("auto", "statistical", "distance")
             verbose: Enable verbose logging
@@ -270,7 +270,7 @@ class AutonomousExplainabilityService:
         explanations = []
 
         # Get the best result or ensemble result
-        best_result = self._get_best_result(detection_results)
+        best_result = self._get_best_result(processing_results)
         if not best_result:
             return explanations
 
@@ -278,7 +278,7 @@ class AutonomousExplainabilityService:
         anomaly_indices = self._get_top_anomaly_indices(best_result, max_explanations)
 
         # Prepare data for explanation
-        df = dataset.data
+        df = data_collection.data
         numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
 
         if not numeric_columns:
@@ -291,9 +291,9 @@ class AutonomousExplainabilityService:
                 self.logger.info(f"Explaining anomaly {i+1}/{len(anomaly_indices)}")
 
             explanation = await self._explain_single_anomaly(
-                dataset=dataset,
+                data_collection=data_collection,
                 sample_idx=sample_idx,
-                detection_result=best_result,
+                processing_result=best_result,
                 explanation_method=explanation_method,
                 numeric_columns=numeric_columns,
             )
@@ -307,29 +307,29 @@ class AutonomousExplainabilityService:
         return explanations
 
     def _get_best_result(self, detection_results: dict[str, DetectionResult]) -> DetectionResult | None:
-        """Get the best detection result for explanation.
+        """Get the best processing result for explanation.
 
         Args:
-            detection_results: Detection results by algorithm
+            processing_results: Processing results by algorithm
 
         Returns:
-            Best detection result or None
+            Best processing result or None
         """
-        if not detection_results:
+        if not processing_results:
             return None
 
         # Prefer ensemble result if available
-        if "ensemble" in detection_results:
-            return detection_results["ensemble"]
+        if "ensemble" in processing_results:
+            return processing_results["ensemble"]
 
         # Otherwise, return first result
-        return next(iter(detection_results.values()))
+        return next(iter(processing_results.values()))
 
     def _get_top_anomaly_indices(self, result: DetectionResult, max_count: int) -> list[int]:
         """Get indices of top anomalies sorted by score.
 
         Args:
-            result: Detection result
+            result: Processing result
             max_count: Maximum number of indices to return
 
         Returns:
@@ -352,18 +352,18 @@ class AutonomousExplainabilityService:
 
     async def _explain_single_anomaly(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         sample_idx: int,
-        detection_result: DetectionResult,
+        processing_result: DetectionResult,
         explanation_method: str,
         numeric_columns: list[str],
     ) -> AnomalyExplanation | None:
         """Explain a single anomaly.
 
         Args:
-            dataset: Original dataset
+            data_collection: Original data_collection
             sample_idx: Index of the sample to explain
-            detection_result: Detection result
+            processing_result: Processing result
             explanation_method: Method for explanation
             numeric_columns: List of numeric column names
 
@@ -371,11 +371,11 @@ class AutonomousExplainabilityService:
             Anomaly explanation or None
         """
         try:
-            df = dataset.data
+            df = data_collection.data
             sample = df.iloc[sample_idx]
 
             # Get anomaly score
-            anomaly_score = detection_result.scores[sample_idx].value if sample_idx < len(detection_result.scores) else 0.0
+            anomaly_score = processing_result.scores[sample_idx].value if sample_idx < len(processing_result.scores) else 0.0
 
             # Calculate feature contributions
             if explanation_method == "statistical":
@@ -393,7 +393,7 @@ class AutonomousExplainabilityService:
 
             # Find similar normal samples
             similar_normal_samples = self._find_similar_normal_samples(
-                df, sample, detection_result, numeric_columns, sample_idx
+                df, sample, processing_result, numeric_columns, sample_idx
             )
 
             # Calculate explanation confidence
@@ -568,7 +568,7 @@ class AutonomousExplainabilityService:
         self,
         df: pd.DataFrame,
         sample: pd.Series,
-        detection_result: DetectionResult,
+        processing_result: DetectionResult,
         numeric_columns: list[str],
         sample_idx: int,
         max_similar: int = 5,
@@ -578,7 +578,7 @@ class AutonomousExplainabilityService:
         Args:
             df: Complete dataframe
             sample: Sample to explain
-            detection_result: Detection result
+            processing_result: Processing result
             numeric_columns: List of numeric columns
             sample_idx: Index of the sample
             max_similar: Maximum number of similar samples to return
@@ -588,7 +588,7 @@ class AutonomousExplainabilityService:
         """
         try:
             # Get normal sample indices
-            normal_indices = [i for i, label in enumerate(detection_result.labels) if label == 0]
+            normal_indices = [i for i, label in enumerate(processing_result.labels) if label == 0]
 
             if not normal_indices:
                 return []
@@ -651,22 +651,22 @@ class AutonomousExplainabilityService:
 
     async def generate_explanation_report(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         profile: DataProfile,
         recommendations: list[AlgorithmRecommendation],
         selected_algorithms: list[str],
-        detection_results: dict[str, DetectionResult],
+        processing_results: dict[str, DetectionResult],
         pipeline_results: dict[str, Any],
         verbose: bool = False,
     ) -> ExplanationReport:
         """Generate comprehensive explanation report.
 
         Args:
-            dataset: Original dataset
+            data_collection: Original data_collection
             profile: Data profile
             recommendations: Algorithm recommendations
             selected_algorithms: Selected algorithms
-            detection_results: Detection results
+            processing_results: Processing results
             pipeline_results: Pipeline results
             verbose: Enable verbose logging
 
@@ -686,14 +686,14 @@ class AutonomousExplainabilityService:
 
         # Generate anomaly explanations
         anomaly_explanations = await self.explain_anomalies(
-            dataset=dataset,
-            detection_results=detection_results,
+            data_collection=data_collection,
+            processing_results=processing_results,
             max_explanations=10,
             verbose=verbose,
         )
 
         # Generate ensemble explanation
-        ensemble_explanation = self._generate_ensemble_explanation(detection_results, pipeline_results)
+        ensemble_explanation = self._generate_ensemble_explanation(processing_results, pipeline_results)
 
         # Generate processing explanation
         processing_explanation = self._generate_processing_explanation(profile, pipeline_results)
@@ -710,7 +710,7 @@ class AutonomousExplainabilityService:
         ]
 
         report = ExplanationReport(
-            dataset_profile=profile,
+            data_collection_profile=profile,
             algorithm_explanations=algorithm_explanations,
             selected_algorithms=selected_algorithms,
             rejected_algorithms=rejected_algorithms,
@@ -727,19 +727,19 @@ class AutonomousExplainabilityService:
         return report
 
     def _generate_ensemble_explanation(
-        self, detection_results: dict[str, DetectionResult], pipeline_results: dict[str, Any]
+        self, processing_results: dict[str, DetectionResult], pipeline_results: dict[str, Any]
     ) -> str | None:
         """Generate explanation for ensemble results.
 
         Args:
-            detection_results: Detection results
+            processing_results: Processing results
             pipeline_results: Pipeline results
 
         Returns:
             Ensemble explanation or None
         """
-        if "ensemble" in detection_results:
-            ensemble_result = detection_results["ensemble"]
+        if "ensemble" in processing_results:
+            ensemble_result = processing_results["ensemble"]
             algorithms = ensemble_result.metadata.get("algorithms", [])
 
             return (
@@ -763,7 +763,7 @@ class AutonomousExplainabilityService:
             Processing explanation
         """
         explanation_parts = [
-            f"Dataset processed: {profile.n_samples:,} samples with {profile.n_features} features.",
+            f"DataCollection processed: {profile.n_samples:,} samples with {profile.n_features} features.",
             f"Data quality: {profile.missing_values_ratio:.1%} missing values, complexity score {profile.complexity_score:.2f}.",
         ]
 
@@ -800,7 +800,7 @@ class AutonomousExplainabilityService:
             recommendations.append("Consider preprocessing to handle missing values for better accuracy.")
 
         if profile.complexity_score > 0.8:
-            recommendations.append("Dataset is complex; consider ensemble methods or deep learning approaches.")
+            recommendations.append("DataCollection is complex; consider ensemble methods or deep learning approaches.")
 
         # Algorithm recommendations
         best_algorithm = pipeline_results.get("best_algorithm")
@@ -835,7 +835,7 @@ class AutonomousExplainabilityService:
         """
         decision_tree = {
             "root": {
-                "condition": "dataset_characteristics",
+                "condition": "data_collection_characteristics",
                 "data": {
                     "n_samples": profile.n_samples,
                     "n_features": profile.n_features,
@@ -870,7 +870,7 @@ class AutonomousExplainabilityService:
         try:
             summary_lines = [
                 "=== AUTONOMOUS DETECTION EXPLANATION ===",
-                f"Dataset: {report.dataset_profile.n_samples:,} samples, {report.dataset_profile.n_features} features",
+                f"DataCollection: {report.data_collection_profile.n_samples:,} samples, {report.data_collection_profile.n_features} features",
                 f"Algorithms Selected: {len(report.selected_algorithms)}",
                 f"Algorithms Rejected: {len(report.rejected_algorithms)}",
                 f"Anomalies Explained: {len(report.anomaly_explanations)}",

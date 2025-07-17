@@ -1,5 +1,5 @@
 """
-Shared type definitions for the Pynomaly application.
+Shared type definitions for the Software application.
 """
 
 import uuid
@@ -36,7 +36,7 @@ def generate_id() -> str:
 
 
 def generate_dataset_id() -> DatasetId:
-    """Generate a new dataset ID."""
+    """Generate a new data_collection ID."""
     return DatasetId(generate_id())
 
 
@@ -46,7 +46,7 @@ def generate_detector_id() -> DetectorId:
 
 
 def generate_model_id() -> ModelId:
-    """Generate a new model ID."""
+    """Generate a new processor ID."""
     return ModelId(generate_id())
 
 

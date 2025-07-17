@@ -178,7 +178,7 @@ class SHAPExplainer:
         if background_data is not None and len(background_data) > 0:
             baseline_score = np.mean(
                 detector.predict(
-                    Dataset(
+                    DataCollection(
                         name="baseline",
                         data=background_data,
                         features=feature_names or [],
@@ -190,7 +190,7 @@ class SHAPExplainer:
 
         # Get anomaly prediction
         anomaly_score = detector.predict(
-            Dataset(name="anomaly", data=anomaly_data, features=feature_names or [])
+            DataCollection(name="anomaly", data=anomaly_data, features=feature_names or [])
         )[0]
 
         # Calculate feature importance (simplified)
@@ -209,7 +209,7 @@ class SHAPExplainer:
                     perturbed_data[0, i] = 0.0
 
                 perturbed_score = detector.predict(
-                    Dataset(
+                    DataCollection(
                         name="perturbed", data=perturbed_data, features=feature_names
                     )
                 )[0]
@@ -252,7 +252,7 @@ class SHAPExplainer:
 
         if abs(total_positive) > abs(total_negative):
             explanation_parts.append(
-                f"\nOverall, the features contribute positively to the anomaly detection "
+                f"\nOverall, the features contribute positively to the anomaly processing "
                 f"(net contribution: {total_positive + total_negative:.3f})."
             )
         else:
@@ -727,14 +727,14 @@ class InteractiveInvestigationDashboard:
         self,
         session_id: str,
         anomaly_ids: list[str],
-        comparison_metrics: list[str] = None,
+        comparison_measurements: list[str] = None,
     ) -> dict[str, Any]:
         """Compare multiple anomalies.
 
         Args:
             session_id: Investigation session ID
             anomaly_ids: List of anomalies to compare
-            comparison_metrics: Metrics to use for comparison
+            comparison_measurements: Measurements to use for comparison
 
         Returns:
             Comparison results
@@ -753,7 +753,7 @@ class InteractiveInvestigationDashboard:
         if len(anomalies) < 2:
             return {"error": "Need at least 2 anomalies for comparison"}
 
-        comparison_metrics = comparison_metrics or [
+        comparison_measurements = comparison_measurements or [
             "anomaly_score",
             "timestamp",
             "severity",
@@ -763,7 +763,7 @@ class InteractiveInvestigationDashboard:
         # Perform comparison
         comparison_result = {
             "anomaly_count": len(anomalies),
-            "comparison_metrics": comparison_metrics,
+            "comparison_measurements": comparison_measurements,
             "similarities": {},
             "differences": {},
             "patterns": {},
@@ -786,7 +786,7 @@ class InteractiveInvestigationDashboard:
                 "timestamp": datetime.now(),
                 "action": "compare_anomalies",
                 "anomaly_ids": anomaly_ids,
-                "comparison_metrics": comparison_metrics,
+                "comparison_measurements": comparison_measurements,
             }
         )
 
@@ -930,7 +930,7 @@ class InteractiveInvestigationDashboard:
         self,
         session_id: str,
         time_window_hours: int = 24,
-        analysis_type: str = "pattern_detection",
+        analysis_type: str = "pattern_processing",
     ) -> dict[str, Any]:
         """Perform temporal analysis of anomalies.
 

@@ -1,6 +1,6 @@
 """Algorithm performance benchmarking and optimization service.
 
-This module provides comprehensive benchmarking capabilities for anomaly detection
+This module provides comprehensive benchmarking capabilities for anomaly processing
 algorithms, enabling data-driven optimization decisions during Phase 2 enhancement.
 """
 
@@ -34,9 +34,9 @@ class BenchmarkResult:
     """Container for algorithm benchmark results."""
 
     algorithm_name: str
-    dataset_name: str
+    data_collection_name: str
 
-    # Performance metrics
+    # Performance measurements
     accuracy: float = 0.0
     precision: float = 0.0
     recall: float = 0.0
@@ -45,12 +45,12 @@ class BenchmarkResult:
     average_precision: float = 0.0
     matthews_correlation: float = 0.0
 
-    # Timing metrics
+    # Timing measurements
     fit_time: float = 0.0
     predict_time: float = 0.0
     total_time: float = 0.0
 
-    # Resource metrics
+    # Resource measurements
     memory_usage: float = 0.0
     cpu_utilization: float = 0.0
 
@@ -59,8 +59,8 @@ class BenchmarkResult:
     n_features: int = 0
     contamination_rate: float = 0.0
 
-    # Model characteristics
-    model_size: int = 0  # Serialized model size in bytes
+    # Processor characteristics
+    processor_size: int = 0  # Serialized processor size in bytes
 
     # Metadata
     timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -68,7 +68,7 @@ class BenchmarkResult:
 
     def overall_score(self) -> float:
         """Calculate overall performance score (0-100)."""
-        # Weighted combination of metrics
+        # Weighted combination of measurements
         weights = {
             "accuracy": 0.15,
             "precision": 0.15,
@@ -113,7 +113,7 @@ class BenchmarkResult:
         """Convert to dictionary for serialization."""
         return {
             "algorithm_name": self.algorithm_name,
-            "dataset_name": self.dataset_name,
+            "data_collection_name": self.data_collection_name,
             "accuracy": self.accuracy,
             "precision": self.precision,
             "recall": self.recall,
@@ -129,7 +129,7 @@ class BenchmarkResult:
             "n_samples": self.n_samples,
             "n_features": self.n_features,
             "contamination_rate": self.contamination_rate,
-            "model_size": self.model_size,
+            "processor_size": self.processor_size,
             "timestamp": self.timestamp.isoformat(),
             "parameters": self.parameters,
             "overall_score": self.overall_score(),
@@ -138,7 +138,7 @@ class BenchmarkResult:
 
 
 class AlgorithmBenchmarkService:
-    """Service for benchmarking anomaly detection algorithms."""
+    """Service for benchmarking anomaly processing algorithms."""
 
     def __init__(self):
         """Initialize the benchmarking service."""
@@ -205,11 +205,11 @@ class AlgorithmBenchmarkService:
     def benchmark_algorithm(
         self,
         algorithm_name: str,
-        dataset: Dataset,
+        data_collection: DataCollection,
         parameters: dict[str, Any] | None = None,
         n_runs: int = 3,
     ) -> list[BenchmarkResult]:
-        """Benchmark a single algorithm on a dataset."""
+        """Benchmark a single algorithm on a data_collection."""
         if algorithm_name not in self.default_algorithms:
             raise ValueError(f"Unknown algorithm: {algorithm_name}")
 
@@ -233,7 +233,7 @@ class AlgorithmBenchmarkService:
 
             # Measure performance
             result = self._measure_performance(
-                adapter, dataset, algorithm_name, f"{dataset.name}_run_{run}"
+                adapter, data_collection, algorithm_name, f"{data_collection.name}_run_{run}"
             )
             result.parameters = params
 
@@ -243,9 +243,9 @@ class AlgorithmBenchmarkService:
 
     @require_feature("algorithm_optimization")
     def benchmark_multiple_algorithms(
-        self, dataset: Dataset, algorithms: list[str] | None = None, n_runs: int = 3
+        self, data_collection: DataCollection, algorithms: list[str] | None = None, n_runs: int = 3
     ) -> dict[str, list[BenchmarkResult]]:
-        """Benchmark multiple algorithms on a dataset."""
+        """Benchmark multiple algorithms on a data_collection."""
         if algorithms is None:
             algorithms = list(self.default_algorithms.keys())
 
@@ -254,7 +254,7 @@ class AlgorithmBenchmarkService:
         for algorithm in algorithms:
             try:
                 results[algorithm] = self.benchmark_algorithm(
-                    algorithm, dataset, n_runs=n_runs
+                    algorithm, data_collection, n_runs=n_runs
                 )
             except Exception as e:
                 warnings.warn(f"Failed to benchmark {algorithm}: {e}", stacklevel=2)
@@ -266,7 +266,7 @@ class AlgorithmBenchmarkService:
     def hyperparameter_search(
         self,
         algorithm_name: str,
-        dataset: Dataset,
+        data_collection: DataCollection,
         param_grid: dict[str, list] | None = None,
         max_combinations: int = 20,
     ) -> list[BenchmarkResult]:
@@ -294,7 +294,7 @@ class AlgorithmBenchmarkService:
         for params in param_combinations:
             try:
                 result = self.benchmark_algorithm(
-                    algorithm_name, dataset, parameters=params, n_runs=1
+                    algorithm_name, data_collection, parameters=params, n_runs=1
                 )[0]
                 results.append(result)
             except Exception as e:
@@ -310,11 +310,11 @@ class AlgorithmBenchmarkService:
     @require_feature("algorithm_optimization")
     def recommend_algorithm(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         priority: str = "balanced",  # "speed", "accuracy", "balanced"
         max_evaluation_time: float = 300.0,  # seconds
     ) -> tuple[str, dict[str, Any], BenchmarkResult]:
-        """Recommend the best algorithm for a dataset."""
+        """Recommend the best algorithm for a data_collection."""
         start_time = time.time()
         algorithm_results = {}
 
@@ -324,7 +324,7 @@ class AlgorithmBenchmarkService:
 
             try:
                 # Quick benchmark with default parameters
-                results = self.benchmark_algorithm(algorithm_name, dataset, n_runs=1)
+                results = self.benchmark_algorithm(algorithm_name, data_collection, n_runs=1)
                 algorithm_results[algorithm_name] = results[0]
             except Exception as e:
                 warnings.warn(f"Failed to evaluate {algorithm_name}: {e}", stacklevel=2)
@@ -342,7 +342,7 @@ class AlgorithmBenchmarkService:
             max_combinations = max(5, int(remaining_time / 10))  # ~10s per combination
 
             optimized_results = self.hyperparameter_search(
-                best_algorithm, dataset, max_combinations=max_combinations
+                best_algorithm, data_collection, max_combinations=max_combinations
             )
 
             if (
@@ -372,7 +372,7 @@ class AlgorithmBenchmarkService:
             if not result_list:
                 continue
 
-            # Average metrics across runs
+            # Average measurements across runs
             avg_overall = np.mean([r.overall_score() for r in result_list])
             avg_efficiency = np.mean([r.efficiency_score() for r in result_list])
             avg_accuracy = np.mean([r.accuracy for r in result_list])
@@ -408,20 +408,20 @@ class AlgorithmBenchmarkService:
         return report
 
     def _measure_performance(
-        self, adapter, dataset: Dataset, algorithm_name: str, dataset_name: str
+        self, adapter, data_collection: DataCollection, algorithm_name: str, data_collection_name: str
     ) -> BenchmarkResult:
-        """Measure comprehensive performance metrics for an algorithm."""
+        """Measure comprehensive performance measurements for an algorithm."""
         import pickle
 
         import psutil
 
         result = BenchmarkResult(
-            algorithm_name=algorithm_name, dataset_name=dataset_name
+            algorithm_name=algorithm_name, data_collection_name=data_collection_name
         )
 
-        # Dataset characteristics
-        X = dataset.data
-        y = getattr(dataset, "labels", None)
+        # DataCollection characteristics
+        X = data_collection.data
+        y = getattr(data_collection, "labels", None)
 
         result.n_samples, result.n_features = X.shape
         if y is not None:
@@ -433,12 +433,12 @@ class AlgorithmBenchmarkService:
 
         # Measure training time
         start_time = time.time()
-        adapter.fit(dataset)
+        adapter.fit(data_collection)
         result.fit_time = time.time() - start_time
 
         # Measure prediction time
         start_time = time.time()
-        detection_result = adapter.detect(dataset)
+        processing_result = adapter.detect(data_collection)
         result.predict_time = time.time() - start_time
 
         result.total_time = result.fit_time + result.predict_time
@@ -447,17 +447,17 @@ class AlgorithmBenchmarkService:
         memory_after = process.memory_info().rss / 1024 / 1024  # MB
         result.memory_usage = memory_after - memory_before
 
-        # Measure model size
+        # Measure processor size
         try:
-            model_bytes = pickle.dumps(adapter)
-            result.model_size = len(model_bytes)
+            processor_bytes = pickle.dumps(adapter)
+            result.processor_size = len(processor_bytes)
         except Exception:
-            result.model_size = 0
+            result.processor_size = 0
 
-        # Calculate performance metrics if labels are available
+        # Calculate performance measurements if labels are available
         if y is not None:
-            predictions = detection_result.labels
-            scores = detection_result.scores
+            predictions = processing_result.labels
+            scores = processing_result.scores
 
             try:
                 result.accuracy = accuracy_score(y, predictions)
@@ -471,7 +471,7 @@ class AlgorithmBenchmarkService:
                     result.average_precision = average_precision_score(y, scores)
 
             except Exception as e:
-                warnings.warn(f"Error calculating metrics: {e}", stacklevel=2)
+                warnings.warn(f"Error calculating measurements: {e}", stacklevel=2)
 
         return result
 

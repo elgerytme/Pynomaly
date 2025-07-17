@@ -1,4 +1,4 @@
-"""Advanced visualization service for anomaly detection with interactive charts and plots."""
+"""Advanced visualization service for anomaly processing with interactive charts and plots."""
 
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ class VisualizationType(Enum):
     TSNE_EMBEDDING = "tsne_embedding"
     PCA_PROJECTION = "pca_projection"
     ENSEMBLE_COMPARISON = "ensemble_comparison"
-    DRIFT_DETECTION = "drift_detection"
+    DRIFT_DETECTION = "drift_processing"
     EXPLAINABILITY_PLOT = "explainability_plot"
     DASHBOARD = "dashboard"
 
@@ -157,7 +157,7 @@ class VisualizationResult:
 
 
 class VisualizationService:
-    """Advanced visualization service for anomaly detection."""
+    """Advanced visualization service for anomaly processing."""
 
     def __init__(self, config: VisualizationConfig | None = None):
         """Initialize visualization service.
@@ -203,7 +203,7 @@ class VisualizationService:
         anomaly_scores: np.ndarray,
         labels: np.ndarray | None = None,
         feature_names: list[str] | None = None,
-        title: str = "Anomaly Detection Results",
+        title: str = "Anomaly Processing Results",
         use_3d: bool = False,
     ) -> VisualizationResult:
         """Create scatter plot showing anomalies.
@@ -271,7 +271,7 @@ class VisualizationService:
         values: np.ndarray,
         anomaly_indices: list[int] | None = None,
         anomaly_scores: np.ndarray | None = None,
-        title: str = "Time Series Anomaly Detection",
+        title: str = "Time Series Anomaly Processing",
     ) -> VisualizationResult:
         """Create time series plot with anomaly highlighting.
 
@@ -812,15 +812,15 @@ class VisualizationService:
 
     async def create_dashboard(
         self,
-        detection_results: list[DetectionResult],
-        datasets: list[Dataset],
+        processing_results: list[DetectionResult],
+        datasets: list[DataCollection],
         detectors: list[Detector],
-        title: str = "Anomaly Detection Dashboard",
+        title: str = "Anomaly Processing Dashboard",
     ) -> VisualizationResult:
         """Create comprehensive dashboard.
 
         Args:
-            detection_results: List of detection results
+            processing_results: List of processing results
             datasets: List of datasets
             detectors: List of detectors
             title: Dashboard title
@@ -839,14 +839,14 @@ class VisualizationService:
                 rows=3,
                 cols=3,
                 subplot_titles=[
-                    "Detection Overview",
+                    "Processing Overview",
                     "Score Distribution",
                     "Time Series",
                     "Detector Performance",
-                    "Dataset Summary",
+                    "DataCollection Summary",
                     "Alert Trends",
                     "Resource Usage",
-                    "Model Health",
+                    "Processor Health",
                     "Recent Activity",
                 ],
                 specs=[
@@ -856,11 +856,11 @@ class VisualizationService:
                 ],
             )
 
-            # 1. Detection Overview (KPIs)
-            total_detections = len(detection_results)
-            total_anomalies = sum(1 for r in detection_results if r.is_anomaly)
+            # 1. Processing Overview (KPIs)
+            total_processings = len(processing_results)
+            total_anomalies = sum(1 for r in processing_results if r.is_anomaly)
             anomaly_rate = (
-                total_anomalies / total_detections if total_detections > 0 else 0
+                total_anomalies / total_processings if total_processings > 0 else 0
             )
 
             fig.add_trace(
@@ -890,7 +890,7 @@ class VisualizationService:
             # 2. Score Distribution
             all_scores = [
                 max(r.scores, key=lambda s: s.value).value
-                for r in detection_results
+                for r in processing_results
                 if r.scores
             ]
             if all_scores:
@@ -901,13 +901,13 @@ class VisualizationService:
                 )
 
             # 3. Time Series of Detections
-            timestamps = [r.timestamp for r in detection_results]
+            timestamps = [r.timestamp for r in processing_results]
             anomaly_counts = []
 
             if timestamps:
                 # Group by hour
                 hourly_counts = {}
-                for r in detection_results:
+                for r in processing_results:
                     hour = r.timestamp.replace(minute=0, second=0, microsecond=0)
                     if hour not in hourly_counts:
                         hourly_counts[hour] = 0
@@ -932,7 +932,7 @@ class VisualizationService:
             detector_stats = {}
             for detector in detectors:
                 detector_results = [
-                    r for r in detection_results if r.detector_id == detector.id
+                    r for r in processing_results if r.detector_id == detector.id
                 ]
                 if detector_results:
                     avg_score = np.mean(
@@ -955,17 +955,17 @@ class VisualizationService:
                     col=1,
                 )
 
-            # 5. Dataset Summary
-            dataset_sizes = [
+            # 5. DataCollection Summary
+            data_collection_sizes = [
                 len(d.data) if hasattr(d, "data") and d.data is not None else 0
                 for d in datasets
             ]
-            dataset_names = [f"Dataset {i + 1}" for i in range(len(datasets))]
+            data_collection_names = [f"DataCollection {i + 1}" for i in range(len(datasets))]
 
-            if dataset_sizes:
+            if data_collection_sizes:
                 fig.add_trace(
                     go.Pie(
-                        labels=dataset_names, values=dataset_sizes, name="Dataset Sizes"
+                        labels=data_collection_names, values=data_collection_sizes, name="DataCollection Sizes"
                     ),
                     row=2,
                     col=2,
@@ -974,7 +974,7 @@ class VisualizationService:
             # 6. Alert Trends (last 24 hours)
             recent_results = [
                 r
-                for r in detection_results
+                for r in processing_results
                 if r.timestamp > datetime.utcnow() - timedelta(hours=24)
             ]
 
@@ -1009,7 +1009,7 @@ class VisualizationService:
                 col=1,
             )
 
-            # 8. Model Health Indicator
+            # 8. Processor Health Indicator
             health_score = 85  # Simulated
 
             fig.add_trace(
@@ -1017,7 +1017,7 @@ class VisualizationService:
                     mode="gauge+number",
                     value=health_score,
                     domain={"x": [0, 1], "y": [0, 1]},
-                    title={"text": "Model Health Score"},
+                    title={"text": "Processor Health Score"},
                     gauge={
                         "axis": {"range": [None, 100]},
                         "bar": {
@@ -1041,7 +1041,7 @@ class VisualizationService:
 
             # 9. Recent Activity Table
             recent_activity = []
-            for r in detection_results[-10:]:  # Last 10 results
+            for r in processing_results[-10:]:  # Last 10 results
                 recent_activity.append(
                     [
                         r.timestamp.strftime("%H:%M:%S"),
@@ -1090,11 +1090,11 @@ class VisualizationService:
                 json_data=json_data,
                 interactive=True,
                 metadata={
-                    "total_detections": total_detections,
+                    "total_processings": total_processings,
                     "total_anomalies": total_anomalies,
                     "anomaly_rate": anomaly_rate,
                     "n_detectors": len(detectors),
-                    "n_datasets": len(datasets),
+                    "n_data_collections": len(datasets),
                 },
             )
 

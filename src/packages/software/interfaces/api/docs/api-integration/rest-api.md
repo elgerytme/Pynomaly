@@ -1,4 +1,4 @@
-# Pynomaly REST API Documentation
+# Software REST API Documentation
 
 🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🔌 [API Integration](README.md) > 🌐 REST API
 
@@ -7,14 +7,14 @@
 
 ## Overview
 
-The Pynomaly REST API provides a comprehensive interface for anomaly detection operations, including detector management, dataset handling, model training, and real-time prediction. Built with FastAPI, the API follows RESTful principles and returns JSON responses.
+The Software REST API provides a comprehensive interface for anomaly processing operations, including detector management, data_collection handling, processor training, and real-time prediction. Built with FastAPI, the API follows RESTful principles and returns JSON responses.
 
 **🏗️ Built with Modern Stack:**
 - **FastAPI** - High-performance async web framework
 - **Pydantic** - Data validation and serialization  
 - **Hatch** - Modern build system and environment management
 - **OpenTelemetry** - Observability and monitoring
-- **Prometheus** - Metrics collection
+- **Prometheus** - Measurements collection
 
 ## Base URLs
 
@@ -46,13 +46,13 @@ make prod-api           # Production mode
 
 ```bash
 # Direct uvicorn
-uvicorn pynomaly.presentation.api.app:app --reload
+uvicorn software.presentation.api.app:app --reload
 
 # Using CLI (if installed)
-pynomaly server start
+software server start
 
 # Alternative CLI
-python scripts/pynomaly_cli.py server start
+python scripts/software_cli.py server start
 ```
 
 ### Docker Deployment
@@ -60,7 +60,7 @@ python scripts/pynomaly_cli.py server start
 ```bash
 # Build and run with Docker
 make docker
-docker run -p 8000:8000 pynomaly:latest
+docker run -p 8000:8000 software:latest
 
 # Or use docker-compose
 docker-compose up -d
@@ -73,8 +73,8 @@ The API is organized into the following endpoint groups:
 - **`/api/health`** - Health checks and system status
 - **`/api/auth`** - Authentication and authorization
 - **`/api/detectors`** - Anomaly detector management
-- **`/api/datasets`** - Dataset upload and management
-- **`/api/detection`** - Training and anomaly detection
+- **`/api/datasets`** - DataCollection upload and management
+- **`/api/processing`** - Training and anomaly processing
 - **`/api/experiments`** - Experiment tracking and comparison
 - **`/api/export`** - Data export and business intelligence
 - **`/api/performance`** - Performance monitoring and optimization
@@ -237,7 +237,7 @@ curl -H "Authorization: Bearer TOKEN" \
 [
   {
     "id": "123e4567-e89b-12d3-a456-426614174000",
-    "name": "Fraud Detection Model",
+    "name": "Fraud Processing Processor",
     "algorithm_name": "IsolationForest",
     "contamination_rate": 0.1,
     "is_fitted": true,
@@ -245,7 +245,7 @@ curl -H "Authorization: Bearer TOKEN" \
       "n_estimators": 100,
       "max_samples": "auto"
     },
-    "description": "Model for detecting fraudulent transactions",
+    "description": "Processor for detecting fraudulent transactions",
     "created_at": "2024-01-01T12:00:00Z",
     "updated_at": "2024-01-01T12:30:00Z"
   }
@@ -258,7 +258,7 @@ Create a new anomaly detector.
 **Request Body:**
 ```json
 {
-  "name": "Fraud Detection Model",
+  "name": "Fraud Processing Processor",
   "algorithm_name": "IsolationForest",
   "contamination_rate": 0.1,
   "hyperparameters": {
@@ -266,7 +266,7 @@ Create a new anomaly detector.
     "max_samples": "auto",
     "contamination": 0.1
   },
-  "description": "Model for detecting fraudulent transactions"
+  "description": "Processor for detecting fraudulent transactions"
 }
 ```
 
@@ -274,7 +274,7 @@ Create a new anomaly detector.
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
-  "name": "Fraud Detection Model",
+  "name": "Fraud Processing Processor",
   "algorithm_name": "IsolationForest",
   "contamination_rate": 0.1,
   "is_fitted": false,
@@ -300,8 +300,8 @@ Update detector configuration.
 **Request Body:**
 ```json
 {
-  "name": "Updated Fraud Detection Model",
-  "description": "Enhanced model with better parameters",
+  "name": "Updated Fraud Processing Processor",
+  "description": "Enhanced processor with better parameters",
   "hyperparameters": {
     "n_estimators": 200,
     "max_samples": 0.8
@@ -317,7 +317,7 @@ curl -X DELETE -H "Authorization: Bearer TOKEN" \
   "http://localhost:8000/api/detectors/123e4567-e89b-12d3-a456-426614174000"
 ```
 
-### Dataset Management
+### DataCollection Management
 
 #### GET /datasets
 List all datasets with optional filtering.
@@ -338,7 +338,7 @@ curl -H "Authorization: Bearer TOKEN" \
   {
     "id": "456e7890-e89b-12d3-a456-426614174000",
     "name": "Transaction Data",
-    "description": "Credit card transactions for fraud detection",
+    "description": "Credit card transactions for fraud processing",
     "file_format": "csv",
     "n_samples": 10000,
     "n_features": 15,
@@ -351,7 +351,7 @@ curl -H "Authorization: Bearer TOKEN" \
 ```
 
 #### POST /datasets
-Upload a new dataset.
+Upload a new data_collection.
 
 **Content-Type: multipart/form-data**
 
@@ -359,7 +359,7 @@ Upload a new dataset.
 curl -X POST -H "Authorization: Bearer TOKEN" \
   -F "file=@transaction_data.csv" \
   -F "name=Transaction Data" \
-  -F "description=Credit card transactions for fraud detection" \
+  -F "description=Credit card transactions for fraud processing" \
   -F "target_column=is_fraud" \
   "http://localhost:8000/api/datasets"
 ```
@@ -369,7 +369,7 @@ curl -X POST -H "Authorization: Bearer TOKEN" \
 {
   "id": "456e7890-e89b-12d3-a456-426614174000",
   "name": "Transaction Data",
-  "description": "Credit card transactions for fraud detection",
+  "description": "Credit card transactions for fraud processing",
   "file_format": "csv",
   "n_samples": 10000,
   "n_features": 15,
@@ -380,11 +380,11 @@ curl -X POST -H "Authorization: Bearer TOKEN" \
 }
 ```
 
-#### GET /datasets/{dataset_id}
-Get details of a specific dataset.
+#### GET /datasets/{data_collection_id}
+Get details of a specific data_collection.
 
-#### GET /datasets/{dataset_id}/sample
-Get a sample of data from the dataset.
+#### GET /datasets/{data_collection_id}/sample
+Get a sample of data from the data_collection.
 
 **Parameters:**
 - `size` (integer, optional) - Number of samples (1-1000, default: 10)
@@ -415,22 +415,22 @@ curl -H "Authorization: Bearer TOKEN" \
 }
 ```
 
-#### DELETE /datasets/{dataset_id}
-Delete a dataset and all associated data.
+#### DELETE /datasets/{data_collection_id}
+Delete a data_collection and all associated data.
 
-### Anomaly Detection
+### Anomaly Processing
 
-#### POST /detection/train
-Train a detector on a specific dataset.
+#### POST /processing/train
+Train a detector on a specific data_collection.
 
 **Request Body:**
 ```json
 {
   "detector_id": "123e4567-e89b-12d3-a456-426614174000",
-  "dataset_id": "456e7890-e89b-12d3-a456-426614174000",
+  "data_collection_id": "456e7890-e89b-12d3-a456-426614174000",
   "validation_split": 0.2,
   "cross_validation": false,
-  "save_model": true
+  "save_processor": true
 }
 ```
 
@@ -439,13 +439,13 @@ Train a detector on a specific dataset.
 {
   "success": true,
   "training_time_ms": 5420,
-  "validation_metrics": {
+  "validation_measurements": {
     "precision": 0.92,
     "recall": 0.88,
     "f1_score": 0.90,
     "auc_score": 0.94
   },
-  "model_info": {
+  "processor_info": {
     "n_samples_trained": 8000,
     "n_features": 15,
     "algorithm": "IsolationForest"
@@ -453,14 +453,14 @@ Train a detector on a specific dataset.
 }
 ```
 
-#### POST /detection/predict
-Run anomaly detection on data.
+#### POST /processing/predict
+Run anomaly processing on data.
 
-**Request Body (using dataset):**
+**Request Body (using data_collection):**
 ```json
 {
   "detector_id": "123e4567-e89b-12d3-a456-426614174000",
-  "dataset_id": "456e7890-e89b-12d3-a456-426614174000",
+  "data_collection_id": "456e7890-e89b-12d3-a456-426614174000",
   "threshold": 0.5,
   "return_scores": true
 }
@@ -504,7 +504,7 @@ Run anomaly detection on data.
 }
 ```
 
-#### POST /detection/explain
+#### POST /processing/explain
 Get explanations for anomaly predictions using SHAP or LIME.
 
 **Request Body:**
@@ -553,11 +553,11 @@ curl -H "Authorization: Bearer TOKEN" \
 [
   {
     "id": "789e1234-e89b-12d3-a456-426614174000",
-    "name": "Fraud Detection Experiment 1",
-    "description": "Testing different algorithms for fraud detection",
+    "name": "Fraud Processing Experiment 1",
+    "description": "Testing different algorithms for fraud processing",
     "tags": ["fraud", "comparison"],
     "created_at": "2024-01-01T10:00:00Z",
-    "metrics": {
+    "measurements": {
       "best_algorithm": "IsolationForest",
       "best_f1_score": 0.90
     }
@@ -571,20 +571,20 @@ Create a new experiment.
 **Request Body:**
 ```json
 {
-  "name": "Fraud Detection Experiment 1",
-  "description": "Testing different algorithms for fraud detection",
+  "name": "Fraud Processing Experiment 1",
+  "description": "Testing different algorithms for fraud processing",
   "tags": ["fraud", "comparison"]
 }
 ```
 
 ### Performance Monitoring
 
-#### GET /performance/metrics
-Get current performance metrics.
+#### GET /performance/measurements
+Get current performance measurements.
 
 ```bash
 curl -H "Authorization: Bearer TOKEN" \
-  "http://localhost:8000/api/performance/metrics"
+  "http://localhost:8000/api/performance/measurements"
 ```
 
 **Response:**
@@ -615,25 +615,25 @@ client = PynomalyClient(
 
 # Create detector
 detector = client.detectors.create(
-    name="Fraud Detection",
+    name="Fraud Processing",
     algorithm_name="IsolationForest",
     contamination_rate=0.1
 )
 
-# Upload dataset
-dataset = client.datasets.upload(
+# Upload data_collection
+data_collection = client.datasets.upload(
     file_path="data.csv",
     name="Transaction Data"
 )
 
 # Train detector
-training_result = client.detection.train(
+training_result = client.processing.train(
     detector_id=detector.id,
-    dataset_id=dataset.id
+    data_collection_id=data_collection.id
 )
 
 # Make predictions
-predictions = client.detection.predict(
+predictions = client.processing.predict(
     detector_id=detector.id,
     data=[{"amount": 1500.00, "hour": 3}]
 )
@@ -642,7 +642,7 @@ predictions = client.detection.predict(
 ### JavaScript/Node.js SDK
 
 ```javascript
-const PynomalyClient = require('pynomaly-client');
+const PynomalyClient = require('software-client');
 
 const client = new PynomalyClient({
   baseUrl: 'http://localhost:8000/api',
@@ -652,13 +652,13 @@ const client = new PynomalyClient({
 
 // Create detector
 const detector = await client.detectors.create({
-  name: 'Fraud Detection',
+  name: 'Fraud Processing',
   algorithm_name: 'IsolationForest',
   contamination_rate: 0.1
 });
 
 // Make predictions
-const predictions = await client.detection.predict({
+const predictions = await client.processing.predict({
   detector_id: detector.id,
   data: [{ amount: 1500.00, hour: 3 }]
 });

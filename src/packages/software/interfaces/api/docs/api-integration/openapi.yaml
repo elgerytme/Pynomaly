@@ -1,17 +1,17 @@
 openapi: 3.1.1
 info:
-  title: Pynomaly API
+  title: Software API
   description: |
-    **Pynomaly** is a state-of-the-art anomaly detection platform that provides a unified interface
+    **Software** is a state-of-the-art anomaly processing platform that provides a unified interface
     for multiple machine learning frameworks and algorithms.
 
     ## Features
-    - 40+ anomaly detection algorithms from PyOD, scikit-learn, PyTorch, TensorFlow, and JAX
+    - 40+ anomaly processing algorithms from PyOD, scikit-learn, PyTorch, TensorFlow, and JAX
     - AutoML capabilities with intelligent algorithm selection and hyperparameter optimization
-    - Real-time streaming anomaly detection with Kafka and Redis connectors
-    - Model explainability with SHAP and LIME integration
+    - Real-time streaming anomaly processing with Kafka and Redis connectors
+    - Processor explainability with SHAP and LIME integration
     - Distributed processing for horizontal scaling
-    - Production-ready monitoring, health checks, and performance metrics
+    - Production-ready monitoring, health checks, and performance measurements
 
     ## Authentication
     All API endpoints except health checks require authentication using JWT tokens.
@@ -277,8 +277,8 @@ paths:
     post:
       tags:
         - Datasets
-      summary: Upload Dataset
-      description: Upload a new dataset for anomaly detection
+      summary: Upload DataCollection
+      description: Upload a new data_collection for anomaly processing
       requestBody:
         required: true
         content:
@@ -287,7 +287,7 @@ paths:
               $ref: '#/components/schemas/UploadDatasetRequest'
       responses:
         '201':
-          description: Dataset uploaded successfully
+          description: DataCollection uploaded successfully
           content:
             application/json:
               schema:
@@ -301,17 +301,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /datasets/{dataset_id}:
+  /datasets/{data_collection_id}:
     get:
       tags:
         - Datasets
-      summary: Get Dataset
-      description: Retrieve details of a specific dataset
+      summary: Get DataCollection
+      description: Retrieve details of a specific data_collection
       parameters:
         - $ref: '#/components/parameters/DatasetId'
       responses:
         '200':
-          description: Dataset details
+          description: DataCollection details
           content:
             application/json:
               schema:
@@ -322,22 +322,22 @@ paths:
     delete:
       tags:
         - Datasets
-      summary: Delete Dataset
-      description: Delete a dataset and all associated data
+      summary: Delete DataCollection
+      description: Delete a data_collection and all associated data
       parameters:
         - $ref: '#/components/parameters/DatasetId'
       responses:
         '204':
-          description: Dataset deleted successfully
+          description: DataCollection deleted successfully
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /datasets/{dataset_id}/sample:
+  /datasets/{data_collection_id}/sample:
     get:
       tags:
         - Datasets
-      summary: Get Dataset Sample
-      description: Retrieve a sample of data from the dataset
+      summary: Get DataCollection Sample
+      description: Retrieve a sample of data from the data_collection
       parameters:
         - $ref: '#/components/parameters/DatasetId'
         - name: size
@@ -350,18 +350,18 @@ paths:
             default: 10
       responses:
         '200':
-          description: Dataset sample
+          description: DataCollection sample
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DatasetSampleResponse'
 
-  /detection/train:
+  /processing/train:
     post:
       tags:
-        - Detection
+        - Processing
       summary: Train Detector
-      description: Train a detector on a specific dataset
+      description: Train a detector on a specific data_collection
       requestBody:
         required: true
         content:
@@ -380,12 +380,12 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /detection/predict:
+  /processing/predict:
     post:
       tags:
-        - Detection
+        - Processing
       summary: Detect Anomalies
-      description: Run anomaly detection on data using a trained detector
+      description: Run anomaly processing on data using a trained detector
       requestBody:
         required: true
         content:
@@ -394,7 +394,7 @@ paths:
               $ref: '#/components/schemas/DetectionRequest'
       responses:
         '200':
-          description: Detection completed successfully
+          description: Processing completed successfully
           content:
             application/json:
               schema:
@@ -404,10 +404,10 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /detection/explain:
+  /processing/explain:
     post:
       tags:
-        - Detection
+        - Processing
       summary: Explain Predictions
       description: Get explanations for anomaly predictions using SHAP or LIME
       requestBody:
@@ -444,7 +444,7 @@ paths:
       tags:
         - Experiments
       summary: Create Experiment
-      description: Create a new experiment to track model performance
+      description: Create a new experiment to track processor performance
       requestBody:
         required: true
         content:
@@ -459,15 +459,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ExperimentResponse'
 
-  /performance/metrics:
+  /performance/measurements:
     get:
       tags:
         - Performance
-      summary: Get Performance Metrics
-      description: Retrieve current performance metrics
+      summary: Get Performance Measurements
+      description: Retrieve current performance measurements
       responses:
         '200':
-          description: Performance metrics
+          description: Performance measurements
           content:
             application/json:
               schema:
@@ -491,10 +491,10 @@ components:
         format: uuid
 
     DatasetId:
-      name: dataset_id
+      name: data_collection_id
       in: path
       required: true
-      description: Unique identifier for the dataset
+      description: Unique identifier for the data_collection
       schema:
         type: string
         format: uuid
@@ -656,7 +656,7 @@ components:
         name:
           type: string
           description: Human-readable detector name
-          example: "Fraud Detection Model"
+          example: "Fraud Processing Processor"
         algorithm_name:
           type: string
           description: Algorithm to use
@@ -741,13 +741,13 @@ components:
         file:
           type: string
           format: binary
-          description: Dataset file (CSV, Parquet, JSON)
+          description: DataCollection file (CSV, Parquet, JSON)
         name:
           type: string
-          description: Dataset name
+          description: DataCollection name
         description:
           type: string
-          description: Dataset description
+          description: DataCollection description
         target_column:
           type: string
           description: Name of target column (if any)
@@ -814,12 +814,12 @@ components:
       type: object
       required:
         - detector_id
-        - dataset_id
+        - data_collection_id
       properties:
         detector_id:
           type: string
           format: uuid
-        dataset_id:
+        data_collection_id:
           type: string
           format: uuid
         validation_split:
@@ -830,7 +830,7 @@ components:
         cross_validation:
           type: boolean
           default: false
-        save_model:
+        save_processor:
           type: boolean
           default: true
 
@@ -844,7 +844,7 @@ components:
           type: boolean
         training_time_ms:
           type: number
-        validation_metrics:
+        validation_measurements:
           type: object
           properties:
             precision:
@@ -855,7 +855,7 @@ components:
               type: number
             auc_score:
               type: number
-        model_info:
+        processor_info:
           type: object
 
     DetectionRequest:
@@ -866,14 +866,14 @@ components:
         detector_id:
           type: string
           format: uuid
-        dataset_id:
+        data_collection_id:
           type: string
           format: uuid
         data:
           type: array
           items:
             type: object
-          description: "Data to analyze (alternative to dataset_id)"
+          description: "Data to analyze (alternative to data_collection_id)"
         threshold:
           type: number
           minimum: 0.0
@@ -992,7 +992,7 @@ components:
         created_at:
           type: string
           format: date-time
-        metrics:
+        measurements:
           type: object
 
     PerformanceMetrics:
@@ -1019,10 +1019,10 @@ tags:
   - name: Detectors
     description: Anomaly detector management
   - name: Datasets
-    description: Dataset management and operations
-  - name: Detection
-    description: Anomaly detection operations
+    description: DataCollection management and operations
+  - name: Processing
+    description: Anomaly processing operations
   - name: Experiments
     description: Experiment tracking and management
   - name: Performance
-    description: Performance monitoring and metrics
+    description: Performance monitoring and measurements

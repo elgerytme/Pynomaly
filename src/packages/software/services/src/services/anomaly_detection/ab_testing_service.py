@@ -1,4 +1,4 @@
-"""A/B testing service for model performance comparison and validation."""
+"""A/B testing service for processor performance comparison and validation."""
 
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ class TestConfiguration:
     power_threshold: float = 0.8
     early_stopping_enabled: bool = True
     early_stopping_check_interval_hours: int = 6
-    performance_metrics: list[str] = field(
+    performance_measurements: list[str] = field(
         default_factory=lambda: [
             "accuracy",
             "precision",
@@ -80,8 +80,8 @@ class TestConfiguration:
             "roc_auc",
         ]
     )
-    business_metrics: list[str] = field(default_factory=list)
-    guardrail_metrics: dict[str, float] = field(default_factory=dict)
+    business_measurements: list[str] = field(default_factory=list)
+    guardrail_measurements: dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self):
         """Validate test configuration."""
@@ -108,19 +108,19 @@ class TestConfiguration:
 
 @dataclass
 class ModelVariant:
-    """Model variant in A/B test."""
+    """Processor variant in A/B test."""
 
     variant_id: UUID = field(default_factory=uuid4)
     variant_name: str = ""
-    model: BaseEstimator | None = None
-    model_version: str = "1.0.0"
+    processor: BaseEstimator | None = None
+    processor_version: str = "1.0.0"
     deployment_timestamp: datetime = field(default_factory=datetime.utcnow)
     traffic_allocation: float = 0.5
     is_champion: bool = False
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate model variant."""
+        """Validate processor variant."""
         if not (0.0 <= self.traffic_allocation <= 1.0):
             raise ValueError("Traffic allocation must be between 0.0 and 1.0")
         if not self.variant_name:
@@ -145,14 +145,14 @@ class PredictionRecord:
 
 @dataclass
 class ABTestMetrics:
-    """Metrics collected during A/B test."""
+    """Measurements collected during A/B test."""
 
     variant_id: UUID
     variant_name: str
     total_predictions: int = 0
     correct_predictions: int = 0
-    performance_metrics: dict[str, float] = field(default_factory=dict)
-    business_metrics: dict[str, float] = field(default_factory=dict)
+    performance_measurements: dict[str, float] = field(default_factory=dict)
+    business_measurements: dict[str, float] = field(default_factory=dict)
     confidence_intervals: dict[str, tuple[float, float]] = field(default_factory=dict)
     statistical_tests: dict[str, dict[str, float]] = field(default_factory=dict)
     processing_times: list[float] = field(default_factory=list)
@@ -217,8 +217,8 @@ class ABTestResult:
     test_name: str
     conclusion: TestConclusion
     confidence: float
-    champion_metrics: ABTestMetrics
-    challenger_metrics: ABTestMetrics
+    champion_measurements: ABTestMetrics
+    challenger_measurements: ABTestMetrics
     statistical_tests: list[StatisticalTestResult]
     duration: timedelta
     total_samples: int
@@ -229,9 +229,9 @@ class ABTestResult:
     def get_winning_variant(self) -> UUID | None:
         """Get ID of winning variant."""
         if self.conclusion == TestConclusion.CHAMPION_WINS:
-            return self.champion_metrics.variant_id
+            return self.champion_measurements.variant_id
         elif self.conclusion == TestConclusion.CHALLENGER_WINS:
-            return self.challenger_metrics.variant_id
+            return self.challenger_measurements.variant_id
         return None
 
     def is_actionable(self) -> bool:
@@ -244,7 +244,7 @@ class ABTestResult:
 
 
 class ABTestingService:
-    """Service for conducting A/B tests on model variants.
+    """Service for conducting A/B tests on processor variants.
 
     This service provides comprehensive A/B testing capabilities including:
     - Statistical test design and sample size calculation
@@ -318,39 +318,39 @@ class ABTestingService:
 
     async def design_ab_test(
         self,
-        champion_model: BaseEstimator,
-        challenger_model: BaseEstimator,
+        champion_processor: BaseEstimator,
+        challenger_processor: BaseEstimator,
         test_config: TestConfiguration,
     ) -> UUID:
         """Design and initialize A/B test.
 
         Args:
-            champion_model: Current production model (champion)
-            challenger_model: New model to test (challenger)
+            champion_processor: Current production processor (champion)
+            challenger_processor: New processor to test (challenger)
             test_config: Test configuration
 
         Returns:
             Test ID
         """
         try:
-            # Create model variants
+            # Create processor variants
             champion_variant = ModelVariant(
                 variant_name="champion",
-                model=champion_model,
+                processor=champion_processor,
                 traffic_allocation=test_config.champion_traffic_percentage,
                 is_champion=True,
                 metadata={
                     "role": "champion",
-                    "description": "Current production model",
+                    "description": "Current production processor",
                 },
             )
 
             challenger_variant = ModelVariant(
                 variant_name="challenger",
-                model=challenger_model,
+                processor=challenger_processor,
                 traffic_allocation=test_config.challenger_traffic_percentage,
                 is_champion=False,
-                metadata={"role": "challenger", "description": "New model candidate"},
+                metadata={"role": "challenger", "description": "New processor candidate"},
             )
 
             # Calculate required sample size
@@ -368,7 +368,7 @@ class ABTestingService:
                 ),
             )
 
-            # Initialize metrics
+            # Initialize measurements
             self.prediction_records[ab_test.test_id] = []
 
             # Store test
@@ -431,7 +431,7 @@ class ABTestingService:
         input_features: np.ndarray,
         request_metadata: dict[str, Any] | None = None,
     ) -> tuple[Any, UUID]:
-        """Route prediction request to appropriate model variant.
+        """Route prediction request to appropriate processor variant.
 
         Args:
             test_id: Test ID
@@ -456,15 +456,15 @@ class ABTestingService:
             variant = await self.traffic_router.route_request(test, request_metadata)
 
             # Make prediction
-            prediction = variant.model.predict(input_features.reshape(1, -1))[0]
+            prediction = variant.processor.predict(input_features.reshape(1, -1))[0]
 
             # Calculate confidence if available
             confidence = 0.0
-            if hasattr(variant.model, "predict_proba"):
-                proba = variant.model.predict_proba(input_features.reshape(1, -1))[0]
+            if hasattr(variant.processor, "predict_proba"):
+                proba = variant.processor.predict_proba(input_features.reshape(1, -1))[0]
                 confidence = float(np.max(proba))
-            elif hasattr(variant.model, "decision_function"):
-                decision = variant.model.decision_function(
+            elif hasattr(variant.processor, "decision_function"):
+                decision = variant.processor.decision_function(
                     input_features.reshape(1, -1)
                 )[0]
                 confidence = float(abs(decision))
@@ -537,7 +537,7 @@ class ABTestingService:
             test_id: Test ID
 
         Returns:
-            Dictionary of variant metrics
+            Dictionary of variant measurements
         """
         if test_id not in self.active_tests:
             raise ValueError(f"Test {test_id} not found")
@@ -554,15 +554,15 @@ class ABTestingService:
                 r for r in records if r.variant_id == test.challenger_variant.variant_id
             ]
 
-            # Calculate metrics for each variant
-            champion_metrics = await self._calculate_variant_metrics(
+            # Calculate measurements for each variant
+            champion_measurements = await self._calculate_variant_measurements(
                 test.champion_variant, champion_records, test.configuration
             )
-            challenger_metrics = await self._calculate_variant_metrics(
+            challenger_measurements = await self._calculate_variant_measurements(
                 test.challenger_variant, challenger_records, test.configuration
             )
 
-            return {"champion": champion_metrics, "challenger": challenger_metrics}
+            return {"champion": champion_measurements, "challenger": challenger_measurements}
 
         except Exception as e:
             logger.error(f"Failed to analyze test performance for {test_id}: {e}")
@@ -585,23 +585,23 @@ class ABTestingService:
         test = self.active_tests[test_id]
 
         try:
-            # Get current metrics
-            metrics = await self.analyze_test_performance(test_id)
-            champion_metrics = metrics["champion"]
-            challenger_metrics = metrics["challenger"]
+            # Get current measurements
+            measurements = await self.analyze_test_performance(test_id)
+            champion_measurements = measurements["champion"]
+            challenger_measurements = measurements["challenger"]
 
             # Perform statistical tests
             test_results = []
 
-            for metric_name in test.configuration.performance_metrics:
+            for metric_name in test.configuration.performance_measurements:
                 if (
-                    metric_name in champion_metrics.performance_metrics
-                    and metric_name in challenger_metrics.performance_metrics
+                    metric_name in champion_measurements.performance_measurements
+                    and metric_name in challenger_measurements.performance_measurements
                 ):
-                    result = await self.statistical_analyzer.compare_metrics(
+                    result = await self.statistical_analyzer.compare_measurements(
                         metric_name,
-                        champion_metrics,
-                        challenger_metrics,
+                        champion_measurements,
+                        challenger_measurements,
                         test.configuration.significance_level,
                     )
                     test_results.append(result)
@@ -634,7 +634,7 @@ class ABTestingService:
                 return None
 
             # Generate final result
-            metrics = await self.analyze_test_performance(test_id)
+            measurements = await self.analyze_test_performance(test_id)
             statistical_tests = await self.check_statistical_significance(test_id)
 
             # Determine conclusion
@@ -647,12 +647,12 @@ class ABTestingService:
 
             # Generate recommendation
             recommendation = self._generate_recommendation(
-                conclusion, statistical_tests, metrics
+                conclusion, statistical_tests, measurements
             )
 
             # Risk assessment
             risk_assessment = await self._assess_deployment_risk(
-                metrics["challenger"], test.configuration
+                measurements["challenger"], test.configuration
             )
 
             result = ABTestResult(
@@ -660,8 +660,8 @@ class ABTestingService:
                 test_name=test.test_name,
                 conclusion=conclusion,
                 confidence=confidence,
-                champion_metrics=metrics["champion"],
-                challenger_metrics=metrics["challenger"],
+                champion_measurements=measurements["champion"],
+                challenger_measurements=measurements["challenger"],
                 statistical_tests=statistical_tests,
                 duration=datetime.utcnow() - test.started_at,
                 total_samples=len(self.prediction_records.get(test_id, [])),
@@ -751,16 +751,16 @@ class ABTestingService:
                 },
             }
 
-            # Add current metrics if available
-            if len(records) > 100:  # Minimum for meaningful metrics
+            # Add current measurements if available
+            if len(records) > 100:  # Minimum for meaningful measurements
                 try:
-                    current_metrics = await self.analyze_test_performance(test_id)
+                    current_measurements = await self.analyze_test_performance(test_id)
                     status["current_performance"] = {
-                        "champion": current_metrics["champion"].performance_metrics,
-                        "challenger": current_metrics["challenger"].performance_metrics,
+                        "champion": current_measurements["champion"].performance_measurements,
+                        "challenger": current_measurements["challenger"].performance_measurements,
                     }
                 except Exception as e:
-                    logger.warning(f"Failed to get current metrics: {e}")
+                    logger.warning(f"Failed to get current measurements: {e}")
 
             return status
 
@@ -787,13 +787,13 @@ class ABTestingService:
 
         return max(int(n), config.minimum_sample_size)
 
-    async def _calculate_variant_metrics(
+    async def _calculate_variant_measurements(
         self,
         variant: ModelVariant,
         records: list[PredictionRecord],
         config: TestConfiguration,
     ) -> ABTestMetrics:
-        """Calculate metrics for a variant."""
+        """Calculate measurements for a variant."""
         if not records:
             return ABTestMetrics(
                 variant_id=variant.variant_id, variant_name=variant.variant_name
@@ -802,7 +802,7 @@ class ABTestingService:
         # Filter records with feedback
         feedback_records = [r for r in records if r.feedback_received]
 
-        metrics = ABTestMetrics(
+        measurements = ABTestMetrics(
             variant_id=variant.variant_id,
             variant_name=variant.variant_name,
             total_predictions=len(records),
@@ -810,40 +810,40 @@ class ABTestingService:
         )
 
         if feedback_records:
-            # Calculate performance metrics
+            # Calculate performance measurements
             y_true = [r.actual_label for r in feedback_records]
             y_pred = [r.prediction for r in feedback_records]
 
             try:
-                if "accuracy" in config.performance_metrics:
-                    metrics.performance_metrics["accuracy"] = accuracy_score(
+                if "accuracy" in config.performance_measurements:
+                    measurements.performance_measurements["accuracy"] = accuracy_score(
                         y_true, y_pred
                     )
 
-                if "precision" in config.performance_metrics:
-                    metrics.performance_metrics["precision"] = precision_score(
+                if "precision" in config.performance_measurements:
+                    measurements.performance_measurements["precision"] = precision_score(
                         y_true, y_pred, average="weighted", zero_division=0
                     )
 
-                if "recall" in config.performance_metrics:
-                    metrics.performance_metrics["recall"] = recall_score(
+                if "recall" in config.performance_measurements:
+                    measurements.performance_measurements["recall"] = recall_score(
                         y_true, y_pred, average="weighted", zero_division=0
                     )
 
-                if "f1_score" in config.performance_metrics:
-                    metrics.performance_metrics["f1_score"] = f1_score(
+                if "f1_score" in config.performance_measurements:
+                    measurements.performance_measurements["f1_score"] = f1_score(
                         y_true, y_pred, average="weighted", zero_division=0
                     )
 
                 # Update correct predictions count
-                metrics.correct_predictions = sum(
+                measurements.correct_predictions = sum(
                     1 for t, p in zip(y_true, y_pred, strict=False) if t == p
                 )
 
             except Exception as e:
-                logger.warning(f"Failed to calculate performance metrics: {e}")
+                logger.warning(f"Failed to calculate performance measurements: {e}")
 
-        return metrics
+        return measurements
 
     async def _should_complete_test(self, test: ABTest) -> tuple[bool, str]:
         """Check if test should be completed."""
@@ -928,22 +928,22 @@ class ABTestingService:
         self,
         conclusion: TestConclusion,
         statistical_tests: list[StatisticalTestResult],
-        metrics: dict[str, ABTestMetrics],
+        measurements: dict[str, ABTestMetrics],
     ) -> str:
         """Generate recommendation based on test results."""
         if conclusion == TestConclusion.CHALLENGER_WINS:
-            return "Deploy challenger model to production"
+            return "Deploy challenger processor to production"
         elif conclusion == TestConclusion.CHAMPION_WINS:
-            return "Keep champion model in production"
+            return "Keep champion processor in production"
         elif conclusion == TestConclusion.NO_SIGNIFICANT_DIFFERENCE:
             return "No significant difference detected; consider other factors"
         else:
             return "Test results inconclusive; consider extending test duration"
 
     async def _assess_deployment_risk(
-        self, challenger_metrics: ABTestMetrics, config: TestConfiguration
+        self, challenger_measurements: ABTestMetrics, config: TestConfiguration
     ) -> dict[str, float]:
-        """Assess risk of deploying challenger model."""
+        """Assess risk of deploying challenger processor."""
         risk_factors = {
             "performance_risk": 0.0,
             "stability_risk": 0.0,
@@ -952,27 +952,27 @@ class ABTestingService:
         }
 
         # Performance risk based on confidence intervals
-        if challenger_metrics.confidence_intervals:
+        if challenger_measurements.confidence_intervals:
             # Calculate risk based on lower bounds of confidence intervals
             performance_risk = 0.0
             for _metric, (
                 lower,
                 _upper,
-            ) in challenger_metrics.confidence_intervals.items():
+            ) in challenger_measurements.confidence_intervals.items():
                 if lower < 0.8:  # Threshold for acceptable performance
                     performance_risk += 0.2
             risk_factors["performance_risk"] = min(1.0, performance_risk)
 
         # Stability risk based on processing time variance
-        if challenger_metrics.processing_times:
-            time_variance = np.var(challenger_metrics.processing_times)
+        if challenger_measurements.processing_times:
+            time_variance = np.var(challenger_measurements.processing_times)
             risk_factors["stability_risk"] = min(1.0, time_variance / 1000)  # Normalize
 
         # Business risk (simplified)
         risk_factors["business_risk"] = 0.1  # Baseline business risk
 
         # Operational risk based on error rate
-        risk_factors["operational_risk"] = challenger_metrics.error_rate
+        risk_factors["operational_risk"] = challenger_measurements.error_rate
 
         return risk_factors
 
@@ -1059,7 +1059,7 @@ class ABTestingService:
                     break
 
                 # Check guardrails
-                if test.configuration.guardrail_metrics:
+                if test.configuration.guardrail_measurements:
                     await self.guardrail_monitor.check_guardrails(
                         test_id, test.configuration
                     )
@@ -1078,7 +1078,7 @@ class ABTestingService:
 
 
 class TrafficRouter:
-    """Routes traffic between model variants."""
+    """Routes traffic between processor variants."""
 
     def __init__(self):
         self.test_configurations: dict[UUID, TestConfiguration] = {}
@@ -1111,16 +1111,16 @@ class TrafficRouter:
 class StatisticalAnalyzer:
     """Performs statistical analysis for A/B tests."""
 
-    async def compare_metrics(
+    async def compare_measurements(
         self,
         metric_name: str,
-        champion_metrics: ABTestMetrics,
-        challenger_metrics: ABTestMetrics,
+        champion_measurements: ABTestMetrics,
+        challenger_measurements: ABTestMetrics,
         significance_level: float,
     ) -> StatisticalTestResult:
         """Compare metric between champion and challenger."""
-        champion_value = champion_metrics.performance_metrics.get(metric_name, 0.0)
-        challenger_value = challenger_metrics.performance_metrics.get(metric_name, 0.0)
+        champion_value = champion_measurements.performance_measurements.get(metric_name, 0.0)
+        challenger_value = challenger_measurements.performance_measurements.get(metric_name, 0.0)
 
         # Simplified statistical test (would use actual data points in practice)
         # For now, use normal approximation
@@ -1179,12 +1179,12 @@ class StatisticalAnalyzer:
 
 
 class GuardrailMonitor:
-    """Monitors guardrail metrics during A/B tests."""
+    """Monitors guardrail measurements during A/B tests."""
 
     async def check_guardrails(
         self, test_id: UUID, config: TestConfiguration
     ) -> dict[str, bool]:
-        """Check guardrail metrics for test."""
+        """Check guardrail measurements for test."""
         # Placeholder implementation
         return {"all_guardrails_passing": True}
 

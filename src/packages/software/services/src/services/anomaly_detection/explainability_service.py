@@ -38,7 +38,7 @@ class ExplanationRequest:
     """Request for explanation generation."""
 
     detector_id: str
-    dataset_id: str | None = None
+    data_collection_id: str | None = None
     instance_data: dict[str, Any] | None = None
     instance_indices: list[int] | None = None
     explanation_method: ExplanationMethod = ExplanationMethod.SHAP
@@ -64,7 +64,7 @@ class ApplicationExplainabilityService:
         self,
         domain_explainability_service: DomainExplainabilityService | None = None,
         detector_repository: DetectorRepository | None = None,
-        dataset_repository: DatasetRepository | None = None,
+        data_collection_repository: DatasetRepository | None = None,
         shap_explainer: Any | None = None,
         lime_explainer: Any | None = None,
         feature_analyzer: Any | None = None,
@@ -75,7 +75,7 @@ class ApplicationExplainabilityService:
         Args:
             domain_explainability_service: Domain explainability service
             detector_repository: Repository for detector management
-            dataset_repository: Repository for dataset management
+            data_collection_repository: Repository for data_collection management
             shap_explainer: SHAP explainer (for testing)
             lime_explainer: LIME explainer (for testing)
             feature_analyzer: Feature analyzer (for testing)
@@ -83,7 +83,7 @@ class ApplicationExplainabilityService:
         """
         self.domain_service = domain_explainability_service
         self.detector_repository = detector_repository
-        self.dataset_repository = dataset_repository
+        self.data_collection_repository = data_collection_repository
 
         # For testing compatibility
         self.shap_explainer = shap_explainer
@@ -107,7 +107,7 @@ class ApplicationExplainabilityService:
                     message="Failed to find detector",
                 )
 
-            # Get trained model
+            # Get trained processor
             if not detector.is_trained:
                 return ExplanationResponse(
                     success=False,
@@ -122,19 +122,19 @@ class ApplicationExplainabilityService:
                 instance = np.array(
                     [request.instance_data[name] for name in feature_names]
                 )
-            elif request.dataset_id and request.instance_indices:
-                # Get from dataset
-                dataset = await self.dataset_repository.get_by_id(request.dataset_id)
-                if not dataset:
+            elif request.data_collection_id and request.instance_indices:
+                # Get from data_collection
+                data_collection = await self.data_collection_repository.get_by_id(request.data_collection_id)
+                if not data_collection:
                     return ExplanationResponse(
                         success=False,
-                        error=f"Dataset not found: {request.dataset_id}",
-                        message="Failed to find dataset",
+                        error=f"DataCollection not found: {request.data_collection_id}",
+                        message="Failed to find data_collection",
                     )
 
-                # Get instance from dataset
+                # Get instance from data_collection
                 if not request.instance_indices or request.instance_indices[0] >= len(
-                    dataset.data
+                    data_collection.data
                 ):
                     return ExplanationResponse(
                         success=False,
@@ -142,19 +142,19 @@ class ApplicationExplainabilityService:
                         message="Instance index out of range",
                     )
 
-                instance = dataset.data.iloc[request.instance_indices[0]].values
-                feature_names = dataset.data.columns.tolist()
+                instance = data_collection.data.iloc[request.instance_indices[0]].values
+                feature_names = data_collection.data.columns.tolist()
             else:
                 return ExplanationResponse(
                     success=False,
-                    error="Either instance_data or dataset_id with instance_indices required",
+                    error="Either instance_data or data_collection_id with instance_indices required",
                     message="Insufficient data for explanation",
                 )
 
             # Generate explanation
             explanation = self.domain_service.explain_instance(
                 instance=instance,
-                model=detector.model,
+                processor=detector.processor,
                 feature_names=feature_names,
                 method=request.explanation_method,
                 max_features=request.max_features,
@@ -176,8 +176,8 @@ class ApplicationExplainabilityService:
                 success=False, error=str(e), message="Failed to generate explanation"
             )
 
-    async def explain_model(self, request: ExplanationRequest) -> ExplanationResponse:
-        """Generate global explanation for the model."""
+    async def explain_processor(self, request: ExplanationRequest) -> ExplanationResponse:
+        """Generate global explanation for the processor."""
         try:
             start_time = logger.time() if hasattr(logger, "time") else 0
 
@@ -190,7 +190,7 @@ class ApplicationExplainabilityService:
                     message="Failed to find detector",
                 )
 
-            # Get trained model
+            # Get trained processor
             if not detector.is_trained:
                 return ExplanationResponse(
                     success=False,
@@ -198,25 +198,25 @@ class ApplicationExplainabilityService:
                     message="Detector must be trained before generating explanations",
                 )
 
-            # Get dataset for background data
-            if not request.dataset_id:
+            # Get data_collection for background data
+            if not request.data_collection_id:
                 return ExplanationResponse(
                     success=False,
-                    error="Dataset ID required for global explanation",
+                    error="DataCollection ID required for global explanation",
                     message="Global explanations require background data",
                 )
 
-            dataset = await self.dataset_repository.get_by_id(request.dataset_id)
-            if not dataset:
+            data_collection = await self.data_collection_repository.get_by_id(request.data_collection_id)
+            if not data_collection:
                 return ExplanationResponse(
                     success=False,
-                    error=f"Dataset not found: {request.dataset_id}",
-                    message="Failed to find dataset",
+                    error=f"DataCollection not found: {request.data_collection_id}",
+                    message="Failed to find data_collection",
                 )
 
             # Prepare data
-            data = dataset.data.values
-            feature_names = dataset.data.columns.tolist()
+            data = data_collection.data.values
+            feature_names = data_collection.data.columns.tolist()
 
             # Sample background data if needed
             if len(data) > request.background_samples:
@@ -228,9 +228,9 @@ class ApplicationExplainabilityService:
                 background_data = data
 
             # Generate explanation
-            explanation = self.domain_service.explain_model(
+            explanation = self.domain_service.explain_processor(
                 data=background_data,
-                model=detector.model,
+                processor=detector.processor,
                 feature_names=feature_names,
                 method=request.explanation_method,
                 max_samples=request.background_samples,
@@ -268,7 +268,7 @@ class ApplicationExplainabilityService:
                     message="Failed to find detector",
                 )
 
-            # Get trained model
+            # Get trained processor
             if not detector.is_trained:
                 return ExplanationResponse(
                     success=False,
@@ -276,25 +276,25 @@ class ApplicationExplainabilityService:
                     message="Detector must be trained before generating explanations",
                 )
 
-            # Get dataset and instances
-            if not request.dataset_id or not request.instance_indices:
+            # Get data_collection and instances
+            if not request.data_collection_id or not request.instance_indices:
                 return ExplanationResponse(
                     success=False,
-                    error="Dataset ID and instance indices required for cohort explanation",
+                    error="DataCollection ID and instance indices required for cohort explanation",
                     message="Cohort explanations require specific instances",
                 )
 
-            dataset = await self.dataset_repository.get_by_id(request.dataset_id)
-            if not dataset:
+            data_collection = await self.data_collection_repository.get_by_id(request.data_collection_id)
+            if not data_collection:
                 return ExplanationResponse(
                     success=False,
-                    error=f"Dataset not found: {request.dataset_id}",
-                    message="Failed to find dataset",
+                    error=f"DataCollection not found: {request.data_collection_id}",
+                    message="Failed to find data_collection",
                 )
 
             # Validate indices
             invalid_indices = [
-                i for i in request.instance_indices if i >= len(dataset.data)
+                i for i in request.instance_indices if i >= len(data_collection.data)
             ]
             if invalid_indices:
                 return ExplanationResponse(
@@ -304,14 +304,14 @@ class ApplicationExplainabilityService:
                 )
 
             # Get cohort instances
-            instances = dataset.data.iloc[request.instance_indices].values
-            feature_names = dataset.data.columns.tolist()
-            cohort_id = f"cohort_{request.dataset_id}_{len(request.instance_indices)}"
+            instances = data_collection.data.iloc[request.instance_indices].values
+            feature_names = data_collection.data.columns.tolist()
+            cohort_id = f"cohort_{request.data_collection_id}_{len(request.instance_indices)}"
 
             # Generate explanation
             explanation = self.domain_service.explain_cohort(
                 instances=instances,
-                model=detector.model,
+                processor=detector.processor,
                 feature_names=feature_names,
                 cohort_id=cohort_id,
                 method=request.explanation_method,
@@ -345,7 +345,7 @@ class ApplicationExplainabilityService:
             for method in methods:
                 method_request = ExplanationRequest(
                     detector_id=request.detector_id,
-                    dataset_id=request.dataset_id,
+                    data_collection_id=request.data_collection_id,
                     instance_data=request.instance_data,
                     instance_indices=request.instance_indices,
                     explanation_method=method,
@@ -372,25 +372,25 @@ class ApplicationExplainabilityService:
     async def get_feature_statistics(
         self,
         detector_id: str,
-        dataset_id: str,
+        data_collection_id: str,
         method: ExplanationMethod = ExplanationMethod.SHAP,
         sample_size: int = 100,
     ) -> dict[str, Any]:
         """Get feature statistics across multiple explanations."""
         try:
-            # Get detector and dataset
+            # Get detector and data_collection
             detector = await self.detector_repository.get_by_id(detector_id)
-            dataset = await self.dataset_repository.get_by_id(dataset_id)
+            data_collection = await self.data_collection_repository.get_by_id(data_collection_id)
 
-            if not detector or not dataset:
-                return {"error": "Detector or dataset not found"}
+            if not detector or not data_collection:
+                return {"error": "Detector or data_collection not found"}
 
             if not detector.is_trained:
                 return {"error": "Detector is not trained"}
 
             # Sample instances
-            n_samples = min(sample_size, len(dataset.data))
-            indices = np.random.choice(len(dataset.data), n_samples, replace=False)
+            n_samples = min(sample_size, len(data_collection.data))
+            indices = np.random.choice(len(data_collection.data), n_samples, replace=False)
 
             # Generate explanations for sampled instances
             explanations = []
@@ -398,7 +398,7 @@ class ApplicationExplainabilityService:
                 try:
                     request = ExplanationRequest(
                         detector_id=detector_id,
-                        dataset_id=dataset_id,
+                        data_collection_id=data_collection_id,
                         instance_indices=[int(idx)],
                         explanation_method=method,
                     )
@@ -614,7 +614,7 @@ class ApplicationExplainabilityService:
                     "feature_contributions": {"feature1": 0.5, "feature2": 0.3}
                 }
 
-            comparison_metrics = {
+            comparison_measurements = {
                 "correlation": 0.8,
                 "rank_similarity": 0.7,
                 "magnitude_difference": 0.2,
@@ -627,7 +627,7 @@ class ApplicationExplainabilityService:
 
             return ExplanationComparisonResponseDTO(
                 method_explanations=method_explanations,
-                comparison_metrics=comparison_metrics,
+                comparison_measurements=comparison_measurements,
                 disagreement_analysis=disagreement_analysis,
                 status="success",
                 message="Explanation comparison completed successfully",
@@ -635,7 +635,7 @@ class ApplicationExplainabilityService:
         except Exception as e:
             return ExplanationComparisonResponseDTO(
                 method_explanations={},
-                comparison_metrics={},
+                comparison_measurements={},
                 disagreement_analysis={},
                 status="error",
                 message="Failed to compare explanations",

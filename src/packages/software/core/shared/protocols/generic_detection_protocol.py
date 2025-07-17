@@ -1,4 +1,4 @@
-"""Generic detection protocol for any detection algorithm."""
+"""Generic processing protocol for any processing algorithm."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
 
 # Generic type for input data
 T = TypeVar('T')
-# Generic type for detection results  
+# Generic type for processing results  
 R = TypeVar('R')
 # Generic type for scoring results
 S = TypeVar('S')
@@ -14,10 +14,10 @@ S = TypeVar('S')
 
 @runtime_checkable
 class GenericDetectionProtocol(Protocol, Generic[T, R, S]):
-    """Protocol defining the interface for any detection algorithm.
+    """Protocol defining the interface for any processing algorithm.
 
     This protocol can be implemented by infrastructure adapters
-    for any type of detection (anomaly, fraud, intrusion, malware, etc.).
+    for any type of processing (anomaly, fraud, intrusion, malware, etc.).
     """
 
     @property
@@ -27,7 +27,7 @@ class GenericDetectionProtocol(Protocol, Generic[T, R, S]):
 
     @property
     def algorithm_type(self) -> str:
-        """Get the type of detection algorithm (e.g., 'anomaly', 'fraud')."""
+        """Get the type of processing algorithm (e.g., 'anomaly', 'fraud')."""
         ...
 
     @property
@@ -55,7 +55,7 @@ class GenericDetectionProtocol(Protocol, Generic[T, R, S]):
             data: The data to analyze
 
         Returns:
-            Detection results
+            Processing results
         """
         ...
 
@@ -77,7 +77,7 @@ class GenericDetectionProtocol(Protocol, Generic[T, R, S]):
             data: The data to fit and analyze
 
         Returns:
-            Detection results
+            Processing results
         """
         ...
 
@@ -100,7 +100,7 @@ class GenericDetectionProtocol(Protocol, Generic[T, R, S]):
 
 @runtime_checkable
 class StreamingDetectionProtocol(GenericDetectionProtocol[T, R, S]):
-    """Protocol for detectors that support streaming/online detection."""
+    """Protocol for detectors that support streaming/online processing."""
 
     def partial_fit(self, data: T) -> None:
         """Incrementally fit the detector on new data.
@@ -141,7 +141,7 @@ class ExplainableDetectionProtocol(GenericDetectionProtocol[T, R, S]):
         ...
 
     def feature_importances(self) -> dict[str, float]:
-        """Get feature importances for pattern detection.
+        """Get feature importances for pattern processing.
 
         Returns:
             Dictionary mapping feature names to importance scores
@@ -197,7 +197,7 @@ class BatchDetectionProtocol(GenericDetectionProtocol[T, R, S]):
             data_batches: List of data batches to analyze
 
         Returns:
-            List of detection results for each batch
+            List of processing results for each batch
         """
         ...
 

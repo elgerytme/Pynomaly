@@ -30,11 +30,11 @@ class AnalyticsTimeframe(Enum):
 
 
 class MetricType(Enum):
-    """Types of metrics"""
+    """Types of measurements"""
 
-    DETECTION_VOLUME = "detection_volume"
+    DETECTION_VOLUME = "processing_volume"
     ANOMALY_RATE = "anomaly_rate"
-    MODEL_PERFORMANCE = "model_performance"
+    MODEL_PERFORMANCE = "processor_performance"
     SYSTEM_HEALTH = "system_health"
     USER_ENGAGEMENT = "user_engagement"
     DATA_QUALITY = "data_quality"
@@ -110,7 +110,7 @@ class BusinessInsight:
     confidence: float
 
     # Supporting data
-    metrics: dict[str, Any] = field(default_factory=dict)
+    measurements: dict[str, Any] = field(default_factory=dict)
     recommendations: list[str] = field(default_factory=list)
 
     # Context
@@ -221,11 +221,11 @@ class AdvancedAnalyticsService:
         # Generate sample data based on metric type
         # In production, this would query actual databases
         if query.metric_type == MetricType.DETECTION_VOLUME:
-            return self._generate_detection_volume_data(start_date, end_date)
+            return self._generate_processing_volume_data(start_date, end_date)
         elif query.metric_type == MetricType.ANOMALY_RATE:
             return self._generate_anomaly_rate_data(start_date, end_date)
         elif query.metric_type == MetricType.MODEL_PERFORMANCE:
-            return self._generate_model_performance_data(start_date, end_date)
+            return self._generate_processor_performance_data(start_date, end_date)
         elif query.metric_type == MetricType.SYSTEM_HEALTH:
             return self._generate_system_health_data(start_date, end_date)
         elif query.metric_type == MetricType.USER_ENGAGEMENT:
@@ -240,10 +240,10 @@ class AdvancedAnalyticsService:
     def _generate_detection_volume_data(
         self, start_date: datetime, end_date: datetime
     ) -> pd.DataFrame:
-        """Generate sample detection volume data"""
+        """Generate sample processing volume data"""
         date_range = pd.date_range(start_date, end_date, freq="H")
 
-        # Simulate realistic detection volume with daily patterns
+        # Simulate realistic processing volume with daily patterns
         base_volume = 100
         data = []
 
@@ -262,8 +262,8 @@ class AdvancedAnalyticsService:
             data.append(
                 {
                     "timestamp": timestamp,
-                    "detection_count": max(0, volume),
-                    "model_type": np.random.choice(
+                    "processing_count": max(0, volume),
+                    "processor_type": np.random.choice(
                         ["isolation_forest", "one_class_svm", "autoencoder"]
                     ),
                     "data_source": np.random.choice(["api", "batch", "streaming"]),
@@ -288,17 +288,17 @@ class AdvancedAnalyticsService:
             variation = np.random.normal(0, 0.02)
             anomaly_rate = max(0, min(1, base_rate + variation))
 
-            total_detections = np.random.randint(50, 200)
-            anomalies_detected = int(total_detections * anomaly_rate)
+            total_processings = np.random.randint(50, 200)
+            anomalies_detected = int(total_processings * anomaly_rate)
 
             data.append(
                 {
                     "timestamp": timestamp,
-                    "total_detections": total_detections,
+                    "total_processings": total_processings,
                     "anomalies_detected": anomalies_detected,
                     "anomaly_rate": anomaly_rate,
                     "false_positive_rate": np.random.uniform(0.01, 0.1),
-                    "model_confidence": np.random.uniform(0.7, 0.95),
+                    "processor_confidence": np.random.uniform(0.7, 0.95),
                 }
             )
 
@@ -309,15 +309,15 @@ class AdvancedAnalyticsService:
     def _generate_model_performance_data(
         self, start_date: datetime, end_date: datetime
     ) -> pd.DataFrame:
-        """Generate sample model performance data"""
+        """Generate sample processor performance data"""
         date_range = pd.date_range(start_date, end_date, freq="D")
 
         models = ["isolation_forest", "one_class_svm", "autoencoder", "lstm_anomaly"]
         data = []
 
         for timestamp in date_range:
-            for model in models:
-                # Simulate performance metrics with slight degradation over time
+            for processor in models:
+                # Simulate performance measurements with slight degradation over time
                 days_since_start = (timestamp - start_date).days
                 degradation_factor = max(0.8, 1 - (days_since_start * 0.001))
 
@@ -329,14 +329,14 @@ class AdvancedAnalyticsService:
                 data.append(
                     {
                         "timestamp": timestamp,
-                        "model_name": model,
+                        "processor_name": processor,
                         "accuracy": max(0, min(1, accuracy)),
                         "precision": max(0, min(1, precision)),
                         "recall": max(0, min(1, recall)),
                         "f1_score": max(0, min(1, f1_score)),
                         "training_time_minutes": np.random.uniform(5, 120),
                         "inference_time_ms": np.random.uniform(10, 500),
-                        "model_size_mb": np.random.uniform(1, 100),
+                        "processor_size_mb": np.random.uniform(1, 100),
                     }
                 )
 
@@ -352,7 +352,7 @@ class AdvancedAnalyticsService:
 
         data = []
         for timestamp in date_range:
-            # Simulate system metrics
+            # Simulate system measurements
             cpu_usage = max(0, min(100, np.random.normal(45, 15)))
             memory_usage = max(0, min(100, np.random.normal(60, 20)))
             disk_usage = max(0, min(100, np.random.normal(30, 10)))
@@ -403,7 +403,7 @@ class AdvancedAnalyticsService:
                     "api_calls": api_calls,
                     "session_duration_minutes": np.random.exponential(25),
                     "feature_usage": {
-                        "detection": np.random.randint(100, 500),
+                        "processing": np.random.randint(100, 500),
                         "training": np.random.randint(10, 50),
                         "analysis": np.random.randint(20, 100),
                         "dashboard": np.random.randint(50, 200),
@@ -423,7 +423,7 @@ class AdvancedAnalyticsService:
 
         data = []
         for timestamp in date_range:
-            # Data quality metrics
+            # Data quality measurements
             completeness = np.random.normal(0.95, 0.05)
             accuracy = np.random.normal(0.92, 0.04)
             consistency = np.random.normal(0.88, 0.06)
@@ -597,7 +597,7 @@ class AdvancedAnalyticsService:
                 values = data[column].dropna()
 
                 if len(values) >= 10:  # Need sufficient data points
-                    # Use statistical method (IQR) for anomaly detection
+                    # Use statistical method (IQR) for anomaly processing
                     Q1 = values.quantile(0.25)
                     Q3 = values.quantile(0.75)
                     IQR = Q3 - Q1
@@ -758,7 +758,7 @@ class AdvancedAnalyticsService:
         insights = []
 
         try:
-            # Analyze detection volume trends
+            # Analyze processing volume trends
             volume_query = AnalyticsQuery(
                 metric_type=MetricType.DETECTION_VOLUME,
                 timeframe=timeframe,
@@ -767,7 +767,7 @@ class AdvancedAnalyticsService:
             )
             volume_result = await self.execute_analytics_query(volume_query)
 
-            # Generate insights from detection volume
+            # Generate insights from processing volume
             if volume_result.trends:
                 for metric, trend in volume_result.trends.items():
                     if abs(trend["percent_change"]) > 20:  # Significant change
@@ -782,14 +782,14 @@ class AdvancedAnalyticsService:
                             category="operational",
                             severity=severity,
                             confidence=0.8,
-                            metrics={"trend": trend},
+                            measurements={"trend": trend},
                             recommendations=self._generate_volume_recommendations(
                                 trend
                             ),
                         )
                         insights.append(insight)
 
-            # Analyze model performance
+            # Analyze processor performance
             perf_query = AnalyticsQuery(
                 metric_type=MetricType.MODEL_PERFORMANCE,
                 timeframe=timeframe,
@@ -797,7 +797,7 @@ class AdvancedAnalyticsService:
             )
             perf_result = await self.execute_analytics_query(perf_query)
 
-            # Check for model degradation
+            # Check for processor degradation
             if perf_result.trends:
                 for metric, trend in perf_result.trends.items():
                     if (
@@ -805,17 +805,17 @@ class AdvancedAnalyticsService:
                         and "accuracy" in metric.lower()
                     ):
                         insight = BusinessInsight(
-                            insight_id=f"model_degradation_{metric}",
-                            title="Model performance degradation detected",
-                            description=f"Model {metric} has decreased by {abs(trend['percent_change']):.1f}%",
+                            insight_id=f"processor_degradation_{metric}",
+                            title="Processor performance degradation detected",
+                            description=f"Processor {metric} has decreased by {abs(trend['percent_change']):.1f}%",
                             category="ml_ops",
                             severity="high",
                             confidence=0.9,
-                            metrics={"performance_trend": trend},
+                            measurements={"performance_trend": trend},
                             recommendations=[
                                 "Consider retraining models with recent data",
                                 "Review data quality and distribution changes",
-                                "Implement model performance monitoring alerts",
+                                "Implement processor performance monitoring alerts",
                             ],
                         )
                         insights.append(insight)
@@ -842,7 +842,7 @@ class AdvancedAnalyticsService:
                         category="infrastructure",
                         severity="critical",
                         confidence=0.95,
-                        metrics={"anomaly_count": len(critical_anomalies)},
+                        measurements={"anomaly_count": len(critical_anomalies)},
                         recommendations=[
                             "Investigate system performance issues",
                             "Check resource utilization and scaling policies",
@@ -871,7 +871,7 @@ class AdvancedAnalyticsService:
                         category="business",
                         severity="low",
                         confidence=0.85,
-                        metrics={"revenue_trend": revenue_trend},
+                        measurements={"revenue_trend": revenue_trend},
                         recommendations=[
                             "Analyze successful customer acquisition channels",
                             "Consider scaling infrastructure to support growth",
@@ -887,9 +887,9 @@ class AdvancedAnalyticsService:
                         category="business",
                         severity="high",
                         confidence=0.85,
-                        metrics={"revenue_trend": revenue_trend},
+                        measurements={"revenue_trend": revenue_trend},
                         recommendations=[
-                            "Review customer churn and satisfaction metrics",
+                            "Review customer churn and satisfaction measurements",
                             "Analyze competitive landscape changes",
                             "Investigate technical issues affecting service quality",
                         ],
@@ -943,10 +943,10 @@ class AdvancedAnalyticsService:
         return recommendations
 
     async def create_executive_dashboard(self) -> dict[str, Any]:
-        """Create executive dashboard with key business metrics"""
+        """Create executive dashboard with key business measurements"""
 
         try:
-            # Key metrics for executive overview
+            # Key measurements for executive overview
             dashboard_data = {"summary": {}, "charts": [], "insights": [], "kpis": {}}
 
             # Get business KPIs
@@ -958,7 +958,7 @@ class AdvancedAnalyticsService:
             kpi_result = await self.execute_analytics_query(kpi_query)
 
             if not kpi_result.data.empty:
-                # Calculate key summary metrics
+                # Calculate key summary measurements
                 latest_data = kpi_result.data.tail(1)
 
                 dashboard_data["kpis"] = {
@@ -999,7 +999,7 @@ class AdvancedAnalyticsService:
                     "uptime": 99.9,  # Calculated from downtime events
                 }
 
-            # Get user engagement metrics
+            # Get user engagement measurements
             engagement_query = AnalyticsQuery(
                 metric_type=MetricType.USER_ENGAGEMENT,
                 timeframe=AnalyticsTimeframe.WEEK,

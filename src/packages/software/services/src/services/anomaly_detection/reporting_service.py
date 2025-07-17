@@ -1,5 +1,5 @@
 """
-Reporting service for business metrics and analytics.
+Reporting service for business measurements and analytics.
 """
 
 import uuid
@@ -27,10 +27,10 @@ from monorepo.shared.types import TenantId, UserId
 
 
 class ReportingService:
-    """Service for generating reports and managing business metrics."""
+    """Service for generating reports and managing business measurements."""
 
     def __init__(self, metrics_repository, report_repository, user_service):
-        self._metrics_repo = metrics_repository
+        self._measurements_repo = measurements_repository
         self._report_repo = report_repository
         self._user_service = user_service
 
@@ -88,9 +88,9 @@ class ReportingService:
             await self._report_repo.update_report(report)
 
             if report.report_type == ReportType.DETECTION_SUMMARY:
-                await self._generate_detection_summary(report)
+                await self._generate_processing_summary(report)
             elif report.report_type == ReportType.BUSINESS_METRICS:
-                await self._generate_business_metrics(report)
+                await self._generate_business_measurements(report)
             elif report.report_type == ReportType.PERFORMANCE_ANALYSIS:
                 await self._generate_performance_analysis(report)
             elif report.report_type == ReportType.USAGE_ANALYTICS:
@@ -112,37 +112,37 @@ class ReportingService:
         finally:
             await self._report_repo.update_report(report)
 
-    async def _generate_detection_summary(self, report: Report) -> None:
-        """Generate detection summary section."""
-        # Fetch detection metrics
-        detection_data = await self._metrics_repo.get_detection_metrics(
+    async def _generate_processing_summary(self, report: Report) -> None:
+        """Generate processing summary section."""
+        # Fetch processing measurements
+        processing_data = await self._measurements_repo.get_processing_measurements(
             tenant_id=report.tenant_id,
             start_date=report.filters.start_date,
             end_date=report.filters.end_date,
         )
 
-        # Create metrics
-        metrics = []
+        # Create measurements
+        measurements = []
 
         # Success rate metric
         success_rate_metric = Metric(
-            id="detection_success_rate",
-            name="Detection Success Rate",
+            id="processing_success_rate",
+            name="Processing Success Rate",
             description="Percentage of successful anomaly detections",
             metric_type=MetricType.PERCENTAGE,
         )
-        success_rate_metric.add_value(detection_data.success_rate)
-        metrics.append(success_rate_metric)
+        success_rate_metric.add_value(processing_data.success_rate)
+        measurements.append(success_rate_metric)
 
         # Total detections metric
-        total_detections_metric = Metric(
-            id="total_detections",
+        total_processings_metric = Metric(
+            id="total_processings",
             name="Total Detections",
-            description="Total number of anomaly detection runs",
+            description="Total number of anomaly processing runs",
             metric_type=MetricType.COUNTER,
         )
-        total_detections_metric.add_value(detection_data.total_detections)
-        metrics.append(total_detections_metric)
+        total_processings_metric.add_value(processing_data.total_processings)
+        measurements.append(total_processings_metric)
 
         # Anomalies found metric
         anomalies_metric = Metric(
@@ -151,62 +151,62 @@ class ReportingService:
             description="Total anomalies detected",
             metric_type=MetricType.COUNTER,
         )
-        anomalies_metric.add_value(detection_data.anomalies_found)
-        metrics.append(anomalies_metric)
+        anomalies_metric.add_value(processing_data.anomalies_found)
+        measurements.append(anomalies_metric)
 
-        # Model performance metrics
-        if detection_data.precision > 0:
+        # Processor performance measurements
+        if processing_data.precision > 0:
             precision_metric = Metric(
                 id="precision",
-                name="Model Precision",
-                description="Precision of anomaly detection models",
+                name="Processor Precision",
+                description="Precision of anomaly processing models",
                 metric_type=MetricType.PERCENTAGE,
             )
-            precision_metric.add_value(detection_data.precision * 100)
-            metrics.append(precision_metric)
+            precision_metric.add_value(processing_data.precision * 100)
+            measurements.append(precision_metric)
 
         # Create charts
         charts = [
             {
                 "type": "pie",
-                "title": "Detection Results",
+                "title": "Processing Results",
                 "data": {
-                    "successful": detection_data.successful_detections,
-                    "failed": detection_data.failed_detections,
+                    "successful": processing_data.successful_processings,
+                    "failed": processing_data.failed_processings,
                 },
             },
             {
                 "type": "bar",
-                "title": "Detection Performance",
+                "title": "Processing Performance",
                 "data": {
-                    "precision": detection_data.precision * 100,
-                    "recall": detection_data.recall * 100,
-                    "f1_score": detection_data.f1_score * 100,
+                    "precision": processing_data.precision * 100,
+                    "recall": processing_data.recall * 100,
+                    "f1_score": processing_data.f1_score * 100,
                 },
             },
         ]
 
         # Generate insights
         insights = []
-        if detection_data.success_rate < 90:
+        if processing_data.success_rate < 90:
             insights.append(
-                "Detection success rate is below recommended threshold of 90%"
+                "Processing success rate is below recommended threshold of 90%"
             )
-        if detection_data.anomaly_rate > 10:
+        if processing_data.anomaly_rate > 10:
             insights.append(
-                "High anomaly rate detected - consider reviewing detection thresholds"
+                "High anomaly rate detected - consider reviewing processing thresholds"
             )
-        if detection_data.average_detection_time > 300:  # 5 minutes
+        if processing_data.average_processing_time > 300:  # 5 minutes
             insights.append(
-                "Average detection time exceeds 5 minutes - consider performance optimization"
+                "Average processing time exceeds 5 minutes - consider performance optimization"
             )
 
         # Create section
         section = ReportSection(
-            id="detection_summary",
-            title="Detection Summary",
-            description="Overview of anomaly detection performance",
-            metrics=metrics,
+            id="processing_summary",
+            title="Processing Summary",
+            description="Overview of anomaly processing performance",
+            measurements=measurements,
             charts=charts,
             insights=insights,
             order=1,
@@ -214,37 +214,37 @@ class ReportingService:
 
         report.add_section(section)
 
-    async def _generate_business_metrics(self, report: Report) -> None:
-        """Generate business metrics section."""
-        business_data = await self._metrics_repo.get_business_metrics(
+    async def _generate_business_measurements(self, report: Report) -> None:
+        """Generate business measurements section."""
+        business_data = await self._measurements_repo.get_business_measurements(
             tenant_id=report.tenant_id,
             start_date=report.filters.start_date,
             end_date=report.filters.end_date,
         )
 
-        metrics = []
+        measurements = []
 
         # Cost savings metric
         cost_savings_metric = Metric(
             id="cost_savings",
             name="Cost Savings",
-            description="Estimated cost savings from anomaly detection",
+            description="Estimated cost savings from anomaly processing",
             metric_type=MetricType.CURRENCY,
         )
         cost_savings_metric.add_value(business_data.cost_savings)
-        metrics.append(cost_savings_metric)
+        measurements.append(cost_savings_metric)
 
         # ROI metric
         roi_metric = Metric(
             id="roi",
             name="Return on Investment",
-            description="ROI from anomaly detection implementation",
+            description="ROI from anomaly processing implementation",
             metric_type=MetricType.PERCENTAGE,
         )
         roi_metric.add_value(
             business_data.calculate_roi(10000)
         )  # Assuming $10k investment
-        metrics.append(roi_metric)
+        measurements.append(roi_metric)
 
         # Time to insight metric
         time_to_insight_metric = Metric(
@@ -256,13 +256,13 @@ class ReportingService:
         time_to_insight_metric.add_value(
             business_data.time_to_insight * 3600
         )  # Convert hours to seconds
-        metrics.append(time_to_insight_metric)
+        measurements.append(time_to_insight_metric)
 
         section = ReportSection(
-            id="business_metrics",
+            id="business_measurements",
             title="Business Impact",
-            description="Key business metrics and ROI analysis",
-            metrics=metrics,
+            description="Key business measurements and ROI analysis",
+            measurements=measurements,
             order=2,
         )
 
@@ -270,13 +270,13 @@ class ReportingService:
 
     async def _generate_usage_analytics(self, report: Report) -> None:
         """Generate usage analytics section."""
-        usage_data = await self._metrics_repo.get_usage_metrics(
+        usage_data = await self._measurements_repo.get_usage_measurements(
             tenant_id=report.tenant_id,
             start_date=report.filters.start_date,
             end_date=report.filters.end_date,
         )
 
-        metrics = []
+        measurements = []
 
         # API usage metric
         api_usage_metric = Metric(
@@ -286,7 +286,7 @@ class ReportingService:
             metric_type=MetricType.COUNTER,
         )
         api_usage_metric.add_value(usage_data.api_calls_this_month)
-        metrics.append(api_usage_metric)
+        measurements.append(api_usage_metric)
 
         # Storage usage metric
         storage_metric = Metric(
@@ -296,13 +296,13 @@ class ReportingService:
             metric_type=MetricType.GAUGE,
         )
         storage_metric.add_value(usage_data.storage_used_gb)
-        metrics.append(storage_metric)
+        measurements.append(storage_metric)
 
         section = ReportSection(
             id="usage_analytics",
             title="Usage Analytics",
             description="System usage patterns and resource consumption",
-            metrics=metrics,
+            measurements=measurements,
             order=3,
         )
 
@@ -375,17 +375,17 @@ class ReportingService:
 
         return await self._report_repo.update_dashboard(dashboard)
 
-    # Metrics Management
-    async def get_real_time_metrics(
+    # Measurements Management
+    async def get_real_time_measurements(
         self, tenant_id: TenantId, metric_ids: list[str]
     ) -> dict[str, Any]:
-        """Get real-time metrics for dashboard."""
-        metrics = {}
+        """Get real-time measurements for dashboard."""
+        measurements = {}
 
         for metric_id in metric_ids:
-            metric_data = await self._metrics_repo.get_metric(tenant_id, metric_id)
+            metric_data = await self._measurements_repo.get_metric(tenant_id, metric_id)
             if metric_data:
-                metrics[metric_id] = {
+                measurements[metric_id] = {
                     "current_value": metric_data.current_value,
                     "formatted_value": metric_data.latest_value.format_value()
                     if metric_data.latest_value
@@ -394,7 +394,7 @@ class ReportingService:
                     "type": metric_data.metric_type.value,
                 }
 
-        return metrics
+        return measurements
 
     async def get_metric_history(
         self,
@@ -405,7 +405,7 @@ class ReportingService:
         granularity: TimeGranularity = TimeGranularity.HOUR,
     ) -> list[dict[str, Any]]:
         """Get metric history for charting."""
-        metric = await self._metrics_repo.get_metric(tenant_id, metric_id)
+        metric = await self._measurements_repo.get_metric(tenant_id, metric_id)
         if not metric:
             return []
 
@@ -485,7 +485,7 @@ class ReportingService:
         triggered_alerts = []
 
         for alert in alerts:
-            metric = await self._metrics_repo.get_metric(tenant_id, alert.metric_id)
+            metric = await self._measurements_repo.get_metric(tenant_id, alert.metric_id)
             if not metric or not metric.latest_value:
                 continue
 
@@ -524,8 +524,8 @@ class ReportingService:
         standard_widgets = [
             {
                 "type": "metric_card",
-                "title": "Detection Success Rate",
-                "metric_id": "detection_success_rate",
+                "title": "Processing Success Rate",
+                "metric_id": "processing_success_rate",
                 "size": "small",
                 "position": {"x": 0, "y": 0, "w": 3, "h": 2},
             },
@@ -538,8 +538,8 @@ class ReportingService:
             },
             {
                 "type": "line_chart",
-                "title": "Detection Trends",
-                "metric_id": "total_detections",
+                "title": "Processing Trends",
+                "metric_id": "total_processings",
                 "time_range": "7d",
                 "position": {"x": 0, "y": 2, "w": 6, "h": 4},
             },
@@ -555,6 +555,6 @@ class ReportingService:
             name="Standard Analytics Dashboard",
             tenant_id=tenant_id,
             user_id=user_id,
-            description="Default dashboard with key business metrics",
+            description="Default dashboard with key business measurements",
             widgets=standard_widgets,
         )

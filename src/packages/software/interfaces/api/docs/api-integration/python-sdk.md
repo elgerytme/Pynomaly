@@ -5,22 +5,22 @@
 ---
 
 
-The Pynomaly Python SDK provides a comprehensive programmatic interface for anomaly detection, built on clean architecture principles with full async support.
+The Software Python SDK provides a comprehensive programmatic interface for anomaly processing, built on clean architecture principles with full async support.
 
 ## Installation
 
 ```bash
 # Basic installation
-pip install pynomaly
+pip install software
 
 # With all ML backends
-pip install pynomaly[all]
+pip install software[all]
 
 # Specific backends
-pip install pynomaly[tensorflow,pytorch,jax]
+pip install software[tensorflow,pytorch,jax]
 
 # With data processing libraries
-pip install pynomaly[polars,spark]
+pip install software[polars,spark]
 ```
 
 ## Quick Start
@@ -32,8 +32,8 @@ from pynomaly.domain.entities import Dataset
 import pandas as pd
 
 async def main():
-    # Initialize Pynomaly
-    pynomaly = Pynomaly()
+    # Initialize Software
+    software = Software()
 
     # Load data
     data = pd.DataFrame({
@@ -41,22 +41,22 @@ async def main():
         'feature_2': [1, 2, 3, 200]   # 200 is anomaly
     })
 
-    # Create dataset
-    dataset = await pynomaly.datasets.create_from_dataframe(
+    # Create data_collection
+    data_collection = await software.datasets.create_from_dataframe(
         data, name="sample_data"
     )
 
     # Create and train detector
-    detector = await pynomaly.detectors.create(
+    detector = await software.detectors.create(
         name="fraud_detector",
         algorithm="IsolationForest",
         contamination_rate=0.25
     )
 
-    await detector.fit(dataset)
+    await detector.fit(data_collection)
 
     # Detect anomalies
-    result = await detector.predict(dataset)
+    result = await detector.predict(data_collection)
 
     print(f"Found {len(result.anomalies)} anomalies")
     for anomaly in result.anomalies:
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
 ## Core Classes
 
-### Pynomaly Client
+### Software Client
 
 Main entry point for the SDK.
 
@@ -77,22 +77,22 @@ from pynomaly import Pynomaly
 from pynomaly.infrastructure.config import Settings
 
 # Basic initialization
-pynomaly = Pynomaly()
+software = Software()
 
 # With custom configuration
 settings = Settings(
     storage_path="./custom_data",
-    model_storage_path="./custom_models"
+    processor_storage_path="./custom_processors"
 )
-pynomaly = Pynomaly(settings=settings)
+software = Software(settings=settings)
 
 # With dependency injection container
 from pynomaly.infrastructure.config.container import Container
 container = Container()
-pynomaly = Pynomaly(container=container)
+software = Software(container=container)
 ```
 
-### Dataset Management
+### DataCollection Management
 
 #### Creating Datasets
 
@@ -106,28 +106,28 @@ data = pd.DataFrame({
     'merchant_category': [1, 2, 1, 3]
 })
 
-dataset = await pynomaly.datasets.create_from_dataframe(
+data_collection = await software.datasets.create_from_dataframe(
     data,
     name="transactions",
     description="Credit card transactions"
 )
 
 # From CSV file
-dataset = await pynomaly.datasets.load_csv(
+data_collection = await software.datasets.load_csv(
     "data.csv",
     name="csv_data",
     target_column="is_fraud"  # For labeled data
 )
 
 # From Parquet file
-dataset = await pynomaly.datasets.load_parquet(
+data_collection = await software.datasets.load_parquet(
     "data.parquet",
     name="parquet_data"
 )
 
 # From numpy array
 X = np.random.normal(0, 1, (1000, 5))
-dataset = await pynomaly.datasets.create_from_numpy(
+data_collection = await software.datasets.create_from_numpy(
     X,
     name="numpy_data",
     feature_names=['f1', 'f2', 'f3', 'f4', 'f5']
@@ -140,40 +140,40 @@ data = [
     {"amount": 5000, "merchant": "online"}  # Anomalous
 ]
 
-dataset = await pynomaly.datasets.create_from_json(
+data_collection = await software.datasets.create_from_json(
     data,
     name="json_data"
 )
 ```
 
-#### Dataset Operations
+#### DataCollection Operations
 
 ```python
 # List datasets
-datasets = await pynomaly.datasets.list()
-for dataset in datasets:
-    print(f"{dataset.name}: {dataset.n_samples} samples")
+datasets = await software.datasets.list()
+for data_collection in datasets:
+    print(f"{data_collection.name}: {data_collection.n_samples} samples")
 
-# Get dataset info
-dataset = await pynomaly.datasets.get("dataset_id")
-print(f"Features: {dataset.get_numeric_features()}")
-print(f"Shape: {dataset.data.shape}")
+# Get data_collection info
+data_collection = await software.datasets.get("data_collection_id")
+print(f"Features: {data_collection.get_numeric_features()}")
+print(f"Shape: {data_collection.data.shape}")
 
-# Dataset statistics
-stats = await dataset.get_statistics()
+# DataCollection statistics
+stats = await data_collection.get_statistics()
 print(f"Mean: {stats['mean']}")
 print(f"Std: {stats['std']}")
 
 # Data quality analysis
-quality = await dataset.analyze_quality()
+quality = await data_collection.analyze_quality()
 print(f"Missing values: {quality['missing_values']}")
 print(f"Duplicates: {quality['duplicates']}")
 
-# Sample dataset
-sample = await dataset.sample(n=100, random_state=42)
+# Sample data_collection
+sample = await data_collection.sample(n=100, random_state=42)
 
-# Split dataset
-train_ds, test_ds = await dataset.split(
+# Split data_collection
+train_ds, test_ds = await data_collection.split(
     train_size=0.8,
     random_state=42,
     stratify=True  # For labeled data
@@ -186,7 +186,7 @@ train_ds, test_ds = await dataset.split(
 
 ```python
 # PyOD algorithms
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="isolation_forest",
     algorithm="IsolationForest",
     adapter="pyod",
@@ -196,7 +196,7 @@ detector = await pynomaly.detectors.create(
 )
 
 # Scikit-learn algorithms
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="sklearn_lof",
     algorithm="LocalOutlierFactor",
     adapter="sklearn",
@@ -205,7 +205,7 @@ detector = await pynomaly.detectors.create(
 )
 
 # TensorFlow neural networks
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="tensorflow_ae",
     algorithm="AutoEncoder",
     adapter="tensorflow",
@@ -217,7 +217,7 @@ detector = await pynomaly.detectors.create(
 )
 
 # PyTorch models
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="pytorch_vae",
     algorithm="VAE",
     adapter="pytorch",
@@ -228,7 +228,7 @@ detector = await pynomaly.detectors.create(
 )
 
 # JAX high-performance models
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="jax_autoencoder",
     algorithm="AutoEncoder",
     adapter="jax",
@@ -244,12 +244,12 @@ detector = await pynomaly.detectors.create(
 
 ```python
 # List available algorithms
-algorithms = await pynomaly.detectors.list_algorithms()
+algorithms = await software.detectors.list_algorithms()
 for adapter, algos in algorithms.items():
     print(f"{adapter}: {', '.join(algos)}")
 
 # Get algorithm details
-info = await pynomaly.detectors.get_algorithm_info(
+info = await software.detectors.get_algorithm_info(
     "IsolationForest",
     adapter="pyod"
 )
@@ -257,10 +257,10 @@ print(f"Description: {info['description']}")
 print(f"Parameters: {info['parameters']}")
 
 # Check algorithm compatibility
-compatible = await pynomaly.detectors.check_compatibility(
+compatible = await software.detectors.check_compatibility(
     algorithm="AutoEncoder",
     adapter="tensorflow",
-    dataset=dataset
+    data_collection=data_collection
 )
 ```
 
@@ -268,11 +268,11 @@ compatible = await pynomaly.detectors.check_compatibility(
 
 ```python
 # Basic training
-await detector.fit(dataset)
+await detector.fit(data_collection)
 
 # Training with validation
 await detector.fit(
-    dataset,
+    data_collection,
     validation_split=0.2,
     early_stopping=True,
     verbose=True
@@ -280,14 +280,14 @@ await detector.fit(
 
 # Cross-validation training
 cv_results = await detector.fit_with_cv(
-    dataset,
+    data_collection,
     cv_folds=5,
-    metrics=['precision', 'recall', 'f1_score']
+    measurements=['precision', 'recall', 'f1_score']
 )
 
 # Hyperparameter tuning
 best_params = await detector.tune_hyperparameters(
-    dataset,
+    data_collection,
     param_grid={
         'contamination': [0.05, 0.1, 0.15],
         'n_estimators': [100, 200, 300]
@@ -297,13 +297,13 @@ best_params = await detector.tune_hyperparameters(
 )
 ```
 
-### Anomaly Detection
+### Anomaly Processing
 
-#### Basic Detection
+#### Basic Processing
 
 ```python
-# Detect on dataset
-result = await detector.predict(dataset)
+# Detect on data_collection
+result = await detector.predict(data_collection)
 
 print(f"Detected {len(result.anomalies)} anomalies")
 print(f"Anomaly rate: {result.anomaly_rate:.3f}")
@@ -319,12 +319,12 @@ for anomaly in result.anomalies:
         print(f"Timestamp: {anomaly.timestamp}")
 ```
 
-#### Batch Detection
+#### Batch Processing
 
 ```python
 # Process large datasets in batches
 async for batch_result in detector.predict_batch(
-    large_dataset,
+    large_data_collection,
     batch_size=1000
 ):
     print(f"Batch anomalies: {len(batch_result.anomalies)}")
@@ -334,7 +334,7 @@ async for batch_result in detector.predict_batch(
         await send_alert(anomaly)
 ```
 
-#### Real-time Detection
+#### Real-time Processing
 
 ```python
 # Single prediction
@@ -344,7 +344,7 @@ is_anomaly = await detector.predict_single(data_point)
 if is_anomaly:
     print("Anomaly detected!")
 
-# Streaming detection
+# Streaming processing
 async def handle_stream():
     async for data_point in data_stream:
         result = await detector.predict_single(data_point)
@@ -352,7 +352,7 @@ async def handle_stream():
             await send_alert(result)
 ```
 
-#### Ensemble Detection
+#### Ensemble Processing
 
 ```python
 from pynomaly.application.services import EnsembleService
@@ -365,29 +365,29 @@ ensemble = EnsembleService([
 ])
 
 # Train ensemble
-await ensemble.fit(dataset)
+await ensemble.fit(data_collection)
 
 # Ensemble prediction with voting
 result = await ensemble.predict(
-    dataset,
+    data_collection,
     voting_strategy="soft",  # or "hard", "weighted"
     decision_threshold=0.6
 )
 
 # Get individual detector results
-individual_results = await ensemble.predict_individual(dataset)
+individual_results = await ensemble.predict_individual(data_collection)
 for detector_name, result in individual_results.items():
     print(f"{detector_name}: {len(result.anomalies)} anomalies")
 ```
 
-### Model Persistence
+### Processor Persistence
 
 #### Saving Models
 
 ```python
 # Save detector
-model_path = await detector.save("fraud_detector_v1.pkl")
-print(f"Model saved to: {model_path}")
+processor_path = await detector.save("fraud_detector_v1.pkl")
+print(f"Processor saved to: {processor_path}")
 
 # Save with metadata
 await detector.save(
@@ -395,30 +395,30 @@ await detector.save(
     metadata={
         "version": "1.0",
         "training_date": "2024-01-15",
-        "dataset": "transactions_2024"
+        "data_collection": "transactions_2024"
     }
 )
 
 # Export in different formats
-await detector.export("model.joblib", format="joblib")
-await detector.export("model.onnx", format="onnx")  # If supported
+await detector.export("processor.joblib", format="joblib")
+await detector.export("processor.onnx", format="onnx")  # If supported
 ```
 
 #### Loading Models
 
 ```python
 # Load detector
-detector = await pynomaly.detectors.load("fraud_detector_v1.pkl")
+detector = await software.detectors.load("fraud_detector_v1.pkl")
 
 # Load with verification
-detector = await pynomaly.detectors.load(
+detector = await software.detectors.load(
     "fraud_detector_v1.pkl",
     verify_checksum=True
 )
 
-# Get model metadata
+# Get processor metadata
 metadata = await detector.get_metadata()
-print(f"Model version: {metadata['version']}")
+print(f"Processor version: {metadata['version']}")
 ```
 
 ### Data Preprocessing
@@ -431,9 +431,9 @@ from pynomaly.infrastructure.preprocessing import (
 # Data cleaning
 cleaner = DataCleaner()
 
-# Clean dataset
-clean_dataset = await cleaner.clean(
-    dataset,
+# Clean data_collection
+clean_data_collection = await cleaner.clean(
+    data_collection,
     handle_missing="interpolate",
     remove_duplicates=True,
     outlier_method="iqr",
@@ -444,8 +444,8 @@ clean_dataset = await cleaner.clean(
 transformer = DataTransformer()
 
 # Transform features
-transformed_dataset = await transformer.transform(
-    dataset,
+transformed_data_collection = await transformer.transform(
+    data_collection,
     scaling_method="standard",
     encoding_method="onehot",
     feature_selection="variance_threshold"
@@ -458,7 +458,7 @@ pipeline = PreprocessingPipeline([
 ])
 
 # Fit and transform
-processed_dataset = await pipeline.fit_transform(dataset)
+processed_data_collection = await pipeline.fit_transform(data_collection)
 
 # Save pipeline for reuse
 await pipeline.save("preprocessing_pipeline.pkl")
@@ -470,10 +470,10 @@ await pipeline.save("preprocessing_pipeline.pkl")
 from pynomaly.application.services import ExperimentTrackingService
 
 # Create experiment
-experiment = await pynomaly.experiments.create(
+experiment = await software.experiments.create(
     name="algorithm_comparison",
     description="Compare different algorithms on fraud data",
-    dataset=dataset
+    data_collection=data_collection
 )
 
 # Add algorithms to experiment
@@ -503,10 +503,10 @@ perf_service = PerformanceService()
 # Monitor detector performance
 await perf_service.start_monitoring(detector)
 
-# Get performance metrics
-metrics = await perf_service.get_metrics(detector.id)
-print(f"Average prediction time: {metrics['avg_prediction_time']}")
-print(f"Memory usage: {metrics['memory_usage_mb']} MB")
+# Get performance measurements
+measurements = await perf_service.get_measurements(detector.id)
+print(f"Average prediction time: {measurements['avg_prediction_time']}")
+print(f"Memory usage: {measurements['memory_usage_mb']} MB")
 
 # Performance alerts
 await perf_service.set_alert_threshold(
@@ -527,16 +527,16 @@ from pynomaly.domain.exceptions import (
 )
 
 try:
-    # Attempt detection without training
-    result = await detector.predict(dataset)
+    # Attempt processing without training
+    result = await detector.predict(data_collection)
 except DetectorNotFittedError:
     print("Detector must be trained first")
-    await detector.fit(dataset)
-    result = await detector.predict(dataset)
+    await detector.fit(data_collection)
+    result = await detector.predict(data_collection)
 
 try:
     # Invalid algorithm
-    detector = await pynomaly.detectors.create(
+    detector = await software.detectors.create(
         name="invalid",
         algorithm="NonExistentAlgorithm"
     )
@@ -546,7 +546,7 @@ except InvalidAlgorithmError as e:
 
 try:
     # Invalid contamination rate
-    detector = await pynomaly.detectors.create(
+    detector = await software.detectors.create(
         name="invalid_params",
         algorithm="IsolationForest",
         contamination_rate=1.5  # Invalid: > 0.5
@@ -574,32 +574,32 @@ class CustomDetector(Detector):
         )
         self.threshold = 0.5
 
-    async def fit(self, dataset):
+    async def fit(self, data_collection):
         """Train the custom detector."""
         # Implementation here
         self._is_fitted = True
 
-    async def predict(self, dataset):
+    async def predict(self, data_collection):
         """Predict anomalies."""
         if not self._is_fitted:
             raise DetectorNotFittedError("Must fit before predict")
 
         # Custom prediction logic
         anomalies = []
-        # ... detection implementation
+        # ... processing implementation
 
         return DetectionResult(
             detector_id=self.id,
-            dataset_id=dataset.id,
+            data_collection_id=data_collection.id,
             anomalies=anomalies,
             # ... other fields
         )
 
 # Register custom detector
-pynomaly.detectors.register_custom(CustomDetector)
+software.detectors.register_custom(CustomDetector)
 
 # Use custom detector
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="my_custom",
     algorithm="Custom"
 )
@@ -638,7 +638,7 @@ asyncio.create_task(process_kafka_stream())
 
 ```python
 # TensorFlow multi-GPU training
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="multi_gpu_ae",
     algorithm="AutoEncoder",
     adapter="tensorflow",
@@ -648,7 +648,7 @@ detector = await pynomaly.detectors.create(
 )
 
 # JAX multi-device training
-detector = await pynomaly.detectors.create(
+detector = await software.detectors.create(
     name="jax_parallel",
     algorithm="VAE",
     adapter="jax",
@@ -657,7 +657,7 @@ detector = await pynomaly.detectors.create(
 )
 ```
 
-#### Model Explainability
+#### Processor Explainability
 
 ```python
 from pynomaly.infrastructure.explainability import SHAPExplainer
@@ -666,7 +666,7 @@ from pynomaly.infrastructure.explainability import SHAPExplainer
 explainer = SHAPExplainer(detector)
 
 # Explain predictions
-explanations = await explainer.explain(dataset)
+explanations = await explainer.explain(data_collection)
 
 for i, explanation in enumerate(explanations):
     print(f"Sample {i}:")
@@ -684,11 +684,11 @@ from pynomaly.infrastructure.config import Settings
 settings = Settings(
     # Storage paths
     storage_path="./data",
-    model_storage_path="./models",
+    processor_storage_path="./models",
     experiment_storage_path="./experiments",
 
     # Database configuration
-    database_url="postgresql://user:pass@localhost/pynomaly",
+    database_url="postgresql://user:pass@localhost/software",
 
     # API configuration
     api_host="localhost",
@@ -701,7 +701,7 @@ settings = Settings(
 
     # Logging
     log_level="INFO",
-    log_file="./logs/pynomaly.log",
+    log_file="./logs/software.log",
 
     # Performance
     connection_pool_size=10,
@@ -712,7 +712,7 @@ settings = Settings(
     default_random_state=42
 )
 
-pynomaly = Pynomaly(settings=settings)
+software = Software(settings=settings)
 ```
 
 ### Environment Variables
@@ -726,7 +726,7 @@ os.environ["PYNOMALY_REDIS_URL"] = "redis://..."
 os.environ["PYNOMALY_LOG_LEVEL"] = "DEBUG"
 
 # Settings will automatically load from environment
-pynomaly = Pynomaly()
+software = Software()
 ```
 
 ## Best Practices
@@ -735,14 +735,14 @@ pynomaly = Pynomaly()
 
 ```python
 # Use context managers for large datasets
-async with pynomaly.datasets.load_large("huge_dataset.parquet") as dataset:
+async with software.datasets.load_large("huge_data_collection.parquet") as data_collection:
     # Process in chunks
-    async for chunk in dataset.iter_chunks(chunk_size=10000):
+    async for chunk in data_collection.iter_chunks(chunk_size=10000):
         result = await detector.predict_batch(chunk)
         await process_results(result)
 
 # Explicit cleanup
-await dataset.cleanup()
+await data_collection.cleanup()
 await detector.cleanup()
 ```
 
@@ -751,16 +751,16 @@ await detector.cleanup()
 ```python
 # Concurrent training of multiple detectors
 detectors = [
-    pynomaly.detectors.create(f"detector_{i}", "IsolationForest")
+    software.detectors.create(f"detector_{i}", "IsolationForest")
     for i in range(5)
 ]
 
 # Train all detectors concurrently
-training_tasks = [detector.fit(dataset) for detector in detectors]
+training_tasks = [detector.fit(data_collection) for detector in detectors]
 await asyncio.gather(*training_tasks)
 
 # Concurrent predictions
-prediction_tasks = [detector.predict(dataset) for detector in detectors]
+prediction_tasks = [detector.predict(data_collection) for detector in detectors]
 results = await asyncio.gather(*prediction_tasks)
 ```
 
@@ -773,9 +773,9 @@ from tenacity import retry, stop_after_attempt, wait_exponential
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10)
 )
-async def robust_prediction(detector, dataset):
+async def robust_prediction(detector, data_collection):
     try:
-        return await detector.predict(dataset)
+        return await detector.predict(data_collection)
     except Exception as e:
         print(f"Prediction failed: {e}")
         # Optional: Reset detector state
@@ -783,10 +783,10 @@ async def robust_prediction(detector, dataset):
         raise
 
 # Use robust prediction
-result = await robust_prediction(detector, dataset)
+result = await robust_prediction(detector, data_collection)
 ```
 
-This comprehensive Python SDK reference provides complete documentation for programmatic access to all Pynomaly functionality, with examples covering basic usage through advanced production scenarios.
+This comprehensive Python SDK reference provides complete documentation for programmatic access to all Software functionality, with examples covering basic usage through advanced production scenarios.
 
 ---
 

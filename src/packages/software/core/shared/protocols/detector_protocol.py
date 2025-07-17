@@ -15,7 +15,7 @@ class DetectorProtocol(Protocol):
     """Protocol defining the interface for detector implementations.
 
     This protocol must be implemented by all infrastructure adapters
-    that provide anomaly detection algorithms (PyOD, scikit-learn, etc.).
+    that provide anomaly processing algorithms (PyOD, scikit-learn, etc.).
     """
 
     @property
@@ -42,26 +42,26 @@ class DetectorProtocol(Protocol):
         """Fit the detector on training data.
 
         Args:
-            dataset: The dataset to fit on
+            data_collection: The data_collection to fit on
         """
         ...
 
     def detect(self, dataset: Dataset) -> DetectionResult:
-        """Detect anomalies in the dataset.
+        """Detect anomalies in the data_collection.
 
         Args:
-            dataset: The dataset to analyze
+            data_collection: The data_collection to analyze
 
         Returns:
-            Detection result containing anomalies, scores, and labels
+            Processing result containing anomalies, scores, and labels
         """
         ...
 
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
-        """Calculate anomaly scores for the dataset.
+        """Calculate anomaly scores for the data_collection.
 
         Args:
-            dataset: The dataset to score
+            data_collection: The data_collection to score
 
         Returns:
             List of anomaly scores
@@ -72,10 +72,10 @@ class DetectorProtocol(Protocol):
         """Fit the detector and detect anomalies in one step.
 
         Args:
-            dataset: The dataset to fit and analyze
+            data_collection: The data_collection to fit and analyze
 
         Returns:
-            Detection result
+            Processing result
         """
         ...
 
@@ -97,13 +97,13 @@ class DetectorProtocol(Protocol):
 
 
 class StreamingDetectorProtocol(DetectorProtocol):
-    """Protocol for detectors that support streaming/online detection."""
+    """Protocol for detectors that support streaming/online processing."""
 
     def partial_fit(self, dataset: Dataset) -> None:
         """Incrementally fit the detector on new data.
 
         Args:
-            dataset: New data to fit on
+            data_collection: New data to fit on
         """
         ...
 
@@ -123,12 +123,12 @@ class ExplainableDetectorProtocol(DetectorProtocol):
     """Protocol for detectors that provide explanations."""
 
     def explain(
-        self, dataset: Dataset, indices: list[int] | None = None
+        self, data_collection: DataCollection, indices: list[int] | None = None
     ) -> dict[int, dict[str, Any]]:
         """Explain why certain points are anomalous.
 
         Args:
-            dataset: The dataset containing the points
+            data_collection: The data_collection containing the points
             indices: Specific indices to explain (None = explain all anomalies)
 
         Returns:
@@ -137,7 +137,7 @@ class ExplainableDetectorProtocol(DetectorProtocol):
         ...
 
     def feature_importances(self) -> dict[str, float]:
-        """Get feature importances for anomaly detection.
+        """Get feature importances for anomaly processing.
 
         Returns:
             Dictionary mapping feature names to importance scores

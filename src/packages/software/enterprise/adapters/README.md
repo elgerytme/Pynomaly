@@ -35,7 +35,7 @@ Universal adapter patterns for external services and frameworks, providing consi
 
 - **Scikit-learn**: Traditional machine learning algorithms
 - **PyTorch**: Deep learning framework with GPU support
-- **TensorFlow**: Google's machine learning platform
+- **TensorFlow**: Google's ML platform
 - **JAX**: High-performance numerical computing
 - Model serialization, versioning, and deployment support
 

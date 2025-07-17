@@ -600,29 +600,29 @@ class SecurityComplianceService:
                     ),
                     description=f"Suspicious {pattern['type']} detected for user {pattern['user_id']}",
                     affected_data_types=["personal_data"],
-                    detection_method="automated_analysis",
+                    processing_method="automated_analysis",
                     metadata=pattern,
                 )
                 incidents.append(incident)
 
-            # Audit breach detection
+            # Audit breach processing
             await self.audit_logger.log_event(
                 AuditEvent(
-                    event_type="breach_detection",
+                    event_type="breach_processing",
                     event_level=AuditLevel.WARNING if incidents else AuditLevel.INFO,
-                    description=f"Breach detection completed: {len(incidents)} incidents detected",
+                    description=f"Breach processing completed: {len(incidents)} incidents detected",
                     metadata={"incidents_count": len(incidents)},
                 )
             )
 
             logger.info(
-                f"Data breach detection completed: {len(incidents)} incidents found"
+                f"Data breach processing completed: {len(incidents)} incidents found"
             )
             return incidents
 
         except Exception as e:
-            logger.error(f"Data breach detection failed: {e}")
-            raise SecurityError(f"Data breach detection failed: {e}") from e
+            logger.error(f"Data breach processing failed: {e}")
+            raise SecurityError(f"Data breach processing failed: {e}") from e
 
     async def generate_compliance_report(
         self,

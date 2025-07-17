@@ -57,7 +57,7 @@ class MobileAlert:
     severity: AlertSeverity = AlertSeverity.MEDIUM
     title: str = ""
     message: str = ""
-    dataset_id: str = ""
+    data_collection_id: str = ""
     metric_name: str = ""
     
     # Mobile-specific fields
@@ -85,7 +85,7 @@ class MobileAlert:
             'severity': self.severity.value,
             'title': self.title,
             'message': self.message,
-            'dataset_id': self.dataset_id,
+            'data_collection_id': self.data_collection_id,
             'metric_name': self.metric_name,
             'requires_attention': self.requires_immediate_attention,
             'can_auto_resolve': self.can_auto_resolve,
@@ -111,8 +111,8 @@ class MobileIncident:
     status: str = "open"  # open, in_progress, resolved, closed
     
     # Quality context
-    affected_datasets: List[str] = field(default_factory=list)
-    affected_metrics: List[str] = field(default_factory=list)
+    affected_data_collections: List[str] = field(default_factory=list)
+    affected_measurements: List[str] = field(default_factory=list)
     quality_impact_score: float = 0.0
     
     # Mobile workflow
@@ -139,8 +139,8 @@ class MobileIncident:
             'description': self.description,
             'severity': self.severity.value,
             'status': self.status,
-            'affected_datasets': self.affected_datasets,
-            'affected_metrics': self.affected_metrics,
+            'affected_data_collections': self.affected_data_collections,
+            'affected_measurements': self.affected_measurements,
             'quality_impact_score': self.quality_impact_score,
             'mobile_workflow_steps': self.mobile_workflow_steps,
             'completed_steps': self.completed_steps,
@@ -165,19 +165,19 @@ class MobileQualityDashboard:
     
     # Quality overview
     overall_quality_score: float = 0.0
-    total_datasets: int = 0
-    healthy_datasets: int = 0
-    degraded_datasets: int = 0
-    critical_datasets: int = 0
+    total_data_collections: int = 0
+    healthy_data_collections: int = 0
+    degraded_data_collections: int = 0
+    critical_data_collections: int = 0
     
     # Alerts and incidents
     active_alerts: int = 0
     critical_alerts: int = 0
     open_incidents: int = 0
     
-    # Quality metrics
-    quality_metrics: List[Dict[str, Any]] = field(default_factory=list)
-    trending_metrics: List[Dict[str, Any]] = field(default_factory=list)
+    # Quality measurements
+    quality_measurements: List[Dict[str, Any]] = field(default_factory=list)
+    trending_measurements: List[Dict[str, Any]] = field(default_factory=list)
     
     # Mobile-specific features
     offline_data_available: bool = False
@@ -185,7 +185,7 @@ class MobileQualityDashboard:
     refresh_interval_seconds: int = 30
     
     # Personalization
-    favorite_datasets: List[str] = field(default_factory=list)
+    favorite_data_collections: List[str] = field(default_factory=list)
     custom_alert_rules: List[Dict[str, Any]] = field(default_factory=list)
     
     def to_mobile_dict(self) -> Dict[str, Any]:
@@ -194,24 +194,24 @@ class MobileQualityDashboard:
             'dashboard_id': self.dashboard_id,
             'user_id': self.user_id,
             'overall_quality_score': self.overall_quality_score,
-            'dataset_summary': {
-                'total': self.total_datasets,
-                'healthy': self.healthy_datasets,
-                'degraded': self.degraded_datasets,
-                'critical': self.critical_datasets,
-                'health_percentage': (self.healthy_datasets / self.total_datasets * 100) if self.total_datasets > 0 else 0
+            'data_collection_summary': {
+                'total': self.total_data_collections,
+                'healthy': self.healthy_data_collections,
+                'degraded': self.degraded_data_collections,
+                'critical': self.critical_data_collections,
+                'health_percentage': (self.healthy_data_collections / self.total_data_collections * 100) if self.total_data_collections > 0 else 0
             },
             'alert_summary': {
                 'active': self.active_alerts,
                 'critical': self.critical_alerts,
                 'open_incidents': self.open_incidents
             },
-            'quality_metrics': self.quality_metrics,
-            'trending_metrics': self.trending_metrics,
+            'quality_measurements': self.quality_measurements,
+            'trending_measurements': self.trending_measurements,
             'offline_data_available': self.offline_data_available,
             'last_sync_time': self.last_sync_time.isoformat(),
             'refresh_interval_seconds': self.refresh_interval_seconds,
-            'favorite_datasets': self.favorite_datasets,
+            'favorite_data_collections': self.favorite_data_collections,
             'custom_alert_rules': self.custom_alert_rules
         }
 
@@ -257,19 +257,19 @@ class MobileQualityMonitoringService:
         logger.info("Mobile Quality Monitoring Service initialized")
     
     async def create_mobile_dashboard(self, user_id: str, 
-                                    favorite_datasets: List[str] = None) -> MobileQualityDashboard:
+                                    favorite_data_collections: List[str] = None) -> MobileQualityDashboard:
         """Create mobile-optimized quality dashboard.
         
         Args:
             user_id: User identifier
-            favorite_datasets: List of favorite dataset IDs
+            favorite_data_collections: List of favorite data_collection IDs
             
         Returns:
             Mobile quality dashboard
         """
         dashboard = MobileQualityDashboard(
             user_id=user_id,
-            favorite_datasets=favorite_datasets or []
+            favorite_data_collections=favorite_data_collections or []
         )
         
         # Populate dashboard with current quality data
@@ -319,7 +319,7 @@ class MobileQualityMonitoringService:
         return dashboard
     
     async def create_mobile_alert(self, 
-                                dataset_id: str,
+                                data_collection_id: str,
                                 metric_name: str,
                                 alert_type: AlertType,
                                 severity: AlertSeverity,
@@ -329,7 +329,7 @@ class MobileQualityMonitoringService:
         """Create mobile-optimized quality alert.
         
         Args:
-            dataset_id: Dataset identifier
+            data_collection_id: DataCollection identifier
             metric_name: Metric name
             alert_type: Type of alert
             severity: Alert severity
@@ -345,7 +345,7 @@ class MobileQualityMonitoringService:
             severity=severity,
             title=title,
             message=message,
-            dataset_id=dataset_id,
+            data_collection_id=data_collection_id,
             metric_name=metric_name,
             metadata=metadata or {}
         )
@@ -364,23 +364,23 @@ class MobileQualityMonitoringService:
         if self._should_send_push_notification(alert):
             await self._send_push_notification(alert)
         
-        logger.info(f"Created mobile alert {alert.alert_id} for dataset {dataset_id}")
+        logger.info(f"Created mobile alert {alert.alert_id} for data_collection {data_collection_id}")
         return alert
     
     async def create_mobile_incident(self, 
                                    title: str,
                                    description: str,
                                    severity: AlertSeverity,
-                                   affected_datasets: List[str],
-                                   affected_metrics: List[str] = None) -> MobileIncident:
+                                   affected_data_collections: List[str],
+                                   affected_measurements: List[str] = None) -> MobileIncident:
         """Create mobile-optimized quality incident.
         
         Args:
             title: Incident title
             description: Incident description
             severity: Incident severity
-            affected_datasets: List of affected datasets
-            affected_metrics: List of affected metrics
+            affected_data_collections: List of affected datasets
+            affected_measurements: List of affected measurements
             
         Returns:
             Mobile incident
@@ -389,8 +389,8 @@ class MobileQualityMonitoringService:
             title=title,
             description=description,
             severity=severity,
-            affected_datasets=affected_datasets,
-            affected_metrics=affected_metrics or []
+            affected_data_collections=affected_data_collections,
+            affected_measurements=affected_measurements or []
         )
         
         # Generate mobile workflow
@@ -405,8 +405,8 @@ class MobileQualityMonitoringService:
         
         # Create associated alert
         alert = await self.create_mobile_alert(
-            dataset_id=affected_datasets[0] if affected_datasets else "",
-            metric_name=affected_metrics[0] if affected_metrics else "overall",
+            data_collection_id=affected_data_collections[0] if affected_data_collections else "",
+            metric_name=affected_measurements[0] if affected_measurements else "overall",
             alert_type=AlertType.INCIDENT_ESCALATION,
             severity=severity,
             title=f"Incident Created: {title}",
@@ -540,18 +540,18 @@ class MobileQualityMonitoringService:
         logger.info(f"Updated mobile incident {incident_id} status to {status}")
         return True
     
-    async def get_quality_metrics_for_mobile(self, dataset_id: str) -> List[Dict[str, Any]]:
-        """Get quality metrics optimized for mobile display.
+    async def get_quality_measurements_for_mobile(self, data_collection_id: str) -> List[Dict[str, Any]]:
+        """Get quality measurements optimized for mobile display.
         
         Args:
-            dataset_id: Dataset identifier
+            data_collection_id: DataCollection identifier
             
         Returns:
-            List of mobile-optimized quality metrics
+            List of mobile-optimized quality measurements
         """
         # This would integrate with the base quality service
         # For now, return mock data
-        metrics = [
+        measurements = [
             {
                 'metric_name': 'completeness',
                 'current_value': 0.95,
@@ -581,16 +581,16 @@ class MobileQualityMonitoringService:
             }
         ]
         
-        return metrics
+        return measurements
     
     async def _populate_dashboard_data(self, dashboard: MobileQualityDashboard):
         """Populate dashboard with current quality data."""
         # Mock data for now - would integrate with real quality service
         dashboard.overall_quality_score = 0.85
-        dashboard.total_datasets = 25
-        dashboard.healthy_datasets = 18
-        dashboard.degraded_datasets = 6
-        dashboard.critical_datasets = 1
+        dashboard.total_data_collections = 25
+        dashboard.healthy_data_collections = 18
+        dashboard.degraded_data_collections = 6
+        dashboard.critical_data_collections = 1
         
         dashboard.active_alerts = len([a for a in self.mobile_alerts.values() if not a.resolved_at])
         dashboard.critical_alerts = len([a for a in self.mobile_alerts.values() 
@@ -598,8 +598,8 @@ class MobileQualityMonitoringService:
         dashboard.open_incidents = len([i for i in self.mobile_incidents.values() 
                                       if i.status in ['open', 'in_progress']])
         
-        # Quality metrics for mobile display
-        dashboard.quality_metrics = [
+        # Quality measurements for mobile display
+        dashboard.quality_measurements = [
             {
                 'name': 'Overall Quality',
                 'value': dashboard.overall_quality_score,
@@ -626,8 +626,8 @@ class MobileQualityMonitoringService:
             }
         ]
         
-        # Trending metrics
-        dashboard.trending_metrics = [
+        # Trending measurements
+        dashboard.trending_measurements = [
             {
                 'name': 'Data Freshness',
                 'trend': 'improving',
@@ -709,7 +709,7 @@ class MobileQualityMonitoringService:
         base_score = 0.5
         
         # Increase based on affected datasets
-        dataset_impact = min(len(incident.affected_datasets) * 0.1, 0.3)
+        data_collection_impact = min(len(incident.affected_data_collections) * 0.1, 0.3)
         
         # Increase based on severity
         severity_impact = {
@@ -720,7 +720,7 @@ class MobileQualityMonitoringService:
             AlertSeverity.EMERGENCY: 0.4
         }.get(incident.severity, 0.0)
         
-        return min(base_score + dataset_impact + severity_impact, 1.0)
+        return min(base_score + data_collection_impact + severity_impact, 1.0)
     
     def _should_send_push_notification(self, alert: MobileAlert) -> bool:
         """Determine if push notification should be sent."""
@@ -732,7 +732,7 @@ class MobileQualityMonitoringService:
             return True
         
         # Check throttling
-        throttle_key = f"{alert.dataset_id}:{alert.metric_name}"
+        throttle_key = f"{alert.data_collection_id}:{alert.metric_name}"
         if throttle_key in self.alert_throttle:
             time_since_last = datetime.utcnow() - self.alert_throttle[throttle_key]
             if time_since_last.total_seconds() < (self.config['alert_throttling_minutes'] * 60):
@@ -754,7 +754,7 @@ class MobileQualityMonitoringService:
                 'alert_id': alert.alert_id,
                 'alert_type': alert.alert_type.value,
                 'severity': alert.severity.value,
-                'dataset_id': alert.dataset_id,
+                'data_collection_id': alert.data_collection_id,
                 'requires_attention': alert.requires_immediate_attention
             }
         }
@@ -794,7 +794,7 @@ class MobileQualityMonitoringService:
             'dashboard': user_dashboard.to_mobile_dict(),
             'recent_alerts': await self.get_mobile_alerts(user_id, limit=20),
             'active_incidents': await self.get_mobile_incidents(user_id, limit=10, status_filter='open'),
-            'quality_metrics': {},
+            'quality_measurements': {},
             'offline_actions': [
                 'View dashboard',
                 'Review alerts',
@@ -804,9 +804,9 @@ class MobileQualityMonitoringService:
             ]
         }
         
-        # Get quality metrics for favorite datasets
-        for dataset_id in user_dashboard.favorite_datasets:
-            offline_data['quality_metrics'][dataset_id] = await self.get_quality_metrics_for_mobile(dataset_id)
+        # Get quality measurements for favorite datasets
+        for data_collection_id in user_dashboard.favorite_data_collections:
+            offline_data['quality_measurements'][data_collection_id] = await self.get_quality_measurements_for_mobile(data_collection_id)
         
         # Save to offline storage
         if self.offline_storage_service:

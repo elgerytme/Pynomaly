@@ -1,7 +1,7 @@
 """
-Detection CLI Interface
+Processing CLI Interface
 
-Command-line interface for anomaly detection operations.
+Command-line interface for anomaly processing operations.
 """
 
 import asyncio
@@ -21,7 +21,7 @@ from ...infrastructure.adapters.pyod_algorithm_adapter import PyODAlgorithmAdapt
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose output')
 @click.pass_context
 def cli(ctx, verbose):
-    """Pynomaly Python SDK CLI - Anomaly Detection Tools"""
+    """Software Python SDK CLI - Anomaly Processing Tools"""
     ctx.ensure_object(dict)
     ctx.obj['verbose'] = verbose
 
@@ -31,7 +31,7 @@ def cli(ctx, verbose):
 @click.option('--algorithm', '-a', default='isolation_forest',
               type=click.Choice(['isolation_forest', 'local_outlier_factor', 'one_class_svm', 
                                'elliptic_envelope', 'autoencoder']),
-              help='Algorithm to use for detection')
+              help='Algorithm to use for processing')
 @click.option('--contamination', '-c', default=0.1, type=float,
               help='Expected proportion of outliers')
 @click.option('--output', '-o', help='Output file for results (JSON format)')
@@ -48,8 +48,8 @@ def detect(ctx, data, algorithm, contamination, output, output_format):
     - Comma-separated numeric values (e.g., "1.0,2.0,3.0,100.0,4.0")
     
     Examples:
-        pynomaly-sdk detect --data "1,2,3,100,4,5" --algorithm isolation_forest
-        pynomaly-sdk detect --data data.csv --algorithm lof --contamination 0.05
+        software-sdk detect --data "1,2,3,100,4,5" --algorithm isolation_forest
+        software-sdk detect --data data.csv --algorithm lof --contamination 0.05
     """
     try:
         # Parse input data
@@ -60,7 +60,7 @@ def detect(ctx, data, algorithm, contamination, output, output_format):
             click.echo(f"Using algorithm: {algorithm}")
             click.echo(f"Contamination rate: {contamination}")
         
-        # Create detection request
+        # Create processing request
         algorithm_config = {
             "algorithm_type": algorithm,
             "parameters": {},
@@ -72,11 +72,11 @@ def detect(ctx, data, algorithm, contamination, output, output_format):
             algorithm_config=algorithm_config
         )
         
-        # Execute detection
+        # Execute processing
         if ctx.obj['verbose']:
-            click.echo("Starting anomaly detection...")
+            click.echo("Starting anomaly processing...")
         
-        result = asyncio.run(_execute_detection(request_dto))
+        result = asyncio.run(_execute_processing(request_dto))
         
         # Format and output results
         _output_results(result, output, output_format, ctx.obj['verbose'])
@@ -95,7 +95,7 @@ def recommend(ctx, data, top):
     Get algorithm recommendations for the provided data.
     
     Analyzes the data characteristics and suggests the most suitable
-    anomaly detection algorithms.
+    anomaly processing algorithms.
     """
     try:
         # Parse input data
@@ -122,11 +122,11 @@ def algorithms():
     algorithms_info = {
         "isolation_forest": {
             "description": "Isolation Forest - Fast tree-based algorithm",
-            "best_for": "Large datasets, general-purpose detection",
+            "best_for": "Large datasets, general-purpose processing",
             "complexity": "O(n log n)"
         },
         "local_outlier_factor": {
-            "description": "Local Outlier Factor - Density-based detection",
+            "description": "Local Outlier Factor - Density-based processing",
             "best_for": "Local outliers, varying density datasets",
             "complexity": "O(n²)"
         },
@@ -147,7 +147,7 @@ def algorithms():
         }
     }
     
-    click.echo("Supported Anomaly Detection Algorithms:\n")
+    click.echo("Supported Anomaly Processing Algorithms:\n")
     
     for algo_name, info in algorithms_info.items():
         click.echo(f"🔍 {algo_name}")
@@ -202,15 +202,15 @@ def _parse_data_input(data_input: str) -> List[float]:
         raise ValueError("Invalid data format. Provide comma-separated numbers or a valid file path.")
 
 
-async def _execute_detection(request_dto: DetectionRequestDTO) -> dict:
+async def _execute_processing(request_dto: DetectionRequestDTO) -> dict:
     """
-    Execute anomaly detection using the application service.
+    Execute anomaly processing using the application service.
     
     Args:
-        request_dto: Detection request data.
+        request_dto: Processing request data.
         
     Returns:
-        dict: Detection results.
+        dict: Processing results.
     """
     # For CLI usage, we'll create a simple in-memory setup
     # In a real application, this would be injected via dependency injection
@@ -222,7 +222,7 @@ async def _execute_detection(request_dto: DetectionRequestDTO) -> dict:
     # Convert DTO to domain objects
     algorithm_config = AlgorithmConfig.from_dict(request_dto.algorithm_config)
     
-    # Execute detection directly
+    # Execute processing directly
     result = await algorithm_adapter.detect_anomalies(
         data=request_dto.data,
         algorithm_config=algorithm_config
@@ -258,10 +258,10 @@ async def _get_recommendations(data: List[float]) -> List[str]:
 
 def _output_results(result: dict, output_file: Optional[str], format_type: str, verbose: bool):
     """
-    Output detection results in the specified format.
+    Output processing results in the specified format.
     
     Args:
-        result: Detection results dictionary.
+        result: Processing results dictionary.
         output_file: Optional output file path.
         format_type: Output format (json, csv, text).
         verbose: Whether to include verbose output.
@@ -278,7 +278,7 @@ def _output_results(result: dict, output_file: Optional[str], format_type: str, 
         output_data = df.to_csv(index=False)
     elif format_type == 'text':
         anomaly_indices = [i for i, is_anomaly in enumerate(result['anomalies']) if is_anomaly]
-        output_data = f"""Anomaly Detection Results
+        output_data = f"""Anomaly Processing Results
 Algorithm: {result['algorithm_type']}
 Execution Time: {result['execution_time_ms']}ms
 Total Data Points: {len(result['anomalies'])}

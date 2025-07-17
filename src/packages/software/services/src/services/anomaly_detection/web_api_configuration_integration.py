@@ -1,7 +1,7 @@
 """Web API Configuration Integration Service.
 
 This service provides integration between web API endpoints and the configuration
-capture system, enabling automatic tracking of API-based anomaly detection workflows.
+capture system, enabling automatic tracking of API-based anomaly processing workflows.
 """
 
 from __future__ import annotations
@@ -131,17 +131,17 @@ class WebAPIConfigurationIntegration:
 
         return analysis
 
-    async def get_endpoint_performance_metrics(
+    async def get_endpoint_performance_measurements(
         self, endpoint: str, time_period_days: int = 7
     ) -> dict[str, Any]:
-        """Get performance metrics for a specific endpoint.
+        """Get performance measurements for a specific endpoint.
 
         Args:
             endpoint: API endpoint to analyze
             time_period_days: Time period for analysis
 
         Returns:
-            Endpoint performance metrics
+            Endpoint performance measurements
         """
         # Search for configurations from specific endpoint
         configurations = await self._get_endpoint_configurations(
@@ -175,8 +175,8 @@ class WebAPIConfigurationIntegration:
                 else:
                     error_count += 1
 
-        # Calculate metrics
-        metrics = {
+        # Calculate measurements
+        measurements = {
             "endpoint": endpoint,
             "time_period_days": time_period_days,
             "total_requests": len(configurations),
@@ -185,10 +185,10 @@ class WebAPIConfigurationIntegration:
             "success_rate": (
                 success_count / len(configurations) if configurations else 0
             ),
-            "performance_metrics": self._calculate_performance_metrics(response_times),
+            "performance_measurements": self._calculate_performance_measurements(response_times),
         }
 
-        return metrics
+        return measurements
 
     async def track_api_configuration_quality(self, config_id: UUID) -> dict[str, Any]:
         """Track the quality and effectiveness of an API configuration.
@@ -197,7 +197,7 @@ class WebAPIConfigurationIntegration:
             config_id: Configuration ID to track
 
         Returns:
-            Configuration quality metrics
+            Configuration quality measurements
         """
         # Load configuration
         config = await self.configuration_service.repository.load_configuration(
@@ -213,7 +213,7 @@ class WebAPIConfigurationIntegration:
             return {"error": "Invalid web API context"}
 
         # Analyze configuration quality
-        quality_metrics = {
+        quality_measurements = {
             "configuration_id": str(config_id),
             "endpoint": context.get("endpoint", "unknown"),
             "request_analysis": self._analyze_request_quality(
@@ -232,11 +232,11 @@ class WebAPIConfigurationIntegration:
         }
 
         # Calculate overall quality score
-        quality_metrics["overall_quality_score"] = self._calculate_overall_quality(
-            quality_metrics
+        quality_measurements["overall_quality_score"] = self._calculate_overall_quality(
+            quality_measurements
         )
 
-        return quality_metrics
+        return quality_measurements
 
     async def generate_api_configuration_report(
         self, time_period_days: int = 30
@@ -260,7 +260,7 @@ class WebAPIConfigurationIntegration:
 
         for endpoint_data in top_endpoints:
             endpoint = endpoint_data["endpoint"]
-            performance = await self.get_endpoint_performance_metrics(
+            performance = await self.get_endpoint_performance_measurements(
                 endpoint, time_period_days
             )
             endpoint_performance[endpoint] = performance
@@ -276,7 +276,7 @@ class WebAPIConfigurationIntegration:
                 usage_patterns, endpoint_performance
             ),
             "configuration_trends": self._analyze_configuration_trends(usage_patterns),
-            "quality_metrics": self._calculate_overall_api_quality(usage_patterns),
+            "quality_measurements": self._calculate_overall_api_quality(usage_patterns),
         }
 
         return report
@@ -356,7 +356,7 @@ class WebAPIConfigurationIntegration:
                 if response_config.get("status_code", 200) >= 400:
                     endpoint_errors[endpoint] += 1
 
-        # Calculate endpoint metrics
+        # Calculate endpoint measurements
         top_endpoints = []
         for endpoint, count in endpoint_counts.most_common(20):
             perf_times = endpoint_performance[endpoint]
@@ -429,7 +429,7 @@ class WebAPIConfigurationIntegration:
                     status_codes[response_config["status_code"]] += 1
 
         return {
-            "response_time_metrics": self._calculate_performance_metrics(
+            "response_time_measurements": self._calculate_performance_measurements(
                 response_times
             ),
             "status_code_distribution": dict(status_codes),
@@ -572,7 +572,7 @@ class WebAPIConfigurationIntegration:
     def _calculate_performance_metrics(
         self, response_times: list[float]
     ) -> dict[str, float]:
-        """Calculate performance metrics from response times."""
+        """Calculate performance measurements from response times."""
         if not response_times:
             return {}
 
@@ -675,7 +675,7 @@ class WebAPIConfigurationIntegration:
         if "algorithm" in raw_parameters:
             completeness_score += 40
 
-        # Check for anomaly detection specific parameters
+        # Check for anomaly processing specific parameters
         anomaly_params = ["contamination", "threshold", "outlier", "anomaly", "score"]
         for param in anomaly_params:
             if any(param in str(key).lower() for key in raw_parameters.keys()):
@@ -683,14 +683,14 @@ class WebAPIConfigurationIntegration:
                 break
 
         # Check for data parameters
-        data_params = ["dataset", "features", "data", "samples"]
+        data_params = ["data_collection", "features", "data", "samples"]
         for param in data_params:
             if any(param in str(key).lower() for key in raw_parameters.keys()):
                 completeness_score += 15
                 break
 
         # Check for configuration parameters
-        config_params = ["model", "training", "cross_validation", "cv"]
+        config_params = ["processor", "training", "cross_validation", "cv"]
         for param in config_params:
             if any(param in str(key).lower() for key in raw_parameters.keys()):
                 completeness_score += 15
@@ -726,16 +726,16 @@ class WebAPIConfigurationIntegration:
 
     def _calculate_overall_quality(self, quality_metrics: dict[str, Any]) -> float:
         """Calculate overall quality score."""
-        request_quality = quality_metrics.get("request_analysis", {}).get(
+        request_quality = quality_measurements.get("request_analysis", {}).get(
             "quality_score", 0
         )
-        response_quality = quality_metrics.get("response_analysis", {}).get(
+        response_quality = quality_measurements.get("response_analysis", {}).get(
             "quality_score", 0
         )
-        param_completeness = quality_metrics.get("parameter_completeness", {}).get(
+        param_completeness = quality_measurements.get("parameter_completeness", {}).get(
             "completeness_score", 0
         )
-        performance_score = quality_metrics.get("performance_score", 0)
+        performance_score = quality_measurements.get("performance_score", 0)
 
         # Weighted average
         overall_score = (
@@ -757,7 +757,7 @@ class WebAPIConfigurationIntegration:
         )
         avg_response_time = (
             usage_patterns.get("performance_analysis", {})
-            .get("response_time_metrics", {})
+            .get("response_time_measurements", {})
             .get("mean_ms", 0)
         )
         success_rate = usage_patterns.get("performance_analysis", {}).get(
@@ -784,13 +784,13 @@ class WebAPIConfigurationIntegration:
 
         # Add endpoint-specific recommendations
         for endpoint, perf_data in endpoint_performance.items():
-            metrics = perf_data.get("performance_metrics", {})
-            if metrics.get("p95_ms", 0) > 1000:
+            measurements = perf_data.get("performance_measurements", {})
+            if measurements.get("p95_ms", 0) > 1000:
                 recommendations.append(
                     {
                         "type": "endpoint_optimization",
                         "title": f"Optimize {endpoint}",
-                        "description": f"95th percentile response time is {metrics['p95_ms']:.1f}ms",
+                        "description": f"95th percentile response time is {measurements['p95_ms']:.1f}ms",
                     }
                 )
 
@@ -831,10 +831,10 @@ class WebAPIConfigurationIntegration:
     def _calculate_overall_api_quality(
         self, usage_patterns: dict[str, Any]
     ) -> dict[str, float]:
-        """Calculate overall API quality metrics."""
-        performance_metrics = usage_patterns.get("performance_analysis", {})
-        success_rate = performance_metrics.get("success_rate", 0)
-        avg_response_time = performance_metrics.get("response_time_metrics", {}).get(
+        """Calculate overall API quality measurements."""
+        performance_measurements = usage_patterns.get("performance_analysis", {})
+        success_rate = performance_measurements.get("success_rate", 0)
+        avg_response_time = performance_measurements.get("response_time_measurements", {}).get(
             "mean_ms", 0
         )
 

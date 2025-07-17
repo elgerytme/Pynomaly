@@ -43,7 +43,7 @@ class FeatureEngineeringService(IFeatureEngineeringService):
     async def engineer_features(
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> FeatureEngineeringResult:
-        """Engineer features for improved model performance.
+        """Engineer features for improved processor performance.
 
         Args:
             X: Input features
@@ -52,7 +52,7 @@ class FeatureEngineeringService(IFeatureEngineeringService):
         Returns:
             Feature engineering result with transformed data
         """
-        logger.info("🔧 Engineering features for improved model performance")
+        logger.info("🔧 Engineering features for improved processor performance")
 
         try:
             # Start with original data

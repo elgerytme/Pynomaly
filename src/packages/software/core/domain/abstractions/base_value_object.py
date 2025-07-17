@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 class BaseValueObject(BaseModel, ABC):
     """Base value object interface."""
 
-    model_config = ConfigDict(
+    processor_config = ConfigDict(
         allow_mutation=False
     )
 

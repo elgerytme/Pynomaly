@@ -1,4 +1,4 @@
-# Monorepo 🏗️
+# Pynomaly 🔍
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -9,16 +9,16 @@
 [![Clean Architecture](https://img.shields.io/badge/architecture-clean-green.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![Domain Driven Design](https://img.shields.io/badge/design-DDD-orange.svg)](https://www.domainlanguage.com/ddd/)
 
-A general-purpose Python monorepo implementing clean architecture patterns with domain-driven design. This repository demonstrates enterprise-ready software organization with multiple packages, shared infrastructure, and comprehensive development tooling.
+Advanced anomaly detection platform built as a Python monorepo implementing clean architecture patterns with domain-driven design. Pynomaly provides enterprise-ready anomaly detection capabilities with multiple specialized packages, shared infrastructure, and comprehensive development tooling.
 
-**Architecture**: Clean monorepo with domain-driven design, hexagonal architecture, comprehensive testing, automated governance, and enterprise development practices.
+**Architecture**: Clean monorepo with domain-driven design, hexagonal architecture, comprehensive testing, automated governance, and enterprise development practices focused on anomaly detection.
 
-## 🏗️ Monorepo Architecture
+## 🏗️ Platform Architecture
 
-This monorepo demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages, shared infrastructure, and comprehensive development tooling.
+Pynomaly demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for anomaly detection, shared infrastructure, and comprehensive development tooling.
 
 ```
-monorepo/
+pynomaly/
 ├── src/packages/           # 🎯 Domain packages (clean architecture)
 │   ├── core/              # Shared domain logic & foundational patterns
 │   ├── anomaly_detection/ # Data analysis and anomaly detection domain

@@ -2,7 +2,7 @@
 
 This service provides sophisticated ensemble capabilities including:
 - Dynamic ensemble selection with intelligent algorithm combination
-- Meta-learning framework for cross-dataset knowledge transfer
+- Meta-learning framework for cross-data_collection knowledge transfer
 - Automated ensemble optimization with diversity analysis
 - Advanced voting strategies with learned weights
 - Cross-domain knowledge transfer and adaptation
@@ -63,7 +63,7 @@ class EnsembleStrategy(BaseModel):
 
 
 class DiversityMetrics(BaseModel):
-    """Diversity analysis metrics for ensemble validation."""
+    """Diversity analysis measurements for ensemble validation."""
 
     disagreement_measure: float = Field(
         description="Average disagreement between classifiers"
@@ -79,8 +79,8 @@ class DiversityMetrics(BaseModel):
 class MetaLearningKnowledge(BaseModel):
     """Meta-learning knowledge representation."""
 
-    dataset_characteristics: dict[str, Any] = Field(
-        description="Dataset characteristics"
+    data_collection_characteristics: dict[str, Any] = Field(
+        description="DataCollection characteristics"
     )
     algorithm_performance: dict[str, float] = Field(
         description="Algorithm performance mapping"
@@ -90,7 +90,7 @@ class MetaLearningKnowledge(BaseModel):
     diversity_requirements: dict[str, float] = Field(
         description="Diversity requirements"
     )
-    performance_metrics: dict[str, float] = Field(description="Performance metrics")
+    performance_measurements: dict[str, float] = Field(description="Performance measurements")
     confidence_score: float = Field(description="Confidence in recommendation")
     timestamp: datetime = Field(
         default_factory=datetime.now, description="Knowledge creation time"
@@ -240,14 +240,14 @@ class AdvancedEnsembleService:
 
     async def create_intelligent_ensemble(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithms: list[str] | None = None,
         config: EnsembleConfiguration | None = None,
     ) -> tuple[list[Detector], dict[str, Any]]:
         """Create an intelligent ensemble using meta-learning and optimization.
 
         Args:
-            dataset: Dataset for ensemble creation
+            data_collection: DataCollection for ensemble creation
             algorithms: List of algorithms to consider (None for auto-selection)
             config: Ensemble configuration
 
@@ -258,13 +258,13 @@ class AdvancedEnsembleService:
 
         logger.info("Creating intelligent ensemble with meta-learning")
 
-        # Step 1: Analyze dataset characteristics
-        dataset_chars = self._analyze_dataset_for_ensemble(dataset)
+        # Step 1: Analyze data_collection characteristics
+        data_collection_chars = self._analyze_data_collection_for_ensemble(data_collection)
 
         # Step 2: Apply meta-learning for algorithm selection
         if self.enable_meta_learning and algorithms is None:
             algorithms = await self._meta_learning_algorithm_selection(
-                dataset_chars, config
+                data_collection_chars, config
             )
         else:
             algorithms = algorithms or [
@@ -274,45 +274,45 @@ class AdvancedEnsembleService:
             ]
 
         # Step 3: Create and train base detectors
-        base_detectors = await self._create_base_detectors(dataset, algorithms, config)
+        base_detectors = await self._create_base_detectors(data_collection, algorithms, config)
 
         # Step 4: Evaluate individual detector performance
         individual_performance = await self._evaluate_individual_detectors(
-            base_detectors, dataset, config
+            base_detectors, data_collection, config
         )
 
         # Step 5: Analyze ensemble diversity
-        diversity_metrics = await self._analyze_ensemble_diversity(
-            base_detectors, dataset
+        diversity_measurements = await self._analyze_ensemble_diversity(
+            base_detectors, data_collection
         )
 
         # Step 6: Optimize ensemble composition
         optimized_ensemble = await self._optimize_ensemble_composition(
-            base_detectors, individual_performance, diversity_metrics, config
+            base_detectors, individual_performance, diversity_measurements, config
         )
 
         # Step 7: Learn optimal ensemble weights
         ensemble_weights = await self._learn_ensemble_weights(
-            optimized_ensemble, dataset, config
+            optimized_ensemble, data_collection, config
         )
 
         # Step 8: Store meta-learning knowledge
         if self.enable_meta_learning:
             await self._store_meta_knowledge(
-                dataset_chars,
+                data_collection_chars,
                 optimized_ensemble,
                 ensemble_weights,
                 individual_performance,
-                diversity_metrics,
+                diversity_measurements,
             )
 
         # Step 9: Generate ensemble report
         ensemble_report = self._generate_ensemble_report(
             optimized_ensemble,
             individual_performance,
-            diversity_metrics,
+            diversity_measurements,
             ensemble_weights,
-            dataset_chars,
+            data_collection_chars,
             config,
         )
 
@@ -321,8 +321,8 @@ class AdvancedEnsembleService:
         return optimized_ensemble, ensemble_report
 
     def _analyze_dataset_for_ensemble(self, dataset: Dataset) -> dict[str, Any]:
-        """Analyze dataset characteristics for ensemble optimization."""
-        data = dataset.data
+        """Analyze data_collection characteristics for ensemble optimization."""
+        data = data_collection.data
         n_samples, n_features = data.shape
 
         characteristics = {
@@ -456,7 +456,7 @@ class AdvancedEnsembleService:
             return {"cluster_tendency": 0.5, "separability": 0.5}
 
     def _estimate_anomaly_likelihood(self, data: np.ndarray) -> float:
-        """Estimate likelihood of anomalies in the dataset."""
+        """Estimate likelihood of anomalies in the data_collection."""
         try:
             # Use statistical measures to estimate anomaly likelihood
 
@@ -484,7 +484,7 @@ class AdvancedEnsembleService:
             return 0.1  # Default low anomaly likelihood
 
     def _categorize_dimensionality(self, n_features: int) -> str:
-        """Categorize dataset dimensionality."""
+        """Categorize data_collection dimensionality."""
         if n_features <= 5:
             return "low"
         elif n_features <= 20:
@@ -512,7 +512,7 @@ class AdvancedEnsembleService:
             return 0.3
 
     async def _meta_learning_algorithm_selection(
-        self, dataset_chars: dict[str, Any], config: EnsembleConfiguration
+        self, data_collection_chars: dict[str, Any], config: EnsembleConfiguration
     ) -> list[str]:
         """Select algorithms using meta-learning knowledge."""
         if not self.meta_knowledge:
@@ -523,8 +523,8 @@ class AdvancedEnsembleService:
         similar_cases = []
 
         for knowledge in self.meta_knowledge:
-            similarity = self._calculate_dataset_similarity(
-                dataset_chars, knowledge.dataset_characteristics
+            similarity = self._calculate_data_collection_similarity(
+                data_collection_chars, knowledge.data_collection_characteristics
             )
 
             if similarity > 0.6:  # Similarity threshold
@@ -564,7 +564,7 @@ class AdvancedEnsembleService:
     def _calculate_dataset_similarity(
         self, chars1: dict[str, Any], chars2: dict[str, Any]
     ) -> float:
-        """Calculate similarity between dataset characteristics."""
+        """Calculate similarity between data_collection characteristics."""
         # Key characteristics for similarity
         key_features = [
             "n_samples",
@@ -640,7 +640,7 @@ class AdvancedEnsembleService:
         return diverse_algorithms[: config.max_ensemble_size]
 
     async def _create_base_detectors(
-        self, dataset: Dataset, algorithms: list[str], config: EnsembleConfiguration
+        self, data_collection: DataCollection, algorithms: list[str], config: EnsembleConfiguration
     ) -> list[Detector]:
         """Create and train base detectors."""
         detectors = []
@@ -651,7 +651,7 @@ class AdvancedEnsembleService:
                 from monorepo.infrastructure.adapters import SklearnAdapter
 
                 detector = SklearnAdapter(algorithm)
-                detector.fit(dataset)
+                detector.fit(data_collection)
                 detectors.append(detector)
 
                 logger.debug(f"Created detector: {algorithm}")
@@ -665,13 +665,13 @@ class AdvancedEnsembleService:
             from monorepo.infrastructure.adapters import SklearnAdapter
 
             default_detector = SklearnAdapter("IsolationForest")
-            default_detector.fit(dataset)
+            default_detector.fit(data_collection)
             detectors = [default_detector]
 
         return detectors
 
     async def _evaluate_individual_detectors(
-        self, detectors: list[Detector], dataset: Dataset, config: EnsembleConfiguration
+        self, detectors: list[Detector], data_collection: DataCollection, config: EnsembleConfiguration
     ) -> dict[str, dict[str, float]]:
         """Evaluate individual detector performance."""
         performance = {}
@@ -681,28 +681,28 @@ class AdvancedEnsembleService:
 
             try:
                 # Generate predictions
-                scores = detector.predict(dataset)
+                scores = detector.predict(data_collection)
 
                 # Create synthetic evaluation data
-                eval_data = self._create_evaluation_dataset(dataset)
+                eval_data = self._create_evaluation_data_collection(data_collection)
                 eval_scores = detector.predict(eval_data)
 
-                # Calculate performance metrics
+                # Calculate performance measurements
                 if "labels" in eval_data.metadata:
                     labels = eval_data.metadata["labels"]
 
-                    # Calculate various metrics
-                    metrics = self._calculate_performance_metrics(eval_scores, labels)
+                    # Calculate various measurements
+                    measurements = self._calculate_performance_measurements(eval_scores, labels)
                 else:
-                    # Fallback metrics without ground truth
-                    metrics = {
+                    # Fallback measurements without ground truth
+                    measurements = {
                         "anomaly_ratio": np.mean(scores > np.percentile(scores, 90)),
                         "score_variance": np.var(scores),
                         "score_range": np.max(scores) - np.min(scores),
                         "estimated_accuracy": 0.7,  # Default estimate
                     }
 
-                performance[detector_name] = metrics
+                performance[detector_name] = measurements
 
             except Exception as e:
                 logger.warning(f"Failed to evaluate detector {detector_name}: {e}")
@@ -711,9 +711,9 @@ class AdvancedEnsembleService:
         return performance
 
     def _create_evaluation_dataset(self, dataset: Dataset) -> Dataset:
-        """Create evaluation dataset with synthetic anomalies."""
+        """Create evaluation data_collection with synthetic anomalies."""
         # Use portion of original data as normal
-        normal_data = dataset.data[: int(len(dataset.data) * 0.8)]
+        normal_data = data_collection.data[: int(len(data_collection.data) * 0.8)]
 
         # Generate synthetic anomalies
         n_anomalies = max(1, int(len(normal_data) * 0.1))
@@ -723,10 +723,10 @@ class AdvancedEnsembleService:
         eval_data = np.vstack([normal_data, anomalies])
         eval_labels = np.hstack([np.zeros(len(normal_data)), np.ones(len(anomalies))])
 
-        return Dataset(
-            name=f"{dataset.name}_eval",
+        return DataCollection(
+            name=f"{data_collection.name}_eval",
             data=eval_data,
-            features=dataset.features,
+            features=data_collection.features,
             metadata={"labels": eval_labels},
         )
 
@@ -749,18 +749,18 @@ class AdvancedEnsembleService:
     def _calculate_performance_metrics(
         self, scores: np.ndarray, labels: np.ndarray
     ) -> dict[str, float]:
-        """Calculate performance metrics for detector evaluation."""
+        """Calculate performance measurements for detector evaluation."""
         try:
-            metrics = {}
+            measurements = {}
 
             if SKLEARN_AVAILABLE and len(np.unique(labels)) > 1:
                 # ROC AUC
-                metrics["roc_auc"] = roc_auc_score(labels, scores)
+                measurements["roc_auc"] = roc_auc_score(labels, scores)
 
                 # Accuracy with threshold
                 threshold = np.percentile(scores, 90)
                 predictions = (scores > threshold).astype(int)
-                metrics["accuracy"] = accuracy_score(labels, predictions)
+                measurements["accuracy"] = accuracy_score(labels, predictions)
 
                 # Precision and recall
                 true_positives = np.sum((predictions == 1) & (labels == 1))
@@ -778,33 +778,33 @@ class AdvancedEnsembleService:
                     else 0
                 )
 
-                metrics["precision"] = precision
-                metrics["recall"] = recall
-                metrics["f1_score"] = (
+                measurements["precision"] = precision
+                measurements["recall"] = recall
+                measurements["f1_score"] = (
                     2 * precision * recall / (precision + recall)
                     if (precision + recall) > 0
                     else 0
                 )
 
             else:
-                # Fallback metrics
+                # Fallback measurements
                 threshold = np.percentile(scores, 90)
                 predictions = (scores > threshold).astype(int)
                 accuracy = np.mean(predictions == labels) if len(labels) > 0 else 0.5
-                metrics["estimated_accuracy"] = accuracy
+                measurements["estimated_accuracy"] = accuracy
 
-            # Additional metrics
-            metrics["anomaly_ratio"] = np.mean(scores > np.percentile(scores, 90))
-            metrics["score_variance"] = np.var(scores)
+            # Additional measurements
+            measurements["anomaly_ratio"] = np.mean(scores > np.percentile(scores, 90))
+            measurements["score_variance"] = np.var(scores)
 
-            return metrics
+            return measurements
 
         except Exception as e:
-            logger.warning(f"Failed to calculate metrics: {e}")
+            logger.warning(f"Failed to calculate measurements: {e}")
             return {"estimated_accuracy": 0.5, "anomaly_ratio": 0.1}
 
     async def _analyze_ensemble_diversity(
-        self, detectors: list[Detector], dataset: Dataset
+        self, detectors: list[Detector], data_collection: DataCollection
     ) -> DiversityMetrics:
         """Analyze diversity among ensemble detectors."""
         if len(detectors) < 2:
@@ -823,7 +823,7 @@ class AdvancedEnsembleService:
         predictions_matrix = []
 
         for detector in detectors:
-            scores = detector.predict(dataset)
+            scores = detector.predict(data_collection)
             # Convert to binary predictions
             threshold = np.percentile(scores, 90)
             binary_predictions = (scores > threshold).astype(int)
@@ -831,15 +831,15 @@ class AdvancedEnsembleService:
 
         predictions_matrix = np.array(predictions_matrix)
 
-        # Calculate diversity metrics
-        diversity_metrics = self._calculate_diversity_metrics(predictions_matrix)
+        # Calculate diversity measurements
+        diversity_measurements = self._calculate_diversity_measurements(predictions_matrix)
 
-        return diversity_metrics
+        return diversity_measurements
 
     def _calculate_diversity_metrics(
         self, predictions_matrix: np.ndarray
     ) -> DiversityMetrics:
-        """Calculate comprehensive diversity metrics."""
+        """Calculate comprehensive diversity measurements."""
         n_classifiers, n_samples = predictions_matrix.shape
 
         # Disagreement measure
@@ -877,7 +877,7 @@ class AdvancedEnsembleService:
 
         n_pairs = n_classifiers * (n_classifiers - 1) / 2
 
-        # Average metrics
+        # Average measurements
         avg_disagreement = disagreement / n_pairs if n_pairs > 0 else 0
         avg_correlation = correlation_sum / n_pairs if n_pairs > 0 else 0
         avg_q_statistic = np.mean(q_statistics) if q_statistics else 0
@@ -970,7 +970,7 @@ class AdvancedEnsembleService:
         self,
         base_detectors: list[Detector],
         individual_performance: dict[str, dict[str, float]],
-        diversity_metrics: DiversityMetrics,
+        diversity_measurements: DiversityMetrics,
         config: EnsembleConfiguration,
     ) -> list[Detector]:
         """Optimize ensemble composition using performance and diversity."""
@@ -991,7 +991,7 @@ class AdvancedEnsembleService:
             )
 
             # Diversity contribution (simplified)
-            diversity_score = diversity_metrics.overall_diversity
+            diversity_score = diversity_measurements.overall_diversity
 
             # Combined score
             combined_score = (
@@ -1013,7 +1013,7 @@ class AdvancedEnsembleService:
     async def _learn_ensemble_weights(
         self,
         ensemble_detectors: list[Detector],
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: EnsembleConfiguration,
     ) -> dict[str, float]:
         """Learn optimal ensemble weights."""
@@ -1022,26 +1022,26 @@ class AdvancedEnsembleService:
             weight = 1.0 / len(ensemble_detectors)
             return {f"detector_{i}": weight for i in range(len(ensemble_detectors))}
 
-        # Create evaluation dataset
-        eval_dataset = self._create_evaluation_dataset(dataset)
+        # Create evaluation data_collection
+        eval_data_collection = self._create_evaluation_data_collection(data_collection)
 
         # Get predictions from all detectors
         predictions = []
         for detector in ensemble_detectors:
-            scores = detector.predict(eval_dataset)
+            scores = detector.predict(eval_data_collection)
             predictions.append(scores)
 
         predictions = np.array(predictions)
 
         # Learn weights using cross-validation
-        weights = await self._optimize_weights_cv(predictions, eval_dataset, config)
+        weights = await self._optimize_weights_cv(predictions, eval_data_collection, config)
 
         return {f"detector_{i}": weight for i, weight in enumerate(weights)}
 
     async def _optimize_weights_cv(
         self,
         predictions: np.ndarray,
-        eval_dataset: Dataset,
+        eval_data_collection: DataCollection,
         config: EnsembleConfiguration,
     ) -> np.ndarray:
         """Optimize ensemble weights using cross-validation."""
@@ -1049,7 +1049,7 @@ class AdvancedEnsembleService:
             from scipy.optimize import minimize
 
             n_detectors = predictions.shape[0]
-            labels = eval_dataset.metadata.get("labels", np.zeros(predictions.shape[1]))
+            labels = eval_data_collection.metadata.get("labels", np.zeros(predictions.shape[1]))
 
             def objective_function(weights):
                 # Ensure weights sum to 1
@@ -1107,11 +1107,11 @@ class AdvancedEnsembleService:
 
     async def _store_meta_knowledge(
         self,
-        dataset_chars: dict[str, Any],
+        data_collection_chars: dict[str, Any],
         ensemble_detectors: list[Detector],
         ensemble_weights: dict[str, float],
         individual_performance: dict[str, dict[str, float]],
-        diversity_metrics: DiversityMetrics,
+        diversity_measurements: DiversityMetrics,
     ):
         """Store meta-learning knowledge for future use."""
         try:
@@ -1128,7 +1128,7 @@ class AdvancedEnsembleService:
 
             # Create meta-learning knowledge
             knowledge = MetaLearningKnowledge(
-                dataset_characteristics=dataset_chars,
+                data_collection_characteristics=data_collection_chars,
                 algorithm_performance={
                     name: individual_performance.get(f"detector_{i}", {}).get(
                         "roc_auc", 0.5
@@ -1138,15 +1138,15 @@ class AdvancedEnsembleService:
                 ensemble_composition=algorithm_names,
                 optimal_weights=ensemble_weights,
                 diversity_requirements={
-                    "min_diversity": diversity_metrics.overall_diversity,
-                    "target_disagreement": diversity_metrics.disagreement_measure,
+                    "min_diversity": diversity_measurements.overall_diversity,
+                    "target_disagreement": diversity_measurements.disagreement_measure,
                 },
-                performance_metrics={
+                performance_measurements={
                     "ensemble_performance": overall_performance,
-                    "diversity_score": diversity_metrics.overall_diversity,
+                    "diversity_score": diversity_measurements.overall_diversity,
                 },
                 confidence_score=min(
-                    1.0, overall_performance + diversity_metrics.overall_diversity * 0.3
+                    1.0, overall_performance + diversity_measurements.overall_diversity * 0.3
                 ),
             )
 
@@ -1213,9 +1213,9 @@ class AdvancedEnsembleService:
         self,
         ensemble_detectors: list[Detector],
         individual_performance: dict[str, dict[str, float]],
-        diversity_metrics: DiversityMetrics,
+        diversity_measurements: DiversityMetrics,
         ensemble_weights: dict[str, float],
-        dataset_chars: dict[str, Any],
+        data_collection_chars: dict[str, Any],
         config: EnsembleConfiguration,
     ) -> dict[str, Any]:
         """Generate comprehensive ensemble report."""
@@ -1226,16 +1226,16 @@ class AdvancedEnsembleService:
                 "creation_timestamp": datetime.now().isoformat(),
                 "meta_learning_enabled": self.enable_meta_learning,
             },
-            "dataset_characteristics": dataset_chars,
+            "data_collection_characteristics": data_collection_chars,
             "individual_performance": individual_performance,
-            "diversity_analysis": diversity_metrics.dict(),
+            "diversity_analysis": diversity_measurements.dict(),
             "ensemble_weights": ensemble_weights,
             "configuration": config.dict(),
             "performance_summary": self._calculate_ensemble_performance_summary(
-                individual_performance, diversity_metrics, ensemble_weights
+                individual_performance, diversity_measurements, ensemble_weights
             ),
             "recommendations": self._generate_ensemble_recommendations(
-                ensemble_detectors, diversity_metrics, config
+                ensemble_detectors, diversity_measurements, config
             ),
             "meta_learning_insights": self._generate_meta_learning_insights(),
         }
@@ -1245,7 +1245,7 @@ class AdvancedEnsembleService:
     def _calculate_ensemble_performance_summary(
         self,
         individual_performance: dict[str, dict[str, float]],
-        diversity_metrics: DiversityMetrics,
+        diversity_measurements: DiversityMetrics,
         ensemble_weights: dict[str, float],
     ) -> dict[str, float]:
         """Calculate ensemble performance summary."""
@@ -1263,7 +1263,7 @@ class AdvancedEnsembleService:
             weighted_performance /= total_weight
 
         # Diversity bonus
-        diversity_bonus = diversity_metrics.overall_diversity * 0.1
+        diversity_bonus = diversity_measurements.overall_diversity * 0.1
 
         # Estimated ensemble performance
         estimated_ensemble_performance = min(
@@ -1272,32 +1272,32 @@ class AdvancedEnsembleService:
 
         return {
             "weighted_individual_performance": weighted_performance,
-            "diversity_score": diversity_metrics.overall_diversity,
+            "diversity_score": diversity_measurements.overall_diversity,
             "estimated_ensemble_performance": estimated_ensemble_performance,
             "performance_improvement": max(
                 0, estimated_ensemble_performance - weighted_performance
             ),
             "confidence_score": min(
-                1.0, diversity_metrics.overall_diversity + weighted_performance * 0.5
+                1.0, diversity_measurements.overall_diversity + weighted_performance * 0.5
             ),
         }
 
     def _generate_ensemble_recommendations(
         self,
         ensemble_detectors: list[Detector],
-        diversity_metrics: DiversityMetrics,
+        diversity_measurements: DiversityMetrics,
         config: EnsembleConfiguration,
     ) -> list[str]:
         """Generate recommendations for ensemble improvement."""
         recommendations = []
 
         # Diversity recommendations
-        if diversity_metrics.overall_diversity < 0.3:
+        if diversity_measurements.overall_diversity < 0.3:
             recommendations.append(
                 "Consider adding more diverse algorithms to improve ensemble diversity"
             )
 
-        if diversity_metrics.correlation_coefficient > 0.8:
+        if diversity_measurements.correlation_coefficient > 0.8:
             recommendations.append(
                 "High correlation detected between detectors - consider removing similar algorithms"
             )
@@ -1315,7 +1315,7 @@ class AdvancedEnsembleService:
         # Strategy recommendations
         if (
             config.ensemble_strategy == "voting"
-            and diversity_metrics.overall_diversity > 0.7
+            and diversity_measurements.overall_diversity > 0.7
         ):
             recommendations.append(
                 "High diversity detected - consider weighted voting or stacking for better performance"
@@ -1349,7 +1349,7 @@ class AdvancedEnsembleService:
                 )
 
             # Track performance trends
-            knowledge.performance_metrics.get("ensemble_performance", 0.5)
+            knowledge.performance_measurements.get("ensemble_performance", 0.5)
             for algorithm, perf in knowledge.algorithm_performance.items():
                 if algorithm not in performance_trends:
                     performance_trends[algorithm] = []
@@ -1380,7 +1380,7 @@ class AdvancedEnsembleService:
         return insights
 
     async def predict_ensemble_performance(
-        self, dataset_chars: dict[str, Any], proposed_algorithms: list[str]
+        self, data_collection_chars: dict[str, Any], proposed_algorithms: list[str]
     ) -> dict[str, Any]:
         """Predict ensemble performance using meta-learning."""
         if not self.meta_knowledge:
@@ -1393,8 +1393,8 @@ class AdvancedEnsembleService:
         # Find similar cases
         similar_cases = []
         for knowledge in self.meta_knowledge:
-            similarity = self._calculate_dataset_similarity(
-                dataset_chars, knowledge.dataset_characteristics
+            similarity = self._calculate_data_collection_similarity(
+                data_collection_chars, knowledge.data_collection_characteristics
             )
             if similarity > 0.5:
                 similar_cases.append((knowledge, similarity))
@@ -1412,7 +1412,7 @@ class AdvancedEnsembleService:
 
         for knowledge, similarity in similar_cases:
             weight = similarity * knowledge.confidence_score
-            performance = knowledge.performance_metrics.get("ensemble_performance", 0.5)
+            performance = knowledge.performance_measurements.get("ensemble_performance", 0.5)
 
             predicted_performance += weight * performance
             total_weight += weight

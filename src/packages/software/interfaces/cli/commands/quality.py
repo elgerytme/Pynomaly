@@ -26,7 +26,7 @@ quality_app = typer.Typer(
 
 @quality_app.command("validate")
 def validate_dataset(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     rules_file: Optional[Path] = typer.Option(
         None, "--rules", "-r", help="Validation rules file (JSON/YAML)"
     ),
@@ -51,7 +51,7 @@ def validate_dataset(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ) -> None:
-    """Validate dataset against quality rules and constraints."""
+    """Validate data_collection against quality rules and constraints."""
     
     if not input_file.exists():
         console.print(f"[red]Error: Input file {input_file} does not exist[/red]")
@@ -65,7 +65,7 @@ def validate_dataset(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import quality packages
@@ -75,7 +75,7 @@ def validate_dataset(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Loading validation rules...")
             
@@ -93,9 +93,9 @@ def validate_dataset(
                         rules = json.load(f)
             else:
                 # Generate default rules based on validation type
-                rules = validation_service.generate_default_rules(dataset, validation_type)
+                rules = validation_service.generate_default_rules(data_collection, validation_type)
             
-            progress.update(task, description="Validating dataset...")
+            progress.update(task, description="Validating data_collection...")
             
             # Configure validation
             config = {
@@ -106,8 +106,8 @@ def validate_dataset(
             }
             
             # Perform validation
-            validation_results = validation_service.validate_dataset(
-                dataset, rules, config
+            validation_results = validation_service.validate_data_collection(
+                data_collection, rules, config
             )
             
             progress.update(task, description="Generating validation report...")
@@ -137,7 +137,7 @@ def validate_dataset(
             raise typer.Exit(1)
     
     # Display results summary
-    console.print("\n[green]✓ Dataset validation completed successfully![/green]")
+    console.print("\n[green]✓ DataCollection validation completed successfully![/green]")
     console.print(f"Results saved to: {output_file}")
     
     # Display validation summary
@@ -161,7 +161,7 @@ def validate_dataset(
 
 @quality_app.command("monitor")
 def monitor_quality(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     baseline_file: Optional[Path] = typer.Option(
         None, "--baseline", "-b", help="Baseline quality profile for comparison"
     ),
@@ -214,7 +214,7 @@ def monitor_quality(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Loading baseline and thresholds...")
             
@@ -246,16 +246,16 @@ def monitor_quality(
                         progress.update(task, description=f"Monitoring iteration {iteration}...")
                         
                         # Perform monitoring
-                        monitoring_results = monitoring_service.monitor_dataset_quality(
-                            dataset, baseline=baseline, thresholds=thresholds
+                        monitoring_results = monitoring_service.monitor_data_collection_quality(
+                            data_collection, baseline=baseline, thresholds=thresholds
                         )
                         
                         # Check for drift
                         if baseline and alert_on_drift:
                             drift_results = drift_service.detect_quality_drift(
-                                dataset, baseline, threshold=drift_threshold
+                                data_collection, baseline, threshold=drift_threshold
                             )
-                            monitoring_results["drift_detection"] = drift_results
+                            monitoring_results["drift_processing"] = drift_results
                         
                         # Save iteration results
                         timestamp = str(int(time.time()))
@@ -278,16 +278,16 @@ def monitor_quality(
                 progress.update(task, description="Performing quality monitoring...")
                 
                 # Single monitoring run
-                monitoring_results = monitoring_service.monitor_dataset_quality(
-                    dataset, baseline=baseline, thresholds=thresholds
+                monitoring_results = monitoring_service.monitor_data_collection_quality(
+                    data_collection, baseline=baseline, thresholds=thresholds
                 )
                 
                 # Check for drift
                 if baseline and alert_on_drift:
                     drift_results = drift_service.detect_quality_drift(
-                        dataset, baseline, threshold=drift_threshold
+                        data_collection, baseline, threshold=drift_threshold
                     )
-                    monitoring_results["drift_detection"] = drift_results
+                    monitoring_results["drift_processing"] = drift_results
                 
                 # Save results
                 results_file = output_dir / "monitoring_results.json"
@@ -326,9 +326,9 @@ def monitor_quality(
 
 @quality_app.command("cleanse")
 def cleanse_dataset(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
-        None, "--output", "-o", help="Output file for cleansed dataset"
+        None, "--output", "-o", help="Output file for cleansed data_collection"
     ),
     cleansing_rules: Optional[Path] = typer.Option(
         None, "--rules", "-r", help="Cleansing rules configuration file"
@@ -341,7 +341,7 @@ def cleanse_dataset(
         False, "--auto-fix", help="Automatically fix detected issues"
     ),
     backup_original: bool = typer.Option(
-        True, "--backup/--no-backup", help="Create backup of original dataset"
+        True, "--backup/--no-backup", help="Create backup of original data_collection"
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be cleansed without making changes"
@@ -351,7 +351,7 @@ def cleanse_dataset(
     ),
     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ) -> None:
-    """Cleanse dataset by fixing data quality issues."""
+    """Cleanse data_collection by fixing data quality issues."""
     
     if not input_file.exists():
         console.print(f"[red]Error: Input file {input_file} does not exist[/red]")
@@ -365,7 +365,7 @@ def cleanse_dataset(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import cleansing packages
@@ -375,11 +375,11 @@ def cleanse_dataset(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             if backup_original and not dry_run:
                 backup_file = input_file.parent / f"{input_file.stem}_backup{input_file.suffix}"
-                dataset.to_csv(backup_file, index=False)
+                data_collection.to_csv(backup_file, index=False)
                 console.print(f"[blue]Backup created: {backup_file}[/blue]")
             
             progress.update(task, description="Loading cleansing rules...")
@@ -399,7 +399,7 @@ def cleanse_dataset(
             progress.update(task, description="Analyzing data quality issues...")
             
             # Analyze issues first
-            quality_issues = cleansing_service.analyze_quality_issues(dataset)
+            quality_issues = cleansing_service.analyze_quality_issues(data_collection)
             
             if dry_run:
                 console.print("\n[yellow]DRY RUN - Issues that would be fixed:[/yellow]")
@@ -408,7 +408,7 @@ def cleanse_dataset(
                 console.print(f"\nTotal issues found: {len(quality_issues)}")
                 return
             
-            progress.update(task, description="Cleansing dataset...")
+            progress.update(task, description="Cleansing data_collection...")
             
             # Configure cleansing
             config = {
@@ -419,14 +419,14 @@ def cleanse_dataset(
             }
             
             # Perform cleansing
-            cleansed_dataset, cleansing_report = cleansing_service.cleanse_dataset(
-                dataset, config
+            cleansed_data_collection, cleansing_report = cleansing_service.cleanse_data_collection(
+                data_collection, config
             )
             
-            progress.update(task, description="Saving cleansed dataset...")
+            progress.update(task, description="Saving cleansed data_collection...")
             
-            # Save cleansed dataset
-            cleansed_dataset.to_csv(output_file, index=False)
+            # Save cleansed data_collection
+            cleansed_data_collection.to_csv(output_file, index=False)
             
             # Save cleansing report
             report_file = output_file.parent / f"{output_file.stem}_cleansing_report.json"
@@ -444,8 +444,8 @@ def cleanse_dataset(
                 console.print_exception()
             raise typer.Exit(1)
     
-    console.print("\n[green]✓ Dataset cleansing completed successfully![/green]")
-    console.print(f"Cleansed dataset saved to: {output_file}")
+    console.print("\n[green]✓ DataCollection cleansing completed successfully![/green]")
+    console.print(f"Cleansed data_collection saved to: {output_file}")
     console.print(f"Cleansing report saved to: {report_file}")
     
     # Display cleansing summary
@@ -467,13 +467,13 @@ def cleanse_dataset(
 
 @quality_app.command("score")
 def calculate_quality_score(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for quality score results"
     ),
-    scoring_model: str = typer.Option(
-        "comprehensive", "--model", "-m",
-        help="Scoring model: [comprehensive|weighted|ml_based|business_focused]"
+    scoring_processor: str = typer.Option(
+        "comprehensive", "--processor", "-m",
+        help="Scoring processor: [comprehensive|weighted|ml_based|business_focused]"
     ),
     weights_file: Optional[Path] = typer.Option(
         None, "--weights", "-w", help="Custom weights configuration file"
@@ -503,7 +503,7 @@ def calculate_quality_score(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import scoring packages
@@ -513,12 +513,12 @@ def calculate_quality_score(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
-            progress.update(task, description="Initializing scoring model...")
+            progress.update(task, description="Initializing scoring processor...")
             
             # Initialize services
-            if scoring_model == "ml_based":
+            if scoring_processor == "ml_based":
                 scoring_service = MLQualityAssessmentService()
             else:
                 scoring_service = QualityScoringService()
@@ -533,7 +533,7 @@ def calculate_quality_score(
             
             # Configure scoring
             config = {
-                "scoring_model": scoring_model,
+                "scoring_processor": scoring_processor,
                 "weights": weights,
                 "include_breakdown": include_breakdown,
                 "include_recommendations": include_recommendations,
@@ -541,7 +541,7 @@ def calculate_quality_score(
             }
             
             # Calculate quality score
-            scoring_results = scoring_service.calculate_quality_score(dataset, config)
+            scoring_results = scoring_service.calculate_quality_score(data_collection, config)
             
             progress.update(task, description="Generating quality report...")
             
@@ -552,7 +552,7 @@ def calculate_quality_score(
             # Generate detailed report if requested
             if include_breakdown:
                 report_file = output_file.parent / f"{output_file.stem}_detailed_report.html"
-                scoring_service.generate_quality_report(scoring_results, dataset, report_file)
+                scoring_service.generate_quality_report(scoring_results, data_collection, report_file)
             
             progress.update(task, description="Scoring complete!")
             
@@ -752,8 +752,8 @@ def manage_quality_alerts(
     alert_type: Optional[str] = typer.Option(
         None, "--type", "-t", help="Alert type: [threshold|drift|anomaly|custom]"
     ),
-    test_dataset: Optional[Path] = typer.Option(
-        None, "--test-data", help="Test dataset for alert testing"
+    test_data_collection: Optional[Path] = typer.Option(
+        None, "--test-data", help="Test data_collection for alert testing"
     ),
     format: str = typer.Option(
         "table", "--format", "-f", help="Output format: [table|json|csv]"
@@ -831,14 +831,14 @@ def manage_quality_alerts(
                 console.print("[red]Alert configuration file required for testing[/red]")
                 raise typer.Exit(1)
             
-            if test_dataset and test_dataset.exists():
-                # Test with actual dataset
+            if test_data_collection and test_data_collection.exists():
+                # Test with actual data_collection
                 from packages.data_profiling.application.services.data_source_adapter import DataSourceAdapter
                 
                 adapter = DataSourceAdapter()
-                dataset = adapter.load_dataset(str(test_dataset))
+                data_collection = adapter.load_data_collection(str(test_data_collection))
                 
-                test_results = alerting_service.test_alerts(alert_config, dataset)
+                test_results = alerting_service.test_alerts(alert_config, data_collection)
             else:
                 # Test with synthetic data
                 test_results = alerting_service.test_alerts(alert_config)

@@ -7,7 +7,7 @@
 
 ## Overview
 
-Pynomaly API uses JWT (JSON Web Token) based authentication for securing endpoints. This guide covers authentication setup, token management, and security best practices.
+Software API uses JWT (JSON Web Token) based authentication for securing endpoints. This guide covers authentication setup, token management, and security best practices.
 
 ## Authentication Flow
 
@@ -77,14 +77,14 @@ curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   "sub": "user123",
   "iat": 1640995200,
   "exp": 1640998800,
-  "iss": "pynomaly-api",
-  "aud": ["pynomaly-clients"],
+  "iss": "software-api",
+  "aud": ["software-clients"],
   "roles": ["data_scientist"],
   "permissions": [
     "detector:create",
     "detector:read",
-    "dataset:upload",
-    "detection:predict"
+    "data_collection:upload",
+    "processing:predict"
   ]
 }
 ```
@@ -119,7 +119,7 @@ The API validates tokens on each request:
 | Role | Description | Permissions |
 |------|-------------|-------------|
 | `admin` | Full system access | All permissions |
-| `data_scientist` | ML model development | Create/manage detectors, datasets, experiments |
+| `data_scientist` | ML processor development | Create/manage detectors, datasets, experiments |
 | `analyst` | Data analysis | Read access, run predictions |
 | `viewer` | Read-only access | View detectors, datasets, results |
 
@@ -128,9 +128,9 @@ The API validates tokens on each request:
 Permissions use the format: `resource:action`
 
 **Resources:**
-- `detector` - Anomaly detection models
-- `dataset` - Training and test data
-- `detection` - Prediction operations
+- `detector` - Anomaly processing models
+- `data_collection` - Training and test data
+- `processing` - Prediction operations
 - `experiment` - ML experiments
 - `user` - User management
 - `system` - System configuration
@@ -147,22 +147,22 @@ Permissions use the format: `resource:action`
 ```json
 {
   "admin": [
-    "detector:*", "dataset:*", "detection:*",
+    "detector:*", "data_collection:*", "processing:*",
     "experiment:*", "user:*", "system:*"
   ],
   "data_scientist": [
     "detector:create", "detector:read", "detector:update",
-    "dataset:create", "dataset:read", "dataset:update",
-    "detection:train", "detection:predict", "detection:explain",
+    "data_collection:create", "data_collection:read", "data_collection:update",
+    "processing:train", "processing:predict", "processing:explain",
     "experiment:create", "experiment:read", "experiment:update"
   ],
   "analyst": [
-    "detector:read", "dataset:read",
-    "detection:predict", "detection:explain",
+    "detector:read", "data_collection:read",
+    "processing:predict", "processing:explain",
     "experiment:read"
   ],
   "viewer": [
-    "detector:read", "dataset:read", "experiment:read"
+    "detector:read", "data_collection:read", "experiment:read"
   ]
 }
 ```
@@ -180,7 +180,7 @@ curl -X POST "http://localhost:8000/api/auth/api-keys" \
   -d '{
     "name": "Data Pipeline Service",
     "description": "Automated data processing pipeline",
-    "permissions": ["dataset:create", "detection:predict"],
+    "permissions": ["data_collection:create", "processing:predict"],
     "expires_at": "2024-12-31T23:59:59Z"
   }'
 ```
@@ -191,7 +191,7 @@ curl -X POST "http://localhost:8000/api/auth/api-keys" \
   "id": "ak_1234567890abcdef",
   "name": "Data Pipeline Service",
   "key": "pyn_live_1234567890abcdef1234567890abcdef",
-  "permissions": ["dataset:create", "detection:predict"],
+  "permissions": ["data_collection:create", "processing:predict"],
   "created_at": "2024-01-01T00:00:00Z",
   "expires_at": "2024-12-31T23:59:59Z"
 }
@@ -562,7 +562,7 @@ Enable debug logging for authentication:
 ```python
 import logging
 
-logging.getLogger("pynomaly.auth").setLevel(logging.DEBUG)
+logging.getLogger("software.auth").setLevel(logging.DEBUG)
 ```
 
 This will log detailed authentication information to help troubleshoot issues.
@@ -590,7 +590,7 @@ def validate_token_version(token: str, required_version: str = "v1"):
     return validate_token(token)
 ```
 
-This comprehensive authentication guide provides everything needed to securely implement and manage authentication in Pynomaly deployments.
+This comprehensive authentication guide provides everything needed to securely implement and manage authentication in Software deployments.
 
 ---
 

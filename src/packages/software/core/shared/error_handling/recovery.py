@@ -167,7 +167,7 @@ class RecoveryResult:
 
 @dataclass
 class RecoveryMetrics:
-    """Metrics for recovery operations."""
+    """Measurements for recovery operations."""
 
     total_recoveries: int = 0
     successful_recoveries: int = 0
@@ -209,7 +209,7 @@ class RecoveryMetrics:
         return self.total_attempts / self.total_recoveries
 
     def reset(self) -> None:
-        """Reset metrics."""
+        """Reset measurements."""
         self.total_recoveries = 0
         self.successful_recoveries = 0
         self.failed_recoveries = 0
@@ -275,7 +275,7 @@ class RecoveryHandler(ABC):
     def __init__(self, config: RecoveryConfig):
         """Initialize recovery handler."""
         self.config = config
-        self.metrics = RecoveryMetrics()
+        self.measurements = RecoveryMetrics()
 
     @abstractmethod
     async def can_handle(self, context: RecoveryContext) -> bool:
@@ -327,7 +327,7 @@ class RecoveryHandler(ABC):
                     recovery_time=datetime.utcnow() - start_time,
                 )
 
-                self.metrics.record_recovery(recovery_result)
+                self.measurements.record_recovery(recovery_result)
                 return recovery_result
 
             except Exception as e:
@@ -347,7 +347,7 @@ class RecoveryHandler(ABC):
             error=last_error,
         )
 
-        self.metrics.record_recovery(recovery_result)
+        self.measurements.record_recovery(recovery_result)
         return recovery_result
 
     @abstractmethod
@@ -681,7 +681,7 @@ class RecoveryManager:
         """
         self.config = config or RecoveryConfig()
         self.handlers: list[RecoveryHandler] = []
-        self.metrics = RecoveryMetrics()
+        self.measurements = RecoveryMetrics()
 
     def add_handler(self, handler: RecoveryHandler) -> None:
         """Add recovery handler."""
@@ -706,8 +706,8 @@ class RecoveryManager:
                 if await handler.can_handle(context):
                     result = await handler.execute_recovery(context)
 
-                    # Record metrics
-                    self.metrics.record_recovery(result)
+                    # Record measurements
+                    self.measurements.record_recovery(result)
                     return result
 
             except Exception as e:
@@ -725,16 +725,16 @@ class RecoveryManager:
             error=error,
         )
 
-        self.metrics.record_recovery(result)
+        self.measurements.record_recovery(result)
         return result
 
     def get_metrics(self) -> RecoveryMetrics:
-        """Get recovery metrics."""
-        return self.metrics
+        """Get recovery measurements."""
+        return self.measurements
 
     def reset_metrics(self) -> None:
-        """Reset recovery metrics."""
-        self.metrics.reset()
+        """Reset recovery measurements."""
+        self.measurements.reset()
 
 
 # Global recovery manager
@@ -885,7 +885,7 @@ async def recovery_context(
             raise e
     except Exception as e:
         # Convert to PynamolyError and attempt recovery
-        pynomaly_error = InfrastructureError(
+        software_error = InfrastructureError(
             error_code=ErrorCodes.INF_CACHE_UNAVAILABLE,
             message=f"Unexpected error in operation '{operation}': {str(e)}",
             cause=e,
@@ -893,7 +893,7 @@ async def recovery_context(
         )
 
         try:
-            result = await attempt_recovery(pynomaly_error, context)
+            result = await attempt_recovery(software_error, context)
             yield result
         except Exception:
             # Recovery failed, re-raise original error

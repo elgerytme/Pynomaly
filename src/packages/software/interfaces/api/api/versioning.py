@@ -1,5 +1,5 @@
 """
-API Versioning Strategy for Pynomaly
+API Versioning Strategy for Software
 
 This module implements a comprehensive API versioning strategy that supports:
 - Semantic versioning (v1, v2, etc.)
@@ -81,8 +81,8 @@ class APIVersionManager:
             status=APIVersionStatus.ACTIVE,
             release_date=datetime(2024, 1, 1),
             features={
-                "anomaly_detection",
-                "model_training",
+                "anomaly_processing",
+                "processor_training",
                 "health_monitoring",
                 "authentication",
                 "basic_mlops"
@@ -97,19 +97,19 @@ class APIVersionManager:
             status=APIVersionStatus.PREVIEW,
             release_date=datetime(2024, 6, 1),
             features={
-                "anomaly_detection",
-                "model_training",
+                "anomaly_processing",
+                "processor_training",
                 "health_monitoring",
                 "authentication",
                 "advanced_mlops",
                 "multi_tenancy",
                 "advanced_analytics",
-                "streaming_detection",
+                "streaming_processing",
                 "ensemble_methods"
             },
             breaking_changes=[
                 "Authentication endpoint response format changed",
-                "Detection response includes additional metadata",
+                "Processing response includes additional metadata",
                 "Training parameters validation is stricter"
             ],
             migration_guide="https://docs.example.com/migration/v2"
@@ -304,7 +304,7 @@ def create_version_router() -> APIRouter:
     """Create router for version management endpoints."""
     router = APIRouter(prefix="/api/version", tags=["API Versioning"])
 
-    @router.get("/", response_model=APIVersionsResponse)
+    @router.get("/", response_processor=APIVersionsResponse)
     async def get_versions():
         """Get all API versions."""
         versions = []
@@ -326,7 +326,7 @@ def create_version_router() -> APIRouter:
             versions=versions
         )
 
-    @router.get("/{version}", response_model=APIVersionResponse)
+    @router.get("/{version}", response_processor=APIVersionResponse)
     async def get_version(version: str):
         """Get specific version information."""
         info = version_manager.get_version_info(version)
@@ -344,7 +344,7 @@ def create_version_router() -> APIRouter:
             migration_guide=info.migration_guide
         )
 
-    @router.get("/{from_version}/compatibility/{to_version}", response_model=APICompatibilityResponse)
+    @router.get("/{from_version}/compatibility/{to_version}", response_processor=APICompatibilityResponse)
     async def get_compatibility(from_version: str, to_version: str):
         """Get compatibility information between versions."""
         compatibility = version_manager.get_version_compatibility(from_version, to_version)

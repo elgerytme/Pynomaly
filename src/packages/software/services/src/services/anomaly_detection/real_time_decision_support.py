@@ -141,7 +141,7 @@ class ExecutionResult:
     success: bool = False
     error_message: str | None = None
     output_data: dict[str, Any] = field(default_factory=dict)
-    metrics: dict[str, float] = field(default_factory=dict)
+    measurements: dict[str, float] = field(default_factory=dict)
 
 
 class DecisionEngine:
@@ -542,7 +542,7 @@ class DecisionEngine:
 
         # Add anomaly confidence reasoning
         anomaly_confidence = context.anomaly_data.get("confidence", 0.0)
-        reasoning.append(f"Anomaly detection confidence: {anomaly_confidence:.1%}")
+        reasoning.append(f"Anomaly processing confidence: {anomaly_confidence:.1%}")
 
         # Add specific condition reasoning
         for condition in rule.conditions:
@@ -909,7 +909,7 @@ class RealTimeDecisionSupport:
                 "actions_executed": len(execution_results),
                 "action_results": execution_results,
             },
-            metrics={
+            measurements={
                 "execution_time_seconds": (end_time - start_time).total_seconds(),
                 "actions_successful": sum(
                     1 for r in execution_results if r.get("success", False)
@@ -960,7 +960,7 @@ class RealTimeDecisionSupport:
         }
 
     def _update_rule_performance(self, rule_id: str, success: bool) -> None:
-        """Update performance metrics for a rule."""
+        """Update performance measurements for a rule."""
         if rule_id not in self.decision_engine.rule_performance:
             self.decision_engine.rule_performance[rule_id] = {
                 "total_executions": 0,
@@ -985,8 +985,8 @@ class RealTimeDecisionSupport:
                 return result
         return None
 
-    async def get_system_metrics(self) -> dict[str, Any]:
-        """Get system performance metrics."""
+    async def get_system_measurements(self) -> dict[str, Any]:
+        """Get system performance measurements."""
         recent_executions = [
             result
             for result in self.decision_engine.execution_history
@@ -1004,7 +1004,7 @@ class RealTimeDecisionSupport:
             "success_rate_24h": successful / len(recent_executions),
             "average_execution_time_seconds": np.mean(
                 [
-                    result.metrics.get("execution_time_seconds", 0)
+                    result.measurements.get("execution_time_seconds", 0)
                     for result in recent_executions
                 ]
             ),

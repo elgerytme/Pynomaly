@@ -23,7 +23,7 @@ from interfaces.infrastructure.config.container import Container
 
 # Request/Response Models
 class OptimizationObjectiveRequest(BaseModel):
-    """Request model for optimization objective."""
+    """Request processor for optimization objective."""
 
     name: str = Field(
         ..., description="Objective name (auc, precision, recall, training_time, etc.)"
@@ -37,9 +37,9 @@ class OptimizationObjectiveRequest(BaseModel):
 
 
 class AdvancedOptimizationRequest(BaseModel):
-    """Request model for advanced hyperparameter optimization."""
+    """Request processor for advanced hyperparameter optimization."""
 
-    dataset_id: str = Field(..., description="Dataset identifier")
+    data_collection_id: str = Field(..., description="DataCollection identifier")
     algorithm: str = Field(..., description="Algorithm name")
     objectives: list[str] = Field(
         default=["auc"], description="Optimization objectives"
@@ -60,9 +60,9 @@ class AdvancedOptimizationRequest(BaseModel):
 
 
 class AutoMLRequest(BaseModel):
-    """Request model for automatic algorithm selection and optimization."""
+    """Request processor for automatic algorithm selection and optimization."""
 
-    dataset_id: str = Field(..., description="Dataset identifier")
+    data_collection_id: str = Field(..., description="DataCollection identifier")
     objectives: list[str] = Field(
         default=["auc"], description="Optimization objectives"
     )
@@ -75,9 +75,9 @@ class AutoMLRequest(BaseModel):
 
 
 class MultiObjectiveRequest(BaseModel):
-    """Request model for multi-objective optimization."""
+    """Request processor for multi-objective optimization."""
 
-    dataset_id: str = Field(..., description="Dataset identifier")
+    data_collection_id: str = Field(..., description="DataCollection identifier")
     objectives: list[OptimizationObjectiveRequest] = Field(
         ..., description="Multiple objectives"
     )
@@ -89,7 +89,7 @@ class MultiObjectiveRequest(BaseModel):
 
 
 class OptimizationInsightsResponse(BaseModel):
-    """Response model for optimization insights."""
+    """Response processor for optimization insights."""
 
     performance_analysis: dict[str, Any]
     optimization_analysis: dict[str, Any]
@@ -100,7 +100,7 @@ class OptimizationInsightsResponse(BaseModel):
 
 
 class EnhancedAutoMLResultResponse(BaseModel):
-    """Response model for enhanced AutoML results."""
+    """Response processor for enhanced AutoML results."""
 
     best_algorithm: str
     best_params: dict[str, Any]
@@ -144,7 +144,7 @@ def get_enhanced_automl_service(
 router = APIRouter(prefix="/api/v1/enhanced-automl", tags=["Enhanced AutoML"])
 
 
-@router.post("/optimize", response_model=EnhancedAutoMLResultResponse)
+@router.post("/optimize", response_processor=EnhancedAutoMLResultResponse)
 async def optimize_hyperparameters(
     request: AdvancedOptimizationRequest,
     background_tasks: BackgroundTasks,
@@ -187,7 +187,7 @@ async def optimize_hyperparameters(
 
         # Run optimization
         result = await service.advanced_optimize_hyperparameters(
-            dataset_id=request.dataset_id,
+            data_collection_id=request.data_collection_id,
             algorithm=request.algorithm,
             objectives=request.objectives,
         )
@@ -198,17 +198,17 @@ async def optimize_hyperparameters(
         raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
 
 
-@router.post("/auto-optimize", response_model=EnhancedAutoMLResultResponse)
+@router.post("/auto-optimize", response_processor=EnhancedAutoMLResultResponse)
 async def auto_optimize(
     request: AutoMLRequest,
     background_tasks: BackgroundTasks,
     service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
-    Automatically select and optimize the best algorithms for a dataset.
+    Automatically select and optimize the best algorithms for a data_collection.
 
     This endpoint provides comprehensive AutoML capabilities:
-    - Automatic algorithm recommendation based on dataset characteristics
+    - Automatic algorithm recommendation based on data_collection characteristics
     - Advanced hyperparameter optimization for multiple algorithms
     - Ensemble creation from top-performing models
     - Meta-learning for improved efficiency
@@ -234,7 +234,7 @@ async def auto_optimize(
 
         # Run auto-optimization
         result = await service.auto_select_and_optimize_advanced(
-            dataset_id=request.dataset_id,
+            data_collection_id=request.data_collection_id,
             objectives=request.objectives,
             max_algorithms=request.max_algorithms,
             enable_ensemble=request.enable_ensemble,
@@ -246,7 +246,7 @@ async def auto_optimize(
         raise HTTPException(status_code=500, detail=f"AutoML failed: {str(e)}")
 
 
-@router.post("/multi-objective", response_model=EnhancedAutoMLResultResponse)
+@router.post("/multi-objective", response_processor=EnhancedAutoMLResultResponse)
 async def multi_objective_optimization(
     request: MultiObjectiveRequest,
     background_tasks: BackgroundTasks,
@@ -259,7 +259,7 @@ async def multi_objective_optimization(
     - Performance vs Speed
     - Accuracy vs Memory Usage
     - Precision vs Recall
-    - Detection Rate vs False Positive Rate
+    - Processing Rate vs False Positive Rate
     """
     try:
         # Extract objective names and weights
@@ -286,7 +286,7 @@ async def multi_objective_optimization(
             for algorithm in request.algorithms:
                 try:
                     result = await service.advanced_optimize_hyperparameters(
-                        dataset_id=request.dataset_id,
+                        data_collection_id=request.data_collection_id,
                         algorithm=algorithm,
                         objectives=objective_names,
                     )
@@ -306,7 +306,7 @@ async def multi_objective_optimization(
         else:
             # Auto-select and optimize
             best_result = await service.auto_select_and_optimize_advanced(
-                dataset_id=request.dataset_id,
+                data_collection_id=request.data_collection_id,
                 objectives=objective_names,
                 max_algorithms=5,
             )
@@ -319,7 +319,7 @@ async def multi_objective_optimization(
         )
 
 
-@router.get("/insights/{optimization_id}", response_model=OptimizationInsightsResponse)
+@router.get("/insights/{optimization_id}", response_processor=OptimizationInsightsResponse)
 async def get_optimization_insights(
     optimization_id: str,
     service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
@@ -328,7 +328,7 @@ async def get_optimization_insights(
     Get detailed insights and recommendations from optimization results.
 
     Provides analysis of:
-    - Optimization quality metrics (exploration/exploitation balance)
+    - Optimization quality measurements (exploration/exploitation balance)
     - Parameter sensitivity analysis
     - Convergence stability assessment
     - Recommendations for improvement
@@ -374,25 +374,25 @@ async def get_optimization_insights(
         raise HTTPException(status_code=500, detail=f"Failed to get insights: {str(e)}")
 
 
-@router.get("/algorithms/recommendations/{dataset_id}")
+@router.get("/algorithms/recommendations/{data_collection_id}")
 async def get_algorithm_recommendations(
-    dataset_id: str,
+    data_collection_id: str,
     max_algorithms: int = 5,
     service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
-    Get algorithm recommendations based on dataset characteristics.
+    Get algorithm recommendations based on data_collection characteristics.
 
-    Analyzes dataset properties and recommends the most suitable algorithms
+    Analyzes data_collection properties and recommends the most suitable algorithms
     considering factors like:
-    - Dataset size and dimensionality
+    - DataCollection size and dimensionality
     - Data types (numerical, categorical, temporal)
     - Missing values and sparsity
     - Computational constraints
     """
     try:
-        # Profile dataset
-        profile = await service.profile_dataset(dataset_id)
+        # Profile data_collection
+        profile = await service.profile_data_collection(data_collection_id)
 
         # Get recommendations
         recommendations = service.recommend_algorithms(profile, max_algorithms)
@@ -416,7 +416,7 @@ async def get_algorithm_recommendations(
                 algorithm_details.append(details)
 
         return {
-            "dataset_profile": {
+            "data_collection_profile": {
                 "n_samples": profile.n_samples,
                 "n_features": profile.n_features,
                 "contamination_estimate": profile.contamination_estimate,
@@ -447,7 +447,7 @@ async def get_optimization_strategies():
     strategies = {
         "bayesian": {
             "name": "Bayesian Optimization",
-            "description": "Uses Gaussian processes to model the objective function and select promising parameters",
+            "description": "Uses Gaussian processes to processor the objective function and select promising parameters",
             "best_for": [
                 "Small to medium parameter spaces",
                 "Expensive evaluations",
@@ -484,7 +484,7 @@ async def get_optimization_strategies():
             "description": "Optimizes multiple conflicting objectives simultaneously",
             "best_for": [
                 "Trade-off analysis",
-                "Multiple performance metrics",
+                "Multiple performance measurements",
                 "Pareto optimization",
             ],
             "acquisition_functions": ["nsga2", "hypervolume"],

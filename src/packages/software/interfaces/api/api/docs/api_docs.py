@@ -15,26 +15,26 @@ router = APIRouter(prefix="/docs", include_in_schema=False)
 
 @router.get("/swagger", response_class=HTMLResponse)
 async def custom_swagger_ui_html(request: Request) -> HTMLResponse:
-    """Custom Swagger UI with Pynomaly branding."""
+    """Custom Swagger UI with Software branding."""
     openapi_url = str(request.url_for("openapi"))
 
     return HTMLResponse(
         get_custom_swagger_ui_html(
             openapi_url=openapi_url,
-            title="Pynomaly API Documentation",
+            title="Software API Documentation",
         )
     )
 
 
 @router.get("/redoc", response_class=HTMLResponse)
 async def custom_redoc_html(request: Request) -> HTMLResponse:
-    """Custom ReDoc documentation with Pynomaly branding."""
+    """Custom ReDoc documentation with Software branding."""
     openapi_url = str(request.url_for("openapi"))
 
     return HTMLResponse(
         get_custom_redoc_html(
             openapi_url=openapi_url,
-            title="Pynomaly API Reference",
+            title="Software API Reference",
         )
     )
 
@@ -49,8 +49,8 @@ async def generate_postman_collection(request: Request) -> JSONResponse:
     # Generate basic Postman collection structure
     collection = {
         "info": {
-            "name": "Pynomaly API",
-            "description": "Comprehensive anomaly detection API collection",
+            "name": "Software API",
+            "description": "Comprehensive anomaly processing API collection",
             "version": "1.0.0",
             "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         },
@@ -68,7 +68,7 @@ async def generate_postman_collection(request: Request) -> JSONResponse:
     return JSONResponse(
         content=collection,
         headers={
-            "Content-Disposition": "attachment; filename=pynomaly-api.postman_collection.json"
+            "Content-Disposition": "attachment; filename=software-api.postman_collection.json"
         },
     )
 
@@ -79,7 +79,7 @@ async def openapi_summary(request: Request) -> dict:
     # This would analyze the OpenAPI spec and provide a summary
     # For now, return a basic summary
     return {
-        "api_name": "Pynomaly API",
+        "api_name": "Software API",
         "version": "1.0.0",
         "total_endpoints": 65,  # Updated count with new endpoints
         "endpoint_categories": [
@@ -87,7 +87,7 @@ async def openapi_summary(request: Request) -> dict:
             "Health",
             "Datasets",
             "Detectors",
-            "Detection",
+            "Processing",
             "AutoML",
             "Enhanced AutoML",
             "Ensemble",
@@ -95,7 +95,7 @@ async def openapi_summary(request: Request) -> dict:
             "Experiments",
             "Export",
             "Performance",
-            "Model Lineage",
+            "Processor Lineage",
             "Streaming",
             "Events",
             "Administration",
@@ -105,9 +105,9 @@ async def openapi_summary(request: Request) -> dict:
             "Advanced AutoML with meta-learning",
             "Multi-objective optimization",
             "Ensemble learning capabilities",
-            "Model explainability and interpretation",
-            "Real-time streaming detection",
-            "Comprehensive model lineage tracking",
+            "Processor explainability and interpretation",
+            "Real-time streaming processing",
+            "Comprehensive processor lineage tracking",
         ],
         "authentication_methods": ["JWT Bearer Token", "API Key", "OAuth2"],
         "response_formats": ["JSON", "CSV", "Excel", "Parquet"],
@@ -137,8 +137,8 @@ async def openapi_summary(request: Request) -> dict:
             },
             "monitoring": {
                 "health_checks": True,
-                "performance_metrics": True,
-                "drift_detection": True,
+                "performance_measurements": True,
+                "drift_processing": True,
                 "alerts": True,
             },
         },
@@ -153,14 +153,14 @@ async def sdk_information() -> dict:
             {
                 "language": "Python",
                 "status": "official",
-                "installation": "pip install pynomaly-client",
+                "installation": "pip install software-client",
                 "documentation": "https://monorepo.readthedocs.io/python-sdk",
                 "repository": "https://github.com/pynomaly/pynomaly-python-client",
             },
             {
                 "language": "JavaScript/TypeScript",
                 "status": "community",
-                "installation": "npm install pynomaly-js",
+                "installation": "npm install software-js",
                 "documentation": "https://monorepo.readthedocs.io/js-sdk",
                 "repository": "https://github.com/pynomaly/pynomaly-js-client",
             },
@@ -250,14 +250,14 @@ def _generate_postman_items() -> list[dict]:
                     },
                 },
                 {
-                    "name": "System Metrics",
+                    "name": "System Measurements",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{base_url}}/health/metrics",
+                            "raw": "{{base_url}}/health/measurements",
                             "host": ["{{base_url}}"],
-                            "path": ["health", "metrics"],
+                            "path": ["health", "measurements"],
                         },
                     },
                 },
@@ -281,7 +281,7 @@ def _generate_postman_items() -> list[dict]:
                     },
                 },
                 {
-                    "name": "Upload Dataset",
+                    "name": "Upload DataCollection",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -293,7 +293,7 @@ def _generate_postman_items() -> list[dict]:
                                 {"key": "file", "type": "file", "src": []},
                                 {
                                     "key": "name",
-                                    "value": "Sample Dataset",
+                                    "value": "Sample DataCollection",
                                     "type": "text",
                                 },
                             ],
@@ -341,7 +341,7 @@ def _generate_postman_items() -> list[dict]:
             ],
         },
         {
-            "name": "Detection",
+            "name": "Processing",
             "item": [
                 {
                     "name": "Train Detector",
@@ -356,14 +356,14 @@ def _generate_postman_items() -> list[dict]:
                             "raw": json.dumps(
                                 {
                                     "detector_id": "detector_123",
-                                    "dataset_id": "dataset_456",
+                                    "data_collection_id": "data_collection_456",
                                 }
                             ),
                         },
                         "url": {
-                            "raw": "{{base_url}}/detection/train",
+                            "raw": "{{base_url}}/processing/train",
                             "host": ["{{base_url}}"],
-                            "path": ["detection", "train"],
+                            "path": ["processing", "train"],
                         },
                     },
                 },
@@ -388,9 +388,9 @@ def _generate_postman_items() -> list[dict]:
                             ),
                         },
                         "url": {
-                            "raw": "{{base_url}}/detection/predict",
+                            "raw": "{{base_url}}/processing/predict",
                             "host": ["{{base_url}}"],
-                            "path": ["detection", "predict"],
+                            "path": ["processing", "predict"],
                         },
                     },
                 },

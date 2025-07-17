@@ -1,7 +1,7 @@
 """
-Detection Request Entity
+Processing Request Entity
 
-Represents a request for anomaly detection in the system.
+Represents a request for anomaly processing in the system.
 """
 
 from datetime import datetime
@@ -14,10 +14,10 @@ from ..value_objects.detection_metadata import DetectionMetadata
 
 class DetectionRequest:
     """
-    Entity representing an anomaly detection request.
+    Entity representing an anomaly processing request.
     
     This entity encapsulates all information needed to perform
-    anomaly detection, including data, algorithm configuration,
+    anomaly processing, including data, algorithm configuration,
     and request metadata.
     """
     
@@ -38,17 +38,17 @@ class DetectionRequest:
         
     @property
     def id(self) -> UUID:
-        """Unique identifier for the detection request."""
+        """Unique identifier for the processing request."""
         return self._id
         
     @property
     def data(self) -> List[float]:
-        """Input data for anomaly detection."""
+        """Input data for anomaly processing."""
         return self._data.copy()
         
     @property
     def algorithm_config(self) -> AlgorithmConfig:
-        """Configuration for the detection algorithm."""
+        """Configuration for the processing algorithm."""
         return self._algorithm_config
         
     @property
@@ -63,7 +63,7 @@ class DetectionRequest:
         
     @property
     def status(self) -> str:
-        """Current status of the detection request."""
+        """Current status of the processing request."""
         return self._status
         
     def mark_as_processing(self) -> None:
@@ -81,7 +81,7 @@ class DetectionRequest:
         
     def validate(self) -> bool:
         """
-        Validate the detection request.
+        Validate the processing request.
         
         Returns:
             bool: True if the request is valid, False otherwise.

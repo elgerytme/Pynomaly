@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 
 class BaseResponse(BaseModel):
-    """Base response model with common metadata."""
+    """Base response processor with common metadata."""
 
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
@@ -39,7 +39,7 @@ class SuccessResponse(BaseResponse, Generic[T]):
 
 
 class ErrorResponse(BaseResponse):
-    """Standard error response model."""
+    """Standard error response processor."""
 
     success: bool = Field(False, description="Indicates failed operation")
     error: str = Field(..., description="Error message")
@@ -128,7 +128,7 @@ class PaginationResponse(BaseResponse, Generic[T]):
 
 
 class HealthResponse(BaseResponse):
-    """Health check response model."""
+    """Health check response processor."""
 
     status: str = Field(..., description="Overall health status")
     version: str = Field(..., description="Application version")
@@ -152,7 +152,7 @@ class HealthResponse(BaseResponse):
 
 
 class TaskResponse(BaseResponse):
-    """Asynchronous task response model."""
+    """Asynchronous task response processor."""
 
     task_id: str = Field(..., description="Unique task identifier")
     status: str = Field(..., description="Task status")
@@ -174,13 +174,13 @@ class TaskResponse(BaseResponse):
 
 
 class MetricsResponse(BaseResponse):
-    """Metrics and statistics response model."""
+    """Measurements and statistics response processor."""
 
-    metrics: dict[str, Any] = Field(..., description="Metrics data")
-    period: str = Field(..., description="Time period for metrics")
+    measurements: dict[str, Any] = Field(..., description="Measurements data")
+    period: str = Field(..., description="Time period for measurements")
     aggregation: str = Field(..., description="Aggregation method used")        json_schema_extra = {
             "example": {
-                "metrics": {
+                "measurements": {
                     "requests_total": 15420,
                     "avg_response_time": 0.245,
                     "error_rate": 0.02,
@@ -204,7 +204,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": SuccessResponse[Any].model_json_schema()}
+                "application/json": {"schema": SuccessResponse[Any].processor_json_schema()}
             },
         }
 
@@ -216,7 +216,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": SuccessResponse[Any].model_json_schema()}
+                "application/json": {"schema": SuccessResponse[Any].processor_json_schema()}
             },
         }
 
@@ -234,7 +234,7 @@ class HTTPResponses:
             "description": description,
             "content": {
                 "application/json": {
-                    "schema": ValidationErrorResponse.model_json_schema()
+                    "schema": ValidationErrorResponse.processor_json_schema()
                 }
             },
         }
@@ -247,7 +247,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": ErrorResponse.model_json_schema()}
+                "application/json": {"schema": ErrorResponse.processor_json_schema()}
             },
         }
 
@@ -257,7 +257,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": ErrorResponse.model_json_schema()}
+                "application/json": {"schema": ErrorResponse.processor_json_schema()}
             },
         }
 
@@ -267,7 +267,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": ErrorResponse.model_json_schema()}
+                "application/json": {"schema": ErrorResponse.processor_json_schema()}
             },
         }
 
@@ -277,7 +277,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": ErrorResponse.model_json_schema()}
+                "application/json": {"schema": ErrorResponse.processor_json_schema()}
             },
         }
 
@@ -287,7 +287,7 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": ErrorResponse.model_json_schema()}
+                "application/json": {"schema": ErrorResponse.processor_json_schema()}
             },
         }
 
@@ -297,6 +297,6 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {"schema": ErrorResponse.model_json_schema()}
+                "application/json": {"schema": ErrorResponse.processor_json_schema()}
             },
         }

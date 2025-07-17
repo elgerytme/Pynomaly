@@ -1,9 +1,9 @@
 """Advanced visualization dashboard service with real-time analytics.
 
 This service provides comprehensive enterprise-grade visualization capabilities including:
-- Real-time anomaly detection dashboards with interactive charts
+- Real-time anomaly processing dashboards with interactive charts
 - Executive summary dashboards with business KPIs and insights
-- Operational monitoring with system health and performance metrics
+- Operational monitoring with system health and performance measurements
 - Algorithm performance analytics with trends and comparisons
 - Interactive visualizations with D3.js, Apache ECharts, and Plotly
 - Real-time data streaming with WebSocket connections
@@ -106,11 +106,11 @@ class ChartConfig:
 
 @dataclass
 class RealTimeMetrics:
-    """Real-time metrics for dashboard updates."""
+    """Real-time measurements for dashboard updates."""
 
     timestamp: datetime = field(default_factory=datetime.utcnow)
     anomalies_detected: int = 0
-    detection_rate: float = 0.0
+    processing_rate: float = 0.0
     system_cpu_usage: float = 0.0
     system_memory_usage: float = 0.0
     active_detectors: int = 0
@@ -131,7 +131,7 @@ class DashboardData:
     title: str = ""
     generated_at: datetime = field(default_factory=datetime.utcnow)
     charts: list[dict[str, Any]] = field(default_factory=list)
-    metrics: dict[str, Any] = field(default_factory=dict)
+    measurements: dict[str, Any] = field(default_factory=dict)
     kpis: dict[str, float] = field(default_factory=dict)
     alerts: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -144,7 +144,7 @@ class DashboardData:
             "title": self.title,
             "generated_at": self.generated_at.isoformat(),
             "charts": self.charts,
-            "metrics": self.metrics,
+            "measurements": self.measurements,
             "kpis": self.kpis,
             "alerts": self.alerts,
             "metadata": self.metadata,
@@ -157,9 +157,9 @@ class VisualizationDashboardService:
     This service provides comprehensive visualization capabilities including:
     - Executive dashboards with business KPIs and strategic insights
     - Operational dashboards with real-time system monitoring
-    - Analytical dashboards with detailed anomaly detection analysis
+    - Analytical dashboards with detailed anomaly processing analysis
     - Performance dashboards with algorithm comparison and optimization
-    - Compliance dashboards with audit trails and regulatory metrics
+    - Compliance dashboards with audit trails and regulatory measurements
     - Real-time streaming dashboards with WebSocket updates
     """
 
@@ -168,29 +168,29 @@ class VisualizationDashboardService:
         storage_path: Path,
         detector_repository=None,
         result_repository=None,
-        dataset_repository=None,
+        data_collection_repository=None,
     ) -> None:
         """Initialize visualization dashboard service.
 
         Args:
             storage_path: Path for storing dashboard artifacts
             detector_repository: Repository for detector data
-            result_repository: Repository for detection results
-            dataset_repository: Repository for dataset information
+            result_repository: Repository for processing results
+            data_collection_repository: Repository for data_collection information
         """
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
         self.detector_repository = detector_repository
         self.result_repository = result_repository
-        self.dataset_repository = dataset_repository
+        self.data_collection_repository = data_collection_repository
 
         # Dashboard cache
         self.dashboard_cache: dict[str, DashboardData] = {}
 
         # Real-time data streams
         self.real_time_subscribers: set[str] = set()
-        self.metrics_history: list[RealTimeMetrics] = []
+        self.measurements_history: list[RealTimeMetrics] = []
         self.max_history_size = 1000
 
         # Chart generators
@@ -225,7 +225,7 @@ class VisualizationDashboardService:
             dashboard_data = DashboardData(
                 dashboard_id="executive_dashboard",
                 dashboard_type=DashboardType.EXECUTIVE,
-                title="Executive Anomaly Detection Dashboard",
+                title="Executive Anomaly Processing Dashboard",
             )
 
             # Calculate business KPIs
@@ -263,8 +263,8 @@ class VisualizationDashboardService:
 
             dashboard_data.charts = charts
 
-            # Calculate overall metrics
-            dashboard_data.metrics = await self._calculate_executive_metrics(
+            # Calculate overall measurements
+            dashboard_data.measurements = await self._calculate_executive_measurements(
                 time_period
             )
 
@@ -325,8 +325,8 @@ class VisualizationDashboardService:
 
             dashboard_data.charts = charts
 
-            # Calculate operational metrics
-            dashboard_data.metrics = await self._calculate_operational_metrics()
+            # Calculate operational measurements
+            dashboard_data.measurements = await self._calculate_operational_measurements()
 
             # Real-time configuration
             if real_time:
@@ -359,7 +359,7 @@ class VisualizationDashboardService:
             dashboard_data = DashboardData(
                 dashboard_id="analytical_dashboard",
                 dashboard_type=DashboardType.ANALYTICAL,
-                title="Analytical Anomaly Detection Dashboard",
+                title="Analytical Anomaly Processing Dashboard",
             )
 
             # Generate analytical charts
@@ -373,7 +373,7 @@ class VisualizationDashboardService:
             scores_chart = await self._generate_score_distribution_chart()
             charts.append(scores_chart)
 
-            # Detection confidence chart
+            # Processing confidence chart
             confidence_chart = await self._generate_confidence_analysis_chart()
             charts.append(confidence_chart)
 
@@ -405,8 +405,8 @@ class VisualizationDashboardService:
 
             dashboard_data.charts = charts
 
-            # Calculate analytical metrics
-            dashboard_data.metrics = await self._calculate_analytical_metrics()
+            # Calculate analytical measurements
+            dashboard_data.measurements = await self._calculate_analytical_measurements()
 
             # Cache dashboard
             self.dashboard_cache["analytical"] = dashboard_data
@@ -474,8 +474,8 @@ class VisualizationDashboardService:
 
             dashboard_data.charts = charts
 
-            # Calculate performance metrics
-            dashboard_data.metrics = await self._calculate_performance_metrics()
+            # Calculate performance measurements
+            dashboard_data.measurements = await self._calculate_performance_measurements()
 
             # Cache dashboard
             self.dashboard_cache["performance"] = dashboard_data
@@ -502,19 +502,19 @@ class VisualizationDashboardService:
             dashboard_data = DashboardData(
                 dashboard_id="real_time_dashboard",
                 dashboard_type=DashboardType.REAL_TIME,
-                title="Real-Time Anomaly Detection Dashboard",
+                title="Real-Time Anomaly Processing Dashboard",
             )
 
             # Generate real-time charts
             charts = []
 
-            # Live anomaly detection chart
-            live_chart = await self._generate_live_detection_chart()
+            # Live anomaly processing chart
+            live_chart = await self._generate_live_processing_chart()
             charts.append(live_chart)
 
-            # Real-time metrics chart
-            metrics_chart = await self._generate_real_time_metrics_chart()
-            charts.append(metrics_chart)
+            # Real-time measurements chart
+            measurements_chart = await self._generate_real_time_measurements_chart()
+            charts.append(measurements_chart)
 
             # Live system status chart
             status_chart = await self._generate_live_status_chart()
@@ -549,29 +549,29 @@ class VisualizationDashboardService:
             logger.error(f"Failed to generate real-time dashboard: {e}")
             raise
 
-    async def update_real_time_metrics(self, metrics: RealTimeMetrics) -> None:
-        """Update real-time metrics for streaming dashboards.
+    async def update_real_time_measurements(self, measurements: RealTimeMetrics) -> None:
+        """Update real-time measurements for streaming dashboards.
 
         Args:
-            metrics: Real-time metrics to update
+            measurements: Real-time measurements to update
         """
         try:
-            # Add to metrics history
-            self.metrics_history.append(metrics)
+            # Add to measurements history
+            self.measurements_history.append(measurements)
 
             # Maintain history size limit
-            if len(self.metrics_history) > self.max_history_size:
-                self.metrics_history = self.metrics_history[-self.max_history_size :]
+            if len(self.measurements_history) > self.max_history_size:
+                self.measurements_history = self.measurements_history[-self.max_history_size :]
 
             # Notify real-time subscribers
-            await self._notify_real_time_subscribers(metrics)
+            await self._notify_real_time_subscribers(measurements)
 
             logger.debug(
-                f"Real-time metrics updated: {metrics.anomalies_detected} anomalies"
+                f"Real-time measurements updated: {measurements.anomalies_detected} anomalies"
             )
 
         except Exception as e:
-            logger.error(f"Failed to update real-time metrics: {e}")
+            logger.error(f"Failed to update real-time measurements: {e}")
             raise
 
     async def export_dashboard(
@@ -621,13 +621,13 @@ class VisualizationDashboardService:
 
         try:
             # Mock business KPI calculations
-            # In production, these would come from actual business metrics
+            # In production, these would come from actual business measurements
 
-            kpis["anomaly_detection_rate"] = 97.5  # %
+            kpis["anomaly_processing_rate"] = 97.5  # %
             kpis["false_positive_rate"] = 2.1  # %
             kpis["cost_savings_monthly"] = 125000.0  # $
             kpis["automation_coverage"] = 89.3  # %
-            kpis["model_accuracy"] = 94.8  # %
+            kpis["processor_accuracy"] = 94.8  # %
             kpis["system_uptime"] = 99.9  # %
             kpis["processing_efficiency"] = 92.7  # %
             kpis["compliance_score"] = 96.4  # %
@@ -736,21 +736,21 @@ class VisualizationDashboardService:
             logger.error(f"Failed to generate gauge chart: {e}")
             return {}
 
-    async def _calculate_executive_metrics(
+    async def _calculate_executive_measurements(
         self, time_period: timedelta
     ) -> dict[str, Any]:
-        """Calculate metrics for executive dashboard."""
+        """Calculate measurements for executive dashboard."""
         return {
             "period_days": time_period.days,
-            "total_detections": 15420,
+            "total_processings": 15420,
             "anomalies_found": 1247,
             "models_deployed": 23,
             "cost_savings": 125000,
             "accuracy_improvement": 12.5,
         }
 
-    async def _calculate_operational_metrics(self) -> dict[str, Any]:
-        """Calculate metrics for operational dashboard."""
+    async def _calculate_operational_measurements(self) -> dict[str, Any]:
+        """Calculate measurements for operational dashboard."""
         return {
             "system_health": "healthy",
             "active_services": 12,
@@ -760,8 +760,8 @@ class VisualizationDashboardService:
             "network_throughput": 1250.0,
         }
 
-    async def _calculate_analytical_metrics(self) -> dict[str, Any]:
-        """Calculate metrics for analytical dashboard."""
+    async def _calculate_analytical_measurements(self) -> dict[str, Any]:
+        """Calculate measurements for analytical dashboard."""
         return {
             "algorithms_analyzed": 8,
             "features_analyzed": 25,
@@ -770,8 +770,8 @@ class VisualizationDashboardService:
             "pattern_diversity": 0.678,
         }
 
-    async def _calculate_performance_metrics(self) -> dict[str, Any]:
-        """Calculate metrics for performance dashboard."""
+    async def _calculate_performance_measurements(self) -> dict[str, Any]:
+        """Calculate measurements for performance dashboard."""
         return {
             "avg_execution_time": 245.7,
             "memory_peak": 2.4,
@@ -839,8 +839,8 @@ class VisualizationDashboardService:
 
     # Additional chart generation methods would be implemented similarly
 
-    async def _notify_real_time_subscribers(self, metrics: RealTimeMetrics) -> None:
-        """Notify real-time dashboard subscribers of new metrics."""
+    async def _notify_real_time_subscribers(self, measurements: RealTimeMetrics) -> None:
+        """Notify real-time dashboard subscribers of new measurements."""
         # Implementation would send WebSocket updates to connected clients
         pass
 
@@ -972,16 +972,16 @@ class VisualizationDashboardService:
         return {"id": "performance_trends", "type": "line", "data": {}}
 
     # Real-time dashboard chart methods
-    async def _generate_live_detection_chart(self) -> dict[str, Any]:
+    async def _generate_live_processing_chart(self) -> dict[str, Any]:
         return {
-            "id": "live_detection",
+            "id": "live_processing",
             "type": "time_series",
             "data": {},
             "realtime": True,
         }
 
-    async def _generate_real_time_metrics_chart(self) -> dict[str, Any]:
-        return {"id": "real_time_metrics", "type": "line", "data": {}, "realtime": True}
+    async def _generate_real_time_measurements_chart(self) -> dict[str, Any]:
+        return {"id": "real_time_measurements", "type": "line", "data": {}, "realtime": True}
 
     async def _generate_live_status_chart(self) -> dict[str, Any]:
         return {"id": "live_status", "type": "gauge", "data": {}, "realtime": True}

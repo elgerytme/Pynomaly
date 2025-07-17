@@ -1,5 +1,5 @@
 """
-FastAPI router for reporting and business metrics dashboard.
+FastAPI router for reporting and business measurements dashboard.
 """
 
 """
@@ -38,7 +38,7 @@ class GenerateReportRequest(BaseModel):
     description: str | None = None
     start_date: datetime | None = None
     end_date: datetime | None = None
-    dataset_ids: list[UUID] = []
+    data_collection_ids: list[UUID] = []
     detector_ids: list[UUID] = []
 
 
@@ -189,7 +189,7 @@ async def require_tenant_access(
 # Report Generation Endpoints
 @router.post(
     "/tenants/{tenant_id}/reports",
-    response_model=ReportResponse,
+    response_processor=ReportResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def generate_report(
@@ -207,7 +207,7 @@ async def generate_report(
             start_date=request.start_date or datetime.utcnow() - timedelta(days=30),
             end_date=request.end_date or datetime.utcnow(),
             tenant_ids=[TenantId(str(tenant_id))],
-            dataset_ids=[str(id) for id in request.dataset_ids],
+            data_collection_ids=[str(id) for id in request.data_collection_ids],
             detector_ids=[str(id) for id in request.detector_ids],
         )
 
@@ -234,7 +234,7 @@ async def generate_report(
                     "id": section.id,
                     "title": section.title,
                     "description": section.description,
-                    "metrics": [
+                    "measurements": [
                         {
                             "id": metric.id,
                             "name": metric.name,
@@ -244,7 +244,7 @@ async def generate_report(
                             else "N/A",
                             "type": metric.metric_type.value,
                         }
-                        for metric in section.metrics
+                        for metric in section.measurements
                     ],
                     "charts": section.charts,
                     "insights": section.insights,
@@ -260,7 +260,7 @@ async def generate_report(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/reports", response_model=list[ReportResponse])
+@router.get("/tenants/{tenant_id}/reports", response_processor=list[ReportResponse])
 async def list_reports(
     tenant_id: UUID,
     limit: int = Query(10, ge=1, le=100),
@@ -296,7 +296,7 @@ async def list_reports(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/reports/{report_id}", response_model=ReportResponse)
+@router.get("/tenants/{tenant_id}/reports/{report_id}", response_processor=ReportResponse)
 async def get_report(
     tenant_id: UUID,
     report_id: str,
@@ -325,7 +325,7 @@ async def get_report(
                     "id": section.id,
                     "title": section.title,
                     "description": section.description,
-                    "metrics": [
+                    "measurements": [
                         {
                             "id": metric.id,
                             "name": metric.name,
@@ -335,7 +335,7 @@ async def get_report(
                             else "N/A",
                             "type": metric.metric_type.value,
                         }
-                        for metric in section.metrics
+                        for metric in section.measurements
                     ],
                     "charts": section.charts,
                     "insights": section.insights,
@@ -356,7 +356,7 @@ async def get_report(
 # Dashboard Management Endpoints
 @router.post(
     "/tenants/{tenant_id}/dashboards",
-    response_model=DashboardResponse,
+    response_processor=DashboardResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_dashboard(
@@ -391,7 +391,7 @@ async def create_dashboard(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/dashboards", response_model=list[DashboardResponse])
+@router.get("/tenants/{tenant_id}/dashboards", response_processor=list[DashboardResponse])
 async def list_dashboards(
     tenant_id: UUID,
     current_user: User = Depends(require_tenant_access),
@@ -424,7 +424,7 @@ async def list_dashboards(
 
 
 @router.get(
-    "/tenants/{tenant_id}/dashboards/{dashboard_id}", response_model=DashboardResponse
+    "/tenants/{tenant_id}/dashboards/{dashboard_id}", response_processor=DashboardResponse
 )
 async def get_dashboard(
     tenant_id: UUID,
@@ -459,7 +459,7 @@ async def get_dashboard(
 
 
 @router.put(
-    "/tenants/{tenant_id}/dashboards/{dashboard_id}", response_model=DashboardResponse
+    "/tenants/{tenant_id}/dashboards/{dashboard_id}", response_processor=DashboardResponse
 )
 async def update_dashboard(
     tenant_id: UUID,
@@ -506,7 +506,7 @@ async def update_dashboard(
 
 @router.post(
     "/tenants/{tenant_id}/dashboards/standard",
-    response_model=DashboardResponse,
+    response_processor=DashboardResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_standard_dashboard(
@@ -539,29 +539,29 @@ async def create_standard_dashboard(
         )
 
 
-# Real-time Metrics Endpoints
-@router.get("/tenants/{tenant_id}/metrics/realtime")
-async def get_realtime_metrics(
+# Real-time Measurements Endpoints
+@router.get("/tenants/{tenant_id}/measurements/realtime")
+async def get_realtime_measurements(
     tenant_id: UUID,
     metric_ids: list[str] = Query(..., description="List of metric IDs to fetch"),
     current_user: User = Depends(require_tenant_access),
     reporting_service: ReportingService = Depends(get_reporting_service),
 ):
-    """Get real-time metrics for dashboard widgets."""
+    """Get real-time measurements for dashboard widgets."""
     try:
-        metrics = await reporting_service.get_real_time_metrics(
+        measurements = await reporting_service.get_real_time_measurements(
             tenant_id=TenantId(str(tenant_id)), metric_ids=metric_ids
         )
 
-        return {"timestamp": datetime.utcnow().isoformat(), "metrics": metrics}
+        return {"timestamp": datetime.utcnow().isoformat(), "measurements": measurements}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch real-time metrics: {str(e)}",
+            detail=f"Failed to fetch real-time measurements: {str(e)}",
         )
 
 
-@router.get("/tenants/{tenant_id}/metrics/{metric_id}/history")
+@router.get("/tenants/{tenant_id}/measurements/{metric_id}/history")
 async def get_metric_history(
     tenant_id: UUID,
     metric_id: str,
@@ -598,7 +598,7 @@ async def get_metric_history(
 # Alert Management Endpoints
 @router.post(
     "/tenants/{tenant_id}/alerts",
-    response_model=AlertResponse,
+    response_processor=AlertResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_alert(
@@ -689,19 +689,19 @@ async def get_business_insights_summary(
             },
             "insights": [
                 {
-                    "category": "detection_performance",
-                    "title": "Detection Performance",
-                    "summary": "Anomaly detection is performing well with 95% success rate",
+                    "category": "processing_performance",
+                    "title": "Processing Performance",
+                    "summary": "Anomaly processing is performing well with 95% success rate",
                     "impact": "positive",
                     "recommendations": [
-                        "Continue monitoring model performance",
+                        "Continue monitoring processor performance",
                         "Consider expanding to additional data sources",
                     ],
                 },
                 {
                     "category": "cost_optimization",
                     "title": "Cost Optimization",
-                    "summary": "Significant cost savings identified through early anomaly detection",
+                    "summary": "Significant cost savings identified through early anomaly processing",
                     "impact": "positive",
                     "value": "$15,000",
                     "recommendations": [

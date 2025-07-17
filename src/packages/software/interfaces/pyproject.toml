@@ -3,16 +3,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-interfaces"
+name = "software-interfaces"
 version = "0.1.0"
-description = "Unified interface layer for Pynomaly platform including CLI, API, Web, and SDK components"
+description = "Unified interface layer for software applications including CLI, API, Web, and SDK components"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"},
+    {name = "Software Team", email = "team@software.io"},
 ]
 maintainers = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"},
+    {name = "Software Team", email = "team@software.io"},
 ]
 keywords = [
     "interfaces",
@@ -21,13 +21,12 @@ keywords = [
     "web",
     "sdk",
     "client",
-    "anomaly-detection",
-    "machine-learning",
+    "software-architecture",
+    "application-interfaces",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Intended Audience :: Data Scientists",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -36,7 +35,6 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
     "Topic :: System :: Systems Administration",
 ]
@@ -117,15 +115,15 @@ monitoring = [
 ]
 
 [project.urls]
-homepage = "https://github.com/pynomaly/interfaces"
-repository = "https://github.com/pynomaly/interfaces"
-documentation = "https://interfaces.pynomaly.com"
-changelog = "https://github.com/pynomaly/interfaces/blob/main/CHANGELOG.md"
+homepage = "https://github.com/software/interfaces"
+repository = "https://github.com/software/interfaces"
+documentation = "https://interfaces.software.io"
+changelog = "https://github.com/software/interfaces/blob/main/CHANGELOG.md"
 
 # [project.scripts]
-# pynomaly = "interfaces.cli:main"
-# pynomaly-api = "interfaces.api:main"
-# pynomaly-web = "interfaces.web:main"
+# software = "interfaces.cli:main"
+# software-api = "interfaces.api:main"
+# software-web = "interfaces.web:main"
 
 
 [tool.hatch.build.targets.sdist]

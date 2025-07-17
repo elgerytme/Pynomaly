@@ -8,12 +8,12 @@ from uuid import UUID
 from monorepo.domain.entities import (
     Alert,
     AlertNotification,
-    Dataset,
+    DataCollection,
     DetectionResult,
     Detector,
     Experiment,
     ExperimentRun,
-    Model,
+    Processor,
     ModelVersion,
     Pipeline,
     PipelineRun,
@@ -122,43 +122,43 @@ class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
         """
         ...
 
-    async def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
-        """Save the trained model artifact.
+    async def save_processor_artifact(self, detector_id: UUID, artifact: bytes) -> None:
+        """Save the trained processor artifact.
 
         Args:
             detector_id: ID of the detector
-            artifact: Serialized model data
+            artifact: Serialized processor data
         """
         ...
 
-    async def load_model_artifact(self, detector_id: UUID) -> bytes | None:
-        """Load the trained model artifact.
+    async def load_processor_artifact(self, detector_id: UUID) -> bytes | None:
+        """Load the trained processor artifact.
 
         Args:
             detector_id: ID of the detector
 
         Returns:
-            Serialized model data if found
+            Serialized processor data if found
         """
         ...
 
 
 @runtime_checkable
 class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
-    """Protocol for dataset repository implementations."""
+    """Protocol for data_collection repository implementations."""
 
-    async def find_by_name(self, name: str) -> Dataset | None:
-        """Find a dataset by name.
+    async def find_by_name(self, name: str) -> DataCollection | None:
+        """Find a data_collection by name.
 
         Args:
-            name: The dataset name
+            name: The data_collection name
 
         Returns:
-            The dataset if found
+            The data_collection if found
         """
         ...
 
-    async def find_by_metadata(self, key: str, value: Any) -> list[Dataset]:
+    async def find_by_metadata(self, key: str, value: Any) -> list[DataCollection]:
         """Find datasets by metadata key-value pair.
 
         Args:
@@ -170,11 +170,11 @@ class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
         """
         ...
 
-    async def save_data(self, dataset_id: UUID, format: str = "parquet") -> str:
-        """Save dataset data to persistent storage.
+    async def save_data(self, data_collection_id: UUID, format: str = "parquet") -> str:
+        """Save data_collection data to persistent storage.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
             format: Storage format (parquet, csv, etc.)
 
         Returns:
@@ -182,21 +182,21 @@ class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
         """
         ...
 
-    async def load_data(self, dataset_id: UUID) -> Dataset | None:
-        """Load dataset with its data from storage.
+    async def load_data(self, data_collection_id: UUID) -> DataCollection | None:
+        """Load data_collection with its data from storage.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
 
         Returns:
-            Dataset with data if found
+            DataCollection with data if found
         """
         ...
 
 
 @runtime_checkable
 class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Protocol):
-    """Protocol for detection result repository implementations."""
+    """Protocol for processing result repository implementations."""
 
     async def find_by_detector(self, detector_id: UUID) -> list[DetectionResult]:
         """Find all results from a specific detector.
@@ -205,23 +205,23 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
             detector_id: ID of the detector
 
         Returns:
-            List of detection results
+            List of processing results
         """
         ...
 
-    async def find_by_dataset(self, dataset_id: UUID) -> list[DetectionResult]:
-        """Find all results for a specific dataset.
+    async def find_by_data_collection(self, data_collection_id: UUID) -> list[DetectionResult]:
+        """Find all results for a specific data_collection.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
 
         Returns:
-            List of detection results
+            List of processing results
         """
         ...
 
     async def find_recent(self, limit: int = 10) -> list[DetectionResult]:
-        """Find most recent detection results.
+        """Find most recent processing results.
 
         Args:
             limit: Maximum number of results
@@ -235,7 +235,7 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
         """Get summary statistics for a result.
 
         Args:
-            result_id: ID of the detection result
+            result_id: ID of the processing result
 
         Returns:
             Dictionary of statistics
@@ -245,35 +245,35 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
 
 @runtime_checkable
 class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
-    """Protocol for model repository implementations."""
+    """Protocol for processor repository implementations."""
 
-    async def find_by_name(self, name: str) -> list[Model]:
+    async def find_by_name(self, name: str) -> list[Processor]:
         """Find models by name.
 
         Args:
-            name: The model name
+            name: The processor name
 
         Returns:
             List of models with that name
         """
         ...
 
-    async def find_by_stage(self, stage) -> list[Model]:
+    async def find_by_stage(self, stage) -> list[Processor]:
         """Find models by stage.
 
         Args:
-            stage: The model stage
+            stage: The processor stage
 
         Returns:
             List of models in that stage
         """
         ...
 
-    async def find_by_type(self, model_type) -> list[Model]:
+    async def find_by_type(self, processor_type) -> list[Processor]:
         """Find models by type.
 
         Args:
-            model_type: The model type
+            processor_type: The processor type
 
         Returns:
             List of models of that type
@@ -283,30 +283,30 @@ class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
 
 @runtime_checkable
 class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol):
-    """Protocol for model version repository implementations."""
+    """Protocol for processor version repository implementations."""
 
-    async def find_by_model_id(self, model_id: UUID) -> list[ModelVersion]:
-        """Find all versions for a model.
+    async def find_by_processor_id(self, processor_id: UUID) -> list[ModelVersion]:
+        """Find all versions for a processor.
 
         Args:
-            model_id: ID of the model
+            processor_id: ID of the processor
 
         Returns:
-            List of model versions
+            List of processor versions
         """
         ...
 
-    async def find_by_model_and_version(
-        self, model_id: UUID, version
+    async def find_by_processor_and_version(
+        self, processor_id: UUID, version
     ) -> ModelVersion | None:
-        """Find a specific version of a model.
+        """Find a specific version of a processor.
 
         Args:
-            model_id: ID of the model
+            processor_id: ID of the processor
             version: The version to find
 
         Returns:
-            Model version if found
+            Processor version if found
         """
         ...
 

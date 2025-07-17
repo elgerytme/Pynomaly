@@ -1,5 +1,5 @@
 """
-Advanced authentication and JWT management for Pynomaly API.
+Advanced authentication and JWT management for Software API.
 
 This module provides secure authentication mechanisms including:
 - JWT token generation and validation

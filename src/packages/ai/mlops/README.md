@@ -6,7 +6,7 @@
 
 ## Overview
 
-Machine Learning Operations (MLOps) components for the Monorepo anomaly detection platform.
+Machine Learning Operations (MLOps) components for the Pynomaly platform.
 
 **Architecture Layer**: Application Layer  
 **Package Type**: ML Operations  
@@ -14,7 +14,7 @@ Machine Learning Operations (MLOps) components for the Monorepo anomaly detectio
 
 ## Purpose
 
-This package provides comprehensive MLOps capabilities for managing the lifecycle of anomaly detection models, from development and training to deployment and monitoring in production environments.
+This package provides comprehensive MLOps capabilities for managing the lifecycle of machine learning models, from development and training to deployment and monitoring in production environments.
 
 ### Key Features
 
@@ -97,21 +97,21 @@ mlops/
 
 ```bash
 # Install from source (development)
-cd src/packages/mlops
+cd src/packages/ai/mlops
 pip install -e .
 
 # Install with all MLOps tools
-pip install monorepo-mlops[all]
+pip install pynomaly-mlops[all]
 
 # Install specific components
-pip install monorepo-mlops[mlflow,kubeflow,monitoring]
+pip install pynomaly-mlops[mlflow,kubeflow,monitoring]
 ```
 
-### Monorepo Installation
+### Pynomaly Installation
 
 ```bash
-# Install entire monorepo with this package
-cd /path/to/monorepo
+# Install entire Pynomaly platform with this package
+cd /path/to/pynomaly
 pip install -e ".[mlops]"
 ```
 
@@ -120,10 +120,10 @@ pip install -e ".[mlops]"
 ### Quick Start
 
 ```python
-from monorepo.mlops.experiments import ExperimentTracker
-from monorepo.mlops.models import ModelRegistry
-from monorepo.mlops.monitoring import ModelMonitor
-from monorepo.core.domain.entities import Dataset, Detector
+from pynomaly.mlops.experiments import ExperimentTracker
+from pynomaly.mlops.models import ModelRegistry
+from pynomaly.mlops.monitoring import ModelMonitor
+from pynomaly.core.domain.entities import Dataset, Detector
 
 # Experiment tracking
 tracker = ExperimentTracker(backend="mlflow")
@@ -162,8 +162,8 @@ monitor.start_monitoring()
 
 #### Example 1: Model Deployment Pipeline
 ```python
-from monorepo.mlops.pipelines import TrainingPipeline, DeploymentPipeline
-from monorepo.mlops.models.deployment import KubernetesDeployment
+from pynomaly.mlops.pipelines import TrainingPipeline, DeploymentPipeline
+from pynomaly.mlops.models.deployment import KubernetesDeployment
 
 # Create training pipeline
 training_pipeline = TrainingPipeline(
@@ -194,8 +194,8 @@ if training_result.best_model.score > 0.85:
 
 #### Example 2: A/B Testing Framework
 ```python
-from monorepo.mlops.experiments import ABTestFramework
-from monorepo.mlops.models.serving import ModelEnsemble
+from pynomaly.mlops.experiments import ABTestFramework
+from pynomaly.mlops.models.serving import ModelEnsemble
 
 # Setup A/B test
 ab_test = ABTestFramework(
@@ -232,9 +232,9 @@ if test_results.model_b.performance > test_results.model_a.performance:
 Complete MLOps workflow with monitoring and governance:
 
 ```python
-from monorepo.mlops.governance import MLGovernance
-from monorepo.mlops.monitoring import DriftDetector, PerformanceMonitor
-from monorepo.mlops.features import FeatureStore
+from pynomaly.mlops.governance import MLGovernance
+from pynomaly.mlops.monitoring import DriftDetector, PerformanceMonitor
+from pynomaly.mlops.features import FeatureStore
 import asyncio
 
 async def production_ml_workflow():
@@ -308,8 +308,8 @@ asyncio.run(production_ml_workflow())
 Configure MLOps components with comprehensive settings:
 
 ```python
-from monorepo.mlops.config import MLOpsConfig
-from monorepo.mlops.factory import create_mlops_stack
+from pynomaly.mlops.config import MLOpsConfig
+from pynomaly.mlops.factory import create_mlops_stack
 
 # MLOps configuration
 config = MLOpsConfig(
@@ -374,7 +374,7 @@ await mlops_stack.initialize()
 
 ```python
 # Experiment management
-from monorepo.mlops.experiments import (
+from pynomaly.mlops.experiments import (
     start_experiment,
     log_metrics,
     compare_experiments,
@@ -382,7 +382,7 @@ from monorepo.mlops.experiments import (
 )
 
 # Model lifecycle
-from monorepo.mlops.models import (
+from pynomaly.mlops.models import (
     register_model,
     deploy_model,
     promote_model,
@@ -390,7 +390,7 @@ from monorepo.mlops.models import (
 )
 
 # Monitoring operations
-from monorepo.mlops.monitoring import (
+from pynomaly.mlops.monitoring import (
     detect_drift,
     monitor_performance,
     create_alert,
@@ -447,7 +447,7 @@ Optimized for production ML operations at scale:
 ### Debug Mode
 
 ```python
-from monorepo.mlops.config import enable_debug_mode
+from pynomaly.mlops.config import enable_debug_mode
 
 # Enable debug mode for MLOps
 enable_debug_mode(
@@ -481,7 +481,7 @@ enable_debug_mode(
 Follow the MLOps pattern for consistency:
 
 ```python
-from monorepo.mlops.base import BaseMLOpsComponent
+from pynomaly.mlops.base import BaseMLOpsComponent
 
 class NewMLOpsComponent(BaseMLOpsComponent):
     def __init__(self, config: ComponentConfig):
@@ -512,4 +512,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [Monorepo](../../../) monorepo** - Advanced anomaly detection platform
+**Part of the [Pynomaly](../../../) monorepo** - Advanced ML platform

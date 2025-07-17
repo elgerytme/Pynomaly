@@ -1,5 +1,5 @@
 """
-Performance Metrics API for Real User Monitoring (RUM)
+Performance Measurements API for Real User Monitoring (RUM)
 Collects and analyzes performance data from web clients
 """
 
@@ -14,15 +14,15 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/metrics", tags=["performance"])
+router = APIRouter(prefix="/api/measurements", tags=["performance"])
 
 # In-memory storage for demo (in production, use proper database)
-performance_metrics_store: list[dict[str, Any]] = []
+performance_measurements_store: list[dict[str, Any]] = []
 
 
 @dataclass
 class CoreWebVitals:
-    """Core Web Vitals metrics"""
+    """Core Web Vitals measurements"""
 
     lcp: float | None = None  # Largest Contentful Paint
     fid: float | None = None  # First Input Delay
@@ -42,10 +42,10 @@ class PerformanceMetricData:
 
 
 class PerformanceMetricsPayload(BaseModel):
-    """Payload for performance metrics submission"""
+    """Payload for performance measurements submission"""
 
-    metrics: list[dict[str, Any]] = Field(
-        ..., description="Array of performance metrics"
+    measurements: list[dict[str, Any]] = Field(
+        ..., description="Array of performance measurements"
     )
     session: str = Field(..., description="Session identifier")
     page_load_time: int = Field(..., description="Total page load time in milliseconds")
@@ -75,14 +75,14 @@ class PerformanceThresholds:
 
 
 class PerformanceAnalyzer:
-    """Analyzes performance metrics and generates insights"""
+    """Analyzes performance measurements and generates insights"""
 
     @staticmethod
     def analyze_core_web_vitals(metrics: list[PerformanceMetricData]) -> CoreWebVitals:
-        """Extract and analyze Core Web Vitals from metrics"""
+        """Extract and analyze Core Web Vitals from measurements"""
         cwv = CoreWebVitals()
 
-        for metric in metrics:
+        for metric in measurements:
             if metric.type == "lcp" and "value" in metric.data:
                 cwv.lcp = metric.data["value"]
             elif metric.type == "fid" and "value" in metric.data:
@@ -131,7 +131,7 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def generate_recommendations(
-        cwv: CoreWebVitals, metrics: list[PerformanceMetricData]
+        cwv: CoreWebVitals, measurements: list[PerformanceMetricData]
     ) -> list[str]:
         """Generate performance improvement recommendations"""
         recommendations = []
@@ -165,7 +165,7 @@ class PerformanceAnalyzer:
             )
 
         # Analyze specific slow resources
-        slow_resources = [m for m in metrics if m.type == "slow_resource"]
+        slow_resources = [m for m in measurements if m.type == "slow_resource"]
         if slow_resources:
             recommendations.append(
                 f"Optimize {len(slow_resources)} slow-loading resources: "
@@ -173,9 +173,9 @@ class PerformanceAnalyzer:
             )
 
         # API performance recommendations
-        api_metrics = [m for m in metrics if m.type == "api_response"]
-        if api_metrics:
-            slow_apis = [m for m in api_metrics if m.data.get("duration", 0) > 1000]
+        api_measurements = [m for m in measurements if m.type == "api_response"]
+        if api_measurements:
+            slow_apis = [m for m in api_measurements if m.data.get("duration", 0) > 1000]
             if slow_apis:
                 recommendations.append(
                     f"Optimize {len(slow_apis)} slow API endpoints: "
@@ -190,18 +190,18 @@ class PerformanceAnalyzer:
         cutoff_time = datetime.now() - timedelta(hours=recent_hours)
         cutoff_timestamp = int(cutoff_time.timestamp() * 1000)
 
-        recent_metrics = [
+        recent_measurements = [
             m
-            for m in performance_metrics_store
+            for m in performance_measurements_store
             if m.get("timestamp", 0) > cutoff_timestamp
         ]
 
-        if not recent_metrics:
+        if not recent_measurements:
             return {"message": "No recent data available"}
 
-        # Group metrics by type
+        # Group measurements by type
         metric_groups = {}
-        for metric in recent_metrics:
+        for metric in recent_measurements:
             metric_type = metric.get("type", "unknown")
             if metric_type not in metric_groups:
                 metric_groups[metric_type] = []
@@ -244,16 +244,16 @@ class PerformanceAnalyzer:
 
 
 @router.post("/performance")
-async def submit_performance_metrics(
+async def submit_performance_measurements(
     payload: PerformanceMetricsPayload, background_tasks: BackgroundTasks
 ) -> dict[str, str]:
     """
-    Submit performance metrics from web clients
+    Submit performance measurements from web clients
     """
     try:
         # Convert payload to internal format
-        metrics = []
-        for metric_data in payload.metrics:
+        measurements = []
+        for metric_data in payload.measurements:
             metric = PerformanceMetricData(
                 type=metric_data.get("type", "unknown"),
                 data=metric_data.get("data", {}),
@@ -263,23 +263,23 @@ async def submit_performance_metrics(
                     "timestamp", int(datetime.now().timestamp() * 1000)
                 ),
             )
-            metrics.append(asdict(metric))
+            measurements.append(asdict(metric))
 
-        # Store metrics (in production, use proper database)
-        performance_metrics_store.extend(metrics)
+        # Store measurements (in production, use proper database)
+        performance_measurements_store.extend(measurements)
 
-        # Process metrics in background
-        background_tasks.add_task(process_metrics_async, metrics, payload.session)
+        # Process measurements in background
+        background_tasks.add_task(process_measurements_async, measurements, payload.session)
 
         logger.info(
-            f"Received {len(metrics)} performance metrics for session {payload.session}"
+            f"Received {len(measurements)} performance measurements for session {payload.session}"
         )
 
-        return {"status": "success", "message": f"Processed {len(metrics)} metrics"}
+        return {"status": "success", "message": f"Processed {len(measurements)} measurements"}
 
     except Exception as e:
-        logger.error(f"Error processing performance metrics: {e}")
-        raise HTTPException(status_code=500, detail="Failed to process metrics")
+        logger.error(f"Error processing performance measurements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process measurements")
 
 
 @router.get("/performance/analysis")
@@ -290,23 +290,23 @@ async def get_performance_analysis(
     Get performance analysis and recommendations
     """
     try:
-        # Filter metrics by session if provided
+        # Filter measurements by session if provided
         if session_id:
-            session_metrics = [
-                m for m in performance_metrics_store if m.get("session") == session_id
+            session_measurements = [
+                m for m in performance_measurements_store if m.get("session") == session_id
             ]
         else:
-            # Get recent metrics
+            # Get recent measurements
             cutoff_time = datetime.now() - timedelta(hours=hours)
             cutoff_timestamp = int(cutoff_time.timestamp() * 1000)
-            session_metrics = [
+            session_measurements = [
                 m
-                for m in performance_metrics_store
+                for m in performance_measurements_store
                 if m.get("timestamp", 0) > cutoff_timestamp
             ]
 
-        if not session_metrics:
-            raise HTTPException(status_code=404, detail="No metrics found")
+        if not session_measurements:
+            raise HTTPException(status_code=404, detail="No measurements found")
 
         # Convert to PerformanceMetricData objects
         metric_objects = [
@@ -317,10 +317,10 @@ async def get_performance_analysis(
                 user_agent=m.get("user_agent", "unknown"),
                 timestamp=m.get("timestamp", 0),
             )
-            for m in session_metrics
+            for m in session_measurements
         ]
 
-        # Analyze metrics
+        # Analyze measurements
         analyzer = PerformanceAnalyzer()
         cwv = analyzer.analyze_core_web_vitals(metric_objects)
         score = analyzer.calculate_performance_score(cwv)
@@ -329,10 +329,10 @@ async def get_performance_analysis(
 
         # Generate summary
         summary = {
-            "total_metrics": len(session_metrics),
-            "pages_tracked": len({m.get("page", "/") for m in session_metrics}),
+            "total_measurements": len(session_measurements),
+            "pages_tracked": len({m.get("page", "/") for m in session_measurements}),
             "session_count": len(
-                {m.get("session") for m in session_metrics if m.get("session")}
+                {m.get("session") for m in session_measurements if m.get("session")}
             ),
             "time_range_hours": hours,
         }
@@ -389,38 +389,38 @@ async def get_performance_analysis(
 @router.get("/performance/summary")
 async def get_performance_summary(hours: int = 24) -> dict[str, Any]:
     """
-    Get a summary of performance metrics
+    Get a summary of performance measurements
     """
     try:
         cutoff_time = datetime.now() - timedelta(hours=hours)
         cutoff_timestamp = int(cutoff_time.timestamp() * 1000)
 
-        recent_metrics = [
+        recent_measurements = [
             m
-            for m in performance_metrics_store
+            for m in performance_measurements_store
             if m.get("timestamp", 0) > cutoff_timestamp
         ]
 
-        if not recent_metrics:
+        if not recent_measurements:
             return {
-                "message": "No recent metrics available",
+                "message": "No recent measurements available",
                 "time_range_hours": hours,
-                "total_metrics": 0,
+                "total_measurements": 0,
             }
 
         # Group by page
-        page_metrics = {}
-        for metric in recent_metrics:
+        page_measurements = {}
+        for metric in recent_measurements:
             page = metric.get("page", "/")
-            if page not in page_metrics:
-                page_metrics[page] = []
-            page_metrics[page].append(metric)
+            if page not in page_measurements:
+                page_measurements[page] = []
+            page_measurements[page].append(metric)
 
         # Calculate averages per page
         page_summaries = {}
-        for page, metrics in page_metrics.items():
-            cwv_metrics = {}
-            for metric in metrics:
+        for page, measurements in page_measurements.items():
+            cwv_measurements = {}
+            for metric in measurements:
                 metric_type = metric.get("type")
                 if metric_type in [
                     "lcp",
@@ -428,24 +428,24 @@ async def get_performance_summary(hours: int = 24) -> dict[str, Any]:
                     "cls",
                     "fcp",
                 ] and "value" in metric.get("data", {}):
-                    if metric_type not in cwv_metrics:
-                        cwv_metrics[metric_type] = []
-                    cwv_metrics[metric_type].append(metric["data"]["value"])
+                    if metric_type not in cwv_measurements:
+                        cwv_measurements[metric_type] = []
+                    cwv_measurements[metric_type].append(metric["data"]["value"])
 
             # Calculate averages
             page_avg = {}
-            for metric_type, values in cwv_metrics.items():
+            for metric_type, values in cwv_measurements.items():
                 if values:
                     page_avg[f"avg_{metric_type}"] = statistics.mean(values)
 
-            page_summaries[page] = {"total_metrics": len(metrics), **page_avg}
+            page_summaries[page] = {"total_measurements": len(measurements), **page_avg}
 
         return {
             "time_range_hours": hours,
-            "total_metrics": len(recent_metrics),
-            "pages_tracked": len(page_metrics),
+            "total_measurements": len(recent_measurements),
+            "pages_tracked": len(page_measurements),
             "unique_sessions": len(
-                {m.get("session") for m in recent_metrics if m.get("session")}
+                {m.get("session") for m in recent_measurements if m.get("session")}
             ),
             "page_summaries": page_summaries,
         }
@@ -456,34 +456,34 @@ async def get_performance_summary(hours: int = 24) -> dict[str, Any]:
 
 
 @router.delete("/performance/clear")
-async def clear_performance_metrics() -> dict[str, str]:
+async def clear_performance_measurements() -> dict[str, str]:
     """
-    Clear all stored performance metrics (for testing/development)
+    Clear all stored performance measurements (for testing/development)
     """
-    global performance_metrics_store
-    cleared_count = len(performance_metrics_store)
-    performance_metrics_store.clear()
+    global performance_measurements_store
+    cleared_count = len(performance_measurements_store)
+    performance_measurements_store.clear()
 
-    logger.info(f"Cleared {cleared_count} performance metrics")
+    logger.info(f"Cleared {cleared_count} performance measurements")
 
-    return {"status": "success", "message": f"Cleared {cleared_count} metrics"}
+    return {"status": "success", "message": f"Cleared {cleared_count} measurements"}
 
 
-async def process_metrics_async(metrics: list[dict[str, Any]], session_id: str):
+async def process_measurements_async(measurements: list[dict[str, Any]], session_id: str):
     """
-    Background task to process metrics
+    Background task to process measurements
     """
     try:
         # In a real implementation, this would:
-        # 1. Store metrics in a proper database
+        # 1. Store measurements in a proper database
         # 2. Update real-time dashboards
         # 3. Trigger alerts for performance regressions
         # 4. Calculate aggregated statistics
 
-        logger.info(f"Processing {len(metrics)} metrics for session {session_id}")
+        logger.info(f"Processing {len(measurements)} measurements for session {session_id}")
 
         # Example: Check for performance issues
-        for metric in metrics:
+        for metric in measurements:
             if (
                 metric.get("type") == "lcp"
                 and metric.get("data", {}).get("value", 0) > 4000
@@ -512,10 +512,10 @@ async def performance_monitoring_health() -> dict[str, Any]:
     """
     return {
         "status": "healthy",
-        "metrics_stored": len(performance_metrics_store),
+        "measurements_stored": len(performance_measurements_store),
         "last_metric_time": (
-            max([m.get("timestamp", 0) for m in performance_metrics_store])
-            if performance_metrics_store
+            max([m.get("timestamp", 0) for m in performance_measurements_store])
+            if performance_measurements_store
             else None
         ),
         "timestamp": int(datetime.now().timestamp() * 1000),

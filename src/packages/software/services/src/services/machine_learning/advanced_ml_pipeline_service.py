@@ -1,8 +1,8 @@
 """
 Advanced ML Pipeline Service
 
-Comprehensive machine learning pipeline management with automated model lifecycle,
-A/B testing, hyperparameter optimization, and intelligent model selection.
+Comprehensive machine learning pipeline management with automated processor lifecycle,
+A/B testing, hyperparameter optimization, and intelligent processor selection.
 """
 
 import json
@@ -27,7 +27,7 @@ from monorepo.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class ModelStatus(Enum):
-    """Model status enumeration."""
+    """Processor status enumeration."""
 
     TRAINING = "training"
     TRAINED = "trained"
@@ -47,7 +47,7 @@ class OptimizationStrategy(Enum):
 
 @dataclass
 class ModelExperiment:
-    """Model experiment configuration."""
+    """Processor experiment configuration."""
 
     experiment_id: str
     name: str
@@ -55,7 +55,7 @@ class ModelExperiment:
     algorithm: str
     hyperparameters: dict[str, Any]
     optimization_strategy: OptimizationStrategy
-    evaluation_metrics: list[str]
+    evaluation_measurements: list[str]
     created_at: datetime = field(default_factory=datetime.now)
     status: ModelStatus = ModelStatus.TRAINING
     results: dict[str, Any] | None = None
@@ -63,12 +63,12 @@ class ModelExperiment:
 
 @dataclass
 class ModelComparison:
-    """Model comparison results."""
+    """Processor comparison results."""
 
-    champion_model: str
-    challenger_model: str
-    champion_metrics: dict[str, float]
-    challenger_metrics: dict[str, float]
+    champion_processor: str
+    challenger_processor: str
+    champion_measurements: dict[str, float]
+    challenger_measurements: dict[str, float]
     winner: str
     confidence_level: float
     recommendation: str
@@ -79,8 +79,8 @@ class ABTestConfig:
     """A/B testing configuration."""
 
     test_id: str
-    champion_model: str
-    challenger_model: str
+    champion_processor: str
+    challenger_processor: str
     traffic_split: float  # Percentage of traffic to challenger (0.0-1.0)
     success_metric: str
     minimum_samples: int
@@ -89,13 +89,13 @@ class ABTestConfig:
 
 
 class AdvancedMLPipelineService:
-    """Advanced ML pipeline service with comprehensive model management."""
+    """Advanced ML pipeline service with comprehensive processor management."""
 
     def __init__(
         self, models_dir: str = "models", experiments_dir: str = "experiments"
     ):
         self.logger = StructuredLogger("ml_pipeline")
-        self.metrics_service = MetricsService()
+        self.measurements_service = MetricsService()
 
         # Storage paths
         self.models_dir = Path(models_dir)
@@ -103,30 +103,30 @@ class AdvancedMLPipelineService:
         self.models_dir.mkdir(exist_ok=True)
         self.experiments_dir.mkdir(exist_ok=True)
 
-        # Model registry
-        self.model_registry: dict[str, Model] = {}
+        # Processor registry
+        self.processor_registry: dict[str, Processor] = {}
         self.active_experiments: dict[str, ModelExperiment] = {}
         self.ab_tests: dict[str, ABTestConfig] = {}
 
         # Performance tracking
-        self.model_performance_history: dict[str, list[PerformanceMetrics]] = {}
+        self.processor_performance_history: dict[str, list[PerformanceMetrics]] = {}
 
         # Load existing models
-        self._load_model_registry()
+        self._load_processor_registry()
 
-    async def create_model_experiment(
+    async def create_processor_experiment(
         self,
         name: str,
         description: str,
         algorithm: str,
         hyperparameter_space: dict[str, Any],
         optimization_strategy: OptimizationStrategy = OptimizationStrategy.RANDOM_SEARCH,
-        evaluation_metrics: list[str] = None,
+        evaluation_measurements: list[str] = None,
     ) -> str:
-        """Create a new model experiment."""
+        """Create a new processor experiment."""
 
-        if evaluation_metrics is None:
-            evaluation_metrics = ["roc_auc", "precision", "recall", "f1"]
+        if evaluation_measurements is None:
+            evaluation_measurements = ["roc_auc", "precision", "recall", "f1"]
 
         experiment_id = f"exp_{algorithm}_{int(time.time())}"
 
@@ -137,12 +137,12 @@ class AdvancedMLPipelineService:
             algorithm=algorithm,
             hyperparameters=hyperparameter_space,
             optimization_strategy=optimization_strategy,
-            evaluation_metrics=evaluation_metrics,
+            evaluation_measurements=evaluation_measurements,
         )
 
         self.active_experiments[experiment_id] = experiment
 
-        self.logger.info(f"Created model experiment: {experiment_id}")
+        self.logger.info(f"Created processor experiment: {experiment_id}")
 
         # Save experiment configuration
         await self._save_experiment_config(experiment)
@@ -204,21 +204,21 @@ class AdvancedMLPipelineService:
             optimizer.fit(X_train, y_train)
             optimization_time = time.time() - start_time
 
-            # Get best model
-            best_model = optimizer.best_estimator_
+            # Get best processor
+            best_processor = optimizer.best_estimator_
             best_params = optimizer.best_params_
             best_score = optimizer.best_score_
 
             # Evaluate on validation set
-            val_predictions = best_model.predict(X_val)
+            val_predictions = best_processor.predict(X_val)
             val_proba = (
-                best_model.predict_proba(X_val)[:, 1]
-                if hasattr(best_model, "predict_proba")
+                best_processor.predict_proba(X_val)[:, 1]
+                if hasattr(best_processor, "predict_proba")
                 else None
             )
 
-            # Calculate metrics
-            metrics = await self._calculate_evaluation_metrics(
+            # Calculate measurements
+            measurements = await self._calculate_evaluation_measurements(
                 y_val, val_predictions, val_proba
             )
 
@@ -226,7 +226,7 @@ class AdvancedMLPipelineService:
             results = {
                 "best_parameters": best_params,
                 "best_cv_score": best_score,
-                "validation_metrics": metrics,
+                "validation_measurements": measurements,
                 "optimization_time": optimization_time,
                 "total_trials": len(optimizer.cv_results_["params"]),
                 "cv_results": optimizer.cv_results_,
@@ -235,9 +235,9 @@ class AdvancedMLPipelineService:
             experiment.results = results
             experiment.status = ModelStatus.TRAINED
 
-            # Save trained model
-            model_path = await self._save_trained_model(
-                experiment_id, best_model, results
+            # Save trained processor
+            processor_path = await self._save_trained_processor(
+                experiment_id, best_processor, results
             )
 
             self.logger.info(
@@ -245,8 +245,8 @@ class AdvancedMLPipelineService:
                 f"Best score: {best_score:.4f}, Time: {optimization_time:.2f}s"
             )
 
-            # Record metrics
-            self.metrics_service.record_model_training_metrics(
+            # Record measurements
+            self.measurements_service.record_processor_training_measurements(
                 algorithm=experiment.algorithm,
                 optimization_time=optimization_time,
                 best_score=best_score,
@@ -262,7 +262,7 @@ class AdvancedMLPipelineService:
             )
             raise
 
-    async def compare_models(
+    async def compare_processors(
         self,
         champion_experiment_id: str,
         challenger_experiment_id: str,
@@ -285,36 +285,36 @@ class AdvancedMLPipelineService:
         )
 
         # Load models
-        champion_model = await self._load_experiment_model(champion_experiment_id)
-        challenger_model = await self._load_experiment_model(challenger_experiment_id)
+        champion_processor = await self._load_experiment_processor(champion_experiment_id)
+        challenger_processor = await self._load_experiment_processor(challenger_experiment_id)
 
         # Get predictions
-        champion_pred = champion_model.predict(X_test)
-        challenger_pred = challenger_model.predict(X_test)
+        champion_pred = champion_processor.predict(X_test)
+        challenger_pred = challenger_processor.predict(X_test)
 
         champion_proba = (
-            champion_model.predict_proba(X_test)[:, 1]
-            if hasattr(champion_model, "predict_proba")
+            champion_processor.predict_proba(X_test)[:, 1]
+            if hasattr(champion_processor, "predict_proba")
             else None
         )
         challenger_proba = (
-            challenger_model.predict_proba(X_test)[:, 1]
-            if hasattr(challenger_model, "predict_proba")
+            challenger_processor.predict_proba(X_test)[:, 1]
+            if hasattr(challenger_processor, "predict_proba")
             else None
         )
 
-        # Calculate metrics
-        champion_metrics = await self._calculate_evaluation_metrics(
+        # Calculate measurements
+        champion_measurements = await self._calculate_evaluation_measurements(
             y_test, champion_pred, champion_proba
         )
-        challenger_metrics = await self._calculate_evaluation_metrics(
+        challenger_measurements = await self._calculate_evaluation_measurements(
             y_test, challenger_pred, challenger_proba
         )
 
         # Determine winner based on primary metric (ROC AUC)
         primary_metric = "roc_auc"
-        champion_score = champion_metrics.get(primary_metric, 0)
-        challenger_score = challenger_metrics.get(primary_metric, 0)
+        champion_score = champion_measurements.get(primary_metric, 0)
+        challenger_score = challenger_measurements.get(primary_metric, 0)
 
         # Statistical significance test (simplified)
         score_difference = abs(challenger_score - champion_score)
@@ -326,13 +326,13 @@ class AdvancedMLPipelineService:
             1 - significance_level
         ):
             winner = "challenger"
-            recommendation = f"Deploy challenger model (improvement: {challenger_score - champion_score:.4f})"
+            recommendation = f"Deploy challenger processor (improvement: {challenger_score - champion_score:.4f})"
         elif champion_score > challenger_score and confidence_level > (
             1 - significance_level
         ):
             winner = "champion"
             recommendation = (
-                "Keep champion model (statistically significant better performance)"
+                "Keep champion processor (statistically significant better performance)"
             )
         else:
             winner = "tie"
@@ -341,17 +341,17 @@ class AdvancedMLPipelineService:
             )
 
         comparison = ModelComparison(
-            champion_model=champion_experiment_id,
-            challenger_model=challenger_experiment_id,
-            champion_metrics=champion_metrics,
-            challenger_metrics=challenger_metrics,
+            champion_processor=champion_experiment_id,
+            challenger_processor=challenger_experiment_id,
+            champion_measurements=champion_measurements,
+            challenger_measurements=challenger_measurements,
             winner=winner,
             confidence_level=confidence_level,
             recommendation=recommendation,
         )
 
         self.logger.info(
-            f"Model comparison completed. Winner: {winner}, Confidence: {confidence_level:.3f}"
+            f"Processor comparison completed. Winner: {winner}, Confidence: {confidence_level:.3f}"
         )
 
         return comparison
@@ -359,8 +359,8 @@ class AdvancedMLPipelineService:
     async def start_ab_test(
         self,
         test_name: str,
-        champion_model_id: str,
-        challenger_model_id: str,
+        champion_processor_id: str,
+        challenger_processor_id: str,
         traffic_split: float = 0.1,
         success_metric: str = "roc_auc",
         minimum_samples: int = 1000,
@@ -372,8 +372,8 @@ class AdvancedMLPipelineService:
 
         ab_test = ABTestConfig(
             test_id=test_id,
-            champion_model=champion_model_id,
-            challenger_model=challenger_model_id,
+            champion_processor=champion_processor_id,
+            challenger_processor=challenger_processor_id,
             traffic_split=traffic_split,
             success_metric=success_metric,
             minimum_samples=minimum_samples,
@@ -383,7 +383,7 @@ class AdvancedMLPipelineService:
         self.ab_tests[test_id] = ab_test
 
         self.logger.info(
-            f"Started A/B test {test_id}: {champion_model_id} vs {challenger_model_id} "
+            f"Started A/B test {test_id}: {champion_processor_id} vs {challenger_processor_id} "
             f"(split: {traffic_split:.1%})"
         )
 
@@ -399,12 +399,12 @@ class AdvancedMLPipelineService:
 
         ab_test = self.ab_tests[test_id]
 
-        # Split results by model
+        # Split results by processor
         champion_results = [
-            r for r in results_data if r.get("model_id") == ab_test.champion_model
+            r for r in results_data if r.get("processor_id") == ab_test.champion_processor
         ]
         challenger_results = [
-            r for r in results_data if r.get("model_id") == ab_test.challenger_model
+            r for r in results_data if r.get("processor_id") == ab_test.challenger_processor
         ]
 
         if (
@@ -418,7 +418,7 @@ class AdvancedMLPipelineService:
                 "minimum_required": ab_test.minimum_samples,
             }
 
-        # Calculate metrics for each model
+        # Calculate measurements for each processor
         champion_metric = np.mean(
             [r.get(ab_test.success_metric, 0) for r in champion_results]
         )
@@ -472,14 +472,14 @@ class AdvancedMLPipelineService:
 
         return results
 
-    async def auto_select_best_model(
+    async def auto_select_best_processor(
         self,
         experiments: list[str],
         X_test: np.ndarray,
         y_test: np.ndarray,
         selection_criteria: dict[str, float] = None,
     ) -> str:
-        """Automatically select the best model from multiple experiments."""
+        """Automatically select the best processor from multiple experiments."""
 
         if selection_criteria is None:
             selection_criteria = {
@@ -490,10 +490,10 @@ class AdvancedMLPipelineService:
             }
 
         self.logger.info(
-            f"Auto-selecting best model from {len(experiments)} experiments"
+            f"Auto-selecting best processor from {len(experiments)} experiments"
         )
 
-        model_scores = {}
+        processor_scores = {}
 
         for exp_id in experiments:
             if exp_id not in self.active_experiments:
@@ -504,19 +504,19 @@ class AdvancedMLPipelineService:
                 continue
 
             try:
-                # Load model
-                model = await self._load_experiment_model(exp_id)
+                # Load processor
+                processor = await self._load_experiment_processor(exp_id)
 
                 # Get predictions
-                predictions = model.predict(X_test)
+                predictions = processor.predict(X_test)
                 proba = (
-                    model.predict_proba(X_test)[:, 1]
-                    if hasattr(model, "predict_proba")
+                    processor.predict_proba(X_test)[:, 1]
+                    if hasattr(processor, "predict_proba")
                     else None
                 )
 
-                # Calculate metrics
-                metrics = await self._calculate_evaluation_metrics(
+                # Calculate measurements
+                measurements = await self._calculate_evaluation_measurements(
                     y_test, predictions, proba
                 )
 
@@ -528,15 +528,15 @@ class AdvancedMLPipelineService:
 
                 # Calculate weighted score
                 score = (
-                    metrics.get("roc_auc", 0) * selection_criteria["roc_auc"]
-                    + metrics.get("precision", 0) * selection_criteria["precision"]
-                    + metrics.get("recall", 0) * selection_criteria["recall"]
+                    measurements.get("roc_auc", 0) * selection_criteria["roc_auc"]
+                    + measurements.get("precision", 0) * selection_criteria["precision"]
+                    + measurements.get("recall", 0) * selection_criteria["recall"]
                     + normalized_time * selection_criteria["training_time"]
                 )
 
-                model_scores[exp_id] = {
+                processor_scores[exp_id] = {
                     "score": score,
-                    "metrics": metrics,
+                    "measurements": measurements,
                     "training_time": training_time,
                 }
 
@@ -544,23 +544,23 @@ class AdvancedMLPipelineService:
                 self.logger.error(f"Error evaluating experiment {exp_id}: {e}")
                 continue
 
-        if not model_scores:
+        if not processor_scores:
             raise ValueError("No valid models found for selection")
 
-        # Select best model
+        # Select best processor
         best_experiment = max(
-            model_scores.keys(), key=lambda x: model_scores[x]["score"]
+            processor_scores.keys(), key=lambda x: processor_scores[x]["score"]
         )
 
         self.logger.info(
-            f"Selected best model: {best_experiment} "
-            f"(score: {model_scores[best_experiment]['score']:.4f})"
+            f"Selected best processor: {best_experiment} "
+            f"(score: {processor_scores[best_experiment]['score']:.4f})"
         )
 
         return best_experiment
 
-    async def deploy_model(self, experiment_id: str, deployment_name: str) -> str:
-        """Deploy a trained model to production."""
+    async def deploy_processor(self, experiment_id: str, deployment_name: str) -> str:
+        """Deploy a trained processor to production."""
 
         if experiment_id not in self.active_experiments:
             raise ValueError(f"Experiment {experiment_id} not found")
@@ -571,8 +571,8 @@ class AdvancedMLPipelineService:
 
         deployment_id = f"deploy_{deployment_name}_{int(time.time())}"
 
-        # Create model version
-        model_version = ModelVersion(
+        # Create processor version
+        processor_version = ModelVersion(
             version_id=deployment_id,
             experiment_id=experiment_id,
             deployment_name=deployment_name,
@@ -580,14 +580,14 @@ class AdvancedMLPipelineService:
             status="active",
         )
 
-        # Load and package model
-        model = await self._load_experiment_model(experiment_id)
+        # Load and package processor
+        processor = await self._load_experiment_processor(experiment_id)
         deployment_path = self.models_dir / f"{deployment_id}.joblib"
 
-        # Save deployment model
+        # Save deployment processor
         joblib.dump(
             {
-                "model": model,
+                "processor": processor,
                 "experiment": experiment,
                 "metadata": {
                     "deployed_at": datetime.now().isoformat(),
@@ -601,11 +601,11 @@ class AdvancedMLPipelineService:
         experiment.status = ModelStatus.DEPLOYED
 
         self.logger.info(
-            f"Deployed model {experiment_id} as {deployment_name} (ID: {deployment_id})"
+            f"Deployed processor {experiment_id} as {deployment_name} (ID: {deployment_id})"
         )
 
-        # Record deployment metrics
-        self.metrics_service.record_model_deployment(
+        # Record deployment measurements
+        self.measurements_service.record_processor_deployment(
             experiment_id=experiment_id,
             deployment_name=deployment_name,
             deployment_id=deployment_id,
@@ -634,41 +634,41 @@ class AdvancedMLPipelineService:
 
         return estimators[algorithm]
 
-    async def _calculate_evaluation_metrics(
+    async def _calculate_evaluation_measurements(
         self, y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray | None = None
     ) -> dict[str, float]:
-        """Calculate evaluation metrics."""
+        """Calculate evaluation measurements."""
 
-        metrics = {}
+        measurements = {}
 
         try:
-            # Basic metrics
+            # Basic measurements
             if len(np.unique(y_true)) > 1:  # Ensure we have both classes
-                metrics["precision"] = precision_score(
+                measurements["precision"] = precision_score(
                     y_true, y_pred, average="weighted", zero_division=0
                 )
-                metrics["recall"] = recall_score(
+                measurements["recall"] = recall_score(
                     y_true, y_pred, average="weighted", zero_division=0
                 )
 
-                if metrics["precision"] + metrics["recall"] > 0:
-                    metrics["f1"] = (
+                if measurements["precision"] + measurements["recall"] > 0:
+                    measurements["f1"] = (
                         2
-                        * (metrics["precision"] * metrics["recall"])
-                        / (metrics["precision"] + metrics["recall"])
+                        * (measurements["precision"] * measurements["recall"])
+                        / (measurements["precision"] + measurements["recall"])
                     )
                 else:
-                    metrics["f1"] = 0.0
+                    measurements["f1"] = 0.0
 
                 # ROC AUC if probabilities available
                 if y_proba is not None:
                     try:
-                        metrics["roc_auc"] = roc_auc_score(y_true, y_proba)
+                        measurements["roc_auc"] = roc_auc_score(y_true, y_proba)
                     except ValueError:
-                        metrics["roc_auc"] = 0.5  # Random performance
+                        measurements["roc_auc"] = 0.5  # Random performance
             else:
                 # Single class case
-                metrics.update(
+                measurements.update(
                     {
                         "precision": 1.0 if np.all(y_pred == y_true) else 0.0,
                         "recall": 1.0 if np.all(y_pred == y_true) else 0.0,
@@ -678,11 +678,11 @@ class AdvancedMLPipelineService:
                 )
 
             # Accuracy
-            metrics["accuracy"] = np.mean(y_pred == y_true)
+            measurements["accuracy"] = np.mean(y_pred == y_true)
 
         except Exception as e:
-            self.logger.error(f"Error calculating metrics: {e}")
-            metrics = {
+            self.logger.error(f"Error calculating measurements: {e}")
+            measurements = {
                 "precision": 0.0,
                 "recall": 0.0,
                 "f1": 0.0,
@@ -690,7 +690,7 @@ class AdvancedMLPipelineService:
                 "accuracy": 0.0,
             }
 
-        return metrics
+        return measurements
 
     async def _save_experiment_config(self, experiment: ModelExperiment):
         """Save experiment configuration."""
@@ -704,7 +704,7 @@ class AdvancedMLPipelineService:
             "algorithm": experiment.algorithm,
             "hyperparameters": experiment.hyperparameters,
             "optimization_strategy": experiment.optimization_strategy.value,
-            "evaluation_metrics": experiment.evaluation_metrics,
+            "evaluation_measurements": experiment.evaluation_measurements,
             "created_at": experiment.created_at.isoformat(),
             "status": experiment.status.value,
         }
@@ -712,36 +712,36 @@ class AdvancedMLPipelineService:
         with open(config_path, "w") as f:
             json.dump(config_data, f, indent=2)
 
-    async def _save_trained_model(
-        self, experiment_id: str, model: BaseEstimator, results: dict[str, Any]
+    async def _save_trained_processor(
+        self, experiment_id: str, processor: BaseEstimator, results: dict[str, Any]
     ) -> str:
-        """Save trained model."""
+        """Save trained processor."""
 
-        model_path = self.models_dir / f"{experiment_id}_model.joblib"
+        processor_path = self.models_dir / f"{experiment_id}_processor.joblib"
 
-        model_data = {
-            "model": model,
+        processor_data = {
+            "processor": processor,
             "results": results,
             "saved_at": datetime.now().isoformat(),
         }
 
-        joblib.dump(model_data, model_path)
+        joblib.dump(processor_data, processor_path)
 
-        return str(model_path)
+        return str(processor_path)
 
-    async def _load_experiment_model(self, experiment_id: str) -> BaseEstimator:
-        """Load experiment model."""
+    async def _load_experiment_processor(self, experiment_id: str) -> BaseEstimator:
+        """Load experiment processor."""
 
-        model_path = self.models_dir / f"{experiment_id}_model.joblib"
+        processor_path = self.models_dir / f"{experiment_id}_processor.joblib"
 
-        if not model_path.exists():
-            raise FileNotFoundError(f"Model file not found: {model_path}")
+        if not processor_path.exists():
+            raise FileNotFoundError(f"Processor file not found: {processor_path}")
 
-        model_data = joblib.load(model_path)
-        return model_data["model"]
+        processor_data = joblib.load(processor_path)
+        return processor_data["processor"]
 
     def _load_model_registry(self):
-        """Load existing model registry."""
+        """Load existing processor registry."""
         # Implementation would load from persistent storage
         pass
 

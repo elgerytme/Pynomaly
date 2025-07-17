@@ -1,7 +1,7 @@
 """
-Detection Repository Interface
+Processing Repository Interface
 
-Defines the contract for persisting and retrieving detection-related data.
+Defines the contract for persisting and retrieving processing-related data.
 """
 
 from abc import ABC, abstractmethod
@@ -13,20 +13,20 @@ from ..entities.detection_request import DetectionRequest
 
 class DetectionRepository(ABC):
     """
-    Abstract repository for detection-related data persistence.
+    Abstract repository for processing-related data persistence.
     
     This interface defines the contract that infrastructure adapters
     must implement to provide data persistence capabilities for
-    detection requests and results.
+    processing requests and results.
     """
     
     @abstractmethod
     async def save_request(self, request: DetectionRequest) -> None:
         """
-        Save a detection request to persistent storage.
+        Save a processing request to persistent storage.
         
         Args:
-            request: The detection request to save.
+            request: The processing request to save.
             
         Raises:
             RepositoryError: If the save operation fails.
@@ -36,7 +36,7 @@ class DetectionRepository(ABC):
     @abstractmethod
     async def get_request_by_id(self, request_id: UUID) -> Optional[DetectionRequest]:
         """
-        Retrieve a detection request by its unique identifier.
+        Retrieve a processing request by its unique identifier.
         
         Args:
             request_id: The unique identifier of the request.
@@ -52,7 +52,7 @@ class DetectionRepository(ABC):
     @abstractmethod
     async def get_requests_by_user(self, user_id: str) -> List[DetectionRequest]:
         """
-        Retrieve all detection requests for a specific user.
+        Retrieve all processing requests for a specific user.
         
         Args:
             user_id: The user identifier.
@@ -68,7 +68,7 @@ class DetectionRepository(ABC):
     @abstractmethod
     async def update_request_status(self, request_id: UUID, status: str) -> None:
         """
-        Update the status of a detection request.
+        Update the status of a processing request.
         
         Args:
             request_id: The unique identifier of the request.
@@ -82,7 +82,7 @@ class DetectionRepository(ABC):
     @abstractmethod
     async def delete_request(self, request_id: UUID) -> bool:
         """
-        Delete a detection request from storage.
+        Delete a processing request from storage.
         
         Args:
             request_id: The unique identifier of the request.
@@ -103,7 +103,7 @@ class DetectionRepository(ABC):
         status_filter: Optional[str] = None
     ) -> List[DetectionRequest]:
         """
-        List detection requests with pagination and filtering.
+        List processing requests with pagination and filtering.
         
         Args:
             limit: Maximum number of requests to return.
@@ -111,7 +111,7 @@ class DetectionRepository(ABC):
             status_filter: Optional status filter.
             
         Returns:
-            List[DetectionRequest]: List of detection requests.
+            List[DetectionRequest]: List of processing requests.
             
         Raises:
             RepositoryError: If the list operation fails.
@@ -121,7 +121,7 @@ class DetectionRepository(ABC):
     @abstractmethod
     async def count_requests(self, status_filter: Optional[str] = None) -> int:
         """
-        Count the total number of detection requests.
+        Count the total number of processing requests.
         
         Args:
             status_filter: Optional status filter.

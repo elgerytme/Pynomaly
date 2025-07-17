@@ -1,123 +1,20 @@
-"""Data Transfer Objects for application layer."""
+"""
+Generic Software Data Transfer Objects (DTOs)
 
-from .automl_dto import (
-    AlgorithmRecommendationDTO,
-    AutoMLProfileRequestDTO,
-    AutoMLProfileResponseDTO,
-    AutoMLRequestDTO,
-    AutoMLResponseDTO,
-    AutoMLResultDTO,
-    DatasetProfileDTO,
-    EnsembleConfigDTO,
-    HyperparameterOptimizationRequestDTO,
-    HyperparameterOptimizationResponseDTO,
-    OptimizationTrialDTO,
-)
-from .dataset_dto import (
-    CreateDatasetDTO,
-    DataQualityReportDTO,
-    DatasetDTO,
-    DatasetResponseDTO,
-    DatasetUploadResponseDTO,
-)
-from .detection_dto import (
-    ConfidenceInterval,
-    DetectionRequestDTO,
-    DetectionSummaryDTO,
-    ExplanationResultDTO,
-    TrainingRequestDTO,
-    TrainingResultDTO,
-)
-from .detector_dto import (
-    CreateDetectorDTO,
-    DetectorDTO,
-    DetectorResponseDTO,
-    UpdateDetectorDTO,
-)
-from .experiment_dto import (
-    CreateExperimentDTO,
-    ExperimentDTO,
-    ExperimentResponseDTO,
-    LeaderboardEntryDTO,
-    RunDTO,
-)
-from .explainability_dto import (
-    CohortExplanationDTO,
-    CompareMethodsRequestDTO,
-    ExplainCohortRequestDTO,
-    ExplainInstanceRequestDTO,
-    ExplainModelRequestDTO,
-    ExplanationRequestDTO,
-    ExplanationResponseDTO,
-    ExplanationSummaryDTO,
-    FeatureContributionDTO,
-    FeatureRankingDTO,
-    FeatureStatisticsDTO,
-    GlobalExplanationDTO,
-    LocalExplanationDTO,
-    MethodComparisonDTO,
-)
-from .result_dto import AnomalyDTO, DetectionResultDTO
+This module provides generic DTOs for software applications.
+Contains only domain-agnostic data structures.
+"""
 
-# Backward compatibility aliases
-DetectorConfig = CreateDetectorDTO
-OptimizationConfig = HyperparameterOptimizationRequestDTO
+from .configuration_dto import ConfigurationDTO
+from .export_options import ExportOptions
+from .monitoring_dto import MonitoringDTO
+from .mfa_dto import MfaDTO
+from .cost_optimization_dto import CostOptimizationDTO
 
 __all__ = [
-    # Detector DTOs
-    "DetectorDTO",
-    "CreateDetectorDTO",
-    "UpdateDetectorDTO",
-    "DetectorResponseDTO",
-    "ConfidenceInterval",
-    "DetectionRequestDTO",
-    "DetectionSummaryDTO",
-    "ExplanationResultDTO",
-    "TrainingRequestDTO",
-    "TrainingResultDTO",
-    # Dataset DTOs
-    "DatasetDTO",
-    "CreateDatasetDTO",
-    "DataQualityReportDTO",
-    "DatasetResponseDTO",
-    "DatasetUploadResponseDTO",
-    # Result DTOs
-    "DetectionResultDTO",
-    "AnomalyDTO",
-    # Experiment DTOs
-    "ExperimentDTO",
-    "RunDTO",
-    "CreateExperimentDTO",
-    "LeaderboardEntryDTO",
-    "ExperimentResponseDTO",
-    # AutoML DTOs
-    "AutoMLRequestDTO",
-    "AutoMLResponseDTO",
-    "AutoMLResultDTO",
-    "DatasetProfileDTO",
-    "AlgorithmRecommendationDTO",
-    "HyperparameterOptimizationRequestDTO",
-    "HyperparameterOptimizationResponseDTO",
-    "AutoMLProfileRequestDTO",
-    "AutoMLProfileResponseDTO",
-    "EnsembleConfigDTO",
-    "OptimizationTrialDTO",
-    # Explainability DTOs
-    "FeatureContributionDTO",
-    "LocalExplanationDTO",
-    "GlobalExplanationDTO",
-    "CohortExplanationDTO",
-    "ExplanationRequestDTO",
-    "MethodComparisonDTO",
-    "FeatureStatisticsDTO",
-    "ExplanationResponseDTO",
-    "ExplainInstanceRequestDTO",
-    "ExplainModelRequestDTO",
-    "ExplainCohortRequestDTO",
-    "CompareMethodsRequestDTO",
-    "FeatureRankingDTO",
-    "ExplanationSummaryDTO",
-    # Backward compatibility aliases
-    "DetectorConfig",
-    "OptimizationConfig",
+    "ConfigurationDTO",
+    "ExportOptions", 
+    "MonitoringDTO",
+    "MfaDTO",
+    "CostOptimizationDTO"
 ]

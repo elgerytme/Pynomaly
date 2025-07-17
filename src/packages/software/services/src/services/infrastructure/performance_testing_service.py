@@ -45,33 +45,33 @@ from monorepo.domain.entities.detector import Detector
 
 @dataclass
 class PerformanceMetrics:
-    """Performance metrics for algorithm evaluation."""
+    """Performance measurements for algorithm evaluation."""
 
-    # Timing metrics
+    # Timing measurements
     training_time: float = 0.0
     prediction_time: float = 0.0
     total_time: float = 0.0
     throughput: float = 0.0  # samples per second
 
-    # Memory metrics
+    # Memory measurements
     peak_memory_mb: float = 0.0
     memory_usage_mb: float = 0.0
     memory_growth_mb: float = 0.0
 
-    # CPU metrics
+    # CPU measurements
     cpu_percent: float = 0.0
     cpu_time_user: float = 0.0
     cpu_time_system: float = 0.0
 
-    # Quality metrics
+    # Quality measurements
     roc_auc: float = 0.0
     average_precision: float = 0.0
     f1_score: float = 0.0
     precision: float = 0.0
     recall: float = 0.0
 
-    # Scalability metrics
-    dataset_size: int = 0
+    # Scalability measurements
+    data_collection_size: int = 0
     feature_count: int = 0
     contamination_rate: float = 0.0
 
@@ -80,7 +80,7 @@ class PerformanceMetrics:
     time_per_sample: float = 0.0
     cpu_efficiency: float = 0.0
 
-    # Stability metrics
+    # Stability measurements
     prediction_variance: float = 0.0
     score_stability: float = 0.0
     convergence_iterations: int = 0
@@ -92,15 +92,15 @@ class BenchmarkResult:
 
     benchmark_id: UUID = field(default_factory=uuid4)
     algorithm_name: str = ""
-    dataset_name: str = ""
+    data_collection_name: str = ""
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Configuration
     parameters: dict[str, Any] = field(default_factory=dict)
-    dataset_config: dict[str, Any] = field(default_factory=dict)
+    data_collection_config: dict[str, Any] = field(default_factory=dict)
 
     # Performance results
-    metrics: PerformanceMetrics = field(default_factory=PerformanceMetrics)
+    measurements: PerformanceMetrics = field(default_factory=PerformanceMetrics)
 
     # Statistical analysis
     confidence_interval: tuple[float, float] = (0.0, 0.0)
@@ -116,20 +116,20 @@ class BenchmarkResult:
         return {
             "benchmark_id": str(self.benchmark_id),
             "algorithm": self.algorithm_name,
-            "dataset": self.dataset_name,
+            "data_collection": self.data_collection_name,
             "timestamp": self.timestamp.isoformat(),
             "performance": {
-                "training_time": self.metrics.training_time,
-                "prediction_time": self.metrics.prediction_time,
-                "peak_memory_mb": self.metrics.peak_memory_mb,
-                "throughput": self.metrics.throughput,
-                "roc_auc": self.metrics.roc_auc,
-                "f1_score": self.metrics.f1_score,
+                "training_time": self.measurements.training_time,
+                "prediction_time": self.measurements.prediction_time,
+                "peak_memory_mb": self.measurements.peak_memory_mb,
+                "throughput": self.measurements.throughput,
+                "roc_auc": self.measurements.roc_auc,
+                "f1_score": self.measurements.f1_score,
             },
             "efficiency": {
-                "memory_per_sample": self.metrics.memory_per_sample,
-                "time_per_sample": self.metrics.time_per_sample,
-                "cpu_efficiency": self.metrics.cpu_efficiency,
+                "memory_per_sample": self.measurements.memory_per_sample,
+                "time_per_sample": self.measurements.time_per_sample,
+                "cpu_efficiency": self.measurements.cpu_efficiency,
             },
         }
 
@@ -182,7 +182,7 @@ class StressTestConfig:
     ramp_up_time: int = 30
 
     # Memory stress
-    max_dataset_size: int = 100000
+    max_data_collection_size: int = 100000
     memory_pressure_mb: int = 500
 
     # CPU stress
@@ -305,7 +305,7 @@ class PerformanceTestingService:
         self,
         suite_name: str,
         detectors: dict[str, Detector],
-        custom_datasets: list[Dataset] | None = None,
+        custom_data_collections: list[DataCollection] | None = None,
     ) -> dict[str, Any]:
         """Run comprehensive benchmark suite."""
 
@@ -329,12 +329,12 @@ class PerformanceTestingService:
             }
 
             # Generate test datasets
-            test_datasets = await self._generate_test_datasets(suite.datasets)
-            if custom_datasets:
-                test_datasets.extend(custom_datasets)
+            test_data_collections = await self._generate_test_data_collections(suite.datasets)
+            if custom_data_collections:
+                test_data_collections.extend(custom_data_collections)
 
-            # Run benchmarks for each algorithm and dataset combination
-            total_tests = len(suite.algorithms) * len(test_datasets)
+            # Run benchmarks for each algorithm and data_collection combination
+            total_tests = len(suite.algorithms) * len(test_data_collections)
             completed_tests = 0
 
             for algorithm_name in suite.algorithms:
@@ -343,7 +343,7 @@ class PerformanceTestingService:
 
                 detector = detectors[algorithm_name]
 
-                for dataset in test_datasets:
+                for data_collection in test_data_collections:
                     # Run multiple iterations for statistical significance
                     iteration_results = []
 
@@ -351,7 +351,7 @@ class PerformanceTestingService:
                         try:
                             benchmark_result = await self._run_single_benchmark(
                                 detector=detector,
-                                dataset=dataset,
+                                data_collection=data_collection,
                                 algorithm_name=algorithm_name,
                                 timeout=suite.timeout_seconds,
                             )
@@ -372,7 +372,7 @@ class PerformanceTestingService:
                         results["results"].append(aggregated_result.get_summary())
 
                         # Store result
-                        result_key = f"{algorithm_name}_{dataset.name}"
+                        result_key = f"{algorithm_name}_{data_collection.name}"
                         self.benchmark_results[result_key] = aggregated_result
 
                     completed_tests += 1
@@ -428,21 +428,21 @@ class PerformanceTestingService:
         )
 
         for size in size_points:
-            dataset = await self._generate_synthetic_dataset(
+            data_collection = await self._generate_synthetic_data_collection(
                 n_samples=int(size), n_features=50, contamination=0.1
             )
 
             benchmark_result = await self._run_single_benchmark(
-                detector=detector, dataset=dataset, algorithm_name=algorithm_name
+                detector=detector, data_collection=data_collection, algorithm_name=algorithm_name
             )
 
             results["size_scaling"].append(
                 {
                     "size": int(size),
-                    "training_time": benchmark_result.metrics.training_time,
-                    "prediction_time": benchmark_result.metrics.prediction_time,
-                    "memory_mb": benchmark_result.metrics.peak_memory_mb,
-                    "throughput": benchmark_result.metrics.throughput,
+                    "training_time": benchmark_result.measurements.training_time,
+                    "prediction_time": benchmark_result.measurements.prediction_time,
+                    "memory_mb": benchmark_result.measurements.peak_memory_mb,
+                    "throughput": benchmark_result.measurements.throughput,
                 }
             )
 
@@ -451,21 +451,21 @@ class PerformanceTestingService:
         feature_points = np.linspace(min_features, max_features, steps, dtype=int)
 
         for features in feature_points:
-            dataset = await self._generate_synthetic_dataset(
+            data_collection = await self._generate_synthetic_data_collection(
                 n_samples=10000, n_features=int(features), contamination=0.1
             )
 
             benchmark_result = await self._run_single_benchmark(
-                detector=detector, dataset=dataset, algorithm_name=algorithm_name
+                detector=detector, data_collection=data_collection, algorithm_name=algorithm_name
             )
 
             results["feature_scaling"].append(
                 {
                     "features": int(features),
-                    "training_time": benchmark_result.metrics.training_time,
-                    "prediction_time": benchmark_result.metrics.prediction_time,
-                    "memory_mb": benchmark_result.metrics.peak_memory_mb,
-                    "throughput": benchmark_result.metrics.throughput,
+                    "training_time": benchmark_result.measurements.training_time,
+                    "prediction_time": benchmark_result.measurements.prediction_time,
+                    "memory_mb": benchmark_result.measurements.peak_memory_mb,
+                    "throughput": benchmark_result.measurements.throughput,
                 }
             )
 
@@ -525,20 +525,20 @@ class PerformanceTestingService:
     async def compare_algorithms(
         self,
         detectors: dict[str, Detector],
-        datasets: list[Dataset],
-        metrics: list[str] = None,
+        datasets: list[DataCollection],
+        measurements: list[str] = None,
     ) -> dict[str, Any]:
         """Compare multiple algorithms across datasets."""
 
-        if metrics is None:
-            metrics = ["roc_auc", "training_time", "memory_usage", "throughput"]
+        if measurements is None:
+            measurements = ["roc_auc", "training_time", "memory_usage", "throughput"]
 
         comparison_results = {
             "comparison_id": str(uuid4()),
             "started_at": datetime.utcnow().isoformat(),
             "algorithms": list(detectors.keys()),
             "datasets": [d.name for d in datasets],
-            "metrics": metrics,
+            "measurements": measurements,
             "results": {},
             "rankings": {},
             "statistical_analysis": {},
@@ -549,22 +549,22 @@ class PerformanceTestingService:
         for algorithm_name, detector in detectors.items():
             comparison_results["results"][algorithm_name] = {}
 
-            for dataset in datasets:
+            for data_collection in datasets:
                 benchmark_result = await self._run_single_benchmark(
-                    detector=detector, dataset=dataset, algorithm_name=algorithm_name
+                    detector=detector, data_collection=data_collection, algorithm_name=algorithm_name
                 )
 
-                comparison_results["results"][algorithm_name][dataset.name] = {
-                    "roc_auc": benchmark_result.metrics.roc_auc,
-                    "training_time": benchmark_result.metrics.training_time,
-                    "memory_usage": benchmark_result.metrics.peak_memory_mb,
-                    "throughput": benchmark_result.metrics.throughput,
-                    "f1_score": benchmark_result.metrics.f1_score,
+                comparison_results["results"][algorithm_name][data_collection.name] = {
+                    "roc_auc": benchmark_result.measurements.roc_auc,
+                    "training_time": benchmark_result.measurements.training_time,
+                    "memory_usage": benchmark_result.measurements.peak_memory_mb,
+                    "throughput": benchmark_result.measurements.throughput,
+                    "f1_score": benchmark_result.measurements.f1_score,
                 }
 
         # Generate rankings
         comparison_results["rankings"] = self._generate_algorithm_rankings(
-            comparison_results["results"], metrics
+            comparison_results["results"], measurements
         )
 
         # Statistical analysis
@@ -587,7 +587,7 @@ class PerformanceTestingService:
     async def _run_single_benchmark(
         self,
         detector: Detector,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm_name: str,
         timeout: int = 300,
     ) -> BenchmarkResult:
@@ -596,15 +596,15 @@ class PerformanceTestingService:
         # Initialize result
         result = BenchmarkResult(
             algorithm_name=algorithm_name,
-            dataset_name=dataset.name,
-            dataset_config={
-                "samples": len(dataset.features),
+            data_collection_name=data_collection.name,
+            data_collection_config={
+                "samples": len(data_collection.features),
                 "features": (
-                    len(dataset.features.columns)
-                    if hasattr(dataset.features, "columns")
-                    else dataset.features.shape[1]
+                    len(data_collection.features.columns)
+                    if hasattr(data_collection.features, "columns")
+                    else data_collection.features.shape[1]
                 ),
-                "contamination": getattr(dataset, "contamination_rate", 0.1),
+                "contamination": getattr(data_collection, "contamination_rate", 0.1),
             },
         )
 
@@ -627,87 +627,87 @@ class PerformanceTestingService:
             start_time = time.time()
 
             # Train detector
-            detector.fit(dataset.features)
+            detector.fit(data_collection.features)
 
             training_time = time.time() - start_time
-            result.metrics.training_time = training_time
+            result.measurements.training_time = training_time
 
             # Prediction phase
             start_time = time.time()
 
-            predictions = detector.predict(dataset.features)
-            scores = detector.decision_function(dataset.features)
+            predictions = detector.predict(data_collection.features)
+            scores = detector.decision_function(data_collection.features)
 
             prediction_time = time.time() - start_time
-            result.metrics.prediction_time = prediction_time
-            result.metrics.total_time = training_time + prediction_time
+            result.measurements.prediction_time = prediction_time
+            result.measurements.total_time = training_time + prediction_time
 
             # Calculate throughput
-            n_samples = len(dataset.features)
-            result.metrics.throughput = n_samples / result.metrics.total_time
-            result.metrics.dataset_size = n_samples
-            result.metrics.feature_count = (
-                dataset.features.shape[1]
-                if hasattr(dataset.features, "shape")
-                else len(dataset.features.columns)
+            n_samples = len(data_collection.features)
+            result.measurements.throughput = n_samples / result.measurements.total_time
+            result.measurements.data_collection_size = n_samples
+            result.measurements.feature_count = (
+                data_collection.features.shape[1]
+                if hasattr(data_collection.features, "shape")
+                else len(data_collection.features.columns)
             )
 
-            # Memory metrics
+            # Memory measurements
             memory_after = psutil.virtual_memory().used / (1024**2)  # MB
-            result.metrics.memory_usage_mb = memory_after - memory_before
-            result.metrics.memory_per_sample = (
-                result.metrics.memory_usage_mb / n_samples
+            result.measurements.memory_usage_mb = memory_after - memory_before
+            result.measurements.memory_per_sample = (
+                result.measurements.memory_usage_mb / n_samples
             )
 
             if self.enable_profiling and tracemalloc.is_tracing():
                 current, peak = tracemalloc.get_traced_memory()
-                result.metrics.peak_memory_mb = peak / (1024**2)  # MB
+                result.measurements.peak_memory_mb = peak / (1024**2)  # MB
                 tracemalloc.stop()
             else:
-                result.metrics.peak_memory_mb = result.metrics.memory_usage_mb
+                result.measurements.peak_memory_mb = result.measurements.memory_usage_mb
 
-            # CPU metrics
+            # CPU measurements
             cpu_after = psutil.cpu_times()
-            result.metrics.cpu_time_user = cpu_after.user - cpu_before.user
-            result.metrics.cpu_time_system = cpu_after.system - cpu_before.system
-            result.metrics.cpu_percent = psutil.cpu_percent()
+            result.measurements.cpu_time_user = cpu_after.user - cpu_before.user
+            result.measurements.cpu_time_system = cpu_after.system - cpu_before.system
+            result.measurements.cpu_percent = psutil.cpu_percent()
 
             # Performance efficiency
-            result.metrics.time_per_sample = (
-                result.metrics.total_time / n_samples * 1000
+            result.measurements.time_per_sample = (
+                result.measurements.total_time / n_samples * 1000
             )  # ms
-            result.metrics.cpu_efficiency = n_samples / (
-                result.metrics.cpu_time_user + result.metrics.cpu_time_system + 0.001
+            result.measurements.cpu_efficiency = n_samples / (
+                result.measurements.cpu_time_user + result.measurements.cpu_time_system + 0.001
             )
 
-            # Quality metrics (if labels available)
-            if hasattr(dataset, "labels") and dataset.labels is not None:
+            # Quality measurements (if labels available)
+            if hasattr(data_collection, "labels") and data_collection.labels is not None:
                 try:
                     # Convert predictions to binary
                     binary_predictions = (predictions == -1).astype(int)
 
-                    result.metrics.roc_auc = roc_auc_score(dataset.labels, scores)
-                    result.metrics.average_precision = average_precision_score(
-                        dataset.labels, scores
+                    result.measurements.roc_auc = roc_auc_score(data_collection.labels, scores)
+                    result.measurements.average_precision = average_precision_score(
+                        data_collection.labels, scores
                     )
-                    result.metrics.f1_score = f1_score(
-                        dataset.labels, binary_predictions
+                    result.measurements.f1_score = f1_score(
+                        data_collection.labels, binary_predictions
                     )
-                    result.metrics.precision = precision_score(
-                        dataset.labels, binary_predictions
+                    result.measurements.precision = precision_score(
+                        data_collection.labels, binary_predictions
                     )
-                    result.metrics.recall = recall_score(
-                        dataset.labels, binary_predictions
+                    result.measurements.recall = recall_score(
+                        data_collection.labels, binary_predictions
                     )
 
                 except Exception as e:
-                    print(f"Could not calculate quality metrics: {e}")
+                    print(f"Could not calculate quality measurements: {e}")
 
-            # Stability metrics
+            # Stability measurements
             if len(scores) > 1:
-                result.metrics.prediction_variance = np.var(scores)
-                result.metrics.score_stability = 1.0 / (
-                    1.0 + result.metrics.prediction_variance
+                result.measurements.prediction_variance = np.var(scores)
+                result.measurements.score_stability = 1.0 / (
+                    1.0 + result.measurements.prediction_variance
                 )
 
         except Exception as e:
@@ -727,14 +727,14 @@ class PerformanceTestingService:
         # Use first result as template
         aggregated = BenchmarkResult(
             algorithm_name=results[0].algorithm_name,
-            dataset_name=results[0].dataset_name,
+            data_collection_name=results[0].data_collection_name,
             parameters=results[0].parameters,
-            dataset_config=results[0].dataset_config,
+            data_collection_config=results[0].data_collection_config,
             system_info=results[0].system_info,
         )
 
-        # Aggregate metrics
-        metrics_data = {}
+        # Aggregate measurements
+        measurements_data = {}
         for attr in [
             "training_time",
             "prediction_time",
@@ -748,11 +748,11 @@ class PerformanceTestingService:
             "precision",
             "recall",
         ]:
-            values = [getattr(r.metrics, attr) for r in results]
+            values = [getattr(r.measurements, attr) for r in results]
             values = [v for v in values if v > 0]  # Filter out zero values
 
             if values:
-                metrics_data[attr] = {
+                measurements_data[attr] = {
                     "mean": statistics.mean(values),
                     "std": statistics.stdev(values) if len(values) > 1 else 0,
                     "min": min(values),
@@ -761,11 +761,11 @@ class PerformanceTestingService:
                 }
 
                 # Set aggregated value to mean
-                setattr(aggregated.metrics, attr, metrics_data[attr]["mean"])
+                setattr(aggregated.measurements, attr, measurements_data[attr]["mean"])
 
         # Calculate confidence interval for ROC AUC
-        if "roc_auc" in metrics_data and len(results) > 1:
-            roc_values = [r.metrics.roc_auc for r in results if r.metrics.roc_auc > 0]
+        if "roc_auc" in measurements_data and len(results) > 1:
+            roc_values = [r.measurements.roc_auc for r in results if r.measurements.roc_auc > 0]
             if len(roc_values) > 1:
                 mean_roc = statistics.mean(roc_values)
                 std_roc = statistics.stdev(roc_values)
@@ -777,20 +777,20 @@ class PerformanceTestingService:
 
         return aggregated
 
-    async def _generate_test_datasets(
-        self, dataset_configs: list[dict[str, Any]]
-    ) -> list[Dataset]:
+    async def _generate_test_data_collections(
+        self, data_collection_configs: list[dict[str, Any]]
+    ) -> list[DataCollection]:
         """Generate test datasets from configurations."""
         datasets = []
 
-        for config in dataset_configs:
+        for config in data_collection_configs:
             if config.get("type") == "synthetic":
-                dataset = await self._generate_synthetic_dataset(
+                data_collection = await self._generate_synthetic_data_collection(
                     n_samples=config.get("samples", 1000),
                     n_features=config.get("features", 10),
                     contamination=config.get("contamination", 0.1),
                 )
-                datasets.append(dataset)
+                datasets.append(data_collection)
 
             elif config.get("type") == "real_world":
                 # Would load real-world datasets
@@ -798,10 +798,10 @@ class PerformanceTestingService:
 
         return datasets
 
-    async def _generate_synthetic_dataset(
+    async def _generate_synthetic_data_collection(
         self, n_samples: int, n_features: int, contamination: float = 0.1
-    ) -> Dataset:
-        """Generate synthetic dataset for testing."""
+    ) -> DataCollection:
+        """Generate synthetic data_collection for testing."""
 
         # Generate normal data
         normal_samples = int(n_samples * (1 - contamination))
@@ -827,12 +827,12 @@ class PerformanceTestingService:
         X = np.vstack([X_normal, X_anomaly])
         y = np.hstack([np.zeros(normal_samples), np.ones(anomaly_samples)])
 
-        # Create dataset
+        # Create data_collection
         features_df = pd.DataFrame(
             X, columns=[f"feature_{i}" for i in range(n_features)]
         )
 
-        dataset = Dataset(
+        data_collection = DataCollection(
             name=f"synthetic_{n_samples}_{n_features}_{contamination}",
             features=features_df,
             labels=y,
@@ -844,7 +844,7 @@ class PerformanceTestingService:
             },
         )
 
-        return dataset
+        return data_collection
 
     async def _run_load_test(
         self, detector: Detector, config: StressTestConfig
@@ -915,17 +915,17 @@ class PerformanceTestingService:
         """Generate scalability recommendations."""
         return [
             "Algorithm shows good scalability for datasets up to 100K samples",
-            "Memory usage scales linearly with dataset size",
+            "Memory usage scales linearly with data_collection size",
             "Consider data preprocessing for very large datasets",
         ]
 
     def _calculate_overall_stability(self, stress_results: dict[str, Any]) -> float:
         """Calculate overall stability score."""
-        # Simple weighted average of stability metrics
+        # Simple weighted average of stability measurements
         return 0.9  # Placeholder
 
     def _generate_algorithm_rankings(
-        self, results: dict[str, dict], metrics: list[str]
+        self, results: dict[str, dict], measurements: list[str]
     ) -> dict[str, Any]:
         """Generate algorithm rankings."""
         # Implementation for ranking algorithms
@@ -951,7 +951,7 @@ class PerformanceTestingService:
         return {
             "total_tests": len(results),
             "successful_tests": len(
-                [r for r in results if r.get("metrics", {}).get("roc_auc", 0) > 0]
+                [r for r in results if r.get("measurements", {}).get("roc_auc", 0) > 0]
             ),
             "avg_roc_auc": 0.85,
             "avg_training_time": 2.5,

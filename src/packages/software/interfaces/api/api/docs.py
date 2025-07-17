@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive API Documentation Configuration for Pynomaly.
+Comprehensive API Documentation Configuration for Software.
 This module configures OpenAPI/Swagger documentation for all API endpoints.
 """
 
@@ -11,43 +11,43 @@ from fastapi.openapi.utils import get_openapi
 
 
 def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
-    """Generate custom OpenAPI schema for Pynomaly APIs."""
+    """Generate custom OpenAPI schema for Software APIs."""
     if app.openapi_schema:
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title="Pynomaly API",
+        title="Software API",
         version="1.0.0",
         description="""
-        # Pynomaly - Enterprise Anomaly Detection Platform
+        # Software - Enterprise Anomaly Processing Platform
 
-        A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+        A comprehensive, production-ready anomaly processing system with enterprise-grade features.
 
         ## Features
 
-        ### Core Detection
-        - **Anomaly Detection**: Detect anomalies in time series, tabular, and streaming data
+        ### Core Processing
+        - **Anomaly Processing**: Detect anomalies in time series, tabular, and streaming data
         - **Multiple Algorithms**: Support for Isolation Forest, One-Class SVM, LSTM Autoencoders, and custom models
-        - **Ensemble Methods**: Combine multiple detection algorithms for improved accuracy
-        - **Real-time Processing**: Stream processing for continuous anomaly detection
+        - **Ensemble Methods**: Combine multiple processing algorithms for improved accuracy
+        - **Real-time Processing**: Stream processing for continuous anomaly processing
 
         ### MLOps Platform
-        - **Model Registry**: Centralized model management with versioning and metadata
-        - **Experiment Tracking**: Track experiments, parameters, and metrics
-        - **Model Deployment**: Deploy models to development, staging, and production environments
-        - **Automated Retraining**: Automatic model retraining based on data drift and performance degradation
+        - **Processor Registry**: Centralized processor management with versioning and metadata
+        - **Experiment Tracking**: Track experiments, parameters, and measurements
+        - **Processor Deployment**: Deploy models to development, staging, and production environments
+        - **Automated Retraining**: Automatic processor retraining based on data drift and performance degradation
 
         ### Enterprise Features
         - **Multi-tenancy**: Complete tenant isolation with role-based access control
         - **Audit Logging**: Comprehensive audit trails with compliance support (GDPR, HIPAA, SOX)
-        - **Security**: JWT authentication, data encryption, and tamper detection
-        - **Analytics Dashboard**: Real-time insights and business metrics
+        - **Security**: JWT authentication, data encryption, and tamper processing
+        - **Analytics Dashboard**: Real-time insights and business measurements
 
         ### Monitoring & Observability
-        - **Health Monitoring**: System health checks and performance metrics
+        - **Health Monitoring**: System health checks and performance measurements
         - **Alerting**: Real-time alerts for anomalies and system issues
         - **Compliance Reporting**: Generate compliance reports for regulatory requirements
-        - **Performance Tracking**: Track model performance and system metrics
+        - **Performance Tracking**: Track processor performance and system measurements
 
         ## Authentication
 
@@ -81,7 +81,7 @@ def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
 
     # Add custom metadata
     openapi_schema["info"]["contact"] = {
-        "name": "Pynomaly Support",
+        "name": "Software Support",
         "url": "https://example.com/support",
         "email": "support@example.com"
     }
@@ -130,12 +130,12 @@ def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
             "description": "User authentication and authorization"
         },
         {
-            "name": "Anomaly Detection",
-            "description": "Core anomaly detection capabilities"
+            "name": "Anomaly Processing",
+            "description": "Core anomaly processing capabilities"
         },
         {
-            "name": "Model Management",
-            "description": "Model lifecycle management and deployment"
+            "name": "Processor Management",
+            "description": "Processor lifecycle management and deployment"
         },
         {
             "name": "MLOps",
@@ -162,7 +162,7 @@ def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
     # Add example responses
     openapi_schema["components"]["examples"] = {
         "AnomalyDetectionRequest": {
-            "summary": "Simple anomaly detection request",
+            "summary": "Simple anomaly processing request",
             "value": {
                 "data": [1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
                 "algorithm": "isolation_forest",
@@ -173,12 +173,12 @@ def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
             }
         },
         "AnomalyDetectionResponse": {
-            "summary": "Anomaly detection response",
+            "summary": "Anomaly processing response",
             "value": {
                 "anomalies": [3],
                 "scores": [0.1, 0.2, 0.15, 0.95, 0.18, 0.12],
                 "threshold": 0.5,
-                "model_id": "isolation_forest_20240101_001",
+                "processor_id": "isolation_forest_20240101_001",
                 "processing_time_ms": 45.6
             }
         },
@@ -301,7 +301,7 @@ ENDPOINT_METADATA = {
     "detect_anomalies": {
         "summary": "Detect anomalies in data",
         "description": """
-        Detect anomalies in the provided dataset using the specified algorithm.
+        Detect anomalies in the provided data_collection using the specified algorithm.
 
         **Supported Algorithms:**
         - `isolation_forest`: Isolation Forest algorithm
@@ -314,43 +314,43 @@ ENDPOINT_METADATA = {
         - Common parameters include `contamination`, `n_estimators`, etc.
 
         **Response:**
-        - Returns anomaly scores, detected anomalies, and model metadata
+        - Returns anomaly scores, detected anomalies, and processor metadata
         """,
-        "tags": ["Anomaly Detection"]
+        "tags": ["Anomaly Processing"]
     },
-    "train_model": {
-        "summary": "Train a new anomaly detection model",
+    "train_processor": {
+        "summary": "Train a new anomaly processing processor",
         "description": """
-        Train a new anomaly detection model with the provided training data.
+        Train a new anomaly processing processor with the provided training data.
 
         **Training Process:**
         1. Data validation and preprocessing
-        2. Model training with specified parameters
-        3. Model evaluation and metrics calculation
-        4. Model registration in the model registry
+        2. Processor training with specified parameters
+        3. Processor evaluation and measurements calculation
+        4. Processor registration in the processor registry
 
         **Response:**
-        - Returns trained model ID, performance metrics, and training metadata
+        - Returns trained processor ID, performance measurements, and training metadata
         """,
-        "tags": ["Model Management"]
+        "tags": ["Processor Management"]
     },
-    "get_model_info": {
-        "summary": "Get model information",
+    "get_processor_info": {
+        "summary": "Get processor information",
         "description": """
-        Retrieve detailed information about a specific model.
+        Retrieve detailed information about a specific processor.
 
         **Information Included:**
-        - Model metadata (name, version, type, author)
+        - Processor metadata (name, version, type, author)
         - Training parameters and configuration
-        - Performance metrics and evaluation results
+        - Performance measurements and evaluation results
         - Deployment history and current status
         """,
-        "tags": ["Model Management"]
+        "tags": ["Processor Management"]
     },
-    "deploy_model": {
-        "summary": "Deploy model to environment",
+    "deploy_processor": {
+        "summary": "Deploy processor to environment",
         "description": """
-        Deploy a trained model to a specific environment.
+        Deploy a trained processor to a specific environment.
 
         **Deployment Environments:**
         - `development`: For testing and development
@@ -358,9 +358,9 @@ ENDPOINT_METADATA = {
         - `production`: For live production workloads
 
         **Deployment Process:**
-        1. Model validation and compatibility checks
+        1. Processor validation and compatibility checks
         2. Environment preparation and resource allocation
-        3. Model deployment and health checks
+        3. Processor deployment and health checks
         4. Monitoring and alerting setup
         """,
         "tags": ["MLOps"]
@@ -368,14 +368,14 @@ ENDPOINT_METADATA = {
     "health_check": {
         "summary": "System health check",
         "description": """
-        Get the current health status of the Pynomaly system.
+        Get the current health status of the Software system.
 
         **Health Checks:**
         - Database connectivity
-        - Model registry status
+        - Processor registry status
         - Cache system status
         - External service dependencies
-        - Resource utilization metrics
+        - Resource utilization measurements
         """,
         "tags": ["Monitoring"]
     },
@@ -384,11 +384,11 @@ ENDPOINT_METADATA = {
         "description": """
         Get comprehensive dashboard data for enterprise users.
 
-        **Dashboard Metrics:**
+        **Dashboard Measurements:**
         - Tenant resource usage and limits
         - Recent audit events and security alerts
-        - Model performance and deployment status
-        - User activity and system metrics
+        - Processor performance and deployment status
+        - User activity and system measurements
         """,
         "tags": ["Enterprise", "Analytics"]
     },

@@ -42,7 +42,7 @@ class DataQualityProtocol(Protocol):
         ...
     
     def get_quality_metrics(self, data: Any) -> Dict[str, float]:
-        """Get quality metrics for data."""
+        """Get quality measurements for data."""
         ...
 
 
@@ -51,7 +51,7 @@ class DataQualityInterface(ABC):
     
     @abstractmethod
     def assess_dataset_quality(self, dataset_id: str) -> QualityReport:
-        """Assess quality of a dataset."""
+        """Assess quality of a data_collection."""
         pass
     
     @abstractmethod

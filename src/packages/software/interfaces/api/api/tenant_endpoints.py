@@ -15,7 +15,7 @@ from interfaces.domain.entities.tenant import (
 
 
 class TenantCreateRequest(BaseModel):
-    """Request model for creating a tenant."""
+    """Request processor for creating a tenant."""
 
     name: str = Field(..., min_length=3, max_length=50, regex=r"^[a-zA-Z0-9_-]+$")
     display_name: str = Field(..., min_length=1, max_length=100)
@@ -28,7 +28,7 @@ class TenantCreateRequest(BaseModel):
 
 
 class TenantResponse(BaseModel):
-    """Response model for tenant information."""
+    """Response processor for tenant information."""
 
     tenant_id: UUID
     name: str
@@ -53,10 +53,10 @@ class TenantResponse(BaseModel):
 
 
 class TenantConfiguration(BaseModel):
-    """Tenant configuration model."""
+    """Tenant configuration processor."""
 
     max_concurrent_jobs: int
-    max_model_size_mb: int
+    max_processor_size_mb: int
     allowed_algorithms: list[str]
     allowed_data_formats: list[str]
     enable_auto_scaling: bool
@@ -75,7 +75,7 @@ class TenantDetailResponse(TenantResponse):
 
 
 class TenantListResponse(BaseModel):
-    """Response model for tenant list."""
+    """Response processor for tenant list."""
 
     tenants: list[TenantResponse]
     total_count: int
@@ -84,7 +84,7 @@ class TenantListResponse(BaseModel):
 
 
 class QuotaResponse(BaseModel):
-    """Response model for resource quota."""
+    """Response processor for resource quota."""
 
     quota_type: str
     limit: int
@@ -98,7 +98,7 @@ class QuotaResponse(BaseModel):
 
 
 class TenantUsageResponse(BaseModel):
-    """Response model for tenant usage summary."""
+    """Response processor for tenant usage summary."""
 
     tenant_id: UUID
     name: str
@@ -112,7 +112,7 @@ class TenantUsageResponse(BaseModel):
 
 
 class TenantMetricsResponse(BaseModel):
-    """Response model for comprehensive tenant metrics."""
+    """Response processor for comprehensive tenant measurements."""
 
     tenant_info: dict[str, Any]
     resource_usage: dict[str, float]
@@ -123,21 +123,21 @@ class TenantMetricsResponse(BaseModel):
 
 
 class QuotaConsumptionRequest(BaseModel):
-    """Request model for quota consumption."""
+    """Request processor for quota consumption."""
 
     quota_type: ResourceQuotaType
     amount: int = Field(..., gt=0)
 
 
 class SubscriptionUpgradeRequest(BaseModel):
-    """Request model for subscription upgrade."""
+    """Request processor for subscription upgrade."""
 
     new_tier: SubscriptionTier
     reason: str | None = None
 
 
 class TenantStatusUpdateRequest(BaseModel):
-    """Request model for tenant status updates."""
+    """Request processor for tenant status updates."""
 
     status: TenantStatus
     reason: str | None = None
@@ -154,7 +154,7 @@ def get_tenant_service() -> MultiTenantService:
 
 
 @router.post(
-    "/", response_model=TenantDetailResponse, status_code=status.HTTP_201_CREATED
+    "/", response_processor=TenantDetailResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_tenant(
     request: TenantCreateRequest,
@@ -189,7 +189,7 @@ async def create_tenant(
         )
 
 
-@router.get("/", response_model=TenantListResponse)
+@router.get("/", response_processor=TenantListResponse)
 async def list_tenants(
     status_filter: TenantStatus | None = Query(None, alias="status"),
     tier_filter: SubscriptionTier | None = Query(None, alias="tier"),
@@ -232,7 +232,7 @@ async def list_tenants(
         )
 
 
-@router.get("/{tenant_id}", response_model=TenantDetailResponse)
+@router.get("/{tenant_id}", response_processor=TenantDetailResponse)
 async def get_tenant(
     tenant_id: UUID, tenant_service: MultiTenantService = Depends(get_tenant_service)
 ):
@@ -248,7 +248,7 @@ async def get_tenant(
     return _convert_to_detail_response(tenant)
 
 
-@router.get("/by-name/{tenant_name}", response_model=TenantDetailResponse)
+@router.get("/by-name/{tenant_name}", response_processor=TenantDetailResponse)
 async def get_tenant_by_name(
     tenant_name: str, tenant_service: MultiTenantService = Depends(get_tenant_service)
 ):
@@ -264,7 +264,7 @@ async def get_tenant_by_name(
     return _convert_to_detail_response(tenant)
 
 
-@router.patch("/{tenant_id}/status", response_model=TenantDetailResponse)
+@router.patch("/{tenant_id}/status", response_processor=TenantDetailResponse)
 async def update_tenant_status(
     tenant_id: UUID,
     request: TenantStatusUpdateRequest,
@@ -312,7 +312,7 @@ async def update_tenant_status(
         )
 
 
-@router.patch("/{tenant_id}/subscription", response_model=TenantDetailResponse)
+@router.patch("/{tenant_id}/subscription", response_processor=TenantDetailResponse)
 async def upgrade_subscription(
     tenant_id: UUID,
     request: SubscriptionUpgradeRequest,
@@ -350,7 +350,7 @@ async def upgrade_subscription(
         )
 
 
-@router.get("/{tenant_id}/usage", response_model=TenantUsageResponse)
+@router.get("/{tenant_id}/usage", response_processor=TenantUsageResponse)
 async def get_tenant_usage(
     tenant_id: UUID, tenant_service: MultiTenantService = Depends(get_tenant_service)
 ):
@@ -395,23 +395,23 @@ async def get_tenant_usage(
     )
 
 
-@router.get("/{tenant_id}/metrics", response_model=TenantMetricsResponse)
-async def get_tenant_metrics(
+@router.get("/{tenant_id}/measurements", response_processor=TenantMetricsResponse)
+async def get_tenant_measurements(
     tenant_id: UUID, tenant_service: MultiTenantService = Depends(get_tenant_service)
 ):
-    """Get comprehensive tenant metrics."""
-    metrics = await tenant_service.get_tenant_metrics(tenant_id)
+    """Get comprehensive tenant measurements."""
+    measurements = await tenant_service.get_tenant_measurements(tenant_id)
 
-    if not metrics:
+    if not measurements:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tenant {tenant_id} not found",
         )
 
-    return TenantMetricsResponse(**metrics)
+    return TenantMetricsResponse(**measurements)
 
 
-@router.post("/{tenant_id}/quota/consume", response_model=dict[str, Any])
+@router.post("/{tenant_id}/quota/consume", response_processor=dict[str, Any])
 async def consume_quota(
     tenant_id: UUID,
     request: QuotaConsumptionRequest,
@@ -447,7 +447,7 @@ async def consume_quota(
     }
 
 
-@router.post("/{tenant_id}/quota/check", response_model=dict[str, Any])
+@router.post("/{tenant_id}/quota/check", response_processor=dict[str, Any])
 async def check_quota(
     tenant_id: UUID,
     quota_type: ResourceQuotaType = Body(...),
@@ -479,7 +479,7 @@ async def check_quota(
     }
 
 
-@router.post("/{tenant_id}/quota/reset", response_model=dict[str, Any])
+@router.post("/{tenant_id}/quota/reset", response_processor=dict[str, Any])
 async def reset_quotas(
     tenant_id: UUID, tenant_service: MultiTenantService = Depends(get_tenant_service)
 ):
@@ -500,7 +500,7 @@ async def reset_quotas(
     }
 
 
-@router.post("/{tenant_id}/validate-access", response_model=dict[str, Any])
+@router.post("/{tenant_id}/validate-access", response_processor=dict[str, Any])
 async def validate_access(
     tenant_id: UUID,
     resource_path: str = Body(...),
@@ -521,7 +521,7 @@ async def validate_access(
     }
 
 
-@router.get("/stats/overview", response_model=dict[str, Any])
+@router.get("/stats/overview", response_processor=dict[str, Any])
 async def get_tenant_statistics(
     tenant_service: MultiTenantService = Depends(get_tenant_service),
 ):
@@ -570,7 +570,7 @@ async def get_tenant_statistics(
 
 
 def _convert_to_response(tenant) -> TenantResponse:
-    """Convert tenant entity to response model."""
+    """Convert tenant entity to response processor."""
     return TenantResponse(
         tenant_id=tenant.tenant_id,
         name=tenant.name,
@@ -596,12 +596,12 @@ def _convert_to_response(tenant) -> TenantResponse:
 
 
 def _convert_to_detail_response(tenant) -> TenantDetailResponse:
-    """Convert tenant entity to detailed response model."""
+    """Convert tenant entity to detailed response processor."""
     base_response = _convert_to_response(tenant)
 
     config = TenantConfiguration(
         max_concurrent_jobs=tenant.configuration.max_concurrent_jobs,
-        max_model_size_mb=tenant.configuration.max_model_size_mb,
+        max_processor_size_mb=tenant.configuration.max_processor_size_mb,
         allowed_algorithms=list(tenant.configuration.allowed_algorithms),
         allowed_data_formats=list(tenant.configuration.allowed_data_formats),
         enable_auto_scaling=tenant.configuration.enable_auto_scaling,

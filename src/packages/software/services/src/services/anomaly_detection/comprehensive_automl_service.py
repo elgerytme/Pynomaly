@@ -3,9 +3,9 @@
 This service provides state-of-the-art automated machine learning capabilities including:
 - Multiple optimization strategies (Random Search, Bayesian Optimization, Grid Search)
 - Automated feature engineering and selection
-- Ensemble methods and model combination
-- Experiment tracking and model registry integration
-- Automated model validation and evaluation
+- Ensemble methods and processor combination
+- Experiment tracking and processor registry integration
+- Automated processor validation and evaluation
 - Meta-learning for intelligent hyperparameter tuning
 """
 
@@ -85,7 +85,7 @@ class OptimizationStrategy(Enum):
 
 
 class EnsembleMethod(Enum):
-    """Ensemble methods for model combination."""
+    """Ensemble methods for processor combination."""
 
     VOTING = "voting"
     BAGGING = "bagging"
@@ -155,8 +155,8 @@ class EnsembleConfig:
     methods: list[EnsembleMethod] = field(
         default_factory=lambda: [EnsembleMethod.VOTING, EnsembleMethod.STACKING]
     )
-    max_models: int = 10
-    min_models: int = 3
+    max_processors: int = 10
+    min_processors: int = 3
     diversity_threshold: float = 0.1
     performance_threshold: float = 0.8
     voting_strategy: str = "soft"  # "hard", "soft"
@@ -179,7 +179,7 @@ class ExperimentResult:
     total_trials: int
     successful_trials: int
     feature_importance: dict[str, float]
-    model_metadata: dict[str, Any]
+    processor_metadata: dict[str, Any]
     ensemble_config: dict[str, Any] | None = None
     timestamp: datetime = field(default_factory=datetime.now)
 
@@ -188,14 +188,14 @@ class ExperimentResult:
 class MetaLearningRecord:
     """Record for meta-learning system."""
 
-    dataset_signature: str
+    data_collection_signature: str
     algorithm: str
     hyperparameters: dict[str, Any]
     performance: float
     optimization_time: float
     feature_count: int
     sample_count: int
-    dataset_characteristics: dict[str, Any]
+    data_collection_characteristics: dict[str, Any]
     timestamp: datetime = field(default_factory=datetime.now)
 
 
@@ -364,7 +364,7 @@ class ComprehensiveAutoMLService:
 
     async def comprehensive_optimize(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithms: list[str] | None = None,
         config: OptimizationConfig | None = None,
         feature_config: FeatureEngineeringConfig | None = None,
@@ -373,7 +373,7 @@ class ComprehensiveAutoMLService:
         """Perform comprehensive optimization with all advanced features.
 
         Args:
-            dataset: Dataset to optimize on
+            data_collection: DataCollection to optimize on
             algorithms: List of algorithms to try (None for automatic selection)
             config: Optimization configuration
             feature_config: Feature engineering configuration
@@ -394,19 +394,19 @@ class ComprehensiveAutoMLService:
 
         # Step 1: Feature Engineering
         logger.info("Step 1: Feature Engineering")
-        engineered_dataset = await self._apply_feature_engineering(
-            dataset, feature_config
+        engineered_data_collection = await self._apply_feature_engineering(
+            data_collection, feature_config
         )
 
         # Step 2: Algorithm Selection
         logger.info("Step 2: Algorithm Selection")
         if algorithms is None:
-            algorithms = self._select_algorithms(engineered_dataset)
+            algorithms = self._select_algorithms(engineered_data_collection)
 
         # Step 3: Hyperparameter Optimization
         logger.info("Step 3: Hyperparameter Optimization")
         optimization_results = await self._optimize_algorithms(
-            engineered_dataset, algorithms, config
+            engineered_data_collection, algorithms, config
         )
 
         # Step 4: Ensemble Creation
@@ -417,8 +417,8 @@ class ComprehensiveAutoMLService:
 
         # Step 5: Final Evaluation
         logger.info("Step 5: Final Evaluation")
-        final_result = await self._evaluate_final_model(
-            ensemble_result, engineered_dataset, config
+        final_result = await self._evaluate_final_processor(
+            ensemble_result, engineered_data_collection, config
         )
 
         optimization_time = time.time() - start_time
@@ -438,7 +438,7 @@ class ComprehensiveAutoMLService:
                 r.get("successful_trials", 0) for r in optimization_results
             ),
             feature_importance=final_result.get("feature_importance", {}),
-            model_metadata=final_result.get("metadata", {}),
+            processor_metadata=final_result.get("metadata", {}),
             ensemble_config=final_result.get("ensemble_config"),
         )
 
@@ -449,21 +449,21 @@ class ComprehensiveAutoMLService:
 
         # Update meta-learning
         if config.meta_learning:
-            await self._update_meta_learning(dataset, experiment_result)
+            await self._update_meta_learning(data_collection, experiment_result)
 
         logger.info(f"Comprehensive optimization completed in {optimization_time:.2f}s")
         return experiment_result
 
     async def _apply_feature_engineering(
-        self, dataset: Dataset, config: FeatureEngineeringConfig
-    ) -> Dataset:
-        """Apply feature engineering to the dataset."""
-        return await self.feature_engineer.engineer_features(dataset, config)
+        self, data_collection: DataCollection, config: FeatureEngineeringConfig
+    ) -> DataCollection:
+        """Apply feature engineering to the data_collection."""
+        return await self.feature_engineer.engineer_features(data_collection, config)
 
     def _select_algorithms(self, dataset: Dataset) -> list[str]:
-        """Select algorithms based on dataset characteristics."""
-        # Analyze dataset characteristics
-        n_samples, n_features = dataset.data.shape
+        """Select algorithms based on data_collection characteristics."""
+        # Analyze data_collection characteristics
+        n_samples, n_features = data_collection.data.shape
 
         selected_algorithms = []
 
@@ -483,13 +483,13 @@ class ComprehensiveAutoMLService:
 
         # Use meta-learning for selection
         if self.meta_learning_records:
-            meta_suggestions = self._get_meta_learning_suggestions(dataset)
+            meta_suggestions = self._get_meta_learning_suggestions(data_collection)
             selected_algorithms.extend(meta_suggestions)
 
         return list(set(selected_algorithms))
 
     async def _optimize_algorithms(
-        self, dataset: Dataset, algorithms: list[str], config: OptimizationConfig
+        self, data_collection: DataCollection, algorithms: list[str], config: OptimizationConfig
     ) -> list[dict[str, Any]]:
         """Optimize hyperparameters for multiple algorithms."""
         results = []
@@ -501,7 +501,7 @@ class ComprehensiveAutoMLService:
             ) as executor:
                 futures = {
                     executor.submit(
-                        self._optimize_single_algorithm, dataset, algorithm, config
+                        self._optimize_single_algorithm, data_collection, algorithm, config
                     ): algorithm
                     for algorithm in algorithms
                 }
@@ -518,7 +518,7 @@ class ComprehensiveAutoMLService:
             for algorithm in algorithms:
                 try:
                     result = await self._optimize_single_algorithm(
-                        dataset, algorithm, config
+                        data_collection, algorithm, config
                     )
                     results.append(result)
                 except Exception as e:
@@ -527,7 +527,7 @@ class ComprehensiveAutoMLService:
         return results
 
     async def _optimize_single_algorithm(
-        self, dataset: Dataset, algorithm: str, config: OptimizationConfig
+        self, data_collection: DataCollection, algorithm: str, config: OptimizationConfig
     ) -> dict[str, Any]:
         """Optimize hyperparameters for a single algorithm."""
         if algorithm not in self.algorithm_configs:
@@ -538,29 +538,29 @@ class ComprehensiveAutoMLService:
         # Choose optimization strategy
         if config.strategy == OptimizationStrategy.RANDOM_SEARCH:
             return await self._random_search_optimization(
-                dataset, algorithm, algorithm_config, config
+                data_collection, algorithm, algorithm_config, config
             )
         elif config.strategy == OptimizationStrategy.GRID_SEARCH:
             return await self._grid_search_optimization(
-                dataset, algorithm, algorithm_config, config
+                data_collection, algorithm, algorithm_config, config
             )
         elif config.strategy == OptimizationStrategy.BAYESIAN_OPTIMIZATION:
             return await self._bayesian_optimization(
-                dataset, algorithm, algorithm_config, config
+                data_collection, algorithm, algorithm_config, config
             )
         elif config.strategy == OptimizationStrategy.HYPERBAND:
             return await self._hyperband_optimization(
-                dataset, algorithm, algorithm_config, config
+                data_collection, algorithm, algorithm_config, config
             )
         else:
             # Default to Bayesian optimization
             return await self._bayesian_optimization(
-                dataset, algorithm, algorithm_config, config
+                data_collection, algorithm, algorithm_config, config
             )
 
     async def _random_search_optimization(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         algorithm_config: dict,
         config: OptimizationConfig,
@@ -581,7 +581,7 @@ class ComprehensiveAutoMLService:
             )
 
         # Prepare data
-        X = dataset.data.values
+        X = data_collection.data.values
         y = self._generate_synthetic_labels(X, contamination=0.1)
 
         # Perform random search
@@ -611,7 +611,7 @@ class ComprehensiveAutoMLService:
 
     async def _grid_search_optimization(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         algorithm_config: dict,
         config: OptimizationConfig,
@@ -632,7 +632,7 @@ class ComprehensiveAutoMLService:
             )
 
         # Prepare data
-        X = dataset.data.values
+        X = data_collection.data.values
         y = self._generate_synthetic_labels(X, contamination=0.1)
 
         # Perform grid search
@@ -660,7 +660,7 @@ class ComprehensiveAutoMLService:
 
     async def _bayesian_optimization(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         algorithm_config: dict,
         config: OptimizationConfig,
@@ -679,7 +679,7 @@ class ComprehensiveAutoMLService:
         # Define objective function
         def objective(trial):
             return self._optuna_objective(
-                trial, dataset, algorithm, algorithm_config, config
+                trial, data_collection, algorithm, algorithm_config, config
             )
 
         # Optimize
@@ -705,7 +705,7 @@ class ComprehensiveAutoMLService:
 
     async def _hyperband_optimization(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         algorithm_config: dict,
         config: OptimizationConfig,
@@ -714,13 +714,13 @@ class ComprehensiveAutoMLService:
         # For now, fallback to Bayesian optimization
         # Full Hyperband implementation would require more complex resource allocation
         return await self._bayesian_optimization(
-            dataset, algorithm, algorithm_config, config
+            data_collection, algorithm, algorithm_config, config
         )
 
     def _optuna_objective(
         self,
         trial,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm: str,
         algorithm_config: dict,
         config: OptimizationConfig,
@@ -744,11 +744,11 @@ class ComprehensiveAutoMLService:
                     param_name, param_config["choices"]
                 )
 
-        # Create and evaluate model
+        # Create and evaluate processor
         estimator = self._create_estimator(algorithm, params)
 
         # Prepare data
-        X = dataset.data.values
+        X = data_collection.data.values
         y = self._generate_synthetic_labels(
             X, contamination=params.get("contamination", 0.1)
         )
@@ -766,13 +766,13 @@ class ComprehensiveAutoMLService:
         """Create ensemble from optimization results."""
         return await self.ensemble_manager.create_ensemble(optimization_results, config)
 
-    async def _evaluate_final_model(
+    async def _evaluate_final_processor(
         self,
         ensemble_result: dict[str, Any],
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: OptimizationConfig,
     ) -> dict[str, Any]:
-        """Evaluate the final model/ensemble."""
+        """Evaluate the final processor/ensemble."""
         # This would involve comprehensive evaluation
         # For now, return the ensemble result
         return ensemble_result
@@ -854,8 +854,8 @@ class ComprehensiveAutoMLService:
 
     def _get_meta_learning_suggestions(self, dataset: Dataset) -> list[str]:
         """Get algorithm suggestions from meta-learning."""
-        # Simple meta-learning based on dataset characteristics
-        n_samples, n_features = dataset.data.shape
+        # Simple meta-learning based on data_collection characteristics
+        n_samples, n_features = data_collection.data.shape
 
         suggestions = []
         for record in self.meta_learning_records:
@@ -872,28 +872,28 @@ class ComprehensiveAutoMLService:
 
         return list(set(suggestions))
 
-    async def _update_meta_learning(self, dataset: Dataset, result: ExperimentResult):
+    async def _update_meta_learning(self, data_collection: DataCollection, result: ExperimentResult):
         """Update meta-learning records."""
-        dataset_signature = self._compute_dataset_signature(dataset)
+        data_collection_signature = self._compute_data_collection_signature(data_collection)
 
         record = MetaLearningRecord(
-            dataset_signature=dataset_signature,
+            data_collection_signature=data_collection_signature,
             algorithm=result.algorithm,
             hyperparameters=result.best_params,
             performance=result.best_score,
             optimization_time=result.optimization_time,
-            feature_count=dataset.data.shape[1],
-            sample_count=dataset.data.shape[0],
-            dataset_characteristics=self._extract_dataset_characteristics(dataset),
+            feature_count=data_collection.data.shape[1],
+            sample_count=data_collection.data.shape[0],
+            data_collection_characteristics=self._extract_data_collection_characteristics(data_collection),
         )
 
         self.meta_learning_records.append(record)
         self._save_meta_learning_record(record)
 
     def _compute_dataset_signature(self, dataset: Dataset) -> str:
-        """Compute unique signature for dataset."""
+        """Compute unique signature for data_collection."""
         # Simple signature based on basic statistics
-        data = dataset.data.values
+        data = data_collection.data.values
         signature_parts = [
             f"shape_{data.shape[0]}_{data.shape[1]}",
             f"mean_{np.mean(data):.4f}",
@@ -904,8 +904,8 @@ class ComprehensiveAutoMLService:
         return "_".join(signature_parts)
 
     def _extract_dataset_characteristics(self, dataset: Dataset) -> dict[str, Any]:
-        """Extract characteristics from dataset."""
-        data = dataset.data.values
+        """Extract characteristics from data_collection."""
+        data = data_collection.data.values
         return {
             "n_samples": data.shape[0],
             "n_features": data.shape[1],
@@ -1007,12 +1007,12 @@ class FeatureEngineer:
     """Feature engineering component."""
 
     async def engineer_features(
-        self, dataset: Dataset, config: FeatureEngineeringConfig
-    ) -> Dataset:
-        """Apply feature engineering to dataset."""
+        self, data_collection: DataCollection, config: FeatureEngineeringConfig
+    ) -> DataCollection:
+        """Apply feature engineering to data_collection."""
         logger.info("Applying feature engineering")
 
-        data = dataset.data.copy()
+        data = data_collection.data.copy()
 
         # Apply each method
         for method in config.methods:
@@ -1031,16 +1031,16 @@ class FeatureEngineer:
         if config.enable_scaling:
             data = self._scale_features(data)
 
-        # Create new dataset
-        engineered_dataset = Dataset(
-            name=f"{dataset.name}_engineered",
+        # Create new data_collection
+        engineered_data_collection = DataCollection(
+            name=f"{data_collection.name}_engineered",
             data=data,
             features=data.columns.tolist() if hasattr(data, "columns") else None,
-            metadata={**dataset.metadata, "feature_engineering": True},
+            metadata={**data_collection.metadata, "feature_engineering": True},
         )
 
         logger.info(f"Feature engineering completed: {data.shape[1]} features")
-        return engineered_dataset
+        return engineered_data_collection
 
     def _add_statistical_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """Add statistical features."""
@@ -1159,9 +1159,9 @@ class EnsembleManager:
             if r.get("best_score", 0) >= config.performance_threshold
         ]
 
-        if len(good_results) < config.min_models:
+        if len(good_results) < config.min_processors:
             logger.warning(f"Not enough good models ({len(good_results)}) for ensemble")
-            # Return best single model
+            # Return best single processor
             best_result = max(
                 optimization_results, key=lambda x: x.get("best_score", 0)
             )
@@ -1174,19 +1174,19 @@ class EnsembleManager:
             }
 
         # Select diverse models
-        selected_models = self._select_diverse_models(good_results, config)
+        selected_processors = self._select_diverse_processors(good_results, config)
 
         # Create ensemble configuration
         ensemble_config = {
             "method": config.methods[0].value,  # Use first method
-            "models": selected_models,
+            "models": selected_processors,
             "voting_strategy": config.voting_strategy,
-            "weights": self._calculate_ensemble_weights(selected_models),
+            "weights": self._calculate_ensemble_weights(selected_processors),
         }
 
         # Calculate ensemble score (weighted average)
         ensemble_score = np.average(
-            [model["best_score"] for model in selected_models],
+            [processor["best_score"] for processor in selected_processors],
             weights=ensemble_config["weights"],
         )
 
@@ -1197,8 +1197,8 @@ class EnsembleManager:
             "cv_scores": [],
             "ensemble_config": ensemble_config,
             "metadata": {
-                "ensemble_size": len(selected_models),
-                "base_algorithms": [model["algorithm"] for model in selected_models],
+                "ensemble_size": len(selected_processors),
+                "base_algorithms": [processor["algorithm"] for processor in selected_processors],
             },
         }
 
@@ -1211,10 +1211,10 @@ class EnsembleManager:
             results, key=lambda x: x.get("best_score", 0), reverse=True
         )
 
-        # Select top models up to max_models
+        # Select top models up to max_processors
         selected = []
         for result in sorted_results:
-            if len(selected) >= config.max_models:
+            if len(selected) >= config.max_processors:
                 break
 
             # Check diversity
@@ -1235,7 +1235,7 @@ class EnsembleManager:
 
         # Simple diversity check based on algorithm type
         candidate_algo = candidate["algorithm"]
-        selected_algos = [model["algorithm"] for model in selected]
+        selected_algos = [processor["algorithm"] for processor in selected]
 
         # If algorithm is already present, check parameter diversity
         if candidate_algo in selected_algos:
@@ -1246,7 +1246,7 @@ class EnsembleManager:
 
     def _calculate_ensemble_weights(self, models: list[dict[str, Any]]) -> list[float]:
         """Calculate weights for ensemble models."""
-        scores = [model.get("best_score", 0) for model in models]
+        scores = [processor.get("best_score", 0) for processor in models]
 
         # Normalize scores to weights
         total_score = sum(scores)

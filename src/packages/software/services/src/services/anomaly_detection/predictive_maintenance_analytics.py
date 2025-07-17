@@ -56,7 +56,7 @@ class ComponentType(str, Enum):
     DATABASE = "database"
     CACHE = "cache"
     DETECTOR = "detector"
-    MODEL = "model"
+    MODEL = "processor"
     API_GATEWAY = "api_gateway"
     LOAD_BALANCER = "load_balancer"
 
@@ -85,7 +85,7 @@ class ComponentHealth:
     current_status: HealthStatus
     health_score: float  # 0.0 to 1.0
     last_updated: datetime
-    metrics: dict[str, HealthMetric] = field(default_factory=dict)
+    measurements: dict[str, HealthMetric] = field(default_factory=dict)
     alerts: list[str] = field(default_factory=list)
     maintenance_history: list[dict[str, Any]] = field(default_factory=list)
     predicted_failures: list[dict[str, Any]] = field(default_factory=list)
@@ -125,7 +125,7 @@ class HealthPredictor:
 
     def __init__(self, lookback_hours: int = 168):  # 1 week
         self.lookback_hours = lookback_hours
-        self.trend_models = {}
+        self.trend_processors = {}
         self.seasonal_patterns = {}
 
     async def predict_health_degradation(
@@ -135,7 +135,7 @@ class HealthPredictor:
         try:
             predictions = {}
 
-            for metric_name, metric in component.metrics.items():
+            for metric_name, metric in component.measurements.items():
                 # Simple trend-based prediction
                 trend_prediction = await self._predict_metric_trend(
                     metric, forecast_hours
@@ -247,7 +247,7 @@ class HealthPredictor:
                     _, predicted_value = forecast_points[hour - 1]
 
                     # Get current metric
-                    current_metric = component.metrics.get(metric_name)
+                    current_metric = component.measurements.get(metric_name)
                     if current_metric:
                         # Calculate health contribution (simplified)
                         if current_metric.threshold_critical:
@@ -257,7 +257,7 @@ class HealthPredictor:
                         else:
                             health_contrib = 0.8  # Default if no threshold
 
-                        weight = 1.0  # Equal weight for all metrics (can be customized)
+                        weight = 1.0  # Equal weight for all measurements (can be customized)
                         weighted_health += health_contrib * weight
                         total_weight += weight
 
@@ -485,7 +485,7 @@ class CapacityPlanner:
         else:
             trend = "stable"
 
-        # Simple seasonality detection (daily patterns)
+        # Simple seasonality processing (daily patterns)
         hourly_averages = defaultdict(list)
         for timestamp, value in sorted_data:
             hour = timestamp.hour
@@ -747,14 +747,14 @@ class PredictiveMaintenanceAnalytics:
         self,
         component_id: str,
         component_type: ComponentType,
-        initial_metrics: dict[str, HealthMetric] | None = None,
+        initial_measurements: dict[str, HealthMetric] | None = None,
     ) -> bool:
         """Register a component for monitoring.
 
         Args:
             component_id: Unique component identifier
             component_type: Type of component
-            initial_metrics: Initial health metrics
+            initial_measurements: Initial health measurements
 
         Returns:
             Success status
@@ -772,7 +772,7 @@ class PredictiveMaintenanceAnalytics:
                 current_status=HealthStatus.HEALTHY,
                 health_score=1.0,
                 last_updated=datetime.now(),
-                metrics=initial_metrics or {},
+                measurements=initial_measurements or {},
             )
 
             self.components[component_id] = component
@@ -786,14 +786,14 @@ class PredictiveMaintenanceAnalytics:
             logger.error(f"Error registering component {component_id}: {e}")
             return False
 
-    async def update_component_metrics(
-        self, component_id: str, metrics: dict[str, HealthMetric]
+    async def update_component_measurements(
+        self, component_id: str, measurements: dict[str, HealthMetric]
     ) -> bool:
-        """Update metrics for a component.
+        """Update measurements for a component.
 
         Args:
             component_id: Component identifier
-            metrics: New health metrics
+            measurements: New health measurements
 
         Returns:
             Success status
@@ -805,8 +805,8 @@ class PredictiveMaintenanceAnalytics:
 
             component = self.components[component_id]
 
-            # Update metrics
-            component.metrics.update(metrics)
+            # Update measurements
+            component.measurements.update(measurements)
             component.last_updated = datetime.now()
 
             # Recalculate health score
@@ -823,17 +823,17 @@ class PredictiveMaintenanceAnalytics:
             return True
 
         except Exception as e:
-            logger.error(f"Error updating metrics for {component_id}: {e}")
+            logger.error(f"Error updating measurements for {component_id}: {e}")
             return False
 
     async def _calculate_health_score(self, component: ComponentHealth) -> float:
         """Calculate overall health score for a component."""
-        if not component.metrics:
+        if not component.measurements:
             return 1.0  # Default healthy score
 
         metric_scores = []
 
-        for metric in component.metrics.values():
+        for metric in component.measurements.values():
             # Calculate metric health score
             if metric.threshold_critical and metric.value > metric.threshold_critical:
                 score = 0.0  # Critical threshold exceeded
@@ -873,10 +873,10 @@ class PredictiveMaintenanceAnalytics:
             return HealthStatus.FAILED
 
     async def _check_component_alerts(self, component: ComponentHealth) -> None:
-        """Check for alerts based on component metrics."""
+        """Check for alerts based on component measurements."""
         new_alerts = []
 
-        for metric_name, metric in component.metrics.items():
+        for metric_name, metric in component.measurements.items():
             if metric.threshold_critical and metric.value > metric.threshold_critical:
                 alert = f"CRITICAL: {metric_name} exceeds critical threshold ({metric.value:.2f} > {metric.threshold_critical:.2f})"
                 new_alerts.append(alert)

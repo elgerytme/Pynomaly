@@ -1,5 +1,5 @@
 """
-Encryption and cryptographic utilities for Pynomaly API.
+Encryption and cryptographic utilities for Software API.
 
 This module provides:
 - Data encryption at rest and in transit

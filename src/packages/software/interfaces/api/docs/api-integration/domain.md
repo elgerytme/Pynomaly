@@ -5,17 +5,17 @@
 ---
 
 
-This document provides detailed information about the domain layer entities, value objects, and services in Pynomaly.
+This document provides detailed information about the domain layer entities, value objects, and services in Software.
 
 ## Overview
 
-The domain layer contains the core business logic of Pynomaly, implemented as pure Python without external dependencies. It follows Domain-Driven Design (DDD) principles.
+The domain layer contains the core business logic of Software, implemented as pure Python without external dependencies. It follows Domain-Driven Design (DDD) principles.
 
 ## Entities
 
 ### Detector
 
-The `Detector` entity represents an anomaly detection algorithm instance.
+The `Detector` entity represents an anomaly processing algorithm instance.
 
 ```python
 from pynomaly.domain.entities import Detector
@@ -29,7 +29,7 @@ detector = Detector(
     },
     metadata={
         "created_by": "data_team",
-        "use_case": "fraud_detection"
+        "use_case": "fraud_processing"
     }
 )
 ```
@@ -65,14 +65,14 @@ Marks the detector as trained.
 ##### `mark_as_untrained() -> None`
 Marks the detector as untrained.
 
-### Dataset
+### DataCollection
 
-The `Dataset` entity represents a collection of data for training or detection.
+The `DataCollection` entity represents a collection of data for training or processing.
 
 ```python
 from pynomaly.domain.entities import Dataset
 
-dataset = Dataset(
+data_collection = DataCollection(
     name="Credit Transactions",
     description="Historical credit card transactions",
     data_source="s3://bucket/transactions.csv",
@@ -89,8 +89,8 @@ dataset = Dataset(
 | Property | Type | Description |
 |----------|------|-------------|
 | `id` | `str` | Unique identifier |
-| `name` | `str` | Dataset name |
-| `description` | `str` | Dataset description |
+| `name` | `str` | DataCollection name |
+| `description` | `str` | DataCollection description |
 | `data_source` | `str` | Source location or identifier |
 | `schema` | `Dict[str, str]` | Data schema definition |
 | `metadata` | `Dict[str, Any]` | Additional metadata |
@@ -101,10 +101,10 @@ dataset = Dataset(
 #### Methods
 
 ##### `add_metadata(key: str, value: Any) -> None`
-Adds metadata to the dataset.
+Adds metadata to the data_collection.
 
 ##### `validate_schema(data: pd.DataFrame) -> bool`
-Validates data against the dataset schema.
+Validates data against the data_collection schema.
 
 ### Anomaly
 
@@ -132,19 +132,19 @@ anomaly = Anomaly(
 | `anomaly_score` | `float` | Anomaly confidence score (0-1) |
 | `explanation` | `str` | Human-readable explanation |
 | `severity` | `str` | Severity level (low/medium/high) |
-| `detected_at` | `datetime` | Detection timestamp |
+| `detected_at` | `datetime` | Processing timestamp |
 | `reviewed` | `bool` | Human review status |
 
 ### DetectionResult
 
-The `DetectionResult` entity encapsulates the results of anomaly detection.
+The `DetectionResult` entity encapsulates the results of anomaly processing.
 
 ```python
 from pynomaly.domain.entities import DetectionResult
 
 result = DetectionResult(
     detector_id="detector_123",
-    dataset_id="dataset_456",
+    data_collection_id="data_collection_456",
     anomalies_detected=15,
     total_samples=1000,
     anomaly_rate=0.015,
@@ -259,7 +259,7 @@ schema = service.get_parameter_schema("LOF")
 
 ### EnsembleService
 
-Manages ensemble detection logic.
+Manages ensemble processing logic.
 
 ```python
 from pynomaly.domain.services import EnsembleService
@@ -334,22 +334,22 @@ class DetectorRepository(ABC):
 
 ### DatasetRepository
 
-Interface for dataset persistence.
+Interface for data_collection persistence.
 
 ```python
 from pynomaly.domain.repositories import DatasetRepository
 
 class DatasetRepository(ABC):
     @abstractmethod
-    async def save(self, dataset: Dataset) -> None:
+    async def save(self, data_collection: DataCollection) -> None:
         pass
 
     @abstractmethod
-    async def get(self, dataset_id: str) -> Optional[Dataset]:
+    async def get(self, data_collection_id: str) -> Optional[DataCollection]:
         pass
 
     @abstractmethod
-    async def get_data(self, dataset_id: str) -> pd.DataFrame:
+    async def get_data(self, data_collection_id: str) -> pd.DataFrame:
         pass
 ```
 

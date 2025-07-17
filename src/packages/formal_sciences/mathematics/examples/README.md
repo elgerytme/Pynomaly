@@ -219,7 +219,7 @@ python examples/numerical_methods/root_finding.py --method newton
 
 - **Numerical Stability**: Proper handling of floating point arithmetic
 - **Algorithm Efficiency**: Efficient mathematical algorithms
-- **Error Handling**: Robust error handling for mathematical operations
+- **Error Handling**: Robust error handling for computational operations
 - **Documentation**: Comprehensive mathematical documentation
 - **Testing**: Rigorous testing of mathematical functions
 - **Visualization**: Clear mathematical visualizations
@@ -238,7 +238,7 @@ To add new examples:
 1. Create a new Python file with a descriptive name
 2. Add comprehensive mathematical documentation
 3. Include proper error handling
-4. Add unit tests for mathematical functions
+4. Add unit tests for computational functions
 5. Update this README with your example
 6. Submit a pull request
 

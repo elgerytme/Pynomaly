@@ -40,7 +40,7 @@ class StartTrainingMessage(TrainingMessage):
 
     type: str = "start_training"
     detector_id: str
-    dataset_id: str
+    data_collection_id: str
     experiment_name: str | None = None
     enable_automl: bool = True
     optimization_objective: str = "auc"
@@ -189,7 +189,7 @@ class TrainingWebSocketHandler:
                 "recall": OptimizationObjective.RECALL,
                 "f1_score": OptimizationObjective.F1_SCORE,
                 "balanced_accuracy": OptimizationObjective.BALANCED_ACCURACY,
-                "detection_rate": OptimizationObjective.DETECTION_RATE,
+                "processing_rate": OptimizationObjective.DETECTION_RATE,
             }
 
             objective = objective_map.get(
@@ -199,7 +199,7 @@ class TrainingWebSocketHandler:
             # Create training configuration
             config = TrainingConfig(
                 detector_id=UUID(msg.detector_id),
-                dataset_id=msg.dataset_id,
+                data_collection_id=msg.data_collection_id,
                 experiment_name=msg.experiment_name,
                 enable_automl=msg.enable_automl,
                 optimization_objective=objective,
@@ -329,9 +329,9 @@ class TrainingWebSocketHandler:
                     "best_score": result.best_score,
                     "training_time_seconds": result.training_time_seconds,
                     "trials_completed": result.trials_completed,
-                    "model_version": result.model_version,
+                    "processor_version": result.processor_version,
                     "performance_improvement": result.performance_improvement,
-                    "dataset_id": result.dataset_id,
+                    "data_collection_id": result.data_collection_id,
                     "experiment_name": result.experiment_name,
                     "start_time": (
                         result.start_time.isoformat() if result.start_time else None

@@ -1,7 +1,7 @@
 """Real-time monitoring dashboard API endpoints.
 
 This module provides API endpoints for the comprehensive monitoring dashboard,
-including real-time metrics, error tracking, user analytics, and system health.
+including real-time measurements, error tracking, user analytics, and system health.
 """
 
 from datetime import timedelta
@@ -34,7 +34,7 @@ container = Container()
 
 
 class DashboardMetricsResponse(BaseModel):
-    """Response model for dashboard metrics."""
+    """Response processor for dashboard measurements."""
 
     timestamp: str
     system_health: dict[str, Any]
@@ -46,7 +46,7 @@ class DashboardMetricsResponse(BaseModel):
 
 
 class UserEventRequest(BaseModel):
-    """Request model for tracking user events."""
+    """Request processor for tracking user events."""
 
     session_id: str
     event_type: UserEventType
@@ -58,7 +58,7 @@ class UserEventRequest(BaseModel):
 
 
 class WebVitalRequest(BaseModel):
-    """Request model for tracking Web Vitals."""
+    """Request processor for tracking Web Vitals."""
 
     session_id: str
     vital_type: WebVitalType
@@ -69,7 +69,7 @@ class WebVitalRequest(BaseModel):
 
 
 class SessionStartRequest(BaseModel):
-    """Request model for starting a user session."""
+    """Request processor for starting a user session."""
 
     session_id: str
     ip_address: str | None = ""
@@ -79,7 +79,7 @@ class SessionStartRequest(BaseModel):
 
 
 class ApiRequestMetrics(BaseModel):
-    """Request model for API request metrics."""
+    """Request processor for API request measurements."""
 
     endpoint: str
     method: str
@@ -123,43 +123,43 @@ def get_websocket_manager() -> RealTimeWebSocketManager:
 
 
 @router.get(
-    "/dashboard/metrics",
-    response_model=DashboardMetricsResponse,
-    summary="Get real-time dashboard metrics",
+    "/dashboard/measurements",
+    response_processor=DashboardMetricsResponse,
+    summary="Get real-time dashboard measurements",
     description="Get comprehensive real-time monitoring dashboard data including system health, performance, and analytics.",
 )
-async def get_dashboard_metrics(
+async def get_dashboard_measurements(
     current_user: dict | None = Depends(get_optional_current_user),
     monitoring_service: RealTimeMonitoringService = Depends(get_monitoring_service),
 ) -> DashboardMetricsResponse:
-    """Get real-time dashboard metrics."""
+    """Get real-time dashboard measurements."""
     try:
         dashboard_data = await monitoring_service.get_real_time_dashboard_data()
         return DashboardMetricsResponse(**dashboard_data)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get dashboard metrics: {str(e)}"
+            status_code=500, detail=f"Failed to get dashboard measurements: {str(e)}"
         )
 
 
 @router.get(
     "/dashboard/performance",
-    summary="Get performance metrics",
-    description="Get detailed performance metrics including API response times, throughput, and system resources.",
+    summary="Get performance measurements",
+    description="Get detailed performance measurements including API response times, throughput, and system resources.",
 )
-async def get_performance_metrics(
+async def get_performance_measurements(
     time_window_hours: int = Query(default=1, ge=1, le=168),  # 1 hour to 1 week
     current_user: dict | None = Depends(get_optional_current_user),
     monitoring_service: RealTimeMonitoringService = Depends(get_monitoring_service),
 ) -> dict[str, Any]:
-    """Get performance metrics for the specified time window."""
+    """Get performance measurements for the specified time window."""
     try:
         # Create a performance snapshot
         snapshot = await monitoring_service.create_performance_snapshot()
         return snapshot.get_performance_summary()
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get performance metrics: {str(e)}"
+            status_code=500, detail=f"Failed to get performance measurements: {str(e)}"
         )
 
 
@@ -274,7 +274,7 @@ async def track_user_event(
 @router.post(
     "/events/web-vitals",
     summary="Track Web Vitals",
-    description="Track Core Web Vitals metrics for performance monitoring.",
+    description="Track Core Web Vitals measurements for performance monitoring.",
 )
 async def track_web_vital(
     vital: WebVitalRequest,
@@ -381,16 +381,16 @@ async def end_user_session(
 
 
 @router.post(
-    "/api/metrics",
-    summary="Record API request metrics",
-    description="Record API request performance metrics for monitoring.",
+    "/api/measurements",
+    summary="Record API request measurements",
+    description="Record API request performance measurements for monitoring.",
 )
-async def record_api_metrics(
-    metrics: ApiRequestMetrics,
+async def record_api_measurements(
+    measurements: ApiRequestMetrics,
     current_user: dict | None = Depends(get_optional_current_user),
     monitoring_service: RealTimeMonitoringService = Depends(get_monitoring_service),
 ) -> dict[str, Any]:
-    """Record API request metrics."""
+    """Record API request measurements."""
     try:
         user_id = (
             UUID(current_user["user_id"])
@@ -399,18 +399,18 @@ async def record_api_metrics(
         )
 
         await monitoring_service.record_api_request(
-            endpoint=metrics.endpoint,
-            method=metrics.method,
-            response_time_ms=metrics.response_time_ms,
-            status_code=metrics.status_code,
+            endpoint=measurements.endpoint,
+            method=measurements.method,
+            response_time_ms=measurements.response_time_ms,
+            status_code=measurements.status_code,
             user_id=user_id,
-            error_message=metrics.error_message,
+            error_message=measurements.error_message,
         )
 
         return {"status": "recorded"}
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to record API metrics: {str(e)}"
+            status_code=500, detail=f"Failed to record API measurements: {str(e)}"
         )
 
 
@@ -522,7 +522,7 @@ async def initialize_monitoring_services():
 
 
 class ConsentUpdateRequest(BaseModel):
-    """Request model for updating user consent."""
+    """Request processor for updating user consent."""
 
     consent_type: ConsentType
     granted: bool
@@ -530,7 +530,7 @@ class ConsentUpdateRequest(BaseModel):
 
 
 class PrivacyDashboardResponse(BaseModel):
-    """Response model for privacy dashboard data."""
+    """Response processor for privacy dashboard data."""
 
     user_id: str
     session_id: str
@@ -578,7 +578,7 @@ async def update_user_consent(
 
 @router.get(
     "/privacy/dashboard/{session_id}",
-    response_model=PrivacyDashboardResponse,
+    response_processor=PrivacyDashboardResponse,
     summary="Get privacy dashboard data",
     description="Get user's privacy dashboard data including consent status and data processing information.",
 )

@@ -1,4 +1,4 @@
-"""Enhanced model persistence service with multiple format support."""
+"""Enhanced processor persistence service with multiple format support."""
 
 from __future__ import annotations
 
@@ -25,13 +25,13 @@ from monorepo.shared.protocols import DetectorRepositoryProtocol
 
 
 class ModelSerializationError(Exception):
-    """Error during model serialization."""
+    """Error during processor serialization."""
 
     pass
 
 
 class ModelDeserializationError(Exception):
-    """Error during model deserialization."""
+    """Error during processor deserialization."""
 
     pass
 
@@ -43,9 +43,9 @@ class UnsupportedFormatError(Exception):
 
 
 class EnhancedModelPersistenceService:
-    """Enhanced service for model persistence with multiple format support.
+    """Enhanced service for processor persistence with multiple format support.
 
-    This service provides comprehensive model lifecycle management including:
+    This service provides comprehensive processor lifecycle management including:
     - Multiple serialization formats (pickle, joblib, ONNX, etc.)
     - Version control with semantic versioning
     - Metadata management and storage optimization
@@ -61,11 +61,11 @@ class EnhancedModelPersistenceService:
         enable_compression: bool = True,
         default_format: SerializationFormat = SerializationFormat.PICKLE,
     ):
-        """Initialize enhanced model persistence service.
+        """Initialize enhanced processor persistence service.
 
         Args:
             detector_repository: Repository for detector entities
-            storage_path: Base path for model storage
+            storage_path: Base path for processor storage
             enable_compression: Whether to enable compression by default
             default_format: Default serialization format
         """
@@ -83,29 +83,29 @@ class EnhancedModelPersistenceService:
         for path in [self.models_path, self.metadata_path, self.versions_path]:
             path.mkdir(parents=True, exist_ok=True)
 
-    async def serialize_model(
+    async def serialize_processor(
         self,
         detector: Detector,
         version: SemanticVersion,
         format: SerializationFormat | None = None,
-        performance_metrics: PerformanceMetrics | None = None,
+        performance_measurements: PerformanceMetrics | None = None,
         metadata: dict[str, Any] | None = None,
         compress: bool | None = None,
         created_by: str = "system",
     ) -> ModelVersion:
-        """Serialize and store a trained model.
+        """Serialize and store a trained processor.
 
         Args:
             detector: Trained detector to serialize
-            version: Version for this model
+            version: Version for this processor
             format: Serialization format (uses default if None)
-            performance_metrics: Performance metrics for this version
+            performance_measurements: Performance measurements for this version
             metadata: Additional metadata
             compress: Whether to compress (uses default if None)
             created_by: User who created this version
 
         Returns:
-            ModelVersion entity representing the stored model
+            ModelVersion entity representing the stored processor
 
         Raises:
             ModelSerializationError: If serialization fails
@@ -118,11 +118,11 @@ class EnhancedModelPersistenceService:
         compress = compress if compress is not None else self.enable_compression
 
         try:
-            # Create model directory
-            model_dir = self.models_path / str(detector.id) / version.version_string
-            model_dir.mkdir(parents=True, exist_ok=True)
+            # Create processor directory
+            processor_dir = self.models_path / str(detector.id) / version.version_string
+            processor_dir.mkdir(parents=True, exist_ok=True)
 
-            # Serialize model based on format
+            # Serialize processor based on format
             serialized_data, file_extension = await self._serialize_by_format(
                 detector, format
             )
@@ -135,56 +135,56 @@ class EnhancedModelPersistenceService:
             # Calculate checksum
             checksum = hashlib.sha256(serialized_data).hexdigest()
 
-            # Save model file
-            model_filename = f"model{file_extension}"
-            model_path = model_dir / model_filename
+            # Save processor file
+            processor_filename = f"processor{file_extension}"
+            processor_path = processor_dir / processor_filename
 
-            with open(model_path, "wb") as f:
+            with open(processor_path, "wb") as f:
                 f.write(serialized_data)
 
             # Create storage info
             storage_info = ModelStorageInfo.create_for_local_file(
-                file_path=str(model_path),
+                file_path=str(processor_path),
                 format=format,
                 size_bytes=len(serialized_data),
                 checksum=checksum,
                 compression_type="gzip" if compress else None,
             )
 
-            # Create performance metrics if not provided
-            if performance_metrics is None:
-                performance_metrics = await self._estimate_performance_metrics(detector)
+            # Create performance measurements if not provided
+            if performance_measurements is None:
+                performance_measurements = await self._estimate_performance_measurements(detector)
 
-            # Create model version
-            model_version = ModelVersion(
-                model_id=detector.id,
+            # Create processor version
+            processor_version = ModelVersion(
+                processor_id=detector.id,
                 version=version,
                 detector_id=detector.id,
                 created_by=created_by,
-                performance_metrics=performance_metrics,
+                performance_measurements=performance_measurements,
                 storage_info=storage_info,
                 metadata=metadata or {},
                 status=ModelStatus.VALIDATED,
             )
 
             # Save metadata
-            await self._save_version_metadata(model_version)
+            await self._save_version_metadata(processor_version)
 
             # Save detector configuration
-            await self._save_detector_config(detector, model_dir)
+            await self._save_detector_config(detector, processor_dir)
 
-            return model_version
+            return processor_version
 
         except Exception as e:
-            raise ModelSerializationError(f"Failed to serialize model: {str(e)}") from e
+            raise ModelSerializationError(f"Failed to serialize processor: {str(e)}") from e
 
-    async def deserialize_model(
-        self, model_version: ModelVersion, verify_checksum: bool = True
+    async def deserialize_processor(
+        self, processor_version: ModelVersion, verify_checksum: bool = True
     ) -> Detector:
-        """Deserialize a stored model.
+        """Deserialize a stored processor.
 
         Args:
-            model_version: Model version to deserialize
+            processor_version: Processor version to deserialize
             verify_checksum: Whether to verify file integrity
 
         Returns:
@@ -194,54 +194,54 @@ class EnhancedModelPersistenceService:
             ModelDeserializationError: If deserialization fails
         """
         try:
-            storage_info = model_version.storage_info
-            model_path = Path(storage_info.storage_path)
+            storage_info = processor_version.storage_info
+            processor_path = Path(storage_info.storage_path)
 
-            if not model_path.exists():
-                raise ModelDeserializationError(f"Model file not found: {model_path}")
+            if not processor_path.exists():
+                raise ModelDeserializationError(f"Processor file not found: {processor_path}")
 
-            # Read model data
-            with open(model_path, "rb") as f:
-                model_data = f.read()
+            # Read processor data
+            with open(processor_path, "rb") as f:
+                processor_data = f.read()
 
             # Verify checksum if requested
             if verify_checksum:
-                if not storage_info.verify_checksum(model_data):
+                if not storage_info.verify_checksum(processor_data):
                     raise ModelDeserializationError(
-                        "Model checksum verification failed"
+                        "Processor checksum verification failed"
                     )
 
             # Decompress if needed
             if storage_info.is_compressed:
-                model_data = await self._decompress_data(model_data)
+                processor_data = await self._decompress_data(processor_data)
 
             # Deserialize based on format
             detector = await self._deserialize_by_format(
-                model_data, storage_info.format
+                processor_data, storage_info.format
             )
 
             return detector
 
         except Exception as e:
             raise ModelDeserializationError(
-                f"Failed to deserialize model: {str(e)}"
+                f"Failed to deserialize processor: {str(e)}"
             ) from e
 
-    async def list_model_versions(
+    async def list_processor_versions(
         self,
-        model_id: UUID | None = None,
+        processor_id: UUID | None = None,
         status_filter: ModelStatus | None = None,
         limit: int | None = None,
     ) -> list[ModelVersion]:
-        """List available model versions.
+        """List available processor versions.
 
         Args:
-            model_id: Filter by specific model ID
-            status_filter: Filter by model status
+            processor_id: Filter by specific processor ID
+            status_filter: Filter by processor status
             limit: Maximum number of versions to return
 
         Returns:
-            List of model versions sorted by creation date (newest first)
+            List of processor versions sorted by creation date (newest first)
         """
         versions = []
 
@@ -251,7 +251,7 @@ class EnhancedModelPersistenceService:
                 version = await self._load_version_metadata(version_file)
 
                 # Apply filters
-                if model_id and version.model_id != model_id:
+                if processor_id and version.processor_id != processor_id:
                     continue
 
                 if status_filter and version.status != status_filter:
@@ -272,43 +272,43 @@ class EnhancedModelPersistenceService:
 
         return versions
 
-    async def get_model_version(
-        self, model_id: UUID, version: SemanticVersion | str
+    async def get_processor_version(
+        self, processor_id: UUID, version: SemanticVersion | str
     ) -> ModelVersion | None:
-        """Get a specific model version.
+        """Get a specific processor version.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             version: Version number or string
 
         Returns:
-            Model version if found, None otherwise
+            Processor version if found, None otherwise
         """
         if isinstance(version, str):
             version = SemanticVersion.from_string(version)
 
-        versions = await self.list_model_versions(model_id=model_id)
+        versions = await self.list_processor_versions(processor_id=processor_id)
 
-        for model_version in versions:
-            if model_version.version == version:
-                return model_version
+        for processor_version in versions:
+            if processor_version.version == version:
+                return processor_version
 
         return None
 
     async def get_latest_version(
-        self, model_id: UUID, status_filter: ModelStatus | None = None
+        self, processor_id: UUID, status_filter: ModelStatus | None = None
     ) -> ModelVersion | None:
-        """Get the latest version of a model.
+        """Get the latest version of a processor.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             status_filter: Filter by status
 
         Returns:
-            Latest model version if found
+            Latest processor version if found
         """
-        versions = await self.list_model_versions(
-            model_id=model_id, status_filter=status_filter, limit=1
+        versions = await self.list_processor_versions(
+            processor_id=processor_id, status_filter=status_filter, limit=1
         )
 
         return versions[0] if versions else None
@@ -316,7 +316,7 @@ class EnhancedModelPersistenceService:
     async def compare_versions(
         self, version1: ModelVersion, version2: ModelVersion
     ) -> dict[str, Any]:
-        """Compare two model versions.
+        """Compare two processor versions.
 
         Args:
             version1: First version
@@ -325,8 +325,8 @@ class EnhancedModelPersistenceService:
         Returns:
             Comparison results including performance differences
         """
-        performance_diff = version1.performance_metrics.compare_with(
-            version2.performance_metrics
+        performance_diff = version1.performance_measurements.compare_with(
+            version2.performance_measurements
         )
 
         return {
@@ -334,28 +334,28 @@ class EnhancedModelPersistenceService:
                 "version": version1.version_string,
                 "created_at": version1.created_at.isoformat(),
                 "status": version1.status.value,
-                "performance": version1.performance_metrics.to_dict(),
+                "performance": version1.performance_measurements.to_dict(),
             },
             "version2": {
                 "version": version2.version_string,
                 "created_at": version2.created_at.isoformat(),
                 "status": version2.status.value,
-                "performance": version2.performance_metrics.to_dict(),
+                "performance": version2.performance_measurements.to_dict(),
             },
             "performance_difference": performance_diff,
-            "version1_is_better": version1.performance_metrics.is_better_than(
-                version2.performance_metrics
+            "version1_is_better": version1.performance_measurements.is_better_than(
+                version2.performance_measurements
             ),
             "version_distance": version1.version.distance_from(version2.version),
         }
 
-    async def delete_model_version(
-        self, model_version: ModelVersion, force: bool = False
+    async def delete_processor_version(
+        self, processor_version: ModelVersion, force: bool = False
     ) -> bool:
-        """Delete a model version.
+        """Delete a processor version.
 
         Args:
-            model_version: Version to delete
+            processor_version: Version to delete
             force: Force deletion even if deployed
 
         Returns:
@@ -364,22 +364,22 @@ class EnhancedModelPersistenceService:
         Raises:
             ValueError: If trying to delete deployed version without force
         """
-        if model_version.is_deployed and not force:
+        if processor_version.is_deployed and not force:
             raise ValueError("Cannot delete deployed version without force=True")
 
         try:
-            # Delete model file
-            model_path = Path(model_version.storage_info.storage_path)
-            if model_path.exists():
-                model_path.unlink()
+            # Delete processor file
+            processor_path = Path(processor_version.storage_info.storage_path)
+            if processor_path.exists():
+                processor_path.unlink()
 
-            # Delete model directory if empty
-            model_dir = model_path.parent
-            if model_dir.exists() and not list(model_dir.iterdir()):
-                model_dir.rmdir()
+            # Delete processor directory if empty
+            processor_dir = processor_path.parent
+            if processor_dir.exists() and not list(processor_dir.iterdir()):
+                processor_dir.rmdir()
 
             # Delete metadata file
-            metadata_file = self.versions_path / f"{model_version.id}.json"
+            metadata_file = self.versions_path / f"{processor_version.id}.json"
             if metadata_file.exists():
                 metadata_file.unlink()
 
@@ -388,17 +388,17 @@ class EnhancedModelPersistenceService:
         except Exception:
             return False
 
-    async def export_model_bundle(
+    async def export_processor_bundle(
         self,
-        model_version: ModelVersion,
+        processor_version: ModelVersion,
         export_path: Path,
         include_dependencies: bool = True,
         include_examples: bool = True,
     ) -> dict[str, str]:
-        """Export a complete model bundle for deployment.
+        """Export a complete processor bundle for deployment.
 
         Args:
-            model_version: Version to export
+            processor_version: Version to export
             export_path: Export directory
             include_dependencies: Include requirements file
             include_examples: Include usage examples
@@ -411,19 +411,19 @@ class EnhancedModelPersistenceService:
 
         exported_files = {}
 
-        # Copy model file
-        model_path = Path(model_version.storage_info.storage_path)
-        model_filename = f"model{model_path.suffix}"
-        export_model_path = export_path / model_filename
+        # Copy processor file
+        processor_path = Path(processor_version.storage_info.storage_path)
+        processor_filename = f"processor{processor_path.suffix}"
+        export_processor_path = export_path / processor_filename
 
-        with open(model_path, "rb") as src, open(export_model_path, "wb") as dst:
+        with open(processor_path, "rb") as src, open(export_processor_path, "wb") as dst:
             dst.write(src.read())
 
-        exported_files["model"] = str(export_model_path)
+        exported_files["processor"] = str(export_processor_path)
 
-        # Export model configuration
-        config = await self._create_deployment_config(model_version)
-        config_path = export_path / "model_config.json"
+        # Export processor configuration
+        config = await self._create_deployment_config(processor_version)
+        config_path = export_path / "processor_config.json"
 
         with open(config_path, "w") as f:
             json.dump(config, f, indent=2, default=str)
@@ -434,13 +434,13 @@ class EnhancedModelPersistenceService:
         metadata_path = export_path / "metadata.json"
 
         with open(metadata_path, "w") as f:
-            json.dump(model_version.get_info(), f, indent=2, default=str)
+            json.dump(processor_version.get_info(), f, indent=2, default=str)
 
         exported_files["metadata"] = str(metadata_path)
 
         # Include requirements if requested
         if include_dependencies:
-            requirements = await self._generate_requirements(model_version)
+            requirements = await self._generate_requirements(processor_version)
             req_path = export_path / "requirements.txt"
 
             with open(req_path, "w") as f:
@@ -450,7 +450,7 @@ class EnhancedModelPersistenceService:
 
         # Include examples if requested
         if include_examples:
-            example_script = await self._generate_usage_examples(model_version)
+            example_script = await self._generate_usage_examples(processor_version)
             example_path = export_path / "example_usage.py"
 
             with open(example_path, "w") as f:
@@ -459,7 +459,7 @@ class EnhancedModelPersistenceService:
             exported_files["examples"] = str(example_path)
 
         # Create deployment script
-        deploy_script = await self._generate_deployment_script(model_version)
+        deploy_script = await self._generate_deployment_script(processor_version)
         deploy_path = export_path / "deploy.py"
 
         with open(deploy_path, "w") as f:
@@ -469,13 +469,13 @@ class EnhancedModelPersistenceService:
 
         return exported_files
 
-    async def create_model_archive(
-        self, model_version: ModelVersion, archive_path: Path
+    async def create_processor_archive(
+        self, processor_version: ModelVersion, archive_path: Path
     ) -> str:
-        """Create a compressed archive of the model bundle.
+        """Create a compressed archive of the processor bundle.
 
         Args:
-            model_version: Version to archive
+            processor_version: Version to archive
             archive_path: Path for the archive file
 
         Returns:
@@ -487,8 +487,8 @@ class EnhancedModelPersistenceService:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
 
-            # Export model bundle to temporary directory
-            exported_files = await self.export_model_bundle(model_version, temp_path)
+            # Export processor bundle to temporary directory
+            exported_files = await self.export_processor_bundle(processor_version, temp_path)
 
             # Create zip archive
             with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -527,7 +527,7 @@ class EnhancedModelPersistenceService:
 
         elif format == SerializationFormat.ONNX:
             # ONNX serialization
-            return await self._serialize_onnx_model(detector)
+            return await self._serialize_onnx_processor(detector)
 
         else:
             raise UnsupportedFormatError(
@@ -569,42 +569,42 @@ class EnhancedModelPersistenceService:
 
         return gzip.decompress(data)
 
-    async def _estimate_performance_metrics(
+    async def _estimate_performance_measurements(
         self, detector: Detector
     ) -> PerformanceMetrics:
-        """Estimate performance metrics for a detector."""
+        """Estimate performance measurements for a detector."""
         # This is a placeholder - in practice, you'd run evaluation
         return PerformanceMetrics.create_minimal(
             accuracy=0.85,  # Placeholder
             training_time=60.0,  # Placeholder
             inference_time=5.0,  # Placeholder
-            model_size=1024 * 1024,  # Placeholder
+            processor_size=1024 * 1024,  # Placeholder
         )
 
-    async def _save_version_metadata(self, model_version: ModelVersion) -> None:
-        """Save model version metadata to disk."""
-        metadata_file = self.versions_path / f"{model_version.id}.json"
+    async def _save_version_metadata(self, processor_version: ModelVersion) -> None:
+        """Save processor version metadata to disk."""
+        metadata_file = self.versions_path / f"{processor_version.id}.json"
 
         with open(metadata_file, "w") as f:
-            json.dump(model_version.get_info(), f, indent=2, default=str)
+            json.dump(processor_version.get_info(), f, indent=2, default=str)
 
     async def _load_version_metadata(self, metadata_file: Path) -> ModelVersion:
-        """Load model version metadata from disk."""
+        """Load processor version metadata from disk."""
         with open(metadata_file) as f:
             data = json.load(f)
 
         # Reconstruct value objects
         version = SemanticVersion.from_string(data["version"])
 
-        performance_data = data["performance_metrics"]
-        performance_metrics = PerformanceMetrics(
+        performance_data = data["performance_measurements"]
+        performance_measurements = PerformanceMetrics(
             accuracy=performance_data["accuracy"],
             precision=performance_data["precision"],
             recall=performance_data["recall"],
             f1_score=performance_data["f1_score"],
             training_time=performance_data["training_time"],
             inference_time=performance_data["inference_time"],
-            model_size=performance_data["model_size"],
+            processor_size=performance_data["processor_size"],
             roc_auc=performance_data.get("roc_auc"),
             pr_auc=performance_data.get("pr_auc"),
         )
@@ -621,12 +621,12 @@ class EnhancedModelPersistenceService:
 
         return ModelVersion(
             id=UUID(data["id"]),
-            model_id=UUID(data["model_id"]),
+            processor_id=UUID(data["processor_id"]),
             version=version,
             detector_id=UUID(data["detector_id"]),
             created_at=datetime.fromisoformat(data["created_at"]),
             created_by=data["created_by"],
-            performance_metrics=performance_metrics,
+            performance_measurements=performance_measurements,
             storage_info=storage_info,
             metadata=data["metadata"],
             status=ModelStatus(data["status"]),
@@ -639,7 +639,7 @@ class EnhancedModelPersistenceService:
             tags=data.get("tags", []),
         )
 
-    async def _save_detector_config(self, detector: Detector, model_dir: Path) -> None:
+    async def _save_detector_config(self, detector: Detector, processor_dir: Path) -> None:
         """Save detector configuration."""
         config = {
             "detector_info": detector.get_info(),
@@ -649,33 +649,33 @@ class EnhancedModelPersistenceService:
             "metadata": detector.metadata,
         }
 
-        config_path = model_dir / "detector_config.json"
+        config_path = processor_dir / "detector_config.json"
         with open(config_path, "w") as f:
             json.dump(config, f, indent=2, default=str)
 
     async def _create_deployment_config(
-        self, model_version: ModelVersion
+        self, processor_version: ModelVersion
     ) -> dict[str, Any]:
         """Create deployment configuration."""
         return {
-            "model_version_id": str(model_version.id),
-            "model_id": str(model_version.model_id),
-            "version": model_version.version_string,
-            "format": model_version.storage_info.format.value,
-            "performance_metrics": model_version.performance_metrics.to_dict(),
+            "processor_version_id": str(processor_version.id),
+            "processor_id": str(processor_version.processor_id),
+            "version": processor_version.version_string,
+            "format": processor_version.storage_info.format.value,
+            "performance_measurements": processor_version.performance_measurements.to_dict(),
             "deployment_info": {
                 "requires_preprocessing": True,
                 "supports_batch_inference": True,
                 "supports_streaming": False,
                 "recommended_batch_size": 1000,
             },
-            "created_at": model_version.created_at.isoformat(),
+            "created_at": processor_version.created_at.isoformat(),
         }
 
-    async def _generate_requirements(self, model_version: ModelVersion) -> list[str]:
+    async def _generate_requirements(self, processor_version: ModelVersion) -> list[str]:
         """Generate requirements for deployment."""
         base_requirements = [
-            "pynomaly>=0.4.0",
+            "software>=0.4.0",
             "numpy>=1.26.0",
             "pandas>=2.2.0",
             "scikit-learn>=1.5.0",
@@ -690,16 +690,16 @@ class EnhancedModelPersistenceService:
             SerializationFormat.HUGGINGFACE: ["transformers>=4.21.0"],
         }
 
-        format_reqs = format_requirements.get(model_version.storage_info.format, [])
+        format_reqs = format_requirements.get(processor_version.storage_info.format, [])
 
         return sorted(set(base_requirements + format_reqs))
 
-    async def _generate_usage_examples(self, model_version: ModelVersion) -> str:
+    async def _generate_usage_examples(self, processor_version: ModelVersion) -> str:
         """Generate usage examples."""
         return f'''#!/usr/bin/env python3
 """
-Usage examples for model version {model_version.version_string}
-Generated by Pynomaly Enhanced Model Persistence Service
+Usage examples for processor version {processor_version.version_string}
+Generated by Software Enhanced Processor Persistence Service
 """
 
 import pandas as pd
@@ -713,32 +713,32 @@ service = EnhancedModelPersistenceService(
     storage_path="./models"
 )
 
-# Load model version
-model_version = await service.get_model_version(
-    model_id=UUID("{model_version.model_id}"),
-    version=SemanticVersion.from_string("{model_version.version_string}")
+# Load processor version
+processor_version = await service.get_processor_version(
+    processor_id=UUID("{processor_version.processor_id}"),
+    version=SemanticVersion.from_string("{processor_version.version_string}")
 )
 
-# Deserialize model
-detector = await service.deserialize_model(model_version)
+# Deserialize processor
+detector = await service.deserialize_processor(processor_version)
 
 # Use for inference
 data = pd.read_csv("your_data.csv")
 from monorepo.domain.entities import Dataset
 
-dataset = Dataset(name="inference_data", data=data)
-result = detector.detect(dataset)
+data_collection = DataCollection(name="inference_data", data=data)
+result = detector.detect(data_collection)
 
 print(f"Found {{result.n_anomalies}} anomalies")
 print(f"Anomaly scores: {{[s.value for s in result.scores]}}")
 '''
 
-    async def _generate_deployment_script(self, model_version: ModelVersion) -> str:
+    async def _generate_deployment_script(self, processor_version: ModelVersion) -> str:
         """Generate deployment script."""
         return f'''#!/usr/bin/env python3
 """
-Deployment script for model {model_version.version_string}
-Generated by Pynomaly Enhanced Model Persistence Service
+Deployment script for processor {processor_version.version_string}
+Generated by Software Enhanced Processor Persistence Service
 """
 
 import json
@@ -747,31 +747,31 @@ from pathlib import Path
 from typing import Dict, List
 
 class ModelDeployment:
-    """Production model deployment wrapper."""
+    """Production processor deployment wrapper."""
 
     def __init__(self, model_path: str = "model.pkl", config_path: str = "model_config.json"):
         """Initialize deployment."""
-        self.model_path = model_path
+        self.processor_path = processor_path
         self.config_path = config_path
 
         # Load configuration
         with open(config_path, "r") as f:
             self.config = json.load(f)
 
-        # Load model (implement based on format)
-        self.detector = self._load_model()
+        # Load processor (implement based on format)
+        self.detector = self._load_processor()
 
     def _load_model(self):
-        """Load the model based on format."""
+        """Load the processor based on format."""
         format_type = self.config["format"]
 
         if format_type == "pickle":
             import pickle
-            with open(self.model_path, "rb") as f:
+            with open(self.processor_path, "rb") as f:
                 return pickle.load(f)
         elif format_type == "joblib":
             import joblib
-            return joblib.load(self.model_path)
+            return joblib.load(self.processor_path)
         else:
             raise ValueError(f"Unsupported format: {{format_type}}")
 
@@ -779,23 +779,23 @@ class ModelDeployment:
         """Predict anomalies."""
         from monorepo.domain.entities import Dataset
 
-        dataset = Dataset(name="inference", data=data)
-        result = self.detector.detect(dataset)
+        data_collection = DataCollection(name="inference", data=data)
+        result = self.detector.detect(data_collection)
 
         return {{
             "anomalies": result.n_anomalies,
             "scores": [s.value for s in result.scores],
             "labels": result.labels.tolist(),
             "threshold": result.threshold,
-            "model_version": self.config["version"]
+            "processor_version": self.config["version"]
         }}
 
     def health_check(self) -> Dict[str, any]:
         """Health check endpoint."""
         return {{
             "status": "healthy",
-            "model_version": self.config["version"],
-            "model_id": self.config["model_id"],
+            "processor_version": self.config["version"],
+            "processor_id": self.config["processor_id"],
             "format": self.config["format"]
         }}
 
@@ -815,7 +815,7 @@ if __name__ == "__main__":
 
     print(f"Processed {{len(data)}} samples")
     print(f"Found {{results['anomalies']}} anomalies")
-    print(f"Model version: {{results['model_version']}}")
+    print(f"Processor version: {{results['processor_version']}}")
 
     # Save results
     output_df = pd.DataFrame({{
@@ -826,7 +826,7 @@ if __name__ == "__main__":
     print("Results saved to deployment_results.csv")
 '''
 
-    async def _serialize_onnx_model(self, detector: Detector) -> tuple[bytes, str]:
+    async def _serialize_onnx_processor(self, detector: Detector) -> tuple[bytes, str]:
         """Serialize detector to ONNX format.
 
         Args:
@@ -843,24 +843,24 @@ if __name__ == "__main__":
             return await self._create_onnx_stub(detector)
 
         try:
-            # Try to get PyTorch model from detector
-            if hasattr(detector, "_model") and detector._model is not None:
+            # Try to get PyTorch processor from detector
+            if hasattr(detector, "_processor") and detector._processor is not None:
                 import io
 
                 import torch
                 import torch.onnx
 
-                # Get model and create dummy input
-                model = detector._model
+                # Get processor and create dummy input
+                processor = detector._processor
 
-                # Create dummy input based on model's expected input shape
+                # Create dummy input based on processor's expected input shape
                 input_shape = getattr(detector, "_input_shape", (1, 10))
                 dummy_input = torch.randn(input_shape)
 
                 # Export to ONNX bytes
                 buffer = io.BytesIO()
                 torch.onnx.export(
-                    model,
+                    processor,
                     dummy_input,
                     buffer,
                     export_params=True,
@@ -877,7 +877,7 @@ if __name__ == "__main__":
                 buffer.seek(0)
                 return buffer.read(), ".onnx"
             else:
-                # For non-PyTorch models, create a stub ONNX model
+                # For non-PyTorch models, create a stub ONNX processor
                 return await self._create_onnx_stub(detector)
 
         except ImportError:
@@ -887,7 +887,7 @@ if __name__ == "__main__":
             raise UnsupportedFormatError(f"Failed to serialize to ONNX: {e}")
 
     async def _create_onnx_stub(self, detector: Detector) -> tuple[bytes, str]:
-        """Create a stub ONNX model for non-PyTorch detectors.
+        """Create a stub ONNX processor for non-PyTorch detectors.
 
         Args:
             detector: Detector to create stub for
@@ -898,11 +898,11 @@ if __name__ == "__main__":
         import json
 
         stub_data = {
-            "model_type": "stub",
+            "processor_type": "stub",
             "detector_name": detector.name,
             "algorithm": detector.algorithm_name,
             "parameters": detector.parameters,
-            "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models.",
+            "message": "This is a stub ONNX processor. Full ONNX export requires PyTorch-based models.",
         }
 
         # Return JSON stub as bytes

@@ -7,7 +7,7 @@ from typing import Any
 
 @dataclass
 class ResourceUsageMetricsDTO:
-    """DTO for resource usage metrics."""
+    """DTO for resource usage measurements."""
 
     cpu_utilization_avg: float = 0.0
     cpu_utilization_max: float = 0.0
@@ -41,7 +41,7 @@ class ResourceCostDTO:
     storage_cost: float = 0.0
     network_cost: float = 0.0
     licensing_cost: float = 0.0
-    billing_model: str = "on_demand"
+    billing_processor: str = "on_demand"
     currency: str = "USD"
     cost_center: str | None = None
     project_id: str | None = None
@@ -69,7 +69,7 @@ class CloudResourceDTO:
     created_at: datetime | None = None
     last_accessed: datetime | None = None
     scheduled_termination: datetime | None = None
-    usage_metrics: ResourceUsageMetricsDTO | None = None
+    usage_measurements: ResourceUsageMetricsDTO | None = None
     cost_info: ResourceCostDTO | None = None
     owner: str | None = None
     team: str | None = None
@@ -364,7 +364,7 @@ class ResourceSummaryDTO:
 
 @dataclass
 class ServiceMetricsDTO:
-    """DTO for service metrics."""
+    """DTO for service measurements."""
 
     total_resources: int = 0
     total_monthly_cost: float = 0.0

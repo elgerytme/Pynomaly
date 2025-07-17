@@ -21,10 +21,10 @@ class PipelineStage(Enum):
     DATA_VALIDATION = "data_validation"
     DATA_PROFILING = "data_profiling"
     FEATURE_ENGINEERING = "feature_engineering"
-    MODEL_SELECTION = "model_selection"
+    MODEL_SELECTION = "processor_selection"
     HYPERPARAMETER_OPTIMIZATION = "hyperparameter_optimization"
     ENSEMBLE_CREATION = "ensemble_creation"
-    MODEL_VALIDATION = "model_validation"
+    MODEL_VALIDATION = "processor_validation"
     DEPLOYMENT_PREPARATION = "deployment_preparation"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -46,11 +46,11 @@ class PipelineConfig:
     # Execution settings
     mode: PipelineMode = PipelineMode.BALANCED
     max_time_minutes: int = 30
-    max_models_to_evaluate: int = 10
+    max_processors_to_evaluate: int = 10
     cross_validation_folds: int = 5
     random_state: int = 42
 
-    # Model selection
+    # Processor selection
     algorithms: list[str] = field(
         default_factory=lambda: [
             "isolation_forest",
@@ -70,14 +70,14 @@ class PipelineConfig:
     auto_feature_engineering: bool = True
 
     # Performance criteria
-    min_model_performance: float = 0.7
+    min_processor_performance: float = 0.7
     optimization_time_budget_minutes: int = 15
 
     # Advanced options
     enable_ensemble: bool = True
     enable_meta_learning: bool = False
     enable_early_stopping: bool = True
-    enable_model_compression: bool = False
+    enable_processor_compression: bool = False
 
     # Resource limits
     max_memory_gb: float = 8.0
@@ -86,7 +86,7 @@ class PipelineConfig:
     # Output configuration
     artifacts_dir: Path = field(default_factory=lambda: Path("./automl_artifacts"))
     save_intermediate_results: bool = True
-    generate_model_reports: bool = True
+    generate_processor_reports: bool = True
 
     def __post_init__(self):
         """Post-initialization validation and setup."""
@@ -97,14 +97,14 @@ class PipelineConfig:
         if self.max_time_minutes <= 0:
             raise ValueError("max_time_minutes must be positive")
 
-        if self.max_models_to_evaluate <= 0:
-            raise ValueError("max_models_to_evaluate must be positive")
+        if self.max_processors_to_evaluate <= 0:
+            raise ValueError("max_processors_to_evaluate must be positive")
 
         if not 0 < self.contamination_rate < 1:
             raise ValueError("contamination_rate must be between 0 and 1")
 
-        if self.min_model_performance < 0 or self.min_model_performance > 1:
-            raise ValueError("min_model_performance must be between 0 and 1")
+        if self.min_processor_performance < 0 or self.min_processor_performance > 1:
+            raise ValueError("min_processor_performance must be between 0 and 1")
 
     @classmethod
     def for_mode(cls, mode: PipelineMode, **kwargs) -> "PipelineConfig":
@@ -112,7 +112,7 @@ class PipelineConfig:
         base_configs = {
             PipelineMode.FAST: {
                 "max_time_minutes": 10,
-                "max_models_to_evaluate": 3,
+                "max_processors_to_evaluate": 3,
                 "cross_validation_folds": 3,
                 "optimization_time_budget_minutes": 5,
                 "enable_ensemble": False,
@@ -121,7 +121,7 @@ class PipelineConfig:
             },
             PipelineMode.BALANCED: {
                 "max_time_minutes": 30,
-                "max_models_to_evaluate": 5,
+                "max_processors_to_evaluate": 5,
                 "cross_validation_folds": 5,
                 "optimization_time_budget_minutes": 15,
                 "enable_ensemble": True,
@@ -129,7 +129,7 @@ class PipelineConfig:
             },
             PipelineMode.THOROUGH: {
                 "max_time_minutes": 120,
-                "max_models_to_evaluate": 20,
+                "max_processors_to_evaluate": 20,
                 "cross_validation_folds": 10,
                 "optimization_time_budget_minutes": 60,
                 "enable_ensemble": True,
@@ -182,11 +182,11 @@ class PipelineResult:
         default_factory=dict
     )
 
-    # Model artifacts
-    best_model: BaseEstimator | None = None
-    best_model_params: dict[str, Any] = field(default_factory=dict)
-    best_model_performance: dict[str, float] = field(default_factory=dict)
-    ensemble_model: BaseEstimator | None = None
+    # Processor artifacts
+    best_processor: BaseEstimator | None = None
+    best_processor_params: dict[str, Any] = field(default_factory=dict)
+    best_processor_performance: dict[str, float] = field(default_factory=dict)
+    ensemble_processor: BaseEstimator | None = None
     ensemble_performance: dict[str, float] = field(default_factory=dict)
 
     # Data processing artifacts
@@ -200,7 +200,7 @@ class PipelineResult:
     holdout_performance: dict[str, float] = field(default_factory=dict)
 
     # Deployment artifacts
-    model_artifacts_path: str | None = None
+    processor_artifacts_path: str | None = None
     deployment_config: dict[str, Any] = field(default_factory=dict)
 
     # Analysis and recommendations
@@ -220,7 +220,7 @@ class PipelineResult:
         """Check if pipeline completed successfully."""
         return (
             self.current_stage == PipelineStage.COMPLETED
-            and self.best_model is not None
+            and self.best_processor is not None
         )
 
     @property
@@ -246,7 +246,7 @@ class PipelineResult:
             "current_stage": self.current_stage.value,
             "is_successful": self.is_successful,
             "success_rate": self.success_rate,
-            "best_model_performance": self.best_model_performance,
+            "best_processor_performance": self.best_processor_performance,
             "production_readiness_score": self.production_readiness_score,
             "feature_count": len(self.selected_features),
             "recommendations_count": len(self.improvement_recommendations),

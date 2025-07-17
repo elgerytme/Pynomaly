@@ -15,7 +15,7 @@ class MobileQualityAdapter:
     
     def get_mobile_quality_summary(self, dataset_id: str) -> Dict[str, Any]:
         """Get mobile-optimized quality summary."""
-        report = self.quality_service.assess_dataset_quality(dataset_id)
+        report = self.quality_service.assess_data_collection_quality(data_collection_id)
         
         return {
             "overall_score": report.overall_score,
@@ -31,7 +31,7 @@ class MobileQualityAdapter:
     
     def get_quality_alerts(self, dataset_id: str) -> List[Dict[str, Any]]:
         """Get quality alerts for mobile notifications."""
-        report = self.quality_service.assess_dataset_quality(dataset_id)
+        report = self.quality_service.assess_data_collection_quality(data_collection_id)
         
         alerts = []
         for issue in report.issues:
@@ -48,7 +48,7 @@ class MobileQualityAdapter:
     
     def get_quality_trends(self, dataset_id: str) -> List[Dict[str, Any]]:
         """Get quality trends for mobile dashboard."""
-        trends = self.quality_service.monitor_quality_trends(dataset_id)
+        trends = self.quality_service.monitor_quality_trends(data_collection_id)
         
         return [
             {

@@ -1,5 +1,5 @@
 """
-Rate limiting and DDoS protection for Pynomaly API.
+Rate limiting and DDoS protection for Software API.
 
 This module provides:
 - Rate limiting per user/IP
@@ -216,7 +216,7 @@ class TokenBucket:
 
 
 class DDoSProtection:
-    """DDoS protection and anomaly detection."""
+    """DDoS protection and anomaly processing."""
 
     def __init__(self, redis_client: redis.Redis | None = None):
         self.redis_client = redis_client
@@ -224,10 +224,10 @@ class DDoSProtection:
         self.blocked_ips = set()
         self.suspicious_ips = defaultdict(int)
 
-        # DDoS detection thresholds
+        # DDoS processing thresholds
         self.burst_threshold = 100  # requests per minute
         self.sustained_threshold = 1000  # requests per hour
-        self.pattern_threshold = 0.8  # similarity threshold for pattern detection
+        self.pattern_threshold = 0.8  # similarity threshold for pattern processing
 
         # Block durations
         self.temporary_block_duration = 300  # 5 minutes

@@ -115,7 +115,7 @@ ENDPOINT_METADATA = {
     },
     "explainability": {
         "summary": "Explainability Operations",
-        "description": "Operations for generating and managing model explanations",
+        "description": "Operations for generating and managing processor explanations",
         "tags": ["Explainability"],
     },
 }

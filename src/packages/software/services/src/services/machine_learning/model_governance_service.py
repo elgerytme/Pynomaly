@@ -1,4 +1,4 @@
-"""Model governance and approval workflow service."""
+"""Processor governance and approval workflow service."""
 
 from __future__ import annotations
 
@@ -22,49 +22,49 @@ from monorepo.shared.protocols.repository_protocol import ModelRepositoryProtoco
 
 
 class ModelGovernanceService:
-    """Service for model governance and approval workflows."""
+    """Service for processor governance and approval workflows."""
 
     def __init__(
         self,
-        model_repository: ModelRepositoryProtocol,
+        processor_repository: ModelRepositoryProtocol,
         governance_repository: Any,  # GovernanceRepositoryProtocol when implemented
         notification_service: Any,  # NotificationService when implemented
     ):
         """Initialize the governance service.
 
         Args:
-            model_repository: Model repository
+            processor_repository: Processor repository
             governance_repository: Governance repository
             notification_service: Notification service
         """
-        self.model_repository = model_repository
+        self.processor_repository = processor_repository
         self.governance_repository = governance_repository
         self.notification_service = notification_service
 
     async def create_approval_workflow(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         config: ApprovalWorkflowConfig,
         created_by: str,
-        model_version: str | None = None,
+        processor_version: str | None = None,
         tags: list[str] | None = None,
     ) -> ApprovalWorkflow:
-        """Create an approval workflow for a model.
+        """Create an approval workflow for a processor.
 
         Args:
-            model_id: Model identifier
+            processor_id: Processor identifier
             config: Workflow configuration
             created_by: User creating the workflow
-            model_version: Model version being approved
+            processor_version: Processor version being approved
             tags: Workflow tags
 
         Returns:
             Created approval workflow
         """
-        # Validate model exists
-        model = await self.model_repository.get_by_id(model_id)
-        if not model:
-            raise ValueError(f"Model {model_id} does not exist")
+        # Validate processor exists
+        processor = await self.processor_repository.get_by_id(processor_id)
+        if not processor:
+            raise ValueError(f"Processor {processor_id} does not exist")
 
         # Create approval requests
         approval_requests = []
@@ -81,8 +81,8 @@ class ModelGovernanceService:
                 ),  # Will be set later
                 approval_type=approval_type,
                 approver_role=approver_role,
-                title=f"{approval_type.value.replace('_', ' ').title()} for {model.name}",
-                description=f"Please review and approve {model.name} for {approval_type.value}",
+                title=f"{approval_type.value.replace('_', ' ').title()} for {processor.name}",
+                description=f"Please review and approve {processor.name} for {approval_type.value}",
                 due_date=due_date,
                 requested_by=created_by,
             )
@@ -90,8 +90,8 @@ class ModelGovernanceService:
 
         # Create workflow
         workflow = ApprovalWorkflow(
-            model_id=model_id,
-            model_version=model_version,
+            processor_id=processor_id,
+            processor_version=processor_version,
             config=config,
             total_steps=len(approval_requests),
             approval_requests=approval_requests,
@@ -127,7 +127,7 @@ class ModelGovernanceService:
 
         # Run compliance check if required
         if workflow.compliance_required:
-            compliance_report = await self.run_compliance_check(workflow.model_id)
+            compliance_report = await self.run_compliance_check(workflow.processor_id)
             workflow.compliance_report_id = compliance_report.id
 
             # Check if compliance allows submission
@@ -248,21 +248,21 @@ class ModelGovernanceService:
         return stored_rule
 
     async def run_compliance_check(
-        self, model_id: UUID, rules: list[UUID] | None = None
+        self, processor_id: UUID, rules: list[UUID] | None = None
     ) -> ComplianceReport:
-        """Run compliance check for a model.
+        """Run compliance check for a processor.
 
         Args:
-            model_id: Model identifier
+            processor_id: Processor identifier
             rules: Specific rules to check (None for all)
 
         Returns:
             Compliance report
         """
-        # Get model
-        model = await self.model_repository.get_by_id(model_id)
-        if not model:
-            raise ValueError(f"Model {model_id} does not exist")
+        # Get processor
+        processor = await self.processor_repository.get_by_id(processor_id)
+        if not processor:
+            raise ValueError(f"Processor {processor_id} does not exist")
 
         # Get rules to check
         if rules:
@@ -284,7 +284,7 @@ class ModelGovernanceService:
 
         for rule in compliance_rules:
             try:
-                violation = await self._check_compliance_rule(model, rule)
+                violation = await self._check_compliance_rule(processor, rule)
                 if violation:
                     violations.append(violation)
                     failed_rules += 1
@@ -317,7 +317,7 @@ class ModelGovernanceService:
 
         # Create report
         report = ComplianceReport(
-            model_id=model_id,
+            processor_id=processor_id,
             overall_status=overall_status,
             compliance_score=compliance_score,
             total_rules=total_rules,
@@ -342,19 +342,19 @@ class ModelGovernanceService:
 
         return stored_report
 
-    async def get_model_workflows(
-        self, model_id: UUID, status: WorkflowStatus | None = None
+    async def get_processor_workflows(
+        self, processor_id: UUID, status: WorkflowStatus | None = None
     ) -> list[ApprovalWorkflow]:
-        """Get workflows for a model.
+        """Get workflows for a processor.
 
         Args:
-            model_id: Model identifier
+            processor_id: Processor identifier
             status: Filter by status
 
         Returns:
             List of workflows
         """
-        return await self.governance_repository.get_workflows_by_model(model_id, status)
+        return await self.governance_repository.get_workflows_by_processor(processor_id, status)
 
     async def get_pending_approvals(
         self, approver: str, approval_type: ApprovalType | None = None
@@ -475,12 +475,12 @@ class ModelGovernanceService:
         return role_mapping.get(approval_type, "reviewer")
 
     async def _check_compliance_rule(
-        self, model: Any, rule: ComplianceRule
+        self, processor: Any, rule: ComplianceRule
     ) -> ComplianceViolation | None:
-        """Check a single compliance rule against a model.
+        """Check a single compliance rule against a processor.
 
         Args:
-            model: Model to check
+            processor: Processor to check
             rule: Compliance rule
 
         Returns:
@@ -491,22 +491,22 @@ class ModelGovernanceService:
             # For now, return a simple implementation based on rule type
 
             if rule.rule_type == "metric_threshold":
-                # Check if model metrics meet threshold
+                # Check if processor measurements meet threshold
                 threshold = rule.parameters.get("threshold", 0.8)
                 metric_name = rule.parameters.get("metric", "accuracy")
 
-                # Get model performance (placeholder)
-                model_performance = 0.75  # This would be retrieved from model
+                # Get processor performance (placeholder)
+                processor_performance = 0.75  # This would be retrieved from processor
 
-                if model_performance < threshold:
+                if processor_performance < threshold:
                     return ComplianceViolation(
                         rule_id=rule.id,
                         rule_name=rule.name,
                         severity=rule.severity,
-                        description=f"Model {metric_name} ({model_performance}) below threshold ({threshold})",
-                        current_value=model_performance,
+                        description=f"Processor {metric_name} ({processor_performance}) below threshold ({threshold})",
+                        current_value=processor_performance,
                         expected_value=threshold,
-                        remediation_suggestion=f"Improve model {metric_name} to meet threshold",
+                        remediation_suggestion=f"Improve processor {metric_name} to meet threshold",
                     )
 
             elif rule.rule_type == "data_requirement":
@@ -514,7 +514,7 @@ class ModelGovernanceService:
                 min_samples = rule.parameters.get("min_samples", 1000)
 
                 # Get training data info (placeholder)
-                training_samples = 800  # This would be retrieved from model
+                training_samples = 800  # This would be retrieved from processor
 
                 if training_samples < min_samples:
                     return ComplianceViolation(
@@ -572,12 +572,12 @@ class ModelGovernanceService:
         # Check various auto-approval conditions
         # This is a placeholder implementation
 
-        # Example: Auto-approve if model performance is above threshold
+        # Example: Auto-approve if processor performance is above threshold
         if "performance_threshold" in auto_rules:
             threshold = auto_rules["performance_threshold"]
-            # Get model performance (placeholder)
-            model_performance = 0.9  # This would be retrieved from model
-            return model_performance >= threshold
+            # Get processor performance (placeholder)
+            processor_performance = 0.9  # This would be retrieved from processor
+            return processor_performance >= threshold
 
         return False
 

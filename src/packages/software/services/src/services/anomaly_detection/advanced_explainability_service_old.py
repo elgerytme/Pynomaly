@@ -68,7 +68,7 @@ class AdvancedExplainabilityService:
     async def generate_comprehensive_explanation(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: ExplanationConfig | None = None,
     ) -> ExplanationReport:
         """Generate comprehensive explanation report."""
@@ -79,14 +79,14 @@ class AdvancedExplainabilityService:
             logger.info("Generating comprehensive explanation report")
 
             # Prepare data
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             feature_names = (
                 config.feature_names
-                or dataset.features
+                or data_collection.features
                 or [f"feature_{i}" for i in range(X.shape[1])]
             )
 
-            # Get model predictions
+            # Get processor predictions
             predictions = detector.decision_function(X)
 
             # Generate explanations
@@ -132,8 +132,8 @@ class AdvancedExplainabilityService:
 
             # Create report
             report = ExplanationReport(
-                model_info=self._get_model_info(detector),
-                dataset_summary=self._get_dataset_summary(dataset),
+                processor_info=self._get_processor_info(detector),
+                data_collection_summary=self._get_data_collection_summary(data_collection),
                 local_explanations=local_explanations,
                 global_explanation=global_explanation
                 or self._create_fallback_global_explanation(feature_names),
@@ -230,7 +230,7 @@ class AdvancedExplainabilityService:
         feature_names: list[str],
         config: ExplanationConfig,
     ) -> GlobalExplanation:
-        """Generate global model explanation."""
+        """Generate global processor explanation."""
         try:
             feature_importance = {}
             feature_interactions = {}
@@ -268,8 +268,8 @@ class AdvancedExplainabilityService:
             # Compute feature interactions (simplified)
             feature_interactions = self._compute_feature_interactions(X, feature_names)
 
-            # Model summary
-            model_summary = {
+            # Processor summary
+            processor_summary = {
                 "n_features": len(feature_names),
                 "n_samples": len(X),
                 "prediction_range": {
@@ -282,7 +282,7 @@ class AdvancedExplainabilityService:
             return GlobalExplanation(
                 feature_importance=feature_importance,
                 feature_interactions=feature_interactions,
-                model_summary=model_summary,
+                processor_summary=processor_summary,
                 explanation_method=method_used,
                 coverage=0.95,  # Simplified
                 reliability=0.85,  # Simplified
@@ -293,25 +293,25 @@ class AdvancedExplainabilityService:
             return self._create_fallback_global_explanation(feature_names)
 
     async def analyze_bias(
-        self, detector: DetectorProtocol, dataset: Dataset, config: BiasAnalysisConfig
+        self, detector: DetectorProtocol, data_collection: DataCollection, config: BiasAnalysisConfig
     ) -> list[BiasAnalysisResult]:
-        """Analyze model for potential bias."""
+        """Analyze processor for potential bias."""
         try:
             results = []
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             predictions = detector.predict(X)
             scores = detector.decision_function(X)
 
             for protected_attr in config.protected_attributes:
-                if protected_attr not in dataset.data.columns:
+                if protected_attr not in data_collection.data.columns:
                     logger.warning(
-                        f"Protected attribute '{protected_attr}' not found in dataset"
+                        f"Protected attribute '{protected_attr}' not found in data_collection"
                     )
                     continue
 
                 # Get protected attribute values
-                protected_values = dataset.data[protected_attr].values
+                protected_values = data_collection.data[protected_attr].values
                 unique_groups = np.unique(protected_values)
 
                 if len(unique_groups) < 2:
@@ -344,7 +344,7 @@ class AdvancedExplainabilityService:
         """Analyze bias for a specific protected attribute."""
         unique_groups = np.unique(attribute_values)
         group_stats = {}
-        fairness_metrics = {}
+        fairness_measurements = {}
 
         # Calculate statistics for each group
         for group in unique_groups:
@@ -362,35 +362,35 @@ class AdvancedExplainabilityService:
                 "std_score": float(np.std(group_scores)),
             }
 
-        # Calculate fairness metrics
+        # Calculate fairness measurements
         if len(group_stats) >= 2:
             # Demographic parity
             positive_rates = [stats["positive_rate"] for stats in group_stats.values()]
-            fairness_metrics["demographic_parity"] = 1.0 - (
+            fairness_measurements["demographic_parity"] = 1.0 - (
                 max(positive_rates) - min(positive_rates)
             )
 
             # Statistical parity difference
-            fairness_metrics["statistical_parity_difference"] = max(
+            fairness_measurements["statistical_parity_difference"] = max(
                 positive_rates
             ) - min(positive_rates)
 
             # Equalized odds (simplified)
             mean_scores = [stats["mean_score"] for stats in group_stats.values()]
-            fairness_metrics["equalized_odds"] = 1.0 - (
+            fairness_measurements["equalized_odds"] = 1.0 - (
                 max(mean_scores) - min(mean_scores)
             )
 
         # Determine if bias is detected
         bias_detected = any(
             metric < 0.8
-            for metric in fairness_metrics.values()
-            if metric <= 1.0  # Only for normalized metrics
+            for metric in fairness_measurements.values()
+            if metric <= 1.0  # Only for normalized measurements
         )
 
         # Assess severity
         if bias_detected:
-            min_fairness = min(fairness_metrics.values())
+            min_fairness = min(fairness_measurements.values())
             if min_fairness < 0.6:
                 severity = "high"
             elif min_fairness < 0.8:
@@ -405,16 +405,16 @@ class AdvancedExplainabilityService:
         if bias_detected:
             recommendations.extend(
                 [
-                    f"Consider rebalancing dataset for attribute '{attribute_name}'",
+                    f"Consider rebalancing data_collection for attribute '{attribute_name}'",
                     "Apply bias mitigation techniques during training",
-                    "Use fairness-aware evaluation metrics",
+                    "Use fairness-aware evaluation measurements",
                     "Consider post-processing fairness adjustments",
                 ]
             )
 
         return BiasAnalysisResult(
             protected_attribute=attribute_name,
-            fairness_metrics=fairness_metrics,
+            fairness_measurements=fairness_measurements,
             group_statistics=group_stats,
             bias_detected=bias_detected,
             severity=severity,
@@ -428,7 +428,7 @@ class AdvancedExplainabilityService:
         predictions: np.ndarray,
         config: TrustScoreConfig,
     ) -> TrustScoreResult:
-        """Assess trust score for model predictions."""
+        """Assess trust score for processor predictions."""
         trust_factors = {}
 
         # Consistency analysis
@@ -603,7 +603,7 @@ class AdvancedExplainabilityService:
         try:
             # Create a scorer function
             def scorer(estimator, X, y) -> float:
-                # For anomaly detection, we use consistency as score
+                # For anomaly processing, we use consistency as score
                 predictions = estimator.decision_function(X)
                 return -np.std(predictions)  # Negative std (higher is better)
 
@@ -710,7 +710,7 @@ class AdvancedExplainabilityService:
     async def _assess_consistency(
         self, detector: DetectorProtocol, X: np.ndarray
     ) -> float:
-        """Assess model consistency."""
+        """Assess processor consistency."""
         try:
             # Test consistency with small perturbations
             n_tests = min(100, len(X))
@@ -877,7 +877,7 @@ class AdvancedExplainabilityService:
             return 0.5
 
     def _get_model_info(self, detector: DetectorProtocol) -> dict[str, Any]:
-        """Get model information."""
+        """Get processor information."""
         return {
             "algorithm": getattr(detector, "algorithm_name", "unknown"),
             "parameters": getattr(detector, "algorithm_params", {}),
@@ -885,8 +885,8 @@ class AdvancedExplainabilityService:
         }
 
     def _get_dataset_summary(self, dataset: Dataset) -> dict[str, Any]:
-        """Get dataset summary."""
-        data = dataset.data
+        """Get data_collection summary."""
+        data = data_collection.data
         if hasattr(data, "shape"):
             n_samples, n_features = data.shape
         else:
@@ -894,11 +894,11 @@ class AdvancedExplainabilityService:
             n_features = len(data[0]) if len(data) > 0 else 0
 
         return {
-            "name": dataset.name,
+            "name": data_collection.name,
             "n_samples": n_samples,
             "n_features": n_features,
             "features": (
-                dataset.features[:10] if dataset.features else []
+                data_collection.features[:10] if data_collection.features else []
             ),  # First 10 features
         }
 
@@ -912,7 +912,7 @@ class AdvancedExplainabilityService:
         return GlobalExplanation(
             feature_importance=dict.fromkeys(feature_names, equal_importance),
             feature_interactions={},
-            model_summary={"note": "Fallback explanation due to computation failures"},
+            processor_summary={"note": "Fallback explanation due to computation failures"},
             explanation_method="fallback",
             coverage=0.5,
             reliability=0.3,
@@ -925,10 +925,10 @@ class AdvancedExplainabilityService:
         recommendations = []
 
         if trust_assessment.overall_trust_score < 0.7:
-            recommendations.append("Consider model retraining or hyperparameter tuning")
+            recommendations.append("Consider processor retraining or hyperparameter tuning")
 
         if trust_assessment.consistency_score < 0.7:
-            recommendations.append("Improve model consistency through regularization")
+            recommendations.append("Improve processor consistency through regularization")
 
         if trust_assessment.stability_score < 0.7:
             recommendations.append("Enhance prediction stability with ensemble methods")
@@ -938,11 +938,11 @@ class AdvancedExplainabilityService:
 
         if trust_assessment.risk_assessment == "high":
             recommendations.append(
-                "Exercise caution when using model predictions for critical decisions"
+                "Exercise caution when using processor predictions for critical decisions"
             )
 
         if not recommendations:
-            recommendations.append("Model shows good explainability characteristics")
+            recommendations.append("Processor shows good explainability characteristics")
 
         return recommendations
 
@@ -963,7 +963,7 @@ class AdvancedExplainabilityService:
     async def generate_counterfactual_explanations(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         target_instances: list[int],
         n_counterfactuals: int = 5,
         optimization_method: str = "random",
@@ -974,7 +974,7 @@ class AdvancedExplainabilityService:
                 f"Generating counterfactual explanations for {len(target_instances)} instances"
             )
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             counterfactuals = {}
 
             for instance_idx in target_instances:
@@ -1018,7 +1018,7 @@ class AdvancedExplainabilityService:
                                 "prediction": float(candidate_prediction),
                                 "distance": float(distance),
                                 "changes": self._calculate_feature_changes(
-                                    original_instance, candidate, dataset.features or []
+                                    original_instance, candidate, data_collection.features or []
                                 ),
                             }
                         )
@@ -1170,7 +1170,7 @@ class AdvancedExplainabilityService:
     async def analyze_feature_interactions(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         method: str = "shap",
         max_interactions: int = 20,
     ) -> dict[str, Any]:
@@ -1178,8 +1178,8 @@ class AdvancedExplainabilityService:
         try:
             logger.info(f"Analyzing feature interactions using {method}")
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
-            feature_names = dataset.features or [
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
+            feature_names = data_collection.features or [
                 f"feature_{i}" for i in range(X.shape[1])
             ]
 
@@ -1337,7 +1337,7 @@ class AdvancedExplainabilityService:
     async def generate_explanation_dashboard_data(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: ExplanationConfig | None = None,
     ) -> dict[str, Any]:
         """Generate comprehensive data for explanation dashboard."""
@@ -1347,36 +1347,36 @@ class AdvancedExplainabilityService:
             if not config:
                 config = ExplanationConfig()
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             feature_names = (
                 config.feature_names
-                or dataset.features
+                or data_collection.features
                 or [f"feature_{i}" for i in range(X.shape[1])]
             )
 
             # Generate comprehensive explanation
             explanation_report = await self.generate_comprehensive_explanation(
-                detector, dataset, config
+                detector, data_collection, config
             )
 
             # Generate counterfactual examples
             sample_indices = np.random.choice(len(X), min(5, len(X)), replace=False)
             counterfactuals = await self.generate_counterfactual_explanations(
-                detector, dataset, sample_indices.tolist()
+                detector, data_collection, sample_indices.tolist()
             )
 
             # Analyze feature interactions
             interactions = await self.analyze_feature_interactions(
-                detector, dataset, "correlation"
+                detector, data_collection, "correlation"
             )
 
             # Create dashboard data
             dashboard_data = {
                 "summary": {
-                    "dataset_name": dataset.name,
+                    "data_collection_name": data_collection.name,
                     "n_samples": len(X),
                     "n_features": len(feature_names),
-                    "model_type": getattr(detector, "algorithm_name", "unknown"),
+                    "processor_type": getattr(detector, "algorithm_name", "unknown"),
                     "explanation_methods": [
                         "SHAP" if self.enable_shap else None,
                         "LIME" if self.enable_lime else None,
@@ -1392,7 +1392,7 @@ class AdvancedExplainabilityService:
                         key=lambda x: x[1],
                         reverse=True,
                     )[:10],
-                    "model_summary": explanation_report.global_explanation.model_summary,
+                    "processor_summary": explanation_report.global_explanation.processor_summary,
                 },
                 "local_explanations": [
                     {
@@ -1423,7 +1423,7 @@ class AdvancedExplainabilityService:
                         "type": "bar",
                         "data": explanation_report.global_explanation.feature_importance,
                     },
-                    "trust_metrics_radar": {
+                    "trust_measurements_radar": {
                         "type": "radar",
                         "data": explanation_report.trust_assessment.trust_factors,
                     },

@@ -337,7 +337,7 @@ class GlobalExplanationEngine(ExplanationEngine):
         feature_names: list[str],
         config: ExplanationConfig,
     ) -> GlobalExplanation:
-        """Generate global model explanation."""
+        """Generate global processor explanation."""
         try:
             feature_importance = {}
             feature_interactions = {}
@@ -375,8 +375,8 @@ class GlobalExplanationEngine(ExplanationEngine):
             # Compute feature interactions
             feature_interactions = self._compute_feature_interactions(X, feature_names)
 
-            # Model summary
-            model_summary = {
+            # Processor summary
+            processor_summary = {
                 "n_features": len(feature_names),
                 "n_samples": len(X),
                 "prediction_range": {
@@ -389,7 +389,7 @@ class GlobalExplanationEngine(ExplanationEngine):
             return GlobalExplanation(
                 feature_importance=feature_importance,
                 feature_interactions=feature_interactions,
-                model_summary=model_summary,
+                processor_summary=processor_summary,
                 explanation_method=method_used,
                 coverage=0.95,
                 reliability=0.85,
@@ -519,7 +519,7 @@ class GlobalExplanationEngine(ExplanationEngine):
         return GlobalExplanation(
             feature_importance=dict.fromkeys(feature_names, equal_importance),
             feature_interactions={},
-            model_summary={"note": "Fallback explanation due to computation failures"},
+            processor_summary={"note": "Fallback explanation due to computation failures"},
             explanation_method="fallback",
             coverage=0.5,
             reliability=0.3,

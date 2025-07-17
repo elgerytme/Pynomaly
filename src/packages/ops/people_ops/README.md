@@ -10,7 +10,7 @@ This package manages all aspects of user operations, from authentication and aut
 
 ```
 people_ops/
-├── authentication/     # User authentication systems (JWT, OAuth, MFA)
+├── auth/              # User access control systems (JWT, OAuth, MFA)
 ├── authorization/      # Role-based access control and permissions
 ├── user_management/    # User lifecycle and profile management
 ├── compliance/         # Audit trails, data privacy, and regulatory compliance
@@ -125,7 +125,7 @@ audit.log_action(user_id=123, action="data_access", resource="sensitive_dataset"
 
 - Secure password storage with bcrypt
 - JWT token signing and validation
-- Rate limiting for authentication attempts
+- Rate limiting for access attempts
 - Session timeout and refresh handling
 - Encrypted data transmission
 - Security event monitoring

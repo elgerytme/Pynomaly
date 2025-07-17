@@ -249,8 +249,8 @@ class IntegrationService:
                     f"Unsupported integration type: {integration.integration_type}"
                 )
 
-            # Update integration metrics
-            await self._update_integration_metrics(integration.id, success)
+            # Update integration measurements
+            await self._update_integration_measurements(integration.id, success)
 
             # Calculate delivery time
             delivery_time = (datetime.utcnow() - start_time).total_seconds() * 1000
@@ -261,7 +261,7 @@ class IntegrationService:
         except Exception as e:
             history_record.error_message = str(e)
             history_record.response_status = 500
-            await self._update_integration_metrics(integration.id, False)
+            await self._update_integration_measurements(integration.id, False)
             raise
 
         finally:
@@ -326,7 +326,7 @@ class IntegrationService:
 
         # Add dedup_key to prevent duplicate incidents
         pagerduty_event["dedup_key"] = (
-            f"pynomaly-{payload.trigger_type.value}-{payload.timestamp.isoformat()}"
+            f"software-{payload.trigger_type.value}-{payload.timestamp.isoformat()}"
         )
 
         async with aiohttp.ClientSession() as session:
@@ -419,7 +419,7 @@ class IntegrationService:
             try:
                 # Extract email details from payload
                 email_address = payload.data.get("email", "")
-                subject = payload.data.get("subject", "Pynomaly Notification")
+                subject = payload.data.get("subject", "Software Notification")
                 message = payload.data.get("message", "")
                 priority = payload.data.get("priority", "normal")
 
@@ -594,7 +594,7 @@ class IntegrationService:
                 raise ValidationError("Slack webhook URL required")
 
             # Test with a simple message
-            test_message = {"text": "Pynomaly integration test"}
+            test_message = {"text": "Software integration test"}
             async with aiohttp.ClientSession() as session:
                 async with session.post(webhook_url, json=test_message) as response:
                     return response.status == 200
@@ -609,8 +609,8 @@ class IntegrationService:
                 "routing_key": routing_key,
                 "event_action": "trigger",
                 "payload": {
-                    "summary": "Pynomaly integration test",
-                    "source": "pynomaly-test",
+                    "summary": "Software integration test",
+                    "source": "software-test",
                     "severity": "info",
                 },
             }
@@ -646,30 +646,30 @@ class IntegrationService:
         # TODO: Implement proper permission checking
         return True
 
-    async def _update_integration_metrics(
+    async def _update_integration_measurements(
         self, integration_id: str, success: bool
     ) -> None:
-        """Update integration performance metrics."""
-        metrics = await self._integration_repo.get_integration_metrics(integration_id)
-        if not metrics:
-            metrics = IntegrationMetrics(integration_id=integration_id)
+        """Update integration performance measurements."""
+        measurements = await self._integration_repo.get_integration_measurements(integration_id)
+        if not measurements:
+            measurements = IntegrationMetrics(integration_id=integration_id)
 
-        metrics.total_notifications += 1
+        measurements.total_notifications += 1
         if success:
-            metrics.successful_notifications += 1
-            metrics.last_success = datetime.utcnow()
+            measurements.successful_notifications += 1
+            measurements.last_success = datetime.utcnow()
         else:
-            metrics.failed_notifications += 1
-            metrics.last_failure = datetime.utcnow()
+            measurements.failed_notifications += 1
+            measurements.last_failure = datetime.utcnow()
 
-        await self._integration_repo.update_integration_metrics(metrics)
+        await self._integration_repo.update_integration_measurements(measurements)
 
     # Public API Methods
-    async def get_integration_metrics(
+    async def get_integration_measurements(
         self, integration_id: str
     ) -> IntegrationMetrics | None:
-        """Get performance metrics for an integration."""
-        return await self._integration_repo.get_integration_metrics(integration_id)
+        """Get performance measurements for an integration."""
+        return await self._integration_repo.get_integration_measurements(integration_id)
 
     async def get_notification_history(
         self, integration_id: str, limit: int = 100, offset: int = 0

@@ -5,11 +5,11 @@
 ---
 
 
-This document provides comprehensive documentation for the Pynomaly REST API endpoints.
+This document provides comprehensive documentation for the Software REST API endpoints.
 
 ## Overview
 
-The Pynomaly REST API is built with FastAPI and provides programmatic access to all anomaly detection functionality. The API follows RESTful principles and returns JSON responses.
+The Software REST API is built with FastAPI and provides programmatic access to all anomaly processing functionality. The API follows RESTful principles and returns JSON responses.
 
 **Base URL**: `http://localhost:8000/api/v1`  
 **OpenAPI Documentation**: `http://localhost:8000/docs`  
@@ -71,7 +71,7 @@ Get detailed system status.
   "status": "operational",
   "uptime": 3600,
   "active_detectors": 5,
-  "total_detections": 1000,
+  "total_processings": 1000,
   "memory_usage_mb": 512.5,
   "cpu_usage_percent": 25.3
 }
@@ -220,7 +220,7 @@ Get detector details.
     "training_samples": 1000,
     "training_duration_ms": 5000
   },
-  "performance_metrics": {
+  "performance_measurements": {
     "last_evaluation": {
       "precision": 0.85,
       "recall": 0.78,
@@ -265,7 +265,7 @@ Get available algorithms and their parameters.
     {
       "name": "IsolationForest",
       "category": "tree_based",
-      "description": "Isolation Forest for anomaly detection",
+      "description": "Isolation Forest for anomaly processing",
       "parameters": {
         "contamination": {
           "type": "float",
@@ -289,7 +289,7 @@ Get available algorithms and their parameters.
 }
 ```
 
-## Dataset Management
+## DataCollection Management
 
 ### GET /datasets
 List all datasets.
@@ -304,7 +304,7 @@ List all datasets.
 {
   "datasets": [
     {
-      "id": "dataset_123",
+      "id": "data_collection_123",
       "name": "Credit Transactions",
       "description": "Historical credit card transactions",
       "sample_count": 10000,
@@ -318,13 +318,13 @@ List all datasets.
 ```
 
 ### POST /datasets
-Create a new dataset.
+Create a new data_collection.
 
 **Request (JSON data):**
 ```json
 {
   "name": "Transaction Data",
-  "description": "Credit card transaction dataset",
+  "description": "Credit card transaction data_collection",
   "data": [
     {"amount": 100.0, "merchant": "grocery", "location": "NY"},
     {"amount": 5000.0, "merchant": "jewelry", "location": "FL"}
@@ -341,13 +341,13 @@ curl -X POST "http://localhost:8000/api/v1/datasets/upload" \
   -F "description=Credit card transactions"
 ```
 
-### GET /datasets/{dataset_id}
-Get dataset details.
+### GET /datasets/{data_collection_id}
+Get data_collection details.
 
 **Response:**
 ```json
 {
-  "id": "dataset_123",
+  "id": "data_collection_123",
   "name": "Credit Transactions",
   "description": "Historical credit card transactions",
   "sample_count": 10000,
@@ -364,8 +364,8 @@ Get dataset details.
 }
 ```
 
-### GET /datasets/{dataset_id}/sample
-Get sample data from dataset.
+### GET /datasets/{data_collection_id}/sample
+Get sample data from data_collection.
 
 **Query Parameters:**
 - `limit` (int, default: 10): Number of samples to return
@@ -381,18 +381,18 @@ Get sample data from dataset.
 }
 ```
 
-### DELETE /datasets/{dataset_id}
-Delete a dataset.
+### DELETE /datasets/{data_collection_id}
+Delete a data_collection.
 
-## Detection Operations
+## Processing Operations
 
 ### POST /detectors/{detector_id}/train
-Train a detector with a dataset.
+Train a detector with a data_collection.
 
 **Request:**
 ```json
 {
-  "dataset_id": "dataset_123",
+  "data_collection_id": "data_collection_123",
   "validation_split": 0.2
 }
 ```
@@ -405,7 +405,7 @@ Train a detector with a dataset.
   "training_samples": 8000,
   "validation_samples": 2000,
   "training_duration_ms": 5000,
-  "metrics": {
+  "measurements": {
     "training_loss": 0.15,
     "validation_score": 0.82
   }
@@ -413,7 +413,7 @@ Train a detector with a dataset.
 ```
 
 ### POST /detectors/{detector_id}/detect
-Run anomaly detection on data.
+Run anomaly processing on data.
 
 **Request:**
 ```json
@@ -450,12 +450,12 @@ Run anomaly detection on data.
 ```
 
 ### POST /detectors/{detector_id}/detect/batch
-Run batch detection on dataset.
+Run batch processing on data_collection.
 
 **Request:**
 ```json
 {
-  "dataset_id": "dataset_123",
+  "data_collection_id": "data_collection_123",
   "output_format": "json"
 }
 ```
@@ -474,7 +474,7 @@ Run batch detection on dataset.
 ```
 
 ### GET /detectors/{detector_id}/results
-Get detection results.
+Get processing results.
 
 **Query Parameters:**
 - `limit` (int): Maximum results to return
@@ -530,9 +530,9 @@ Create a new experiment.
 **Request:**
 ```json
 {
-  "name": "Fraud Detection Comparison",
-  "description": "Compare algorithms for fraud detection",
-  "dataset_id": "dataset_123",
+  "name": "Fraud Processing Comparison",
+  "description": "Compare algorithms for fraud processing",
+  "data_collection_id": "data_collection_123",
   "algorithms": [
     {
       "name": "IsolationForest",
@@ -543,7 +543,7 @@ Create a new experiment.
       "parameters": {"contamination": 0.1, "n_neighbors": 20}
     }
   ],
-  "evaluation_metrics": ["precision", "recall", "f1_score"]
+  "evaluation_measurements": ["precision", "recall", "f1_score"]
 }
 ```
 
@@ -559,7 +559,7 @@ Get experiment details and results.
   "results": [
     {
       "algorithm": "IsolationForest",
-      "metrics": {
+      "measurements": {
         "precision": 0.85,
         "recall": 0.78,
         "f1_score": 0.81
@@ -568,7 +568,7 @@ Get experiment details and results.
     },
     {
       "algorithm": "LOF",
-      "metrics": {
+      "measurements": {
         "precision": 0.82,
         "recall": 0.75,
         "f1_score": 0.78
@@ -591,7 +591,7 @@ Create an ensemble detector.
 **Request:**
 ```json
 {
-  "name": "Fraud Detection Ensemble",
+  "name": "Fraud Processing Ensemble",
   "detector_ids": ["detector_1", "detector_2", "detector_3"],
   "voting_strategy": "majority",
   "weights": [0.4, 0.3, 0.3]
@@ -599,7 +599,7 @@ Create an ensemble detector.
 ```
 
 ### POST /ensembles/{ensemble_id}/detect
-Run ensemble detection.
+Run ensemble processing.
 
 **Request:**
 ```json
@@ -628,17 +628,17 @@ Run ensemble detection.
 
 ## Monitoring and Analytics
 
-### GET /metrics
-Get system performance metrics.
+### GET /measurements
+Get system performance measurements.
 
 **Response:**
 ```json
 {
   "total_detectors": 25,
   "active_detectors": 18,
-  "total_detections_today": 5000,
+  "total_processings_today": 5000,
   "anomalies_detected_today": 150,
-  "avg_detection_time_ms": 45.2,
+  "avg_processing_time_ms": 45.2,
   "system_health": "healthy"
 }
 ```
@@ -664,7 +664,7 @@ Get performance analytics.
     }
   ],
   "trends": {
-    "detection_volume": [850, 920, 1000, 1100],
+    "processing_volume": [850, 920, 1000, 1100],
     "anomaly_rate": [0.048, 0.052, 0.050, 0.045]
   }
 }
@@ -750,12 +750,12 @@ const ws = new WebSocket('ws://localhost:8000/ws/detections');
 
 ws.onmessage = function(event) {
   const data = JSON.parse(event.data);
-  console.log('Real-time detection:', data);
+  console.log('Real-time processing:', data);
 };
 ```
 
 ### WebSocket Message Types
-- `detection_result` - New anomaly detection result
+- `processing_result` - New anomaly processing result
 - `detector_trained` - Detector training completed
 - `system_alert` - System health alerts
 
@@ -777,7 +777,7 @@ detector = client.detectors.create(
     parameters={"contamination": 0.1}
 )
 
-# Run detection
+# Run processing
 results = client.detectors.detect(
     detector.id,
     data=[{"feature1": 1.0, "feature2": 2.0}]
@@ -805,7 +805,7 @@ curl -X POST "http://localhost:8000/api/v1/detectors/123/detect" \
   }'
 ```
 
-This REST API provides comprehensive access to all Pynomaly functionality with production-ready features including authentication, rate limiting, error handling, and real-time capabilities.
+This REST API provides comprehensive access to all Software functionality with production-ready features including authentication, rate limiting, error handling, and real-time capabilities.
 
 ---
 

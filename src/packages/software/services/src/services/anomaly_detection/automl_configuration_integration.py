@@ -65,7 +65,7 @@ class AutoMLConfigurationIntegration:
     @require_feature("advanced_automl")
     async def optimize_with_configuration_capture(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm_name: str,
         objectives: list[Any] | None = None,
         constraints: Any | None = None,
@@ -75,7 +75,7 @@ class AutoMLConfigurationIntegration:
         """Run AutoML optimization with automatic configuration capture.
 
         Args:
-            dataset: Dataset for optimization
+            data_collection: DataCollection for optimization
             algorithm_name: Algorithm to optimize
             objectives: Optimization objectives
             constraints: Resource constraints
@@ -89,7 +89,7 @@ class AutoMLConfigurationIntegration:
 
         # Extract optimization parameters before running
         optimization_params = self._extract_optimization_parameters(
-            dataset, algorithm_name, objectives, constraints, enable_learning
+            data_collection, algorithm_name, objectives, constraints, enable_learning
         )
 
         start_time = datetime.now()
@@ -105,7 +105,7 @@ class AutoMLConfigurationIntegration:
                 optimized_detector,
                 optimization_report,
             ) = await self.automl_service.optimize(
-                dataset=dataset,
+                data_collection=data_collection,
                 algorithm_name=algorithm_name,
                 objectives=objectives,
                 constraints=constraints,
@@ -181,7 +181,7 @@ class AutoMLConfigurationIntegration:
 
     async def capture_manual_configuration(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         detector: Detector,
         performance_results: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
@@ -189,7 +189,7 @@ class AutoMLConfigurationIntegration:
         """Capture configuration for manually created detector.
 
         Args:
-            dataset: Dataset used for training
+            data_collection: DataCollection used for training
             detector: Trained detector
             performance_results: Manual performance evaluation results
             metadata: Additional metadata
@@ -200,9 +200,9 @@ class AutoMLConfigurationIntegration:
         try:
             # Extract detector parameters
             optimization_params = {
-                "dataset_path": getattr(dataset, "path", None)
-                or f"dataset_{dataset.name}",
-                "dataset_name": dataset.name,
+                "data_collection_path": getattr(data_collection, "path", None)
+                or f"data_collection_{data_collection.name}",
+                "data_collection_name": data_collection.name,
                 "algorithm": detector.algorithm_name,
                 "contamination": getattr(detector, "contamination", 0.1),
                 "random_state": getattr(detector, "random_state", None),
@@ -262,7 +262,7 @@ class AutoMLConfigurationIntegration:
             for i, result in enumerate(optimization_results):
                 try:
                     # Extract required data from result
-                    dataset = result["dataset"]
+                    data_collection = result["data_collection"]
                     detector = result["detector"]
                     performance = result.get("performance", {})
 
@@ -278,7 +278,7 @@ class AutoMLConfigurationIntegration:
 
                     # Capture configuration
                     config_id = await self.capture_manual_configuration(
-                        dataset=dataset,
+                        data_collection=data_collection,
                         detector=detector,
                         performance_results=performance,
                         metadata=metadata,
@@ -332,7 +332,7 @@ class AutoMLConfigurationIntegration:
 
     def _extract_optimization_parameters(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm_name: str,
         objectives: list[Any] | None,
         constraints: Any | None,
@@ -340,10 +340,10 @@ class AutoMLConfigurationIntegration:
     ) -> dict[str, Any]:
         """Extract optimization parameters for configuration capture."""
         params = {
-            "dataset_path": getattr(dataset, "path", None),
-            "dataset_name": dataset.name,
-            "dataset_shape": (
-                dataset.data.shape if hasattr(dataset.data, "shape") else None
+            "data_collection_path": getattr(data_collection, "path", None),
+            "data_collection_name": data_collection.name,
+            "data_collection_shape": (
+                data_collection.data.shape if hasattr(data_collection.data, "shape") else None
             ),
             "algorithm": algorithm_name,
             "objectives": [
@@ -371,16 +371,16 @@ class AutoMLConfigurationIntegration:
         self, optimization_report: dict[str, Any], optimization_duration: float
     ) -> PerformanceResultsDTO:
         """Extract performance results from optimization report."""
-        # Extract best metrics from the report
-        best_metrics = optimization_report.get("best_metrics", {})
+        # Extract best measurements from the report
+        best_measurements = optimization_report.get("best_measurements", {})
         resource_usage = optimization_report.get("resource_usage", {})
 
         return PerformanceResultsDTO(
-            accuracy=best_metrics.get("accuracy"),
-            precision=best_metrics.get("precision"),
-            recall=best_metrics.get("recall"),
-            f1_score=best_metrics.get("f1_score"),
-            roc_auc=best_metrics.get("roc_auc"),
+            accuracy=best_measurements.get("accuracy"),
+            precision=best_measurements.get("precision"),
+            recall=best_measurements.get("recall"),
+            f1_score=best_measurements.get("f1_score"),
+            roc_auc=best_measurements.get("roc_auc"),
             training_time_seconds=optimization_duration,
             memory_usage_mb=resource_usage.get("peak_memory_mb"),
             cpu_usage_percent=resource_usage.get("cpu_usage_percent"),
@@ -405,7 +405,7 @@ class AutoMLConfigurationIntegration:
                 source=ConfigurationSource.AUTOML,
                 raw_parameters=optimization_params,
                 execution_results=(
-                    performance_results.model_dump() if performance_results else None
+                    performance_results.processor_dump() if performance_results else None
                 ),
                 source_context={
                     "optimization_report": optimization_report,
@@ -464,7 +464,7 @@ class AutoMLConfigurationIntegration:
                 "configuration_id": configuration_id,
                 "optimization_params": optimization_params,
                 "performance_results": (
-                    performance_results.model_dump() if performance_results else None
+                    performance_results.processor_dump() if performance_results else None
                 ),
                 "optimization_report_summary": {
                     "n_trials": optimization_report.get("n_trials"),
@@ -546,7 +546,7 @@ class AutoMLConfigurationManager:
                 )
             ]
 
-        return [config.model_dump() for config in configurations]
+        return [config.processor_dump() for config in configurations]
 
     async def analyze_automl_performance_trends(self) -> dict[str, Any]:
         """Analyze AutoML performance trends.

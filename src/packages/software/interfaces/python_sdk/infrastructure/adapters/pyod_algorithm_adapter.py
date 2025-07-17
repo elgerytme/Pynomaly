@@ -18,8 +18,8 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
     """
     Concrete implementation of AlgorithmAdapter using PyOD library.
     
-    This adapter provides integration with the PyOD (Python Outlier Detection)
-    library for executing various anomaly detection algorithms.
+    This adapter provides integration with the PyOD (Python Outlier Processing)
+    library for executing various anomaly processing algorithms.
     """
     
     def __init__(self, preprocessing: bool = True):
@@ -45,14 +45,14 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
         algorithm_config: AlgorithmConfig
     ) -> AlgorithmResult:
         """
-        Execute anomaly detection using PyOD algorithms.
+        Execute anomaly processing using PyOD algorithms.
         
         Args:
-            data: Input data for anomaly detection.
+            data: Input data for anomaly processing.
             algorithm_config: Configuration for the algorithm.
             
         Returns:
-            AlgorithmResult: Results of the anomaly detection.
+            AlgorithmResult: Results of the anomaly processing.
             
         Raises:
             AlgorithmExecutionError: If algorithm execution fails.
@@ -175,10 +175,10 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
             
             # Run algorithm in thread to avoid blocking
             def _execute():
-                model = IForest(**params)
-                model.fit(data)
-                scores = model.decision_scores_
-                predictions = model.labels_
+                processor = IForest(**params)
+                processor.fit(data)
+                scores = processor.decision_scores_
+                predictions = processor.labels_
                 return predictions, scores
             
             loop = asyncio.get_event_loop()
@@ -205,10 +205,10 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
             params["contamination"] = config.contamination
             
             def _execute():
-                model = LOF(**params)
-                model.fit(data)
-                scores = model.decision_scores_
-                predictions = model.labels_
+                processor = LOF(**params)
+                processor.fit(data)
+                scores = processor.decision_scores_
+                predictions = processor.labels_
                 return predictions, scores
             
             loop = asyncio.get_event_loop()
@@ -235,10 +235,10 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
             params["contamination"] = config.contamination
             
             def _execute():
-                model = OCSVM(**params)
-                model.fit(data)
-                scores = model.decision_scores_
-                predictions = model.labels_
+                processor = OCSVM(**params)
+                processor.fit(data)
+                scores = processor.decision_scores_
+                predictions = processor.labels_
                 return predictions, scores
             
             loop = asyncio.get_event_loop()
@@ -267,10 +267,10 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
                 params["random_state"] = config.random_state
             
             def _execute():
-                model = EllipticEnvelope(**params)
-                model.fit(data)
-                scores = model.decision_function(data)
-                predictions = model.predict(data)
+                processor = EllipticEnvelope(**params)
+                processor.fit(data)
+                scores = processor.decision_function(data)
+                predictions = processor.predict(data)
                 # Convert sklearn predictions (-1, 1) to (1, 0)
                 predictions = np.where(predictions == -1, 1, 0)
                 return predictions, scores
@@ -301,10 +301,10 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
                 params["random_state"] = config.random_state
             
             def _execute():
-                model = AutoEncoder(**params)
-                model.fit(data)
-                scores = model.decision_scores_
-                predictions = model.labels_
+                processor = AutoEncoder(**params)
+                processor.fit(data)
+                scores = processor.decision_scores_
+                predictions = processor.labels_
                 return predictions, scores
             
             loop = asyncio.get_event_loop()

@@ -26,7 +26,7 @@ data_science_app = typer.Typer(
 
 @data_science_app.command("analyze")
 def analyze_dataset(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_dir: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output directory for analysis results"
     ),
@@ -49,7 +49,7 @@ def analyze_dataset(
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ) -> None:
-    """Perform comprehensive statistical analysis on a dataset."""
+    """Perform comprehensive statistical analysis on a data_collection."""
     
     if not input_file.exists():
         console.print(f"[red]Error: Input file {input_file} does not exist[/red]")
@@ -65,8 +65,8 @@ def analyze_dataset(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        # Load dataset
-        task = progress.add_task("Loading dataset...", total=None)
+        # Load data_collection
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import data science packages
@@ -76,11 +76,11 @@ def analyze_dataset(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
-            if sample_size and len(dataset) > sample_size:
-                dataset = dataset.sample(n=sample_size, random_state=42)
-                console.print(f"[yellow]Sampled {sample_size} rows from {len(dataset)} total rows[/yellow]")
+            if sample_size and len(data_collection) > sample_size:
+                data_collection = data_collection.sample(n=sample_size, random_state=42)
+                console.print(f"[yellow]Sampled {sample_size} rows from {len(data_collection)} total rows[/yellow]")
             
             progress.update(task, description="Performing statistical analysis...")
             
@@ -91,16 +91,16 @@ def analyze_dataset(
             # Perform analysis
             if analysis_type == "comprehensive":
                 results = orchestrator.perform_comprehensive_analysis(
-                    dataset, confidence_level=confidence_level
+                    data_collection, confidence_level=confidence_level
                 )
             elif analysis_type == "statistical":
                 results = stats_service.perform_statistical_analysis(
-                    dataset, confidence_level=confidence_level
+                    data_collection, confidence_level=confidence_level
                 )
             elif analysis_type == "exploratory":
-                results = orchestrator.perform_exploratory_analysis(dataset)
+                results = orchestrator.perform_exploratory_analysis(data_collection)
             elif analysis_type == "correlation":
-                results = stats_service.calculate_correlation_matrix(dataset)
+                results = stats_service.calculate_correlation_matrix(data_collection)
             else:
                 console.print(f"[red]Unknown analysis type: {analysis_type}[/red]")
                 raise typer.Exit(1)
@@ -125,7 +125,7 @@ def analyze_dataset(
                 
                 from packages.data_science.application.services.visualization_service import VisualizationService
                 viz_service = VisualizationService()
-                viz_service.generate_analysis_plots(dataset, results, plots_dir)
+                viz_service.generate_analysis_plots(data_collection, results, plots_dir)
             
             progress.update(task, description="Analysis complete!")
             
@@ -148,14 +148,14 @@ def analyze_dataset(
 
 @data_science_app.command("train")
 def train_model(
-    input_file: Path = typer.Argument(..., help="Training dataset file"),
+    input_file: Path = typer.Argument(..., help="Training data_collection file"),
     target_column: str = typer.Argument(..., help="Target column name"),
-    model_type: str = typer.Option(
-        "auto", "--model", "-m",
-        help="Model type: [auto|classification|regression|clustering|anomaly]"
+    processor_type: str = typer.Option(
+        "auto", "--processor", "-m",
+        help="Processor type: [auto|classification|regression|clustering|anomaly]"
     ),
     output_dir: Optional[Path] = typer.Option(
-        None, "--output", "-o", help="Output directory for model artifacts"
+        None, "--output", "-o", help="Output directory for processor artifacts"
     ),
     validation_split: float = typer.Option(
         0.2, "--validation", "-v", help="Validation split ratio"
@@ -184,7 +184,7 @@ def train_model(
         raise typer.Exit(1)
     
     if output_dir is None:
-        output_dir = input_file.parent / f"{input_file.stem}_model"
+        output_dir = input_file.parent / f"{input_file.stem}_processor"
     
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -203,11 +203,11 @@ def train_model(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
-            if target_column not in dataset.columns:
-                console.print(f"[red]Error: Target column '{target_column}' not found in dataset[/red]")
-                console.print(f"Available columns: {list(dataset.columns)}")
+            if target_column not in data_collection.columns:
+                console.print(f"[red]Error: Target column '{target_column}' not found in data_collection[/red]")
+                console.print(f"Available columns: {list(data_collection.columns)}")
                 raise typer.Exit(1)
             
             progress.update(task, description="Preparing data...")
@@ -230,24 +230,24 @@ def train_model(
             
             progress.update(task, description="Training models...")
             
-            # Train model
-            if model_type == "auto":
-                results = orchestrator.auto_train_best_model(dataset, training_config)
+            # Train processor
+            if processor_type == "auto":
+                results = orchestrator.auto_train_best_processor(data_collection, training_config)
             else:
-                results = training_service.train_model(
-                    dataset, model_type, training_config
+                results = training_service.train_processor(
+                    data_collection, processor_type, training_config
                 )
             
-            progress.update(task, description="Evaluating model performance...")
+            progress.update(task, description="Evaluating processor performance...")
             
-            # Save model and results
-            model_file = output_dir / "model.pkl"
+            # Save processor and results
+            processor_file = output_dir / "processor.pkl"
             results_file = output_dir / "training_results.json"
             
-            training_service.save_model(results["model"], model_file)
+            training_service.save_processor(results["processor"], processor_file)
             
             with open(results_file, 'w') as f:
-                json.dump(results["metrics"], f, indent=2, default=str)
+                json.dump(results["measurements"], f, indent=2, default=str)
             
             progress.update(task, description="Training complete!")
             
@@ -261,17 +261,17 @@ def train_model(
             raise typer.Exit(1)
     
     # Display results
-    console.print("\n[green]✓ Model training completed successfully![/green]")
-    console.print(f"Model saved to: {model_file}")
+    console.print("\n[green]✓ Processor training completed successfully![/green]")
+    console.print(f"Processor saved to: {processor_file}")
     console.print(f"Results saved to: {results_file}")
     
-    # Display performance metrics
-    if "metrics" in results:
-        table = Table(title="Model Performance")
+    # Display performance measurements
+    if "measurements" in results:
+        table = Table(title="Processor Performance")
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
         
-        for metric, value in results["metrics"].items():
+        for metric, value in results["measurements"].items():
             table.add_row(metric, str(value))
         
         console.print(table)
@@ -279,8 +279,8 @@ def train_model(
 
 @data_science_app.command("predict")
 def predict(
-    model_file: Path = typer.Argument(..., help="Trained model file"),
-    input_file: Path = typer.Argument(..., help="Input dataset for prediction"),
+    processor_file: Path = typer.Argument(..., help="Trained processor file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection for prediction"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for predictions"
     ),
@@ -292,10 +292,10 @@ def predict(
     ),
     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ) -> None:
-    """Make predictions using a trained model."""
+    """Make predictions using a trained processor."""
     
-    if not model_file.exists():
-        console.print(f"[red]Error: Model file {model_file} does not exist[/red]")
+    if not processor_file.exists():
+        console.print(f"[red]Error: Processor file {processor_file} does not exist[/red]")
         raise typer.Exit(1)
     
     if not input_file.exists():
@@ -310,25 +310,25 @@ def predict(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading model and data...", total=None)
+        task = progress.add_task("Loading processor and data...", total=None)
         
         try:
             # Import required packages
             from packages.data_science.application.services.model_inference_service import ModelInferenceService
             from packages.data_profiling.application.services.data_source_adapter import DataSourceAdapter
             
-            # Load model and data
+            # Load processor and data
             inference_service = ModelInferenceService()
-            model = inference_service.load_model(model_file)
+            processor = inference_service.load_processor(processor_file)
             
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Making predictions...")
             
             # Make predictions
             predictions = inference_service.predict_batch(
-                model, dataset, 
+                processor, data_collection, 
                 batch_size=batch_size,
                 include_probabilities=include_probabilities
             )
@@ -356,7 +356,7 @@ def predict(
 
 @data_science_app.command("feature-engineering")
 def feature_engineering(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for engineered features"
     ),
@@ -400,7 +400,7 @@ def feature_engineering(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import feature engineering packages
@@ -409,7 +409,7 @@ def feature_engineering(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Engineering features...")
             
@@ -429,12 +429,12 @@ def feature_engineering(
             }
             
             # Perform feature engineering
-            engineered_dataset = fe_service.engineer_features(dataset, config)
+            engineered_data_collection = fe_service.engineer_features(data_collection, config)
             
             progress.update(task, description="Saving engineered features...")
             
             # Save results
-            engineered_dataset.to_csv(output_file, index=False)
+            engineered_data_collection.to_csv(output_file, index=False)
             
             # Generate feature importance report
             if feature_selection and target_column:
@@ -457,20 +457,20 @@ def feature_engineering(
     
     console.print("\n[green]✓ Feature engineering completed successfully![/green]")
     console.print(f"Features saved to: {output_file}")
-    console.print(f"Original features: {len(dataset.columns)}")
-    console.print(f"Engineered features: {len(engineered_dataset.columns)}")
+    console.print(f"Original features: {len(data_collection.columns)}")
+    console.print(f"Engineered features: {len(engineered_data_collection.columns)}")
 
 
 @data_science_app.command("evaluate")
 def evaluate_model(
-    model_file: Path = typer.Argument(..., help="Trained model file"),
-    test_file: Path = typer.Argument(..., help="Test dataset file"),
+    processor_file: Path = typer.Argument(..., help="Trained processor file"),
+    test_file: Path = typer.Argument(..., help="Test data_collection file"),
     target_column: str = typer.Argument(..., help="Target column name"),
     output_dir: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output directory for evaluation results"
     ),
-    metrics: List[str] = typer.Option(
-        ["accuracy", "precision", "recall", "f1"], "--metric", help="Evaluation metrics"
+    measurements: List[str] = typer.Option(
+        ["accuracy", "precision", "recall", "f1"], "--metric", help="Evaluation measurements"
     ),
     confusion_matrix: bool = typer.Option(
         True, "--confusion-matrix/--no-confusion-matrix", help="Generate confusion matrix"
@@ -486,10 +486,10 @@ def evaluate_model(
     ),
     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ) -> None:
-    """Comprehensive model evaluation and performance analysis."""
+    """Comprehensive processor evaluation and performance analysis."""
     
-    if not model_file.exists():
-        console.print(f"[red]Error: Model file {model_file} does not exist[/red]")
+    if not processor_file.exists():
+        console.print(f"[red]Error: Processor file {processor_file} does not exist[/red]")
         raise typer.Exit(1)
     
     if not test_file.exists():
@@ -497,7 +497,7 @@ def evaluate_model(
         raise typer.Exit(1)
     
     if output_dir is None:
-        output_dir = model_file.parent / "evaluation"
+        output_dir = processor_file.parent / "evaluation"
     
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -506,7 +506,7 @@ def evaluate_model(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading model and test data...", total=None)
+        task = progress.add_task("Loading processor and test data...", total=None)
         
         try:
             # Import evaluation packages
@@ -514,26 +514,26 @@ def evaluate_model(
             from packages.data_science.application.services.model_inference_service import ModelInferenceService
             from packages.data_profiling.application.services.data_source_adapter import DataSourceAdapter
             
-            # Load model and data
+            # Load processor and data
             inference_service = ModelInferenceService()
-            model = inference_service.load_model(model_file)
+            processor = inference_service.load_processor(processor_file)
             
             adapter = DataSourceAdapter()
-            test_dataset = adapter.load_dataset(str(test_file))
+            test_data_collection = adapter.load_data_collection(str(test_file))
             
-            if target_column not in test_dataset.columns:
-                console.print(f"[red]Error: Target column '{target_column}' not found in test dataset[/red]")
+            if target_column not in test_data_collection.columns:
+                console.print(f"[red]Error: Target column '{target_column}' not found in test data_collection[/red]")
                 raise typer.Exit(1)
             
-            progress.update(task, description="Evaluating model performance...")
+            progress.update(task, description="Evaluating processor performance...")
             
             # Initialize evaluation service
             eval_service = ModelEvaluationService()
             
             # Perform evaluation
             evaluation_results = eval_service.comprehensive_evaluation(
-                model, test_dataset, target_column,
-                metrics=metrics,
+                processor, test_data_collection, target_column,
+                measurements=measurements,
                 generate_plots=True,
                 output_dir=output_dir
             )
@@ -557,16 +557,16 @@ def evaluate_model(
             raise typer.Exit(1)
     
     # Display results
-    console.print("\n[green]✓ Model evaluation completed successfully![/green]")
+    console.print("\n[green]✓ Processor evaluation completed successfully![/green]")
     console.print(f"Results saved to: {output_dir}")
     
-    # Display key metrics
-    if "metrics" in evaluation_results:
-        table = Table(title="Model Evaluation Results")
+    # Display key measurements
+    if "measurements" in evaluation_results:
+        table = Table(title="Processor Evaluation Results")
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
         
-        for metric, value in evaluation_results["metrics"].items():
+        for metric, value in evaluation_results["measurements"].items():
             table.add_row(metric, f"{value:.4f}" if isinstance(value, float) else str(value))
         
         console.print(table)
@@ -591,36 +591,36 @@ def list_models(
         console.print(f"[yellow]Models directory {models_dir} does not exist[/yellow]")
         return
     
-    # Scan for model files
-    model_files = []
+    # Scan for processor files
+    processor_files = []
     for ext in ["*.pkl", "*.joblib", "*.h5", "*.pt", "*.pth"]:
-        model_files.extend(models_dir.rglob(ext))
+        processor_files.extend(models_dir.rglob(ext))
     
-    if not model_files:
-        console.print(f"[yellow]No model files found in {models_dir}[/yellow]")
+    if not processor_files:
+        console.print(f"[yellow]No processor files found in {models_dir}[/yellow]")
         return
     
     models_info = []
-    for model_file in model_files:
-        stat = model_file.stat()
+    for processor_file in processor_files:
+        stat = processor_file.stat()
         models_info.append({
-            "name": model_file.name,
-            "path": str(model_file),
+            "name": processor_file.name,
+            "path": str(processor_file),
             "size": f"{stat.st_size / 1024 / 1024:.2f} MB",
             "modified": stat.st_mtime
         })
     
     if format == "table":
         table = Table(title="Available Models")
-        table.add_column("Model Name", style="cyan")
+        table.add_column("Processor Name", style="cyan")
         table.add_column("Path", style="blue")
         table.add_column("Size", style="green")
         table.add_column("Modified", style="yellow")
         
-        for model in models_info:
+        for processor in models_info:
             from datetime import datetime
-            modified_date = datetime.fromtimestamp(model["modified"]).strftime("%Y-%m-%d %H:%M")
-            table.add_row(model["name"], model["path"], model["size"], modified_date)
+            modified_date = datetime.fromtimestamp(processor["modified"]).strftime("%Y-%m-%d %H:%M")
+            table.add_row(processor["name"], processor["path"], processor["size"], modified_date)
         
         console.print(table)
     

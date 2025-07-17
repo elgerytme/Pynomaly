@@ -1,7 +1,7 @@
 """
-Detection Metadata Value Object
+Processing Metadata Value Object
 
-Represents immutable metadata associated with anomaly detection operations.
+Represents immutable metadata associated with anomaly processing operations.
 """
 
 from dataclasses import dataclass
@@ -12,13 +12,13 @@ from datetime import datetime
 @dataclass(frozen=True)
 class DetectionMetadata:
     """
-    Immutable metadata for anomaly detection operations.
+    Immutable metadata for anomaly processing operations.
     
     This value object contains contextual information about
-    the detection request and execution environment.
+    the processing request and execution environment.
     """
     
-    dataset_name: Optional[str] = None
+    data_collection_name: Optional[str] = None
     feature_names: Optional[list] = None
     data_source: Optional[str] = None
     user_id: Optional[str] = None
@@ -45,7 +45,7 @@ class DetectionMetadata:
             Dict[str, Any]: Dictionary representation.
         """
         return {
-            "dataset_name": self.dataset_name,
+            "data_collection_name": self.data_collection_name,
             "feature_names": self.feature_names,
             "data_source": self.data_source,
             "user_id": self.user_id,
@@ -66,7 +66,7 @@ class DetectionMetadata:
             DetectionMetadata: New instance from the dictionary.
         """
         return cls(
-            dataset_name=data.get("dataset_name"),
+            data_collection_name=data.get("data_collection_name"),
             feature_names=data.get("feature_names"),
             data_source=data.get("data_source"),
             user_id=data.get("user_id"),
@@ -86,7 +86,7 @@ class DetectionMetadata:
             DetectionMetadata: New instance with user ID.
         """
         return DetectionMetadata(
-            dataset_name=self.dataset_name,
+            data_collection_name=self.data_collection_name,
             feature_names=self.feature_names,
             data_source=self.data_source,
             user_id=user_id,
@@ -109,7 +109,7 @@ class DetectionMetadata:
         updated_tags.update(new_tags)
         
         return DetectionMetadata(
-            dataset_name=self.dataset_name,
+            data_collection_name=self.data_collection_name,
             feature_names=self.feature_names,
             data_source=self.data_source,
             user_id=self.user_id,

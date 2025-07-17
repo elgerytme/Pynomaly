@@ -6,7 +6,7 @@
 
 ## Overview
 
-The core domain logic and business rules for the Monorepo anomaly detection platform.
+The core domain logic and application rules for the Pynomaly platform.
 
 **Architecture Layer**: Domain Layer
 **Package Type**: Core Business Logic
@@ -14,7 +14,7 @@ The core domain logic and business rules for the Monorepo anomaly detection plat
 
 ## Purpose
 
-This package contains the pure business logic that drives the Monorepo platform. It follows Clean Architecture principles with no external dependencies on infrastructure concerns, making it highly testable and reusable across different interfaces.
+This package contains the pure business logic that drives the Pynomaly platform. It follows Clean Architecture principles with no external dependencies on infrastructure concerns, making it highly testable and reusable across different interfaces.
 
 ### Key Features
 
@@ -43,7 +43,7 @@ core/
 │   ├── domain/             # Pure business logic and entities
 │   │   ├── entities/       # Core business objects (Anomaly, Dataset, Detector)
 │   │   ├── value_objects/  # Immutable values (AnomalyScore, ContaminationRate)
-│   │   ├── services/       # Domain services for business logic
+│   │   ├── services/       # Domain services for application logic
 │   │   └── exceptions/     # Domain-specific error types
 │   ├── application/        # Use cases and application services
 │   │   ├── use_cases/      # Business operations (detect_anomalies, train_detector)
@@ -85,7 +85,7 @@ core/
 
 ```bash
 # Install from source (development)
-cd src/packages/core
+cd src/packages/software/core
 pip install -e .
 
 # Install specific version
@@ -95,10 +95,10 @@ pip install pynomaly-core==1.0.0
 pip install pynomaly-core[dev,test]
 ```
 
-### Monorepo Installation
+### Pynomaly Installation
 
 ```bash
-# Install entire monorepo with this package
+# Install entire Pynomaly platform with this package
 cd /path/to/pynomaly
 pip install -e ".[core]"
 ```
@@ -158,7 +158,7 @@ dataset = Dataset(
 ```python
 from pynomaly.core.domain.services import AnomalyScorer, StatisticalAnalyzer
 
-# Use domain services for business logic
+# Use domain services for application logic
 scorer = AnomalyScorer()
 analyzer = StatisticalAnalyzer()
 
@@ -220,8 +220,8 @@ result = detection_service.detect(dataset, detector)
 ### Core Classes
 
 #### Entities
-- **`Dataset`**: Represents data for anomaly detection
-- **`Detector`**: Configuration for detection algorithms  
+- **`Dataset`**: Represents data for processing
+- **`Detector`**: Configuration for processing algorithms  
 - **`Anomaly`**: Detected anomaly with score and metadata
 - **`DetectionResult`**: Results from anomaly detection
 - **`Model`**: Trained anomaly detection model
@@ -268,7 +268,7 @@ from pynomaly.core.domain.services import (
 
 ```bash
 # Clone and navigate to package
-cd src/packages/core
+cd src/packages/software/core
 
 # Create virtual environment
 python -m venv .venv
@@ -462,4 +462,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+**Part of the [Pynomaly](../../../) monorepo** - Advanced platform core

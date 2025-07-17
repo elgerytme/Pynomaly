@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class DataValidationService(IDataValidationService):
-    """Service for validating data quality and generating quality metrics."""
+    """Service for validating data quality and generating quality measurements."""
 
     def __init__(self, min_quality_threshold: float = 0.7):
         """Initialize data validation service.
@@ -34,7 +34,7 @@ class DataValidationService(IDataValidationService):
             y: Target variable (optional)
 
         Returns:
-            Validation result with quality metrics
+            Validation result with quality measurements
         """
         logger.info("🔍 Validating data quality")
 
@@ -47,10 +47,10 @@ class DataValidationService(IDataValidationService):
             n_samples, n_features = X.shape
             logger.info(f"Data shape: {n_samples} samples, {n_features} features")
 
-            # Check for empty dataset
+            # Check for empty data_collection
             if n_samples == 0 or n_features == 0:
-                issues.append("Empty dataset: no samples or features found")
-                recommendations.append("Ensure dataset contains data before validation")
+                issues.append("Empty data_collection: no samples or features found")
+                recommendations.append("Ensure data_collection contains data before validation")
                 return DataValidationResult(
                     is_valid=False,
                     statistics={"n_samples": n_samples, "n_features": n_features},
@@ -64,14 +64,14 @@ class DataValidationService(IDataValidationService):
                 issues.append("Insufficient data: less than 10 samples")
                 recommendations.append("Collect more data samples")
             elif n_samples < 100:
-                issues.append("Small dataset: less than 100 samples")
+                issues.append("Small data_collection: less than 100 samples")
                 recommendations.append(
-                    "Consider collecting more data for better model performance"
+                    "Consider collecting more data for better processor performance"
                 )
 
             if n_features < 1:
-                issues.append("No features found in dataset")
-                recommendations.append("Ensure dataset contains feature columns")
+                issues.append("No features found in data_collection")
+                recommendations.append("Ensure data_collection contains feature columns")
 
             # Missing value analysis
             missing_stats = self._analyze_missing_values(X)
@@ -118,14 +118,14 @@ class DataValidationService(IDataValidationService):
                     recommendations.append("Consider rebalancing techniques")
                 elif target_stats["class_imbalance_ratio"] > 3:
                     issues.append("Class imbalance detected")
-                    recommendations.append("Monitor model performance across classes")
+                    recommendations.append("Monitor processor performance across classes")
 
             # Memory usage analysis
             memory_stats = self._analyze_memory_usage(X)
             statistics["memory"] = memory_stats
 
             if memory_stats["memory_usage_mb"] > 1000:
-                issues.append("Large dataset detected (>1GB)")
+                issues.append("Large data_collection detected (>1GB)")
                 recommendations.append("Consider data sampling or chunked processing")
 
             # Calculate overall quality score
@@ -173,7 +173,7 @@ class DataValidationService(IDataValidationService):
             )
 
     def _analyze_missing_values(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze missing values in the dataset."""
+        """Analyze missing values in the data_collection."""
         missing_per_column = X.isnull().sum()
         missing_ratios = missing_per_column / len(X)
 
@@ -190,7 +190,7 @@ class DataValidationService(IDataValidationService):
         }
 
     def _analyze_data_types(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze data types in the dataset."""
+        """Analyze data types in the data_collection."""
         dtype_counts = X.dtypes.value_counts().to_dict()
 
         numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
@@ -210,7 +210,7 @@ class DataValidationService(IDataValidationService):
         }
 
     def _analyze_duplicates(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze duplicate records in the dataset."""
+        """Analyze duplicate records in the data_collection."""
         duplicate_count = X.duplicated().sum()
 
         return {
@@ -220,7 +220,7 @@ class DataValidationService(IDataValidationService):
         }
 
     def _analyze_constant_features(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze constant features in the dataset."""
+        """Analyze constant features in the data_collection."""
         constant_features = []
 
         for col in X.columns:
@@ -233,7 +233,7 @@ class DataValidationService(IDataValidationService):
         }
 
     def _analyze_numeric_features(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze numeric features in the dataset."""
+        """Analyze numeric features in the data_collection."""
         numeric_cols = X.select_dtypes(include=[np.number]).columns
 
         if len(numeric_cols) == 0:
@@ -327,7 +327,7 @@ class DataValidationService(IDataValidationService):
         return analysis
 
     def _analyze_memory_usage(self, X: pd.DataFrame) -> dict[str, Any]:
-        """Analyze memory usage of the dataset."""
+        """Analyze memory usage of the data_collection."""
         memory_usage = X.memory_usage(deep=True)
         total_memory_bytes = memory_usage.sum()
 

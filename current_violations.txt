@@ -1,0 +1,1122 @@
+🚨 Found 186 potential domain violations:
+============================================================
+
+Package: ai.mlops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ai/mlops/README.md
+Line 9: Machine Learning Operations (MLOps) components for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ai.mlops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ai/mlops/README.md
+Line 515: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs-consolidated
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs-consolidated/README.md
+Line 3: Welcome to the comprehensive documentation for Pynomaly, the enterprise-grade anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/README.md
+Line 5: This comprehensive training program provides educational resources for data scientists, engineers, and analysts to master the Pynomaly anomaly detection platform. Our curriculum is designed for different skill levels and use cases.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/README.md
+Line 46: - **Deep Learning** (6 hours): Neural networks for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/README.md
+Line 106: - **Machine Learning**: Familiarity with ML concepts
+Term: ml
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.api-reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/api-reference/README.md
+Line 4: # Monorepo - Enterprise Anomaly Detection Platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.api-reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/api-reference/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.api-reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/api-reference/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.developer-guides
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/developer-guides/README.md
+Line 325: *Welcome to the Pynomaly development community! We're excited to have you contribute to building the best anomaly detection platform available. 🚀*
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.templates
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/templates/README.md
+Line 0: Error reading file: 'utf-8' codec can't decode byte 0xaf in position 32: invalid start byte
+Term: file_error
+Severity: error
+----------------------------------------
+Package: creative.documentation - move!.docs.tutorials.video
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/tutorials/video/README.md
+Line 14: *Perfect for new users getting started with anomaly detection*
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.tutorials.video
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/tutorials/video/README.md
+Line 31: | **One-Class SVM Tutorial** | 10 min | Support Vector Machine for anomaly detection | ✅ Ready |
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.tutorials.video
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/tutorials/video/README.md
+Line 43: | **Financial Fraud Detection** | 25 min | Complete fraud detection system implementation | ✅ Ready |
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.tutorials.video
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/tutorials/video/README.md
+Line 58: | **MLOps Best Practices** | 25 min | ML operations for anomaly detection systems | ✅ Ready |
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs.tutorials.video
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs/tutorials/video/README.md
+Line 58: | **MLOps Best Practices** | 25 min | ML operations for anomaly detection systems | ✅ Ready |
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs-consolidated.api-reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs-consolidated/api-reference/README.md
+Line 4: # Pynomaly - Enterprise Anomaly Detection Platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs-consolidated.api-reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs-consolidated/api-reference/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.docs-consolidated.api-reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/docs-consolidated/api-reference/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.apps.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/apps/examples/README.md
+Line 109: - **`credit_transactions.csv`** - Financial transaction data for fraud detection
+Term: fraud
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.apps.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/apps/examples/README.md
+Line 193: - **Network Security** - Intrusion detection systems
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.build_artifacts.static_dashboard.static.js.src.components
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/build_artifacts/static_dashboard/static/js/src/components/README.md
+Line 5: A comprehensive, production-ready D3.js chart library for the Pynomaly anomaly detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.build_artifacts.static_dashboard.static.js.src.components
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/build_artifacts/static_dashboard/static/js/src/components/README.md
+Line 538: Part of the Pynomaly anomaly detection platform. See main project license for details.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.build_artifacts.storybook-static.js.src.components
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/build_artifacts/storybook-static/js/src/components/README.md
+Line 5: A comprehensive, production-ready D3.js chart library for the Pynomaly anomaly detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.build_artifacts.storybook-static.js.src.components
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/build_artifacts/storybook-static/js/src/components/README.md
+Line 564: Part of the Pynomaly anomaly detection platform. See main project license for details.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.client_sdks.typescript
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/client_sdks/typescript/README.md
+Line 76: apiKey: 'your-api-key',                  // API key for authentication
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.api
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/api/README.md
+Line 4: # Pynomaly - Enterprise Anomaly Detection Platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.api
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/api/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.api
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/api/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.design-system
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/design-system/README.md
+Line 275: 1. **Charts** - Line charts, scatter plots, heatmaps for anomaly visualization
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.getting-started
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/getting-started/README.md
+Line 8: Welcome to Pynomaly! This section will get you up and running with anomaly detection in minutes.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.reference
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/reference/README.md
+Line 52: - **Feature Bagging** - Bootstrap aggregating for outliers
+Term: outlier
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guide
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guide/README.md
+Line 3: Welcome to Pynomaly, the comprehensive enterprise-grade anomaly detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guide
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guide/README.md
+Line 69: Pynomaly is designed for enterprise-scale anomaly detection across various domains:
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.web-ui
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/web-ui/README.md
+Line 115: - **Support**: Contact support for enterprise features
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.examples.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/examples/tutorials/README.md
+Line 10: This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art anomaly detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.examples.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/examples/tutorials/README.md
+Line 150: - Use selection guide for algorithm choices
+Term: algorithm
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.examples.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/examples/tutorials/README.md
+Line 188: - **Training Requests**: Available for enterprise customers
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.feature-flags
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/feature-flags/README.md
+Line 47: - **Algorithm Optimization**: Performance improvements for detection algorithms
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/README.md
+Line 7: Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with anomaly detection through a personalized, step-by-step journey tailored to your role and experience level.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/README.md
+Line 18: ### For ML Engineers
+Term: ml
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/README.md
+Line 25: ### For Business Analysts
+Term: business
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/README.md
+Line 28: - **Use Case Identification** - Recognize opportunities for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.production-deployment
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/production-deployment/README.md
+Line 24: This comprehensive guide covers deploying Pynomaly to production environments with enterprise-grade reliability, security, and performance. Pynomaly is built on **FastAPI** with **SQLAlchemy** for database operations, **Redis** for caching, and supports multiple deployment architectures.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/role-specific/README.md
+Line 146: - Continue with ML Engineer path for deployment
+Term: ml
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/role-specific/README.md
+Line 151: - Start with Business Analyst for use cases
+Term: business
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/role-specific/README.md
+Line 294: # Quick start for ML engineers
+Term: ml
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.documentation.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/documentation/docs/user-guides/onboarding/role-specific/README.md
+Line 302: # Quick start for business analysts
+Term: business
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/core/README.md
+Line 3: The core domain logic and business rules for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.data_observability
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/data_observability/README.md
+Line 286: - **ML Pipelines**: Pipeline health monitoring supports ML model training pipelines
+Term: ml
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.data_transformation
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/data_transformation/README.md
+Line 3: A comprehensive, well-architected data transformation and feature engineering package designed for anomaly detection workflows. Built with Clean Architecture principles and modern Python best practices.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/python_sdk/README.md
+Line 70: """Synchronous wrapper for anomaly detection."""
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/python_sdk/README.md
+Line 346: - `api_key` (Optional[str]): API key for authentication
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/python_sdk/README.md
+Line 373: Response object for anomaly detection operations.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/python_sdk/README.md
+Line 379: - `algorithm_used` (str): Algorithm used for detection
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.enterprise.enterprise-packages.packages.adapters
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/enterprise/enterprise-packages/packages/adapters/README.md
+Line 38: - **TensorFlow**: Google's machine learning platform
+Term: machine learning
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.migration-backup.src.packages.infrastructure.infrastructure.alerting
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/migration-backup/src/packages/infrastructure/infrastructure/alerting/README.md
+Line 3: A comprehensive real-time alerting and notification system for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 38: - Basic statistical concepts for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 42: - Best practices for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 62: - Experience with machine learning concepts
+Term: machine learning
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 83: - Feature engineering for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 135: - Design enterprise-scale anomaly detection system
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 173: - Fraud detection systems
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.certification
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/certification/README.md
+Line 231: - **Corporate Sites**: On-site testing for enterprise clients
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.community
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/community/README.md
+Line 200: - **Automated ML**: Self-optimizing detection systems
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.curriculum
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/curriculum/README.md
+Line 68: - Feature Engineering for Anomaly Detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.curriculum
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/curriculum/README.md
+Line 330: - Configure authentication systems
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.curriculum
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/curriculum/README.md
+Line 336: - Authentication Systems
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.curriculum
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/curriculum/README.md
+Line 419: - Threat Detection Systems
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 51: **Audience:** Users familiar with anomaly detection basics
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 109: You're a data scientist at a major bank tasked with building a real-time fraud detection system that can identify suspicious transactions while minimizing false positives that frustrate customers.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 122: ├── 07-model-evaluation.ipynb    # Evaluation with business metrics
+Term: business
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 127: ├── 10-rule-integration.ipynb    # Combining ML with business rules
+Term: business
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 139: - Balance precision vs recall for business impact
+Term: business
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 141: - Integrate human feedback into ML systems
+Term: ml
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 204: Build a comprehensive threat detection system that can identify advanced persistent threats, insider threats, and zero-day attacks across network, endpoint, and application data.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 229: ### Deep Learning for Anomaly Detection (8 hours)
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 235: - Use GANs for anomaly generation and detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 243: ├── 02-variational-autoencoders.ipynb # VAE for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: creative.documentation - move!.training.workshops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/creative/documentation - move!/training/workshops/README.md
+Line 361: - **Custom Workshops**: On-demand for enterprise clients
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/README.md
+Line 22: ### With ML Dependencies
+Term: ml
+Severity: warning
+----------------------------------------
+Package: data.data_observability
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/data_observability/README.md
+Line 286: - **ML Pipelines**: Pipeline health monitoring supports ML model training pipelines
+Term: ml
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.docs
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/docs/README.md
+Line 83: - **Email Support**: For enterprise customers
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/README.md
+Line 346: - `api_key` (Optional[str]): API key for authentication
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.api.docs
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/api/docs/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/examples/README.md
+Line 109: - **`credit_transactions.csv`** - Financial transaction data for fraud detection
+Term: fraud
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/tutorials/README.md
+Line 150: - Use selection guide for algorithm choices
+Term: algorithm
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/tutorials/README.md
+Line 188: - **Training Requests**: Available for enterprise customers
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/README.md
+Line 69: Pynomaly is designed for enterprise-scale anomaly detection across various domains:
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/onboarding/README.md
+Line 18: ### For ML Engineers
+Term: ml
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/onboarding/README.md
+Line 25: ### For Business Analysts
+Term: business
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.production-deployment
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/production-deployment/README.md
+Line 24: This comprehensive guide covers deploying Pynomaly to production environments with enterprise-grade reliability, security, and performance. Pynomaly is built on **FastAPI** with **SQLAlchemy** for database operations, **Redis** for caching, and supports multiple deployment architectures.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 146: - Continue with ML Engineer path for deployment
+Term: ml
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 151: - Start with Business Analyst for use cases
+Term: business
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 294: # Quick start for ML engineers
+Term: ml
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 302: # Quick start for business analysts
+Term: business
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.pynomaly-js-sdk.node_modules.argparse
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/pynomaly-js-sdk/node_modules/argparse/README.md
+Line 79: argparse for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.pynomaly-js-sdk.node_modules.babel-plugin-istanbul
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/pynomaly-js-sdk/node_modules/babel-plugin-istanbul/README.md
+Line 131: ## `babel-plugin-istanbul` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.pynomaly-js-sdk.node_modules.js-yaml
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/pynomaly-js-sdk/node_modules/js-yaml/README.md
+Line 241: js-yaml for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.load-nyc-config
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/load-nyc-config/README.md
+Line 60: ## `@istanbuljs/load-nyc-config` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.schema
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/schema/README.md
+Line 18: ## `@istanbuljs/schema` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.load-nyc-config.node_modules.js-yaml
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml/README.md
+Line 294: js-yaml for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.src.pynomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.preprocessing.templates
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/src/pynomaly_detection/algorithms/algorithms - move to data anomaly_detection folder/preprocessing/templates/README.md
+Line 16: - Currency and amount validation with business rule enforcement
+Term: business
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.src.pynomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.preprocessing.templates
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/src/pynomaly_detection/algorithms/algorithms - move to data anomaly_detection folder/preprocessing/templates/README.md
+Line 397: ### Integration with ML Pipelines
+Term: ml
+Severity: warning
+----------------------------------------
+Package: data.anomaly_detection.web.docs.web-ui
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/web/docs/web-ui/README.md
+Line 115: - **Support**: Contact support for enterprise features
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: data.data_platform.transformation
+File: /mnt/c/Users/andre/Pynomaly/src/packages/data/data_platform/transformation/README.md
+Line 3: A comprehensive, well-architected data transformation and feature engineering package designed for anomaly detection workflows. Built with Clean Architecture principles and modern Python best practices.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
+Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for anomaly detection and data analysis in the Pynomaly platform.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
+Line 32: - Building mathematical models for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
+Line 41: This package follows **Domain-Driven Design** principles with mathematical rigor:
+Term: mathematical
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
+Line 125: 2. **Type Safety**: Comprehensive type system for mathematical objects
+Term: mathematical
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
+Line 716: 4. **Testing**: Write property-based tests for mathematical properties
+Term: mathematical
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
+Line 802: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/examples/README.md
+Line 222: - **Error Handling**: Robust error handling for mathematical operations
+Term: mathematical
+Severity: warning
+----------------------------------------
+Package: formal_sciences.mathematics.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/examples/README.md
+Line 241: 4. Add unit tests for mathematical functions
+Term: mathematical
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/README.md
+Line 9: Infrastructure adapters and external integrations for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/README.md
+Line 230: for anomaly in result.anomalies:
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/README.md
+Line 429: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ops.people_ops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/people_ops/README.md
+Line 13: ├── authentication/     # User authentication systems (JWT, OAuth, MFA)
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: ops.people_ops
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/people_ops/README.md
+Line 128: - Rate limiting for authentication attempts
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!.deployment.infrastructure.deployment.deploy
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/deployment/infrastructure/deployment/deploy/README.md
+Line 0: Error reading file: 'utf-8' codec can't decode byte 0xbc in position 1082: invalid start byte
+Term: file_error
+Severity: error
+----------------------------------------
+Package: ops.infrastructure - move!.deployment.infrastructure.deployment.deploy.kubernetes
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/deployment/infrastructure/deployment/deploy/kubernetes/README.md
+Line 197: - **Grafana Storage**: 10Gi for dashboards and configs
+Term: dashboard
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!.deployment.infrastructure.deployment.deploy.helm.pynomaly
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/deployment/infrastructure/deployment/deploy/helm/pynomaly/README.md
+Line 3: This Helm chart deploys the Pynomaly anomaly detection platform on Kubernetes.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!.deployment.infrastructure.kubernetes.k8s
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/deployment/infrastructure/kubernetes/k8s/README.md
+Line 3: This directory contains comprehensive Kubernetes deployment configurations for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!.deployment.infrastructure.kubernetes.k8s
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/deployment/infrastructure/kubernetes/k8s/README.md
+Line 217: Grafana provides dashboards for:
+Term: dashboard
+Severity: warning
+----------------------------------------
+Package: ops.infrastructure - move!.infrastructure.alerting
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/infrastructure/alerting/README.md
+Line 3: A comprehensive real-time alerting and notification system for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ops.testing - move!.tests.tests.api
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/testing - move!/tests/tests/api/README.md
+Line 148: - ✅ JWT authentication system
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: ops.testing - move!.tests.tests.integration
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/testing - move!/tests/tests/integration/README.md
+Line 3: Comprehensive integration testing suite for the Pynomaly anomaly detection platform, providing production-grade test coverage for all system components.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: ops.testing - move!.tests.tests.integration
+File: /mnt/c/Users/andre/Pynomaly/src/packages/ops/testing - move!/tests/tests/integration/README.md
+Line 7: This integration testing framework validates the complete anomaly detection platform through realistic workflows, performance benchmarks, and security testing.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.architecture
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/architecture/README.md
+Line 202: title="Database Selection for Anomaly Storage",
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.architecture
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/architecture/README.md
+Line 403: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/core/README.md
+Line 9: The core domain logic and business rules for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/core/README.md
+Line 46: │   │   ├── services/       # Domain services for business logic
+Term: business
+Severity: warning
+----------------------------------------
+Package: software.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/core/README.md
+Line 161: # Use domain services for business logic
+Term: business
+Severity: warning
+----------------------------------------
+Package: software.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/core/README.md
+Line 223: - **`Dataset`**: Represents data for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/core/README.md
+Line 224: - **`Detector`**: Configuration for detection algorithms
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.core
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/core/README.md
+Line 465: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.design
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/design/README.md
+Line 641: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/README.md
+Line 9: User interfaces and external APIs for the Pynomaly anomaly detection platform.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/README.md
+Line 31: - Building web applications for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/README.md
+Line 151: description="Advanced anomaly detection platform",
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/README.md
+Line 452: **Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.services
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/services/README.md
+Line 39: - **Autonomous Service**: Self-managing detection systems
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.services
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/services/README.md
+Line 919: **Note**: This services layer is part of the Pynomaly anomaly detection platform. For complete platform documentation, see the main project README.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.enterprise.adapters
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/enterprise/adapters/README.md
+Line 38: - **TensorFlow**: Google's machine learning platform
+Term: machine learning
+Severity: warning
+----------------------------------------
+Package: software.interfaces.api
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/api/README.md
+Line 10: REST API interface for the Pynomaly anomaly detection platform, providing comprehensive HTTP endpoints for all platform functionality.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.api
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/api/README.md
+Line 598: **Note**: This API is part of the Pynomaly anomaly detection platform. For complete platform documentation, see the main project README.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.cli
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/cli/README.md
+Line 10: Command-line interface for the Pynomaly anomaly detection platform, providing powerful CLI tools for data scientists, DevOps engineers, and developers.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.cli
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/cli/README.md
+Line 822: **Note**: This CLI is part of the Pynomaly anomaly detection platform. For complete platform documentation, see the main project README.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/README.md
+Line 70: """Synchronous wrapper for anomaly detection."""
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/README.md
+Line 346: - `api_key` (Optional[str]): API key for authentication
+Term: authentication
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/README.md
+Line 373: Response object for anomaly detection operations.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/README.md
+Line 379: - `algorithm_used` (str): Algorithm used for detection
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.web
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/README.md
+Line 11: Progressive Web Application (PWA) interface for the Pynomaly anomaly detection platform, providing an intuitive, responsive web experience for data scientists and business users.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.web
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/README.md
+Line 943: **Note**: This web interface is part of the Pynomaly anomaly detection platform. For complete platform documentation, see the main project README.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.api.docs
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/api/docs/README.md
+Line 4: # Pynomaly - Enterprise Anomaly Detection Platform
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.api.docs
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/api/docs/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.api.docs
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/api/docs/README.md
+Line 6: A comprehensive, production-ready anomaly detection system with enterprise-grade features.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/examples/README.md
+Line 109: - **`credit_transactions.csv`** - Financial transaction data for fraud detection
+Term: fraud
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.examples
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/examples/README.md
+Line 193: - **Network Security** - Intrusion detection systems
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.getting-started
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/getting-started/README.md
+Line 8: Welcome to Pynomaly! This section will get you up and running with anomaly detection in minutes.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
+Line 10: This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art anomaly detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
+Line 150: - Use selection guide for algorithm choices
+Term: algorithm
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.tutorials
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
+Line 188: - **Training Requests**: Available for enterprise customers
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/README.md
+Line 3: Welcome to Pynomaly, the comprehensive enterprise-grade anomaly detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/README.md
+Line 69: Pynomaly is designed for enterprise-scale anomaly detection across various domains:
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.feature-flags
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/feature-flags/README.md
+Line 47: - **Algorithm Optimization**: Performance improvements for detection algorithms
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
+Line 7: Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with anomaly detection through a personalized, step-by-step journey tailored to your role and experience level.
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
+Line 18: ### For ML Engineers
+Term: ml
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
+Line 25: ### For Business Analysts
+Term: business
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
+Line 28: - **Use Case Identification** - Recognize opportunities for anomaly detection
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.production-deployment
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/production-deployment/README.md
+Line 24: This comprehensive guide covers deploying Pynomaly to production environments with enterprise-grade reliability, security, and performance. Pynomaly is built on **FastAPI** with **SQLAlchemy** for database operations, **Redis** for caching, and supports multiple deployment architectures.
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 146: - Continue with ML Engineer path for deployment
+Term: ml
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 151: - Start with Business Analyst for use cases
+Term: business
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 294: # Quick start for ML engineers
+Term: ml
+Severity: warning
+----------------------------------------
+Package: software.interfaces.python_sdk.docs.user-guides.onboarding.role-specific
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/role-specific/README.md
+Line 302: # Quick start for business analysts
+Term: business
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.argparse
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/argparse/README.md
+Line 79: argparse for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.babel-plugin-istanbul
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/babel-plugin-istanbul/README.md
+Line 131: ## `babel-plugin-istanbul` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.js-yaml
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/js-yaml/README.md
+Line 241: js-yaml for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.test-exclude
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/test-exclude/README.md
+Line 87: ## `test-exclude` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.load-nyc-config
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/load-nyc-config/README.md
+Line 60: ## `@istanbuljs/load-nyc-config` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.schema
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/schema/README.md
+Line 18: ## `@istanbuljs/schema` for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.load-nyc-config.node_modules.js-yaml
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml/README.md
+Line 294: js-yaml for enterprise
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.web.docs.design-system
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/docs/design-system/README.md
+Line 275: 1. **Charts** - Line charts, scatter plots, heatmaps for anomaly visualization
+Term: anomaly
+Severity: warning
+----------------------------------------
+Package: software.interfaces.web.docs.web-ui
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/docs/web-ui/README.md
+Line 115: - **Support**: Contact support for enterprise features
+Term: enterprise
+Severity: warning
+----------------------------------------
+Package: software.interfaces.web.web.static.js.src.components
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/web/static/js/src/components/README.md
+Line 5: A comprehensive, production-ready D3.js chart library for the Pynomaly anomaly detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
+Term: detection
+Severity: warning
+----------------------------------------
+Package: software.interfaces.web.web.static.js.src.components
+File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/web/static/js/src/components/README.md
+Line 538: Part of the Pynomaly anomaly detection platform. See main project license for details.
+Term: detection
+Severity: warning
+----------------------------------------
+
+
+Report saved to: domain_violations_report.txt

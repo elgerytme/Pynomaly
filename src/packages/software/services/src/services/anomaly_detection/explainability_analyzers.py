@@ -20,28 +20,28 @@ logger = logging.getLogger(__name__)
 
 
 class BiasAnalyzer:
-    """Analyzer for detecting and measuring model bias."""
+    """Analyzer for detecting and measuring processor bias."""
 
     async def analyze_bias(
-        self, detector: DetectorProtocol, dataset: Dataset, config: BiasAnalysisConfig
+        self, detector: DetectorProtocol, data_collection: DataCollection, config: BiasAnalysisConfig
     ) -> list[BiasAnalysisResult]:
-        """Analyze model for potential bias."""
+        """Analyze processor for potential bias."""
         try:
             results = []
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             predictions = detector.predict(X)
             scores = detector.decision_function(X)
 
             for protected_attr in config.protected_attributes:
-                if protected_attr not in dataset.data.columns:
+                if protected_attr not in data_collection.data.columns:
                     logger.warning(
-                        f"Protected attribute '{protected_attr}' not found in dataset"
+                        f"Protected attribute '{protected_attr}' not found in data_collection"
                     )
                     continue
 
                 # Get protected attribute values
-                protected_values = dataset.data[protected_attr].values
+                protected_values = data_collection.data[protected_attr].values
                 unique_groups = np.unique(protected_values)
 
                 if len(unique_groups) < 2:
@@ -74,7 +74,7 @@ class BiasAnalyzer:
         """Analyze bias for a specific protected attribute."""
         unique_groups = np.unique(attribute_values)
         group_stats = {}
-        fairness_metrics = {}
+        fairness_measurements = {}
 
         # Calculate statistics for each group
         for group in unique_groups:
@@ -92,33 +92,33 @@ class BiasAnalyzer:
                 "std_score": float(np.std(group_scores)),
             }
 
-        # Calculate fairness metrics
+        # Calculate fairness measurements
         if len(group_stats) >= 2:
             # Demographic parity
             positive_rates = [stats["positive_rate"] for stats in group_stats.values()]
-            fairness_metrics["demographic_parity"] = 1.0 - (
+            fairness_measurements["demographic_parity"] = 1.0 - (
                 max(positive_rates) - min(positive_rates)
             )
 
             # Statistical parity difference
-            fairness_metrics["statistical_parity_difference"] = max(
+            fairness_measurements["statistical_parity_difference"] = max(
                 positive_rates
             ) - min(positive_rates)
 
             # Equalized odds (simplified)
             mean_scores = [stats["mean_score"] for stats in group_stats.values()]
-            fairness_metrics["equalized_odds"] = 1.0 - (
+            fairness_measurements["equalized_odds"] = 1.0 - (
                 max(mean_scores) - min(mean_scores)
             )
 
         # Determine if bias is detected
         bias_detected = any(
-            metric < 0.8 for metric in fairness_metrics.values() if metric <= 1.0
+            metric < 0.8 for metric in fairness_measurements.values() if metric <= 1.0
         )
 
         # Assess severity
         if bias_detected:
-            min_fairness = min(fairness_metrics.values())
+            min_fairness = min(fairness_measurements.values())
             if min_fairness < 0.6:
                 severity = "high"
             elif min_fairness < 0.8:
@@ -133,16 +133,16 @@ class BiasAnalyzer:
         if bias_detected:
             recommendations.extend(
                 [
-                    f"Consider rebalancing dataset for attribute '{attribute_name}'",
+                    f"Consider rebalancing data_collection for attribute '{attribute_name}'",
                     "Apply bias mitigation techniques during training",
-                    "Use fairness-aware evaluation metrics",
+                    "Use fairness-aware evaluation measurements",
                     "Consider post-processing fairness adjustments",
                 ]
             )
 
         return BiasAnalysisResult(
             protected_attribute=attribute_name,
-            fairness_metrics=fairness_metrics,
+            fairness_measurements=fairness_measurements,
             group_statistics=group_stats,
             bias_detected=bias_detected,
             severity=severity,
@@ -160,7 +160,7 @@ class TrustScoreAnalyzer:
         predictions: np.ndarray,
         config: TrustScoreConfig,
     ) -> TrustScoreResult:
-        """Assess trust score for model predictions."""
+        """Assess trust score for processor predictions."""
         trust_factors = {}
 
         # Consistency analysis
@@ -207,7 +207,7 @@ class TrustScoreAnalyzer:
     async def _assess_consistency(
         self, detector: DetectorProtocol, X: np.ndarray
     ) -> float:
-        """Assess model consistency."""
+        """Assess processor consistency."""
         try:
             # Test consistency with small perturbations
             n_tests = min(100, len(X))
@@ -312,7 +312,7 @@ class CounterfactualAnalyzer:
     async def generate_counterfactual_explanations(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         target_instances: list[int],
         n_counterfactuals: int = 5,
         optimization_method: str = "random",
@@ -323,7 +323,7 @@ class CounterfactualAnalyzer:
                 f"Generating counterfactual explanations for {len(target_instances)} instances"
             )
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             counterfactuals = {}
 
             for instance_idx in target_instances:
@@ -367,7 +367,7 @@ class CounterfactualAnalyzer:
                                 "prediction": float(candidate_prediction),
                                 "distance": float(distance),
                                 "changes": self._calculate_feature_changes(
-                                    original_instance, candidate, dataset.features or []
+                                    original_instance, candidate, data_collection.features or []
                                 ),
                             }
                         )

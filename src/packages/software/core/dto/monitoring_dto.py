@@ -10,7 +10,7 @@ from uuid import UUID
 
 
 class MetricType(Enum):
-    """Types of metrics that can be monitored."""
+    """Types of measurements that can be monitored."""
 
     COUNTER = "counter"
     GAUGE = "gauge"
@@ -104,7 +104,7 @@ class MetricSeries:
 
 @dataclass
 class SystemMetrics:
-    """System-level metrics."""
+    """System-level measurements."""
 
     cpu_usage_percent: float = 0.0
     memory_usage_percent: float = 0.0
@@ -129,11 +129,11 @@ class SystemMetrics:
 
 @dataclass
 class DetectionMetrics:
-    """Anomaly detection specific metrics."""
+    """Anomaly processing specific measurements."""
 
-    active_detections: int = 0
-    total_detections_today: int = 0
-    avg_detection_time_ms: float = 0.0
+    active_processings: int = 0
+    total_processings_today: int = 0
+    avg_processing_time_ms: float = 0.0
     anomaly_rate_percent: float = 0.0
     false_positive_rate_percent: float = 0.0
     precision: float = 0.0
@@ -144,9 +144,9 @@ class DetectionMetrics:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
-            "active_detections": self.active_detections,
-            "total_detections_today": self.total_detections_today,
-            "avg_detection_time_ms": self.avg_detection_time_ms,
+            "active_processings": self.active_processings,
+            "total_processings_today": self.total_processings_today,
+            "avg_processing_time_ms": self.avg_processing_time_ms,
             "anomaly_rate_percent": self.anomaly_rate_percent,
             "false_positive_rate_percent": self.false_positive_rate_percent,
             "precision": self.precision,
@@ -188,8 +188,8 @@ class MonitoringDashboardRequest:
     """Request for monitoring dashboard data."""
 
     time_range_minutes: int = 60
-    include_system_metrics: bool = True
-    include_detection_metrics: bool = True
+    include_system_measurements: bool = True
+    include_processing_measurements: bool = True
     include_alerts: bool = True
     metric_names: list[str] = field(default_factory=list)
 
@@ -206,8 +206,8 @@ class MonitoringDashboardResponse:
     """Response with monitoring dashboard data."""
 
     system_health: SystemHealth
-    system_metrics: SystemMetrics
-    detection_metrics: DetectionMetrics
+    system_measurements: SystemMetrics
+    processing_measurements: DetectionMetrics
     metric_series: list[MetricSeries] = field(default_factory=list)
     active_alerts: list[AlertMessage] = field(default_factory=list)
     generated_at: datetime = field(default_factory=datetime.utcnow)
@@ -216,8 +216,8 @@ class MonitoringDashboardResponse:
         """Convert to dictionary for serialization."""
         return {
             "system_health": self.system_health.value,
-            "system_metrics": self.system_metrics.to_dict(),
-            "detection_metrics": self.detection_metrics.to_dict(),
+            "system_measurements": self.system_measurements.to_dict(),
+            "processing_measurements": self.processing_measurements.to_dict(),
             "metric_series": [series.to_dict() for series in self.metric_series],
             "active_alerts": [alert.to_dict() for alert in self.active_alerts],
             "generated_at": self.generated_at.isoformat(),
@@ -228,7 +228,7 @@ class MonitoringDashboardResponse:
 class RealTimeUpdate:
     """Real-time update message for WebSocket."""
 
-    update_type: str  # "metrics", "alert", "health", "detection"
+    update_type: str  # "measurements", "alert", "health", "processing"
     data: dict[str, Any]
     timestamp: datetime = field(default_factory=datetime.utcnow)
 

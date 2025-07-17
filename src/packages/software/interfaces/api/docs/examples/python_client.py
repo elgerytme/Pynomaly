@@ -1,5 +1,5 @@
 """
-Pynomaly API Client Example - Python
+Software API Client Example - Python
 """
 
 from typing import Any
@@ -8,7 +8,7 @@ import requests
 
 
 class PynomaliClient:
-    """Python client for Pynomaly API."""
+    """Python client for Software API."""
 
     def __init__(self, base_url: str = "https://api.example.com"):
         self.base_url = base_url
@@ -40,7 +40,7 @@ class PynomaliClient:
             parameters = {"contamination": 0.1}
 
         response = self.session.post(
-            f"{self.base_url}/api/v1/detection/detect",
+            f"{self.base_url}/api/v1/processing/detect",
             json={"data": data, "algorithm": algorithm, "parameters": parameters},
         )
         response.raise_for_status()
@@ -51,18 +51,18 @@ class PynomaliClient:
         training_data: str,
         algorithm: str,
         parameters: dict[str, Any] = None,
-        model_name: str = None,
+        processor_name: str = None,
     ) -> dict[str, Any]:
-        """Train a new anomaly detection model."""
+        """Train a new anomaly processing processor."""
         payload = {"training_data": training_data, "algorithm": algorithm}
 
         if parameters:
             payload["parameters"] = parameters
-        if model_name:
-            payload["model_name"] = model_name
+        if processor_name:
+            payload["processor_name"] = processor_name
 
         response = self.session.post(
-            f"{self.base_url}/api/v1/detection/train", json=payload
+            f"{self.base_url}/api/v1/processing/train", json=payload
         )
         response.raise_for_status()
         return response.json()

@@ -80,9 +80,9 @@ class CostAnalysisEngine:
             if resource.is_idle():
                 idle_count += 1
                 total_waste += monthly_cost
-            elif resource.usage_metrics.is_underutilized():
+            elif resource.usage_measurements.is_underutilized():
                 underutilized_count += 1
-                efficiency = resource.usage_metrics.get_efficiency_score()
+                efficiency = resource.usage_measurements.get_efficiency_score()
                 total_waste += monthly_cost * (1 - efficiency)
 
         analysis["total_monthly_cost"] = total_cost
@@ -110,7 +110,7 @@ class CostAnalysisEngine:
                 "name": r.name,
                 "resource_type": r.resource_type.value,
                 "monthly_cost": cost,
-                "efficiency_score": r.usage_metrics.get_efficiency_score(),
+                "efficiency_score": r.usage_measurements.get_efficiency_score(),
             }
             for r, cost in resource_costs[:10]
         ]
@@ -145,9 +145,9 @@ class CostAnalysisEngine:
         for resource in resources:
             if resource.cost_info.monthly_cost > 0:
                 feature_vector = [
-                    resource.usage_metrics.cpu_utilization_avg,
-                    resource.usage_metrics.memory_utilization_avg,
-                    resource.usage_metrics.requests_per_second,
+                    resource.usage_measurements.cpu_utilization_avg,
+                    resource.usage_measurements.memory_utilization_avg,
+                    resource.usage_measurements.requests_per_second,
                     resource.cost_info.cost_trend_7d,
                     resource.cost_info.cost_trend_30d,
                     float(resource.resource_type.value == "compute"),
@@ -192,7 +192,7 @@ class CostAnalysisEngine:
                 X = np.array(features)
                 y = np.array(targets)
 
-                # Train the model
+                # Train the processor
                 X_scaled = self.scaler.fit_transform(X)
                 self.cost_predictor.fit(X_scaled, y)
                 self.is_trained = True
@@ -228,7 +228,7 @@ class CostAnalysisEngine:
                     total_predicted * 1.15,
                 )
                 predictions["key_assumptions"].append(
-                    "Used machine learning model with historical usage patterns"
+                    "Used machine learning processor with historical usage patterns"
                 )
 
             except Exception as e:
@@ -311,7 +311,7 @@ class CostAnalysisEngine:
                 )
 
             # Poor cost efficiency
-            efficiency = resource.usage_metrics.get_efficiency_score()
+            efficiency = resource.usage_measurements.get_efficiency_score()
             cost_efficiency = resource.cost_info.get_cost_per_efficiency_unit(
                 efficiency
             )
@@ -339,7 +339,7 @@ class RecommendationEngine:
     """Engine for generating cost optimization recommendations."""
 
     def __init__(self):
-        self.rightsizing_models = {}
+        self.rightsizing_processors = {}
         self.recommendation_cache = {}
 
     async def generate_recommendations(
@@ -383,17 +383,17 @@ class RecommendationEngine:
         """Generate rightsizing recommendations."""
         recommendations = []
 
-        metrics = resource.usage_metrics
+        measurements = resource.usage_measurements
         current_cost = resource.cost_info.monthly_cost
 
         # Downsize if underutilized
-        if metrics.is_underutilized():
+        if measurements.is_underutilized():
             # Calculate suggested specs
             suggested_cpu = max(
-                1, int(resource.cpu_cores * metrics.cpu_utilization_p95 * 1.2)
+                1, int(resource.cpu_cores * measurements.cpu_utilization_p95 * 1.2)
             )  # 20% buffer
             suggested_memory = max(
-                1, resource.memory_gb * metrics.memory_utilization_p95 * 1.2
+                1, resource.memory_gb * measurements.memory_utilization_p95 * 1.2
             )
 
             # Estimate cost savings (simplified calculation)
@@ -421,7 +421,7 @@ class RecommendationEngine:
                     priority=priority,
                     title=f"Downsize {resource.name}",
                     description=f"Reduce CPU from {resource.cpu_cores} to {suggested_cpu} cores and memory from {resource.memory_gb:.1f} to {suggested_memory:.1f} GB",
-                    rationale=f"Resource is underutilized: CPU {metrics.cpu_utilization_avg * 100:.1f}% avg, Memory {metrics.memory_utilization_avg * 100:.1f}% avg",
+                    rationale=f"Resource is underutilized: CPU {measurements.cpu_utilization_avg * 100:.1f}% avg, Memory {measurements.memory_utilization_avg * 100:.1f}% avg",
                     current_monthly_cost=current_cost,
                     projected_monthly_cost=projected_cost,
                     monthly_savings=monthly_savings,
@@ -437,7 +437,7 @@ class RecommendationEngine:
                 recommendations.append(recommendation)
 
         # Upsize if overutilized
-        elif metrics.is_overutilized():
+        elif measurements.is_overutilized():
             # Calculate suggested specs
             suggested_cpu = int(resource.cpu_cores * 1.5)  # 50% increase
             suggested_memory = resource.memory_gb * 1.3  # 30% increase
@@ -458,7 +458,7 @@ class RecommendationEngine:
                 priority=RecommendationPriority.HIGH,
                 title=f"Upsize {resource.name}",
                 description=f"Increase CPU from {resource.cpu_cores} to {suggested_cpu} cores and memory from {resource.memory_gb:.1f} to {suggested_memory:.1f} GB",
-                rationale=f"Resource is overutilized: CPU P95 {metrics.cpu_utilization_p95 * 100:.1f}%, Memory P95 {metrics.memory_utilization_p95 * 100:.1f}%",
+                rationale=f"Resource is overutilized: CPU P95 {measurements.cpu_utilization_p95 * 100:.1f}%, Memory P95 {measurements.memory_utilization_p95 * 100:.1f}%",
                 current_monthly_cost=current_cost,
                 projected_monthly_cost=projected_cost,
                 monthly_savings=-monthly_increase,  # Negative savings (cost increase)
@@ -583,7 +583,7 @@ class RecommendationEngine:
         # Recommend reserved instances for stable workloads
         if (
             resource.environment == "production"
-            and resource.cost_info.billing_model == "on_demand"
+            and resource.cost_info.billing_processor == "on_demand"
             and current_cost > 100
         ):  # Only for significant costs
             # Reserved instances typically 30-60% cheaper
@@ -770,8 +770,8 @@ class CostOptimizationService:
         self.analysis_engine = CostAnalysisEngine()
         self.recommendation_engine = RecommendationEngine()
 
-        # Metrics and caching
-        self.metrics = {
+        # Measurements and caching
+        self.measurements = {
             "total_resources": 0,
             "total_monthly_cost": 0.0,
             "total_savings_identified": 0.0,
@@ -783,8 +783,8 @@ class CostOptimizationService:
         """Register a resource for cost optimization."""
         try:
             self.resources[resource.resource_id] = resource
-            self.metrics["total_resources"] = len(self.resources)
-            self.metrics["total_monthly_cost"] = sum(
+            self.measurements["total_resources"] = len(self.resources)
+            self.measurements["total_monthly_cost"] = sum(
                 r.cost_info.monthly_cost for r in self.resources.values()
             )
 
@@ -795,22 +795,22 @@ class CostOptimizationService:
             logger.error(f"Error registering resource: {e}")
             return False
 
-    async def update_resource_metrics(
-        self, resource_id: UUID, metrics: ResourceUsageMetrics
+    async def update_resource_measurements(
+        self, resource_id: UUID, measurements: ResourceUsageMetrics
     ) -> bool:
-        """Update usage metrics for a resource."""
+        """Update usage measurements for a resource."""
         try:
             resource = self.resources.get(resource_id)
             if not resource:
                 return False
 
-            resource.usage_metrics = metrics
+            resource.usage_measurements = measurements
             resource.last_accessed = datetime.utcnow()
 
-            # Update resource status based on metrics
-            if metrics.is_underutilized():
+            # Update resource status based on measurements
+            if measurements.is_underutilized():
                 resource.status = ResourceStatus.UNDERUTILIZED
-            elif metrics.is_overutilized():
+            elif measurements.is_overutilized():
                 resource.status = ResourceStatus.OVERUTILIZED
             elif resource.is_idle():
                 resource.status = ResourceStatus.IDLE
@@ -820,7 +820,7 @@ class CostOptimizationService:
             return True
 
         except Exception as e:
-            logger.error(f"Error updating resource metrics: {e}")
+            logger.error(f"Error updating resource measurements: {e}")
             return False
 
     async def analyze_costs(self, tenant_id: UUID | None = None) -> dict[str, Any]:
@@ -833,7 +833,7 @@ class CostOptimizationService:
 
             analysis = self.analysis_engine.analyze_cost_trends(resources)
 
-            # Add anomaly detection
+            # Add anomaly processing
             anomalies = self.analysis_engine.identify_cost_anomalies(resources)
             analysis["cost_anomalies"] = anomalies
 
@@ -879,7 +879,7 @@ class CostOptimizationService:
             recommendations = await self.recommendation_engine.generate_recommendations(
                 resources, strategy
             )
-            self.metrics["recommendations_generated"] += len(recommendations)
+            self.measurements["recommendations_generated"] += len(recommendations)
 
             # Create optimization plan
             plan = CostOptimizationPlan(
@@ -904,7 +904,7 @@ class CostOptimizationService:
 
             # Store plan
             self.optimization_plans[plan.plan_id] = plan
-            self.metrics["total_savings_identified"] += plan.total_potential_savings
+            self.measurements["total_savings_identified"] += plan.total_potential_savings
 
             logger.info(
                 f"Generated optimization plan with {len(recommendations)} recommendations, "
@@ -930,7 +930,7 @@ class CostOptimizationService:
             "message": "Recommendation implementation simulated successfully",
         }
 
-        self.metrics["recommendations_implemented"] += 1
+        self.measurements["recommendations_implemented"] += 1
         logger.info(f"Simulated implementation of recommendation {recommendation_id}")
 
         return result
@@ -1017,9 +1017,9 @@ class CostOptimizationService:
 
             if resource.is_idle():
                 summary["optimization_summary"]["idle_resources"] += 1
-            elif resource.usage_metrics.is_underutilized():
+            elif resource.usage_measurements.is_underutilized():
                 summary["optimization_summary"]["underutilized_resources"] += 1
-            elif resource.usage_metrics.is_overutilized():
+            elif resource.usage_measurements.is_overutilized():
                 summary["optimization_summary"]["overutilized_resources"] += 1
 
             # Estimate potential savings (simplified)
@@ -1027,25 +1027,25 @@ class CostOptimizationService:
                 summary["optimization_summary"]["total_potential_savings"] += (
                     resource.cost_info.monthly_cost
                 )
-            elif resource.usage_metrics.is_underutilized():
-                efficiency = resource.usage_metrics.get_efficiency_score()
+            elif resource.usage_measurements.is_underutilized():
+                efficiency = resource.usage_measurements.get_efficiency_score()
                 summary["optimization_summary"]["total_potential_savings"] += (
                     resource.cost_info.monthly_cost * (1 - efficiency) * 0.5
                 )
 
         return summary
 
-    async def get_service_metrics(self) -> dict[str, Any]:
-        """Get service performance metrics."""
+    async def get_service_measurements(self) -> dict[str, Any]:
+        """Get service performance measurements."""
         return {
-            **self.metrics,
+            **self.measurements,
             "optimization_plans": len(self.optimization_plans),
             "budgets": len(self.budgets),
-            "avg_cost_per_resource": self.metrics["total_monthly_cost"]
-            / max(1, self.metrics["total_resources"]),
+            "avg_cost_per_resource": self.measurements["total_monthly_cost"]
+            / max(1, self.measurements["total_resources"]),
             "savings_rate": (
-                self.metrics["total_savings_identified"]
-                / max(1, self.metrics["total_monthly_cost"] * 12)
+                self.measurements["total_savings_identified"]
+                / max(1, self.measurements["total_monthly_cost"] * 12)
             )
             * 100,
         }

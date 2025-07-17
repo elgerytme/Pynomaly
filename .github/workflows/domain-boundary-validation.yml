@@ -1,0 +1,157 @@
+name: Domain Boundary Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-domain-boundaries:
+    name: Validate Domain Boundaries
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ast-tools
+    
+    - name: Run Domain Boundary Validator
+      run: |
+        python scripts/domain_boundary_validator.py --fail-on-error --output-json domain-violations.json
+    
+    - name: Upload Domain Violations Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: domain-violations-report
+        path: domain-violations.json
+    
+    - name: Comment PR with Domain Violations
+      if: github.event_name == 'pull_request' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('domain-violations.json')) {
+            const violations = JSON.parse(fs.readFileSync('domain-violations.json', 'utf8'));
+            
+            let comment = `## 🚨 Domain Boundary Violations Found\n\n`;
+            comment += `**Total Violations:** ${violations.total_violations}\n\n`;
+            
+            if (violations.violations.length > 0) {
+              comment += `### Violations:\n\n`;
+              
+              violations.violations.forEach(violation => {
+                comment += `- **${violation.file_path}**\n`;
+                comment += `  - Current Domain: \`${violation.current_domain}\`\n`;
+                comment += `  - Expected Domain: \`${violation.expected_domain}\`\n`;
+                comment += `  - Message: ${violation.message}\n\n`;
+              });
+            }
+            
+            comment += `### Action Required:\n`;
+            comment += `Please move the affected files to their correct domains before merging.\n\n`;
+            comment += `For more information, see the [Domain Boundary Rules](DOMAIN_BOUNDARY_RULES.md).\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  validate-import-boundaries:
+    name: Validate Import Boundaries
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Find changed Python files
+      id: changed-files
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- "*.py" | tr '\n' ' ')
+        else
+          CHANGED_FILES=$(find src/packages -name "*.py" | tr '\n' ' ')
+        fi
+        echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+    
+    - name: Validate Import Boundaries
+      run: |
+        if [ -n "${{ steps.changed-files.outputs.files }}" ]; then
+          python scripts/domain_import_validator.py --fail-on-violation ${{ steps.changed-files.outputs.files }}
+        else
+          echo "No Python files to validate"
+        fi
+
+  domain-architecture-check:
+    name: Domain Architecture Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install networkx matplotlib
+    
+    - name: Check Domain Architecture
+      run: |
+        python scripts/domain_architecture_validator.py --check-cycles --check-dependencies --output-graph domain-architecture.png
+    
+    - name: Upload Domain Architecture Graph
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: domain-architecture-graph
+        path: domain-architecture.png
+
+  domain-metrics:
+    name: Domain Metrics
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Calculate Domain Metrics
+      run: |
+        python scripts/domain_metrics_calculator.py --output-json domain-metrics.json
+    
+    - name: Upload Domain Metrics
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: domain-metrics
+        path: domain-metrics.json

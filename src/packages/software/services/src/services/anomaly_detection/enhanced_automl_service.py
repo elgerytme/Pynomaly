@@ -94,9 +94,9 @@ class EnhancedAutoMLConfig:
 
 @dataclass
 class EnhancedAutoMLResult(AutoMLResult):
-    """Enhanced AutoML result with additional metrics and insights."""
+    """Enhanced AutoML result with additional measurements and insights."""
 
-    # Advanced optimization metrics
+    # Advanced optimization measurements
     optimization_strategy_used: str = ""
     meta_learning_effectiveness: float | None = None
     warm_start_contribution: float | None = None
@@ -126,7 +126,7 @@ class EnhancedAutoMLService(AutoMLService):
     def __init__(
         self,
         detector_repository,
-        dataset_repository,
+        data_collection_repository,
         adapter_registry,
         config: EnhancedAutoMLConfig | None = None,
         storage_path: Path | None = None,
@@ -135,7 +135,7 @@ class EnhancedAutoMLService(AutoMLService):
 
         Args:
             detector_repository: Repository for detector storage
-            dataset_repository: Repository for dataset access
+            data_collection_repository: Repository for data_collection access
             adapter_registry: Registry for algorithm adapters
             config: Enhanced AutoML configuration
             storage_path: Path for storing optimization artifacts
@@ -143,7 +143,7 @@ class EnhancedAutoMLService(AutoMLService):
         # Initialize base service
         super().__init__(
             detector_repository=detector_repository,
-            dataset_repository=dataset_repository,
+            data_collection_repository=data_collection_repository,
             adapter_registry=adapter_registry,
             max_optimization_time=config.max_optimization_time if config else 3600,
             n_trials=config.n_trials if config else 100,
@@ -187,7 +187,7 @@ class EnhancedAutoMLService(AutoMLService):
                 strategy=self.config.meta_learning_strategy,
                 similarity_threshold=self.config.similarity_threshold,
                 max_historical_experiments=100,
-                use_dataset_features=True,
+                use_data_collection_features=True,
                 use_algorithm_features=True,
                 warm_start_trials=self.config.warm_start_trials,
             )
@@ -249,12 +249,12 @@ class EnhancedAutoMLService(AutoMLService):
         )
 
     async def advanced_optimize_hyperparameters(
-        self, dataset_id: str, algorithm: str, objectives: list[str] | None = None
+        self, data_collection_id: str, algorithm: str, objectives: list[str] | None = None
     ) -> EnhancedAutoMLResult:
         """Perform advanced hyperparameter optimization.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
             algorithm: Algorithm name
             objectives: List of objectives to optimize
 
@@ -266,7 +266,7 @@ class EnhancedAutoMLService(AutoMLService):
             logger.warning(
                 "Advanced optimizer not available. Using basic optimization."
             )
-            basic_result = await self.optimize_hyperparameters(dataset_id, algorithm)
+            basic_result = await self.optimize_hyperparameters(data_collection_id, algorithm)
             return self._convert_basic_to_enhanced_result(basic_result)
 
         try:
@@ -275,12 +275,12 @@ class EnhancedAutoMLService(AutoMLService):
                 f"Starting advanced hyperparameter optimization for {algorithm}"
             )
 
-            # Get dataset and profile
-            dataset = await self.dataset_repository.get(dataset_id)
-            if not dataset:
-                raise AutoMLError(f"Dataset {dataset_id} not found")
+            # Get data_collection and profile
+            data_collection = await self.data_collection_repository.get(data_collection_id)
+            if not data_collection:
+                raise AutoMLError(f"DataCollection {data_collection_id} not found")
 
-            profile = await self.profile_dataset(dataset_id)
+            profile = await self.profile_data_collection(data_collection_id)
 
             # Get algorithm configuration
             if algorithm not in self.algorithm_configs:
@@ -290,17 +290,17 @@ class EnhancedAutoMLService(AutoMLService):
 
             # Create objective function
             objective_function = self._create_advanced_objective_function(
-                dataset, config, objectives or ["auc"]
+                data_collection, config, objectives or ["auc"]
             )
 
-            # Prepare dataset profile for meta-learning
-            dataset_profile_dict = self._convert_profile_to_dict(profile)
+            # Prepare data_collection profile for meta-learning
+            data_collection_profile_dict = self._convert_profile_to_dict(profile)
 
             # Run advanced optimization
             optimization_result = self.advanced_optimizer.optimize(
                 objective_function=objective_function,
                 parameter_space=config.param_space,
-                dataset_profile=dataset_profile_dict,
+                data_collection_profile=data_collection_profile_dict,
             )
 
             # Convert to enhanced result
@@ -318,7 +318,7 @@ class EnhancedAutoMLService(AutoMLService):
             enhanced_result.next_steps = insights.get("next_steps", [])
 
             # Store in optimization history for meta-learning
-            self._store_optimization_history(enhanced_result, dataset_profile_dict)
+            self._store_optimization_history(enhanced_result, data_collection_profile_dict)
 
             logger.info(
                 f"Advanced optimization completed in {enhanced_result.optimization_time:.2f}s"
@@ -330,7 +330,7 @@ class EnhancedAutoMLService(AutoMLService):
             raise AutoMLError(f"Advanced hyperparameter optimization failed: {str(e)}")
 
     def _create_advanced_objective_function(
-        self, dataset: Dataset, config: AlgorithmConfig, objectives: list[str]
+        self, data_collection: DataCollection, config: AlgorithmConfig, objectives: list[str]
     ) -> callable:
         """Create advanced objective function for optimization."""
 
@@ -352,7 +352,7 @@ class EnhancedAutoMLService(AutoMLService):
 
                 # Get adapter and prepare data
                 adapter = self.adapter_registry.get_adapter(config.adapter_type)
-                X = dataset.features.values
+                X = data_collection.features.values
 
                 # Train detector
                 training_start = time.time()
@@ -399,7 +399,7 @@ class EnhancedAutoMLService(AutoMLService):
                             0.0, 1.0 - estimated_memory / max_memory
                         )
 
-                    elif objective == "detection_rate":
+                    elif objective == "processing_rate":
                         y_true = self._create_synthetic_labels(X, contamination)
                         if np.sum(y_true) > 0:
                             detected = np.sum((y_true == 1) & (predictions == 1))
@@ -447,7 +447,7 @@ class EnhancedAutoMLService(AutoMLService):
         return y_true
 
     def _convert_profile_to_dict(self, profile: DatasetProfile) -> dict[str, Any]:
-        """Convert dataset profile to dictionary for meta-learning."""
+        """Convert data_collection profile to dictionary for meta-learning."""
         return {
             "n_samples": profile.n_samples,
             "n_features": profile.n_features,
@@ -455,7 +455,7 @@ class EnhancedAutoMLService(AutoMLService):
             "missing_values_ratio": profile.missing_values_ratio,
             "sparsity_ratio": profile.sparsity_ratio,
             "dimensionality_ratio": profile.dimensionality_ratio,
-            "dataset_size_mb": profile.dataset_size_mb,
+            "data_collection_size_mb": profile.data_collection_size_mb,
             "has_temporal_structure": profile.has_temporal_structure,
             "has_graph_structure": profile.has_graph_structure,
             "complexity_score": profile.complexity_score,
@@ -562,7 +562,7 @@ class EnhancedAutoMLService(AutoMLService):
         )
 
     def _store_optimization_history(
-        self, result: EnhancedAutoMLResult, dataset_profile: dict[str, Any]
+        self, result: EnhancedAutoMLResult, data_collection_profile: dict[str, Any]
     ) -> None:
         """Store optimization result in history for meta-learning."""
         history_entry = {
@@ -571,7 +571,7 @@ class EnhancedAutoMLService(AutoMLService):
             "best_params": result.best_params,
             "best_score": result.best_score,
             "optimization_time": result.optimization_time,
-            "dataset_profile": dataset_profile,
+            "data_collection_profile": data_collection_profile,
             "optimization_strategy": result.optimization_strategy_used,
             "meta_learning_effectiveness": result.meta_learning_effectiveness,
         }
@@ -602,7 +602,7 @@ class EnhancedAutoMLService(AutoMLService):
 
     async def auto_select_and_optimize_advanced(
         self,
-        dataset_id: str,
+        data_collection_id: str,
         objectives: list[str] | None = None,
         max_algorithms: int = 3,
         enable_ensemble: bool = True,
@@ -610,7 +610,7 @@ class EnhancedAutoMLService(AutoMLService):
         """Automatically select and optimize using advanced techniques.
 
         Args:
-            dataset_id: ID of the dataset
+            data_collection_id: ID of the data_collection
             objectives: List of objectives to optimize
             max_algorithms: Maximum algorithms to try
             enable_ensemble: Whether to create ensemble if beneficial
@@ -620,10 +620,10 @@ class EnhancedAutoMLService(AutoMLService):
         """
         try:
             start_time = time.time()
-            logger.info(f"Starting advanced AutoML for dataset {dataset_id}")
+            logger.info(f"Starting advanced AutoML for data_collection {data_collection_id}")
 
-            # Profile dataset
-            profile = await self.profile_dataset(dataset_id)
+            # Profile data_collection
+            profile = await self.profile_data_collection(data_collection_id)
 
             # Recommend algorithms
             recommended_algorithms = self.recommend_algorithms(profile, max_algorithms)
@@ -633,7 +633,7 @@ class EnhancedAutoMLService(AutoMLService):
             for algorithm in recommended_algorithms:
                 try:
                     result = await self.advanced_optimize_hyperparameters(
-                        dataset_id, algorithm, objectives
+                        data_collection_id, algorithm, objectives
                     )
                     optimization_results.append(result)
                 except Exception as e:

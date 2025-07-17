@@ -75,10 +75,10 @@ class ResourceConstraints(BaseModel):
 class OptimizationHistory(BaseModel):
     """Historical optimization results for learning."""
 
-    dataset_characteristics: dict[str, Any]
+    data_collection_characteristics: dict[str, Any]
     algorithm_name: str
     best_parameters: dict[str, Any]
-    performance_metrics: dict[str, float]
+    performance_measurements: dict[str, float]
     optimization_time: float
     resource_usage: dict[str, float]
     user_feedback: dict[str, Any] | None = None
@@ -120,7 +120,7 @@ class AdvancedAutoMLService:
                 name="accuracy",
                 weight=0.4,
                 direction="maximize",
-                description="Detection accuracy (AUC-ROC)",
+                description="Processing accuracy (AUC-ROC)",
             ),
             OptimizationObjective(
                 name="speed",
@@ -132,7 +132,7 @@ class AdvancedAutoMLService:
                 name="interpretability",
                 weight=0.2,
                 direction="maximize",
-                description="Model interpretability score",
+                description="Processor interpretability score",
             ),
             OptimizationObjective(
                 name="memory_efficiency",
@@ -181,7 +181,7 @@ class AdvancedAutoMLService:
 
     async def optimize_detector_advanced(
         self,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm_name: str,
         objectives: list[OptimizationObjective] | None = None,
         constraints: ResourceConstraints | None = None,
@@ -190,7 +190,7 @@ class AdvancedAutoMLService:
         """Perform advanced multi-objective detector optimization.
 
         Args:
-            dataset: Dataset for optimization
+            data_collection: DataCollection for optimization
             algorithm_name: Algorithm to optimize
             objectives: Optimization objectives
             constraints: Resource constraints
@@ -207,18 +207,18 @@ class AdvancedAutoMLService:
 
         logger.info(f"Starting advanced optimization for {algorithm_name}")
 
-        # Analyze dataset characteristics
-        dataset_chars = self._analyze_dataset_characteristics(dataset)
+        # Analyze data_collection characteristics
+        data_collection_chars = self._analyze_data_collection_characteristics(data_collection)
 
         # Predict optimal parameters using historical data
         initial_suggestions = None
         if enable_learning:
             initial_suggestions = self._predict_optimal_parameters(
-                dataset_chars, algorithm_name
+                data_collection_chars, algorithm_name
             )
 
         # Create optimization study
-        study_name = f"{algorithm_name}_{dataset.name}_{int(time.time())}"
+        study_name = f"{algorithm_name}_{data_collection.name}_{int(time.time())}"
         study = optuna.create_study(
             study_name=study_name,
             directions=[
@@ -235,7 +235,7 @@ class AdvancedAutoMLService:
         def objective_function(trial):
             return self._evaluate_trial(
                 trial,
-                dataset,
+                data_collection,
                 algorithm_name,
                 objectives,
                 constraints,
@@ -269,21 +269,21 @@ class AdvancedAutoMLService:
 
         # Create optimized detector
         optimized_detector = await self._create_optimized_detector(
-            algorithm_name, best_params, dataset
+            algorithm_name, best_params, data_collection
         )
 
         # Generate optimization report
         optimization_report = self._generate_optimization_report(
-            study, objectives, constraints, optimization_time, dataset_chars
+            study, objectives, constraints, optimization_time, data_collection_chars
         )
 
         # Store optimization history for learning
         if enable_learning:
             history_entry = OptimizationHistory(
-                dataset_characteristics=dataset_chars,
+                data_collection_characteristics=data_collection_chars,
                 algorithm_name=algorithm_name,
                 best_parameters=best_params,
-                performance_metrics=optimization_report["best_metrics"],
+                performance_measurements=optimization_report["best_measurements"],
                 optimization_time=optimization_time,
                 resource_usage=optimization_report["resource_usage"],
             )
@@ -295,8 +295,8 @@ class AdvancedAutoMLService:
         return optimized_detector, optimization_report
 
     def _analyze_dataset_characteristics(self, dataset: Dataset) -> dict[str, Any]:
-        """Analyze dataset characteristics for optimization guidance."""
-        data = dataset.data
+        """Analyze data_collection characteristics for optimization guidance."""
+        data = data_collection.data
         n_samples, n_features = data.shape
 
         characteristics = {
@@ -313,7 +313,7 @@ class AdvancedAutoMLService:
         return characteristics
 
     def _categorize_size(self, n_samples: int, n_features: int) -> str:
-        """Categorize dataset size."""
+        """Categorize data_collection size."""
         if n_samples < 1000 and n_features < 10:
             return "small"
         elif n_samples < 10000 and n_features < 100:
@@ -436,7 +436,7 @@ class AdvancedAutoMLService:
             return {"mean_outlier_ratio": 0.0, "max_outlier_ratio": 0.0}
 
     def _predict_optimal_parameters(
-        self, dataset_chars: dict[str, Any], algorithm_name: str
+        self, data_collection_chars: dict[str, Any], algorithm_name: str
     ) -> dict[str, Any] | None:
         """Predict optimal parameters based on historical data."""
         if not self.optimization_history:
@@ -446,8 +446,8 @@ class AdvancedAutoMLService:
         similar_histories = []
         for history in self.optimization_history:
             if history.algorithm_name == algorithm_name:
-                similarity = self._calculate_dataset_similarity(
-                    dataset_chars, history.dataset_characteristics
+                similarity = self._calculate_data_collection_similarity(
+                    data_collection_chars, history.data_collection_characteristics
                 )
                 if similarity > 0.7:  # Similarity threshold
                     similar_histories.append((history, similarity))
@@ -460,7 +460,7 @@ class AdvancedAutoMLService:
         total_weight = 0
 
         for history, similarity in similar_histories:
-            performance_weight = history.performance_metrics.get("accuracy", 0.5)
+            performance_weight = history.performance_measurements.get("accuracy", 0.5)
             weight = similarity * performance_weight
             total_weight += weight
 
@@ -479,7 +479,7 @@ class AdvancedAutoMLService:
     def _calculate_dataset_similarity(
         self, chars1: dict[str, Any], chars2: dict[str, Any]
     ) -> float:
-        """Calculate similarity between dataset characteristics."""
+        """Calculate similarity between data_collection characteristics."""
         # Simple similarity based on key characteristics
         size_similarity = 1.0 - abs(chars1["n_samples"] - chars2["n_samples"]) / max(
             chars1["n_samples"], chars2["n_samples"]
@@ -510,7 +510,7 @@ class AdvancedAutoMLService:
     def _evaluate_trial(
         self,
         trial,
-        dataset: Dataset,
+        data_collection: DataCollection,
         algorithm_name: str,
         objectives: list[OptimizationObjective],
         constraints: ResourceConstraints,
@@ -531,10 +531,10 @@ class AdvancedAutoMLService:
             start_memory = self._get_memory_usage()
 
             # Fit detector
-            detector.fit(dataset)
+            detector.fit(data_collection)
 
             # Generate synthetic test data for evaluation
-            test_data = self._generate_evaluation_data(dataset)
+            test_data = self._generate_evaluation_data(data_collection)
 
             # Get predictions
             scores = detector.predict(test_data)
@@ -542,7 +542,7 @@ class AdvancedAutoMLService:
             end_time = time.time()
             end_memory = self._get_memory_usage()
 
-            # Calculate metrics for each objective
+            # Calculate measurements for each objective
             objective_values = []
 
             for objective in objectives:
@@ -662,7 +662,7 @@ class AdvancedAutoMLService:
     def _generate_evaluation_data(self, dataset: Dataset) -> Dataset:
         """Generate evaluation data with known anomalies."""
         # Create synthetic test data with controlled anomalies
-        original_data = dataset.data
+        original_data = data_collection.data
         n_samples, n_features = original_data.shape
 
         # Use subset of original data as normal samples
@@ -681,15 +681,15 @@ class AdvancedAutoMLService:
             ]
         )
 
-        # Create test dataset
-        test_dataset = Dataset(
-            name=f"{dataset.name}_test",
+        # Create test data_collection
+        test_data_collection = DataCollection(
+            name=f"{data_collection.name}_test",
             data=test_data,
-            features=dataset.features,
+            features=data_collection.features,
             metadata={"labels": test_labels},
         )
 
-        return test_dataset
+        return test_data_collection
 
     def _generate_synthetic_anomalies(
         self, normal_data: np.ndarray, n_anomalies: int
@@ -716,18 +716,18 @@ class AdvancedAutoMLService:
         return np.array(anomalies)
 
     def _evaluate_accuracy(self, scores: np.ndarray, test_dataset: Dataset) -> float:
-        """Evaluate detection accuracy."""
-        if "labels" not in test_dataset.metadata:
+        """Evaluate processing accuracy."""
+        if "labels" not in test_data_collection.metadata:
             return 0.5  # Default score if no labels available
 
-        true_labels = test_dataset.metadata["labels"]
+        true_labels = test_data_collection.metadata["labels"]
 
         try:
             # Convert scores to binary predictions using threshold
             threshold = np.percentile(scores, 90)  # Top 10% as anomalies
             predictions = (scores > threshold).astype(int)
 
-            # Calculate accuracy metrics
+            # Calculate accuracy measurements
             if SKLEARN_AVAILABLE and len(np.unique(true_labels)) > 1:
                 auc_score = roc_auc_score(true_labels, scores)
                 return auc_score
@@ -793,11 +793,11 @@ class AdvancedAutoMLService:
         return defaults.get(algorithm_name, {})
 
     async def _create_optimized_detector(
-        self, algorithm_name: str, parameters: dict[str, Any], dataset: Dataset
+        self, algorithm_name: str, parameters: dict[str, Any], data_collection: DataCollection
     ) -> Detector:
         """Create and train optimized detector."""
         detector = self._create_detector_from_params(algorithm_name, parameters)
-        detector.fit(dataset)
+        detector.fit(data_collection)
         return detector
 
     def _generate_optimization_report(
@@ -806,7 +806,7 @@ class AdvancedAutoMLService:
         objectives: list[OptimizationObjective],
         constraints: ResourceConstraints,
         optimization_time: float,
-        dataset_chars: dict[str, Any],
+        data_collection_chars: dict[str, Any],
     ) -> dict[str, Any]:
         """Generate comprehensive optimization report."""
         report = {
@@ -828,10 +828,10 @@ class AdvancedAutoMLService:
                     ]
                 ),
             },
-            "dataset_characteristics": dataset_chars,
+            "data_collection_characteristics": data_collection_chars,
             "objectives": [obj.dict() for obj in objectives],
             "constraints": constraints.dict(),
-            "best_metrics": {},
+            "best_measurements": {},
             "best_parameters": {},
             "resource_usage": {
                 "peak_memory_mb": constraints.max_memory_mb,
@@ -844,7 +844,7 @@ class AdvancedAutoMLService:
         if study.best_trials:
             best_trial = study.best_trials[0]
             report["best_parameters"] = best_trial.params
-            report["best_metrics"] = {
+            report["best_measurements"] = {
                 f"objective_{i}": value for i, value in enumerate(best_trial.values)
             }
 
@@ -917,7 +917,7 @@ class AdvancedAutoMLService:
             algorithm_trends[algorithm]["optimizations"].append(history)
 
             # Track performance over time
-            accuracy = history.performance_metrics.get("accuracy", 0)
+            accuracy = history.performance_measurements.get("accuracy", 0)
             algorithm_trends[algorithm]["performance_trend"].append(accuracy)
 
             # Track parameter preferences
@@ -1024,13 +1024,13 @@ class AdvancedAutoMLService:
             if len(optimizations) >= 3:
                 recent_performance = np.mean(
                     [
-                        opt.performance_metrics.get("accuracy", 0)
+                        opt.performance_measurements.get("accuracy", 0)
                         for opt in optimizations[-3:]
                     ]
                 )
                 early_performance = np.mean(
                     [
-                        opt.performance_metrics.get("accuracy", 0)
+                        opt.performance_measurements.get("accuracy", 0)
                         for opt in optimizations[:3]
                     ]
                 )

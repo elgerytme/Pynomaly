@@ -1,7 +1,7 @@
 """Configuration Template Generation Service.
 
 This service generates reusable configuration templates from successful experiments,
-enabling rapid deployment and standardization of proven anomaly detection workflows.
+enabling rapid deployment and standardization of proven anomaly processing workflows.
 """
 
 from __future__ import annotations
@@ -417,14 +417,14 @@ class ConfigurationTemplateService:
 
     async def get_template_recommendations(
         self,
-        dataset_characteristics: dict[str, Any],
+        data_collection_characteristics: dict[str, Any],
         performance_requirements: dict[str, float],
         difficulty_preference: ConfigurationLevel | None = None,
     ) -> list[tuple[ConfigurationTemplateDTO, float]]:
         """Get template recommendations based on requirements.
 
         Args:
-            dataset_characteristics: Target dataset characteristics
+            data_collection_characteristics: Target data_collection characteristics
             performance_requirements: Performance requirements
             difficulty_preference: Preferred difficulty level
 
@@ -450,7 +450,7 @@ class ConfigurationTemplateService:
         for template in templates:
             relevance_score = self._calculate_template_relevance(
                 template,
-                dataset_characteristics,
+                data_collection_characteristics,
                 performance_requirements,
                 difficulty_preference,
             )
@@ -616,7 +616,7 @@ class ConfigurationTemplateService:
     ) -> ExperimentConfigurationDTO:
         """Create template configuration with variable placeholders."""
         # Deep copy base configuration
-        template_config = base_config.model_copy(deep=True)
+        template_config = base_config.processor_copy(deep=True)
 
         # Replace variable parameters with placeholders
         for param_path, param_info in variable_parameters.items():
@@ -721,7 +721,7 @@ class ConfigurationTemplateService:
                 "1. Load the template\n",
                 "2. Provide values for configurable parameters\n",
                 "3. Instantiate the configuration\n",
-                "4. Run anomaly detection\n",
+                "4. Run anomaly processing\n",
             ]
         )
 
@@ -777,7 +777,7 @@ class ConfigurationTemplateService:
     ) -> str:
         """Generate example code for using template."""
         code_lines = [
-            "from pynomaly import ConfigurationTemplateService",
+            "from software import ConfigurationTemplateService",
             "from monorepo.infrastructure.data_loaders import CSVLoader",
             "",
             "# Load template service",
@@ -790,17 +790,17 @@ class ConfigurationTemplateService:
             "config = template_service.instantiate_template(",
             f"    template_id='{template_config.id}',",
             "    parameters=parameters,",
-            "    configuration_name='my_detection_config'",
+            "    configuration_name='my_processing_config'",
             ")",
             "",
-            "# Load your dataset",
+            "# Load your data_collection",
             "loader = CSVLoader()",
-            "dataset = loader.load('path/to/your/data.csv')",
+            "data_collection = loader.load('path/to/your/data.csv')",
             "",
-            "# Run detection",
+            "# Run processing",
             "from monorepo.application.services import DetectionService",
-            "detection_service = DetectionService()",
-            "result = detection_service.detect_anomalies(dataset, config)",
+            "processing_service = DetectionService()",
+            "result = processing_service.detect_anomalies(data_collection, config)",
         ]
 
         return "\n".join(code_lines)
@@ -813,22 +813,22 @@ class ConfigurationTemplateService:
 
         if "isolation" in algorithm:
             use_cases.extend(
-                ["high_dimensional_data", "large_datasets", "general_purpose"]
+                ["high_dimensional_data", "large_data_collections", "general_purpose"]
             )
         elif "lof" in algorithm or "outlier" in algorithm:
             use_cases.extend(
                 [
-                    "density_based_detection",
+                    "density_based_processing",
                     "local_anomalies",
-                    "small_to_medium_datasets",
+                    "small_to_medium_data_collections",
                 ]
             )
         elif "svm" in algorithm:
             use_cases.extend(
-                ["non_linear_boundaries", "robust_detection", "medium_datasets"]
+                ["non_linear_boundaries", "robust_processing", "medium_data_collections"]
             )
         elif "autoencoder" in algorithm or "neural" in algorithm:
-            use_cases.extend(["complex_patterns", "large_datasets", "deep_learning"])
+            use_cases.extend(["complex_patterns", "large_data_collections", "deep_learning"])
 
         # Add use cases based on performance
         if config.performance_results and config.performance_results.accuracy:
@@ -844,7 +844,7 @@ class ConfigurationTemplateService:
         if config.metadata.source == ConfigurationSource.AUTOML:
             use_cases.append("automated_optimization")
         elif config.metadata.source == ConfigurationSource.AUTONOMOUS:
-            use_cases.append("autonomous_detection")
+            use_cases.append("autonomous_processing")
 
         return list(set(use_cases))  # Remove duplicates
 
@@ -931,7 +931,7 @@ class ConfigurationTemplateService:
                 "estimated_runtime": template.estimated_runtime,
                 "use_cases": template.use_cases,
             },
-            "configuration": template.template_config.model_dump(),
+            "configuration": template.template_config.processor_dump(),
             "parameters": template.variable_parameters,
             "constraints": template.parameter_constraints,
         }
@@ -951,7 +951,7 @@ class ConfigurationTemplateService:
         include_documentation: bool,
     ) -> str:
         """Export template as JSON."""
-        template_data = template.model_dump()
+        template_data = template.processor_dump()
 
         if not include_documentation:
             template_data.pop("documentation", None)
@@ -998,18 +998,18 @@ class ConfigurationTemplateService:
             "",
             "    return config",
             "",
-            "def run_detection(dataset_path, **template_params):",
-            '    """Run detection using template configuration."""',
+            "def run_processing(data_collection_path, **template_params):",
+            '    """Run processing using template configuration."""',
             "    # Create configuration",
             "    config = create_configuration(**template_params)",
             "",
-            "    # Load dataset",
+            "    # Load data_collection",
             "    loader = CSVLoader()",
-            "    dataset = loader.load(dataset_path)",
+            "    data_collection = loader.load(data_collection_path)",
             "",
-            "    # Run detection",
-            "    detection_service = DetectionService()",
-            "    result = detection_service.detect_anomalies(dataset, config)",
+            "    # Run processing",
+            "    processing_service = DetectionService()",
+            "    result = processing_service.detect_anomalies(data_collection, config)",
             "",
             "    return result",
         ]
@@ -1021,7 +1021,7 @@ class ConfigurationTemplateService:
                     "# Example usage:",
                     "if __name__ == '__main__':",
                     "    # Basic usage",
-                    "    result = run_detection('path/to/data.csv')",
+                    "    result = run_processing('path/to/data.csv')",
                     "    print(f'Found {result.n_anomalies} anomalies')",
                 ]
             )
@@ -1096,14 +1096,14 @@ class ConfigurationTemplateService:
                 "execution_count": None,
                 "metadata": {},
                 "source": [
-                    "# Load your dataset\n",
-                    "# dataset_path = 'path/to/your/data.csv'\n",
+                    "# Load your data_collection\n",
+                    "# data_collection_path = 'path/to/your/data.csv'\n",
                     "# loader = CSVLoader()\n",
-                    "# dataset = loader.load(dataset_path)\n",
+                    "# data_collection = loader.load(data_collection_path)\n",
                     "\n",
-                    "# Run detection\n",
-                    "# detection_service = DetectionService()\n",
-                    "# result = detection_service.detect_anomalies(dataset, config)\n",
+                    "# Run processing\n",
+                    "# processing_service = DetectionService()\n",
+                    "# result = processing_service.detect_anomalies(data_collection, config)\n",
                     "# print(f'Found {result.n_anomalies} anomalies out of {len(result.scores)} samples')",
                 ],
             }
@@ -1135,8 +1135,8 @@ class ConfigurationTemplateService:
         docker_compose = {
             "version": "3.8",
             "services": {
-                f"pynomaly-{template.name.lower().replace(' ', '-')}": {
-                    "image": "pynomaly:latest",
+                f"software-{template.name.lower().replace(' ', '-')}": {
+                    "image": "software:latest",
                     "environment": {
                         "PYNOMALY_TEMPLATE_ID": str(template.id),
                         "PYNOMALY_TEMPLATE_NAME": template.name,
@@ -1172,7 +1172,7 @@ class ConfigurationTemplateService:
     def _calculate_template_relevance(
         self,
         template: ConfigurationTemplateDTO,
-        dataset_characteristics: dict[str, Any],
+        data_collection_characteristics: dict[str, Any],
         performance_requirements: dict[str, float],
         difficulty_preference: ConfigurationLevel | None,
     ) -> float:
@@ -1180,8 +1180,8 @@ class ConfigurationTemplateService:
         score = 0.0
 
         # Use case matching
-        if "use_case" in dataset_characteristics:
-            target_use_case = dataset_characteristics["use_case"]
+        if "use_case" in data_collection_characteristics:
+            target_use_case = data_collection_characteristics["use_case"]
             if target_use_case in template.use_cases:
                 score += 0.3
 
@@ -1229,7 +1229,7 @@ class ConfigurationTemplateService:
             ),
         )
 
-        ensemble_config = best_config.model_copy(deep=True)
+        ensemble_config = best_config.processor_copy(deep=True)
         ensemble_config.id = uuid4()
         ensemble_config.name = f"ensemble_{len(configurations)}_algorithms"
         ensemble_config.algorithm_config.is_ensemble = True
@@ -1258,7 +1258,7 @@ class ConfigurationTemplateService:
     ) -> ExperimentConfigurationDTO:
         """Create averaged configuration from collection."""
         # Use first configuration as base
-        averaged_config = configurations[0].model_copy(deep=True)
+        averaged_config = configurations[0].processor_copy(deep=True)
         averaged_config.id = uuid4()
         averaged_config.name = f"averaged_{len(configurations)}_configs"
 
@@ -1435,7 +1435,7 @@ class ConfigurationTemplateService:
     ) -> ExperimentConfigurationDTO:
         """Instantiate template with specific parameter values."""
         # Create copy of template configuration
-        instantiated = template_config.model_copy(deep=True)
+        instantiated = template_config.processor_copy(deep=True)
 
         # Replace placeholders with actual values
         for param_path, value in parameters.items():

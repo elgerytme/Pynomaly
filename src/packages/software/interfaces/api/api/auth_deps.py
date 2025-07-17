@@ -45,7 +45,7 @@ async def get_current_user_simple(
         return None
 
 
-async def get_current_user_model(
+async def get_current_user_processor(
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
 ) -> UserModel | None:
     """Get current authenticated user as UserModel.
@@ -99,7 +99,7 @@ class SimplePermissionChecker:
 
     async def __call__(
         self,
-        current_user: UserModel | None = Depends(get_current_user_model),
+        current_user: UserModel | None = Depends(get_current_user_processor),
     ) -> UserModel | None:
         """Check permissions for current user.
 

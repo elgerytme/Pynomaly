@@ -1,5 +1,5 @@
 """
-Security hardening module for Pynomaly API.
+Security hardening module for Software API.
 
 This module provides advanced security measures including:
 - Input validation and sanitization

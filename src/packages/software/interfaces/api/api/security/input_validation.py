@@ -1,5 +1,5 @@
 """
-Input validation and sanitization for Pynomaly API.
+Input validation and sanitization for Software API.
 
 This module provides:
 - Input validation and sanitization
@@ -350,7 +350,7 @@ class UserSchema(Schema):
 
 
 class ModelSchema(Schema):
-    """Model data validation schema."""
+    """Processor data validation schema."""
 
     name = fields.Str(required=True, validate=lambda x: 1 <= len(x) <= 100)
     description = fields.Str(required=False, validate=lambda x: len(x) <= 500)
@@ -363,7 +363,7 @@ class ModelSchema(Schema):
 
 
 class DatasetSchema(Schema):
-    """Dataset validation schema."""
+    """DataCollection validation schema."""
 
     name = fields.Str(required=True, validate=lambda x: 1 <= len(x) <= 100)
     description = fields.Str(required=False, validate=lambda x: len(x) <= 500)
@@ -384,8 +384,8 @@ class SecurityValidator:
 
         # Register common schemas
         self.schema_validator.register_schema("user", UserSchema())
-        self.schema_validator.register_schema("model", ModelSchema())
-        self.schema_validator.register_schema("dataset", DatasetSchema())
+        self.schema_validator.register_schema("processor", ModelSchema())
+        self.schema_validator.register_schema("data_collection", DatasetSchema())
 
     def validate_and_sanitize(
         self, data: dict[str, Any], schema_name: str | None = None

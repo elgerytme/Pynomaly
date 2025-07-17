@@ -108,7 +108,7 @@ class FeatureEngineeringService:
         return X_engineered
 
     def _handle_missing_values(self, X: pd.DataFrame) -> pd.DataFrame:
-        """Handle missing values in the dataset."""
+        """Handle missing values in the data_collection."""
         X_filled = X.copy()
 
         for col in X_filled.columns:

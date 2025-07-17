@@ -361,31 +361,31 @@ def validate_positive_integer(value: str | int, name: str) -> int:
 
 def validate_dataset_name(name: str) -> str:
     """
-    Validate dataset name.
+    Validate data_collection name.
 
     Args:
-        name: Dataset name to validate
+        name: DataCollection name to validate
 
     Returns:
-        Validated dataset name
+        Validated data_collection name
 
     Raises:
         ValidationError: If name is invalid
     """
     if not name or not name.strip():
-        raise create_validation_error("Dataset name cannot be empty")
+        raise create_validation_error("DataCollection name cannot be empty")
 
     # Check for invalid characters
     invalid_chars = ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]
     for char in invalid_chars:
         if char in name:
             raise create_validation_error(
-                f"Dataset name contains invalid character: {char}"
+                f"DataCollection name contains invalid character: {char}"
             )
 
     # Check length
     if len(name) > 255:
-        raise create_validation_error("Dataset name is too long (max 255 characters)")
+        raise create_validation_error("DataCollection name is too long (max 255 characters)")
 
     return name.strip()
 
@@ -555,7 +555,7 @@ def create_user_friendly_message(error: Exception) -> str:
     elif "PermissionError" in error_type:
         return f"{base_message}. Make sure you have read access to the file."
     elif "MemoryError" in error_type:
-        return f"{base_message}. Try using a smaller dataset or increasing available memory."
+        return f"{base_message}. Try using a smaller data_collection or increasing available memory."
     elif "ImportError" in error_type:
         return f"{base_message}. Install missing dependencies with pip install."
 

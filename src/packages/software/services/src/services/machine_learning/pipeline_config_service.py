@@ -24,21 +24,21 @@ class PipelineConfigService:
                 "n_trials": 20,
                 "timeout_seconds": 300,
                 "cv_folds": 3,
-                "max_models": 5,
+                "max_processors": 5,
             }
         elif self.config.mode == PipelineMode.THOROUGH:
             return {
                 "n_trials": 500,
                 "timeout_seconds": 3600,
                 "cv_folds": 10,
-                "max_models": 30,
+                "max_processors": 30,
             }
         else:  # BALANCED
             return {
                 "n_trials": 100,
                 "timeout_seconds": 1800,
                 "cv_folds": 5,
-                "max_models": 20,
+                "max_processors": 20,
             }
 
     def get_feature_engineering_config(self) -> dict:
@@ -76,9 +76,9 @@ class PipelineConfigService:
         if self.config.optimization_time_budget_minutes < 1:
             warnings.append("Very short optimization time budget")
 
-        # Check model limits
-        if self.config.max_models_to_evaluate < 1:
-            issues.append("Must evaluate at least one model")
+        # Check processor limits
+        if self.config.max_processors_to_evaluate < 1:
+            issues.append("Must evaluate at least one processor")
 
         # Check cross-validation folds
         if self.config.cross_validation_folds < 2:

@@ -1,4 +1,4 @@
-"""Algorithm recommendation service for autonomous detection."""
+"""Algorithm recommendation service for autonomous processing."""
 
 from __future__ import annotations
 
@@ -58,8 +58,8 @@ class AlgorithmRecommendationService:
                 "memory_efficiency": 0.8,
                 "training_speed": 0.9,
                 "prediction_speed": 0.9,
-                "best_for": ["general", "high_dimensional", "large_datasets"],
-                "worst_for": ["small_datasets", "high_precision_required"],
+                "best_for": ["general", "high_dimensional", "large_data_collections"],
+                "worst_for": ["small_data_collections", "high_precision_required"],
                 "min_samples": 100,
                 "max_features": 10000,
                 "handles_categorical": False,
@@ -74,8 +74,8 @@ class AlgorithmRecommendationService:
                 "memory_efficiency": 0.5,
                 "training_speed": 0.3,
                 "prediction_speed": 0.3,
-                "best_for": ["local_outliers", "small_datasets", "interpretability"],
-                "worst_for": ["large_datasets", "high_dimensional", "sparse_data"],
+                "best_for": ["local_outliers", "small_data_collections", "interpretability"],
+                "worst_for": ["large_data_collections", "high_dimensional", "sparse_data"],
                 "min_samples": 50,
                 "max_features": 100,
                 "handles_categorical": False,
@@ -90,8 +90,8 @@ class AlgorithmRecommendationService:
                 "memory_efficiency": 0.9,
                 "training_speed": 0.95,
                 "prediction_speed": 0.95,
-                "best_for": ["large_datasets", "high_dimensional", "correlated_features"],
-                "worst_for": ["small_datasets", "independent_features"],
+                "best_for": ["large_data_collections", "high_dimensional", "correlated_features"],
+                "worst_for": ["small_data_collections", "independent_features"],
                 "min_samples": 1000,
                 "max_features": 50000,
                 "handles_categorical": True,
@@ -106,7 +106,7 @@ class AlgorithmRecommendationService:
                 "memory_efficiency": 0.9,
                 "training_speed": 0.95,
                 "prediction_speed": 0.95,
-                "best_for": ["large_datasets", "independent_features", "speed"],
+                "best_for": ["large_data_collections", "independent_features", "speed"],
                 "worst_for": ["correlated_features", "complex_patterns"],
                 "min_samples": 100,
                 "max_features": 1000,
@@ -122,8 +122,8 @@ class AlgorithmRecommendationService:
                 "memory_efficiency": 0.6,
                 "training_speed": 0.2,
                 "prediction_speed": 0.4,
-                "best_for": ["small_datasets", "non_linear_boundaries", "high_precision"],
-                "worst_for": ["large_datasets", "high_dimensional", "speed"],
+                "best_for": ["small_data_collections", "non_linear_boundaries", "high_precision"],
+                "worst_for": ["large_data_collections", "high_dimensional", "speed"],
                 "min_samples": 20,
                 "max_features": 50,
                 "handles_categorical": False,
@@ -139,7 +139,7 @@ class AlgorithmRecommendationService:
                 "training_speed": 0.7,
                 "prediction_speed": 0.8,
                 "best_for": ["high_dimensional", "linear_patterns", "dimensionality_reduction"],
-                "worst_for": ["non_linear_patterns", "small_datasets"],
+                "worst_for": ["non_linear_patterns", "small_data_collections"],
                 "min_samples": 100,
                 "max_features": 1000,
                 "handles_categorical": False,
@@ -154,8 +154,8 @@ class AlgorithmRecommendationService:
                 "memory_efficiency": 0.6,
                 "training_speed": 0.8,
                 "prediction_speed": 0.5,
-                "best_for": ["local_patterns", "medium_datasets", "interpretability"],
-                "worst_for": ["high_dimensional", "large_datasets"],
+                "best_for": ["local_patterns", "medium_data_collections", "interpretability"],
+                "worst_for": ["high_dimensional", "large_data_collections"],
                 "min_samples": 50,
                 "max_features": 200,
                 "handles_categorical": False,
@@ -171,7 +171,7 @@ class AlgorithmRecommendationService:
                 "training_speed": 0.2,
                 "prediction_speed": 0.6,
                 "best_for": ["complex_patterns", "non_linear", "reconstruction"],
-                "worst_for": ["small_datasets", "interpretability", "speed"],
+                "worst_for": ["small_data_collections", "interpretability", "speed"],
                 "min_samples": 1000,
                 "max_features": 10000,
                 "handles_categorical": False,
@@ -190,7 +190,7 @@ class AlgorithmRecommendationService:
         """Recommend algorithms based on data profile.
 
         Args:
-            profile: Data profile containing dataset characteristics
+            profile: Data profile containing data_collection characteristics
             max_algorithms: Maximum number of algorithms to recommend
             confidence_threshold: Minimum confidence threshold
             verbose: Enable verbose logging
@@ -199,7 +199,7 @@ class AlgorithmRecommendationService:
             List of algorithm recommendations sorted by confidence
         """
         if verbose:
-            self.logger.info(f"Recommending algorithms for dataset with {profile.n_samples} samples and {profile.n_features} features")
+            self.logger.info(f"Recommending algorithms for data_collection with {profile.n_samples} samples and {profile.n_features} features")
 
         recommendations = []
 
@@ -453,10 +453,10 @@ class AlgorithmRecommendationService:
 
         # Positive factors
         if decision_factors.get("sample_size", 0) > 0.8:
-            reasons.append(f"Good fit for dataset size ({profile.n_samples:,} samples)")
+            reasons.append(f"Good fit for data_collection size ({profile.n_samples:,} samples)")
 
         if decision_factors.get("scalability", 0) > 0.8:
-            reasons.append("High scalability matches dataset size")
+            reasons.append("High scalability matches data_collection size")
 
         if decision_factors.get("complexity_match", 0) > 0.8:
             reasons.append("Algorithm complexity matches data complexity")
@@ -469,7 +469,7 @@ class AlgorithmRecommendationService:
 
         # Negative factors
         if decision_factors.get("sample_size", 0) < 0.3:
-            reasons.append("Small dataset may limit performance")
+            reasons.append("Small data_collection may limit performance")
 
         if decision_factors.get("feature_count", 0) < 0.3:
             reasons.append("High dimensionality may be challenging")
@@ -481,16 +481,16 @@ class AlgorithmRecommendationService:
         if algorithm == "IsolationForest":
             reasons.append("Excellent general-purpose anomaly detector")
         elif algorithm == "LOF":
-            reasons.append("Effective for local outlier detection")
+            reasons.append("Effective for local outlier processing")
         elif algorithm == "COPOD":
             reasons.append("Fast and scalable for large datasets")
         elif algorithm == "HBOS":
-            reasons.append("Very fast histogram-based detection")
+            reasons.append("Very fast histogram-based processing")
         elif algorithm == "OneClassSVM":
             reasons.append("Effective for non-linear boundaries")
 
         if not reasons:
-            reasons.append("Standard algorithm suitable for this dataset")
+            reasons.append("Standard algorithm suitable for this data_collection")
 
         return "; ".join(reasons)
 
@@ -618,7 +618,7 @@ class AlgorithmRecommendationService:
         elif algorithm == "AutoEncoder":
             base_performance *= 0.85  # Good for complex patterns
 
-        # Adjust based on dataset characteristics
+        # Adjust based on data_collection characteristics
         if profile.complexity_score > 0.7:
             if algorithm in ["AutoEncoder", "OneClassSVM"]:
                 base_performance *= 1.1

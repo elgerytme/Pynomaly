@@ -1,0 +1,30 @@
+# Pre-commit configuration for domain boundary validation
+repos:
+  - repo: local
+    hooks:
+      - id: domain-boundary-validator
+        name: Domain Boundary Validator
+        entry: python scripts/domain_boundary_validator.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        args: [--fail-on-error]
+        
+  - repo: local
+    hooks:
+      - id: domain-import-validator
+        name: Domain Import Validator
+        entry: python scripts/domain_import_validator.py
+        language: python
+        files: \.py$
+        args: [--fail-on-violation]
+        
+  - repo: local
+    hooks:
+      - id: domain-architecture-validator
+        name: Domain Architecture Validator
+        entry: python scripts/domain_architecture_validator.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        args: [--check-cycles, --check-dependencies]

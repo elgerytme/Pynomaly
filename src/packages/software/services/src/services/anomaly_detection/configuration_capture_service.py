@@ -173,7 +173,7 @@ class ConfigurationCaptureService:
             # Save to disk
             config_file = self.storage_path / f"{config.id}.json"
             with open(config_file, "w") as f:
-                json.dump(config.model_dump(), f, indent=2, default=str)
+                json.dump(config.processor_dump(), f, indent=2, default=str)
 
             # Maintain cache size
             if len(self.configuration_cache) > self.max_configurations:
@@ -344,12 +344,12 @@ class ConfigurationCaptureService:
         warnings = []
         suggestions = []
 
-        # Validate dataset configuration
+        # Validate data_collection configuration
         if (
-            not config.dataset_config.dataset_path
-            and not config.dataset_config.dataset_name
+            not config.data_collection_config.data_collection_path
+            and not config.data_collection_config.data_collection_name
         ):
-            errors.append("Dataset path or name must be specified")
+            errors.append("DataCollection path or name must be specified")
 
         # Validate algorithm configuration
         if not config.algorithm_config.algorithm_name:
@@ -430,10 +430,10 @@ class ConfigurationCaptureService:
             "name", f"config_{source}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
 
-        # Extract dataset configuration
-        dataset_config = DatasetConfigDTO(
-            dataset_path=raw_parameters.get("dataset_path"),
-            dataset_name=raw_parameters.get("dataset_name"),
+        # Extract data_collection configuration
+        data_collection_config = DatasetConfigDTO(
+            data_collection_path=raw_parameters.get("data_collection_path"),
+            data_collection_name=raw_parameters.get("data_collection_name"),
             file_format=raw_parameters.get("file_format"),
             feature_columns=raw_parameters.get("feature_columns"),
             target_column=raw_parameters.get("target_column"),
@@ -455,7 +455,7 @@ class ConfigurationCaptureService:
                 missing_value_strategy=raw_parameters.get(
                     "missing_value_strategy", "mean"
                 ),
-                outlier_detection_method=raw_parameters.get("outlier_method", "iqr"),
+                outlier_processing_method=raw_parameters.get("outlier_method", "iqr"),
                 scaling_method=raw_parameters.get("scaling_method", "standard"),
                 feature_selection_method=raw_parameters.get("feature_selection"),
                 apply_pca=raw_parameters.get("apply_pca", False),
@@ -481,7 +481,7 @@ class ConfigurationCaptureService:
         return ExperimentConfigurationDTO(
             id=config_id,
             name=config_name,
-            dataset_config=dataset_config,
+            data_collection_config=data_collection_config,
             algorithm_config=algorithm_config,
             preprocessing_config=preprocessing_config,
             evaluation_config=evaluation_config,
@@ -529,14 +529,14 @@ class ConfigurationCaptureService:
         source = config.metadata.source
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        if config.dataset_config.dataset_name:
-            dataset_part = config.dataset_config.dataset_name
-        elif config.dataset_config.dataset_path:
-            dataset_part = Path(config.dataset_config.dataset_path).stem
+        if config.data_collection_config.data_collection_name:
+            data_collection_part = config.data_collection_config.data_collection_name
+        elif config.data_collection_config.data_collection_path:
+            data_collection_part = Path(config.data_collection_config.data_collection_path).stem
         else:
-            dataset_part = "unknown"
+            data_collection_part = "unknown"
 
-        return f"{source}_{algorithm}_{dataset_part}_{timestamp}"
+        return f"{source}_{algorithm}_{data_collection_part}_{timestamp}"
 
     async def _update_configuration_indexes(
         self, config: ExperimentConfigurationDTO
@@ -685,7 +685,7 @@ class ConfigurationCaptureService:
 
         export_data = []
         for config in configurations:
-            config_dict = config.model_dump()
+            config_dict = config.processor_dump()
 
             # Remove unwanted fields based on request
             if not request.include_metadata:
@@ -707,7 +707,7 @@ class ConfigurationCaptureService:
         """Export configurations to JSON format."""
         export_data = []
         for config in configurations:
-            config_dict = config.model_dump()
+            config_dict = config.processor_dump()
 
             # Remove unwanted fields based on request
             if not request.include_metadata:
@@ -729,7 +729,7 @@ class ConfigurationCaptureService:
         """Export configurations to Python script format."""
         script_lines = [
             "#!/usr/bin/env python3",
-            '"""Generated configuration script from Pynomaly."""',
+            '"""Generated configuration script from Software."""',
             "",
             "import monorepo",
             "from monorepo.application.services import DetectionService",
@@ -746,9 +746,9 @@ class ConfigurationCaptureService:
                     f"    # Configuration {i + 1}: {config.name}",
                     f"    print('Running configuration: {config.name}')",
                     "    ",
-                    "    # Load dataset",
+                    "    # Load data_collection",
                     "    loader = CSVLoader()",
-                    f"    dataset = loader.load('{config.dataset_config.dataset_path}')",
+                    f"    data_collection = loader.load('{config.data_collection_config.data_collection_path}')",
                     "    ",
                     "    # Configure algorithm",
                     "    algorithm_config = {",
@@ -757,9 +757,9 @@ class ConfigurationCaptureService:
                     f"        'random_state': {config.algorithm_config.random_state}",
                     "    }",
                     "    ",
-                    "    # Run detection",
+                    "    # Run processing",
                     "    service = DetectionService()",
-                    "    result = service.detect_anomalies(dataset, algorithm_config)",
+                    "    result = service.detect_anomalies(data_collection, algorithm_config)",
                     "    print(f'Found {len(result.anomalies)} anomalies')",
                 ]
             )
@@ -782,7 +782,7 @@ class ConfigurationCaptureService:
                     "cell_type": "markdown",
                     "metadata": {},
                     "source": [
-                        "# Pynomaly Configuration Notebook\n",
+                        "# Software Configuration Notebook\n",
                         "\n",
                         f"Generated from {len(configurations)} configurations\n",
                         f"Export date: {datetime.now().isoformat()}",
@@ -828,15 +828,15 @@ class ConfigurationCaptureService:
                         "metadata": {},
                         "source": [
                             f"# Configuration: {config.name}\n",
-                            f"dataset_path = '{config.dataset_config.dataset_path}'\n",
+                            f"data_collection_path = '{config.data_collection_config.data_collection_path}'\n",
                             f"algorithm = '{config.algorithm_config.algorithm_name}'\n",
                             f"contamination = {config.algorithm_config.contamination}\n",
                             f"random_state = {config.algorithm_config.random_state}\n",
                             "\n",
                             "# Load and process data\n",
                             "loader = CSVLoader()\n",
-                            "dataset = loader.load(dataset_path)\n",
-                            "print(f'Dataset shape: {dataset.shape}')",
+                            "data_collection = loader.load(data_collection_path)\n",
+                            "print(f'DataCollection shape: {data_collection.shape}')",
                         ],
                     },
                 ]
@@ -853,17 +853,17 @@ class ConfigurationCaptureService:
         docker_compose = {"version": "3.8", "services": {}}
 
         for i, config in enumerate(configurations):
-            service_name = f"pynomaly-config-{i + 1}"
+            service_name = f"software-config-{i + 1}"
             docker_compose["services"][service_name] = {
-                "image": "pynomaly:latest",
+                "image": "software:latest",
                 "environment": {
-                    "DATASET_PATH": config.dataset_config.dataset_path,
+                    "DATASET_PATH": config.data_collection_config.data_collection_path,
                     "ALGORITHM": config.algorithm_config.algorithm_name,
                     "CONTAMINATION": str(config.algorithm_config.contamination),
                     "RANDOM_STATE": str(config.algorithm_config.random_state),
                 },
                 "volumes": ["./data:/app/data", "./results:/app/results"],
-                "command": f"python -m pynomaly detect --config /app/configs/config_{i + 1}.json",
+                "command": f"python -m software detect --config /app/configs/config_{i + 1}.json",
             }
 
         import yaml
@@ -874,7 +874,7 @@ class ConfigurationCaptureService:
         self, config: ExperimentConfigurationDTO
     ) -> float | None:
         """Estimate configuration runtime in seconds."""
-        # Simple heuristic based on algorithm and dataset size
+        # Simple heuristic based on algorithm and data_collection size
         base_times = {
             "isolation_forest": 10.0,
             "local_outlier_factor": 30.0,
@@ -886,10 +886,10 @@ class ConfigurationCaptureService:
         algorithm = config.algorithm_config.algorithm_name
         base_time = base_times.get(algorithm, 30.0)
 
-        # Adjust for dataset size (if known)
-        if config.dataset_config.expected_shape:
-            n_samples = config.dataset_config.expected_shape[0]
-            n_features = config.dataset_config.expected_shape[1]
+        # Adjust for data_collection size (if known)
+        if config.data_collection_config.expected_shape:
+            n_samples = config.data_collection_config.expected_shape[0]
+            n_features = config.data_collection_config.expected_shape[1]
 
             # Scale time based on data size
             size_factor = (n_samples * n_features) / 10000
@@ -908,7 +908,7 @@ class ConfigurationCaptureService:
         self, config: ExperimentConfigurationDTO
     ) -> float | None:
         """Estimate configuration memory usage in MB."""
-        # Simple heuristic based on algorithm and dataset size
+        # Simple heuristic based on algorithm and data_collection size
         base_memory = {
             "isolation_forest": 100.0,
             "local_outlier_factor": 500.0,
@@ -920,10 +920,10 @@ class ConfigurationCaptureService:
         algorithm = config.algorithm_config.algorithm_name
         memory = base_memory.get(algorithm, 300.0)
 
-        # Adjust for dataset size
-        if config.dataset_config.expected_shape:
-            n_samples = config.dataset_config.expected_shape[0]
-            n_features = config.dataset_config.expected_shape[1]
+        # Adjust for data_collection size
+        if config.data_collection_config.expected_shape:
+            n_samples = config.data_collection_config.expected_shape[0]
+            n_features = config.data_collection_config.expected_shape[1]
 
             # Estimate data memory usage
             data_memory = (n_samples * n_features * 8) / (

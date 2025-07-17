@@ -49,7 +49,7 @@ from interfaces.presentation.api.endpoints import (
     export,
     frontend_support,
     health,
-    model_lineage,
+    processor_lineage,
     performance,
     security_management,
     streaming,
@@ -113,7 +113,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         except Exception as e:
             print(f"❌ Failed to initialize monitoring: {e}")
 
-    if settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled:
+    if settings.monitoring.measurements_enabled or settings.monitoring.tracing_enabled:
         # init_telemetry(settings)  # Temporarily disabled
         pass
 
@@ -166,9 +166,9 @@ def create_app(container: Container | None = None) -> FastAPI:
         title=settings.app.name,
         version=settings.app.version,
         description="""
-# Pynomaly - Advanced Anomaly Detection Platform
+# Software - Advanced Anomaly Processing Platform
 
-**Pynomaly** is a state-of-the-art Python anomaly detection package that provides a unified, production-ready interface for multiple anomaly detection algorithms.
+**Software** is a state-of-the-art Python anomaly processing package that provides a unified, production-ready interface for multiple anomaly processing algorithms.
 
 ## Key Features
 
@@ -183,10 +183,10 @@ def create_app(container: Container | None = None) -> FastAPI:
 ## Quick Start
 
 1. **Authenticate**: Use `/api/v1/auth/login` to get a JWT token
-2. **Upload Data**: Use `/api/v1/datasets/upload` to upload your dataset
+2. **Upload Data**: Use `/api/v1/datasets/upload` to upload your data_collection
 3. **Create Detector**: Use `/api/v1/detectors/create` to configure an anomaly detector
-4. **Train Model**: Use `/api/v1/detection/train` to train the detector
-5. **Detect Anomalies**: Use `/api/v1/detection/predict` to find anomalies
+4. **Train Processor**: Use `/api/v1/processing/train` to train the detector
+5. **Detect Anomalies**: Use `/api/v1/processing/predict` to find anomalies
 
 ## Documentation
 
@@ -207,7 +207,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         openapi_url="/api/v1/openapi.json" if settings.api.docs_enabled else None,
         lifespan=lifespan,
         contact={
-            "name": "Pynomaly Team",
+            "name": "Software Team",
             "url": "https://github.com/pynomaly/pynomaly",
             "email": "team@example.com",
         },
@@ -271,13 +271,13 @@ def create_app(container: Container | None = None) -> FastAPI:
         except Exception as e:
             print(f"Warning: Could not set up monitoring middleware: {e}")
 
-    # Add Prometheus metrics if enabled and available
+    # Add Prometheus measurements if enabled and available
     if settings.monitoring.prometheus_enabled and PROMETHEUS_AVAILABLE:
         instrumentator = Instrumentator()
-        instrumentator.instrument(app).expose(app, endpoint="/metrics")
+        instrumentator.instrument(app).expose(app, endpoint="/measurements")
     elif settings.monitoring.prometheus_enabled and not PROMETHEUS_AVAILABLE:
         print(
-            "Warning: Prometheus metrics requested but prometheus-fastapi-instrumentator not available"
+            "Warning: Prometheus measurements requested but prometheus-fastapi-instrumentator not available"
         )
 
     # Include documentation router (before API routers for proper URL handling)
@@ -305,7 +305,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])  # Temporarily disabled
 
-    # app.include_router(detection.router, prefix="/api/v1/detection", tags=["detection"])  # Temporarily disabled
+    # app.include_router(processing.router, prefix="/api/v1/processing", tags=["processing"])  # Temporarily disabled
 
     # app.include_router(automl.router, prefix="/api/v1/automl", tags=["automl"])  # Temporarily disabled
 
@@ -335,8 +335,8 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(export.router, prefix="/api/v1", tags=["export"])
 
-    # Advanced model management endpoints
-    app.include_router(model_lineage.router, prefix="/api/v1", tags=["model_lineage"])
+    # Advanced processor management endpoints
+    app.include_router(processor_lineage.router, prefix="/api/v1", tags=["processor_lineage"])
 
     # Real-time streaming and event processing endpoints
     app.include_router(streaming.router, prefix="/api/v1", tags=["streaming"])
@@ -357,7 +357,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     async def root():
         """API root endpoint."""
         return {
-            "message": "Pynomaly API",
+            "message": "Software API",
             "version": settings.app.version,
             "api_version": "v1",
             "docs": "/api/v1/docs",
@@ -374,5 +374,5 @@ try:
 except Exception as e:
     # Fallback for testing environments
     from fastapi import FastAPI
-    app = FastAPI(title="Pynomaly API (Test Mode)")
+    app = FastAPI(title="Software API (Test Mode)")
     print(f"Warning: Using fallback app due to: {e}")

@@ -26,7 +26,7 @@ analytics_app = typer.Typer(
 
 @analytics_app.command("dashboard")
 def generate_dashboard(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_dir: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output directory for dashboard"
     ),
@@ -68,7 +68,7 @@ def generate_dashboard(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import analytics packages
@@ -78,7 +78,7 @@ def generate_dashboard(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Initializing dashboard generator...")
             
@@ -99,7 +99,7 @@ def generate_dashboard(
             progress.update(task, description="Generating dashboard components...")
             
             # Generate dashboard
-            dashboard = dashboard_generator.create_dashboard(dataset, config)
+            dashboard = dashboard_generator.create_dashboard(data_collection, config)
             
             progress.update(task, description="Rendering dashboard...")
             
@@ -154,7 +154,7 @@ def generate_dashboard(
 
 @analytics_app.command("report")
 def generate_report(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for report"
     ),
@@ -194,7 +194,7 @@ def generate_report(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import reporting packages
@@ -204,16 +204,16 @@ def generate_report(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
-            progress.update(task, description="Analyzing dataset...")
+            progress.update(task, description="Analyzing data_collection...")
             
             # Initialize services
             report_generator = ReportGenerator()
             insights_engine = InsightsEngine()
             
             # Generate insights
-            insights = insights_engine.generate_insights(dataset)
+            insights = insights_engine.generate_insights(data_collection)
             
             progress.update(task, description="Generating report...")
             
@@ -228,7 +228,7 @@ def generate_report(
             }
             
             # Generate report
-            report = report_generator.create_report(dataset, insights, config)
+            report = report_generator.create_report(data_collection, insights, config)
             
             progress.update(task, description="Exporting report...")
             
@@ -259,7 +259,7 @@ def generate_report(
 
 @analytics_app.command("insights")
 def generate_insights(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for insights"
     ),
@@ -295,7 +295,7 @@ def generate_insights(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import insights packages
@@ -305,7 +305,7 @@ def generate_insights(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Analyzing data patterns...")
             
@@ -325,7 +325,7 @@ def generate_insights(
             progress.update(task, description="Generating insights...")
             
             # Generate insights
-            insights = insights_engine.generate_comprehensive_insights(dataset, config)
+            insights = insights_engine.generate_comprehensive_insights(data_collection, config)
             
             progress.update(task, description="Ranking and filtering insights...")
             
@@ -373,7 +373,7 @@ def generate_insights(
 
 @analytics_app.command("visualize")
 def create_visualizations(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     output_dir: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output directory for visualizations"
     ),
@@ -415,7 +415,7 @@ def create_visualizations(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Loading dataset...", total=None)
+        task = progress.add_task("Loading data_collection...", total=None)
         
         try:
             # Import visualization packages
@@ -425,7 +425,7 @@ def create_visualizations(
             
             # Load data
             adapter = DataSourceAdapter()
-            dataset = adapter.load_dataset(str(input_file))
+            data_collection = adapter.load_data_collection(str(input_file))
             
             progress.update(task, description="Analyzing data for optimal visualizations...")
             
@@ -448,9 +448,9 @@ def create_visualizations(
             
             # Generate visualizations
             if "auto" in chart_types:
-                visualizations = viz_engine.auto_generate_visualizations(dataset, config)
+                visualizations = viz_engine.auto_generate_visualizations(data_collection, config)
             else:
-                visualizations = chart_generator.create_custom_charts(dataset, config)
+                visualizations = chart_generator.create_custom_charts(data_collection, config)
             
             progress.update(task, description="Saving visualizations...")
             
@@ -479,8 +479,8 @@ def create_visualizations(
 
 @analytics_app.command("compare")
 def compare_datasets(
-    dataset1: Path = typer.Argument(..., help="First dataset file"),
-    dataset2: Path = typer.Argument(..., help="Second dataset file"),
+    dataset1: Path = typer.Argument(..., help="First data_collection file"),
+    dataset2: Path = typer.Argument(..., help="Second data_collection file"),
     output_file: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for comparison results"
     ),
@@ -499,11 +499,11 @@ def compare_datasets(
     """Compare two datasets and identify differences."""
     
     if not dataset1.exists():
-        console.print(f"[red]Error: Dataset file {dataset1} does not exist[/red]")
+        console.print(f"[red]Error: DataCollection file {dataset1} does not exist[/red]")
         raise typer.Exit(1)
     
     if not dataset2.exists():
-        console.print(f"[red]Error: Dataset file {dataset2} does not exist[/red]")
+        console.print(f"[red]Error: DataCollection file {dataset2} does not exist[/red]")
         raise typer.Exit(1)
     
     if output_file is None:
@@ -523,8 +523,8 @@ def compare_datasets(
             
             # Load datasets
             adapter = DataSourceAdapter()
-            data1 = adapter.load_dataset(str(dataset1))
-            data2 = adapter.load_dataset(str(dataset2))
+            data1 = adapter.load_data_collection(str(dataset1))
+            data2 = adapter.load_data_collection(str(dataset2))
             
             progress.update(task, description="Performing comparison analysis...")
             
@@ -539,7 +539,7 @@ def compare_datasets(
             }
             
             # Perform comparison
-            comparison_results = comparison_service.compare_datasets(
+            comparison_results = comparison_service.compare_data_collections(
                 data1, data2, config
             )
             
@@ -567,7 +567,7 @@ def compare_datasets(
                 console.print_exception()
             raise typer.Exit(1)
     
-    console.print("\n[green]✓ Dataset comparison completed successfully![/green]")
+    console.print("\n[green]✓ DataCollection comparison completed successfully![/green]")
     console.print(f"Results saved to: {output_file}")
     
     if generate_report:
@@ -594,7 +594,7 @@ def compare_datasets(
 
 @analytics_app.command("benchmark")
 def benchmark_performance(
-    input_file: Path = typer.Argument(..., help="Input dataset file"),
+    input_file: Path = typer.Argument(..., help="Input data_collection file"),
     operations: List[str] = typer.Option(
         ["all"], "--operation", "-op",
         help="Operations to benchmark: [all|load|profile|analyze|transform|export]"

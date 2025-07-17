@@ -1,4 +1,4 @@
-"""Model registry service for centralized model management."""
+"""Processor registry service for centralized processor management."""
 
 from __future__ import annotations
 
@@ -13,26 +13,26 @@ from uuid import UUID
 from monorepo.domain.entities.model_registry import (
     AccessLevel,
     AccessPolicy,
-    Model,
+    Processor,
     ModelRegistry,
 )
 from monorepo.domain.entities.model_version import ModelStatus, ModelVersion
 
 
 class ModelRegistryError(Exception):
-    """Base exception for model registry errors."""
+    """Base exception for processor registry errors."""
 
     pass
 
 
 class ModelNotFoundError(ModelRegistryError):
-    """Model not found in registry."""
+    """Processor not found in registry."""
 
     pass
 
 
 class VersionNotFoundError(ModelRegistryError):
-    """Model version not found."""
+    """Processor version not found."""
 
     pass
 
@@ -44,14 +44,14 @@ class AccessDeniedError(ModelRegistryError):
 
 
 class ModelAlreadyExistsError(ModelRegistryError):
-    """Model already exists in registry."""
+    """Processor already exists in registry."""
 
     pass
 
 
 @dataclass
 class SearchCriteria:
-    """Search criteria for model discovery."""
+    """Search criteria for processor discovery."""
 
     query: str | None = None
     domain: str | None = None
@@ -64,35 +64,35 @@ class SearchCriteria:
     limit: int | None = None
 
     def matches_model(self, model: Model) -> bool:
-        """Check if a model matches these criteria."""
-        if not self.include_archived and model.is_archived:
+        """Check if a processor matches these criteria."""
+        if not self.include_archived and processor.is_archived:
             return False
 
-        if self.domain and model.domain != self.domain:
+        if self.domain and processor.domain != self.domain:
             return False
 
-        if self.algorithm and model.algorithm != self.algorithm:
+        if self.algorithm and processor.algorithm != self.algorithm:
             return False
 
-        if self.owner and model.owner != self.owner:
+        if self.owner and processor.owner != self.owner:
             return False
 
         if self.tags:
-            if not all(tag in model.tags for tag in self.tags):
+            if not all(tag in processor.tags for tag in self.tags):
                 return False
 
         # Performance-based filtering
         if self.min_accuracy or self.max_inference_time:
-            latest_version = model.get_latest_version()
+            latest_version = processor.get_latest_version()
             if latest_version:
-                metrics = latest_version.performance_metrics
+                measurements = latest_version.performance_measurements
 
-                if self.min_accuracy and metrics.accuracy < self.min_accuracy:
+                if self.min_accuracy and measurements.accuracy < self.min_accuracy:
                     return False
 
                 if (
                     self.max_inference_time
-                    and metrics.inference_time > self.max_inference_time
+                    and measurements.inference_time > self.max_inference_time
                 ):
                     return False
 
@@ -101,9 +101,9 @@ class SearchCriteria:
 
 @dataclass
 class ModelRecommendation:
-    """Model recommendation for a specific use case."""
+    """Processor recommendation for a specific use case."""
 
-    model: Model
+    processor: Processor
     version: ModelVersion
     confidence: float
     reasoning: str
@@ -112,32 +112,32 @@ class ModelRecommendation:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
-            "model_id": str(self.model.id),
-            "model_name": self.model.name,
+            "processor_id": str(self.processor.id),
+            "processor_name": self.processor.name,
             "version": self.version.version_string,
-            "algorithm": self.model.algorithm,
-            "domain": self.model.domain,
+            "algorithm": self.processor.algorithm,
+            "domain": self.processor.domain,
             "confidence": self.confidence,
             "reasoning": self.reasoning,
             "expected_performance": self.expected_performance,
-            "performance_metrics": self.version.performance_metrics.to_dict(),
+            "performance_measurements": self.version.performance_measurements.to_dict(),
         }
 
 
 class ModelRegistryService:
-    """Service for managing model registries and providing model discovery.
+    """Service for managing processor registries and providing processor discovery.
 
-    This service provides comprehensive model lifecycle management including:
-    - Model registration and cataloging
+    This service provides comprehensive processor lifecycle management including:
+    - Processor registration and cataloging
     - Version management across environments
     - Access control and permissions
-    - Model search and discovery
+    - Processor search and discovery
     - Performance tracking and comparison
-    - Recommendation engine for model selection
+    - Recommendation engine for processor selection
     """
 
     def __init__(self, storage_path: Path, default_registry_name: str = "default"):
-        """Initialize model registry service.
+        """Initialize processor registry service.
 
         Args:
             storage_path: Path for registry persistence
@@ -168,7 +168,7 @@ class ModelRegistryService:
         if not self.registries:
             await self.create_registry(
                 name=self.default_registry_name,
-                description="Default model registry",
+                description="Default processor registry",
                 creator="system",
             )
 
@@ -179,7 +179,7 @@ class ModelRegistryService:
         creator: str,
         access_policy: AccessPolicy | None = None,
     ) -> ModelRegistry:
-        """Create a new model registry.
+        """Create a new processor registry.
 
         Args:
             name: Registry name
@@ -230,7 +230,7 @@ class ModelRegistryService:
 
         return self.registries[registry_name]
 
-    async def register_model(
+    async def register_processor(
         self,
         name: str,
         description: str,
@@ -242,36 +242,36 @@ class ModelRegistryService:
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
-    ) -> Model:
-        """Register a new model in the registry.
+    ) -> Processor:
+        """Register a new processor in the registry.
 
         Args:
-            name: Model name
-            description: Model description
+            name: Processor name
+            description: Processor description
             algorithm: Algorithm used
             domain: Application domain
-            owner: Model owner
+            owner: Processor owner
             tags: Optional tags
             metadata: Optional metadata
             registry_name: Registry to use (default if None)
-            user: User registering the model
+            user: User registering the processor
             groups: User's groups
 
         Returns:
-            Registered Model
+            Registered Processor
 
         Raises:
-            ModelAlreadyExistsError: If model name already exists
+            ModelAlreadyExistsError: If processor name already exists
             AccessDeniedError: If user lacks permission
         """
         registry = await self.get_registry(registry_name)
 
-        # Check if model name already exists
-        existing_model = registry.get_model_by_name(name, user, groups)
-        if existing_model:
-            raise ModelAlreadyExistsError(f"Model '{name}' already exists")
+        # Check if processor name already exists
+        existing_processor = registry.get_processor_by_name(name, user, groups)
+        if existing_processor:
+            raise ModelAlreadyExistsError(f"Processor '{name}' already exists")
 
-        model = Model(
+        processor = Processor(
             name=name,
             description=description,
             algorithm=algorithm,
@@ -281,109 +281,109 @@ class ModelRegistryService:
             metadata=metadata or {},
         )
 
-        registry.register_model(model, user, groups)
+        registry.register_processor(processor, user, groups)
         await self._save_registry(registry)
 
-        return model
+        return processor
 
-    async def add_model_version(
+    async def add_processor_version(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         version: ModelVersion,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> None:
-        """Add a version to an existing model.
+        """Add a version to an existing processor.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             version: ModelVersion to add
             registry_name: Registry name
             user: User adding the version
             groups: User's groups
 
         Raises:
-            ModelNotFoundError: If model not found
+            ModelNotFoundError: If processor not found
             AccessDeniedError: If user lacks permission
         """
         registry = await self.get_registry(registry_name)
-        model = registry.get_model(model_id, user, groups)
+        processor = registry.get_processor(processor_id, user, groups)
 
-        if not model:
-            raise ModelNotFoundError(f"Model {model_id} not found")
+        if not processor:
+            raise ModelNotFoundError(f"Processor {processor_id} not found")
 
         if not registry.access_policy.can_write(user, groups):
             raise AccessDeniedError(f"User {user} lacks write permission")
 
-        model.add_version(version)
+        processor.add_version(version)
         await self._save_registry(registry)
 
-    async def get_model(
+    async def get_processor(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
-    ) -> Model:
-        """Get a model by ID.
+    ) -> Processor:
+        """Get a processor by ID.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             registry_name: Registry name
-            user: User requesting the model
+            user: User requesting the processor
             groups: User's groups
 
         Returns:
-            Model
+            Processor
 
         Raises:
-            ModelNotFoundError: If model not found
+            ModelNotFoundError: If processor not found
         """
         registry = await self.get_registry(registry_name)
-        model = registry.get_model(model_id, user, groups)
+        processor = registry.get_processor(processor_id, user, groups)
 
-        if not model:
-            raise ModelNotFoundError(f"Model {model_id} not found")
+        if not processor:
+            raise ModelNotFoundError(f"Processor {processor_id} not found")
 
-        return model
+        return processor
 
-    async def get_model_by_name(
+    async def get_processor_by_name(
         self,
         name: str,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
-    ) -> Model:
-        """Get a model by name.
+    ) -> Processor:
+        """Get a processor by name.
 
         Args:
-            name: Model name
+            name: Processor name
             registry_name: Registry name
-            user: User requesting the model
+            user: User requesting the processor
             groups: User's groups
 
         Returns:
-            Model
+            Processor
 
         Raises:
-            ModelNotFoundError: If model not found
+            ModelNotFoundError: If processor not found
         """
         registry = await self.get_registry(registry_name)
-        model = registry.get_model_by_name(name, user, groups)
+        processor = registry.get_processor_by_name(name, user, groups)
 
-        if not model:
-            raise ModelNotFoundError(f"Model '{name}' not found")
+        if not processor:
+            raise ModelNotFoundError(f"Processor '{name}' not found")
 
-        return model
+        return processor
 
-    async def list_models(
+    async def list_processors(
         self,
         criteria: SearchCriteria | None = None,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
-    ) -> list[Model]:
+    ) -> list[Processor]:
         """List models with optional filtering.
 
         Args:
@@ -398,7 +398,7 @@ class ModelRegistryService:
         registry = await self.get_registry(registry_name)
         criteria = criteria or SearchCriteria()
 
-        models = registry.list_models(
+        models = registry.list_processors(
             user=user,
             groups=groups,
             domain_filter=criteria.domain,
@@ -409,22 +409,22 @@ class ModelRegistryService:
         )
 
         # Apply additional criteria filtering
-        filtered_models = [model for model in models if criteria.matches_model(model)]
+        filtered_processors = [processor for processor in models if criteria.matches_processor(processor)]
 
         # Apply limit
         if criteria.limit:
-            filtered_models = filtered_models[: criteria.limit]
+            filtered_processors = filtered_processors[: criteria.limit]
 
-        return filtered_models
+        return filtered_processors
 
-    async def search_models(
+    async def search_processors(
         self,
         query: str,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
         limit: int | None = None,
-    ) -> list[Model]:
+    ) -> list[Processor]:
         """Search models by query.
 
         Args:
@@ -438,20 +438,20 @@ class ModelRegistryService:
             List of matching models
         """
         registry = await self.get_registry(registry_name)
-        return registry.search_models(query, user, groups, limit)
+        return registry.search_processors(query, user, groups, limit)
 
-    async def get_model_version(
+    async def get_processor_version(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         version: str,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> ModelVersion:
-        """Get a specific model version.
+        """Get a specific processor version.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             version: Version string
             registry_name: Registry name
             user: User requesting the version
@@ -461,92 +461,92 @@ class ModelRegistryService:
             ModelVersion
 
         Raises:
-            ModelNotFoundError: If model not found
+            ModelNotFoundError: If processor not found
             VersionNotFoundError: If version not found
         """
-        model = await self.get_model(model_id, registry_name, user, groups)
-        model_version = model.get_version(version)
+        processor = await self.get_processor(processor_id, registry_name, user, groups)
+        processor_version = processor.get_version(version)
 
-        if not model_version:
+        if not processor_version:
             raise VersionNotFoundError(
-                f"Version {version} not found for model {model_id}"
+                f"Version {version} not found for processor {processor_id}"
             )
 
-        return model_version
+        return processor_version
 
     async def promote_to_staging(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         version_id: UUID,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> None:
-        """Promote a model version to staging.
+        """Promote a processor version to staging.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             version_id: Version ID to promote
             registry_name: Registry name
             user: User performing promotion
             groups: User's groups
         """
         registry = await self.get_registry(registry_name)
-        model = registry.get_model(model_id, user, groups)
+        processor = registry.get_processor(processor_id, user, groups)
 
-        if not model:
-            raise ModelNotFoundError(f"Model {model_id} not found")
+        if not processor:
+            raise ModelNotFoundError(f"Processor {processor_id} not found")
 
         if not registry.access_policy.can_write(user, groups):
             raise AccessDeniedError(f"User {user} lacks write permission")
 
-        model.promote_to_staging(version_id)
+        processor.promote_to_staging(version_id)
         await self._save_registry(registry)
 
     async def promote_to_production(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         version_id: UUID,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> None:
-        """Promote a model version to production.
+        """Promote a processor version to production.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             version_id: Version ID to promote
             registry_name: Registry name
             user: User performing promotion
             groups: User's groups
         """
         registry = await self.get_registry(registry_name)
-        model = registry.get_model(model_id, user, groups)
+        processor = registry.get_processor(processor_id, user, groups)
 
-        if not model:
-            raise ModelNotFoundError(f"Model {model_id} not found")
+        if not processor:
+            raise ModelNotFoundError(f"Processor {processor_id} not found")
 
         if not registry.access_policy.is_admin(user, groups):
             raise AccessDeniedError(
                 f"User {user} lacks admin permission for production promotion"
             )
 
-        model.promote_to_production(version_id)
+        processor.promote_to_production(version_id)
         await self._save_registry(registry)
 
-    async def compare_model_versions(
+    async def compare_processor_versions(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         version1: str,
         version2: str,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> dict[str, Any]:
-        """Compare two versions of a model.
+        """Compare two versions of a processor.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             version1: First version string
             version2: Second version string
             registry_name: Registry name
@@ -556,37 +556,37 @@ class ModelRegistryService:
         Returns:
             Comparison results
         """
-        v1 = await self.get_model_version(
-            model_id, version1, registry_name, user, groups
+        v1 = await self.get_processor_version(
+            processor_id, version1, registry_name, user, groups
         )
-        v2 = await self.get_model_version(
-            model_id, version2, registry_name, user, groups
+        v2 = await self.get_processor_version(
+            processor_id, version2, registry_name, user, groups
         )
 
-        performance_diff = v1.performance_metrics.compare_with(v2.performance_metrics)
+        performance_diff = v1.performance_measurements.compare_with(v2.performance_measurements)
 
         return {
-            "model_id": str(model_id),
+            "processor_id": str(processor_id),
             "version1": {
                 "version": v1.version_string,
                 "status": v1.status.value,
                 "created_at": v1.created_at.isoformat(),
-                "performance": v1.performance_metrics.to_dict(),
+                "performance": v1.performance_measurements.to_dict(),
             },
             "version2": {
                 "version": v2.version_string,
                 "status": v2.status.value,
                 "created_at": v2.created_at.isoformat(),
-                "performance": v2.performance_metrics.to_dict(),
+                "performance": v2.performance_measurements.to_dict(),
             },
             "performance_difference": performance_diff,
-            "version1_is_better": v1.performance_metrics.is_better_than(
-                v2.performance_metrics
+            "version1_is_better": v1.performance_measurements.is_better_than(
+                v2.performance_measurements
             ),
             "recommendations": self._generate_version_recommendations(v1, v2),
         }
 
-    async def recommend_models(
+    async def recommend_processors(
         self,
         domain: str,
         use_case: str,
@@ -601,38 +601,38 @@ class ModelRegistryService:
         Args:
             domain: Application domain
             use_case: Specific use case description
-            performance_requirements: Required performance metrics
+            performance_requirements: Required performance measurements
             registry_name: Registry name
             user: User requesting recommendations
             groups: User's groups
             limit: Maximum recommendations
 
         Returns:
-            List of model recommendations
+            List of processor recommendations
         """
         # Get models in the domain
         criteria = SearchCriteria(domain=domain, include_archived=False)
-        models = await self.list_models(criteria, registry_name, user, groups)
+        models = await self.list_processors(criteria, registry_name, user, groups)
 
         recommendations = []
 
-        for model in models:
-            latest_version = model.get_latest_version()
+        for processor in models:
+            latest_version = processor.get_latest_version()
             if not latest_version:
                 continue
 
             # Calculate recommendation score
             score, reasoning = self._calculate_recommendation_score(
-                model, latest_version, use_case, performance_requirements
+                processor, latest_version, use_case, performance_requirements
             )
 
             if score > 0.3:  # Minimum threshold
                 recommendation = ModelRecommendation(
-                    model=model,
+                    processor=processor,
                     version=latest_version,
                     confidence=score,
                     reasoning=reasoning,
-                    expected_performance=latest_version.performance_metrics.to_dict(),
+                    expected_performance=latest_version.performance_measurements.to_dict(),
                 )
                 recommendations.append(recommendation)
 
@@ -655,31 +655,31 @@ class ModelRegistryService:
         registry = await self.get_registry(registry_name)
         return registry.get_statistics()
 
-    async def archive_model(
+    async def archive_processor(
         self,
-        model_id: UUID,
+        processor_id: UUID,
         registry_name: str | None = None,
         user: str = "system",
         groups: list[str] | None = None,
     ) -> None:
-        """Archive a model.
+        """Archive a processor.
 
         Args:
-            model_id: Model ID
+            processor_id: Processor ID
             registry_name: Registry name
-            user: User archiving the model
+            user: User archiving the processor
             groups: User's groups
         """
         registry = await self.get_registry(registry_name)
-        model = registry.get_model(model_id, user, groups)
+        processor = registry.get_processor(processor_id, user, groups)
 
-        if not model:
-            raise ModelNotFoundError(f"Model {model_id} not found")
+        if not processor:
+            raise ModelNotFoundError(f"Processor {processor_id} not found")
 
         if not registry.access_policy.can_write(user, groups):
             raise AccessDeniedError(f"User {user} lacks write permission")
 
-        model.archive()
+        processor.archive()
         await self._save_registry(registry)
 
     async def _save_registry(self, registry: ModelRegistry) -> None:
@@ -707,18 +707,18 @@ class ModelRegistryService:
 
     def _calculate_recommendation_score(
         self,
-        model: Model,
+        processor: Processor,
         version: ModelVersion,
         use_case: str,
         performance_requirements: dict[str, float] | None,
     ) -> tuple[float, str]:
-        """Calculate recommendation score for a model."""
+        """Calculate recommendation score for a processor."""
         score = 0.0
         reasons = []
 
         # Base score from performance
-        metrics = version.performance_metrics
-        score += metrics.performance_score * 0.4
+        measurements = version.performance_measurements
+        score += measurements.performance_score * 0.4
 
         # Algorithm suitability (simplified)
         algorithm_scores = {
@@ -728,16 +728,16 @@ class ModelRegistryService:
             "EllipticEnvelope": 0.6,
         }
 
-        algo_score = algorithm_scores.get(model.algorithm, 0.5)
+        algo_score = algorithm_scores.get(processor.algorithm, 0.5)
         score += algo_score * 0.3
-        reasons.append(f"Algorithm {model.algorithm} suitable for anomaly detection")
+        reasons.append(f"Algorithm {processor.algorithm} suitable for anomaly processing")
 
         # Performance requirements check
         if performance_requirements:
             meets_requirements = True
             for metric, requirement in performance_requirements.items():
-                if hasattr(metrics, metric):
-                    actual_value = getattr(metrics, metric)
+                if hasattr(measurements, metric):
+                    actual_value = getattr(measurements, metric)
                     if metric in ["accuracy", "precision", "recall", "f1_score"]:
                         # Higher is better
                         if actual_value < requirement:
@@ -757,7 +757,7 @@ class ModelRegistryService:
                 reasons.append("Does not meet some performance requirements")
 
         # Recent activity bonus
-        days_since_update = (datetime.utcnow() - model.updated_at).days
+        days_since_update = (datetime.utcnow() - processor.updated_at).days
         if days_since_update < 30:
             score += 0.1
             reasons.append("Recently updated")
@@ -771,8 +771,8 @@ class ModelRegistryService:
         """Generate recommendations based on version comparison."""
         recommendations = []
 
-        perf_diff = version1.performance_metrics.compare_with(
-            version2.performance_metrics
+        perf_diff = version1.performance_measurements.compare_with(
+            version2.performance_measurements
         )
 
         if perf_diff["accuracy"] > 0.05:

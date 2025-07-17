@@ -4,7 +4,7 @@ This module provides comprehensive REST API endpoints for:
 - Training job management and monitoring
 - Hyperparameter optimization configuration
 - Experiment tracking and results
-- Model lifecycle management
+- Processor lifecycle management
 """
 
 """
@@ -32,7 +32,7 @@ from interfaces.application.services.training_automation_service import (
     TrainingStatus,
 )
 from monorepo.infrastructure.adapters.model_trainer_adapter import (
-    create_model_trainer_adapter,
+    create_processor_trainer_adapter,
 )
 from monorepo.infrastructure.persistence.training_job_repository import (
     create_training_job_repository,
@@ -46,7 +46,7 @@ router = APIRouter(prefix="/api/v1/training", tags=["Training Automation"])
 
 # Pydantic models for API
 class TrainingConfigurationRequest(BaseModel):
-    """Request model for training configuration."""
+    """Request processor for training configuration."""
 
     max_trials: int = Field(
         default=100, ge=10, le=1000, description="Maximum number of optimization trials"
@@ -66,8 +66,8 @@ class TrainingConfigurationRequest(BaseModel):
     primary_metric: str = Field(
         default="roc_auc", description="Primary optimization metric"
     )
-    secondary_metrics: list[str] = Field(
-        default=["precision", "recall", "f1"], description="Secondary metrics to track"
+    secondary_measurements: list[str] = Field(
+        default=["precision", "recall", "f1"], description="Secondary measurements to track"
     )
     optimization_direction: str = Field(
         default="maximize",
@@ -103,7 +103,7 @@ class TrainingConfigurationRequest(BaseModel):
         default=None, description="Experiment name for tracking"
     )
     track_artifacts: bool = Field(default=True, description="Enable artifact tracking")
-    save_models: bool = Field(default=True, description="Save trained models")
+    save_processors: bool = Field(default=True, description="Save trained models")
 
     # Algorithm selection
     algorithm_whitelist: list[str] | None = Field(
@@ -118,10 +118,10 @@ class TrainingConfigurationRequest(BaseModel):
 
 
 class CreateTrainingJobRequest(BaseModel):
-    """Request model for creating training jobs."""
+    """Request processor for creating training jobs."""
 
     name: str = Field(..., min_length=1, max_length=255, description="Job name")
-    dataset_id: str = Field(..., min_length=1, description="Dataset ID")
+    data_collection_id: str = Field(..., min_length=1, description="DataCollection ID")
     target_algorithms: list[str] | None = Field(
         default=None, description="Target algorithms"
     )
@@ -131,12 +131,12 @@ class CreateTrainingJobRequest(BaseModel):
 
 
 class TrainingJobResponse(BaseModel):
-    """Response model for training job information."""
+    """Response processor for training job information."""
 
     job_id: str
     name: str
     status: TrainingStatus
-    dataset_id: str
+    data_collection_id: str
     target_algorithms: list[str]
 
     created_at: datetime
@@ -152,12 +152,12 @@ class TrainingJobResponse(BaseModel):
     failed_trials: int
     execution_time_seconds: float
 
-    model_path: str | None = None
+    processor_path: str | None = None
     experiment_id: str | None = None
 
 
 class TrainingJobMetricsResponse(BaseModel):
-    """Response model for training job metrics."""
+    """Response processor for training job measurements."""
 
     job_id: str
     status: str
@@ -172,9 +172,9 @@ class TrainingJobMetricsResponse(BaseModel):
 
 
 class QuickOptimizeRequest(BaseModel):
-    """Request model for quick optimization."""
+    """Request processor for quick optimization."""
 
-    dataset_id: str = Field(..., description="Dataset ID")
+    data_collection_id: str = Field(..., description="DataCollection ID")
     algorithms: list[str] | None = Field(default=None, description="Target algorithms")
     max_trials: int = Field(default=50, ge=10, le=200, description="Maximum trials")
     timeout_minutes: int = Field(
@@ -186,7 +186,7 @@ class QuickOptimizeRequest(BaseModel):
 def get_training_service() -> TrainingAutomationService:
     """Get training automation service."""
     repository = create_training_job_repository()
-    trainer = create_model_trainer_adapter()
+    trainer = create_processor_trainer_adapter()
     return TrainingAutomationService(repository, trainer)
 
 
@@ -194,7 +194,7 @@ def get_training_service() -> TrainingAutomationService:
 
 
 @router.post(
-    "/jobs", response_model=TrainingJobResponse, status_code=status.HTTP_201_CREATED
+    "/jobs", response_processor=TrainingJobResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_training_job(
     request: CreateTrainingJobRequest,
@@ -209,7 +209,7 @@ async def create_training_job(
             optimization_strategy=request.configuration.optimization_strategy,
             pruning_strategy=request.configuration.pruning_strategy,
             primary_metric=request.configuration.primary_metric,
-            secondary_metrics=request.configuration.secondary_metrics,
+            secondary_measurements=request.configuration.secondary_measurements,
             optimization_direction=request.configuration.optimization_direction,
             cross_validation_folds=request.configuration.cross_validation_folds,
             validation_split=request.configuration.validation_split,
@@ -220,7 +220,7 @@ async def create_training_job(
             use_gpu=request.configuration.use_gpu,
             experiment_name=request.configuration.experiment_name,
             track_artifacts=request.configuration.track_artifacts,
-            save_models=request.configuration.save_models,
+            save_processors=request.configuration.save_processors,
             algorithm_whitelist=request.configuration.algorithm_whitelist,
             algorithm_blacklist=request.configuration.algorithm_blacklist,
             ensemble_methods=request.configuration.ensemble_methods,
@@ -228,7 +228,7 @@ async def create_training_job(
 
         job = await service.create_training_job(
             name=request.name,
-            dataset_id=request.dataset_id,
+            data_collection_id=request.data_collection_id,
             configuration=config,
             target_algorithms=request.target_algorithms,
         )
@@ -237,7 +237,7 @@ async def create_training_job(
             job_id=job.job_id,
             name=job.name,
             status=job.status,
-            dataset_id=job.dataset_id,
+            data_collection_id=job.data_collection_id,
             target_algorithms=job.target_algorithms,
             created_at=job.created_at,
             started_at=job.started_at,
@@ -249,7 +249,7 @@ async def create_training_job(
             successful_trials=job.successful_trials,
             failed_trials=job.failed_trials,
             execution_time_seconds=job.execution_time_seconds,
-            model_path=job.model_path,
+            processor_path=job.processor_path,
             experiment_id=job.experiment_id,
         )
 
@@ -282,7 +282,7 @@ async def start_training_job(
         )
 
 
-@router.get("/jobs/{job_id}", response_model=TrainingJobResponse)
+@router.get("/jobs/{job_id}", response_processor=TrainingJobResponse)
 async def get_training_job(
     job_id: str, service: TrainingAutomationService = Depends(get_training_service)
 ) -> TrainingJobResponse:
@@ -300,7 +300,7 @@ async def get_training_job(
             job_id=job.job_id,
             name=job.name,
             status=job.status,
-            dataset_id=job.dataset_id,
+            data_collection_id=job.data_collection_id,
             target_algorithms=job.target_algorithms,
             created_at=job.created_at,
             started_at=job.started_at,
@@ -312,7 +312,7 @@ async def get_training_job(
             successful_trials=job.successful_trials,
             failed_trials=job.failed_trials,
             execution_time_seconds=job.execution_time_seconds,
-            model_path=job.model_path,
+            processor_path=job.processor_path,
             experiment_id=job.experiment_id,
         )
 
@@ -326,7 +326,7 @@ async def get_training_job(
         )
 
 
-@router.get("/jobs", response_model=list[TrainingJobResponse])
+@router.get("/jobs", response_processor=list[TrainingJobResponse])
 async def list_training_jobs(
     status_filter: TrainingStatus | None = Query(
         None, alias="status", description="Filter by status"
@@ -345,7 +345,7 @@ async def list_training_jobs(
                 job_id=job.job_id,
                 name=job.name,
                 status=job.status,
-                dataset_id=job.dataset_id,
+                data_collection_id=job.data_collection_id,
                 target_algorithms=job.target_algorithms,
                 created_at=job.created_at,
                 started_at=job.started_at,
@@ -357,7 +357,7 @@ async def list_training_jobs(
                 successful_trials=job.successful_trials,
                 failed_trials=job.failed_trials,
                 execution_time_seconds=job.execution_time_seconds,
-                model_path=job.model_path,
+                processor_path=job.processor_path,
                 experiment_id=job.experiment_id,
             )
             for job in jobs
@@ -388,38 +388,38 @@ async def cancel_training_job(
         )
 
 
-@router.get("/jobs/{job_id}/metrics", response_model=TrainingJobMetricsResponse)
-async def get_training_metrics(
+@router.get("/jobs/{job_id}/measurements", response_processor=TrainingJobMetricsResponse)
+async def get_training_measurements(
     job_id: str, service: TrainingAutomationService = Depends(get_training_service)
 ) -> TrainingJobMetricsResponse:
-    """Get comprehensive training metrics for a job."""
+    """Get comprehensive training measurements for a job."""
     try:
-        metrics = await service.get_training_metrics(job_id)
+        measurements = await service.get_training_measurements(job_id)
 
         return TrainingJobMetricsResponse(
-            job_id=metrics["job_id"],
-            status=metrics["status"],
-            execution_time=metrics["execution_time"],
-            total_trials=metrics["total_trials"],
-            successful_trials=metrics["successful_trials"],
-            failed_trials=metrics["failed_trials"],
-            success_rate=metrics["success_rate"],
-            best_score=metrics["best_score"],
-            best_algorithm=metrics["best_algorithm"],
-            trial_history=metrics["trial_history"],
+            job_id=measurements["job_id"],
+            status=measurements["status"],
+            execution_time=measurements["execution_time"],
+            total_trials=measurements["total_trials"],
+            successful_trials=measurements["successful_trials"],
+            failed_trials=measurements["failed_trials"],
+            success_rate=measurements["success_rate"],
+            best_score=measurements["best_score"],
+            best_algorithm=measurements["best_algorithm"],
+            trial_history=measurements["trial_history"],
         )
 
     except Exception as e:
-        logger.error(f"Failed to get training metrics for {job_id}: {e}")
+        logger.error(f"Failed to get training measurements for {job_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get training metrics: {str(e)}",
+            detail=f"Failed to get training measurements: {str(e)}",
         )
 
 
 @router.post(
     "/quick-optimize",
-    response_model=TrainingJobResponse,
+    response_processor=TrainingJobResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def quick_optimize(
@@ -441,7 +441,7 @@ async def quick_optimize(
         # Create job
         job = await service.create_training_job(
             name=f"Quick optimization {datetime.now().strftime('%Y%m%d_%H%M%S')}",
-            dataset_id=request.dataset_id,
+            data_collection_id=request.data_collection_id,
             configuration=config,
             target_algorithms=request.algorithms,
         )
@@ -453,7 +453,7 @@ async def quick_optimize(
             job_id=job.job_id,
             name=job.name,
             status=job.status,
-            dataset_id=job.dataset_id,
+            data_collection_id=job.data_collection_id,
             target_algorithms=job.target_algorithms,
             created_at=job.created_at,
             started_at=job.started_at,
@@ -465,7 +465,7 @@ async def quick_optimize(
             successful_trials=job.successful_trials,
             failed_trials=job.failed_trials,
             execution_time_seconds=job.execution_time_seconds,
-            model_path=job.model_path,
+            processor_path=job.processor_path,
             experiment_id=job.experiment_id,
         )
 
@@ -477,14 +477,14 @@ async def quick_optimize(
         )
 
 
-@router.get("/algorithms", response_model=list[str])
+@router.get("/algorithms", response_processor=list[str])
 async def get_supported_algorithms(
     service: TrainingAutomationService = Depends(get_training_service),
 ) -> list[str]:
     """Get list of supported algorithms."""
     try:
         # Get algorithms from the trainer adapter
-        trainer = create_model_trainer_adapter()
+        trainer = create_processor_trainer_adapter()
         return trainer.get_supported_algorithms()
 
     except Exception as e:
@@ -502,7 +502,7 @@ async def get_algorithm_info(
 ) -> dict[str, Any]:
     """Get detailed information about a specific algorithm."""
     try:
-        trainer = create_model_trainer_adapter()
+        trainer = create_processor_trainer_adapter()
         return trainer.get_algorithm_info(algorithm_name)
 
     except Exception as e:
@@ -551,7 +551,7 @@ async def get_training_system_status(
             "active_jobs": len(service.active_jobs),
             "job_statistics": stats,
             "supported_algorithms": len(
-                create_model_trainer_adapter().get_supported_algorithms()
+                create_processor_trainer_adapter().get_supported_algorithms()
             ),
             "timestamp": datetime.now().isoformat(),
         }

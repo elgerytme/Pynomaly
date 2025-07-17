@@ -1,6 +1,6 @@
 """Configuration Recommendation Service.
 
-This service provides intelligent configuration recommendations based on dataset
+This service provides intelligent configuration recommendations based on data_collection
 characteristics, historical performance, and machine learning models that learn
 from successful configuration patterns.
 """
@@ -72,8 +72,8 @@ class ConfigurationRecommendationService:
             "similarity_recommendations": 0,
             "performance_predictions": 0,
             "successful_predictions": 0,
-            "model_training_count": 0,
-            "last_model_training": None,
+            "processor_training_count": 0,
+            "last_processor_training": None,
         }
 
         # ML models for recommendations
@@ -81,8 +81,8 @@ class ConfigurationRecommendationService:
         self.algorithm_selector: RandomForestClassifier | None = None
         self.feature_scaler: StandardScaler | None = None
 
-        # Dataset characteristics cache
-        self._dataset_cache: dict[str, DatasetCharacteristicsDTO] = {}
+        # DataCollection characteristics cache
+        self._data_collection_cache: dict[str, DatasetCharacteristicsDTO] = {}
         self._configuration_cache: dict[UUID, ExperimentConfigurationDTO] = {}
         self._last_cache_update = datetime.min
 
@@ -95,18 +95,18 @@ class ConfigurationRecommendationService:
     @require_feature("advanced_automl")
     async def recommend_configurations(
         self,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
         performance_requirements: dict[str, float] | None = None,
         use_case: str | None = None,
         difficulty_level: ConfigurationLevel = ConfigurationLevel.INTERMEDIATE,
         max_recommendations: int = 5,
     ) -> list[ConfigurationRecommendationDTO]:
-        """Generate configuration recommendations for a dataset.
+        """Generate configuration recommendations for a data_collection.
 
         Args:
-            dataset_characteristics: Characteristics of the target dataset
+            data_collection_characteristics: Characteristics of the target data_collection
             performance_requirements: Required performance thresholds
-            use_case: Specific use case (e.g., "fraud_detection", "network_monitoring")
+            use_case: Specific use case (e.g., "fraud_processing", "network_monitoring")
             difficulty_level: Desired configuration complexity
             max_recommendations: Maximum number of recommendations
 
@@ -116,7 +116,7 @@ class ConfigurationRecommendationService:
         self.recommendation_stats["total_recommendations"] += 1
 
         logger.info(
-            f"Generating recommendations for dataset with {dataset_characteristics.n_samples} samples"
+            f"Generating recommendations for data_collection with {data_collection_characteristics.n_samples} samples"
         )
 
         # Ensure data is loaded
@@ -128,7 +128,7 @@ class ConfigurationRecommendationService:
         if self.enable_ml_recommendations and self.performance_predictor:
             self.recommendation_stats["ml_recommendations"] += 1
             ml_recommendations = await self._generate_ml_recommendations(
-                dataset_characteristics,
+                data_collection_characteristics,
                 performance_requirements,
                 max_recommendations // 2,
             )
@@ -139,7 +139,7 @@ class ConfigurationRecommendationService:
             self.recommendation_stats["similarity_recommendations"] += 1
             similarity_recommendations = (
                 await self._generate_similarity_recommendations(
-                    dataset_characteristics,
+                    data_collection_characteristics,
                     performance_requirements,
                     max_recommendations // 2,
                 )
@@ -149,7 +149,7 @@ class ConfigurationRecommendationService:
         # 3. Rule-based recommendations (fallback)
         if not recommendations:
             rule_recommendations = await self._generate_rule_based_recommendations(
-                dataset_characteristics,
+                data_collection_characteristics,
                 performance_requirements,
                 use_case,
                 difficulty_level,
@@ -159,7 +159,7 @@ class ConfigurationRecommendationService:
 
         # Remove duplicates and score
         unique_recommendations = self._deduplicate_and_score_recommendations(
-            recommendations, dataset_characteristics, performance_requirements
+            recommendations, data_collection_characteristics, performance_requirements
         )
 
         # Sort by confidence and limit results
@@ -174,16 +174,16 @@ class ConfigurationRecommendationService:
     async def predict_configuration_performance(
         self,
         configuration: ExperimentConfigurationDTO,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
     ) -> dict[str, float]:
-        """Predict performance for a configuration on a dataset.
+        """Predict performance for a configuration on a data_collection.
 
         Args:
             configuration: Configuration to evaluate
-            dataset_characteristics: Target dataset characteristics
+            data_collection_characteristics: Target data_collection characteristics
 
         Returns:
-            Predicted performance metrics
+            Predicted performance measurements
         """
         if not self.enable_performance_prediction or not self.performance_predictor:
             return {}
@@ -196,14 +196,14 @@ class ConfigurationRecommendationService:
 
         # Extract features
         features = self._extract_prediction_features(
-            configuration, dataset_characteristics
+            configuration, data_collection_characteristics
         )
 
         # Predict performance
         try:
             predicted_accuracy = self.performance_predictor.predict([features])[0]
 
-            # Estimate other metrics based on accuracy
+            # Estimate other measurements based on accuracy
             predicted_precision = predicted_accuracy * 0.95  # Typically slightly lower
             predicted_recall = predicted_accuracy * 1.02  # Can be slightly higher
             predicted_f1 = (
@@ -212,9 +212,9 @@ class ConfigurationRecommendationService:
                 / (predicted_precision + predicted_recall)
             )
 
-            # Estimate training time based on dataset size and algorithm
+            # Estimate training time based on data_collection size and algorithm
             predicted_training_time = self._estimate_training_time(
-                configuration, dataset_characteristics
+                configuration, data_collection_characteristics
             )
 
             predictions = {
@@ -232,7 +232,7 @@ class ConfigurationRecommendationService:
             logger.warning(f"Performance prediction failed: {e}")
             return {}
 
-    async def train_recommendation_models(
+    async def train_recommendation_processors(
         self, min_configurations: int = 20, test_size: float = 0.2
     ) -> dict[str, Any]:
         """Train ML models for recommendations.
@@ -242,7 +242,7 @@ class ConfigurationRecommendationService:
             test_size: Fraction of data for testing
 
         Returns:
-            Training results and model performance
+            Training results and processor performance
         """
         if not self.enable_ml_recommendations:
             return {"error": "ML recommendations disabled"}
@@ -278,12 +278,12 @@ class ConfigurationRecommendationService:
         algorithms = []
 
         for config in valid_configs:
-            if config.dataset_config and config.dataset_config.n_samples:
-                # Create dataset characteristics from configuration
-                dataset_chars = DatasetCharacteristicsDTO(
-                    n_samples=config.dataset_config.n_samples,
-                    n_features=config.dataset_config.n_features or 10,
-                    feature_types=config.dataset_config.feature_types or [],
+            if config.data_collection_config and config.data_collection_config.n_samples:
+                # Create data_collection characteristics from configuration
+                data_collection_chars = DatasetCharacteristicsDTO(
+                    n_samples=config.data_collection_config.n_samples,
+                    n_features=config.data_collection_config.n_features or 10,
+                    feature_types=config.data_collection_config.feature_types or [],
                     missing_values_ratio=0.0,
                     outlier_ratio=0.05,  # Default estimation
                     class_imbalance=None,
@@ -291,7 +291,7 @@ class ConfigurationRecommendationService:
                     correlation_structure="unknown",
                 )
 
-                features = self._extract_prediction_features(config, dataset_chars)
+                features = self._extract_prediction_features(config, data_collection_chars)
                 features_list.append(features)
                 accuracies.append(config.performance_results.accuracy)
                 algorithms.append(config.algorithm_config.algorithm_name)
@@ -344,8 +344,8 @@ class ConfigurationRecommendationService:
         algorithm_accuracy = accuracy_score(y_alg_test, y_alg_pred)
 
         # Update statistics
-        self.recommendation_stats["model_training_count"] += 1
-        self.recommendation_stats["last_model_training"] = datetime.now().isoformat()
+        self.recommendation_stats["processor_training_count"] += 1
+        self.recommendation_stats["last_processor_training"] = datetime.now().isoformat()
 
         training_results = {
             "success": True,
@@ -361,7 +361,7 @@ class ConfigurationRecommendationService:
         }
 
         logger.info(
-            f"Model training completed: RMSE={training_results['performance_predictor_rmse']:.3f}, "
+            f"Processor training completed: RMSE={training_results['performance_predictor_rmse']:.3f}, "
             f"Algorithm Accuracy={algorithm_accuracy:.3f}"
         )
 
@@ -403,11 +403,11 @@ class ConfigurationRecommendationService:
                     config.performance_results.accuracy
                 )
 
-        # Dataset size patterns
-        dataset_sizes = []
+        # DataCollection size patterns
+        data_collection_sizes = []
         for config in recent_configs:
-            if config.dataset_config and config.dataset_config.n_samples:
-                dataset_sizes.append(config.dataset_config.n_samples)
+            if config.data_collection_config and config.data_collection_config.n_samples:
+                data_collection_sizes.append(config.data_collection_config.n_samples)
 
         # Source analysis
         source_counts = Counter(config.metadata.source for config in recent_configs)
@@ -434,11 +434,11 @@ class ConfigurationRecommendationService:
                 for alg, perfs in algorithm_performance.items()
                 if len(perfs) > 0
             },
-            "dataset_characteristics": {
-                "sample_count": len(dataset_sizes),
-                "mean_samples": np.mean(dataset_sizes) if dataset_sizes else 0,
-                "median_samples": np.median(dataset_sizes) if dataset_sizes else 0,
-                "size_distribution": self._analyze_size_distribution(dataset_sizes),
+            "data_collection_characteristics": {
+                "sample_count": len(data_collection_sizes),
+                "mean_samples": np.mean(data_collection_sizes) if data_collection_sizes else 0,
+                "median_samples": np.median(data_collection_sizes) if data_collection_sizes else 0,
+                "size_distribution": self._analyze_size_distribution(data_collection_sizes),
             },
             "source_distribution": dict(source_counts),
             "performance_summary": {
@@ -467,13 +467,13 @@ class ConfigurationRecommendationService:
         """
         return {
             "recommendation_stats": self.recommendation_stats,
-            "model_status": {
+            "processor_status": {
                 "performance_predictor_trained": self.performance_predictor is not None,
                 "algorithm_selector_trained": self.algorithm_selector is not None,
                 "feature_scaler_available": self.feature_scaler is not None,
             },
             "cache_info": {
-                "cached_datasets": len(self._dataset_cache),
+                "cached_data_collections": len(self._data_collection_cache),
                 "cached_configurations": len(self._configuration_cache),
                 "last_cache_update": self._last_cache_update.isoformat(),
             },
@@ -510,7 +510,7 @@ class ConfigurationRecommendationService:
 
     async def _generate_ml_recommendations(
         self,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
         performance_requirements: dict[str, float] | None,
         max_recommendations: int,
     ) -> list[ConfigurationRecommendationDTO]:
@@ -522,10 +522,10 @@ class ConfigurationRecommendationService:
 
         # Get algorithm probabilities
         dummy_config = self._create_dummy_configuration(
-            "dummy", dataset_characteristics
+            "dummy", data_collection_characteristics
         )
         features = self._extract_prediction_features(
-            dummy_config, dataset_characteristics
+            dummy_config, data_collection_characteristics
         )
         features_scaled = self.feature_scaler.transform([features])
 
@@ -560,7 +560,7 @@ class ConfigurationRecommendationService:
 
                 # Predict performance
                 predicted_performance = await self.predict_configuration_performance(
-                    best_config, dataset_characteristics
+                    best_config, data_collection_characteristics
                 )
 
                 recommendation = ConfigurationRecommendationDTO(
@@ -568,7 +568,7 @@ class ConfigurationRecommendationService:
                     algorithm_name=algorithm,
                     confidence_score=confidence,
                     predicted_performance=predicted_performance,
-                    recommendation_reason=f"ML model suggests {algorithm} with {confidence:.1%} confidence",
+                    recommendation_reason=f"ML processor suggests {algorithm} with {confidence:.1%} confidence",
                     use_cases=[],
                     difficulty_level=best_config.metadata.difficulty_level
                     or ConfigurationLevel.INTERMEDIATE,
@@ -578,7 +578,7 @@ class ConfigurationRecommendationService:
                     parameter_suggestions=best_config.algorithm_config.hyperparameters
                     or {},
                     preprocessing_suggestions=self._get_preprocessing_suggestions(
-                        dataset_characteristics
+                        data_collection_characteristics
                     ),
                     evaluation_suggestions={"cross_validation": True, "folds": 5},
                 )
@@ -589,23 +589,23 @@ class ConfigurationRecommendationService:
 
     async def _generate_similarity_recommendations(
         self,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
         performance_requirements: dict[str, float] | None,
         max_recommendations: int,
     ) -> list[ConfigurationRecommendationDTO]:
         """Generate similarity-based recommendations."""
         recommendations = []
 
-        # Find configurations with similar dataset characteristics
+        # Find configurations with similar data_collection characteristics
         similar_configs = []
 
         for config in self._configuration_cache.values():
-            if not config.dataset_config:
+            if not config.data_collection_config:
                 continue
 
-            # Calculate dataset similarity
-            similarity = self._calculate_dataset_similarity(
-                dataset_characteristics, config.dataset_config
+            # Calculate data_collection similarity
+            similarity = self._calculate_data_collection_similarity(
+                data_collection_characteristics, config.data_collection_config
             )
 
             if similarity > 0.7:  # Similarity threshold
@@ -626,7 +626,7 @@ class ConfigurationRecommendationService:
 
         for config, similarity in similar_configs[:max_recommendations]:
             predicted_performance = await self.predict_configuration_performance(
-                config, dataset_characteristics
+                config, data_collection_characteristics
             )
 
             recommendation = ConfigurationRecommendationDTO(
@@ -635,7 +635,7 @@ class ConfigurationRecommendationService:
                 confidence_score=similarity
                 * 0.8,  # Scale down similarity-based confidence
                 predicted_performance=predicted_performance,
-                recommendation_reason=f"Similar dataset characteristics (similarity: {similarity:.1%})",
+                recommendation_reason=f"Similar data_collection characteristics (similarity: {similarity:.1%})",
                 use_cases=[],
                 difficulty_level=config.metadata.difficulty_level
                 or ConfigurationLevel.INTERMEDIATE,
@@ -644,7 +644,7 @@ class ConfigurationRecommendationService:
                 ),
                 parameter_suggestions=config.algorithm_config.hyperparameters or {},
                 preprocessing_suggestions=self._get_preprocessing_suggestions(
-                    dataset_characteristics
+                    data_collection_characteristics
                 ),
                 evaluation_suggestions={"cross_validation": True, "folds": 5},
             )
@@ -655,7 +655,7 @@ class ConfigurationRecommendationService:
 
     async def _generate_rule_based_recommendations(
         self,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
         performance_requirements: dict[str, float] | None,
         use_case: str | None,
         difficulty_level: ConfigurationLevel,
@@ -666,7 +666,7 @@ class ConfigurationRecommendationService:
 
         # Apply recommendation rules
         for rule in self.recommendation_rules:
-            if rule["condition"](dataset_characteristics, use_case):
+            if rule["condition"](data_collection_characteristics, use_case):
                 config_template = rule["configuration"]
 
                 recommendation = ConfigurationRecommendationDTO(
@@ -680,7 +680,7 @@ class ConfigurationRecommendationService:
                     estimated_training_time=rule.get("training_time", 60),
                     parameter_suggestions=config_template.get("parameters", {}),
                     preprocessing_suggestions=self._get_preprocessing_suggestions(
-                        dataset_characteristics
+                        data_collection_characteristics
                     ),
                     evaluation_suggestions={"cross_validation": True, "folds": 5},
                 )
@@ -702,7 +702,7 @@ class ConfigurationRecommendationService:
                     "parameters": {"n_estimators": 50},
                 },
                 "confidence": 0.7,
-                "reason": "Small dataset - IsolationForest works well with limited data",
+                "reason": "Small data_collection - IsolationForest works well with limited data",
                 "expected_performance": {"accuracy": 0.75},
                 "training_time": 30,
             },
@@ -713,7 +713,7 @@ class ConfigurationRecommendationService:
                     "parameters": {"n_neighbors": 20},
                 },
                 "confidence": 0.8,
-                "reason": "Large dataset - LOF scales well and provides good local density estimation",
+                "reason": "Large data_collection - LOF scales well and provides good local density estimation",
                 "expected_performance": {"accuracy": 0.82},
                 "training_time": 120,
             },
@@ -729,14 +729,14 @@ class ConfigurationRecommendationService:
                 "training_time": 90,
             },
             {
-                "condition": lambda ds, uc: uc == "fraud_detection",
+                "condition": lambda ds, uc: uc == "fraud_processing",
                 "configuration": {
                     "algorithm": "IsolationForest",
                     "parameters": {"contamination": 0.001},
                 },
                 "confidence": 0.9,
-                "reason": "Fraud detection - IsolationForest with low contamination rate",
-                "use_cases": ["fraud_detection", "financial_anomalies"],
+                "reason": "Fraud processing - IsolationForest with low contamination rate",
+                "use_cases": ["fraud_processing", "financial_anomalies"],
                 "expected_performance": {"accuracy": 0.85},
                 "training_time": 60,
             },
@@ -756,19 +756,19 @@ class ConfigurationRecommendationService:
     def _extract_prediction_features(
         self,
         configuration: ExperimentConfigurationDTO,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
     ) -> list[float]:
         """Extract features for ML prediction."""
         features = []
 
-        # Dataset features
+        # DataCollection features
         features.extend(
             [
-                math.log(dataset_characteristics.n_samples + 1),
-                math.log(dataset_characteristics.n_features + 1),
-                dataset_characteristics.missing_values_ratio or 0.0,
-                dataset_characteristics.outlier_ratio or 0.05,
-                dataset_characteristics.sparsity or 0.0,
+                math.log(data_collection_characteristics.n_samples + 1),
+                math.log(data_collection_characteristics.n_features + 1),
+                data_collection_characteristics.missing_values_ratio or 0.0,
+                data_collection_characteristics.outlier_ratio or 0.05,
+                data_collection_characteristics.sparsity or 0.0,
             ]
         )
 
@@ -811,7 +811,7 @@ class ConfigurationRecommendationService:
         return features
 
     def _create_dummy_configuration(
-        self, algorithm: str, dataset_characteristics: DatasetCharacteristicsDTO
+        self, algorithm: str, data_collection_characteristics: DatasetCharacteristicsDTO
     ) -> ExperimentConfigurationDTO:
         """Create dummy configuration for feature extraction."""
         from monorepo.application.dto.configuration_dto import (
@@ -826,10 +826,10 @@ class ConfigurationRecommendationService:
             algorithm_config=AlgorithmConfigurationDTO(
                 algorithm_name=algorithm, hyperparameters={}
             ),
-            dataset_config=DatasetConfigurationDTO(
-                n_samples=dataset_characteristics.n_samples,
-                n_features=dataset_characteristics.n_features,
-                feature_types=dataset_characteristics.feature_types,
+            data_collection_config=DatasetConfigurationDTO(
+                n_samples=data_collection_characteristics.n_samples,
+                n_features=data_collection_characteristics.n_features,
+                feature_types=data_collection_characteristics.feature_types,
             ),
             metadata=ConfigurationMetadataDTO(
                 source=ConfigurationSource.MANUAL,
@@ -842,7 +842,7 @@ class ConfigurationRecommendationService:
     def _calculate_dataset_similarity(
         self, ds1: DatasetCharacteristicsDTO, ds2: DatasetCharacteristicsDTO
     ) -> float:
-        """Calculate similarity between dataset characteristics."""
+        """Calculate similarity between data_collection characteristics."""
         similarity = 0.0
 
         # Sample size similarity (log scale)
@@ -868,38 +868,38 @@ class ConfigurationRecommendationService:
 
         # Missing values similarity
         mv1 = ds1.missing_values_ratio or 0.0
-        mv2 = 0.0  # Default for dataset config
+        mv2 = 0.0  # Default for data_collection config
         similarity += 0.1 * (1.0 - abs(mv1 - mv2))
 
         # Sparsity similarity
         sp1 = ds1.sparsity or 0.0
-        sp2 = 0.0  # Default for dataset config
+        sp2 = 0.0  # Default for data_collection config
         similarity += 0.1 * (1.0 - abs(sp1 - sp2))
 
         return similarity
 
     def _get_preprocessing_suggestions(
-        self, dataset_characteristics: DatasetCharacteristicsDTO
+        self, data_collection_characteristics: DatasetCharacteristicsDTO
     ) -> dict[str, Any]:
-        """Get preprocessing suggestions based on dataset characteristics."""
+        """Get preprocessing suggestions based on data_collection characteristics."""
         suggestions = {}
 
         # Scaling
         suggestions["scaling"] = "standard"
 
         # PCA for high-dimensional data
-        if dataset_characteristics.n_features > 50:
+        if data_collection_characteristics.n_features > 50:
             suggestions["pca"] = {"n_components": 0.95}
 
         # Missing value handling
         if (
-            dataset_characteristics.missing_values_ratio
-            and dataset_characteristics.missing_values_ratio > 0.01
+            data_collection_characteristics.missing_values_ratio
+            and data_collection_characteristics.missing_values_ratio > 0.01
         ):
             suggestions["missing_values"] = "impute"
 
         # Outlier handling for sparse data
-        if dataset_characteristics.sparsity and dataset_characteristics.sparsity > 0.3:
+        if data_collection_characteristics.sparsity and data_collection_characteristics.sparsity > 0.3:
             suggestions["outlier_handling"] = "clip"
 
         return suggestions
@@ -907,7 +907,7 @@ class ConfigurationRecommendationService:
     def _estimate_training_time(
         self,
         configuration: ExperimentConfigurationDTO,
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
     ) -> float:
         """Estimate training time for configuration."""
         # Base time by algorithm
@@ -922,9 +922,9 @@ class ConfigurationRecommendationService:
             configuration.algorithm_config.algorithm_name, 60
         )
 
-        # Scale by dataset size
-        size_factor = math.log(dataset_characteristics.n_samples + 1) / math.log(1000)
-        feature_factor = math.log(dataset_characteristics.n_features + 1) / math.log(10)
+        # Scale by data_collection size
+        size_factor = math.log(data_collection_characteristics.n_samples + 1) / math.log(1000)
+        feature_factor = math.log(data_collection_characteristics.n_features + 1) / math.log(10)
 
         estimated_time = base_time * size_factor * feature_factor
 
@@ -961,7 +961,7 @@ class ConfigurationRecommendationService:
     def _deduplicate_and_score_recommendations(
         self,
         recommendations: list[ConfigurationRecommendationDTO],
-        dataset_characteristics: DatasetCharacteristicsDTO,
+        data_collection_characteristics: DatasetCharacteristicsDTO,
         performance_requirements: dict[str, float] | None,
     ) -> list[ConfigurationRecommendationDTO]:
         """Remove duplicate recommendations and adjust scores."""
@@ -992,7 +992,7 @@ class ConfigurationRecommendationService:
         return unique_recommendations
 
     def _analyze_size_distribution(self, sizes: list[int]) -> dict[str, int]:
-        """Analyze dataset size distribution."""
+        """Analyze data_collection size distribution."""
         if not sizes:
             return {}
 

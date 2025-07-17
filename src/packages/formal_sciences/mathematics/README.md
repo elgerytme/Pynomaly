@@ -14,7 +14,7 @@ Advanced mathematical foundations and computational tools for the Pynomaly platf
 
 ## Purpose
 
-This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for anomaly detection and data analysis in the Pynomaly platform.
+This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the Pynomaly platform.
 
 ### Key Features
 
@@ -29,7 +29,7 @@ This package provides comprehensive mathematical abstractions, algorithms, and c
 
 ### Use Cases
 
-- Building mathematical models for anomaly detection
+- Building mathematical models for data analysis
 - Implementing custom statistical algorithms
 - Performing advanced numerical computations
 - Creating domain-specific mathematical abstractions
@@ -38,7 +38,7 @@ This package provides comprehensive mathematical abstractions, algorithms, and c
 
 ## Architecture
 
-This package follows **Domain-Driven Design** principles with mathematical rigor:
+This package follows **Domain-Driven Design** principles with computational rigor:
 
 ```
 mathematics/
@@ -122,7 +122,7 @@ mathematics/
 ### Design Principles
 
 1. **Mathematical Rigor**: All abstractions follow mathematical definitions
-2. **Type Safety**: Comprehensive type system for mathematical objects
+2. **Type Safety**: Comprehensive type system for computational objects
 3. **Immutability**: Mathematical objects are immutable by default
 4. **Composability**: Operations compose naturally following mathematical laws
 5. **Performance**: Efficient implementations with numerical stability
@@ -152,10 +152,10 @@ pip install pynomaly-mathematics[all]
 pip install pynomaly-mathematics[symbolic,numerical,visualization]
 ```
 
-### Monorepo Installation
+### Pynomaly Installation
 
 ```bash
-# Install entire monorepo with this package
+# Install entire Pynomaly platform with this package
 cd /path/to/pynomaly
 pip install -e ".[mathematics]"
 ```
@@ -713,7 +713,7 @@ python -m mathematics.verification --check-all
 1. **Mathematical Rigor**: Ensure all implementations follow mathematical definitions
 2. **Type Safety**: Use comprehensive type hints for all mathematical objects
 3. **Documentation**: Include mathematical formulas and proofs in docstrings
-4. **Testing**: Write property-based tests for mathematical properties
+4. **Testing**: Write property-based tests for computational properties
 5. **Performance**: Optimize numerical algorithms for efficiency
 6. **Examples**: Provide educational examples and applications
 
@@ -799,4 +799,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [Pynomaly](../../../) monorepo** - Advanced anomaly detection platform
+**Part of the [Pynomaly](../../../) monorepo** - Advanced computational platform

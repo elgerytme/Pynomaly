@@ -1,5 +1,5 @@
 """
-Export Options DTO for Pynomaly
+Export Options DTO for Software
 
 Data Transfer Object for export configuration options.
 """
@@ -30,7 +30,7 @@ class ExportDestination(Enum):
 @dataclass
 class ExportOptions:
     """
-    Configuration options for exporting anomaly detection results.
+    Configuration options for exporting anomaly processing results.
     """
 
     # Basic export settings

@@ -19,7 +19,7 @@ class BaseEntity(BaseModel, Generic[T], ABC):
     version: int = Field(default=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    model_config = ConfigDict(
+    processor_config = ConfigDict(
         allow_mutation=True,
         json_encoders={
             datetime: lambda v: v.isoformat(),

@@ -349,12 +349,12 @@ class AlertManagementService:
         }
 
     async def process_alert_conditions(
-        self, metrics: dict[str, float]
+        self, measurements: dict[str, float]
     ) -> dict[str, Any]:
         """Process multiple metric values against all alert conditions.
 
         Args:
-            metrics: Dictionary of metric_name -> value
+            measurements: Dictionary of metric_name -> value
 
         Returns:
             Processing summary
@@ -367,8 +367,8 @@ class AlertManagementService:
         for alert in all_alerts:
             metric_name = alert.condition.metric_name
 
-            if metric_name in metrics:
-                metric_value = metrics[metric_name]
+            if metric_name in measurements:
+                metric_value = measurements[metric_name]
 
                 try:
                     result = await self.evaluate_alert_condition(alert.id, metric_value)
@@ -474,7 +474,7 @@ class AlertManagementService:
             },
             "severity_breakdown": severity_counts,
             "type_breakdown": type_counts,
-            "response_metrics": {
+            "response_measurements": {
                 "average_response_time_minutes": avg_response_time,
                 "average_resolution_time_minutes": avg_resolution_time,
                 "alerts_with_response_time": len(acknowledged_alerts),

@@ -1,4 +1,4 @@
-# Pynomaly Web API Quick Reference
+# Software Web API Quick Reference
 
 🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🔌 [API Integration](README.md) > 📄 Api_Quick_Reference
 
@@ -9,14 +9,14 @@
 
 ### Bash/Linux/Mac/WSL
 ```bash
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### PowerShell (Windows)
 ```powershell
-$env:PYTHONPATH = "C:\Users\your-user\Pynomaly\src"
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+$env:PYTHONPATH = "C:\Users\your-user\Software\src"
+uvicorn software.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Automated Scripts
@@ -37,7 +37,7 @@ pwsh -File scripts/test_api_powershell.ps1  # PowerShell test
 | **OpenAPI** | `http://localhost:8000/api/openapi.json` | API schema |
 | **Auth** | `http://localhost:8000/api/auth/` | Authentication endpoints |
 | **Detectors** | `http://localhost:8000/api/detectors/` | Anomaly detector management |
-| **Datasets** | `http://localhost:8000/api/datasets/` | Dataset operations |
+| **Datasets** | `http://localhost:8000/api/datasets/` | DataCollection operations |
 | **Detection** | `http://localhost:8000/api/detection/` | Run anomaly detection |
 | **Experiments** | `http://localhost:8000/api/experiments/` | Experiment tracking |
 | **Performance** | `http://localhost:8000/api/performance/` | Performance metrics |
@@ -101,7 +101,7 @@ pip install --break-system-packages -r requirements.txt
 
 | Issue | Solution |
 |-------|----------|
-| `ModuleNotFoundError: No module named 'pynomaly'` | `export PYTHONPATH=/path/to/Pynomaly/src` |
+| `ModuleNotFoundError: No module named 'software'` | `export PYTHONPATH=/path/to/Software/src` |
 | `ModuleNotFoundError: No module named 'fastapi'` | Install dependencies with pip |
 | `Address already in use` | Use different port: `--port 8001` |
 | `externally-managed-environment` | Use `--break-system-packages` flag |
@@ -111,7 +111,7 @@ pip install --break-system-packages -r requirements.txt
 
 ### Required
 ```bash
-export PYTHONPATH=/path/to/Pynomaly/src
+export PYTHONPATH=/path/to/Software/src
 ```
 
 ### Optional
@@ -134,8 +134,8 @@ export PYNOMALY_PORT=8000
 
 ### Current Environment
 ```bash
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --port 8000
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --port 8000
 ```
 
 ### Fresh Environment
@@ -148,38 +148,38 @@ uvicorn pynomaly.presentation.api:app --port 8000
 python3 -m venv .fresh_venv
 source .fresh_venv/bin/activate
 pip install -r requirements.txt
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --port 8000
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --port 8000
 ```
 
 ## 🐳 Docker Quick Start
 
 ```bash
 # Build image
-docker build -f deploy/docker/Dockerfile -t pynomaly:latest .
+docker build -f deploy/docker/Dockerfile -t software:latest .
 
 # Run container
-docker run -p 8000:8000 -e PYTHONPATH=/app/src pynomaly:latest
+docker run -p 8000:8000 -e PYTHONPATH=/app/src software:latest
 ```
 
 ## 🎯 Common Use Cases
 
 ### Development
 ```bash
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --reload --port 8000
+export PYTHONPATH=/path/to/Software/src
+uvicorn software.presentation.api:app --reload --port 8000
 ```
 
 ### Testing
 ```bash
-uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8001 &
+uvicorn software.presentation.api:app --host 127.0.0.1 --port 8001 &
 curl http://127.0.0.1:8001/api/health/
 pkill -f uvicorn
 ```
 
 ### Production
 ```bash
-uvicorn pynomaly.presentation.api:app \
+uvicorn software.presentation.api:app \
     --host 0.0.0.0 --port 8000 \
     --workers 4 --access-log
 ```

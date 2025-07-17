@@ -69,7 +69,7 @@ class AdvancedExplainabilityService:
     async def generate_comprehensive_explanation(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: ExplanationConfig | None = None,
     ) -> ExplanationReport:
         """Generate comprehensive explanation report."""
@@ -80,14 +80,14 @@ class AdvancedExplainabilityService:
             logger.info("Generating comprehensive explanation report")
 
             # Prepare data
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             feature_names = (
                 config.feature_names
-                or dataset.features
+                or data_collection.features
                 or [f"feature_{i}" for i in range(X.shape[1])]
             )
 
-            # Get model predictions
+            # Get processor predictions
             predictions = detector.decision_function(X)
 
             # Generate explanations using focused engines
@@ -133,8 +133,8 @@ class AdvancedExplainabilityService:
 
             # Create report
             report = ExplanationReport(
-                model_info=self._get_model_info(detector),
-                dataset_summary=self._get_dataset_summary(dataset),
+                processor_info=self._get_processor_info(detector),
+                data_collection_summary=self._get_data_collection_summary(data_collection),
                 local_explanations=local_explanations,
                 global_explanation=global_explanation
                 or self._create_fallback_global_explanation(feature_names),
@@ -151,28 +151,28 @@ class AdvancedExplainabilityService:
             raise RuntimeError(f"Explanation generation failed: {e}")
 
     async def analyze_bias(
-        self, detector: DetectorProtocol, dataset: Dataset, config: BiasAnalysisConfig
+        self, detector: DetectorProtocol, data_collection: DataCollection, config: BiasAnalysisConfig
     ) -> list:
-        """Analyze model for potential bias."""
-        return await self.bias_analyzer.analyze_bias(detector, dataset, config)
+        """Analyze processor for potential bias."""
+        return await self.bias_analyzer.analyze_bias(detector, data_collection, config)
 
     async def generate_counterfactual_explanations(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         target_instances: list[int],
         n_counterfactuals: int = 5,
         optimization_method: str = "random",
     ) -> dict[str, Any]:
         """Generate counterfactual explanations for given instances."""
         return await self.counterfactual_analyzer.generate_counterfactual_explanations(
-            detector, dataset, target_instances, n_counterfactuals, optimization_method
+            detector, data_collection, target_instances, n_counterfactuals, optimization_method
         )
 
     async def analyze_feature_interactions(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         method: str = "correlation",
         max_interactions: int = 20,
     ) -> dict[str, Any]:
@@ -180,8 +180,8 @@ class AdvancedExplainabilityService:
         try:
             logger.info(f"Analyzing feature interactions using {method}")
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
-            feature_names = dataset.features or [
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
+            feature_names = data_collection.features or [
                 f"feature_{i}" for i in range(X.shape[1])
             ]
 
@@ -218,7 +218,7 @@ class AdvancedExplainabilityService:
     async def generate_explanation_dashboard_data(
         self,
         detector: DetectorProtocol,
-        dataset: Dataset,
+        data_collection: DataCollection,
         config: ExplanationConfig | None = None,
     ) -> dict[str, Any]:
         """Generate comprehensive data for explanation dashboard."""
@@ -228,36 +228,36 @@ class AdvancedExplainabilityService:
             if not config:
                 config = ExplanationConfig()
 
-            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            X = data_collection.data.values if hasattr(data_collection.data, "values") else data_collection.data
             feature_names = (
                 config.feature_names
-                or dataset.features
+                or data_collection.features
                 or [f"feature_{i}" for i in range(X.shape[1])]
             )
 
             # Generate comprehensive explanation
             explanation_report = await self.generate_comprehensive_explanation(
-                detector, dataset, config
+                detector, data_collection, config
             )
 
             # Generate counterfactual examples
             sample_indices = np.random.choice(len(X), min(5, len(X)), replace=False)
             counterfactuals = await self.generate_counterfactual_explanations(
-                detector, dataset, sample_indices.tolist()
+                detector, data_collection, sample_indices.tolist()
             )
 
             # Analyze feature interactions
             interactions = await self.analyze_feature_interactions(
-                detector, dataset, "correlation"
+                detector, data_collection, "correlation"
             )
 
             # Create dashboard data
             dashboard_data = {
                 "summary": {
-                    "dataset_name": dataset.name,
+                    "data_collection_name": data_collection.name,
                     "n_samples": len(X),
                     "n_features": len(feature_names),
-                    "model_type": getattr(detector, "algorithm_name", "unknown"),
+                    "processor_type": getattr(detector, "algorithm_name", "unknown"),
                     "trust_score": explanation_report.trust_assessment.overall_trust_score,
                     "risk_level": explanation_report.trust_assessment.risk_assessment,
                 },
@@ -268,7 +268,7 @@ class AdvancedExplainabilityService:
                         key=lambda x: x[1],
                         reverse=True,
                     )[:10],
-                    "model_summary": explanation_report.global_explanation.model_summary,
+                    "processor_summary": explanation_report.global_explanation.processor_summary,
                 },
                 "local_explanations": [
                     {
@@ -320,7 +320,7 @@ class AdvancedExplainabilityService:
         }
 
     def _get_model_info(self, detector: DetectorProtocol) -> dict[str, Any]:
-        """Get model information."""
+        """Get processor information."""
         return {
             "algorithm": getattr(detector, "algorithm_name", "unknown"),
             "parameters": getattr(detector, "algorithm_params", {}),
@@ -328,8 +328,8 @@ class AdvancedExplainabilityService:
         }
 
     def _get_dataset_summary(self, dataset: Dataset) -> dict[str, Any]:
-        """Get dataset summary."""
-        data = dataset.data
+        """Get data_collection summary."""
+        data = data_collection.data
         if hasattr(data, "shape"):
             n_samples, n_features = data.shape
         else:
@@ -337,10 +337,10 @@ class AdvancedExplainabilityService:
             n_features = len(data[0]) if len(data) > 0 else 0
 
         return {
-            "name": dataset.name,
+            "name": data_collection.name,
             "n_samples": n_samples,
             "n_features": n_features,
-            "features": dataset.features[:10] if dataset.features else [],
+            "features": data_collection.features[:10] if data_collection.features else [],
         }
 
     def _create_fallback_global_explanation(
@@ -352,7 +352,7 @@ class AdvancedExplainabilityService:
         return GlobalExplanation(
             feature_importance=dict.fromkeys(feature_names, equal_importance),
             feature_interactions={},
-            model_summary={"note": "Fallback explanation due to computation failures"},
+            processor_summary={"note": "Fallback explanation due to computation failures"},
             explanation_method="fallback",
             coverage=0.5,
             reliability=0.3,
@@ -363,10 +363,10 @@ class AdvancedExplainabilityService:
         recommendations = []
 
         if trust_assessment.overall_trust_score < 0.7:
-            recommendations.append("Consider model retraining or hyperparameter tuning")
+            recommendations.append("Consider processor retraining or hyperparameter tuning")
 
         if trust_assessment.consistency_score < 0.7:
-            recommendations.append("Improve model consistency through regularization")
+            recommendations.append("Improve processor consistency through regularization")
 
         if trust_assessment.stability_score < 0.7:
             recommendations.append("Enhance prediction stability with ensemble methods")
@@ -376,10 +376,10 @@ class AdvancedExplainabilityService:
 
         if trust_assessment.risk_assessment == "high":
             recommendations.append(
-                "Exercise caution when using model predictions for critical decisions"
+                "Exercise caution when using processor predictions for critical decisions"
             )
 
         if not recommendations:
-            recommendations.append("Model shows good explainability characteristics")
+            recommendations.append("Processor shows good explainability characteristics")
 
         return recommendations

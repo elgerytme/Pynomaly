@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/security", tags=["Security"])
 
 
 class CSPViolationReport(BaseModel):
-    """CSP violation report model."""
+    """CSP violation report processor."""
 
     type: str = Field(description="Type of violation report")
     blocked_uri: str | None = Field(alias="blockedURI", default=None)
@@ -34,7 +34,7 @@ class CSPViolationReport(BaseModel):
 
 
 class MixedContentReport(BaseModel):
-    """Mixed content report model."""
+    """Mixed content report processor."""
 
     url: str
     resources: list[dict[str, Any]]
@@ -42,7 +42,7 @@ class MixedContentReport(BaseModel):
 
 
 class SecurityEventReport(BaseModel):
-    """Generic security event report model."""
+    """Generic security event report processor."""
 
     event_type: str
     details: dict[str, Any]
@@ -52,14 +52,14 @@ class SecurityEventReport(BaseModel):
 
 
 class CSRFTokenResponse(BaseModel):
-    """CSRF token response model."""
+    """CSRF token response processor."""
 
     csrf_token: str
     expires_at: str | None = None
 
 
 class NonceResponse(BaseModel):
-    """CSP nonce response model."""
+    """CSP nonce response processor."""
 
     nonce: str
     expires_at: str | None = None
@@ -165,7 +165,7 @@ async def report_security_event(event: SecurityEventReport, request: Request) ->
         logger.error(f"Error processing security event: {e}")
 
 
-@router.post("/csrf/refresh", response_model=CSRFTokenResponse)
+@router.post("/csrf/refresh", response_processor=CSRFTokenResponse)
 async def refresh_csrf_token_endpoint(
     request: Request, response: Response
 ) -> CSRFTokenResponse:
@@ -198,7 +198,7 @@ async def refresh_csrf_token_endpoint(
         )
 
 
-@router.post("/refresh-nonce", response_model=NonceResponse)
+@router.post("/refresh-nonce", response_processor=NonceResponse)
 async def refresh_csp_nonce(request: Request) -> NonceResponse:
     """Refresh CSP nonce for dynamic content."""
     try:
@@ -314,7 +314,7 @@ async def _analyze_csp_violation(
         # Check for common attack patterns
         blocked_uri = violation.blocked_uri or ""
 
-        # XSS attempt detection
+        # XSS attempt processing
         xss_patterns = [
             "javascript:",
             "data:text/html",
@@ -331,7 +331,7 @@ async def _analyze_csp_violation(
                 f"from {request.client.host if request.client else 'unknown'}"
             )
 
-        # Injection attempt detection
+        # Injection attempt processing
         injection_patterns = [
             "../",
             "\\x",

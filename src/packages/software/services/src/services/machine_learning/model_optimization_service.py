@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Model Optimization Service - Handles model selection and hyperparameter optimization
+Processor Optimization Service - Handles processor selection and hyperparameter optimization
 """
 
 import logging
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class ModelOptimizationService:
-    """Service responsible for model selection and optimization"""
+    """Service responsible for processor selection and optimization"""
 
     def __init__(self, config: PipelineConfig):
         self.config = config
@@ -42,32 +42,32 @@ class ModelOptimizationService:
 
         return AdvancedModelOptimizationService(optimization_config)
 
-    async def optimize_models(
+    async def optimize_processors(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
         """
-        Run complete model optimization pipeline
+        Run complete processor optimization pipeline
 
         Returns:
             Dictionary containing optimization results
         """
 
         # Select candidate models
-        model_selection_result = await self.select_models(X, y)
-        selected_models = model_selection_result["selected_models"]
+        processor_selection_result = await self.select_processors(X, y)
+        selected_processors = processor_selection_result["selected_processors"]
 
         # Optimize hyperparameters
-        optimization_result = await self.optimize_hyperparameters(X, y, selected_models)
+        optimization_result = await self.optimize_hyperparameters(X, y, selected_processors)
 
         return {
-            "model_selection": model_selection_result,
+            "processor_selection": processor_selection_result,
             "optimization": optimization_result,
-            "best_model": optimization_result.get("best_model"),
+            "best_processor": optimization_result.get("best_processor"),
             "best_params": optimization_result.get("best_params", {}),
             "best_performance": optimization_result.get("best_performance", {}),
         }
 
-    async def select_models(
+    async def select_processors(
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
         """Select candidate models based on data characteristics"""
@@ -75,58 +75,58 @@ class ModelOptimizationService:
         logger.info("🎯 Selecting candidate models")
 
         n_samples, n_features = X.shape
-        model_candidates = []
+        processor_candidates = []
         selection_rationale = {}
 
         # Size-based selection
         if n_samples < 500:
-            model_candidates.extend(["one_class_svm", "local_outlier_factor"])
-            selection_rationale["size_factor"] = "Small dataset: SVM and LOF preferred"
+            processor_candidates.extend(["one_class_svm", "local_outlier_factor"])
+            selection_rationale["size_factor"] = "Small data_collection: SVM and LOF preferred"
         elif n_samples < 5000:
-            model_candidates.extend(
+            processor_candidates.extend(
                 ["isolation_forest", "random_forest", "one_class_svm"]
             )
             selection_rationale["size_factor"] = (
-                "Medium dataset: Tree-based and SVM models"
+                "Medium data_collection: Tree-based and SVM models"
             )
         else:
-            model_candidates.extend(
+            processor_candidates.extend(
                 ["isolation_forest", "random_forest", "gradient_boosting"]
             )
             selection_rationale["size_factor"] = (
-                "Large dataset: Tree-based and ensemble methods"
+                "Large data_collection: Tree-based and ensemble methods"
             )
 
         # Dimensionality-based selection
         if n_features > 100:
-            model_candidates.extend(["random_forest", "extra_trees"])
+            processor_candidates.extend(["random_forest", "extra_trees"])
             selection_rationale["dimensionality_factor"] = (
                 "High-dimensional: Random Forest preferred"
             )
         elif n_features < 10:
-            model_candidates.extend(["one_class_svm", "local_outlier_factor"])
+            processor_candidates.extend(["one_class_svm", "local_outlier_factor"])
             selection_rationale["dimensionality_factor"] = (
                 "Low-dimensional: SVM and LOF suitable"
             )
         else:
-            model_candidates.extend(["isolation_forest", "random_forest"])
+            processor_candidates.extend(["isolation_forest", "random_forest"])
             selection_rationale["dimensionality_factor"] = (
                 "Medium-dimensional: Standard algorithms"
             )
 
         # Always include baseline models
-        model_candidates.extend(["isolation_forest", "random_forest"])
+        processor_candidates.extend(["isolation_forest", "random_forest"])
 
         # Remove duplicates and limit to max models
-        model_candidates = list(dict.fromkeys(model_candidates))
-        model_candidates = model_candidates[: self.config.max_models_to_evaluate]
+        processor_candidates = list(dict.fromkeys(processor_candidates))
+        processor_candidates = processor_candidates[: self.config.max_processors_to_evaluate]
 
         logger.info(
-            f"Selected {len(model_candidates)} candidate models: {model_candidates}"
+            f"Selected {len(processor_candidates)} candidate models: {processor_candidates}"
         )
 
         return {
-            "selected_models": model_candidates,
+            "selected_processors": processor_candidates,
             "selection_rationale": selection_rationale,
             "data_characteristics": {
                 "n_samples": n_samples,
@@ -135,7 +135,7 @@ class ModelOptimizationService:
         }
 
     async def optimize_hyperparameters(
-        self, X: pd.DataFrame, y: pd.Series | None, selected_models: list[str]
+        self, X: pd.DataFrame, y: pd.Series | None, selected_processors: list[str]
     ) -> dict[str, Any]:
         """Optimize hyperparameters for selected models"""
 
@@ -144,19 +144,19 @@ class ModelOptimizationService:
         try:
             # Run advanced optimization
             optimization_result = (
-                await self.optimization_service.optimize_model_advanced(
-                    X, y, selected_models
+                await self.optimization_service.optimize_processor_advanced(
+                    X, y, selected_processors
                 )
             )
 
             logger.info("Optimization completed successfully")
             logger.info(
-                f"Best model: {optimization_result.best_params.get('model_type', 'unknown')}"
+                f"Best processor: {optimization_result.best_params.get('processor_type', 'unknown')}"
             )
 
             return {
                 "optimization_result": optimization_result,
-                "best_model": optimization_result.best_model,
+                "best_processor": optimization_result.best_processor,
                 "best_params": optimization_result.best_params,
                 "best_performance": optimization_result.best_scores,
                 "optimization_time": optimization_result.optimization_time,
@@ -179,21 +179,21 @@ class ModelOptimizationService:
 
         from sklearn.ensemble import IsolationForest
 
-        # Simple model with default parameters
-        best_model = IsolationForest(
+        # Simple processor with default parameters
+        best_processor = IsolationForest(
             n_estimators=100, contamination=0.1, random_state=42
         )
-        best_model.fit(X)
+        best_processor.fit(X)
 
         best_params = {
-            "model_type": "isolation_forest",
+            "processor_type": "isolation_forest",
             "n_estimators": 100,
             "contamination": 0.1,
         }
 
         if y is not None:
             # Calculate simple performance metric for supervised case
-            y_pred = best_model.predict(X)
+            y_pred = best_processor.predict(X)
             from sklearn.metrics import f1_score
 
             try:
@@ -205,7 +205,7 @@ class ModelOptimizationService:
 
         return {
             "optimization_result": None,
-            "best_model": best_model,
+            "best_processor": best_processor,
             "best_params": best_params,
             "best_performance": best_performance,
             "optimization_time": 0.0,

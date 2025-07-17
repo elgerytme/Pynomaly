@@ -44,7 +44,7 @@ class PipelineOrchestrationService:
         pipeline_type: PipelineType,
         created_by: str,
         environment: str = "development",
-        model_id: UUID | None = None,
+        processor_id: UUID | None = None,
         datasets: list[UUID] | None = None,
         tags: list[str] | None = None,
     ) -> Pipeline:
@@ -56,8 +56,8 @@ class PipelineOrchestrationService:
             pipeline_type: Type of pipeline
             created_by: User creating the pipeline
             environment: Target environment
-            model_id: Associated model ID
-            datasets: Dataset IDs used by pipeline
+            processor_id: Associated processor ID
+            datasets: DataCollection IDs used by pipeline
             tags: Tags for the pipeline
 
         Returns:
@@ -80,7 +80,7 @@ class PipelineOrchestrationService:
             pipeline_type=pipeline_type,
             created_by=created_by,
             environment=environment,
-            model_id=model_id,
+            processor_id=processor_id,
             datasets=datasets or [],
             tags=tags or [],
         )

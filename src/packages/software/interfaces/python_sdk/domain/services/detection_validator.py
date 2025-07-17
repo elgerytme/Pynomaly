@@ -1,7 +1,7 @@
 """
-Detection Validator Domain Service
+Processing Validator Domain Service
 
-Provides validation logic for detection-related domain objects.
+Provides validation logic for processing-related domain objects.
 """
 
 from typing import List, Tuple
@@ -14,19 +14,19 @@ from ..exceptions.validation_exceptions import ValidationError
 
 class DetectionValidator:
     """
-    Domain service for validating detection requests and configurations.
+    Domain service for validating processing requests and configurations.
     
-    This service encapsulates domain logic for ensuring that detection
+    This service encapsulates domain logic for ensuring that processing
     requests and configurations are valid and meet business requirements.
     """
     
     @staticmethod
     def validate_detection_request(request: DetectionRequest) -> Tuple[bool, List[str]]:
         """
-        Validate a complete detection request.
+        Validate a complete processing request.
         
         Args:
-            request: The detection request to validate.
+            request: The processing request to validate.
             
         Returns:
             Tuple[bool, List[str]]: (is_valid, list_of_errors)
@@ -35,7 +35,7 @@ class DetectionValidator:
         
         # Validate basic request structure
         if not request.validate():
-            errors.append("Detection request basic validation failed")
+            errors.append("Processing request basic validation failed")
         
         # Validate data
         data_errors = DetectionValidator._validate_data(request.data)
@@ -60,7 +60,7 @@ class DetectionValidator:
     @staticmethod
     def _validate_data(data: List[float]) -> List[str]:
         """
-        Validate input data for anomaly detection.
+        Validate input data for anomaly processing.
         
         Args:
             data: The input data to validate.
@@ -75,7 +75,7 @@ class DetectionValidator:
             return errors
         
         if len(data) < 10:
-            errors.append("Data must contain at least 10 data points for reliable detection")
+            errors.append("Data must contain at least 10 data points for reliable processing")
         
         if len(data) > 1000000:
             errors.append("Data size exceeds maximum limit of 1,000,000 points")
@@ -183,18 +183,18 @@ class DetectionValidator:
     @staticmethod
     def validate_and_raise(request: DetectionRequest) -> None:
         """
-        Validate a detection request and raise an exception if invalid.
+        Validate a processing request and raise an exception if invalid.
         
         Args:
-            request: The detection request to validate.
+            request: The processing request to validate.
             
         Raises:
             ValidationError: If the request is invalid.
         """
-        is_valid, errors = DetectionValidator.validate_detection_request(request)
+        is_valid, errors = DetectionValidator.validate_processing_request(request)
         
         if not is_valid:
-            raise ValidationError(f"Detection request validation failed: {'; '.join(errors)}")
+            raise ValidationError(f"Processing request validation failed: {'; '.join(errors)}")
     
     @staticmethod
     def can_handle_data_size(algorithm_type: AlgorithmType, data_size: int) -> bool:

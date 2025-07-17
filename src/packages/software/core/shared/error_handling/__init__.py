@@ -1,4 +1,4 @@
-"""Comprehensive error handling system for Pynomaly."""
+"""Comprehensive error handling system for Software."""
 
 from .cli_errors import (  # CLI Error Handling
     create_user_friendly_message,
@@ -13,7 +13,7 @@ from .cli_errors import (  # CLI Error Handling
     validate_contamination_rate,
     validate_data_format,
     validate_data_shape,
-    validate_dataset_name,
+    validate_data_collection_name,
     validate_file_exists,
     validate_output_path,
     validate_positive_integer,
@@ -154,7 +154,7 @@ __all__ = [
     "validate_contamination_rate",
     "validate_data_format",
     "validate_data_shape",
-    "validate_dataset_name",
+    "validate_data_collection_name",
     "validate_file_exists",
     "validate_output_path",
     "validate_positive_integer",

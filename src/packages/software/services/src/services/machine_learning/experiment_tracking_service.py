@@ -78,9 +78,9 @@ class ExperimentTrackingService:
         self,
         experiment_id: str,
         detector_name: str,
-        dataset_name: str,
+        data_collection_name: str,
         parameters: dict[str, Any],
-        metrics: dict[str, float],
+        measurements: dict[str, float],
         artifacts: dict[str, str] | None = None,
     ) -> str:
         """Log a run within an experiment.
@@ -88,9 +88,9 @@ class ExperimentTrackingService:
         Args:
             experiment_id: ID of the experiment
             detector_name: Name of the detector used
-            dataset_name: Name of the dataset used
+            data_collection_name: Name of the data_collection used
             parameters: Hyperparameters used
-            metrics: Performance metrics
+            measurements: Performance measurements
             artifacts: Optional paths to artifacts
 
         Returns:
@@ -104,9 +104,9 @@ class ExperimentTrackingService:
         run = {
             "id": run_id,
             "detector_name": detector_name,
-            "dataset_name": dataset_name,
+            "data_collection_name": data_collection_name,
             "parameters": parameters,
-            "metrics": metrics,
+            "measurements": measurements,
             "artifacts": artifacts or {},
             "timestamp": datetime.utcnow().isoformat(),
         }
@@ -153,9 +153,9 @@ class ExperimentTrackingService:
             row = {
                 "run_id": run["id"],
                 "detector": run["detector_name"],
-                "dataset": run["dataset_name"],
+                "data_collection": run["data_collection_name"],
                 "timestamp": run["timestamp"],
-                **run["metrics"],
+                **run["measurements"],
             }
             # Add key parameters
             for param, value in run["parameters"].items():
@@ -197,8 +197,8 @@ class ExperimentTrackingService:
         best_value = float("-inf") if higher_is_better else float("inf")
 
         for run in runs:
-            if metric in run["metrics"]:
-                value = run["metrics"][metric]
+            if metric in run["measurements"]:
+                value = run["measurements"][metric]
                 if higher_is_better and value > best_value:
                     best_value = value
                     best_run = run
@@ -263,14 +263,14 @@ class ExperimentTrackingService:
             experiment = self.experiments[exp_id]
 
             for run in experiment["runs"]:
-                if metric in run["metrics"]:
+                if metric in run["measurements"]:
                     leaderboard_data.append(
                         {
                             "experiment": experiment["name"],
                             "run_id": run["id"],
                             "detector": run["detector_name"],
-                            "dataset": run["dataset_name"],
-                            metric: run["metrics"][metric],
+                            "data_collection": run["data_collection_name"],
+                            metric: run["measurements"][metric],
                             "timestamp": run["timestamp"],
                         }
                     )
@@ -324,26 +324,26 @@ Total runs: {len(experiment["runs"])}
 
 ## Best Performing Runs
 
-| Metric | Best Value | Detector | Dataset | Run ID |
+| Metric | Best Value | Detector | DataCollection | Run ID |
 |--------|------------|----------|---------|--------|
 """
 
-        # Find best runs for common metrics
-        metrics_to_check = ["f1", "auc_roc", "precision", "recall"]
+        # Find best runs for common measurements
+        measurements_to_check = ["f1", "auc_roc", "precision", "recall"]
 
-        for metric in metrics_to_check:
+        for metric in measurements_to_check:
             best_value = 0
             best_run = None
 
             for run in experiment["runs"]:
-                if metric in run["metrics"] and run["metrics"][metric] > best_value:
-                    best_value = run["metrics"][metric]
+                if metric in run["measurements"] and run["measurements"][metric] > best_value:
+                    best_value = run["measurements"][metric]
                     best_run = run
 
             if best_run:
                 report += f"| {metric} | {best_value:.4f} | "
                 report += f"{best_run['detector_name']} | "
-                report += f"{best_run['dataset_name']} | "
+                report += f"{best_run['data_collection_name']} | "
                 report += f"{best_run['id'][:8]} |\n"
 
         report += "\n## All Runs\n\n"
@@ -351,9 +351,9 @@ Total runs: {len(experiment["runs"])}
         for i, run in enumerate(experiment["runs"], 1):
             report += f"### Run {i}: {run['detector_name']}\n"
             report += f"- **ID**: {run['id']}\n"
-            report += f"- **Dataset**: {run['dataset_name']}\n"
+            report += f"- **DataCollection**: {run['data_collection_name']}\n"
             report += f"- **Timestamp**: {run['timestamp']}\n"
-            report += f"- **Metrics**: {json.dumps(run['metrics'], indent=2)}\n"
+            report += f"- **Measurements**: {json.dumps(run['measurements'], indent=2)}\n"
             report += f"- **Parameters**: {json.dumps(run['parameters'], indent=2)}\n\n"
 
         return report
