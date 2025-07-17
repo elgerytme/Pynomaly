@@ -7,7 +7,7 @@
 
 ## Overview
 
-This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art anomaly detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
+This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art pattern detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
 
 ## Documentation Structure
 
@@ -38,7 +38,7 @@ This directory contains the complete documentation suite for Pynomaly, covering 
    - **Target Audience**: Data scientists, ML engineers
 
 4. **[04-autonomous-mode-guide.md](04-autonomous-mode-guide.md)**
-   - AI-powered automated anomaly detection
+   - AI-powered automated pattern detection
    - Intelligent algorithm selection and optimization
    - Meta-learning and adaptive systems
    - Configuration and deployment
@@ -185,7 +185,7 @@ Located in the `pdfs/` subdirectory:
 - **Documentation Issues**: Report via GitHub issues
 - **Technical Support**: Contact development team
 - **Business Questions**: Reach out to business development
-- **Training Requests**: Available for enterprise customers
+- **Training Requests**: Available for advanced customers
 
 ### Contributing
 

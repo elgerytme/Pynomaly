@@ -1,23 +1,23 @@
 # Pynomaly User Guide
 
-Welcome to Pynomaly, the comprehensive enterprise-grade anomaly detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
+Welcome to Pynomaly, the comprehensive advanced-grade pattern detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
 
 ## 📚 Documentation Structure
 
 ### Quick Start
 - [Installation Guide](installation.md) - Get Pynomaly running in minutes
-- [Basic Usage Tutorial](basic-tutorial.md) - Your first anomaly detection model
+- [Basic Usage Tutorial](basic-tutorial.md) - Your first pattern detection model
 - [API Quick Reference](api-quickstart.md) - Essential API endpoints
 
 ### Core Features
-- [Anomaly Detection Guide](anomaly-detection.md) - Complete guide to detection algorithms
+- [Pattern Detection Guide](pattern-detection.md) - Complete guide to detection algorithms
 - [Data Management](data-management.md) - Loading, preprocessing, and managing datasets
 - [Model Training](model-training.md) - Training and fine-tuning models
-- [Real-time Detection](real-time-detection.md) - Streaming anomaly detection
+- [Real-time Detection](real-time-detection.md) - Streaming pattern detection
 
 ### Advanced Topics
 - [ML Governance](ml-governance.md) - Model lifecycle and compliance management
-- [Production Deployment](production-deployment.md) - Enterprise deployment strategies
+- [Production Deployment](production-deployment.md) - Advanced deployment strategies
 - [Monitoring & Observability](monitoring.md) - Production monitoring and alerting
 - [Performance Optimization](performance-optimization.md) - Scaling and optimization
 
@@ -66,7 +66,7 @@ pynomaly server start
 
 ## 🎯 Use Cases
 
-Pynomaly is designed for enterprise-scale anomaly detection across various domains:
+Pynomaly is designed for advanced-scale pattern detection across various domains:
 
 - **Financial Services**: Fraud detection, transaction monitoring, risk assessment
 - **Manufacturing**: Equipment monitoring, quality control, predictive maintenance

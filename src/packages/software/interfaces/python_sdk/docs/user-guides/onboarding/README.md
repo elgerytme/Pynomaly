@@ -4,15 +4,15 @@
 
 ---
 
-Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with anomaly detection through a personalized, step-by-step journey tailored to your role and experience level.
+Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with pattern detection through a personalized, step-by-step journey tailored to your role and experience level.
 
 ## 🎯 What You'll Learn
 
 ### For Data Scientists
 
-- **Algorithm Selection** - Choose the right anomaly detection algorithm for your use case
+- **Algorithm Selection** - Choose the right pattern detection algorithm for your use case
 - **Feature Engineering** - Prepare and transform your data for optimal results
-- **Model Evaluation** - Assess and validate your anomaly detection models
+- **Model Evaluation** - Assess and validate your pattern detection models
 - **Advanced Techniques** - Ensemble methods, hyperparameter tuning, and optimization
 
 ### For ML Engineers  
@@ -24,10 +24,10 @@ Welcome to Pynomaly's interactive onboarding system! This guide will help you ge
 
 ### For Business Analysts
 
-- **Business Value** - Understand how anomaly detection drives business outcomes
-- **Use Case Identification** - Recognize opportunities for anomaly detection
+- **Business Value** - Understand how pattern detection drives business outcomes
+- **Use Case Identification** - Recognize opportunities for pattern detection
 - **Dashboard Creation** - Build executive-friendly visualizations and reports
-- **ROI Calculation** - Measure and communicate the value of anomaly detection
+- **ROI Calculation** - Measure and communicate the value of pattern detection
 
 ### For DevOps Engineers
 

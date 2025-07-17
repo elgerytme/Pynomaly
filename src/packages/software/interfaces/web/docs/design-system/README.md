@@ -272,7 +272,7 @@ Essential interface elements used throughout the platform:
 #### Data Components
 Specialized components for data visualization and interaction:
 
-1. **Charts** - Line charts, scatter plots, heatmaps for anomaly visualization
+1. **Charts** - Line charts, scatter plots, heatmaps for pattern visualization
 2. **Tables** - Data grids, sortable columns, filtering, pagination
 3. **Dashboards** - Metric cards, KPI displays, summary widgets
 4. **Filters** - Search inputs, filter dropdowns, date pickers

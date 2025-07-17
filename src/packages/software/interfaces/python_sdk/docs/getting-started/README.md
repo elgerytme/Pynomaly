@@ -5,7 +5,7 @@
 ---
 
 
-Welcome to Pynomaly! This section will get you up and running with anomaly detection in minutes.
+Welcome to Pynomaly! This section will get you up and running with pattern detection in minutes.
 
 ## 🚀 Quick Start Path
 
@@ -17,7 +17,7 @@ Welcome to Pynomaly! This section will get you up and running with anomaly detec
 
 ### **2. First Detection** ⏱️ 5 minutes  
 **[→ Quickstart Guide](quickstart.md)**
-- Your first anomaly detection in 5 lines of code
+- Your first pattern detection in 5 lines of code
 - Basic concepts and workflow
 - Interactive examples
 
@@ -98,7 +98,7 @@ Best for: Production systems, advanced features
 
 ### **Data Scientist (First Time)**
 1. **[Installation](installation.md)** - Get Pynomaly installed
-2. **[Quickstart](quickstart.md)** - First anomaly detection
+2. **[Quickstart](quickstart.md)** - First pattern detection
 3. **[User Guides](../user-guides/basic-usage/)** - Learn core concepts
 4. **[Algorithm Selection](../reference/algorithms/)** - Choose algorithms
 
@@ -156,7 +156,7 @@ pynomaly --help
 
 ### **3. Quick Detection Test**
 ```python
-from pynomaly import detect_anomalies
+from pynomaly import detect_patterns
 import pandas as pd
 import numpy as np
 
@@ -169,9 +169,9 @@ data = pd.DataFrame({
 # Add some anomalies
 data.iloc[990:] = data.iloc[990:] * 5
 
-# Detect anomalies
-anomalies = detect_anomalies(data, contamination=0.01)
-print(f"Detected {anomalies.sum()} anomalies")
+# Detect patterns
+results = detect_patterns(data, contamination=0.01)
+print(f"Detected {results.sum()} patterns")
 ```
 
 ### **4. Web Interface (Optional)**
@@ -227,4 +227,4 @@ pynomaly server start
 
 ---
 
-**Ready to detect anomalies?** Start with the **[Quickstart Guide](quickstart.md)** → 🚀
+**Ready to detect patterns?** Start with the **[Quickstart Guide](quickstart.md)** → 🚀
