@@ -38,7 +38,7 @@ This directory contains the complete documentation suite for Pynomaly, covering 
    - **Target Audience**: Data scientists, ML engineers
 
 4. **[04-autonomous-mode-guide.md](04-autonomous-mode-guide.md)**
-   - AI-powered automated pattern detection
+   - AI-powered automated pattern analysis
    - Intelligent algorithm selection and optimization
    - Meta-learning and adaptive systems
    - Configuration and deployment
@@ -104,7 +104,7 @@ Located in the `pdfs/` subdirectory:
 ### Technical Specifications
 
 - **Total Pages**: 300+ pages across all documents
-- **Algorithms Covered**: 45+ anomaly detection algorithms
+- **Algorithms Covered**: 45+ pattern analysis algorithms
 - **Use Cases**: 15+ industry-specific examples
 - **Code Examples**: 100+ practical code snippets
 - **Architecture Diagrams**: Multiple system and component diagrams

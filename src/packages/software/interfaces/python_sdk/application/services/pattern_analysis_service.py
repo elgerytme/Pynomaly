@@ -9,17 +9,17 @@ from typing import List, Optional
 from uuid import UUID
 import logging
 
-from ...domain.entities.detection_request import DetectionRequest
+from ...domain.entities.pattern_analysis_request import PatternAnalysisRequest
 from ...domain.value_objects.algorithm_config import AlgorithmConfig
-from ...domain.value_objects.detection_metadata import DetectionMetadata
-from ...domain.repositories.detection_repository import DetectionRepository
-from ...domain.services.detection_validator import DetectionValidator
-from ...domain.exceptions.validation_exceptions import ValidationError, DetectionRequestError
-from ..dto.detection_dto import DetectionRequestDTO, DetectionResponseDTO
+from ...domain.value_objects.pattern_analysis_metadata import PatternAnalysisMetadata
+from ...domain.repositories.pattern_analysis_repository import PatternAnalysisRepository
+from ...domain.services.pattern_analysis_validator import PatternAnalysisValidator
+from ...domain.exceptions.validation_exceptions import ValidationError, PatternAnalysisRequestError
+from ..dto.pattern_analysis_dto import PatternAnalysisRequestDTO, PatternAnalysisResponseDTO
 from ...infrastructure.adapters.algorithm_adapter import AlgorithmAdapter
 
 
-class DetectionService:
+class PatternAnalysisService:
     """
     Application service for orchestrating anomaly detection operations.
     
@@ -29,111 +29,111 @@ class DetectionService:
     
     def __init__(
         self,
-        detection_repository: DetectionRepository,
+        pattern_analysis_repository: PatternAnalysisRepository,
         algorithm_adapter: AlgorithmAdapter,
         logger: Optional[logging.Logger] = None
     ):
-        self._detection_repository = detection_repository
+        self._pattern_analysis_repository = pattern_analysis_repository
         self._algorithm_adapter = algorithm_adapter
         self._logger = logger or logging.getLogger(__name__)
     
-    async def submit_detection_request(
+    async def submit_pattern_analysis_request(
         self, 
-        request_dto: DetectionRequestDTO
-    ) -> DetectionResponseDTO:
+        request_dto: PatternAnalysisRequestDTO
+    ) -> PatternAnalysisResponseDTO:
         """
-        Submit a new anomaly detection request.
+        Submit a new anomaly pattern analysis request.
         
         Args:
             request_dto: Data transfer object containing request details.
             
         Returns:
-            DetectionResponseDTO: Response containing request ID and initial status.
+            PatternAnalysisResponseDTO: Response containing request ID and initial status.
             
         Raises:
             ValidationError: If the request is invalid.
-            DetectionRequestError: If the request cannot be processed.
+            PatternAnalysisRequestError: If the request cannot be processed.
         """
         try:
             # Convert DTO to domain entity
             algorithm_config = AlgorithmConfig.from_dict(request_dto.algorithm_config)
-            metadata = DetectionMetadata.from_dict(request_dto.metadata or {})
+            metadata = PatternAnalysisMetadata.from_dict(request_dto.metadata or {})
             
-            detection_request = DetectionRequest(
+            pattern_analysis_request = PatternAnalysisRequest(
                 data=request_dto.data,
                 algorithm_config=algorithm_config,
                 metadata=metadata
             )
             
             # Validate the request
-            DetectionValidator.validate_and_raise(detection_request)
+            PatternAnalysisValidator.validate_and_raise(pattern_analysis_request)
             
             # Save the request
-            await self._detection_repository.save_request(detection_request)
+            await self._pattern_analysis_repository.save_request(pattern_analysis_request)
             
-            self._logger.info(f"Detection request {detection_request.id} submitted successfully")
+            self._logger.info(f"Pattern analysis request {pattern_analysis_request.id} submitted successfully")
             
             # Start async processing
-            asyncio.create_task(self._process_detection_request(detection_request))
+            asyncio.create_task(self._process_pattern_analysis_request(pattern_analysis_request))
             
-            return DetectionResponseDTO(
-                request_id=str(detection_request.id),
+            return PatternAnalysisResponseDTO(
+                request_id=str(pattern_analysis_request.id),
                 status="submitted",
-                message="Detection request submitted for processing"
+                message="Pattern analysis request submitted for processing"
             )
             
         except ValidationError:
             raise
         except Exception as e:
-            self._logger.error(f"Failed to submit detection request: {str(e)}")
-            raise DetectionRequestError("unknown", f"Failed to submit request: {str(e)}")
+            self._logger.error(f"Failed to submit pattern analysis request: {str(e)}")
+            raise PatternAnalysisRequestError("unknown", f"Failed to submit request: {str(e)}")
     
-    async def get_detection_status(self, request_id: UUID) -> DetectionResponseDTO:
+    async def get_pattern_analysis_status(self, request_id: UUID) -> PatternAnalysisResponseDTO:
         """
-        Get the status of a detection request.
+        Get the status of a pattern analysis request.
         
         Args:
-            request_id: Unique identifier of the detection request.
+            request_id: Unique identifier of the pattern analysis request.
             
         Returns:
-            DetectionResponseDTO: Current status and details of the request.
+            PatternAnalysisResponseDTO: Current status and details of the request.
             
         Raises:
-            DetectionRequestError: If the request cannot be found or accessed.
+            PatternAnalysisRequestError: If the request cannot be found or accessed.
         """
         try:
-            request = await self._detection_repository.get_request_by_id(request_id)
+            request = await self._pattern_analysis_repository.get_request_by_id(request_id)
             
             if not request:
-                raise DetectionRequestError(
+                raise PatternAnalysisRequestError(
                     str(request_id), 
-                    "Detection request not found"
+                    "Pattern analysis request not found"
                 )
             
-            return DetectionResponseDTO(
+            return PatternAnalysisResponseDTO(
                 request_id=str(request.id),
                 status=request.status,
                 message=f"Request is {request.status}",
                 created_at=request.created_at
             )
             
-        except DetectionRequestError:
+        except PatternAnalysisRequestError:
             raise
         except Exception as e:
             self._logger.error(f"Failed to get detection status for {request_id}: {str(e)}")
-            raise DetectionRequestError(
+            raise PatternAnalysisRequestError(
                 str(request_id), 
                 f"Failed to retrieve status: {str(e)}"
             )
     
-    async def list_detection_requests(
+    async def list_pattern_analysis_requests(
         self, 
         user_id: Optional[str] = None,
         limit: int = 100,
         offset: int = 0
-    ) -> List[DetectionResponseDTO]:
+    ) -> List[PatternAnalysisResponseDTO]:
         """
-        List detection requests with optional filtering.
+        List pattern analysis requests with optional filtering.
         
         Args:
             user_id: Optional user ID filter.
@@ -141,16 +141,16 @@ class DetectionService:
             offset: Number of requests to skip.
             
         Returns:
-            List[DetectionResponseDTO]: List of detection request summaries.
+            List[PatternAnalysisResponseDTO]: List of pattern analysis request summaries.
         """
         try:
             if user_id:
-                requests = await self._detection_repository.get_requests_by_user(user_id)
+                requests = await self._pattern_analysis_repository.get_requests_by_user(user_id)
             else:
-                requests = await self._detection_repository.list_requests(limit, offset)
+                requests = await self._pattern_analysis_repository.list_requests(limit, offset)
             
             return [
-                DetectionResponseDTO(
+                PatternAnalysisResponseDTO(
                     request_id=str(req.id),
                     status=req.status,
                     message=f"Request {req.status}",
@@ -160,93 +160,93 @@ class DetectionService:
             ]
             
         except Exception as e:
-            self._logger.error(f"Failed to list detection requests: {str(e)}")
-            raise DetectionRequestError("list", f"Failed to list requests: {str(e)}")
+            self._logger.error(f"Failed to list pattern analysis requests: {str(e)}")
+            raise PatternAnalysisRequestError("list", f"Failed to list requests: {str(e)}")
     
-    async def cancel_detection_request(self, request_id: UUID) -> bool:
+    async def cancel_pattern_analysis_request(self, request_id: UUID) -> bool:
         """
-        Cancel a pending detection request.
+        Cancel a pending pattern analysis request.
         
         Args:
-            request_id: Unique identifier of the detection request.
+            request_id: Unique identifier of the pattern analysis request.
             
         Returns:
             bool: True if the request was cancelled successfully.
             
         Raises:
-            DetectionRequestError: If the request cannot be cancelled.
+            PatternAnalysisRequestError: If the request cannot be cancelled.
         """
         try:
-            request = await self._detection_repository.get_request_by_id(request_id)
+            request = await self._pattern_analysis_repository.get_request_by_id(request_id)
             
             if not request:
-                raise DetectionRequestError(
+                raise PatternAnalysisRequestError(
                     str(request_id), 
-                    "Detection request not found"
+                    "Pattern analysis request not found"
                 )
             
             if request.status not in ["pending", "submitted"]:
-                raise DetectionRequestError(
+                raise PatternAnalysisRequestError(
                     str(request_id), 
                     f"Cannot cancel request with status: {request.status}"
                 )
             
-            await self._detection_repository.update_request_status(request_id, "cancelled")
+            await self._pattern_analysis_repository.update_request_status(request_id, "cancelled")
             
-            self._logger.info(f"Detection request {request_id} cancelled")
+            self._logger.info(f"Pattern analysis request {request_id} cancelled")
             return True
             
-        except DetectionRequestError:
+        except PatternAnalysisRequestError:
             raise
         except Exception as e:
-            self._logger.error(f"Failed to cancel detection request {request_id}: {str(e)}")
-            raise DetectionRequestError(
+            self._logger.error(f"Failed to cancel pattern analysis request {request_id}: {str(e)}")
+            raise PatternAnalysisRequestError(
                 str(request_id), 
                 f"Failed to cancel request: {str(e)}"
             )
     
-    async def _process_detection_request(self, request: DetectionRequest) -> None:
+    async def _process_pattern_analysis_request(self, request: PatternAnalysisRequest) -> None:
         """
-        Process a detection request asynchronously.
+        Process a pattern analysis request asynchronously.
         
         Args:
-            request: The detection request to process.
+            request: The pattern analysis request to process.
         """
         try:
             # Update status to processing
             request.mark_as_processing()
-            await self._detection_repository.update_request_status(
+            await self._pattern_analysis_repository.update_request_status(
                 request.id, 
                 "processing"
             )
             
-            self._logger.info(f"Starting processing for detection request {request.id}")
+            self._logger.info(f"Starting processing for pattern analysis request {request.id}")
             
             # Execute the detection algorithm
-            result = await self._algorithm_adapter.detect_anomalies(
+            result = await self._algorithm_adapter.analyze_patterns(
                 data=request.data,
                 algorithm_config=request.algorithm_config
             )
             
             # Mark as completed
             request.mark_as_completed()
-            await self._detection_repository.update_request_status(
+            await self._pattern_analysis_repository.update_request_status(
                 request.id, 
                 "completed"
             )
             
-            self._logger.info(f"Detection request {request.id} completed successfully")
+            self._logger.info(f"Pattern analysis request {request.id} completed successfully")
             
         except Exception as e:
             # Mark as failed
             error_message = str(e)
             request.mark_as_failed(error_message)
-            await self._detection_repository.update_request_status(
+            await self._pattern_analysis_repository.update_request_status(
                 request.id, 
                 "failed"
             )
             
-            self._logger.error(f"Detection request {request.id} failed: {error_message}")
+            self._logger.error(f"Pattern analysis request {request.id} failed: {error_message}")
     
     async def get_algorithm_recommendations(
         self, 

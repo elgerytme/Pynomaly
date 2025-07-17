@@ -1,7 +1,7 @@
 """
 Processing Metadata Value Object
 
-Represents immutable metadata associated with anomaly processing operations.
+Represents immutable metadata associated with pattern analysis processing operations.
 """
 
 from dataclasses import dataclass
@@ -10,9 +10,9 @@ from datetime import datetime
 
 
 @dataclass(frozen=True)
-class DetectionMetadata:
+class PatternAnalysisMetadata:
     """
-    Immutable metadata for anomaly processing operations.
+    Immutable metadata for pattern analysis processing operations.
     
     This value object contains contextual information about
     the processing request and execution environment.
@@ -55,15 +55,15 @@ class DetectionMetadata:
         }
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'DetectionMetadata':
+    def from_dict(cls, data: Dict[str, Any]) -> 'PatternAnalysisMetadata':
         """
-        Create DetectionMetadata from a dictionary.
+        Create PatternAnalysisMetadata from a dictionary.
         
         Args:
             data: Dictionary containing metadata.
             
         Returns:
-            DetectionMetadata: New instance from the dictionary.
+            PatternAnalysisMetadata: New instance from the dictionary.
         """
         return cls(
             data_collection_name=data.get("data_collection_name"),
@@ -75,7 +75,7 @@ class DetectionMetadata:
             tags=data.get("tags")
         )
     
-    def with_user(self, user_id: str) -> 'DetectionMetadata':
+    def with_user(self, user_id: str) -> 'PatternAnalysisMetadata':
         """
         Create new metadata with user ID.
         
@@ -83,9 +83,9 @@ class DetectionMetadata:
             user_id: User identifier.
             
         Returns:
-            DetectionMetadata: New instance with user ID.
+            PatternAnalysisMetadata: New instance with user ID.
         """
-        return DetectionMetadata(
+        return PatternAnalysisMetadata(
             data_collection_name=self.data_collection_name,
             feature_names=self.feature_names,
             data_source=self.data_source,
@@ -95,7 +95,7 @@ class DetectionMetadata:
             tags=self.tags
         )
     
-    def with_tags(self, **new_tags: str) -> 'DetectionMetadata':
+    def with_tags(self, **new_tags: str) -> 'PatternAnalysisMetadata':
         """
         Create new metadata with additional tags.
         
@@ -103,12 +103,12 @@ class DetectionMetadata:
             **new_tags: Additional tags to include.
             
         Returns:
-            DetectionMetadata: New instance with updated tags.
+            PatternAnalysisMetadata: New instance with updated tags.
         """
         updated_tags = (self.tags or {}).copy()
         updated_tags.update(new_tags)
         
-        return DetectionMetadata(
+        return PatternAnalysisMetadata(
             data_collection_name=self.data_collection_name,
             feature_names=self.feature_names,
             data_source=self.data_source,

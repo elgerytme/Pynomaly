@@ -10,7 +10,7 @@ from typing import Any, Dict, List
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-from .algorithm_adapter import AlgorithmAdapter, AlgorithmResult, AlgorithmExecutionError
+from .algorithm_adapter import AlgorithmAdapter, PatternAnalysisResult, AlgorithmExecutionError
 from ...domain.value_objects.algorithm_config import AlgorithmConfig, AlgorithmType
 
 
@@ -19,7 +19,7 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
     Concrete implementation of AlgorithmAdapter using PyOD library.
     
     This adapter provides integration with the PyOD (Python Outlier Processing)
-    library for executing various anomaly processing algorithms.
+    library for executing various pattern analysis algorithms.
     """
     
     def __init__(self, preprocessing: bool = True):
@@ -39,20 +39,20 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
             AlgorithmType.AUTOENCODER: self._run_autoencoder
         }
     
-    async def detect_anomalies(
+    async def analyze_patterns(
         self, 
         data: List[float], 
         algorithm_config: AlgorithmConfig
-    ) -> AlgorithmResult:
+    ) -> PatternAnalysisResult:
         """
-        Execute anomaly processing using PyOD algorithms.
+        Execute pattern analysis using PyOD algorithms.
         
         Args:
-            data: Input data for anomaly processing.
+            data: Input data for pattern analysis.
             algorithm_config: Configuration for the algorithm.
             
         Returns:
-            AlgorithmResult: Results of the anomaly processing.
+            PatternAnalysisResult: Results of the pattern analysis.
             
         Raises:
             AlgorithmExecutionError: If algorithm execution fails.
@@ -74,12 +74,12 @@ class PyODAlgorithmAdapter(AlgorithmAdapter):
             start_time = time.time()
             
             algorithm_func = self._supported_algorithms[algorithm_config.algorithm_type]
-            anomalies, scores = await algorithm_func(data_array, algorithm_config)
+            patterns, scores = await algorithm_func(data_array, algorithm_config)
             
             execution_time = int((time.time() - start_time) * 1000)
             
-            return AlgorithmResult(
-                anomalies=anomalies.tolist(),
+            return PatternAnalysisResult(
+                patterns=patterns.tolist(),
                 scores=scores.tolist(),
                 algorithm_type=algorithm_config.algorithm_type.value,
                 execution_time_ms=execution_time,

@@ -8,10 +8,10 @@ A comprehensive, production-ready pattern processing system with advanced-grade 
 ## Features
 
 ### Core Processing
-- **Anomaly Processing**: Detect anomalies in time series, tabular, and streaming data
+- **Pattern Processing**: Detect patterns in time series, tabular, and streaming data
 - **Multiple Algorithms**: Support for Isolation Forest, One-Class SVM, LSTM Autoencoders, and custom models
 - **Ensemble Methods**: Combine multiple processing algorithms for improved accuracy
-- **Real-time Processing**: Stream processing for continuous anomaly processing
+- **Real-time Processing**: Stream processing for continuous pattern processing
 
 ### MLOps Platform
 - **Processor Registry**: Centralized processor management with versioning and metadata
@@ -41,7 +41,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
   -d '{"username": "your_username", "password": "your_password"}'
 ```
 
-### 2. Basic Anomaly Processing
+### 2. Basic Pattern Processing
 ```bash
 # Detect anomalies in data
 curl -X POST "https://api.pynomaly.com/api/v1/processing/detect" \
@@ -131,10 +131,10 @@ This directory contains comprehensive API documentation for the Software platfor
 - `POST /api/v1/auth/refresh` - Token refresh
 - `GET /api/v1/auth/me` - Get current user profile
 
-### Anomaly Processing
+### Pattern Processing
 - `POST /api/v1/processing/detect` - Detect anomalies in data
-- `POST /api/v1/processing/train` - Train anomaly processing processor
-- `POST /api/v1/processing/batch` - Batch anomaly processing
+- `POST /api/v1/processing/train` - Train pattern processing processor
+- `POST /api/v1/processing/batch` - Batch pattern processing
 
 ### Processor Management
 - `GET /api/v1/models` - List available models
@@ -153,7 +153,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
   -d '{"username": "your_username", "password": "your_password"}'
 ```
 
-### Anomaly Detection
+### Pattern Analysis
 ```bash
 curl -X POST "https://api.pynomaly.com/api/v1/processing/detect" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \

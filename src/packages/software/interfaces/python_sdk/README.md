@@ -50,8 +50,8 @@ async def main():
             algorithm_params={"contamination": 0.1}
         )
         
-        print(f"Anomaly Scores: {result.anomaly_scores}")
-        print(f"Anomaly Labels: {result.anomaly_labels}")
+        print(f"Pattern Scores: {result.pattern_scores}")
+        print(f"Pattern Labels: {result.pattern_labels}")
         print(f"Algorithm Used: {result.algorithm_used}")
         print(f"Execution Time: {result.execution_time}s")
 
@@ -79,7 +79,7 @@ def detect_anomalies_sync(data, algorithm="isolation_forest"):
 # Usage
 data = pd.DataFrame({'x': [1, 2, 3, 4, 100], 'y': [2, 4, 6, 8, 200]})
 result = detect_anomalies_sync(data)
-print(f"Detected {sum(result.anomaly_labels)} anomalies")
+print(f"Detected {sum(result.pattern_labels)} patterns")
 ```
 
 ## 🏗️ Advanced Usage
@@ -90,7 +90,7 @@ print(f"Detected {sum(result.anomaly_labels)} anomalies")
 import asyncio
 from pynomaly_sdk import create_client
 
-async def batch_detection():
+async def batch_processing():
     client = create_client(api_key="your-api-key")
     
     # Define multiple datasets for processing
@@ -119,9 +119,9 @@ async def batch_detection():
         )
         
         for i, result in enumerate(results):
-            print(f"Dataset {i+1}: {sum(result.anomaly_labels)} anomalies detected")
+            print(f"Dataset {i+1}: {sum(result.pattern_labels)} patterns detected")
 
-asyncio.run(batch_detection())
+asyncio.run(batch_processing())
 ```
 
 ### Custom Configuration
@@ -261,7 +261,7 @@ Detect anomalies in data using specified algorithm.
 - `use_cache` (bool): Whether to use caching (default: True)
 
 **Returns:**
-- `DetectionResponseDTO`: Detection results with scores and labels
+- `ProcessingResponseDTO`: Processing results with scores and labels
 
 ##### `detect_anomalies_batch(datasets, max_concurrent, progress_callback)`
 
@@ -273,7 +273,7 @@ Detect anomalies in multiple datasets concurrently.
 - `progress_callback` (Optional[Callable]): Progress callback function
 
 **Returns:**
-- `List[DetectionResponseDTO]`: List of detection results
+- `List[ProcessingResponseDTO]`: List of processing results
 
 ##### `assess_data_quality(data, quality_metrics, use_cache)`
 
@@ -368,14 +368,14 @@ Configuration for retry behavior.
 
 ### Data Transfer Objects
 
-#### `DetectionResponseDTO`
+#### `ProcessingResponseDTO`
 
 Response object for data processing operations.
 
 **Attributes:**
 - `request_id` (str): Request identifier
-- `anomaly_scores` (List[float]): Anomaly scores for each data point
-- `anomaly_labels` (List[int]): Binary labels (0=normal, 1=anomaly)
+- `pattern_scores` (List[float]): Pattern scores for each data point
+- `pattern_labels` (List[int]): Binary labels (0=normal, 1=pattern)
 - `algorithm_used` (str): Algorithm used for processing
 - `execution_time` (float): Execution time in seconds
 - `metadata` (Dict): Additional metadata
@@ -457,8 +457,8 @@ async def process_large_dataset():
         all_labels = []
         
         for result in results:
-            all_scores.extend(result.anomaly_scores)
-            all_labels.extend(result.anomaly_labels)
+            all_scores.extend(result.pattern_scores)
+            all_labels.extend(result.pattern_labels)
         
         return all_scores, all_labels
 ```
@@ -475,19 +475,19 @@ from pynomaly_sdk import create_client
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def monitored_detection():
+async def monitored_processing():
     client = create_client(api_key="your-api-key", debug=True)
     
     async with client:
         # Log cache stats
         logger.info(f"Cache stats: {client.get_cache_stats()}")
         
-        # Perform detection
+        # Perform processing
         result = await client.detect_anomalies(your_data)
         
         # Log results
-        logger.info(f"Detection completed: {result.request_id}")
-        logger.info(f"Anomalies found: {sum(result.anomaly_labels)}")
+        logger.info(f"Processing completed: {result.request_id}")
+        logger.info(f"Patterns found: {sum(result.pattern_labels)}")
         logger.info(f"Execution time: {result.execution_time}s")
 ```
 
@@ -508,16 +508,16 @@ async def performance_monitoring():
         health = await client.health_check()
         health_time = time.time() - health_start
         
-        # Measure detection time
-        detection_start = time.time()
+        # Measure processing time
+        processing_start = time.time()
         result = await client.detect_anomalies(your_data)
-        detection_time = time.time() - detection_start
+        processing_time = time.time() - processing_start
         
         total_time = time.time() - start_time
         
         print(f"Performance Metrics:")
         print(f"  Health check: {health_time:.3f}s")
-        print(f"  Detection: {detection_time:.3f}s")
+        print(f"  Processing: {processing_time:.3f}s")
         print(f"  Total time: {total_time:.3f}s")
         print(f"  Cache stats: {client.get_cache_stats()}")
 ```
@@ -574,7 +574,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🗺️ Roadmap
 
 - [ ] GraphQL API support
-- [ ] Real-time streaming detection
+- [ ] Real-time streaming processing
 - [ ] Advanced visualization tools
 - [ ] MLOps pipeline integration
 - [ ] Custom algorithm plugins

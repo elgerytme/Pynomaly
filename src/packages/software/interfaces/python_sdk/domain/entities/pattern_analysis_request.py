@@ -1,7 +1,7 @@
 """
 Processing Request Entity
 
-Represents a request for anomaly processing in the system.
+Represents a request for pattern analysis processing in the system.
 """
 
 from datetime import datetime
@@ -9,15 +9,15 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from ..value_objects.algorithm_config import AlgorithmConfig
-from ..value_objects.detection_metadata import DetectionMetadata
+from ..value_objects.pattern_analysis_metadata import PatternAnalysisMetadata
 
 
-class DetectionRequest:
+class PatternAnalysisRequest:
     """
-    Entity representing an anomaly processing request.
+    Entity representing a pattern analysis processing request.
     
     This entity encapsulates all information needed to perform
-    anomaly processing, including data, algorithm configuration,
+    pattern analysis processing, including data, algorithm configuration,
     and request metadata.
     """
     
@@ -25,14 +25,14 @@ class DetectionRequest:
         self,
         data: List[float],
         algorithm_config: AlgorithmConfig,
-        metadata: Optional[DetectionMetadata] = None,
+        metadata: Optional[PatternAnalysisMetadata] = None,
         request_id: Optional[UUID] = None,
         created_at: Optional[datetime] = None
     ):
         self._id = request_id or uuid4()
         self._data = data.copy() if data else []
         self._algorithm_config = algorithm_config
-        self._metadata = metadata or DetectionMetadata()
+        self._metadata = metadata or PatternAnalysisMetadata()
         self._created_at = created_at or datetime.utcnow()
         self._status = "pending"
         
@@ -43,7 +43,7 @@ class DetectionRequest:
         
     @property
     def data(self) -> List[float]:
-        """Input data for anomaly processing."""
+        """Input data for pattern analysis processing."""
         return self._data.copy()
         
     @property
@@ -52,7 +52,7 @@ class DetectionRequest:
         return self._algorithm_config
         
     @property
-    def metadata(self) -> DetectionMetadata:
+    def metadata(self) -> PatternAnalysisMetadata:
         """Additional metadata for the request."""
         return self._metadata
         
@@ -115,7 +115,7 @@ class DetectionRequest:
         
     def __eq__(self, other: object) -> bool:
         """Check equality based on entity ID."""
-        if not isinstance(other, DetectionRequest):
+        if not isinstance(other, PatternAnalysisRequest):
             return False
         return self._id == other._id
         
@@ -125,4 +125,4 @@ class DetectionRequest:
         
     def __repr__(self) -> str:
         """String representation of the entity."""
-        return f"DetectionRequest(id={self._id}, status={self._status}, data_points={len(self._data)})"
+        return f"PatternAnalysisRequest(id={self._id}, status={self._status}, data_points={len(self._data)})"

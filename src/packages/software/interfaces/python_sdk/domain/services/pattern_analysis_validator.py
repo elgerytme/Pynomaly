@@ -7,12 +7,12 @@ Provides validation logic for processing-related domain objects.
 from typing import List, Tuple
 import numpy as np
 
-from ..entities.detection_request import DetectionRequest
+from ..entities.pattern_analysis_request import PatternAnalysisRequest
 from ..value_objects.algorithm_config import AlgorithmConfig, AlgorithmType
 from ..exceptions.validation_exceptions import ValidationError
 
 
-class DetectionValidator:
+class PatternAnalysisValidator:
     """
     Domain service for validating processing requests and configurations.
     
@@ -21,7 +21,7 @@ class DetectionValidator:
     """
     
     @staticmethod
-    def validate_detection_request(request: DetectionRequest) -> Tuple[bool, List[str]]:
+    def validate_pattern_analysis_request(request: PatternAnalysisRequest) -> Tuple[bool, List[str]]:
         """
         Validate a complete processing request.
         
@@ -38,18 +38,18 @@ class DetectionValidator:
             errors.append("Processing request basic validation failed")
         
         # Validate data
-        data_errors = DetectionValidator._validate_data(request.data)
+        data_errors = PatternAnalysisValidator._validate_data(request.data)
         errors.extend(data_errors)
         
         # Validate algorithm configuration
-        config_errors = DetectionValidator._validate_algorithm_config(
+        config_errors = PatternAnalysisValidator._validate_algorithm_config(
             request.algorithm_config, 
             len(request.data)
         )
         errors.extend(config_errors)
         
         # Validate data compatibility with algorithm
-        compatibility_errors = DetectionValidator._validate_data_algorithm_compatibility(
+        compatibility_errors = PatternAnalysisValidator._validate_data_algorithm_compatibility(
             request.data, 
             request.algorithm_config
         )
@@ -60,7 +60,7 @@ class DetectionValidator:
     @staticmethod
     def _validate_data(data: List[float]) -> List[str]:
         """
-        Validate input data for anomaly processing.
+        Validate input data for pattern analysis processing.
         
         Args:
             data: The input data to validate.
@@ -173,7 +173,7 @@ class DetectionValidator:
                     # Recursively validate base estimators
                     try:
                         base_config = AlgorithmConfig.from_dict(estimator_config)
-                        base_errors = DetectionValidator._validate_data_algorithm_compatibility(data, base_config)
+                        base_errors = PatternAnalysisValidator._validate_data_algorithm_compatibility(data, base_config)
                         errors.extend([f"Base estimator: {error}" for error in base_errors])
                     except Exception as e:
                         errors.append(f"Invalid base estimator configuration: {str(e)}")
@@ -181,7 +181,7 @@ class DetectionValidator:
         return errors
     
     @staticmethod
-    def validate_and_raise(request: DetectionRequest) -> None:
+    def validate_and_raise(request: PatternAnalysisRequest) -> None:
         """
         Validate a processing request and raise an exception if invalid.
         
@@ -191,7 +191,7 @@ class DetectionValidator:
         Raises:
             ValidationError: If the request is invalid.
         """
-        is_valid, errors = DetectionValidator.validate_processing_request(request)
+        is_valid, errors = PatternAnalysisValidator.validate_pattern_analysis_request(request)
         
         if not is_valid:
             raise ValidationError(f"Processing request validation failed: {'; '.join(errors)}")

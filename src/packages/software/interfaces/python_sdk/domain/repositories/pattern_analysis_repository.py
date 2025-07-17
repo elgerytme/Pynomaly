@@ -8,10 +8,10 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 from uuid import UUID
 
-from ..entities.detection_request import DetectionRequest
+from ..entities.pattern_analysis_request import PatternAnalysisRequest
 
 
-class DetectionRepository(ABC):
+class PatternAnalysisRepository(ABC):
     """
     Abstract repository for processing-related data persistence.
     
@@ -21,7 +21,7 @@ class DetectionRepository(ABC):
     """
     
     @abstractmethod
-    async def save_request(self, request: DetectionRequest) -> None:
+    async def save_request(self, request: PatternAnalysisRequest) -> None:
         """
         Save a processing request to persistent storage.
         
@@ -34,7 +34,7 @@ class DetectionRepository(ABC):
         pass
     
     @abstractmethod
-    async def get_request_by_id(self, request_id: UUID) -> Optional[DetectionRequest]:
+    async def get_request_by_id(self, request_id: UUID) -> Optional[PatternAnalysisRequest]:
         """
         Retrieve a processing request by its unique identifier.
         
@@ -42,7 +42,7 @@ class DetectionRepository(ABC):
             request_id: The unique identifier of the request.
             
         Returns:
-            Optional[DetectionRequest]: The request if found, None otherwise.
+            Optional[PatternAnalysisRequest]: The request if found, None otherwise.
             
         Raises:
             RepositoryError: If the retrieval operation fails.
@@ -50,7 +50,7 @@ class DetectionRepository(ABC):
         pass
     
     @abstractmethod
-    async def get_requests_by_user(self, user_id: str) -> List[DetectionRequest]:
+    async def get_requests_by_user(self, user_id: str) -> List[PatternAnalysisRequest]:
         """
         Retrieve all processing requests for a specific user.
         
@@ -58,7 +58,7 @@ class DetectionRepository(ABC):
             user_id: The user identifier.
             
         Returns:
-            List[DetectionRequest]: List of requests for the user.
+            List[PatternAnalysisRequest]: List of requests for the user.
             
         Raises:
             RepositoryError: If the retrieval operation fails.
@@ -101,7 +101,7 @@ class DetectionRepository(ABC):
         limit: int = 100, 
         offset: int = 0,
         status_filter: Optional[str] = None
-    ) -> List[DetectionRequest]:
+    ) -> List[PatternAnalysisRequest]:
         """
         List processing requests with pagination and filtering.
         
@@ -111,7 +111,7 @@ class DetectionRepository(ABC):
             status_filter: Optional status filter.
             
         Returns:
-            List[DetectionRequest]: List of processing requests.
+            List[PatternAnalysisRequest]: List of processing requests.
             
         Raises:
             RepositoryError: If the list operation fails.

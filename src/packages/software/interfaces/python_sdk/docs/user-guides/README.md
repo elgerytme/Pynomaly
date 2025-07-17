@@ -6,14 +6,14 @@ Welcome to Pynomaly, the comprehensive advanced-grade pattern analysis platform.
 
 ### Quick Start
 - [Installation Guide](installation.md) - Get Pynomaly running in minutes
-- [Basic Usage Tutorial](basic-tutorial.md) - Your first pattern detection model
+- [Basic Usage Tutorial](basic-tutorial.md) - Your first pattern analysis model
 - [API Quick Reference](api-quickstart.md) - Essential API endpoints
 
 ### Core Features
-- [Pattern Detection Guide](pattern-detection.md) - Complete guide to detection algorithms
+- [Pattern Analysis Guide](pattern-analysis.md) - Complete guide to analysis algorithms
 - [Data Management](data-management.md) - Loading, preprocessing, and managing datasets
 - [Model Training](model-training.md) - Training and fine-tuning models
-- [Real-time Detection](real-time-detection.md) - Streaming pattern detection
+- [Real-time Analysis](real-time-analysis.md) - Streaming pattern analysis
 
 ### Advanced Topics
 - [ML Governance](ml-governance.md) - Model lifecycle and compliance management
@@ -22,7 +22,7 @@ Welcome to Pynomaly, the comprehensive advanced-grade pattern analysis platform.
 - [Performance Optimization](performance-optimization.md) - Scaling and optimization
 
 ### Tutorials & Examples
-- [Tutorial: Financial Fraud Detection](tutorials/fraud-detection.md)
+- [Tutorial: Financial Pattern Analysis](tutorials/pattern-analysis.md)
 - [Tutorial: IoT Sensor Monitoring](tutorials/iot-monitoring.md)
 - [Tutorial: Network Security](tutorials/network-security.md)
 - [Tutorial: Time Series Anomalies](tutorials/time-series.md)
@@ -48,10 +48,10 @@ pip install pynomaly
 
 ### 2. Basic Example
 ```python
-from pynomaly import AnomalyDetector
+from pynomaly import PatternAnalyzer
 
 # Load your data
-detector = AnomalyDetector()
+analyzer = PatternAnalyzer()
 detector.fit(training_data)
 
 # Detect anomalies
@@ -66,11 +66,11 @@ pynomaly server start
 
 ## 🎯 Use Cases
 
-Pynomaly is designed for advanced-scale pattern detection across various domains:
+Pynomaly is designed for advanced-scale pattern analysis across various domains:
 
-- **Financial Services**: Fraud detection, transaction monitoring, risk assessment
+- **Financial Services**: Pattern analysis, transaction monitoring, risk assessment
 - **Manufacturing**: Equipment monitoring, quality control, predictive maintenance
-- **IT Operations**: Infrastructure monitoring, security threat detection, performance anomalies
+- **IT Operations**: Infrastructure monitoring, security threat analysis, performance patterns
 - **Healthcare**: Patient monitoring, medical device alerts, clinical decision support
 - **E-commerce**: User behavior analysis, recommendation systems, inventory optimization
 
@@ -88,7 +88,7 @@ Pynomaly follows a modular, cloud-native architecture:
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Application Layer                            │
 ├─────────────────┬─────────────────┬─────────────────────────────┤
-│ Anomaly Engine  │ ML Governance   │ Monitoring & Alerting      │
+│ Pattern Engine  │ ML Governance   │ Monitoring & Alerting      │
 └─────────────────┴─────────────────┴─────────────────────────────┘
                                  │
 ┌─────────────────────────────────────────────────────────────────┐
@@ -103,12 +103,12 @@ Pynomaly follows a modular, cloud-native architecture:
 ### Beginner (Week 1)
 1. Complete [Installation Guide](installation.md)
 2. Follow [Basic Usage Tutorial](basic-tutorial.md)
-3. Try [Financial Fraud Detection Tutorial](tutorials/fraud-detection.md)
+3. Try [Financial Pattern Analysis Tutorial](tutorials/pattern-analysis.md)
 
 ### Intermediate (Week 2-3)
 1. Explore [Data Management](data-management.md)
 2. Learn [Model Training](model-training.md) techniques
-3. Set up [Real-time Detection](real-time-detection.md)
+3. Set up [Real-time Analysis](real-time-analysis.md)
 
 ### Advanced (Week 4+)
 1. Implement [ML Governance](ml-governance.md) workflows

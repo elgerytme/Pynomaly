@@ -4,15 +4,15 @@
 
 ---
 
-Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with pattern detection through a personalized, step-by-step journey tailored to your role and experience level.
+Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with pattern analysis through a personalized, step-by-step journey tailored to your role and experience level.
 
 ## 🎯 What You'll Learn
 
 ### For Data Scientists
 
-- **Algorithm Selection** - Choose the right pattern detection algorithm for your use case
+- **Algorithm Selection** - Choose the right pattern analysis algorithm for your use case
 - **Feature Engineering** - Prepare and transform your data for optimal results
-- **Model Evaluation** - Assess and validate your pattern detection models
+- **Model Evaluation** - Assess and validate your pattern analysis models
 - **Advanced Techniques** - Ensemble methods, hyperparameter tuning, and optimization
 
 ### For ML Engineers  
@@ -24,10 +24,10 @@ Welcome to Pynomaly's interactive onboarding system! This guide will help you ge
 
 ### For Business Analysts
 
-- **Business Value** - Understand how pattern detection drives business outcomes
-- **Use Case Identification** - Recognize opportunities for pattern detection
+- **Business Value** - Understand how pattern analysis drives business outcomes
+- **Use Case Identification** - Recognize opportunities for pattern analysis
 - **Dashboard Creation** - Build executive-friendly visualizations and reports
-- **ROI Calculation** - Measure and communicate the value of pattern detection
+- **ROI Calculation** - Measure and communicate the value of pattern analysis
 
 ### For DevOps Engineers
 
@@ -69,8 +69,8 @@ Welcome to Pynomaly's interactive onboarding system! This guide will help you ge
 ### Phase 3: First Detection (15-20 minutes)
 
 1. **Sample Data** - Work with real-world examples
-2. **Algorithm Selection** - Choose your first detection algorithm
-3. **Running Detection** - Execute your first anomaly detection
+2. **Algorithm Selection** - Choose your first analysis algorithm
+3. **Running Analysis** - Execute your first pattern analysis
 4. **Results Interpretation** - Understand the output and insights
 
 ### Phase 4: Feature Exploration (20-30 minutes)
@@ -116,23 +116,23 @@ Content varies based on your role:
 
 ### Beginner Achievements
 
-- **🎯 First Detector** - Complete your first anomaly detection
+- **🎯 First Analyzer** - Complete your first pattern analysis
 - **📊 Data Explorer** - Successfully load and explore a dataset
-- **🔍 Pattern Finder** - Identify anomalies in sample data
+- **🔍 Pattern Finder** - Identify patterns in sample data
 - **⚡ Quick Learner** - Complete setup in under 10 minutes
 
 ### Intermediate Achievements
 
-- **🧪 Algorithm Expert** - Try 3 different detection algorithms
+- **🧪 Algorithm Expert** - Try 3 different analysis algorithms
 - **📈 Visualization Master** - Create your first interactive chart
-- **🔄 Pipeline Builder** - Set up an end-to-end detection pipeline
+- **🔄 Pipeline Builder** - Set up an end-to-end analysis pipeline
 - **🎨 Dashboard Creator** - Build a custom monitoring dashboard
 
 ### Advanced Achievements
 
 - **🚀 Production Ready** - Complete production deployment setup
 - **🔒 Security Guardian** - Configure security features
-- **📊 Performance Optimizer** - Optimize detection for large datasets
+- **📊 Performance Optimizer** - Optimize analysis for large datasets
 - **🏆 Pynomaly Expert** - Complete all role-specific advanced modules
 
 ## 📚 Learning Resources
@@ -145,9 +145,9 @@ Content varies based on your role:
 
 ### Examples & Tutorials
 
-- **[Banking Fraud Detection](../../examples/banking/README.md)** - Real-world fraud detection example
-- **[IoT Sensor Monitoring](../../examples/iot/README.md)** - Industrial anomaly detection
-- **[Web Analytics](../../examples/web/README.md)** - User behavior anomaly detection
+- **[Banking Pattern Analysis](../../examples/banking/README.md)** - Real-world pattern analysis example
+- **[IoT Sensor Monitoring](../../examples/iot/README.md)** - Industrial pattern analysis
+- **[Web Analytics](../../examples/web/README.md)** - User behavior pattern analysis
 
 ### Interactive Content
 
@@ -202,7 +202,7 @@ Track your learning progress with detailed analytics:
 
 ### Performance Metrics
 
-- **Detection Accuracy** - How well your models perform
+- **Analysis Accuracy** - How well your models perform
 - **Code Quality** - Analysis of your Python code
 - **Best Practices** - Adherence to recommended patterns
 - **Efficiency** - Speed and resource usage optimization
@@ -246,9 +246,9 @@ Track your learning progress with detailed analytics:
 
 - 🚀 **[Start Interactive Onboarding](/onboarding/welcome)** - Begin your journey
 - ⚙️ **[Environment Setup](environment-setup.md)** - Manual installation guide
-- 📊 **[First Detection Tutorial](first-detection.md)** - Your first anomaly detection
+- 📊 **[First Analysis Tutorial](first-detection.md)** - Your first pattern analysis
 - 🎯 **[Role-Specific Guides](role-specific/README.md)** - Tailored content for your role
 
 ---
 
-*Ready to become an anomaly detection expert? Start your interactive onboarding journey today!* 🎉
+*Ready to become a pattern analysis expert? Start your interactive onboarding journey today!* 🎉

@@ -59,7 +59,7 @@ All feature flags use the `PYNOMALY_` prefix and can be set as environment varia
 ### Advanced ML Features (Default: Enabled)
 
 - **AutoML**: Automated hyperparameter optimization
-- **Deep Learning**: Neural network-based anomaly detection
+- **Deep Learning**: Neural network-based pattern analysis
 - **Explainability**: Model interpretation and explanation
 - **Ensemble Optimization**: Advanced ensemble methods
 
@@ -256,7 +256,7 @@ pip install optuna
 ### Minimal Configuration (Basic Usage)
 
 ```bash
-# Only core detection features
+# Only core analysis features
 PYNOMALY_AUTOML=false
 PYNOMALY_DEEP_LEARNING=false
 PYNOMALY_PERFORMANCE_MONITORING=true

@@ -1,7 +1,7 @@
 """
 Processing CLI Interface
 
-Command-line interface for anomaly processing operations.
+Command-line interface for pattern analysis processing operations.
 """
 
 import asyncio
@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import List, Optional
 import click
 
-from ...application.services.detection_service import DetectionService
-from ...application.dto.detection_dto import DetectionRequestDTO
+from ...application.services.pattern_analysis_service import PatternAnalysisService
+from ...application.dto.pattern_analysis_dto import PatternAnalysisRequestDTO
 from ...domain.value_objects.algorithm_config import AlgorithmType
 from ...infrastructure.adapters.pyod_algorithm_adapter import PyODAlgorithmAdapter
 
@@ -21,7 +21,7 @@ from ...infrastructure.adapters.pyod_algorithm_adapter import PyODAlgorithmAdapt
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose output')
 @click.pass_context
 def cli(ctx, verbose):
-    """Software Python SDK CLI - Anomaly Processing Tools"""
+    """Software Python SDK CLI - Pattern Analysis Processing Tools"""
     ctx.ensure_object(dict)
     ctx.obj['verbose'] = verbose
 
@@ -31,7 +31,7 @@ def cli(ctx, verbose):
 @click.option('--algorithm', '-a', default='isolation_forest',
               type=click.Choice(['isolation_forest', 'local_outlier_factor', 'one_class_svm', 
                                'elliptic_envelope', 'autoencoder']),
-              help='Algorithm to use for processing')
+              help='Algorithm to use for pattern analysis')
 @click.option('--contamination', '-c', default=0.1, type=float,
               help='Expected proportion of outliers')
 @click.option('--output', '-o', help='Output file for results (JSON format)')
@@ -41,7 +41,7 @@ def cli(ctx, verbose):
 @click.pass_context
 def detect(ctx, data, algorithm, contamination, output, output_format):
     """
-    Detect anomalies in the provided data.
+    Analyze patterns in the provided data.
     
     DATA can be either:
     - Path to a CSV/JSON file containing numeric data
@@ -67,14 +67,14 @@ def detect(ctx, data, algorithm, contamination, output, output_format):
             "contamination": contamination
         }
         
-        request_dto = DetectionRequestDTO(
+        request_dto = PatternAnalysisRequestDTO(
             data=data_values,
             algorithm_config=algorithm_config
         )
         
         # Execute processing
         if ctx.obj['verbose']:
-            click.echo("Starting anomaly processing...")
+            click.echo("Starting pattern analysis processing...")
         
         result = asyncio.run(_execute_processing(request_dto))
         
@@ -95,7 +95,7 @@ def recommend(ctx, data, top):
     Get algorithm recommendations for the provided data.
     
     Analyzes the data characteristics and suggests the most suitable
-    anomaly processing algorithms.
+    pattern analysis algorithms.
     """
     try:
         # Parse input data
@@ -122,12 +122,12 @@ def algorithms():
     algorithms_info = {
         "isolation_forest": {
             "description": "Isolation Forest - Fast tree-based algorithm",
-            "best_for": "Large datasets, general-purpose processing",
+            "best_for": "Large datasets, general-purpose analysis",
             "complexity": "O(n log n)"
         },
         "local_outlier_factor": {
             "description": "Local Outlier Factor - Density-based processing",
-            "best_for": "Local outliers, varying density datasets",
+            "best_for": "Local patterns, varying density datasets",
             "complexity": "O(n²)"
         },
         "one_class_svm": {
@@ -147,7 +147,7 @@ def algorithms():
         }
     }
     
-    click.echo("Supported Anomaly Processing Algorithms:\n")
+    click.echo("Supported Pattern Analysis Algorithms:\n")
     
     for algo_name, info in algorithms_info.items():
         click.echo(f"🔍 {algo_name}")
@@ -202,9 +202,9 @@ def _parse_data_input(data_input: str) -> List[float]:
         raise ValueError("Invalid data format. Provide comma-separated numbers or a valid file path.")
 
 
-async def _execute_processing(request_dto: DetectionRequestDTO) -> dict:
+async def _execute_processing(request_dto: PatternAnalysisRequestDTO) -> dict:
     """
-    Execute anomaly processing using the application service.
+    Execute pattern analysis using the application service.
     
     Args:
         request_dto: Processing request data.
@@ -223,7 +223,7 @@ async def _execute_processing(request_dto: DetectionRequestDTO) -> dict:
     algorithm_config = AlgorithmConfig.from_dict(request_dto.algorithm_config)
     
     # Execute processing directly
-    result = await algorithm_adapter.detect_anomalies(
+    result = await algorithm_adapter.analyze_patterns(
         data=request_dto.data,
         algorithm_config=algorithm_config
     )
@@ -272,19 +272,19 @@ def _output_results(result: dict, output_file: Optional[str], format_type: str, 
         import pandas as pd
         df = pd.DataFrame({
             'index': range(len(result['anomalies'])),
-            'is_anomaly': result['anomalies'],
+            'is_pattern': result['patterns'],
             'score': result['scores']
         })
         output_data = df.to_csv(index=False)
     elif format_type == 'text':
-        anomaly_indices = [i for i, is_anomaly in enumerate(result['anomalies']) if is_anomaly]
-        output_data = f"""Anomaly Processing Results
+        pattern_indices = [i for i, is_pattern in enumerate(result['patterns']) if is_pattern]
+        output_data = f"""Pattern Analysis Results
 Algorithm: {result['algorithm_type']}
 Execution Time: {result['execution_time_ms']}ms
-Total Data Points: {len(result['anomalies'])}
-Anomalies Found: {sum(result['anomalies'])}
+Total Data Points: {len(result['patterns'])}
+Patterns Found: {sum(result['patterns'])}
 
-Anomaly Indices: {anomaly_indices}
+Pattern Indices: {pattern_indices}
 """
     
     if output_file:

@@ -23,7 +23,7 @@ Welcome to personalized onboarding! These guides are tailored to your specific r
 **Learning Path (45-60 minutes):**
 
 1. **Environment Setup** (10 min) - Python, Jupyter, libraries
-2. **First Detection** (15 min) - Hands-on anomaly detection
+2. **First Analysis** (15 min) - Hands-on pattern analysis
 3. **Algorithm Deep Dive** (20 min) - Compare different approaches
 4. **Model Evaluation** (15 min) - Assess performance and tune parameters
 
@@ -64,8 +64,8 @@ Welcome to personalized onboarding! These guides are tailored to your specific r
 
 **Learning Path (30-45 minutes):**
 
-1. **Anomaly Detection Basics** (10 min) - Concepts and business value
-2. **Quick Detection** (15 min) - Simple, guided example
+1. **Pattern Analysis Basics** (10 min) - Concepts and business value
+2. **Quick Analysis** (15 min) - Simple, guided example
 3. **Dashboard Creation** (15 min) - Build executive-friendly reports
 4. **Business Use Cases** (10 min) - Industry-specific applications
 
@@ -127,7 +127,7 @@ Welcome to personalized onboarding! These guides are tailored to your specific r
 
 **Learning Path (30-45 minutes):**
 
-1. **What is Anomaly Detection?** (10 min) - Fundamental concepts
+1. **What is Pattern Analysis?** (10 min) - Fundamental concepts
 2. **Web Interface Tutorial** (15 min) - Point-and-click experience
 3. **Example Applications** (15 min) - Real-world use cases
 4. **Next Steps** (5 min) - Where to go from here
@@ -250,7 +250,7 @@ graph LR
 
 **Financial Services**
 
-- Fraud detection use cases
+- Pattern analysis use cases
 - Regulatory compliance
 - Real-time processing
 
@@ -263,7 +263,7 @@ graph LR
 **E-commerce**
 
 - Customer behavior analysis
-- Inventory anomalies
+- Inventory patterns
 - Revenue protection
 
 **Manufacturing**
@@ -274,7 +274,7 @@ graph LR
 
 **Cybersecurity**
 
-- Network intrusion detection
+- Network pattern analysis
 - Behavioral analysis
 - Threat hunting
 

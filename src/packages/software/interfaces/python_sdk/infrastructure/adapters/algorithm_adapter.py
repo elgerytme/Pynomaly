@@ -11,23 +11,23 @@ import numpy as np
 from ...domain.value_objects.algorithm_config import AlgorithmConfig
 
 
-class AlgorithmResult:
+class PatternAnalysisResult:
     """
-    Result of an anomaly processing algorithm execution.
+    Result of a pattern analysis algorithm execution.
     
     Encapsulates the output of algorithm execution including
-    anomaly predictions, scores, and metadata.
+    pattern predictions, scores, and metadata.
     """
     
     def __init__(
         self,
-        anomalies: List[int],
+        patterns: List[int],
         scores: List[float],
         algorithm_type: str,
         execution_time_ms: int,
         metadata: Dict[str, Any] = None
     ):
-        self.anomalies = anomalies
+        self.patterns = patterns
         self.scores = scores
         self.algorithm_type = algorithm_type
         self.execution_time_ms = execution_time_ms
@@ -36,7 +36,7 @@ class AlgorithmResult:
     def to_dict(self) -> Dict[str, Any]:
         """Convert result to dictionary representation."""
         return {
-            "anomalies": self.anomalies,
+            "patterns": self.patterns,
             "scores": self.scores,
             "algorithm_type": self.algorithm_type,
             "execution_time_ms": self.execution_time_ms,
@@ -46,27 +46,27 @@ class AlgorithmResult:
 
 class AlgorithmAdapter(ABC):
     """
-    Abstract adapter for anomaly processing algorithm execution.
+    Abstract adapter for pattern analysis algorithm execution.
     
     This interface defines the contract that infrastructure
-    implementations must follow to execute anomaly processing algorithms.
+    implementations must follow to execute pattern analysis algorithms.
     """
     
     @abstractmethod
-    async def detect_anomalies(
+    async def analyze_patterns(
         self, 
         data: List[float], 
         algorithm_config: AlgorithmConfig
-    ) -> AlgorithmResult:
+    ) -> PatternAnalysisResult:
         """
-        Execute anomaly processing on the provided data.
+        Execute pattern analysis on the provided data.
         
         Args:
-            data: Input data for anomaly processing.
+            data: Input data for pattern analysis.
             algorithm_config: Configuration for the algorithm.
             
         Returns:
-            AlgorithmResult: Results of the anomaly processing.
+            PatternAnalysisResult: Results of the pattern analysis.
             
         Raises:
             AlgorithmExecutionError: If algorithm execution fails.

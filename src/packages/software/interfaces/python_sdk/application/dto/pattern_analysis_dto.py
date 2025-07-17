@@ -1,7 +1,7 @@
 """
-Detection Data Transfer Objects
+Pattern Analysis Data Transfer Objects
 
-DTOs for transferring detection-related data between layers.
+DTOs for transferring pattern analysis-related data between layers.
 """
 
 from dataclasses import dataclass
@@ -10,11 +10,11 @@ from datetime import datetime
 
 
 @dataclass
-class DetectionRequestDTO:
+class PatternAnalysisRequestDTO:
     """
-    Data Transfer Object for detection requests.
+    Data Transfer Object for pattern analysis requests.
     
-    Used to transfer detection request data between the presentation
+    Used to transfer pattern analysis request data between the presentation
     layer (CLI/API) and the application layer.
     """
     
@@ -45,11 +45,11 @@ class DetectionRequestDTO:
 
 
 @dataclass
-class DetectionResponseDTO:
+class PatternAnalysisResponseDTO:
     """
-    Data Transfer Object for detection responses.
+    Data Transfer Object for pattern analysis responses.
     
-    Used to transfer detection response data from the application
+    Used to transfer pattern analysis response data from the application
     layer back to the presentation layer.
     """
     
@@ -58,7 +58,7 @@ class DetectionResponseDTO:
     message: str
     created_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    anomalies: Optional[List[int]] = None
+    patterns: Optional[List[int]] = None
     scores: Optional[List[float]] = None
     algorithm_used: Optional[str] = None
     processing_time_ms: Optional[int] = None
@@ -83,8 +83,8 @@ class DetectionResponseDTO:
         if self.completed_at:
             result["completed_at"] = self.completed_at.isoformat()
             
-        if self.anomalies is not None:
-            result["anomalies"] = self.anomalies
+        if self.patterns is not None:
+            result["patterns"] = self.patterns
             
         if self.scores is not None:
             result["scores"] = self.scores
@@ -142,14 +142,14 @@ class AlgorithmRecommendationDTO:
 
 
 @dataclass
-class BatchDetectionRequestDTO:
+class BatchPatternAnalysisRequestDTO:
     """
-    Data Transfer Object for batch detection requests.
+    Data Transfer Object for batch pattern analysis requests.
     
-    Used to handle multiple detection requests in a single operation.
+    Used to handle multiple pattern analysis requests in a single operation.
     """
     
-    requests: List[DetectionRequestDTO]
+    requests: List[PatternAnalysisRequestDTO]
     batch_metadata: Optional[Dict[str, Any]] = None
     priority: str = "normal"
     
@@ -173,11 +173,11 @@ class BatchDetectionRequestDTO:
 
 
 @dataclass
-class BatchDetectionResponseDTO:
+class BatchPatternAnalysisResponseDTO:
     """
-    Data Transfer Object for batch detection responses.
+    Data Transfer Object for batch pattern analysis responses.
     
-    Used to return results from batch detection operations.
+    Used to return results from batch pattern analysis operations.
     """
     
     batch_id: str
@@ -185,7 +185,7 @@ class BatchDetectionResponseDTO:
     completed_requests: int
     failed_requests: int
     status: str
-    responses: List[DetectionResponseDTO]
+    responses: List[PatternAnalysisResponseDTO]
     batch_processing_time_ms: Optional[int] = None
     
     def to_dict(self) -> Dict[str, Any]:

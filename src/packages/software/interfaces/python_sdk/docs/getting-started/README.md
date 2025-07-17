@@ -5,7 +5,7 @@
 ---
 
 
-Welcome to Pynomaly! This section will get you up and running with pattern detection in minutes.
+Welcome to Pynomaly! This section will get you up and running with pattern analysis in minutes.
 
 ## 🚀 Quick Start Path
 
@@ -15,9 +15,9 @@ Welcome to Pynomaly! This section will get you up and running with pattern detec
 - System requirements and prerequisites
 - Virtual environment setup
 
-### **2. First Detection** ⏱️ 5 minutes  
+### **2. First Analysis** ⏱️ 5 minutes  
 **[→ Quickstart Guide](quickstart.md)**
-- Your first pattern detection in 5 lines of code
+- Your first pattern analysis in 5 lines of code
 - Basic concepts and workflow
 - Interactive examples
 
@@ -98,7 +98,7 @@ Best for: Production systems, advanced features
 
 ### **Data Scientist (First Time)**
 1. **[Installation](installation.md)** - Get Pynomaly installed
-2. **[Quickstart](quickstart.md)** - First pattern detection
+2. **[Quickstart](quickstart.md)** - First pattern analysis
 3. **[User Guides](../user-guides/basic-usage/)** - Learn core concepts
 4. **[Algorithm Selection](../reference/algorithms/)** - Choose algorithms
 
@@ -154,7 +154,7 @@ pynomaly --version
 pynomaly --help
 ```
 
-### **3. Quick Detection Test**
+### **3. Quick Analysis Test**
 ```python
 from pynomaly import detect_patterns
 import pandas as pd
@@ -210,7 +210,7 @@ pynomaly server start
 ## 🎯 Next Steps
 
 ### **After Installation**
-1. **[Complete the Quickstart](quickstart.md)** - Your first detection
+1. **[Complete the Quickstart](quickstart.md)** - Your first analysis
 2. **[Explore Examples](../examples/)** - Real-world use cases  
 3. **[Read User Guides](../user-guides/)** - Feature documentation
 4. **[Check API Reference](../developer-guides/api-integration/)** - Programming interfaces
