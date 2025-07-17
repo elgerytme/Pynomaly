@@ -1,6 +1,6 @@
 # Pynomaly SDKs
 
-This directory contains official client SDKs for the Pynomaly anomaly detection API in multiple programming languages.
+This directory contains official client SDKs for the Pynomaly pattern analysis API in multiple programming languages.
 
 ## Available SDKs
 
@@ -17,11 +17,11 @@ This directory contains official client SDKs for the Pynomaly anomaly detection 
 from pynomaly_client import PynomaliClient
 
 async with PynomaliClient(api_key="your-key") as client:
-    result = await client.detection.detect(
+    result = await client.analysis.analyze(
         data=[1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
         algorithm="isolation_forest"
     )
-    print(f"Anomalies: {result.anomalies}")
+    print(f"Patterns: {result.patterns}")
 ```
 
 ### 📘 TypeScript SDK
@@ -38,12 +38,12 @@ import { PynomaliClient } from '@pynomaly/client';
 
 const client = new PynomaliClient({ apiKey: 'your-key' });
 
-const result = await client.detection.detect({
+const result = await client.analysis.analyze({
   data: [1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
   algorithm: 'isolation_forest'
 });
 
-console.log('Anomalies:', result.anomalies);
+console.log('Patterns:', result.patterns);
 ```
 
 ### ☕ Java SDK
@@ -60,13 +60,13 @@ PynomaliClient client = PynomaliClient.builder()
     .apiKey("your-key")
     .build();
 
-DetectionRequest request = DetectionRequest.builder()
+AnalysisRequest request = AnalysisRequest.builder()
     .data(Arrays.asList(1.0, 2.0, 3.0, 100.0, 4.0, 5.0))
     .algorithm("isolation_forest")
     .build();
 
-DetectionResponse result = client.detection().detect(request);
-System.out.println("Anomalies: " + result.getAnomalies());
+AnalysisResponse result = client.analysis().analyze(request);
+System.out.println("Patterns: " + result.getPatterns());
 ```
 
 ## Common Features

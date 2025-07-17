@@ -21,7 +21,7 @@
 
 ## 🎯 Overview
 
-This comprehensive guide covers deploying Pynomaly to production environments with advanced-grade reliability, security, and performance. Pynomaly is built on **FastAPI** with **SQLAlchemy** for database operations, **Redis** for caching, and supports multiple deployment architectures.
+This comprehensive guide covers deploying Pynomaly to production environments with enterprise-grade reliability, security, and performance. Pynomaly is built on **FastAPI** with **SQLAlchemy** for database operations, **Redis** for caching, and supports multiple deployment architectures.
 
 ### Architecture Stack
 
@@ -698,10 +698,10 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_datasets_user_id ON datasets(user_id
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_datasets_created_at ON datasets(created_at);
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_datasets_name ON datasets(name);
 
--- Detection results indexes
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_detection_results_dataset_id ON detection_results(dataset_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_detection_results_created_at ON detection_results(created_at);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_detection_results_user_id ON detection_results(user_id);
+-- Analysis results indexes
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_analysis_results_dataset_id ON analysis_results(dataset_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_analysis_results_created_at ON analysis_results(created_at);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_analysis_results_user_id ON analysis_results(user_id);
 
 -- Performance monitoring indexes
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_performance_metrics_timestamp ON performance_metrics(timestamp);
@@ -754,7 +754,7 @@ ROLES = {
 ENDPOINT_PERMISSIONS = {
     "/api/v1/admin/*": ["admin"],
     "/api/v1/users/*": ["admin", "analyst"],
-    "/api/v1/detection/*": ["admin", "analyst", "api_user"],
+    "/api/v1/analysis/*": ["admin", "analyst", "api_user"],
     "/api/v1/datasets/*": ["admin", "analyst", "api_user"],
 }
 ```
@@ -773,7 +773,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Apply rate limits to endpoints
-@app.get("/api/v1/detection/predict")
+@app.get("/api/v1/analysis/predict")
 @limiter.limit("10/minute")
 async def predict_anomalies(request: Request, ...):
     pass
@@ -1034,7 +1034,7 @@ async def get_user_with_datasets(user_id: int):
         return result.scalar_one_or_none()
 
 # Bulk operations
-async def bulk_insert_detection_results(results: List[DetectionResult]):
+async def bulk_insert_analysis_results(results: List[AnalysisResult]):
     async with async_session() as session:
         session.add_all(results)
         await session.commit()
@@ -1290,9 +1290,9 @@ ACTIVE_CONNECTIONS = Gauge(
     'Number of active connections'
 )
 
-DETECTION_OPERATIONS = Counter(
-    'pynomaly_detections_total',
-    'Total number of anomaly detections',
+ANALYSIS_OPERATIONS = Counter(
+    'pynomaly_analyses_total',
+    'Total number of pattern analyses',
     ['algorithm', 'status']
 )
 
@@ -1450,7 +1450,7 @@ logger = structlog.get_logger("pynomaly")
 # Usage in application
 async def detect_anomalies(dataset_id: int, algorithm: str):
     logger.info(
-        "Starting anomaly detection",
+        "Starting pattern analysis",
         dataset_id=dataset_id,
         algorithm=algorithm,
         user_id=current_user.id
@@ -1458,11 +1458,11 @@ async def detect_anomalies(dataset_id: int, algorithm: str):
     
     try:
         start_time = time.time()
-        results = await run_detection(dataset_id, algorithm)
+        results = await run_analysis(dataset_id, algorithm)
         duration = time.time() - start_time
         
         logger.info(
-            "Anomaly detection completed",
+            "Pattern analysis completed",
             dataset_id=dataset_id,
             algorithm=algorithm,
             user_id=current_user.id,
@@ -1475,7 +1475,7 @@ async def detect_anomalies(dataset_id: int, algorithm: str):
         
     except Exception as e:
         logger.error(
-            "Anomaly detection failed",
+            "Pattern analysis failed",
             dataset_id=dataset_id,
             algorithm=algorithm,
             user_id=current_user.id,
@@ -1638,11 +1638,11 @@ output {
         ]
       },
       {
-        "title": "Anomaly Detections by Algorithm",
+        "title": "Pattern Analyses by Algorithm",
         "type": "graph",
         "targets": [
           {
-            "expr": "sum by (algorithm) (rate(pynomaly_detections_total[5m]))",
+            "expr": "sum by (algorithm) (rate(pynomaly_analyses_total[5m]))",
             "legendFormat": "{{algorithm}}"
           }
         ]

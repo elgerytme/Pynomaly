@@ -42,7 +42,7 @@ Welcome to Pynomaly's interactive onboarding system! This guide will help you ge
 
 - **Interactive Onboarding**: [Start Here](/onboarding/welcome) 🌟
 - **Skip to Setup**: [Environment Setup](environment-setup.md)
-- **Quick Start**: [5-Minute Detection](../../getting-started/quickstart.md)
+- **Quick Start**: [5-Minute Analysis](../../getting-started/quickstart.md)
 
 ### Prerequisites
 
@@ -66,7 +66,7 @@ Welcome to Pynomaly's interactive onboarding system! This guide will help you ge
 3. **Configuration** - Set up your development environment
 4. **First Import** - Verify Pynomaly is ready to use
 
-### Phase 3: First Detection (15-20 minutes)
+### Phase 3: First Analysis (15-20 minutes)
 
 1. **Sample Data** - Work with real-world examples
 2. **Algorithm Selection** - Choose your first analysis algorithm
@@ -246,7 +246,7 @@ Track your learning progress with detailed analytics:
 
 - 🚀 **[Start Interactive Onboarding](/onboarding/welcome)** - Begin your journey
 - ⚙️ **[Environment Setup](environment-setup.md)** - Manual installation guide
-- 📊 **[First Analysis Tutorial](first-detection.md)** - Your first pattern analysis
+- 📊 **[First Analysis Tutorial](first-analysis.md)** - Your first pattern analysis
 - 🎯 **[Role-Specific Guides](role-specific/README.md)** - Tailored content for your role
 
 ---

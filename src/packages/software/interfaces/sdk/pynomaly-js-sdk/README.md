@@ -44,7 +44,7 @@ const user = await authManager.login(
 
 // Detect anomalies
 const result = await client.detectAnomalies({
-  data: [[1, 2, 3], [4, 5, 6], [100, 200, 300]], // anomaly: [100, 200, 300]
+  data: [[1, 2, 3], [4, 5, 6], [100, 200, 300]], // pattern: [100, 200, 300]
   algorithm: 'isolation_forest'
 });
 
@@ -53,17 +53,17 @@ console.log('Anomalies detected:', result.anomalies);
 
 ## Core Features
 
-### 1. Anomaly Detection
+### 1. Pattern Analysis
 
 ```javascript
-// Synchronous anomaly detection
+// Synchronous pattern analysis
 const result = await client.detectAnomalies({
   data: [[1, 2], [2, 3], [3, 4], [100, 200]],
   algorithm: 'isolation_forest',
   parameters: { contamination: 0.1 }
 });
 
-// Asynchronous anomaly detection with job monitoring
+// Asynchronous pattern analysis with job monitoring
 const asyncAPI = new AsyncAPI(client);
 const result = await asyncAPI.detectAnomalies({
   data: largeDataset,
@@ -209,7 +209,7 @@ const asyncAPI = new AsyncAPI(client);
 // Process large datasets with streaming
 const stream = asyncAPI.streamProcessing(
   largeDatasetRequests,
-  'anomaly',
+  'pattern',
   { bufferSize: 50, autoFlush: true }
 );
 
@@ -381,8 +381,8 @@ The SDK is written in TypeScript and includes comprehensive type definitions:
 ```typescript
 import { 
   PynomalyClient,
-  AnomalyDetectionRequest,
-  AnomalyDetectionResult,
+  PatternAnalysisRequest,
+  PatternAnalysisResult,
   AuthToken,
   User
 } from 'pynomaly-js-sdk';
@@ -392,13 +392,13 @@ const client = new PynomalyClient({
   baseUrl: 'https://api.pynomaly.com'
 });
 
-const request: AnomalyDetectionRequest = {
+const request: PatternAnalysisRequest = {
   data: [[1, 2], [3, 4], [100, 200]],
   algorithm: 'isolation_forest',
   parameters: { contamination: 0.1 }
 };
 
-const result: AnomalyDetectionResult = await client.detectAnomalies(request);
+const result: PatternAnalysisResult = await client.analyzePatterns(request);
 ```
 
 ## Browser vs Node.js
@@ -441,7 +441,7 @@ const client = new PynomalyClient({
 
 See the `/examples` directory for complete examples:
 
-- [Basic Anomaly Detection](./examples/basic-anomaly-detection.js)
+- [Basic Pattern Analysis](./examples/basic-pattern-analysis.js)
 - [Data Quality Analysis](./examples/data-quality-analysis.js)
 - [Real-time WebSocket Updates](./examples/websocket-updates.js)
 - [Authentication Management](./examples/authentication.js)
