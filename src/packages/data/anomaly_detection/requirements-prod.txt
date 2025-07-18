@@ -1,0 +1,46 @@
+# Production requirements for Pynomaly Detection
+# Optimized for container deployment
+
+# Core dependencies
+numpy>=1.21.0,<2.0.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+pandas>=1.3.0
+psutil>=5.8.0
+
+# PyOD for advanced algorithms
+pyod>=1.0.0
+
+# Optional performance dependencies
+numba>=0.56.0  # JIT compilation
+joblib>=1.1.0  # Parallel processing
+
+# Production server
+fastapi>=0.70.0
+uvicorn[standard]>=0.15.0
+pydantic>=1.8.0
+
+# Monitoring and observability
+prometheus-client>=0.12.0
+structlog>=21.0.0
+
+# Health and reliability
+redis>=4.0.0  # Caching and session storage
+requests>=2.27.0
+
+# Security
+cryptography>=3.4.0
+
+# Configuration management
+python-dotenv>=0.19.0
+pyyaml>=6.0
+
+# Development and testing (for CI/CD)
+pytest>=6.2.0
+pytest-cov>=3.0.0
+pytest-asyncio>=0.18.0
+
+# Code quality
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.910

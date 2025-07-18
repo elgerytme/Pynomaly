@@ -89,6 +89,18 @@ except ImportError:
     Alert = None  # type: ignore
     AlertSeverity = None  # type: ignore
 
+# Performance benchmarking and optimization
+try:
+    from performance_benchmarking.benchmark_suite import BenchmarkSuite
+    from performance_benchmarking.performance_profiler import PerformanceProfiler
+    from performance_benchmarking.optimization_utilities import OptimizationUtilities
+    from performance_benchmarking.scalability_tester import ScalabilityTester
+except ImportError:
+    BenchmarkSuite = None  # type: ignore
+    PerformanceProfiler = None  # type: ignore
+    OptimizationUtilities = None  # type: ignore
+    ScalabilityTester = None  # type: ignore
+
 # ========== BACKWARD COMPATIBILITY (LEGACY PHASE 1) ==========
 
 # Legacy core exports - maintained for backward compatibility
@@ -437,6 +449,12 @@ __all__ = [
     "MonitoringAlertingSystem",
     "Alert",
     "AlertSeverity",
+    
+    # Performance benchmarking
+    "BenchmarkSuite",
+    "PerformanceProfiler",
+    "OptimizationUtilities",
+    "ScalabilityTester",
     
     # ===== UNIFIED ENTRY POINTS =====
     "AnomalyDetector",

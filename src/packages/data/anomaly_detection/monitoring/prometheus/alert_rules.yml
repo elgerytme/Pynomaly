@@ -1,0 +1,365 @@
+# Prometheus alert rules for Pynomaly Detection
+groups:
+  - name: pynomaly.detection.alerts
+    rules:
+      # High Error Rate Alert
+      - alert: Pynomaly_HighErrorRate
+        expr: |
+          (
+            rate(pynomaly_detection_errors_total[5m]) /
+            rate(pynomaly_detection_requests_total[5m])
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "High error rate detected in Pynomaly Detection"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/high-error-rate"
+
+      # Critical Error Rate Alert
+      - alert: Pynomaly_CriticalErrorRate
+        expr: |
+          (
+            rate(pynomaly_detection_errors_total[5m]) /
+            rate(pynomaly_detection_requests_total[5m])
+          ) > 0.20
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Critical error rate detected in Pynomaly Detection"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/critical-error-rate"
+
+      # High Detection Latency Alert
+      - alert: Pynomaly_HighDetectionLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(pynomaly_detection_latency_seconds_bucket[5m])
+          ) > 1.0
+        for: 3m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "High detection latency in Pynomaly Detection"
+          description: "95th percentile latency is {{ $value }}s for the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/high-latency"
+
+      # Very High Detection Latency Alert
+      - alert: Pynomaly_VeryHighDetectionLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(pynomaly_detection_latency_seconds_bucket[5m])
+          ) > 5.0
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Very high detection latency in Pynomaly Detection"
+          description: "95th percentile latency is {{ $value }}s for the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/very-high-latency"
+
+      # Low Detection Throughput Alert
+      - alert: Pynomaly_LowDetectionThroughput
+        expr: |
+          rate(pynomaly_detection_requests_total[5m]) < 10
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Low detection throughput in Pynomaly Detection"
+          description: "Detection throughput is {{ $value }} requests/second for the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/low-throughput"
+
+      # High Memory Usage Alert
+      - alert: Pynomaly_HighMemoryUsage
+        expr: |
+          (
+            container_memory_usage_bytes{pod=~"pynomaly-detection-.*"} /
+            container_spec_memory_limit_bytes{pod=~"pynomaly-detection-.*"}
+          ) > 0.85
+        for: 2m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "High memory usage in Pynomaly Detection"
+          description: "Memory usage is {{ $value | humanizePercentage }} on pod {{ $labels.pod }}"
+          runbook_url: "https://docs.pynomaly.io/runbooks/high-memory-usage"
+
+      # Critical Memory Usage Alert
+      - alert: Pynomaly_CriticalMemoryUsage
+        expr: |
+          (
+            container_memory_usage_bytes{pod=~"pynomaly-detection-.*"} /
+            container_spec_memory_limit_bytes{pod=~"pynomaly-detection-.*"}
+          ) > 0.95
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Critical memory usage in Pynomaly Detection"
+          description: "Memory usage is {{ $value | humanizePercentage }} on pod {{ $labels.pod }}"
+          runbook_url: "https://docs.pynomaly.io/runbooks/critical-memory-usage"
+
+      # High CPU Usage Alert
+      - alert: Pynomaly_HighCPUUsage
+        expr: |
+          (
+            rate(container_cpu_usage_seconds_total{pod=~"pynomaly-detection-.*"}[5m]) /
+            container_spec_cpu_quota{pod=~"pynomaly-detection-.*"} * 100000
+          ) > 85
+        for: 3m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "High CPU usage in Pynomaly Detection"
+          description: "CPU usage is {{ $value }}% on pod {{ $labels.pod }}"
+          runbook_url: "https://docs.pynomaly.io/runbooks/high-cpu-usage"
+
+      # Pod Restart Alert
+      - alert: Pynomaly_PodRestarts
+        expr: |
+          increase(kube_pod_container_status_restarts_total{pod=~"pynomaly-detection-.*"}[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Pynomaly Detection pod restarted"
+          description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last 15 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/pod-restarts"
+
+      # Pod Not Ready Alert
+      - alert: Pynomaly_PodNotReady
+        expr: |
+          kube_pod_status_ready{condition="false", pod=~"pynomaly-detection-.*"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Pynomaly Detection pod not ready"
+          description: "Pod {{ $labels.pod }} has been not ready for more than 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/pod-not-ready"
+
+      # Deployment Replica Mismatch Alert
+      - alert: Pynomaly_DeploymentReplicaMismatch
+        expr: |
+          (
+            kube_deployment_spec_replicas{deployment="pynomaly-detection"} !=
+            kube_deployment_status_replicas_available{deployment="pynomaly-detection"}
+          )
+        for: 10m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Pynomaly Detection deployment replica mismatch"
+          description: "Deployment {{ $labels.deployment }} has {{ $value }} replicas available, but {{ $labels.spec_replicas }} are specified"
+          runbook_url: "https://docs.pynomaly.io/runbooks/replica-mismatch"
+
+      # Model Loading Failure Alert
+      - alert: Pynomaly_ModelLoadingFailure
+        expr: |
+          increase(pynomaly_model_loading_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Pynomaly Detection model loading failure"
+          description: "Model loading has failed {{ $value }} times in the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/model-loading-failure"
+
+      # Anomaly Detection Accuracy Drop Alert
+      - alert: Pynomaly_AccuracyDrop
+        expr: |
+          pynomaly_detection_accuracy < 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Pynomaly Detection accuracy drop"
+          description: "Detection accuracy has dropped to {{ $value | humanizePercentage }}"
+          runbook_url: "https://docs.pynomaly.io/runbooks/accuracy-drop"
+
+      # Data Drift Alert
+      - alert: Pynomaly_DataDrift
+        expr: |
+          pynomaly_data_drift_score > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Data drift detected in Pynomaly Detection"
+          description: "Data drift score is {{ $value }}, indicating significant drift from training data"
+          runbook_url: "https://docs.pynomaly.io/runbooks/data-drift"
+
+      # S3 Storage Error Alert
+      - alert: Pynomaly_S3StorageError
+        expr: |
+          increase(pynomaly_s3_errors_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "S3 storage errors in Pynomaly Detection"
+          description: "S3 storage has {{ $value }} errors in the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.io/runbooks/s3-errors"
+
+      # Queue Depth Alert
+      - alert: Pynomaly_HighQueueDepth
+        expr: |
+          pynomaly_queue_depth > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "High queue depth in Pynomaly Detection"
+          description: "Queue depth is {{ $value }}, indicating potential processing bottleneck"
+          runbook_url: "https://docs.pynomaly.io/runbooks/high-queue-depth"
+
+      # Disk Space Alert
+      - alert: Pynomaly_LowDiskSpace
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint="/var/lib/docker"} /
+            node_filesystem_size_bytes{mountpoint="/var/lib/docker"}
+          ) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Low disk space on Pynomaly Detection nodes"
+          description: "Disk space is {{ $value | humanizePercentage }} available on {{ $labels.instance }}"
+          runbook_url: "https://docs.pynomaly.io/runbooks/low-disk-space"
+
+  - name: pynomaly.infrastructure.alerts
+    rules:
+      # Kubernetes Node Not Ready Alert
+      - alert: KubernetesNodeNotReady
+        expr: |
+          kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 10m
+        labels:
+          severity: critical
+          service: kubernetes
+          team: infrastructure
+        annotations:
+          summary: "Kubernetes node not ready"
+          description: "Node {{ $labels.node }} has been not ready for more than 10 minutes"
+
+      # Kubernetes Node High CPU Alert
+      - alert: KubernetesNodeHighCPU
+        expr: |
+          (
+            100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+          ) > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+          team: infrastructure
+        annotations:
+          summary: "Kubernetes node high CPU usage"
+          description: "Node CPU usage is {{ $value }}% for more than 5 minutes"
+
+      # Kubernetes Node High Memory Alert
+      - alert: KubernetesNodeHighMemory
+        expr: |
+          (
+            (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) /
+            node_memory_MemTotal_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+          team: infrastructure
+        annotations:
+          summary: "Kubernetes node high memory usage"
+          description: "Node memory usage is {{ $value | humanizePercentage }} for more than 5 minutes"
+
+      # Persistent Volume Usage Alert
+      - alert: PersistentVolumeUsageHigh
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes /
+            kubelet_volume_stats_capacity_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+          team: infrastructure
+        annotations:
+          summary: "Persistent volume usage high"
+          description: "Persistent volume {{ $labels.persistentvolumeclaim }} usage is {{ $value | humanizePercentage }}"
+
+  - name: pynomaly.sla.alerts
+    rules:
+      # SLA Violation Alert (99% availability)
+      - alert: Pynomaly_SLAViolation
+        expr: |
+          (
+            1 - (
+              rate(pynomaly_detection_errors_total[1h]) /
+              rate(pynomaly_detection_requests_total[1h])
+            )
+          ) < 0.99
+        for: 5m
+        labels:
+          severity: critical
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "SLA violation in Pynomaly Detection"
+          description: "Service availability is {{ $value | humanizePercentage }} over the last hour (SLA: 99%)"
+          runbook_url: "https://docs.pynomaly.io/runbooks/sla-violation"
+
+      # Response Time SLA Alert (95% under 500ms)
+      - alert: Pynomaly_ResponseTimeSLAViolation
+        expr: |
+          histogram_quantile(0.95,
+            rate(pynomaly_detection_latency_seconds_bucket[1h])
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-detection
+          team: ml-platform
+        annotations:
+          summary: "Response time SLA violation in Pynomaly Detection"
+          description: "95th percentile response time is {{ $value }}s over the last hour (SLA: 500ms)"
+          runbook_url: "https://docs.pynomaly.io/runbooks/response-time-sla"
