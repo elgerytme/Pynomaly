@@ -1,0 +1,175 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-config
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+data:
+  # Application configuration
+  PYNOMALY_ENV: "production"
+  PYNOMALY_LOG_LEVEL: "INFO"
+  PYNOMALY_HOST: "0.0.0.0"
+  PYNOMALY_PORT: "8080"
+  PYNOMALY_WORKERS: "4"
+  PYNOMALY_MAX_REQUESTS: "1000"
+  PYNOMALY_TIMEOUT: "30"
+  PYNOMALY_MEMORY_LIMIT_GB: "4"
+  
+  # Detection configuration
+  PYNOMALY_DEFAULT_ALGORITHM: "isolation_forest"
+  PYNOMALY_DEFAULT_CONTAMINATION: "0.1"
+  PYNOMALY_ENABLE_AUTOML: "true"
+  PYNOMALY_ENABLE_ENSEMBLE: "true"
+  PYNOMALY_ENABLE_STREAMING: "true"
+  
+  # Performance configuration
+  PYNOMALY_BATCH_SIZE: "1000"
+  PYNOMALY_PARALLEL_JOBS: "4"
+  PYNOMALY_CACHE_SIZE: "100"
+  PYNOMALY_ENABLE_MEMORY_OPTIMIZATION: "true"
+  
+  # Monitoring configuration
+  PYNOMALY_ENABLE_METRICS: "true"
+  PYNOMALY_METRICS_PORT: "9090"
+  PYNOMALY_ENABLE_HEALTH_CHECK: "true"
+  PYNOMALY_HEALTH_CHECK_INTERVAL: "30"
+  
+  # Storage configuration
+  PYNOMALY_DATA_DIR: "/app/data"
+  PYNOMALY_MODEL_DIR: "/app/data/models"
+  PYNOMALY_CACHE_DIR: "/app/data/cache"
+  PYNOMALY_LOG_DIR: "/app/data/logs"
+  
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-config-files
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+data:
+  detection.yaml: |
+    # Pynomaly Detection Configuration
+    detection:
+      algorithms:
+        isolation_forest:
+          n_estimators: 100
+          contamination: 0.1
+          random_state: 42
+          n_jobs: -1
+        
+        local_outlier_factor:
+          n_neighbors: 20
+          contamination: 0.1
+          metric: minkowski
+          p: 2
+          n_jobs: -1
+        
+        one_class_svm:
+          kernel: rbf
+          gamma: scale
+          nu: 0.1
+          
+        pyod_knn:
+          n_neighbors: 5
+          contamination: 0.1
+          method: largest
+          
+        pyod_abod:
+          contamination: 0.1
+          n_neighbors: 5
+          
+      ensemble:
+        enabled: true
+        voting_strategy: average
+        algorithms:
+          - isolation_forest
+          - local_outlier_factor
+          - pyod_knn
+        
+      automl:
+        enabled: true
+        max_trials: 10
+        timeout_minutes: 5
+        metric: roc_auc
+        
+    preprocessing:
+      scaling:
+        enabled: true
+        method: standard
+        
+      feature_selection:
+        enabled: false
+        method: variance_threshold
+        threshold: 0.01
+        
+    performance:
+      batch_size: 1000
+      parallel_jobs: 4
+      memory_limit_gb: 4
+      enable_caching: true
+      
+  monitoring.yaml: |
+    # Pynomaly Monitoring Configuration
+    monitoring:
+      enabled: true
+      
+      metrics:
+        port: 9090
+        path: /metrics
+        
+        collection:
+          detection_latency: true
+          memory_usage: true
+          cpu_usage: true
+          request_count: true
+          error_rate: true
+          throughput: true
+          
+      health_check:
+        enabled: true
+        interval_seconds: 30
+        timeout_seconds: 10
+        
+        checks:
+          - basic_import
+          - phase2_availability
+          - memory_usage
+          - disk_space
+          - api_server
+          - detection_test
+          
+      alerting:
+        enabled: true
+        
+        rules:
+          high_error_rate:
+            threshold: 0.05
+            duration_minutes: 5
+            
+          high_memory_usage:
+            threshold: 0.9
+            duration_minutes: 2
+            
+          high_latency:
+            threshold_ms: 1000
+            duration_minutes: 3
+            
+          low_disk_space:
+            threshold_gb: 1.0
+            duration_minutes: 1
+            
+      logging:
+        level: INFO
+        format: json
+        
+        outputs:
+          - console
+          - file
+          
+        file:
+          path: /app/data/logs/pynomaly.log
+          max_size_mb: 100
+          max_files: 10
