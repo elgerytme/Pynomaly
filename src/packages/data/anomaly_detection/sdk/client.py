@@ -74,9 +74,17 @@ class PynomagyClient:
         self._cache: Dict[str, Any] = {}
         self._executor = ThreadPoolExecutor(max_workers=self.config.max_concurrent_requests)
         
-        # Setup logging
-        if self.config.debug:
-            logging.basicConfig(level=logging.DEBUG)
+        # Setup logging with security configuration
+        from src.packages.data.anomaly_detection.core.security_configuration import get_security_config, configure_secure_logging
+        
+        security_config = get_security_config()
+        
+        # Only enable debug logging in development environment
+        if self.config.debug and security_config.is_development():
+            configure_secure_logging()
+        elif security_config.is_production():
+            # Force secure logging in production regardless of debug flag
+            configure_secure_logging()
         
         logger.info(f"Pynomaly client initialized with base URL: {self.config.base_url}")
     

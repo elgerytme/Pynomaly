@@ -488,7 +488,17 @@ async def main():
     args = parser.parse_args()
 
     if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
+        # Use secure logging configuration instead of direct debug logging
+        try:
+            from src.packages.data.anomaly_detection.core.security_configuration import get_security_config, configure_secure_logging
+            security_config = get_security_config()
+            if security_config.is_development():
+                configure_secure_logging()
+            else:
+                logging.basicConfig(level=logging.INFO)
+        except ImportError:
+            # Fallback if security config not available
+            logging.basicConfig(level=logging.INFO)
 
     # Initialize WAF manager
     settings = Settings()

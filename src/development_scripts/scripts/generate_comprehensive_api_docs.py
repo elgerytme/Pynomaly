@@ -1067,8 +1067,14 @@ class SMSAuth:
 ```python
 import logging
 
-# Enable debug logging
-logging.basicConfig(level=logging.DEBUG)
+# Enable secure debug logging in development only
+from src.packages.data.anomaly_detection.core.security_configuration import get_security_config, configure_secure_logging
+
+security_config = get_security_config()
+if security_config.is_development():
+    configure_secure_logging()
+else:
+    logging.basicConfig(level=logging.INFO)
 
 # Use debug headers
 headers = {
