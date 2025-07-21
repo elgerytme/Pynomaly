@@ -127,17 +127,20 @@ class ArchitectureValidator:
         
         violations_found = False
         
-        # Check core packages
-        core_rules = self.rules["rules"]["core_packages"]
-        allowed_deps = set(core_rules["allowed_dependencies"])
-        forbidden_deps = set(core_rules["forbidden_dependencies"])
+        # Check domain packages
+        if "domain_packages" in self.rules["rules"]:
+            domain_rules = self.rules["rules"]["domain_packages"]
+            allowed_deps = set(domain_rules["allowed_dependencies"])
+            forbidden_deps = set(domain_rules["forbidden_dependencies"])
+            
+            domain_files = []
+            for pattern in domain_rules["path_patterns"]:
+                domain_files.extend(list(Path(".").glob(pattern.rstrip("*") + "**/pyproject.toml")))
         
-        core_files = list(Path("src/packages/core").rglob("pyproject.toml"))
-        
-        for pyproject_file in core_files:
-            violations_found |= self._check_dependencies(
-                pyproject_file, allowed_deps, forbidden_deps, "core_packages"
-            )
+            for pyproject_file in domain_files:
+                violations_found |= self._check_dependencies(
+                    pyproject_file, allowed_deps, forbidden_deps, "domain_packages"
+                )
         
         if not violations_found:
             print("✅ No dependency restriction violations found")
