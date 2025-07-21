@@ -1,0 +1,33 @@
+# Grafana Datasource Configuration
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: true
+    jsonData:
+      timeInterval: "5s"
+      queryTimeout: "60s"
+      httpMethod: "GET"
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    basicAuth: false
+    version: 1
+    editable: true
+
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    basicAuth: false
+    version: 1
+    editable: true

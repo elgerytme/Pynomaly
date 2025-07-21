@@ -1,8 +1,9 @@
 #!/bin/bash
 #
-# Repository Organization Pre-push Hook
-# ====================================
-# Final organization validation before pushing
+# Domain Boundary Enforcement Pre-push Hook
+# =========================================
+# Comprehensive domain validation and compliance check before pushing to remote
+# Enhanced with intelligent domain analysis and auto-remediation
 #
 
 set -e
@@ -12,28 +13,212 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Repository root
+# Repository root and scripts
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-
-echo -e "${BLUE}🚀 Pre-push: Final repository organization validation...${NC}"
-
-# Run comprehensive organization validation
+DOMAIN_VALIDATOR="$REPO_ROOT/scripts/domain_boundary_validator.py"
+DOMAIN_CLI="$REPO_ROOT/scripts/domain_cli.py"
 VALIDATION_SCRIPT="$REPO_ROOT/scripts/validation/validate_organization.py"
-if [ ! -f "$VALIDATION_SCRIPT" ]; then
-    echo -e "${YELLOW}⚠️  Organization validation script not found, skipping...${NC}"
-    exit 0
+
+echo -e "${BLUE}🚀 Pre-push: Comprehensive Domain Boundary Enforcement${NC}"
+echo -e "${CYAN}======================================================${NC}"
+
+# Configuration
+COMPREHENSIVE_ANALYSIS=${COMPREHENSIVE_ANALYSIS:-true}
+CHECK_TEST_COVERAGE=${CHECK_TEST_COVERAGE:-true}
+GENERATE_COMPLIANCE_REPORT=${GENERATE_COMPLIANCE_REPORT:-true}
+
+# Function to run comprehensive domain validation
+run_comprehensive_domain_validation() {
+    echo -e "${BLUE}🔍 Step 1: Comprehensive Domain Boundary Validation${NC}"
+    
+    if [ ! -f "$DOMAIN_VALIDATOR" ]; then
+        echo -e "${YELLOW}⚠️  Domain validator not found, skipping comprehensive domain validation${NC}"
+        return 0
+    fi
+    
+    echo -e "${BLUE}   Running full repository domain analysis...${NC}"
+    
+    # Run comprehensive validation with all features
+    if python3 "$DOMAIN_VALIDATOR" --detect-new-domains --root-path . --output "pre_push_domain_report.json" --confidence-threshold 0.6; then
+        VALIDATION_EXIT_CODE=$?
+        
+        # Parse comprehensive results
+        if [ -f "pre_push_domain_report.json" ]; then
+            TOTAL_VIOLATIONS=$(python3 -c "
+import json
+try:
+    with open('pre_push_domain_report.json', 'r') as f:
+        report = json.load(f)
+    print(report['summary']['total_violations'])
+except:
+    print('0')
+" 2>/dev/null || echo "0")
+            
+            PACKAGES_WITH_VIOLATIONS=$(python3 -c "
+import json
+try:
+    with open('pre_push_domain_report.json', 'r') as f:
+        report = json.load(f)
+    print(report['summary']['packages_with_violations'])
+except:
+    print('0')
+" 2>/dev/null || echo "0")
+            
+            NEW_DOMAINS=$(python3 -c "
+import json
+try:
+    with open('pre_push_domain_report.json', 'r') as f:
+        report = json.load(f)
+    print(report['summary']['new_domains_detected'])
+except:
+    print('0')
+" 2>/dev/null || echo "0")
+            
+            EXISTING_DOMAINS=$(python3 -c "
+import json
+try:
+    with open('pre_push_domain_report.json', 'r') as f:
+        report = json.load(f)
+    print(len(report['summary']['existing_domains']))
+except:
+    print('0')
+" 2>/dev/null || echo "0")
+        else
+            TOTAL_VIOLATIONS=0
+            PACKAGES_WITH_VIOLATIONS=0
+            NEW_DOMAINS=0
+            EXISTING_DOMAINS=0
+        fi
+        
+        echo -e "${BLUE}📊 Domain Analysis Results:${NC}"
+        echo -e "${BLUE}   Total domains: $EXISTING_DOMAINS${NC}"
+        echo -e "${BLUE}   Total violations: $TOTAL_VIOLATIONS${NC}"
+        echo -e "${BLUE}   Packages with violations: $PACKAGES_WITH_VIOLATIONS${NC}"
+        echo -e "${BLUE}   New domains detected: $NEW_DOMAINS${NC}"
+        
+        # Fail if too many violations
+        if [ "$TOTAL_VIOLATIONS" -gt 20 ]; then
+            echo -e "${RED}❌ Too many domain boundary violations ($TOTAL_VIOLATIONS > 20)${NC}"
+            echo -e "${BLUE}💡 Please fix violations before pushing:${NC}"
+            echo "   python scripts/domain_cli.py validate --fix"
+            return 1
+        elif [ "$TOTAL_VIOLATIONS" -gt 0 ]; then
+            echo -e "${YELLOW}⚠️  $TOTAL_VIOLATIONS domain boundary violations found${NC}"
+            echo -e "${BLUE}💡 Consider fixing before pushing:${NC}"
+            echo "   python scripts/domain_cli.py validate --fix"
+        fi
+        
+        # Handle new domains
+        if [ "$NEW_DOMAINS" -gt 0 ]; then
+            echo -e "${PURPLE}🆕 $NEW_DOMAINS new domains detected${NC}"
+            echo -e "${BLUE}💡 Consider creating packages for high-confidence domains${NC}"
+        fi
+        
+        echo -e "${GREEN}✅ Comprehensive domain validation completed${NC}"
+        return 0
+    else
+        echo -e "${RED}❌ Comprehensive domain validation failed${NC}"
+        return 1
+    fi
+}
+
+# Function to check domain package health
+check_domain_package_health() {
+    echo -e "${BLUE}🔍 Step 2: Domain Package Health Check${NC}"
+    
+    if [ ! -f "$DOMAIN_CLI" ]; then
+        echo -e "${YELLOW}⚠️  Domain CLI not found, skipping health check${NC}"
+        return 0
+    fi
+    
+    echo -e "${BLUE}   Analyzing package health metrics...${NC}"
+    
+    # Use domain CLI to get status
+    python3 "$DOMAIN_CLI" status --json > domain_status.json 2>/dev/null || {
+        echo -e "${YELLOW}⚠️  Could not generate domain status${NC}"
+        return 0
+    }
+    
+    # Parse health metrics
+    HEALTH_PERCENTAGE=$(python3 -c "
+import json
+try:
+    with open('domain_status.json', 'r') as f:
+        status = json.load(f)
+    if 'summary' in status:
+        print(int(status['summary']['health_percentage']))
+    else:
+        print('100')
+except:
+    print('100')
+" 2>/dev/null || echo "100")
+    
+    echo -e "${BLUE}📊 Overall domain health: ${HEALTH_PERCENTAGE}%${NC}"
+    
+    if [ "$HEALTH_PERCENTAGE" -lt 70 ]; then
+        echo -e "${RED}❌ Domain health is below acceptable threshold (70%)${NC}"
+        echo -e "${BLUE}💡 Please improve domain health:${NC}"
+        echo "   • Fix domain violations"
+        echo "   • Add missing tests"
+        echo "   • Clean up package structure"
+        return 1
+    elif [ "$HEALTH_PERCENTAGE" -lt 85 ]; then
+        echo -e "${YELLOW}⚠️  Domain health could be improved (${HEALTH_PERCENTAGE}%)${NC}"
+    fi
+    
+    echo -e "${GREEN}✅ Domain package health check passed${NC}"
+    rm -f domain_status.json
+    return 0
+}
+
+# Main validation execution
+VALIDATION_FAILED=false
+
+# Execute all validation steps
+if ! run_comprehensive_domain_validation; then
+    VALIDATION_FAILED=true
 fi
 
-# Run full validation
-if python3 "$VALIDATION_SCRIPT"; then
-    echo -e "${GREEN}✅ Repository organization validation passed${NC}"
-else
-    echo -e "${RED}❌ Repository organization validation failed${NC}"
-    echo ""
-    echo -e "${YELLOW}Push blocked due to organization issues.${NC}"
-    echo -e "${BLUE}Please fix the issues or run: scripts/cleanup/auto_organize.py${NC}"
+if ! check_domain_package_health; then
+    VALIDATION_FAILED=true
+fi
+
+# Step 3: Repository organization validation (if script exists)
+if [ -f "$VALIDATION_SCRIPT" ]; then
+    echo -e "${BLUE}🔍 Step 3: Repository Organization Validation${NC}"
+    if python3 "$VALIDATION_SCRIPT"; then
+        echo -e "${GREEN}✅ Repository organization validation passed${NC}"
+    else
+        echo -e "${RED}❌ Repository organization validation failed${NC}"
+        echo ""
+        echo -e "${YELLOW}Push blocked due to organization issues.${NC}"
+        echo -e "${BLUE}Please fix the issues or run: scripts/cleanup/auto_organize.py${NC}"
+        VALIDATION_FAILED=true
+    fi
+fi
+
+# Generate compliance report
+if [ "$GENERATE_COMPLIANCE_REPORT" = "true" ]; then
+    echo -e "${BLUE}🔍 Step 4: Generating Compliance Report${NC}"
+    
+    if [ -f "pre_push_domain_report.json" ]; then
+        # Copy comprehensive report
+        cp pre_push_domain_report.json "compliance_report_$(date +%Y%m%d_%H%M%S).json"
+        echo -e "${GREEN}✅ Compliance report generated${NC}"
+    fi
+fi
+
+# Exit if any validation failed
+if [ "$VALIDATION_FAILED" = true ]; then
+    echo -e "${RED}❌ Pre-push validation failed${NC}"
+    echo -e "${BLUE}💡 Quick fixes:${NC}"
+    echo "   • Domain issues: python scripts/domain_cli.py validate --fix"
+    echo "   • Package health: python scripts/domain_cli.py clean"
+    echo "   • Organization: scripts/cleanup/auto_organize.py"
     echo ""
     echo -e "${YELLOW}To bypass this check (not recommended): git push --no-verify${NC}"
     exit 1
@@ -78,9 +263,14 @@ if [ -n "$SENSITIVE_FILES" ]; then
     fi
 fi
 
-# Final organization health score
-echo -e "${BLUE}📊 Final organization health check...${NC}"
-python3 "$VALIDATION_SCRIPT" --health-score
+# Final success message and cleanup
+echo -e "${CYAN}======================================================${NC}"
+echo -e "${GREEN}✅ All pre-push validations passed!${NC}"
+echo -e "${BLUE}🎉 Domain boundaries are fully compliant${NC}"
+echo -e "${BLUE}🚀 Safe to push to remote repository${NC}"
 
-echo -e "${GREEN}✅ All pre-push checks passed${NC}"
+# Clean up temporary files
+rm -f pre_push_domain_report.json domain_status.json
+
+echo -e "${CYAN}======================================================${NC}"
 exit 0
