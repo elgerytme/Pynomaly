@@ -1,17 +1,18 @@
-# Pynomaly 🔍
+# 🔍 Pynomaly - Open Source Anomaly Detection Platform
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build System: Hatch](https://img.shields.io/badge/build%20system-hatch-4051b5.svg)](https://hatch.pypa.io/)
-[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![CI/CD](https://github.com/pynomaly/pynomaly/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/pynomaly/pynomaly/actions)
+[![Coverage](https://codecov.io/gh/pynomaly/pynomaly/branch/main/graph/badge.svg)](https://codecov.io/gh/pynomaly/pynomaly)
+[![Docker](https://img.shields.io/docker/pulls/pynomaly/anomaly-detection)](https://hub.docker.com/r/pynomaly/anomaly-detection)
+[![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
-[![Monorepo Structure](https://img.shields.io/badge/architecture-monorepo-blue.svg)](https://monorepo.tools/)
 [![Clean Architecture](https://img.shields.io/badge/architecture-clean-green.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![Domain Driven Design](https://img.shields.io/badge/design-DDD-orange.svg)](https://www.domainlanguage.com/ddd/)
 
-Advanced anomaly detection platform built as a Python monorepo implementing clean architecture patterns with domain-driven design. Pynomaly provides enterprise-ready anomaly detection capabilities with multiple specialized packages, shared infrastructure, and comprehensive development tooling.
+**Pynomaly** is a comprehensive, production-ready open source platform for anomaly detection across various data types and domains. Built with enterprise-grade architecture, modern Python practices, and designed for scalability, security, and extensibility.
 
-**Architecture**: Clean monorepo with domain-driven design, hexagonal architecture, comprehensive testing, automated governance, and enterprise development practices focused on anomaly detection.
+🚀 **Production-Ready** • 🔒 **Enterprise Security** • 📊 **Full Observability** • 🏗️ **Clean Architecture** • 🤖 **Advanced ML**
 
 ## 🏗️ Platform Architecture
 

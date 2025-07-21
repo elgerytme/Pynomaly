@@ -1,0 +1,284 @@
+# Package Independence Rules Configuration
+# =======================================
+# Configuration for enforcing package independence and self-containment
+
+# Enforcement level: strict, moderate, lenient
+# - strict: Fail on any error violations
+# - moderate: Allow some errors with warnings
+# - lenient: Allow all violations (report only)
+enforcement_level: strict
+
+# Required self-containment score (0-100)
+# Packages below this score will be flagged
+required_self_containment_score: 85.0
+
+# Maximum number of external dependencies allowed per package
+max_external_dependencies: 50
+
+# Whether all required components must be present
+require_all_components: true
+
+# Auto-fix violations when possible
+auto_fix_violations: false
+
+# Allowed cross-package dependencies
+# Format: "source_package -> target_package"
+allowed_cross_package_deps:
+  - "anomaly_detection -> data_processing"  # Example: anomaly detection can use data processing
+  - "ml_training -> feature_engineering"    # Example: ML training can use feature engineering
+  - "api_gateway -> authentication"         # Example: API gateway can use auth
+
+# Packages to ignore during validation
+# These are typically shared/utility packages
+ignored_packages:
+  - "common"
+  - "shared" 
+  - "utils"
+  - "types"
+  - "interfaces"
+
+# Required components for self-contained packages
+required_components:
+  core:
+    - "__init__.py"
+    - "main.py"
+    - "config.py"
+  
+  tests:
+    - "test_*.py"
+    - "*_test.py"
+  
+  documentation:
+    - "README.md"
+    - "CHANGELOG.md"
+    - "docs/API.md"
+  
+  deployment:
+    - "Dockerfile"
+    - "docker-compose.yml"
+    - "k8s/deployment.yml"
+  
+  ci_cd:
+    - ".github/workflows/*.yml"
+    - "Makefile"
+  
+  monitoring:
+    - "monitoring/*.yml"
+    - "scripts/health-check.sh"
+  
+  configuration:
+    - "config/*.yml"
+    - ".env*"
+
+# Dependency analysis rules
+dependency_rules:
+  # Import analysis
+  imports:
+    # Allowed import patterns
+    allowed_patterns:
+      - "^(os|sys|json|yaml|datetime|typing|pathlib|re|subprocess|logging|collections|itertools|functools)($|\.)"  # Standard library
+      - "^(fastapi|pydantic|sqlalchemy|redis|celery|requests|httpx|uvicorn|prometheus_client)($|\.)"  # Common third-party
+    
+    # Forbidden import patterns
+    forbidden_patterns:
+      - "^src\.packages\.(?!{{package_name}}).*"  # Cross-package imports
+      - "^\.\..*packages.*"  # Relative imports to other packages
+    
+    # Exceptions (imports that are forbidden but allowed for specific cases)
+    exceptions:
+      - pattern: "^src\.packages\.common\..*"
+        reason: "Common utilities allowed for all packages"
+      - pattern: "^src\.packages\.types\..*"
+        reason: "Shared type definitions allowed"
+
+  # Configuration analysis
+  configuration:
+    # Forbidden configuration references
+    forbidden_config_refs:
+      - "packages/(?!{{package_name}})"  # References to other packages
+      - "services/(?!{{package_name}})"  # References to other services
+    
+    # Required configuration files
+    required_files:
+      - ".env.example"
+      - "config/app.yml"
+      - "config/logging.yml"
+      - "config/database.yml"  # If using database
+
+  # Database analysis
+  database:
+    # Forbidden database references
+    forbidden_references:
+      - foreign_keys_to_other_packages: true
+      - cross_package_joins: true
+      - shared_tables: false  # Allow shared tables (like user tables)
+    
+    # Database naming conventions
+    naming_conventions:
+      table_prefix: "{{package_name}}_"  # Tables should be prefixed with package name
+      schema_separation: true  # Each package should have its own schema
+
+  # API analysis
+  api:
+    # Forbidden API patterns
+    forbidden_api_calls:
+      - "http://localhost:8[0-9]{3}/(?!{{package_name}})"  # Calls to other local services
+      - "https?://.*-service\.(?!{{package_name}})"  # Calls to other microservices
+    
+    # Allowed external API patterns
+    allowed_external_apis:
+      - "https://api\..*"  # External APIs
+      - "https://.*\.amazonaws\.com"  # AWS services
+      - "https://.*\.googleapis\.com"  # Google services
+
+# Quality thresholds
+quality_thresholds:
+  test_coverage_minimum: 80.0  # Minimum test coverage percentage
+  documentation_completeness_minimum: 75.0  # Minimum documentation completeness
+  deployment_readiness_minimum: 90.0  # Minimum deployment readiness
+
+# Violation severity mapping
+violation_severity:
+  circular_dependency: error
+  cross_package_import: error
+  cross_package_db_reference: error
+  unauthorized_api_call: warning
+  missing_required_component: warning
+  configuration_reference: warning
+  excessive_external_deps: info
+
+# Notification settings
+notifications:
+  # Channels to notify on violations
+  channels:
+    - slack: "#dev-quality"
+    - email: "dev-team@company.com"
+  
+  # Notification triggers
+  triggers:
+    - on_error_violations: true
+    - on_score_below_threshold: true
+    - on_new_violations: true
+  
+  # Notification frequency
+  frequency: "on_change"  # always, on_change, daily, weekly
+
+# Auto-fix settings
+auto_fix:
+  enabled: false
+  
+  # What violations can be auto-fixed
+  fixable_violations:
+    - "missing_init_file"
+    - "missing_config_template"
+    - "incorrect_import_format"
+  
+  # Auto-fix rules
+  rules:
+    missing_init_file:
+      action: "create_file"
+      template: '"""Package initialization."""\n'
+    
+    missing_config_template:
+      action: "create_file"
+      template_path: "templates/config_template.yml"
+    
+    incorrect_import_format:
+      action: "reformat"
+      tool: "isort"
+
+# Reporting settings
+reporting:
+  # Output formats
+  formats:
+    - json
+    - markdown
+    - html
+  
+  # Report detail level
+  detail_level: "detailed"  # summary, detailed, verbose
+  
+  # Include in reports
+  include:
+    - violation_details: true
+    - suggestions: true
+    - trend_analysis: true
+    - package_metrics: true
+    - dependency_graph: true
+  
+  # Report storage
+  storage:
+    path: "reports/package_independence"
+    retention_days: 90
+    archive_old_reports: true
+
+# Integration settings
+integrations:
+  # Git hooks
+  git_hooks:
+    pre_commit: true
+    pre_push: true
+    post_commit: false
+  
+  # CI/CD integration
+  ci_cd:
+    github_actions: true
+    gitlab_ci: false
+    jenkins: false
+    
+    # Fail CI/CD on violations
+    fail_on_violations: true
+    
+    # Status check settings
+    status_checks:
+      required: true
+      context: "package-independence"
+  
+  # IDE integration
+  ide:
+    vscode_extension: true
+    intellij_plugin: false
+  
+  # Monitoring integration
+  monitoring:
+    prometheus_metrics: true
+    custom_dashboards: true
+
+# Advanced settings
+advanced:
+  # Parallel processing
+  parallel_processing: true
+  max_workers: 4
+  
+  # Caching
+  enable_caching: true
+  cache_duration_hours: 24
+  
+  # Performance tuning
+  batch_size: 100
+  timeout_seconds: 300
+  
+  # Experimental features
+  experimental:
+    ai_powered_suggestions: true
+    automated_refactoring: false
+    predictive_analysis: true
+
+# Package-specific overrides
+# Override settings for specific packages
+package_overrides:
+  "legacy_package":
+    enforcement_level: lenient
+    required_self_containment_score: 60.0
+    require_all_components: false
+  
+  "critical_service":
+    enforcement_level: strict
+    required_self_containment_score: 95.0
+    max_external_dependencies: 20
+  
+  "experimental_feature":
+    enforcement_level: moderate
+    auto_fix_violations: true
+    notifications:
+      channels: ["#experimental-features"]
