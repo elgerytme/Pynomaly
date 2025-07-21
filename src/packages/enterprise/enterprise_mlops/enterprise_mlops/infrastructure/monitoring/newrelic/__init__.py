@@ -1,1 +1,0 @@
-"""New Relic integration for application monitoring."""

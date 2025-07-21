@@ -1,0 +1,189 @@
+# Enterprise vs Domain Architecture Rules
+# Enforces proper separation of concerns in the configuration-based architecture
+
+name: "Enterprise vs Domain Architecture Rules"
+description: "Enforces separation between enterprise cross-cutting concerns, domain logic, platform integrations, and configurations"
+
+rules:
+  # Core packages: Domain logic ONLY
+  core_packages:
+    description: "Core packages must contain only domain business logic"
+    path_patterns:
+      - "src/packages/core/**"
+    allowed_dependencies:
+      - "pydantic"
+      - "typing-extensions" 
+      - "dataclasses"
+      - "datetime"
+      - "uuid"
+      - "enum"
+      - "abc"
+      - "pandas"
+      - "numpy"
+      - "scikit-learn"
+    forbidden_dependencies:
+      - "mlflow"
+      - "kubeflow"
+      - "datadog"
+      - "newrelic"
+      - "prometheus"
+      - "grafana"
+      - "aws"
+      - "azure"
+      - "gcp"
+      - "kubernetes"
+      - "fastapi"
+      - "flask"
+      - "django"
+    forbidden_imports:
+      - "from enterprise.*"
+      - "from integrations.*"
+      - "from configurations.*"
+    violations:
+      - "Core packages cannot depend on enterprise services"
+      - "Core packages cannot depend on platform integrations"
+      - "Core packages cannot depend on configurations"
+      - "Core packages should only contain domain business logic"
+
+  # Enterprise packages: Cross-cutting concerns ONLY
+  enterprise_packages:
+    description: "Enterprise packages must contain only cross-cutting concerns that work with ANY domain"
+    path_patterns:
+      - "src/packages/enterprise/**"
+    allowed_concerns:
+      - "authentication"
+      - "authorization" 
+      - "multi_tenancy"
+      - "operations"
+      - "scalability"
+      - "governance"
+      - "security"
+      - "audit"
+      - "compliance"
+    forbidden_concerns:
+      - "mlops"
+      - "anomaly_detection"
+      - "data_processing"
+      - "machine_learning"
+      - "specific_algorithms"
+    forbidden_integrations:
+      - "mlflow"
+      - "kubeflow"
+      - "wandb"
+      - "neptune"
+      - "specific_platforms"
+    violations:
+      - "Enterprise packages cannot contain domain-specific logic"
+      - "Enterprise packages cannot contain platform integrations"
+      - "Enterprise services must work with ANY domain"
+
+  # Integration packages: Platform connectors ONLY
+  integration_packages:
+    description: "Integration packages must contain only external platform connectors"
+    path_patterns:
+      - "src/packages/integrations/**"
+    allowed_patterns:
+      - "mlops/mlflow/"
+      - "mlops/kubeflow/" 
+      - "mlops/wandb/"
+      - "monitoring/datadog/"
+      - "monitoring/newrelic/"
+      - "cloud/aws/"
+      - "cloud/azure/"
+      - "cloud/gcp/"
+    forbidden_patterns:
+      - "domain/"
+      - "business_logic/"
+      - "entities/"
+      - "use_cases/"
+    violations:
+      - "Integration packages cannot contain domain logic"
+      - "Integration packages cannot contain enterprise logic"
+      - "Integration packages must be pure external connectors"
+
+  # Configuration packages: Composition ONLY
+  configuration_packages:
+    description: "Configuration packages must only compose other packages together"
+    path_patterns:
+      - "src/packages/configurations/**"
+    allowed_operations:
+      - "import_and_compose"
+      - "dependency_injection"
+      - "service_wiring"
+      - "environment_specific_setup"
+    forbidden_operations:
+      - "domain_logic_implementation"
+      - "enterprise_service_implementation"
+      - "platform_integration_implementation"
+    violations:
+      - "Configuration packages cannot implement business logic"
+      - "Configuration packages must only wire existing services together"
+
+  # Forbidden directory patterns
+  forbidden_directories:
+    description: "Directory patterns that violate architecture principles"
+    patterns:
+      - "src/packages/enterprise/enterprise_mlops/"
+      - "src/packages/enterprise/enterprise_data_platforms/"
+      - "src/packages/enterprise/*/domain/"
+      - "src/packages/core/*/enterprise/"
+      - "src/packages/core/*/integrations/"
+      - "src/packages/integrations/*/domain/"
+      - "src/packages/integrations/*/enterprise/"
+    violations:
+      - "Enterprise packages cannot contain domain-specific subdirectories"
+      - "Core packages cannot contain enterprise subdirectories"
+      - "Integration packages cannot contain domain or enterprise logic"
+
+  # Import restrictions
+  import_restrictions:
+    description: "Import restrictions to enforce architectural boundaries"
+    rules:
+      - source: "src/packages/core/**"
+        forbidden_imports:
+          - "enterprise.*"
+          - "integrations.*"
+          - "configurations.*"
+        message: "Core packages cannot import from enterprise, integrations, or configurations"
+      
+      - source: "src/packages/enterprise/**"
+        forbidden_imports:
+          - "core.*.mlops.*"
+          - "core.*.anomaly_detection.*"
+          - "integrations.*"
+        message: "Enterprise packages cannot import domain-specific or integration packages"
+      
+      - source: "src/packages/integrations/**"
+        forbidden_imports:
+          - "core.*.domain.*"
+          - "enterprise.*"
+        message: "Integration packages cannot import domain or enterprise logic"
+
+# Validation commands
+validation:
+  dependency_check:
+    command: "python scripts/validate_architecture.py --check-dependencies"
+    description: "Check that packages only depend on allowed dependencies"
+  
+  import_check:
+    command: "python scripts/validate_architecture.py --check-imports"
+    description: "Check that imports follow architectural boundaries"
+  
+  directory_check:
+    command: "python scripts/validate_architecture.py --check-directories"
+    description: "Check that directory structure follows architectural rules"
+
+# Enforcement levels
+enforcement:
+  level: "strict"
+  on_violation: "fail_build"
+  exceptions: []
+  
+# Documentation
+documentation:
+  architecture_guide: "src/packages/ARCHITECTURE.md"
+  examples:
+    correct_core: "src/packages/core/ai/machine_learning/mlops/"
+    correct_enterprise: "src/packages/enterprise/auth/"
+    correct_integration: "src/packages/integrations/mlops/mlflow/"
+    correct_configuration: "src/packages/configurations/enterprise/mlops_enterprise/"

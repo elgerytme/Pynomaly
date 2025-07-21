@@ -1,0 +1,171 @@
+name: Architecture Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: 
+      - 'src/packages/**'
+      - '.github/ARCHITECTURE_RULES.yml'
+      - 'scripts/validate_architecture.py'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/**'
+      - '.github/ARCHITECTURE_RULES.yml'
+      - 'scripts/validate_architecture.py'
+
+jobs:
+  validate-architecture:
+    runs-on: ubuntu-latest
+    name: Validate Enterprise vs Domain Architecture
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml
+        # Try to install tomllib for Python < 3.11
+        pip install tomli || echo "tomli not needed for Python >= 3.11"
+    
+    - name: Validate Architecture Rules
+      run: |
+        echo "🏗️ Validating Enterprise vs Domain Architecture..."
+        python scripts/validate_architecture.py
+      
+    - name: Check Forbidden Directories
+      run: |
+        echo "📁 Checking for obsolete enterprise packages..."
+        python scripts/validate_architecture.py --check-directories
+    
+    - name: Check Import Restrictions  
+      run: |
+        echo "📦 Checking import restrictions..."
+        python scripts/validate_architecture.py --check-imports
+    
+    - name: Check Dependency Restrictions
+      run: |
+        echo "🔗 Checking dependency restrictions..."
+        python scripts/validate_architecture.py --check-dependencies
+    
+    - name: Architecture Report
+      if: failure()
+      run: |
+        echo "❌ Architecture validation failed!"
+        echo ""
+        echo "The configuration-based architecture requires:"
+        echo "✅ Core packages = Domain logic ONLY"
+        echo "✅ Enterprise packages = Cross-cutting concerns ONLY"  
+        echo "✅ Integration packages = Platform connectors ONLY"
+        echo "✅ Configuration packages = Composition ONLY"
+        echo ""
+        echo "📖 See .github/ARCHITECTURE_RULES.yml for detailed rules"
+        echo "📚 See src/packages/ARCHITECTURE.md for architecture guide"
+        echo ""
+        echo "🚫 Common violations:"
+        echo "   - Domain logic in enterprise packages"
+        echo "   - Platform integrations in enterprise packages"
+        echo "   - Enterprise logic in core packages"
+        echo "   - Mixed concerns in packages"
+
+  check-obsolete-packages:
+    runs-on: ubuntu-latest
+    name: Check for Obsolete Packages
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check for obsolete enterprise packages
+      run: |
+        echo "🔍 Checking for obsolete enterprise packages that violate architecture..."
+        
+        OBSOLETE_FOUND=false
+        
+        # Check for enterprise_mlops
+        if [ -d "src/packages/enterprise/enterprise_mlops" ]; then
+          echo "❌ Found obsolete package: src/packages/enterprise/enterprise_mlops/"
+          echo "   This should be removed - MLOps integrations belong in src/packages/integrations/mlops/"
+          OBSOLETE_FOUND=true
+        fi
+        
+        # Check for enterprise_data_platforms  
+        if [ -d "src/packages/enterprise/enterprise_data_platforms" ]; then
+          echo "❌ Found obsolete package: src/packages/enterprise/enterprise_data_platforms/"
+          echo "   This should be removed - Data platform integrations belong in src/packages/integrations/"
+          OBSOLETE_FOUND=true
+        fi
+        
+        # Check for other mixed-concern packages
+        for dir in src/packages/enterprise/enterprise_*/; do
+          if [ -d "$dir" ]; then
+            dirname=$(basename "$dir")
+            if [[ "$dirname" == enterprise_* ]]; then
+              echo "⚠️  Potential obsolete package: $dir"
+              echo "   Enterprise packages should contain cross-cutting concerns, not domain-specific logic"
+              OBSOLETE_FOUND=true
+            fi
+          fi
+        done
+        
+        if [ "$OBSOLETE_FOUND" = true ]; then
+          echo ""
+          echo "🏗️ Architecture Fix Required:"
+          echo "   1. Move platform integrations to src/packages/integrations/"
+          echo "   2. Move domain logic to src/packages/core/"
+          echo "   3. Keep only cross-cutting concerns in src/packages/enterprise/"
+          echo "   4. Use src/packages/configurations/ to compose services"
+          echo ""
+          echo "📚 See src/packages/ARCHITECTURE.md for guidance"
+          exit 1
+        else
+          echo "✅ No obsolete enterprise packages found"
+        fi
+
+  architecture-documentation:
+    runs-on: ubuntu-latest  
+    name: Check Architecture Documentation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check required documentation
+      run: |
+        echo "📚 Checking architecture documentation..."
+        
+        MISSING_DOCS=false
+        
+        # Check for architecture guide
+        if [ ! -f "src/packages/ARCHITECTURE.md" ]; then
+          echo "❌ Missing: src/packages/ARCHITECTURE.md"
+          MISSING_DOCS=true
+        fi
+        
+        # Check for architecture rules
+        if [ ! -f ".github/ARCHITECTURE_RULES.yml" ]; then
+          echo "❌ Missing: .github/ARCHITECTURE_RULES.yml"
+          MISSING_DOCS=true
+        fi
+        
+        # Check for configuration examples
+        if [ ! -d "src/packages/configurations" ]; then
+          echo "❌ Missing: src/packages/configurations/"
+          MISSING_DOCS=true
+        fi
+        
+        if [ "$MISSING_DOCS" = true ]; then
+          echo ""
+          echo "📖 Required architecture documentation is missing"
+          echo "   The configuration-based architecture requires proper documentation"
+          exit 1
+        else
+          echo "✅ All required architecture documentation present"
+        fi
