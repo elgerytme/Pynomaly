@@ -64,9 +64,10 @@ class UnifiedApiService:
         try:
             # Import package dynamically
             if package_name == "data_profiling":
-                from packages.data_profiling.application.services.schema_analysis_service import SchemaAnalysisService
-                from packages.data_profiling.application.services.statistical_profiling_service import StatisticalProfilingService
-                from packages.data_profiling.application.services.pattern_discovery_service import PatternDiscoveryService
+                # TODO: Implement data profiling services within data platform
+                # from packages.data_profiling.application.services.schema_analysis_service import SchemaAnalysisService
+                # from packages.data_profiling.application.services.statistical_profiling_service import StatisticalProfilingService
+                # from packages.data_profiling.application.services.pattern_discovery_service import PatternDiscoveryService
                 
                 instance = {
                     "schema_analysis": SchemaAnalysisService(),
@@ -83,9 +84,9 @@ class UnifiedApiService:
                 }
                 
             elif package_name == "data_quality":
-                from packages.data_quality.application.services.intelligent_rule_discovery_service import IntelligentRuleDiscoveryService
-                from packages.data_quality.application.services.ml_quality_detection_service import MLQualityDetectionService
-                from packages.data_quality.application.services.quality_lineage_service import QualityLineageService
+                # TODO: Implement within data platform - from packages.data_quality.application.services.intelligent_rule_discovery_service import IntelligentRuleDiscoveryService
+                # TODO: Implement within data platform - from packages.data_quality.application.services.ml_quality_detection_service import MLQualityDetectionService
+                # TODO: Implement within data platform - from packages.data_quality.application.services.quality_lineage_service import QualityLineageService
                 
                 instance = {
                     "rule_discovery": IntelligentRuleDiscoveryService(),
@@ -102,9 +103,9 @@ class UnifiedApiService:
                 }
                 
             elif package_name == "data_science":
-                from packages.data_science.domain.services.statistical_analysis_service import StatisticalAnalysisService
-                from packages.data_science.domain.services.feature_engineering_service import FeatureEngineeringService
-                from packages.data_science.domain.services.model_validation_service import ModelValidationService
+                # TODO: Implement within data platform - from packages.data_science.domain.services.statistical_analysis_service import StatisticalAnalysisService
+                # TODO: Implement within data platform - from packages.data_science.domain.services.feature_engineering_service import FeatureEngineeringService
+                # TODO: Implement within data platform - from packages.data_science.domain.services.model_validation_service import ModelValidationService
                 
                 instance = {
                     "statistical_analysis": StatisticalAnalysisService(),

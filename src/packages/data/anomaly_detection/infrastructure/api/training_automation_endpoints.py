@@ -19,8 +19,8 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from src.packages.data.anomaly_detection.core.dependency_injection import inject, ServiceContainer, get_container
-from src.packages.data.anomaly_detection.core.domain_entities import (
+from ...core.dependency_injection import inject, ServiceContainer, get_container
+from ...core.domain_entities import (
     TrainingJob,
     DetectorConfiguration,
     ModelStatus

@@ -1,0 +1,268 @@
+# Buck2 Build Configuration for API Package
+# REST API presentation layer with FastAPI endpoints
+
+load("@prelude//python:defs.bzl", "python_library", "python_test", "python_binary")
+
+# ==========================================
+# API Components
+# ==========================================
+
+# Core API Application
+python_library(
+    name = "app",
+    srcs = glob([
+        "api/app.py",
+        "api/main.py",
+        "api/__init__.py",
+    ]),
+    deps = [
+        ":endpoints",
+        ":middleware",
+        ":dependencies",
+        ":docs",
+        "//src/packages/core:core",
+        "//src/packages/infrastructure:infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# API Endpoints
+python_library(
+    name = "endpoints",
+    srcs = glob([
+        "api/endpoints/**/*.py",
+        "api/routers/**/*.py",
+    ]),
+    deps = [
+        ":dependencies",
+        ":security",
+        "//src/packages/core:use-cases",
+        "//src/packages/core:dto",
+        "//src/packages/core:entities",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# API Middleware
+python_library(
+    name = "middleware",
+    srcs = glob([
+        "api/middleware/**/*.py",
+    ]),
+    deps = [
+        ":security",
+        "//src/packages/core:shared",
+        "//src/packages/infrastructure:monitoring",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# Dependency Injection
+python_library(
+    name = "dependencies",
+    srcs = glob([
+        "api/dependencies/**/*.py",
+        "api/deps.py",
+        "api/container.py",
+    ]),
+    deps = [
+        "//src/packages/core:abstractions",
+        "//src/packages/infrastructure:infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# API Security
+python_library(
+    name = "security",
+    srcs = glob([
+        "api/security/**/*.py",
+        "api/auth_deps.py",
+    ]),
+    deps = [
+        "//src/packages/core:entities",
+        "//src/packages/infrastructure:security",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# API Documentation
+python_library(
+    name = "docs",
+    srcs = glob([
+        "api/docs/**/*.py",
+        "api/docs.py",
+        "api/versioning.py",
+    ]),
+    deps = [
+        "//src/packages/core:dto",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# WebSocket Support
+python_library(
+    name = "websocket",
+    srcs = glob([
+        "api/websocket/**/*.py",
+    ]),
+    deps = [
+        ":dependencies",
+        "//src/packages/core:use-cases",
+    ],
+    visibility = ["//src/packages/..."],
+)
+
+# ==========================================
+# Complete API Package
+# ==========================================
+
+python_library(
+    name = "api",
+    srcs = ["__init__.py"],
+    deps = [
+        ":app",
+        ":endpoints",
+        ":middleware",
+        ":dependencies",
+        ":security",
+        ":docs",
+        ":websocket",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# API Server Binary
+# ==========================================
+
+python_binary(
+    name = "server",
+    main = "api/app.py",
+    deps = [":api"],
+    visibility = ["PUBLIC"],
+)
+
+# Development Server
+python_binary(
+    name = "dev-server",
+    main = "api/app.py",
+    deps = [":api"],
+    env = {
+        "PYNOMALY_ENV": "development",
+        "DEBUG": "true",
+    },
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Test Targets
+# ==========================================
+
+# Endpoint Tests
+python_test(
+    name = "test-endpoints",
+    srcs = glob([
+        "tests/test_endpoints/**/*.py",
+        "tests/test_*_endpoints.py",
+    ]),
+    deps = [
+        ":endpoints",
+        ":dependencies",
+        "//src/packages/core:entities",
+    ],
+    env = {
+        "PYTHONPATH": ".",
+        "TESTING": "true",
+    },
+)
+
+# Security Tests
+python_test(
+    name = "test-security",
+    srcs = glob([
+        "tests/test_security/**/*.py",
+        "tests/test_auth/**/*.py",
+    ]),
+    deps = [
+        ":security",
+        ":endpoints",
+        "//src/packages/core:entities",
+    ],
+    env = {
+        "PYTHONPATH": ".",
+        "TESTING": "true",
+    },
+)
+
+# Middleware Tests
+python_test(
+    name = "test-middleware",
+    srcs = glob([
+        "tests/test_middleware/**/*.py",
+    ]),
+    deps = [
+        ":middleware",
+        "//src/packages/core:shared",
+    ],
+    env = {
+        "PYTHONPATH": ".",
+        "TESTING": "true",
+    },
+)
+
+# Integration Tests
+python_test(
+    name = "test-integration",
+    srcs = glob([
+        "tests/test_integration/**/*.py",
+        "tests/test_api_integration.py",
+    ]),
+    deps = [
+        ":api",
+        "//src/packages/core:core",
+        "//src/packages/infrastructure:infrastructure",
+    ],
+    env = {
+        "PYTHONPATH": ".",
+        "TESTING": "true",
+    },
+)
+
+# All API Tests
+genrule(
+    name = "test-all",
+    srcs = [],
+    out = "api-test-results.txt",
+    cmd = "echo 'API package tests completed' > $OUT",
+    deps = [
+        ":test-endpoints",
+        ":test-security",
+        ":test-middleware",
+        ":test-integration",
+    ],
+)
+
+# ==========================================
+# Development Targets
+# ==========================================
+
+# API Package Development Build
+genrule(
+    name = "dev",
+    srcs = [],
+    out = "api-dev-ready.txt",
+    cmd = "echo 'API package development ready' > $OUT",
+    deps = [
+        ":api",
+    ],
+)
+
+# API Documentation Generation
+genrule(
+    name = "generate-docs",
+    srcs = [":api"],
+    out = "api-docs.json",
+    cmd = "python -c 'from api.app import app; import json; json.dump(app.openapi(), open(\"$OUT\", \"w\"))'",
+    visibility = ["PUBLIC"],
+)

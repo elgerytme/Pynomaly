@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-detection
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+    component: api-server
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: pynomaly-detection
+  template:
+    metadata:
+      labels:
+        app: pynomaly-detection
+        version: v0.2.0
+        component: api-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-detection
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: pynomaly-detection
+        image: pynomaly/detection:v0.2.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: PYNOMALY_ENV
+          value: "production"
+        - name: PYNOMALY_HOST
+          value: "0.0.0.0"
+        - name: PYNOMALY_PORT
+          value: "8080"
+        - name: PYNOMALY_WORKERS
+          value: "4"
+        - name: PYNOMALY_LOG_LEVEL
+          value: "INFO"
+        - name: PYNOMALY_MEMORY_LIMIT_GB
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+              divisor: 1Gi
+        envFrom:
+        - configMapRef:
+            name: pynomaly-config
+        - secretRef:
+            name: pynomaly-secrets
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - healthcheck.py
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: tmp-volume
+          mountPath: /tmp
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: pynomaly-data-pvc
+      - name: config-volume
+        configMap:
+          name: pynomaly-config-files
+      - name: tmp-volume
+        emptyDir: {}
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      tolerations:
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - pynomaly-detection
+              topologyKey: kubernetes.io/hostname

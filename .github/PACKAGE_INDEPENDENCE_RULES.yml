@@ -21,12 +21,84 @@ require_all_components: true
 # Auto-fix violations when possible
 auto_fix_violations: false
 
-# Allowed cross-package dependencies
-# Format: "source_package -> target_package"
+# Hierarchical Domain Architecture
+# ================================
+# Defines architectural layers and allowed dependency directions
+# Higher layers can depend on lower layers, but NOT vice versa
+
+# Domain Architecture Layers (from most fundamental to most specific)
+dependency_layers:
+  # Layer 1: Core Infrastructure (foundational)
+  layer_1_core:
+    packages:
+      - "packages.core"
+      - "packages.shared" 
+      - "packages.common"
+      - "packages.types"
+      - "packages.interfaces"
+    dependencies: []  # No dependencies - foundational layer
+  
+  # Layer 2: Data Foundation
+  layer_2_data_foundation:
+    packages:
+      - "data.data_platform"
+      - "data.data_engineering"
+      - "data.data_pipelines"
+    dependencies: ["layer_1_core"]
+  
+  # Layer 3: AI/ML Foundation
+  layer_3_ai_foundation:
+    packages:
+      - "ai.machine_learning"
+      - "data.data_science"
+    dependencies: ["layer_1_core", "layer_2_data_foundation"]
+  
+  # Layer 4: Specialized Domains  
+  layer_4_specialized:
+    packages:
+      - "data.anomaly_detection"
+      - "data.data_quality"
+      - "data.data_observability"
+      - "data.data_analytics"
+      - "data.data_modeling"
+      - "data.data_visualization"
+      - "data.knowledge_graph"
+    dependencies: ["layer_1_core", "layer_2_data_foundation", "layer_3_ai_foundation"]
+  
+  # Layer 5: Application/Presentation
+  layer_5_application:
+    packages:
+      - "api"
+      - "sdk"
+      - "presentation"
+      - "enterprise"
+    dependencies: ["layer_1_core", "layer_2_data_foundation", "layer_3_ai_foundation", "layer_4_specialized"]
+
+# Allowed dependency direction: higher layers -> lower layers
+allowed_dependency_direction: "higher_to_lower"
+
+# Legacy cross-package dependencies (for backward compatibility)
+# These will be validated against the hierarchical rules
 allowed_cross_package_deps:
-  - "anomaly_detection -> data_processing"  # Example: anomaly detection can use data processing
-  - "ml_training -> feature_engineering"    # Example: ML training can use feature engineering
-  - "api_gateway -> authentication"         # Example: API gateway can use auth
+  # Layer 4 -> Layer 3 dependencies
+  - "data.anomaly_detection -> ai.machine_learning"
+  - "data.data_quality -> data.data_science"
+  - "data.data_observability -> ai.machine_learning"
+  
+  # Layer 4 -> Layer 2 dependencies  
+  - "data.anomaly_detection -> data.data_platform"
+  - "data.data_quality -> data.data_platform"
+  - "data.data_observability -> data.data_platform"
+  
+  # Layer 3 -> Layer 2 dependencies
+  - "ai.machine_learning -> data.data_platform"
+  - "data.data_science -> data.data_platform"
+  
+  # Layer 5 -> Any lower layer
+  - "api -> data.anomaly_detection"
+  - "api -> ai.machine_learning"
+  - "sdk -> data.anomaly_detection"
+  - "enterprise -> data.anomaly_detection"
 
 # Packages to ignore during validation
 # These are typically shared/utility packages
@@ -70,25 +142,45 @@ required_components:
     - "config/*.yml"
     - ".env*"
 
+# Hierarchical Dependency Validation Rules
+hierarchical_validation:
+  # Enable layer-aware dependency checking
+  enable_layer_validation: true
+  
+  # Circular dependency detection
+  detect_circular_dependencies: true
+  
+  # Validate import directions match architectural layers
+  validate_import_direction: true
+  
+  # Maximum allowed dependencies per layer
+  max_dependencies_per_layer:
+    layer_1_core: 0
+    layer_2_data_foundation: 5
+    layer_3_ai_foundation: 10
+    layer_4_specialized: 15
+    layer_5_application: 25
+
 # Dependency analysis rules
 dependency_rules:
   # Import analysis
   imports:
     # Allowed import patterns
     allowed_patterns:
-      - "^(os|sys|json|yaml|datetime|typing|pathlib|re|subprocess|logging|collections|itertools|functools)($|\.)"  # Standard library
-      - "^(fastapi|pydantic|sqlalchemy|redis|celery|requests|httpx|uvicorn|prometheus_client)($|\.)"  # Common third-party
+      - "^(os|sys|json|yaml|datetime|typing|pathlib|re|subprocess|logging|collections|itertools|functools)($|[.])"  # Standard library
+      - "^(fastapi|pydantic|sqlalchemy|redis|celery|requests|httpx|uvicorn|prometheus_client)($|[.])"  # Common third-party
     
-    # Forbidden import patterns
+    # Forbidden import patterns (updated for hierarchical architecture)
     forbidden_patterns:
-      - "^src\.packages\.(?!{{package_name}}).*"  # Cross-package imports
-      - "^\.\..*packages.*"  # Relative imports to other packages
+      - "^src[.]packages[.](?!{{package_name}}|{{allowed_dependencies}}).*"  # Cross-package imports to non-allowed layers
+      - "^[.][.].*packages.*"  # Relative imports to other packages
+      - "^packages[.](?!{{allowed_dependencies}}).*"  # Direct package imports to forbidden layers
     
     # Exceptions (imports that are forbidden but allowed for specific cases)
     exceptions:
-      - pattern: "^src\.packages\.common\..*"
+      - pattern: "^src[.]packages[.]common[.].*"
         reason: "Common utilities allowed for all packages"
-      - pattern: "^src\.packages\.types\..*"
+      - pattern: "^src[.]packages[.]types[.].*"
         reason: "Shared type definitions allowed"
 
   # Configuration analysis
@@ -123,13 +215,13 @@ dependency_rules:
     # Forbidden API patterns
     forbidden_api_calls:
       - "http://localhost:8[0-9]{3}/(?!{{package_name}})"  # Calls to other local services
-      - "https?://.*-service\.(?!{{package_name}})"  # Calls to other microservices
+      - "https?://.*-service[.](?!{{package_name}})"  # Calls to other microservices
     
     # Allowed external API patterns
     allowed_external_apis:
-      - "https://api\..*"  # External APIs
-      - "https://.*\.amazonaws\.com"  # AWS services
-      - "https://.*\.googleapis\.com"  # Google services
+      - "https://api[.].*"  # External APIs
+      - "https://.*[.]amazonaws[.]com"  # AWS services
+      - "https://.*[.]googleapis[.]com"  # Google services
 
 # Quality thresholds
 quality_thresholds:

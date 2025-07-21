@@ -10,9 +10,9 @@ authors = [
     {name = "{author_name}", email = "{author_email}"}
 ]
 license = {text = "MIT"}
-readme = "README.md"
+readme = "docs/README.md"
 requires-python = ">=3.11"
-keywords = ["{package_name}", "self-contained", "microservice"]
+keywords = ["{package_name}", "self-contained", "microservice", "ddd"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -107,15 +107,15 @@ monitoring = [
 
 # All optional dependencies
 all = [
-    "pynomaly[dev,test,docs,performance,security,monitoring]"
+    "{package_name}[dev,test,docs,performance,security,monitoring]"
 ]
 
 [project.urls]
 Homepage = "https://github.com/{github_username}/{repository_name}"
-Documentation = "https://github.com/{github_username}/{repository_name}/tree/main/{package_name}/docs"
+Documentation = "https://github.com/{github_username}/{repository_name}/tree/main/docs"
 Repository = "https://github.com/{github_username}/{repository_name}"
 "Bug Tracker" = "https://github.com/{github_username}/{repository_name}/issues"
-Changelog = "https://github.com/{github_username}/{repository_name}/blob/main/{package_name}/CHANGELOG.md"
+Changelog = "https://github.com/{github_username}/{repository_name}/blob/main/docs/CHANGELOG.md"
 
 [project.scripts]
 {package_name} = "{package_name}.cli:main"

@@ -1,7 +1,0 @@
-"""
-Application layer - Use cases and application services.
-
-This layer orchestrates the flow of data to and from the entities,
-and can also direct the entities to use their enterprise-wide
-business rules to achieve the goals of a particular application use case.
-"""

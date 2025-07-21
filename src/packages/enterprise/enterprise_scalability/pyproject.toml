@@ -1,0 +1,327 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynomaly-enterprise-scalability"
+dynamic = ["version"]
+description = "Enterprise scalability with distributed computing and streaming for Pynomaly"
+authors = [{name = "Pynomaly Enterprise Team", email = "enterprise@pynomaly.org"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = [
+    "scalability", 
+    "distributed-computing", 
+    "streaming", 
+    "dask", 
+    "ray",
+    "enterprise",
+    "anomaly-detection",
+    "machine-learning"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Data Scientists",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Environment :: Web Environment",
+    "Framework :: FastAPI",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    # Core dependencies
+    "pydantic>=2.9.0",
+    "structlog>=24.4.0",
+    "dependency-injector>=4.42.0",
+    
+    # Async and concurrency
+    "asyncio>=3.4.3",
+    "aiofiles>=24.1.0",
+    "aiocache>=0.12.3",
+    
+    # Scientific computing
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    
+    # Monitoring and metrics
+    "prometheus-client>=0.21.1",
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0",
+    
+    # API Framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    
+    # Database & Storage
+    "sqlalchemy>=2.0.36",
+    "redis>=5.2.1",
+    
+    # Utilities
+    "python-dateutil>=2.8.0",
+    "pyyaml>=6.0",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+# Development dependencies
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.12.0",
+    "pytest-benchmark>=4.0.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0",
+    "httpx>=0.28.1",
+]
+
+# Testing dependencies
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.12.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-distributed>=3.1.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0",
+    "httpx>=0.28.1",
+    "responses>=0.24.0",
+    "testcontainers>=4.0.0",
+]
+
+# Linting and formatting
+lint = [
+    "ruff>=0.8.0",
+    "black>=24.0.0",
+    "mypy>=1.13.0",
+    "bandit>=1.8.0",
+]
+
+# Documentation
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+]
+
+# Dask distributed computing
+dask = [
+    "dask[complete]>=2024.1.0",
+    "dask-ml>=2024.1.0",
+    "distributed>=2024.1.0",
+    "dask-kubernetes>=2024.1.0",
+    "dask-gateway>=2024.1.0",
+]
+
+# Ray distributed computing
+ray = [
+    "ray[default]>=2.8.0",
+    "ray[data]>=2.8.0",
+    "ray[train]>=2.8.0",
+    "ray[tune]>=2.8.0",
+    "ray[serve]>=2.8.0",
+]
+
+# Streaming processing
+streaming = [
+    "kafka-python>=2.0.2",
+    "aiokafka>=0.10.0",
+    "apache-beam>=2.52.0",
+    "faust-cchardet>=1.7.0",
+    "streamz>=0.6.4",
+    "pyarrow>=14.0.0",
+]
+
+# High-performance computing
+hpc = [
+    "numba>=0.58.0",
+    "cupy-cuda12x>=12.0.0",  # CUDA support
+    "rapids-cudf>=23.12.0",  # GPU DataFrames
+    "modin[ray]>=0.25.0",    # Parallel pandas
+]
+
+# Monitoring and observability
+monitoring = [
+    "grafana-client>=0.7.0",
+    "datadog>=0.48.0",
+    "newrelic>=9.4.0",
+    "elastic-apm>=6.20.0",
+    "jaeger-client>=4.8.0",
+]
+
+# Cloud integrations
+aws = [
+    "boto3>=1.34.0",
+    "botocore>=1.34.0",
+    "aiobotocore>=2.11.0",
+    "s3fs>=2024.1.0",
+]
+
+azure = [
+    "azure-storage-blob>=12.19.0",
+    "azure-identity>=1.15.0",
+    "adlfs>=2024.1.0",
+]
+
+gcp = [
+    "google-cloud-storage>=2.10.0",
+    "google-cloud-bigquery>=3.13.0",
+    "gcsfs>=2024.1.0",
+]
+
+# Kubernetes integration
+kubernetes = [
+    "kubernetes>=28.1.0",
+    "kubernetes-asyncio>=28.2.0",
+    "kopf>=1.37.0",  # Kubernetes operators
+]
+
+# Production extras
+production = [
+    "gunicorn>=21.2.0",
+    "uvloop>=0.19.0",
+    "orjson>=3.9.0",
+    "msgpack>=1.0.0",
+]
+
+# All extras
+all = [
+    # Distributed computing
+    "dask[complete]>=2024.1.0",
+    "dask-ml>=2024.1.0",
+    "distributed>=2024.1.0",
+    "dask-kubernetes>=2024.1.0",
+    "ray[default]>=2.8.0",
+    "ray[data]>=2.8.0",
+    
+    # Streaming
+    "kafka-python>=2.0.2",
+    "aiokafka>=0.10.0",
+    "apache-beam>=2.52.0",
+    "streamz>=0.6.4",
+    "pyarrow>=14.0.0",
+    
+    # HPC
+    "numba>=0.58.0",
+    "modin[ray]>=0.25.0",
+    
+    # Cloud
+    "boto3>=1.34.0",
+    "s3fs>=2024.1.0",
+    "gcsfs>=2024.1.0",
+    
+    # Kubernetes
+    "kubernetes>=28.1.0",
+    "kopf>=1.37.0",
+    
+    # Production
+    "gunicorn>=21.2.0",
+    "uvloop>=0.19.0",
+    "orjson>=3.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/pynomaly"
+Repository = "https://github.com/yourusername/pynomaly"
+Documentation = "https://docs.pynomaly.org/enterprise/scalability"
+Issues = "https://github.com/yourusername/pynomaly/issues"
+Changelog = "https://github.com/yourusername/pynomaly/blob/main/src/packages/enterprise/enterprise_scalability/CHANGELOG.md"
+
+[project.scripts]
+pynomaly-enterprise-scalability = "enterprise_scalability.presentation.cli.main:app"
+
+[tool.hatch.version]
+source = "vcs"
+root = "../../../../.."
+
+[tool.hatch.build.targets.wheel]
+packages = ["enterprise_scalability"]
+
+# Tool configuration
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+exclude = [
+    "migrations",
+    ".venv",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings  
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+[tool.black]
+target-version = ["py311"]
+line-length = 88
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "--disable-warnings",
+    "--color=yes",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "distributed: Distributed computing tests",
+    "streaming: Stream processing tests",
+    "dask: Dask-specific tests",
+    "ray: Ray-specific tests",
+    "performance: Performance tests",
+    "gpu: GPU-accelerated tests",
+    "kubernetes: Kubernetes integration tests",
+    "slow: Slow-running tests",
+]
+
+[tool.coverage.run]
+source = ["enterprise_scalability"]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

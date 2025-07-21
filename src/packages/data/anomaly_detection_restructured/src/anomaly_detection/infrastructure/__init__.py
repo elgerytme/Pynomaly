@@ -1,0 +1,3 @@
+"""
+Infrastructure layer - External concerns and implementations
+"""

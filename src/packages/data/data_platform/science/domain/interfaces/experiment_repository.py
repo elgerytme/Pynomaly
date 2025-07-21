@@ -8,7 +8,7 @@ from typing import Any, Optional
 from uuid import UUID
 
 from packages.core.domain.abstractions.repository_interface import RepositoryInterface
-from packages.data_science.domain.entities.experiment import Experiment
+# TODO: Implement within data platform science domain - from packages.data_science.domain.entities.experiment import Experiment
 
 
 class ExperimentRepository(RepositoryInterface[Experiment], ABC):

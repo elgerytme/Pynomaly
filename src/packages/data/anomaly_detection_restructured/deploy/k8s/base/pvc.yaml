@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pynomaly-data-pvc
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+    component: storage
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+  volumeMode: Filesystem
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pynomaly-models-pvc
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+    component: models
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: fast-ssd
+  volumeMode: Filesystem
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pynomaly-cache-pvc
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+    component: cache
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: fast-ssd
+  volumeMode: Filesystem
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pynomaly-logs-pvc
+  labels:
+    app: pynomaly-detection
+    version: v0.2.0
+    component: logs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+  volumeMode: Filesystem

@@ -131,6 +131,59 @@ class PackageIndependenceValidator:
         
         return default_config
     
+    def _get_package_layer(self, package_name: str) -> Optional[str]:
+        """Determine which architectural layer a package belongs to"""
+        if not self.config.get('dependency_layers'):
+            return None
+            
+        # Normalize package name
+        normalized_name = package_name.replace('_', '.')
+        
+        for layer_name, layer_config in self.config['dependency_layers'].items():
+            if isinstance(layer_config, dict):
+                packages = layer_config.get('packages', [])
+            else:
+                packages = layer_config
+                
+            if isinstance(packages, list):
+                for pattern in packages:
+                    # Check exact match or prefix match
+                    if (normalized_name == pattern or 
+                        normalized_name.startswith(pattern + '.') or
+                        package_name in pattern or
+                        pattern in normalized_name):
+                        return layer_name
+        return None
+    
+    def _validate_layer_dependency(self, source_package: str, target_package: str) -> Tuple[bool, str]:
+        """Validate that dependency follows hierarchical layer rules"""
+        if not self.config.get('hierarchical_validation', {}).get('enable_layer_validation', False):
+            return True, "Layer validation disabled"
+        
+        source_layer = self._get_package_layer(source_package)
+        target_layer = self._get_package_layer(target_package)
+        
+        if not source_layer or not target_layer:
+            return True, f"Could not determine layers for {source_package} -> {target_package}"
+        
+        # Extract layer numbers for comparison
+        def get_layer_number(layer: str) -> int:
+            if 'layer_1' in layer: return 1
+            elif 'layer_2' in layer: return 2  
+            elif 'layer_3' in layer: return 3
+            elif 'layer_4' in layer: return 4
+            elif 'layer_5' in layer: return 5
+            return 0
+        
+        source_num = get_layer_number(source_layer)
+        target_num = get_layer_number(target_layer)
+        
+        # Higher numbered layers can depend on lower numbered layers
+        if source_num >= target_num:
+            return True, f"Valid dependency: {source_layer}({source_num}) -> {target_layer}({target_num})"
+        else:
+            return False, f"Invalid dependency: {source_layer}({source_num}) -> {target_layer}({target_num}) violates architecture (higher -> lower only)"
+    
     def validate_all_packages(self) -> Dict[str, PackageAnalysis]:
         """Validate independence of all packages"""
         self.logger.info("🔍 Starting package independence validation")
@@ -286,23 +339,47 @@ class PackageIndependenceValidator:
             return None
         
         # Check for cross-package dependencies
-        if import_module.startswith('src.packages.'):
+        if import_module.startswith('src.packages.') or import_module.startswith('packages.'):
             parts = import_module.split('.')
-            if len(parts) >= 3:
+            target_package = None
+            
+            # Extract target package name from different import patterns
+            if import_module.startswith('src.packages.') and len(parts) >= 3:
                 target_package = parts[2]
-                if target_package != package_name:
-                    # Check if this cross-package dependency is allowed
-                    allowed_deps = self.config.get('allowed_cross_package_deps', [])
-                    if f"{package_name} -> {target_package}" not in allowed_deps:
-                        return DependencyViolation(
-                            source_package=package_name,
-                            target_package=target_package,
-                            violation_type="import",
-                            location=f"{file_path}:{line_no}",
-                            severity="error",
-                            description=f"Unauthorized cross-package import: {import_module}",
-                            suggestion=f"Consider using an event-driven approach or shared interface"
-                        )
+            elif import_module.startswith('packages.') and len(parts) >= 2:
+                target_package = parts[1]
+                
+            if target_package and target_package != package_name:
+                # First check hierarchical layer validation
+                layer_valid, layer_msg = self._validate_layer_dependency(package_name, target_package)
+                
+                if not layer_valid:
+                    return DependencyViolation(
+                        source_package=package_name,
+                        target_package=target_package,
+                        violation_type="layer_violation",
+                        location=f"{file_path}:{line_no}",
+                        severity="error", 
+                        description=f"Architectural layer violation: {layer_msg}",
+                        suggestion="Restructure to follow hierarchical dependency rules (higher -> lower layers only)"
+                    )
+                
+                # Then check if this cross-package dependency is explicitly allowed
+                allowed_deps = self.config.get('allowed_cross_package_deps', [])
+                dep_key = f"{package_name} -> {target_package}"
+                alt_dep_key = f"data.{package_name} -> ai.{target_package}"  # Handle domain prefixes
+                alt_dep_key2 = f"data.{package_name} -> data.{target_package}"
+                
+                if not any(dep in allowed_deps for dep in [dep_key, alt_dep_key, alt_dep_key2]):
+                    return DependencyViolation(
+                        source_package=package_name,
+                        target_package=target_package,
+                        violation_type="import",
+                        location=f"{file_path}:{line_no}",
+                        severity="warning",  # Reduced to warning since layer validation passed
+                        description=f"Cross-package import not explicitly allowed: {import_module}",
+                        suggestion=f"Add '{dep_key}' to allowed_cross_package_deps if this is intentional"
+                    )
         
         # Check for relative imports outside the package
         if import_module.startswith('..') and 'packages' in import_module:

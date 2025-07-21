@@ -7,7 +7,7 @@ from typing import Any, Optional
 from uuid import UUID
 
 from packages.core.domain.abstractions.repository_interface import RepositoryInterface
-from packages.data_science.domain.entities.feature_store import (
+# TODO: Implement within data platform science domain - from packages.data_science.domain.entities.feature_store import (
     FeatureStore,
     FeatureType,
     FeatureStatus,

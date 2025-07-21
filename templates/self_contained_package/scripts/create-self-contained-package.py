@@ -578,9 +578,9 @@ def main():
     
     args = parser.parse_args()
     
-    # Determine script location
-    script_dir = Path(__file__).parent.parent
-    templates_dir = script_dir / args.templates
+    # Determine script location - updated for new structure
+    script_dir = Path(__file__).parent.parent  # templates/self_contained_package_new/
+    templates_dir = script_dir  # templates are in the same directory
     output_dir = Path(args.output)
     
     if not templates_dir.exists():

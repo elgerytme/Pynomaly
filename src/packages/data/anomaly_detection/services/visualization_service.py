@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-from src.packages.data.anomaly_detection.core.domain_entities import (
+from ..core.domain_entities import (
     DetectionResult,
     Dataset,
     AnomalyResult

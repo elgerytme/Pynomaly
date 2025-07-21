@@ -75,7 +75,7 @@ class PynomagyClient:
         self._executor = ThreadPoolExecutor(max_workers=self.config.max_concurrent_requests)
         
         # Setup logging with security configuration
-        from src.packages.data.anomaly_detection.core.security_configuration import get_security_config, configure_secure_logging
+        from ..core.security_configuration import get_security_config, configure_secure_logging
         
         security_config = get_security_config()
         

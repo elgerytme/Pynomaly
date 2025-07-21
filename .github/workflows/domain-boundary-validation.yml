@@ -23,11 +23,47 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ast-tools
+        pip install pyyaml ast-tools
     
-    - name: Run Domain Boundary Validator
+    - name: Run Enhanced Package Independence Validator
       run: |
-        python scripts/domain_boundary_validator.py --fail-on-error --output-json domain-violations.json
+        echo "🏛️ Running Hierarchical Domain Architecture Validation"
+        python scripts/package_independence_validator.py --verbose --enforce
+        
+    - name: Validate Architectural Layers
+      run: |
+        echo "🔍 Validating layer dependency rules..."
+        python -c "
+        import sys
+        sys.path.insert(0, 'scripts')
+        from package_independence_validator import PackageIndependenceValidator
+        
+        validator = PackageIndependenceValidator()
+        print('✅ Hierarchical validation enabled:', validator.config.get('hierarchical_validation', {}).get('enable_layer_validation', False))
+        print('📋 Architectural layers:', len(validator.config.get('dependency_layers', {})))
+        
+        # Test core architectural rules
+        test_rules = [
+            ('anomaly_detection', 'machine_learning', True, 'Layer 4 -> Layer 3'),
+            ('machine_learning', 'anomaly_detection', False, 'Layer 3 -> Layer 4 (violation)'),
+            ('data_platform', 'anomaly_detection', False, 'Layer 2 -> Layer 4 (violation)')
+        ]
+        
+        violations = 0
+        for source, target, expected, desc in test_rules:
+            valid, msg = validator._validate_layer_dependency(source, target)
+            if valid == expected:
+                print(f'✅ {desc}: PASS')
+            else:
+                violations += 1
+                print(f'❌ {desc}: FAIL - {msg}')
+        
+        if violations > 0:
+            print(f'❌ {violations} architectural rule violations detected!')
+            exit(1)
+        else:
+            print('✅ All architectural layer rules validated successfully!')
+        "
     
     - name: Upload Domain Violations Report
       uses: actions/upload-artifact@v4

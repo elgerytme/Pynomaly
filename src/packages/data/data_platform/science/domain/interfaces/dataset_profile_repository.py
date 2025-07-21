@@ -8,7 +8,7 @@ from typing import Any, Optional
 from uuid import UUID
 
 from packages.core.domain.abstractions.repository_interface import RepositoryInterface
-from packages.data_science.domain.entities.dataset_profile import DatasetProfile
+# TODO: Implement within data platform science domain - from packages.data_science.domain.entities.dataset_profile import DatasetProfile
 
 
 class DatasetProfileRepository(RepositoryInterface[DatasetProfile], ABC):

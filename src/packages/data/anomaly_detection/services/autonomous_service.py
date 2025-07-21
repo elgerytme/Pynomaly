@@ -8,12 +8,12 @@ from typing import Any
 
 import pandas as pd
 
-from src.packages.data.anomaly_detection.core.domain_entities import (
+from ..core.domain_entities import (
     Dataset,
     DetectionResult,
     DetectorConfiguration
 )
-from src.packages.data.anomaly_detection.core.dependency_injection import get_container
+from ..core.dependency_injection import get_container
 
 # Local autonomous detection entities and services
 from dataclasses import dataclass
