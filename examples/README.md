@@ -1,6 +1,6 @@
-# anomaly_detection Examples
+# Platform Examples
 
-This directory contains comprehensive examples demonstrating anomaly_detection's capabilities across different domains and use cases.
+This directory contains comprehensive examples demonstrating the platform's capabilities across different domains and use cases including AI/ML, data engineering, and enterprise services.
 
 ## Getting Started
 
@@ -9,11 +9,12 @@ All examples are self-contained and can be run independently. Each example inclu
 ### Prerequisites
 
 ```bash
-# Install anomaly_detection with examples dependencies
-pip install -e ".[all]"
+# Install core dependencies
+pip install -r requirements-prod.txt
 
-# Or install minimal dependencies for basic examples
-pip install -e ".[examples]"
+# Install specific domain packages as needed
+cd src/packages/ai/anomaly_detection && pip install -e .
+cd src/packages/data/data_quality && pip install -e .
 
 # Additional dependencies for visualization
 pip install matplotlib seaborn plotly
@@ -21,165 +22,51 @@ pip install matplotlib seaborn plotly
 
 ## Available Examples
 
-### 1. Basic Usage (`basic_usage.py`)
+### AI/ML Domain Examples
 
-**What it covers:**
-- Fundamental anomaly_detection operations
-- Loading and preparing data
-- Initializing and fitting detectors
-- Making predictions and interpreting results
-- Performance evaluation metrics
-- Algorithm comparison
-
-**Key concepts:**
-- Data preprocessing
-- Model fitting and prediction
-- Evaluation metrics (precision, recall, F1)
+#### 1. Anomaly Detection (`ai/anomaly_detection_basic.py`)
+- Fundamental anomaly detection operations
+- Algorithm comparison and evaluation
 - Visualization of results
 
-```bash
-python examples/basic_usage.py
-```
-
-### 2. Time Series Detection (`time_series_detection.py`)
-
-**What it covers:**
+#### 2. Time Series Analysis (`ai/time_series_detection.py`)
 - Time series anomaly detection
 - Seasonal pattern recognition
-- Point anomalies, collective anomalies, trend changes
 - Temporal context and windowing
-- Performance evaluation for time series
 
-**Key concepts:**
-- Seasonal decomposition
-- Change point detection
-- Collective anomaly detection
-- Time-aware evaluation metrics
+#### 3. ML Operations (`ai/mlops_workflow.py`)
+- Model lifecycle management
+- Experiment tracking
+- Model deployment and monitoring
 
-```bash
-python examples/time_series_detection.py
-```
+### Data Domain Examples
 
-### 3. Multivariate Detection (`multivariate_detection.py`)
+#### 4. Data Quality Assessment (`data/data_quality_example.py`)
+- Data validation and profiling
+- Quality metrics and reporting
+- Data quality monitoring
 
-**What it covers:**
-- High-dimensional anomaly detection
-- Feature correlation analysis
-- Dimensionality reduction techniques
-- Ensemble methods for multivariate data
-- Feature importance and selection
+#### 5. Data Engineering Pipeline (`data/etl_pipeline_example.py`)
+- ETL process implementation
+- Data transformation workflows
+- Pipeline orchestration
 
-**Key concepts:**
-- Curse of dimensionality
-- Feature correlation
-- Principal component analysis
-- Ensemble voting strategies
+#### 6. Data Observability (`data/lineage_tracking.py`)
+- Data lineage tracking
+- Impact analysis
+- Operational monitoring
 
-```bash
-python examples/multivariate_detection.py
-```
+### Enterprise Examples
 
-### 4. Streaming Detection (`streaming_detection.py`)
+#### 7. Governance and Compliance (`enterprise/governance_example.py`)
+- Audit logging implementation
+- Compliance framework usage
+- SLA monitoring
 
-**What it covers:**
-- Real-time anomaly detection
-- Online learning and model updates
-- Concept drift detection and adaptation
-- Buffer management and sliding windows
-- Performance monitoring in streaming scenarios
-
-**Key concepts:**
-- Online algorithms
-- Concept drift
-- Adaptive thresholds
-- Stream processing patterns
-
-```bash
-python examples/streaming_detection.py
-```
-
-### 5. Deep Learning Methods (`deep_learning_detection.py`)
-
-**What it covers:**
-- Neural network-based anomaly detection
-- Autoencoders and variational autoencoders
-- Deep SVDD and other deep methods
-- GPU acceleration and optimization
-- Transfer learning for anomaly detection
-
-**Key concepts:**
-- Reconstruction error
-- Latent space analysis
-- Deep feature learning
-- Model interpretability
-
-```bash
-python examples/deep_learning_detection.py
-```
-
-### 6. Production Deployment (`production_example.py`)
-
-**What it covers:**
-- Production-ready implementations
-- API integration and service architecture
-- Monitoring and alerting systems
-- Scalability and performance optimization
-- Error handling and logging
-
-**Key concepts:**
-- Service architecture
-- API design patterns
-- Production monitoring
-- Scalability considerations
-
-```bash
-python examples/production_example.py
-```
-
-### 7. Custom Algorithm Development (`custom_algorithm.py`)
-
-**What it covers:**
-- Creating custom anomaly detection algorithms
-- Integrating with anomaly detection framework
-- Algorithm validation and testing
-- Performance benchmarking
-- Documentation and best practices
-
-**Key concepts:**
-- Algorithm interface design
-- Validation frameworks
-- Performance testing
-- Code organization
-
-```bash
-python examples/custom_algorithm.py
-```
-
-### 8. Industry-Specific Examples
-
-#### Financial Fraud Detection (`finance/fraud_detection.py`)
-- Credit card transaction monitoring
-- Account behavior analysis
-- Real-time fraud scoring
-- Regulatory compliance considerations
-
-#### IoT Sensor Monitoring (`iot/sensor_monitoring.py`)
-- Industrial equipment monitoring
-- Predictive maintenance
-- Multi-sensor correlation
-- Edge computing deployment
-
-#### Network Security (`security/network_anomalies.py`)
-- Network traffic analysis
-- Intrusion detection
-- Behavioral analysis
-- Threat intelligence integration
-
-#### Healthcare Monitoring (`healthcare/patient_monitoring.py`)
-- Patient vital signs monitoring
-- Medical imaging anomalies
-- Drug interaction detection
-- Privacy-preserving techniques
+#### 8. Authentication and Authorization (`enterprise/auth_example.py`)
+- User authentication flows
+- Role-based access control
+- Enterprise integration patterns
 
 ## Example Structure
 
@@ -188,15 +75,16 @@ Each example follows a consistent structure:
 ```python
 #!/usr/bin/env python3
 """
-Example Title
+Domain Example Template
 
-Brief description of what this example demonstrates.
+Brief description of what this example demonstrates within its domain.
 """
 
 # 1. Imports and setup
-import pandas as pd
-import numpy as np
-from anomaly_detection import AnomalyDetector
+import sys
+sys.path.append('../../src')  # Adjust path to domain packages
+
+from packages.{domain}.{package}.application.services import SomeService
 
 # 2. Data generation or loading
 def create_sample_data():
@@ -206,26 +94,23 @@ def create_sample_data():
 # 3. Main demonstration
 def main():
     """Main example execution with step-by-step explanations."""
-    print("🔍 Example Title")
+    print("🔍 Domain Example Title")
     print("=" * 50)
     
     # Step 1: Data preparation
     print("1. Preparing data...")
     
-    # Step 2: Model initialization
-    print("2. Initializing detector...")
+    # Step 2: Service initialization
+    print("2. Initializing service...")
     
-    # Step 3: Training
-    print("3. Training model...")
+    # Step 3: Process execution
+    print("3. Executing process...")
     
-    # Step 4: Prediction
-    print("4. Making predictions...")
+    # Step 4: Result analysis
+    print("4. Analyzing results...")
     
-    # Step 5: Evaluation
-    print("5. Evaluating results...")
-    
-    # Step 6: Visualization
-    print("6. Visualizing results...")
+    # Step 5: Visualization (if applicable)
+    print("5. Visualizing results...")
     
     print("✅ Example completed!")
 
@@ -235,24 +120,24 @@ if __name__ == "__main__":
 
 ## Running Examples
 
-### Individual Examples
+### Running Examples
 
 ```bash
-# Run a specific example
-python examples/basic_usage.py
+# AI/ML examples
+python examples/ai/anomaly_detection_basic.py
+python examples/ai/mlops_workflow.py
 
-# Run with specific parameters
-python examples/time_series_detection.py --algorithm lstm_autoencoder --contamination 0.05
-```
+# Data examples  
+python examples/data/data_quality_example.py
+python examples/data/etl_pipeline_example.py
 
-### All Examples
+# Enterprise examples
+python examples/enterprise/governance_example.py
+python examples/enterprise/auth_example.py
 
-```bash
-# Run all examples (demo mode)
-python examples/run_all_examples.py
-
-# Run all examples with full output
-python examples/run_all_examples.py --verbose
+# Run all examples in a domain
+python examples/run_domain_examples.py --domain ai
+python examples/run_domain_examples.py --domain data
 ```
 
 ### Jupyter Notebooks

@@ -1,6 +1,6 @@
 # Data Observability Package
 
-The Data Observability Package provides comprehensive monitoring, tracking, and quality assurance capabilities for data assets within the Monorepo ecosystem. This package implements four core components that work together to provide complete visibility into your data infrastructure.
+The Data Observability Package provides comprehensive monitoring, tracking, and quality assurance capabilities for data assets within the platform ecosystem. This package implements four core components that work together to provide complete visibility into your data infrastructure.
 
 ## Overview
 
@@ -16,7 +16,7 @@ Data observability is crucial for maintaining high-quality data pipelines and en
 The package follows Domain-Driven Design principles with clear separation of concerns:
 
 ```
-src/packages/data_observability/
+src/packages/data/observability/
 ├── domain/
 │   └── entities/           # Core domain models
 ├── application/
@@ -41,7 +41,7 @@ src/packages/data_observability/
 
 **Usage Example**:
 ```python
-from anomaly_detection.packages.data_observability import DataObservabilityFacade
+from src.packages.data.observability.application.facades import DataObservabilityFacade
 
 # Track a data transformation
 facade.track_data_transformation(
@@ -155,16 +155,16 @@ forecast = facade.forecast_quality_metrics(
 
 ### Installation
 
-The Data Observability Package is included as part of the anomaly detection framework. Ensure you have the main framework installed:
+The Data Observability Package is included as part of the platform. Ensure you have the main platform installed:
 
 ```bash
-pip install anomaly_detection
+pip install -r requirements-prod.txt
 ```
 
 ### Basic Setup
 
 ```python
-from anomaly_detection.packages.data_observability.infrastructure.di.container import DataObservabilityContainer
+from src.packages.data.observability.infrastructure.di.container import DataObservabilityContainer
 
 # Initialize the container
 container = DataObservabilityContainer()
@@ -278,14 +278,14 @@ for finding in investigation['findings']:
 - Adjust prediction models based on accuracy
 - Act on quality alerts proactively
 
-## Integration with anomaly_detection
+## Integration with Platform
 
-The Data Observability Package integrates seamlessly with other anomaly_detection components:
+The Data Observability Package integrates seamlessly with other platform components:
 
-- **Anomaly Detection**: Quality predictions can trigger anomaly detection workflows
-- **Processing Pipelines**: Pipeline health monitoring supports model training pipelines
+- **Data Quality**: Quality predictions can trigger data quality assessment workflows
+- **Processing Pipelines**: Pipeline health monitoring supports data transformation pipelines
 - **Data Processing**: Lineage tracking captures data transformation steps
-- **Monitoring**: Health metrics integrate with overall system monitoring
+- **System Monitoring**: Health metrics integrate with overall system monitoring
 
 ## Performance Considerations
 
@@ -313,7 +313,7 @@ Enable logging to monitor package performance:
 
 ```python
 import logging
-logging.getLogger('anomaly_detection.packages.data_observability').setLevel(logging.INFO)
+logging.getLogger('platform.packages.data.observability').setLevel(logging.INFO)
 ```
 
 ## Contributing
@@ -327,4 +327,4 @@ To contribute to the Data Observability Package:
 
 ## License
 
-This package is part of the anomaly detection framework and follows the same licensing terms.
+This package is part of the data platform and follows the same licensing terms.

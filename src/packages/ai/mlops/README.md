@@ -1,4 +1,4 @@
-# MLOps
+# MLOps Package
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Machine Learning Operations (MLOps) components for the anomaly detection platform.
+Machine Learning Operations (MLOps) components for the AI/ML platform, providing comprehensive ML lifecycle management from development to production.
 
 **Architecture Layer**: Application Layer  
 **Package Type**: ML Operations  
@@ -80,7 +80,7 @@ mlops/
 
 ### Dependencies
 
-- **Internal Dependencies**: core, algorithms, infrastructure
+- **Internal Dependencies**: AI domain packages (anomaly_detection, machine_learning)
 - **External Dependencies**: MLflow, Kubeflow, Apache Airflow
 - **Optional Dependencies**: DVC, Weights & Biases, Neptune
 
@@ -101,18 +101,18 @@ cd src/packages/ai/mlops
 pip install -e .
 
 # Install with all MLOps tools
-pip install anomaly_detection-mlops[all]
+pip install platform-mlops[all]
 
 # Install specific components
-pip install anomaly_detection-mlops[mlflow,kubeflow,monitoring]
+pip install platform-mlops[mlflow,kubeflow,monitoring]
 ```
 
-### anomaly_detection Installation
+### Platform Installation
 
 ```bash
-# Install entire anomaly detection platform with this package
-cd /path/to/anomaly_detection
-pip install -e ".[mlops]"
+# Install entire platform with this package
+cd /path/to/monorepo
+pip install -r requirements-prod.txt
 ```
 
 ## Usage
@@ -120,35 +120,34 @@ pip install -e ".[mlops]"
 ### Quick Start
 
 ```python
-from anomaly_detection.mlops.experiments import ExperimentTracker
-from anomaly_detection.mlops.models import ModelRegistry
-from anomaly_detection.mlops.monitoring import ModelMonitor
-from anomaly_detection.core.domain.entities import Dataset, Detector
+from src.packages.ai.mlops.experiments import ExperimentTracker
+from src.packages.ai.mlops.models import ModelRegistry
+from src.packages.ai.mlops.monitoring import ModelMonitor
+from src.packages.ai.anomaly_detection.domain.entities import Dataset
 
 # Experiment tracking
 tracker = ExperimentTracker(backend="mlflow")
 
-with tracker.start_experiment("anomaly_detection_v1") as experiment:
+with tracker.start_experiment("ml_model_v1") as experiment:
     # Track parameters
     experiment.log_params({
-        "algorithm": "isolation_forest",
-        "contamination": 0.1,
-        "n_estimators": 100
+        "algorithm": "random_forest",
+        "n_estimators": 100,
+        "max_depth": 10
     })
     
     # Train model
-    detector = Detector.isolation_forest(contamination=0.1)
-    detector.fit(dataset)
+    model = train_ml_model(dataset, params)
     
     # Track metrics
-    metrics = evaluate_model(detector, test_dataset)
+    metrics = evaluate_model(model, test_dataset)
     experiment.log_metrics(metrics)
     
     # Register model
     registry = ModelRegistry()
     model_version = registry.register_model(
-        name="anomaly_detector_v1",
-        model=detector,
+        name="ml_model_v1",
+        model=model,
         experiment_id=experiment.id,
         stage="staging"
     )
@@ -162,16 +161,16 @@ monitor.start_monitoring()
 
 #### Example 1: Model Deployment Pipeline
 ```python
-from anomaly_detection.mlops.pipelines import TrainingPipeline, DeploymentPipeline
-from anomaly_detection.mlops.models.deployment import KubernetesDeployment
+from src.packages.ai.mlops.pipelines import TrainingPipeline, DeploymentPipeline
+from src.packages.ai.mlops.models.deployment import KubernetesDeployment
 
 # Create training pipeline
 training_pipeline = TrainingPipeline(
-    name="anomaly_detection_training",
+    name="ml_model_training",
     schedule="0 2 * * *",  # Daily at 2 AM
     config={
-        "data_source": "s3://monorepo-data/datasets/",
-        "algorithms": ["isolation_forest", "lof", "one_class_svm"],
+        "data_source": "s3://platform-data/datasets/",
+        "algorithms": ["random_forest", "gradient_boosting", "neural_network"],
         "validation_split": 0.2,
         "cross_validation_folds": 5
     }
@@ -194,20 +193,20 @@ if training_result.best_model.score > 0.85:
 
 #### Example 2: A/B Testing Framework
 ```python
-from anomaly_detection.mlops.experiments import ABTestFramework
-from anomaly_detection.mlops.models.serving import ModelEnsemble
+from src.packages.ai.mlops.experiments import ABTestFramework
+from src.packages.ai.mlops.models.serving import ModelEnsemble
 
 # Setup A/B test
 ab_test = ABTestFramework(
-    name="isolation_forest_vs_lof",
+    name="model_variant_comparison",
     traffic_split={"model_a": 0.5, "model_b": 0.5},
-    success_metrics=["precision", "recall", "f1_score"],
+    success_metrics=["accuracy", "precision", "recall"],
     duration_days=14
 )
 
 # Configure model variants
-model_a = ModelRegistry().get_model("isolation_forest_v1")
-model_b = ModelRegistry().get_model("lof_v1")
+model_a = ModelRegistry().get_model("random_forest_v1")
+model_b = ModelRegistry().get_model("neural_network_v1")
 
 # Create ensemble for A/B testing
 ensemble = ModelEnsemble({
@@ -232,9 +231,9 @@ if test_results.model_b.performance > test_results.model_a.performance:
 Complete MLOps workflow with monitoring and governance:
 
 ```python
-from anomaly_detection.mlops.governance import MLGovernance
-from anomaly_detection.mlops.monitoring import DriftDetector, PerformanceMonitor
-from anomaly_detection.mlops.features import FeatureStore
+from src.packages.ai.mlops.governance import MLGovernance
+from src.packages.ai.mlops.monitoring import DriftDetector, PerformanceMonitor
+from src.packages.ai.mlops.features import FeatureStore
 import asyncio
 
 async def production_ml_workflow():
@@ -248,15 +247,15 @@ async def production_ml_workflow():
     # Setup feature store
     feature_store = FeatureStore(
         backend="feast",
-        offline_store="s3://monorepo-features/offline",
+        offline_store="s3://platform-features/offline",
         online_store="redis://localhost:6379"
     )
     
     # Register features
     await feature_store.register_feature_view(
-        name="anomaly_features_v1",
-        entities=["device_id", "timestamp"],
-        features=["temperature", "pressure", "vibration"],
+        name="ml_features_v1",
+        entities=["entity_id", "timestamp"],
+        features=["feature_1", "feature_2", "feature_3"],
         ttl_hours=24
     )
     
@@ -268,9 +267,9 @@ async def production_ml_workflow():
     )
     
     performance_monitor = PerformanceMonitor(
-        model_version="anomaly_detector_v1",
-        metrics=["precision", "recall", "latency"],
-        alert_thresholds={"precision": 0.8, "latency": "100ms"}
+        model_version="ml_model_v1",
+        metrics=["accuracy", "precision", "latency"],
+        alert_thresholds={"accuracy": 0.8, "latency": "100ms"}
     )
     
     # Start monitoring
@@ -285,7 +284,7 @@ async def production_ml_workflow():
         # Get fresh features
         features = await feature_store.get_online_features(
             entities=batch.entity_ids,
-            feature_view="anomaly_features_v1"
+            feature_view="ml_features_v1"
         )
         
         # Run inference
@@ -308,15 +307,15 @@ asyncio.run(production_ml_workflow())
 Configure MLOps components with comprehensive settings:
 
 ```python
-from anomaly_detection.mlops.config import MLOpsConfig
-from anomaly_detection.mlops.factory import create_mlops_stack
+from src.packages.ai.mlops.config import MLOpsConfig
+from src.packages.ai.mlops.factory import create_mlops_stack
 
 # MLOps configuration
 config = MLOpsConfig(
     experiment_tracking={
         "backend": "mlflow",
         "tracking_uri": "http://mlflow-server:5000",
-        "artifact_store": "s3://monorepo-artifacts"
+        "artifact_store": "s3://platform-artifacts"
     },
     model_registry={
         "backend": "mlflow",
@@ -374,7 +373,7 @@ await mlops_stack.initialize()
 
 ```python
 # Experiment management
-from anomaly_detection.mlops.experiments import (
+from src.packages.ai.mlops.experiments import (
     start_experiment,
     log_metrics,
     compare_experiments,
@@ -382,7 +381,7 @@ from anomaly_detection.mlops.experiments import (
 )
 
 # Model lifecycle
-from anomaly_detection.mlops.models import (
+from src.packages.ai.mlops.models import (
     register_model,
     deploy_model,
     promote_model,
@@ -390,7 +389,7 @@ from anomaly_detection.mlops.models import (
 )
 
 # Monitoring operations
-from anomaly_detection.mlops.monitoring import (
+from src.packages.ai.mlops.monitoring import (
     detect_drift,
     monitor_performance,
     create_alert,
@@ -447,7 +446,7 @@ Optimized for production ML operations at scale:
 ### Debug Mode
 
 ```python
-from anomaly_detection.mlops.config import enable_debug_mode
+from src.packages.ai.mlops.config import enable_debug_mode
 
 # Enable debug mode for MLOps
 enable_debug_mode(
@@ -481,7 +480,7 @@ enable_debug_mode(
 Follow the MLOps pattern for consistency:
 
 ```python
-from anomaly_detection.mlops.base import BaseMLOpsComponent
+from src.packages.ai.mlops.base import BaseMLOpsComponent
 
 class NewMLOpsComponent(BaseMLOpsComponent):
     def __init__(self, config: ComponentConfig):
@@ -512,4 +511,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [anomaly_detection](../../../) monorepo** - Advanced ML platform
+**Part of the [AI/ML Platform](../../../) monorepo** - Enterprise Data & AI Platform

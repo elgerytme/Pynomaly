@@ -1,4 +1,4 @@
-# 🔍 Anomaly Detection Platform - Open Source Monorepo
+# 🏢 Enterprise Data & AI Platform - Open Source Monorepo
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -7,79 +7,91 @@
 [![Clean Architecture](https://img.shields.io/badge/architecture-clean-green.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![Domain Driven Design](https://img.shields.io/badge/design-DDD-orange.svg)](https://www.domainlanguage.com/ddd/)
 
-This is a comprehensive, production-ready open source platform for anomaly detection across various data types and domains. Built with enterprise-grade architecture, modern Python practices, and designed for scalability, security, and extensibility.
+This is a comprehensive, production-ready open source platform for enterprise data and AI solutions. Built with domain-driven design, enterprise-grade architecture, and modern Python practices, this monorepo provides scalable solutions across multiple business domains including AI/ML, data engineering, and enterprise governance.
 
-🚀 **Production-Ready** • 🔒 **Enterprise Security** • 📊 **Full Observability** • 🏗️ **Clean Architecture** • 🤖 **Advanced ML**
+🚀 **Production-Ready** • 🔒 **Enterprise Security** • 📊 **Full Observability** • 🏗️ **Domain-Driven Design** • 🤖 **AI/ML Platforms** • 📈 **Data Engineering**
 
 ## 🏗️ Platform Architecture
 
-This repository demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for anomaly detection, shared infrastructure, and comprehensive development tooling.
+This repository demonstrates modern software engineering practices with a focus on maintainability, scalability, and domain-driven design. It contains multiple specialized domain packages for AI/ML, data engineering, enterprise governance, and supporting infrastructure.
 
 ```
 repository/
-├── src/packages/           # 🎯 Domain packages (clean architecture)
-│   ├── core/              # Shared domain logic & foundational patterns
-│   ├── anomaly_detection/ # Data analysis and anomaly detection domain
-│   ├── machine_learning/  # ML operations and model lifecycle management
-│   ├── people_ops/        # User management and authentication domain
-│   ├── mathematics/       # Mathematical computations and statistics
-│   ├── data_platform/     # Data processing and quality assurance
-│   ├── infrastructure/    # Cross-cutting infrastructure concerns
-│   ├── interfaces/        # Presentation layer (CLI, API, Web)
-│   ├── enterprise/        # Enterprise governance and compliance
-│   ├── services/          # Application service orchestration
-│   └── testing/           # Shared testing utilities and frameworks
-├── pkg/                   # 🔗 External dependencies
-│   ├── vendor_dependencies/ # Vendored third-party packages
-│   └── custom_forks/      # Customized package forks
+├── src/packages/           # 🎯 Domain packages (domain-driven design)
+│   ├── ai/                # AI and machine learning domain
+│   │   ├── anomaly_detection/  # Anomaly detection algorithms and services
+│   │   ├── machine_learning/   # ML operations and model lifecycle
+│   │   ├── mlops/             # MLOps platforms and workflows
+│   │   └── data_science/      # Data science tools and frameworks
+│   ├── data/              # Data engineering and analytics domain
+│   │   ├── data_engineering/   # Data pipelines and processing
+│   │   ├── data_quality/      # Data quality monitoring and validation
+│   │   ├── data_analytics/    # Analytics and reporting capabilities
+│   │   ├── data_visualization/ # Visualization and dashboards
+│   │   ├── observability/     # Data observability and monitoring
+│   │   └── knowledge_graph/   # Knowledge graph and semantic data
+│   ├── enterprise/        # Enterprise services and governance
+│   │   ├── enterprise_auth/    # Authentication and authorization
+│   │   ├── enterprise_governance/ # Compliance and audit systems
+│   │   └── enterprise_scalability/ # Scalability and performance
+│   ├── integrations/      # External platform connectors
+│   │   ├── mlops/            # MLOps platform integrations
+│   │   ├── monitoring/       # Monitoring platform connectors
+│   │   └── cloud/           # Cloud provider integrations
+│   ├── configurations/    # Application composition and deployment
+│   │   ├── basic/           # Open source configurations
+│   │   ├── enterprise/      # Enterprise deployment configs
+│   │   └── custom/          # Custom deployment scenarios
+│   └── archive/          # Legacy and archived components
 ├── scripts/              # 🛠️ Automation and tooling
-│   ├── governance/       # Repository structure enforcement
-│   ├── analysis/         # Code analysis and metrics
-│   └── cleanup/          # Maintenance and cleanup automation
+│   ├── repository_governance/ # Repository structure enforcement
+│   ├── best_practices_framework/ # Code quality and standards
+│   └── comprehensive_analysis/ # Repository analysis tools
 ├── templates/            # 📋 Code generation templates
-│   └── package/         # Standard package structure templates
-├── reports/             # 📊 Generated analysis reports
-│   └── analysis/        # Repository health and metrics
-├── deployment/          # 🚀 Infrastructure as code
-├── configs/            # ⚙️ Shared configuration files
-├── docs/               # 📚 Comprehensive documentation
-└── tests/              # 🧪 Cross-package integration tests
+├── docs/                # 📚 Comprehensive documentation
+├── tests/               # 🧪 Cross-package integration tests
+└── examples/            # 📖 Usage examples and tutorials
 ```
 
 ### 📦 Package Organization Principles
 
-All packages follow **Domain-Driven Design** and **Clean Architecture** principles for maximum maintainability and testability:
+All packages follow **Domain-Driven Design** principles with clear domain boundaries and enterprise-grade architecture:
 
-#### 🏢 **Domain Layer** (Pure Business Logic)
-- **`core/`**: Shared domain entities, value objects, and foundational patterns
-- **`anomaly_detection/`**: Data analysis domain with detection algorithms and models
-- **`mathematics/`**: Mathematical domain with statistical computations and utilities
+#### 🤖 **AI & Machine Learning Domain**
+- **`ai/anomaly_detection/`**: Comprehensive anomaly detection algorithms and services
+- **`ai/machine_learning/`**: ML lifecycle management, model training, and deployment
+- **`ai/mlops/`**: MLOps platforms, experiment tracking, and model governance
+- **`ai/data_science/`**: Data science tools, notebooks, and research frameworks
 
-#### 🚀 **Application Layer** (Use Cases and Orchestration)
-- **`machine_learning/`**: ML workflow orchestration and model lifecycle management
-- **`people_ops/`**: User management, authentication, and authorization workflows
-- **`data_platform/`**: Data processing pipelines and quality assurance workflows
-- **`enterprise/`**: Governance, compliance, and multi-tenancy orchestration
-- **`services/`**: Cross-domain application services and integration logic
+#### 📊 **Data Engineering & Analytics Domain**
+- **`data/data_engineering/`**: Data pipelines, ETL processes, and data processing
+- **`data/data_quality/`**: Data validation, profiling, and quality monitoring
+- **`data/data_analytics/`**: Business intelligence, reporting, and analytics
+- **`data/data_visualization/`**: Dashboard creation and data visualization tools
+- **`data/observability/`**: Data lineage, monitoring, and operational visibility
+- **`data/knowledge_graph/`**: Semantic data modeling and graph databases
 
-#### 🔧 **Infrastructure Layer** (External Concerns)
-- **`infrastructure/`**: Database, messaging, monitoring, and deployment adapters
-- **`interfaces/`**: User interfaces (CLI, REST API, Web UI) and external integrations
+#### 🏢 **Enterprise Services Domain**
+- **`enterprise/enterprise_auth/`**: Authentication, authorization, and identity management
+- **`enterprise/enterprise_governance/`**: Compliance, audit, and regulatory frameworks
+- **`enterprise/enterprise_scalability/`**: Performance optimization and distributed systems
+
+#### 🔌 **Integration & Configuration Layer**
+- **`integrations/`**: External platform connectors (MLflow, cloud providers, monitoring)
+- **`configurations/`**: Application composition and deployment configurations
 
 #### 📋 **Standard Package Structure**
-Each package maintains consistent organization:
+Each domain package maintains consistent organization following clean architecture:
 ```
-package_name/
-├── package_name/         # Source code following clean architecture
-│   ├── domain/          # Domain layer (entities, value objects, services)
-│   ├── application/     # Application layer (use cases, services, DTOs)
-│   ├── infrastructure/  # Infrastructure layer (adapters, repositories)
-│   └── presentation/    # Presentation layer (controllers, serializers)
+domain_package/
+├── domain/              # Pure business logic (entities, value objects, domain services)
+├── application/         # Use cases, application services, and orchestration
+├── infrastructure/      # External adapters, repositories, and integrations
+├── presentation/        # APIs, CLIs, and user interface components
 ├── tests/              # Comprehensive test suite
 ├── docs/               # Package-specific documentation
-├── README.md           # Package overview and usage
-├── pyproject.toml      # Package configuration and dependencies
-└── BUCK               # Build system configuration
+├── README.md           # Package overview and usage guide
+└── pyproject.toml      # Package configuration and dependencies
 ```
 
 ## 🚀 Getting Started
@@ -88,64 +100,66 @@ package_name/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/monorepo.git
+git clone https://github.com/elgerytme/monorepo.git
 cd monorepo
 
 # Create and activate virtual environment
-python -m venv environments/.venv
-source environments/.venv/bin/activate  # Linux/macOS
-# environments\.venv\Scripts\activate   # Windows
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate   # Windows
 
-# Install development dependencies
-pip install -e ".[dev,test]"
+# Install core dependencies
+pip install -r requirements-prod.txt
 
 # Verify setup
-python -c "import monorepo; print('Setup successful')"
+python -c "print('Setup successful')"
 ```
 
 ### Repository Structure Exploration
 
 ```bash
 # Validate repository structure
-python scripts/governance/package_structure_enforcer.py
+python scripts/repository_governance/validate_repository_structure.py
 
 # Analyze package dependencies
-python scripts/analysis/dependency_analyzer.py
+python scripts/comprehensive_analysis/comprehensive_analysis.py
 
-# Check for build artifacts
-python scripts/governance/build_artifacts_checker.py
+# Check domain boundaries
+python scripts/domain_boundary_validator.py
 
-# Run all governance checks
-python scripts/governance/root_directory_checker.py
+# Run governance checks
+python scripts/domain_governance.py
 ```
 
 ### Working with Packages
 
 ```python
-# Example: Using the core domain patterns
-from src.packages.core.domain.entities import BaseEntity
-from src.packages.core.domain.value_objects import Identifier
+# Example: AI/ML domain usage
+from src.packages.ai.anomaly_detection import AnomalyDetector
+from src.packages.ai.machine_learning.domain.entities import MLModel
+from src.packages.ai.mlops.application.services import ExperimentTracker
 
-# Example: Data platform usage
-from src.packages.data_platform.application.services import DataQualityService
-from src.packages.data_platform.domain.entities import Dataset
+# Example: Data domain usage
+from src.packages.data.data_engineering.application.services import DataPipelineService
+from src.packages.data.data_quality.domain.entities import DataQualityReport
+from src.packages.data.observability.application.services import LineageTracker
 
-# Example: Infrastructure patterns
-from src.packages.infrastructure.persistence import Repository
-from src.packages.infrastructure.monitoring import MetricsCollector
+# Example: Enterprise services
+from src.packages.enterprise.enterprise_auth.application.services import AuthService
+from src.packages.enterprise.enterprise_governance.application.services import GovernanceService
 ```
 
 ## 🏢 Enterprise Architecture Features
 
-This monorepo demonstrates enterprise-ready software engineering practices:
+This monorepo demonstrates enterprise-ready software engineering practices across multiple domains:
 
-- **🏗️ Clean Architecture**: Strict separation of concerns with domain-driven design
-- **🔐 Security**: Comprehensive security patterns and compliance frameworks
-- **📊 Observability**: Built-in monitoring, metrics, and distributed tracing
-- **🌐 Scalability**: Multi-tenancy patterns and resource management
-- **⚙️ DevOps**: Automated testing, deployment, and infrastructure management
-- **🔄 Governance**: Repository structure enforcement and dependency management
-- **📋 Standards**: Consistent coding standards, documentation, and testing patterns
+- **🏗️ Domain-Driven Design**: Clear domain boundaries with specialized business logic
+- **🔐 Enterprise Security**: Comprehensive security patterns and compliance frameworks  
+- **📊 Full Observability**: Built-in monitoring, metrics, and distributed tracing
+- **🌐 Multi-Domain Architecture**: Specialized domains for AI/ML, Data, and Enterprise services
+- **⚙️ DevOps & MLOps**: Automated testing, deployment, and ML lifecycle management
+- **🔄 Repository Governance**: Automated structure validation and dependency management
+- **📋 Standards Compliance**: Consistent coding standards, documentation, and testing patterns
 
 ## 🔧 Development Tooling & Automation
 
@@ -155,16 +169,16 @@ This monorepo includes comprehensive automation for maintaining code quality and
 
 ```bash
 # Validate repository structure and organization
-python scripts/governance/package_structure_enforcer.py
+python scripts/repository_governance/validate_repository_structure.py
 
-# Check for build artifacts and cleanup
-python scripts/governance/build_artifacts_checker.py
+# Check domain boundaries and dependencies
+python scripts/domain_boundary_validator.py
 
-# Validate root directory organization
-python scripts/governance/root_directory_checker.py
+# Validate package independence
+python scripts/package_independence_validator.py
 
-# Auto-fix common structural issues
-python scripts/governance/package_structure_enforcer.py --fix
+# Check governance compliance
+python scripts/domain_governance.py --check-all
 ```
 
 ### Code Quality & Security
@@ -188,55 +202,68 @@ pip-audit
 
 ```bash
 # Run comprehensive test suite
-pytest tests/ --cov=src/packages/
+pytest tests/ 
 
-# Run package-specific tests
-pytest src/packages/core/tests/
+# Run domain-specific tests
+pytest src/packages/ai/anomaly_detection/tests/
+pytest src/packages/data/data_quality/tests/
+pytest src/packages/enterprise/enterprise_governance/tests/
 
-# Generate dependency analysis
-python scripts/analysis/dependency_analyzer.py
+# Generate analysis reports
+python scripts/comprehensive_analysis/comprehensive_analysis.py
 
-# Performance benchmarking
-python scripts/analysis/performance_profiler.py
+# Performance validation
+python scripts/performance_validation.py
 ```
 
 These tools ensure enterprise-grade code quality, security, and maintainability across all packages.
 
 ## 🎯 Core Capabilities
 
+### Domain-Specific Features
+
+#### 🤖 **AI & Machine Learning**
+- **Anomaly Detection**: Advanced algorithms for outlier detection across various data types
+- **ML Operations**: Complete MLOps lifecycle management with experiment tracking
+- **Model Management**: Versioning, deployment, and monitoring of ML models
+- **Data Science Tools**: Jupyter integration, research frameworks, and analysis tools
+
+#### 📊 **Data Engineering & Analytics** 
+- **Data Pipelines**: Scalable ETL/ELT processes for large-scale data processing
+- **Data Quality**: Comprehensive validation, profiling, and monitoring
+- **Analytics Platform**: Business intelligence, reporting, and dashboard creation
+- **Data Observability**: Lineage tracking, data monitoring, and operational visibility
+
+#### 🏢 **Enterprise Services**
+- **Authentication & Authorization**: Enterprise-grade identity and access management
+- **Governance & Compliance**: Audit logging, regulatory compliance, SLA management
+- **Scalability Solutions**: Distributed computing and performance optimization
+
 ### Architecture & Design Patterns
 
-- 🏗️ **Clean Architecture**: Strict layered architecture with dependency inversion
-- 🔄 **Domain-Driven Design**: Rich domain models with ubiquitous language
+- 🏗️ **Domain-Driven Design**: Clear domain boundaries with rich business models
 - 🔌 **Hexagonal Architecture**: Ports and adapters pattern for external integrations
-- 🏭 **Repository Pattern**: Consistent data access abstraction
-- 🎯 **Strategy Pattern**: Pluggable algorithm implementations
-- 🔗 **Dependency Injection**: IoC container for loose coupling
+- 🏭 **Repository Pattern**: Consistent data access abstraction across domains
+- 🎯 **Strategy Pattern**: Pluggable algorithm and service implementations
+- 🔗 **Dependency Injection**: IoC container for loose coupling and testability
+- 🔄 **Event-Driven Architecture**: Decoupled communication between domains
 
 ### Development Infrastructure
 
 - 🛡️ **Type Safety**: Comprehensive type coverage with mypy strict mode
-- ✅ **Testing**: Multi-layered testing with unit, integration, and E2E tests
-- 📊 **Coverage**: High test coverage with automated reporting
-- 🔍 **Code Quality**: Automated linting, formatting, and static analysis
-- 📈 **Performance**: Benchmarking and profiling capabilities
-- 🔐 **Security**: Security scanning and vulnerability assessment
+- ✅ **Multi-Layer Testing**: Unit, integration, and end-to-end test coverage
+- 📊 **Quality Metrics**: Automated code quality and test coverage reporting
+- 🔍 **Static Analysis**: Automated linting, formatting, and security scanning
+- 📈 **Performance Monitoring**: Benchmarking and profiling capabilities
+- 🔐 **Security**: Vulnerability assessment and compliance checking
 
-### Package Management
+### Package Management & Governance
 
-- 📦 **Modular Design**: Independent packages with clear boundaries
-- 🔗 **Dependency Management**: Centralized dependency configuration
-- 🏗️ **Build System**: Hatch-based build system with unified environments
-- 📋 **Standards**: Consistent package structure and documentation
-- 🔄 **Governance**: Automated structure validation and enforcement
-
-### Developer Experience
-
-- ⚡ **CLI Tools**: Rich command-line interface with comprehensive help
-- 🌐 **Web Interface**: Modern web UI with real-time updates
-- 🚀 **API**: RESTful API with OpenAPI documentation
-- 📚 **Documentation**: Comprehensive guides and API references
-- 🔧 **Automation**: Automated setup, testing, and deployment scripts
+- 📦 **Domain-Based Organization**: Independent packages with clear domain boundaries
+- 🔗 **Dependency Management**: Controlled cross-domain dependencies
+- 🏗️ **Configuration Management**: Flexible deployment and composition patterns
+- 📋 **Standards Enforcement**: Consistent package structure and documentation
+- 🔄 **Automated Governance**: Structure validation and compliance checking
 
 ## 📥 Installation & Setup
 
@@ -254,61 +281,58 @@ git --version
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/monorepo.git
+git clone https://github.com/elgerytme/monorepo.git
 cd monorepo
 
-# Create virtual environment in organized structure
-python -m venv environments/.venv
+# Create virtual environment
+python -m venv .venv
 
 # Activate environment
 # Linux/macOS:
-source environments/.venv/bin/activate
+source .venv/bin/activate
 # Windows:
-environments\.venv\Scripts\activate
+.venv\Scripts\activate
 
-# Install development dependencies
-pip install -e ".[dev,test]"
+# Install core dependencies
+pip install -r requirements-prod.txt
 
 # Verify installation
-python -c "import monorepo; print('Installation successful')"
+python -c "print('Installation successful')"
 ```
 
 ### Package Installation Options
 
+Individual packages can be installed as needed:
+
 ```bash
-# Core packages only
-pip install -e .
+# AI/ML packages
+cd src/packages/ai/anomaly_detection && pip install -e .
+cd src/packages/ai/machine_learning && pip install -e .
+cd src/packages/ai/mlops && pip install -e .
 
-# Full development setup
-pip install -e ".[dev,test,lint]"
+# Data packages
+cd src/packages/data/data_engineering && pip install -e .
+cd src/packages/data/data_quality && pip install -e .
+cd src/packages/data/observability && pip install -e .
 
-# Specific package groups
-pip install -e ".[ml]"           # Machine learning packages
-pip install -e ".[data]"         # Data platform packages  
-pip install -e ".[enterprise]"   # Enterprise features
-pip install -e ".[interfaces]"   # CLI, API, and web interfaces
-
-# All packages
-pip install -e ".[all]"
+# Enterprise packages
+cd src/packages/enterprise/enterprise_auth && pip install -e .
+cd src/packages/enterprise/enterprise_governance && pip install -e .
 ```
 
 ### Environment Organization
 
-This monorepo uses a centralized environment structure to maintain organization:
+This monorepo uses a simple virtual environment structure:
 
 ```bash
-environments/
-├── .venv/              # Main development environment
-├── .test_env/          # Testing environment
-├── .prod_env/          # Production-like environment
-└── .docs_env/          # Documentation building environment
+.venv/                  # Main development environment
 ```
 
 **Benefits**:
-- Keeps project root clean and organized
-- Centralized environment management
-- Clear separation of different environment purposes
-- Easy environment switching for different tasks
+- Simple and standard Python virtual environment pattern
+- Easy environment management and activation
+- Compatible with all Python development tools and IDEs
+- Follows Python community best practices
 
 ### Cross-Platform Compatibility
 
@@ -339,35 +363,36 @@ After installation, explore the monorepo structure and capabilities:
 
 ```bash
 # Repository structure and governance
-python scripts/governance/package_structure_enforcer.py   # Validate structure
-python scripts/governance/root_directory_checker.py       # Check organization
-python scripts/analysis/dependency_analyzer.py            # Analyze dependencies
+python scripts/repository_governance/validate_repository_structure.py  # Validate structure
+python scripts/domain_governance.py                                    # Check governance
+python scripts/comprehensive_analysis/comprehensive_analysis.py        # Analyze repository
 
-# Package management
-python scripts/analysis/package_metrics.py                # Package statistics
-python scripts/governance/build_artifacts_checker.py      # Check build artifacts
+# Domain boundary validation
+python scripts/domain_boundary_validator.py                           # Check domain boundaries
+python scripts/package_independence_validator.py                      # Validate independence
 
 # Development workflow
-pytest tests/                                              # Run test suite
-ruff check src/                                           # Code quality check
-mypy src/packages/                                        # Type checking
+pytest tests/                                                         # Run test suite
+python scripts/best_practices_framework/quality_checker.py           # Code quality check
 ```
 
 ### Working with Individual Packages
 
 ```bash
-# Explore package structure
-ls src/packages/                    # List all packages
-ls src/packages/core/              # Explore core package
-ls src/packages/data_platform/     # Explore data platform
+# Explore domain packages
+ls src/packages/ai/                    # AI/ML domain packages
+ls src/packages/data/                  # Data domain packages
+ls src/packages/enterprise/            # Enterprise services
 
-# Run package-specific tests
-pytest src/packages/core/tests/
-pytest src/packages/infrastructure/tests/
+# Run domain-specific tests
+pytest src/packages/ai/anomaly_detection/tests/
+pytest src/packages/data/data_quality/tests/
+pytest src/packages/enterprise/enterprise_governance/tests/
 
 # Check package documentation
-cat src/packages/core/README.md
-cat src/packages/data_platform/README.md
+cat src/packages/ai/anomaly_detection/README.md
+cat src/packages/data/data_engineering/README.md
+cat src/packages/enterprise/enterprise_governance/README.md
 ```
 
 ### CLI Interface (if available)
@@ -393,43 +418,46 @@ monorepo dev test         # Run test suites
 ### Python API Examples
 
 ```python
-# Example: Using core domain patterns
-from src.packages.core.domain.entities import BaseEntity
-from src.packages.core.domain.value_objects import Identifier
-from src.packages.core.application.use_cases import BaseUseCase
+# Example: AI/ML domain usage
+from src.packages.ai.anomaly_detection import AnomalyDetector
+from src.packages.ai.machine_learning.domain.entities import MLModel
 
-# Example: Infrastructure patterns
-from src.packages.infrastructure.persistence import Repository
-from src.packages.infrastructure.monitoring import MetricsCollector
-from src.packages.infrastructure.config import ConfigurationManager
+# Anomaly detection example
+detector = AnomalyDetector(algorithm="isolation_forest")
+anomalies = detector.detect(data)
 
-# Example: Working with the data platform
-from src.packages.data_platform.domain.entities import Dataset
-from src.packages.data_platform.application.services import DataQualityService
-from src.packages.data_platform.infrastructure.adapters import DatabaseAdapter
+# Example: Data domain usage  
+from src.packages.data.data_quality.application.services import DataQualityService
+from src.packages.data.observability.application.services import LineageService
 
-# Example: Enterprise patterns
-from src.packages.enterprise.domain.entities import Tenant
-from src.packages.enterprise.application.services import GovernanceService
-from src.packages.people_ops.domain.entities import User
+# Data quality monitoring
+quality_service = DataQualityService()
+quality_report = quality_service.assess_data_quality(dataset)
 
-def demonstrate_architecture():
-    """Demonstrate clean architecture patterns."""
+# Example: Enterprise services
+from src.packages.enterprise.enterprise_governance.application.services import GovernanceService
+from src.packages.enterprise.enterprise_auth.application.services import AuthService
+
+# Governance and compliance
+governance = GovernanceService()
+audit_log = governance.create_audit_log(event_type="data_access", details={"user": "analyst"})
+
+def demonstrate_multi_domain_architecture():
+    """Demonstrate cross-domain capabilities."""
     
-    # Repository pattern example
-    repository = Repository()
+    # AI/ML workflow
+    detector = AnomalyDetector()
     
-    # Use case orchestration
-    use_case = BaseUseCase(repository)
+    # Data quality validation
+    quality_service = DataQualityService()
     
-    # Metrics collection
-    metrics = MetricsCollector()
-    metrics.record_event("example_executed")
+    # Enterprise governance
+    governance = GovernanceService()
     
-    print("Clean architecture patterns demonstrated successfully!")
+    print("Multi-domain architecture demonstrated successfully!")
 
 if __name__ == "__main__":
-    demonstrate_architecture()
+    demonstrate_multi_domain_architecture()
 ```
 
 ### Web Interface & API
@@ -454,15 +482,14 @@ uvicorn src.packages.interfaces.api.app:app --reload --port 8000
 
 ## 🏗️ Architecture Overview
 
-This monorepo implements **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports & Adapters)** across all packages:
+This monorepo implements **Domain-Driven Design** with clear domain boundaries and enterprise-grade architecture patterns:
 
 ```
-src/packages/{package_name}/
+src/packages/{domain}/{package_name}/
 ├── domain/              # Pure business logic (no external dependencies)
 │   ├── entities/        # Business entities and aggregate roots
 │   ├── value_objects/   # Immutable value objects
 │   ├── services/        # Domain services and business rules
-│   ├── repositories/    # Repository interfaces (not implementations)
 │   └── exceptions/      # Domain-specific exception hierarchy
 ├── application/         # Orchestrate use cases without implementation details
 │   ├── use_cases/       # Application use cases and workflows
@@ -472,12 +499,10 @@ src/packages/{package_name}/
 ├── infrastructure/      # All external integrations and adapters
 │   ├── adapters/        # External service adapters (databases, APIs, etc.)
 │   ├── persistence/     # Repository implementations
-│   ├── config/          # Configuration and dependency injection
-│   └── monitoring/      # Observability and health checks
+│   └── config/          # Configuration and dependency injection
 └── presentation/        # User interfaces and external APIs
     ├── api/             # REST API controllers
     ├── cli/             # Command-line interface
-    ├── web/             # Web interface (if applicable)
     └── serializers/     # Data serialization/deserialization
 ```
 
@@ -494,12 +519,12 @@ src/packages/{package_name}/
 
 ### Key Architectural Principles
 
-- **Separation of Concerns**: Clear boundaries between layers
-- **Dependency Inversion**: High-level modules don't depend on low-level modules
-- **Single Responsibility**: Each class has one reason to change
-- **Open/Closed Principle**: Open for extension, closed for modification
-- **Interface Segregation**: Many specific interfaces are better than one general-purpose interface
-- **Domain-Driven Design**: Rich domain models with ubiquitous language
+- **Domain Boundaries**: Clear separation between AI, Data, and Enterprise domains
+- **Dependency Direction**: Dependencies flow toward domain packages, never between domains
+- **Single Responsibility**: Each package has one clear business purpose  
+- **Open/Closed Principle**: Extensible through configuration and integration packages
+- **Interface Segregation**: Domain-specific interfaces and contracts
+- **Composition over Inheritance**: Flexible system composition through configuration packages
 
 ## 🛠️ Technology Stack
 
@@ -544,41 +569,44 @@ python -c "import monorepo; print('Setup successful')"
 
 ```bash
 # Repository governance
-python scripts/governance/package_structure_enforcer.py  # Validate structure
-python scripts/governance/build_artifacts_checker.py     # Check artifacts
-python scripts/governance/root_directory_checker.py      # Check organization
+python scripts/repository_governance/validate_repository_structure.py  # Validate structure
+python scripts/domain_boundary_validator.py                           # Check boundaries
+python scripts/domain_governance.py                                   # Check governance
 
 # Code quality
-ruff check src/                    # Fast linting
-ruff format src/                   # Auto-formatting  
-mypy src/packages/                 # Type checking
-pytest tests/ --cov=src/packages/ # Run tests with coverage
+python -m pytest tests/                    # Run test suite
+python scripts/best_practices_framework/quality_checker.py # Quality checks
 
-# Security checks
-bandit -r src/                     # Security scan
-safety check                      # Dependency vulnerabilities
+# Domain-specific development
+cd src/packages/ai/anomaly_detection/     # Work on AI domain
+cd src/packages/data/data_quality/        # Work on data domain
+cd src/packages/enterprise/               # Work on enterprise domain
 ```
 
 ### Package Development
 
 ```bash
-# Work on specific packages
-cd src/packages/core/
+# Work on specific domains
+cd src/packages/ai/anomaly_detection/
 pytest tests/                     # Run package tests
-ruff check .                      # Check package code quality
 
-# Create new packages
-python scripts/templates/create_package.py --name new_package --domain business
+cd src/packages/data/data_quality/
+pytest tests/                     # Run quality tests
+
+# Create new domain packages using templates
+python scripts/create_domain_package.py --domain ai --name new_ai_package
+python scripts/create_domain_package.py --domain data --name new_data_package
 ```
 
 ### Testing Strategy
 
 ```bash
 # Multi-layered testing approach
-pytest tests/unit/                          # Fast unit tests
-pytest tests/integration/                   # Integration tests
-pytest src/packages/*/tests/                # Package-specific tests
-pytest --cov=src/packages/ --cov-report=html # Coverage analysis
+pytest tests/                                          # Cross-domain integration tests
+pytest src/packages/ai/*/tests/                        # AI domain tests
+pytest src/packages/data/*/tests/                      # Data domain tests  
+pytest src/packages/enterprise/*/tests/                # Enterprise tests
+pytest --maxfail=1 --tb=short                         # Quick feedback
 ```
 
 ## 🤝 Contributing
@@ -595,21 +623,22 @@ We welcome contributions to this monorepo! This repository serves as an example 
 
 ### Areas for Contribution
 
-- **New packages**: Implement additional domain packages following clean architecture
-- **Infrastructure improvements**: Enhance monitoring, deployment, or CI/CD
-- **Documentation**: Improve guides, tutorials, and architectural documentation
-- **Testing**: Increase test coverage and add performance benchmarks
-- **Tooling**: Improve development tools and automation scripts
+- **New Domain Packages**: Implement additional domain packages following the established patterns
+- **Enterprise Enhancements**: Improve governance, security, or scalability features
+- **Integration Connectors**: Add new platform integrations (cloud providers, monitoring, MLOps)
+- **Configuration Templates**: Create new deployment configurations for different scenarios
+- **Documentation**: Improve domain guides, tutorials, and architectural documentation
+- **Testing**: Increase test coverage and add domain-specific test scenarios
 
 ### Development Standards
 
-- Follow clean architecture and DDD principles
-- Maintain high test coverage (aim for 85%+)
-- Use type hints and pass mypy strict mode
-- Follow repository governance rules
-- Document all public APIs and architectural decisions
+- Follow domain-driven design principles with clear domain boundaries
+- Maintain high test coverage for all domain packages
+- Respect the dependency direction rules (no cross-domain dependencies)
+- Use type hints and comprehensive documentation
+- Follow repository governance and architectural standards
 
-For detailed guidelines, see [CONTRIBUTING.md](docs/developer-guides/contributing/CONTRIBUTING.md).
+For detailed guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📄 License
 
@@ -617,4 +646,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Note**: This monorepo demonstrates enterprise software engineering practices. The specific domain implementations (anomaly detection, etc.) serve as examples of how to structure complex business logic using clean architecture principles.
+**Note**: This monorepo demonstrates enterprise software engineering practices with domain-driven design. The specialized domain implementations (AI/ML, Data Engineering, Enterprise Services) showcase how to structure complex business logic using modern architectural patterns and clear domain boundaries.
