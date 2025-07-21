@@ -1,0 +1,416 @@
+name: Domain Boundary Enforcement
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run daily at 2 AM UTC for compliance monitoring
+    - cron: '0 2 * * *'
+
+jobs:
+  domain-boundary-validation:
+    runs-on: ubuntu-latest
+    name: Validate Domain Boundaries
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit for change analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typing-extensions
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Domain Boundary Validation
+        id: validation
+        run: |
+          echo "::group::Domain Boundary Validation"
+          python scripts/domain_boundary_validator.py --detect-new-domains --analyze-changes --output domain_violations_report.json
+          VALIDATION_EXIT_CODE=$?
+          echo "validation_exit_code=$VALIDATION_EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+        continue-on-error: true
+
+      - name: Upload violation report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: domain-violations-report
+          path: domain_violations_report.json
+          retention-days: 30
+
+      - name: Parse validation results
+        id: parse-results
+        if: always()
+        run: |
+          if [ -f domain_violations_report.json ]; then
+            # Extract key metrics from the report
+            VIOLATIONS=$(python -c "
+            import json
+            try:
+                with open('domain_violations_report.json', 'r') as f:
+                    report = json.load(f)
+                print(report['summary']['total_violations'])
+            except:
+                print('0')
+            ")
+            
+            NEW_DOMAINS=$(python -c "
+            import json
+            try:
+                with open('domain_violations_report.json', 'r') as f:
+                    report = json.load(f)
+                print(report['summary']['new_domains_detected'])
+            except:
+                print('0')
+            ")
+            
+            echo "violations=$VIOLATIONS" >> $GITHUB_OUTPUT
+            echo "new_domains=$NEW_DOMAINS" >> $GITHUB_OUTPUT
+            
+            # Extract high-confidence new domains
+            HIGH_CONF_DOMAINS=$(python -c "
+            import json
+            try:
+                with open('domain_violations_report.json', 'r') as f:
+                    report = json.load(f)
+                high_conf = [d['domain_name'] for d in report['new_domain_detections'] if d['confidence'] >= 0.8]
+                print(','.join(high_conf) if high_conf else '')
+            except:
+                print('')
+            ")
+            
+            echo "high_confidence_domains=$HIGH_CONF_DOMAINS" >> $GITHUB_OUTPUT
+          else
+            echo "violations=0" >> $GITHUB_OUTPUT
+            echo "new_domains=0" >> $GITHUB_OUTPUT
+            echo "high_confidence_domains=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const violations = '${{ steps.parse-results.outputs.violations }}';
+            const newDomains = '${{ steps.parse-results.outputs.new_domains }}';
+            const highConfDomains = '${{ steps.parse-results.outputs.high_confidence_domains }}';
+            const validationExitCode = '${{ steps.validation.outputs.validation_exit_code }}';
+            
+            let reportContent = '';
+            try {
+              if (fs.existsSync('domain_violations_report.json')) {
+                const report = JSON.parse(fs.readFileSync('domain_violations_report.json', 'utf8'));
+                
+                reportContent = `## 🔍 Domain Boundary Analysis Results\n\n`;
+                reportContent += `**Summary:**\n`;
+                reportContent += `- Total violations: ${violations}\n`;
+                reportContent += `- New domains detected: ${newDomains}\n`;
+                reportContent += `- Validation exit code: ${validationExitCode}\n\n`;
+                
+                if (report.new_domain_detections && report.new_domain_detections.length > 0) {
+                  reportContent += `### 🆕 New Domain Detections\n\n`;
+                  for (const domain of report.new_domain_detections) {
+                    const emoji = domain.confidence > 0.8 ? '🟢' : domain.confidence > 0.6 ? '🟡' : '🔴';
+                    reportContent += `**${emoji} ${domain.domain_name}** (confidence: ${domain.confidence.toFixed(2)})\n`;
+                    reportContent += `- Concepts: ${domain.concepts.slice(0, 5).join(', ')}${domain.concepts.length > 5 ? '...' : ''}\n`;
+                    reportContent += `- Files: ${domain.files.length}\n`;
+                    reportContent += `- Suggested path: \`${domain.suggested_package_structure.suggested_path}\`\n\n`;
+                  }
+                }
+                
+                if (report.recommendations && report.recommendations.length > 0) {
+                  reportContent += `### 💡 Recommendations\n\n`;
+                  for (const rec of report.recommendations) {
+                    const priority = rec.priority === 'high' ? '🔴' : rec.priority === 'medium' ? '🟡' : '🟢';
+                    reportContent += `${priority} **${rec.action}**\n`;
+                    reportContent += `\`\`\`bash\n${rec.command}\n\`\`\`\n`;
+                    reportContent += `${rec.reasoning}\n\n`;
+                  }
+                }
+                
+                if (parseInt(violations) > 0) {
+                  reportContent += `### ❌ Domain Boundary Violations Found\n\n`;
+                  reportContent += `This PR introduces domain boundary violations. Please review and fix before merging.\n\n`;
+                  reportContent += `**Most common violations:**\n`;
+                  const commonViolations = Object.entries(report.most_common_violations || {}).slice(0, 5);
+                  for (const [term, count] of commonViolations) {
+                    reportContent += `- \`${term}\`: ${count} occurrences\n`;
+                  }
+                }
+                
+                if (highConfDomains && highConfDomains.split(',').length > 0) {
+                  reportContent += `### 🚀 Quick Actions\n\n`;
+                  reportContent += `High-confidence new domains detected. Consider creating packages:\n\n`;
+                  for (const domain of highConfDomains.split(',').filter(d => d)) {
+                    reportContent += `\`\`\`bash\npython scripts/create_domain_package.py ${domain}\n\`\`\`\n`;
+                  }
+                }
+                
+              } else {
+                reportContent = `## ❌ Domain Boundary Analysis Failed\n\nCould not generate domain boundary report. Please check the workflow logs.`;
+              }
+            } catch (error) {
+              reportContent = `## ❌ Error Parsing Results\n\nError: ${error.message}`;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reportContent
+            });
+
+      - name: Auto-create packages for high-confidence domains
+        if: steps.parse-results.outputs.high_confidence_domains != '' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          HIGH_CONF_DOMAINS="${{ steps.parse-results.outputs.high_confidence_domains }}"
+          if [ -n "$HIGH_CONF_DOMAINS" ]; then
+            echo "::group::Auto-creating packages for high-confidence domains"
+            IFS=',' read -ra DOMAINS <<< "$HIGH_CONF_DOMAINS"
+            for domain in "${DOMAINS[@]}"; do
+              if [ -n "$domain" ]; then
+                echo "Creating package for domain: $domain"
+                python scripts/create_domain_package.py "$domain" --description "${domain//_/ } domain package (auto-created)"
+                
+                # Add created files to git
+                git add "src/packages/$domain/"
+                
+                echo "✅ Created package for $domain"
+              fi
+            done
+            echo "::endgroup::"
+          fi
+
+      - name: Commit auto-created packages
+        if: steps.parse-results.outputs.high_confidence_domains != '' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "feat: Auto-create domain packages for detected domains
+
+🤖 Automatically created packages for high-confidence domain detections:
+- $(echo '${{ steps.parse-results.outputs.high_confidence_domains }}' | tr ',' '\n' | sed 's/^/- /')
+
+Generated with Domain Boundary Enforcement workflow
+            
+Co-Authored-By: Domain Boundary Bot <noreply@github.com>"
+            git push
+          fi
+
+      - name: Create GitHub issues for new domains
+        if: steps.parse-results.outputs.new_domains != '0' && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              if (fs.existsSync('domain_violations_report.json')) {
+                const report = JSON.parse(fs.readFileSync('domain_violations_report.json', 'utf8'));
+                
+                for (const domain of report.new_domain_detections || []) {
+                  if (domain.confidence >= 0.6 && domain.confidence < 0.8) {
+                    // Create issue for medium-confidence domains
+                    const title = `New domain detected: ${domain.domain_name}`;
+                    const body = `## 🆕 New Domain Detection
+                    
+**Domain:** ${domain.domain_name}
+**Confidence:** ${domain.confidence.toFixed(2)}
+**Files affected:** ${domain.files.length}
+
+### Detected Concepts
+${domain.concepts.join(', ')}
+
+### Suggested Package Structure
+\`\`\`
+${domain.suggested_package_structure.suggested_path}
+\`\`\`
+
+### Reasoning
+${domain.reasoning}
+
+### Recommended Action
+Consider creating a new package for this domain:
+
+\`\`\`bash
+python scripts/create_domain_package.py ${domain.domain_name}
+\`\`\`
+
+### Files Containing Domain Concepts
+${domain.files.map(file => `- \`${file}\``).join('\n')}
+
+---
+*This issue was automatically created by the Domain Boundary Enforcement workflow.*`;
+
+                    await github.rest.issues.create({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      title: title,
+                      body: body,
+                      labels: ['domain-boundary', 'new-domain', 'enhancement']
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error creating issues:', error);
+            }
+
+      - name: Set status based on results
+        if: always()
+        run: |
+          VIOLATIONS="${{ steps.parse-results.outputs.violations }}"
+          VALIDATION_EXIT_CODE="${{ steps.validation.outputs.validation_exit_code }}"
+          
+          if [ "$VALIDATION_EXIT_CODE" = "1" ]; then
+            echo "::error::Domain boundary violations found ($VIOLATIONS violations)"
+            echo "::error::Please fix domain boundary violations before merging"
+            exit 1
+          elif [ "$VALIDATION_EXIT_CODE" = "2" ]; then
+            echo "::warning::High-confidence new domains detected"
+            echo "::warning::Consider creating packages for detected domains"
+            # Don't fail the workflow for new domain detections
+            exit 0
+          else
+            echo "::notice::Domain boundaries are compliant"
+            exit 0
+          fi
+
+  single-package-development-check:
+    runs-on: ubuntu-latest
+    name: Single Package Development Rule
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Check Single Package Development Rule
+        run: |
+          echo "::group::Single Package Development Check"
+          if [ -f tools/validate_single_package_development.py ]; then
+            python tools/validate_single_package_development.py
+          elif [ -f scripts/validate_single_package_development.py ]; then
+            python scripts/validate_single_package_development.py
+          else
+            echo "::warning::Single package development validator not found"
+            # Get changed files in src/packages/
+            CHANGED_PACKAGES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep "^src/packages/" | cut -d'/' -f3 | sort -u | wc -l)
+            
+            if [ "$CHANGED_PACKAGES" -gt 1 ]; then
+              echo "::error::Changes span multiple packages ($CHANGED_PACKAGES packages)"
+              echo "::error::Single package development rule violated"
+              exit 1
+            else
+              echo "::notice::Single package development rule compliance verified"
+            fi
+          fi
+          echo "::endgroup::"
+
+  domain-compliance-report:
+    runs-on: ubuntu-latest
+    name: Generate Compliance Report
+    if: github.event_name == 'schedule'
+    needs: domain-boundary-validation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic typing-extensions
+
+      - name: Generate comprehensive compliance report
+        run: |
+          echo "::group::Generating Compliance Report"
+          python scripts/domain_boundary_validator.py --detect-new-domains --root-path . --output daily_compliance_report.json
+          echo "::endgroup::"
+
+      - name: Upload compliance report
+        uses: actions/upload-artifact@v3
+        with:
+          name: daily-compliance-report-${{ github.run_number }}
+          path: daily_compliance_report.json
+          retention-days: 90
+
+      - name: Create compliance summary issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              if (fs.existsSync('daily_compliance_report.json')) {
+                const report = JSON.parse(fs.readFileSync('daily_compliance_report.json', 'utf8'));
+                const today = new Date().toISOString().split('T')[0];
+                
+                const title = `Domain Compliance Report - ${today}`;
+                const body = `## 📊 Daily Domain Compliance Report
+                
+**Generated:** ${report.generated_at}
+**Total Packages:** ${report.summary.total_packages_checked}
+**Existing Domains:** ${report.summary.existing_domains.length}
+**Violations:** ${report.summary.total_violations}
+**New Domains Detected:** ${report.summary.new_domains_detected}
+
+### 📦 Existing Domains
+${report.summary.existing_domains.map(d => `- \`${d}\``).join('\n')}
+
+### 🆕 New Domain Detections
+${report.new_domain_detections.map(d => 
+  `**${d.domain_name}** (confidence: ${d.confidence.toFixed(2)})\n- Concepts: ${d.concepts.slice(0, 3).join(', ')}\n- Files: ${d.files.length}`
+).join('\n\n')}
+
+### 💡 Recommendations
+${report.recommendations.map(r => `- ${r.action}`).join('\n')}
+
+---
+*This report was automatically generated by the Domain Boundary Enforcement workflow.*`;
+
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: title,
+                  body: body,
+                  labels: ['domain-compliance', 'automated-report']
+                });
+              }
+            } catch (error) {
+              console.error('Error creating compliance report issue:', error);
+            }

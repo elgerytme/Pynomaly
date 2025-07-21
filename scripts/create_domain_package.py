@@ -3,13 +3,239 @@
 Domain Package Generator
 
 Creates new domain packages with proper structure and compliance.
+Enhanced with intelligent domain detection and auto-suggestions.
 """
 
 import os
 import sys
 import argparse
+import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Set, Optional, Any
+from dataclasses import dataclass
+import subprocess
+
+@dataclass
+class DomainSuggestion:
+    """Represents a domain package suggestion"""
+    name: str
+    confidence: float
+    concepts: List[str]
+    files: List[str]
+    suggested_structure: Dict[str, Any]
+    reasoning: str
+
+class IntelligentDomainAnalyzer:
+    """Analyzes codebase to suggest domain packages"""
+    
+    def __init__(self):
+        self.domain_patterns = self._load_domain_patterns()
+    
+    def _load_domain_patterns(self) -> Dict[str, Dict[str, Any]]:
+        """Load domain patterns for intelligent analysis"""
+        return {
+            "user_management": {
+                "keywords": ["user", "account", "profile", "authentication", "authorization", "login", "signup", "permission", "role"],
+                "patterns": [r"\b(user|account|auth)_\w+", r"\buser\w*", r"\bauth\w*"],
+                "suggested_entities": ["User", "Profile", "Account", "Permission", "Role"],
+                "suggested_services": ["AuthenticationService", "UserService", "PermissionService"],
+                "confidence_boost": 0.2
+            },
+            "payment_processing": {
+                "keywords": ["payment", "transaction", "billing", "invoice", "subscription", "charge", "refund", "stripe", "paypal"],
+                "patterns": [r"\b(payment|billing|transaction)_\w+", r"\bpay\w*", r"\bbilling\w*"],
+                "suggested_entities": ["Payment", "Transaction", "Invoice", "Subscription"],
+                "suggested_services": ["PaymentService", "BillingService", "TransactionService"],
+                "confidence_boost": 0.3
+            },
+            "notification_system": {
+                "keywords": ["notification", "email", "sms", "push", "alert", "message", "campaign", "template"],
+                "patterns": [r"\b(notification|email|sms)_\w+", r"\bnotif\w*", r"\bemail\w*"],
+                "suggested_entities": ["Notification", "EmailTemplate", "Campaign", "Message"],
+                "suggested_services": ["NotificationService", "EmailService", "MessageService"],
+                "confidence_boost": 0.2
+            },
+            "product_catalog": {
+                "keywords": ["product", "catalog", "inventory", "category", "brand", "sku", "variant", "price"],
+                "patterns": [r"\b(product|catalog|inventory)_\w+", r"\bproduct\w*", r"\bcatalog\w*"],
+                "suggested_entities": ["Product", "Category", "Brand", "Variant", "Price"],
+                "suggested_services": ["ProductService", "CatalogService", "InventoryService"],
+                "confidence_boost": 0.25
+            },
+            "order_management": {
+                "keywords": ["order", "cart", "checkout", "shipping", "delivery", "fulfillment", "orderitem"],
+                "patterns": [r"\b(order|cart|checkout)_\w+", r"\border\w*", r"\bcart\w*"],
+                "suggested_entities": ["Order", "OrderItem", "Cart", "Shipment", "Delivery"],
+                "suggested_services": ["OrderService", "CartService", "FulfillmentService"],
+                "confidence_boost": 0.25
+            },
+            "content_management": {
+                "keywords": ["content", "article", "post", "page", "media", "document", "cms", "blog"],
+                "patterns": [r"\b(content|article|post)_\w+", r"\bcontent\w*", r"\barticle\w*"],
+                "suggested_entities": ["Content", "Article", "Media", "Document", "Page"],
+                "suggested_services": ["ContentService", "MediaService", "PublishingService"],
+                "confidence_boost": 0.2
+            },
+            "analytics_tracking": {
+                "keywords": ["analytics", "tracking", "metrics", "event", "statistics", "report", "dashboard"],
+                "patterns": [r"\b(analytics|tracking|metrics)_\w+", r"\banalytics\w*", r"\btracking\w*"],
+                "suggested_entities": ["Event", "Metric", "Report", "Dashboard", "Analytics"],
+                "suggested_services": ["AnalyticsService", "TrackingService", "MetricsService"],
+                "confidence_boost": 0.2
+            }
+        }
+    
+    def analyze_existing_code(self, root_path: str = ".") -> List[DomainSuggestion]:
+        """Analyze existing code to suggest domain packages"""
+        suggestions = []
+        domain_matches = {}
+        
+        # Scan files for domain patterns
+        for root, dirs, files in os.walk(root_path):
+            # Skip certain directories
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ['__pycache__', 'node_modules', 'venv', '.git']]
+            
+            for file in files:
+                if file.endswith(('.py', '.js', '.ts', '.md', '.yml', '.yaml')):
+                    file_path = Path(root) / file
+                    matches = self._analyze_file_for_domains(file_path)
+                    
+                    for domain_name, data in matches.items():
+                        if domain_name not in domain_matches:
+                            domain_matches[domain_name] = {
+                                'concepts': set(),
+                                'files': set(),
+                                'confidence_scores': []
+                            }
+                        
+                        domain_matches[domain_name]['concepts'].update(data['concepts'])
+                        domain_matches[domain_name]['files'].add(str(file_path))
+                        domain_matches[domain_name]['confidence_scores'].extend(data['confidence_scores'])
+        
+        # Convert to suggestions
+        for domain_name, data in domain_matches.items():
+            if len(data['concepts']) >= 2 and len(data['files']) >= 2:
+                avg_confidence = sum(data['confidence_scores']) / len(data['confidence_scores'])
+                
+                if avg_confidence >= 0.5:
+                    suggestion = DomainSuggestion(
+                        name=domain_name,
+                        confidence=avg_confidence,
+                        concepts=list(data['concepts']),
+                        files=list(data['files']),
+                        suggested_structure=self._generate_suggested_structure(domain_name, data['concepts']),
+                        reasoning=self._generate_suggestion_reasoning(domain_name, data)
+                    )
+                    suggestions.append(suggestion)
+        
+        return sorted(suggestions, key=lambda x: x.confidence, reverse=True)
+    
+    def _analyze_file_for_domains(self, file_path: Path) -> Dict[str, Dict[str, Any]]:
+        """Analyze a file for domain-specific patterns"""
+        matches = {}
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read().lower()
+            
+            for domain_name, pattern_data in self.domain_patterns.items():
+                confidence = 0.0
+                concepts = set()
+                
+                # Check keywords
+                for keyword in pattern_data['keywords']:
+                    if keyword in content:
+                        concepts.add(keyword)
+                        confidence += 0.3
+                
+                # Check patterns
+                import re
+                for pattern in pattern_data['patterns']:
+                    pattern_matches = re.findall(pattern, content)
+                    if pattern_matches:
+                        concepts.update(pattern_matches)
+                        confidence += 0.4
+                
+                # Boost confidence for known domain patterns
+                confidence += pattern_data.get('confidence_boost', 0)
+                
+                if concepts and confidence > 0.4:
+                    matches[domain_name] = {
+                        'concepts': concepts,
+                        'confidence_scores': [min(confidence, 1.0)]
+                    }
+        
+        except Exception:
+            pass
+        
+        return matches
+    
+    def _generate_suggested_structure(self, domain_name: str, concepts: Set[str]) -> Dict[str, Any]:
+        """Generate suggested package structure"""
+        pattern_data = self.domain_patterns.get(domain_name, {})
+        
+        return {
+            "package_name": domain_name,
+            "suggested_path": f"src/packages/{domain_name}",
+            "entities": pattern_data.get('suggested_entities', []),
+            "services": pattern_data.get('suggested_services', []),
+            "detected_concepts": list(concepts),
+            "dependencies": self._suggest_dependencies(domain_name)
+        }
+    
+    def _suggest_dependencies(self, domain_name: str) -> List[str]:
+        """Suggest dependencies based on domain type"""
+        common_deps = ["pydantic>=2.0.0", "typing-extensions>=4.0.0"]
+        
+        domain_specific_deps = {
+            "payment_processing": ["stripe", "requests", "cryptography"],
+            "notification_system": ["sendgrid", "twilio", "celery"],
+            "user_management": ["bcrypt", "pyjwt", "passlib"],
+            "content_management": ["pillow", "bleach", "markdown"],
+            "analytics_tracking": ["pandas", "numpy", "plotly"]
+        }
+        
+        return common_deps + domain_specific_deps.get(domain_name, [])
+    
+    def _generate_suggestion_reasoning(self, domain_name: str, data: Dict[str, Any]) -> str:
+        """Generate reasoning for domain suggestion"""
+        concepts_count = len(data['concepts'])
+        files_count = len(data['files'])
+        
+        return (
+            f"Detected {domain_name.replace('_', ' ')} patterns in {files_count} files "
+            f"with {concepts_count} domain concepts. "
+            f"Key concepts: {', '.join(list(data['concepts'])[:3])}."
+        )
+
+def suggest_domain_improvements(package_name: str) -> List[str]:
+    """Suggest improvements for domain package creation"""
+    analyzer = IntelligentDomainAnalyzer()
+    suggestions = analyzer.analyze_existing_code()
+    
+    improvements = []
+    
+    # Check if requested package aligns with detected domains
+    for suggestion in suggestions:
+        if suggestion.name == package_name or package_name in suggestion.name:
+            improvements.append(f"✨ Great choice! Detected {suggestion.name} domain (confidence: {suggestion.confidence:.2f})")
+            improvements.append(f"📁 Suggested entities: {', '.join(suggestion.suggested_structure['entities'][:3])}")
+            improvements.append(f"🔧 Suggested services: {', '.join(suggestion.suggested_structure['services'][:3])}")
+            break
+    else:
+        # No direct match, suggest similar domains
+        related = [s for s in suggestions if any(word in package_name for word in s.concepts)]
+        if related:
+            improvements.append(f"💡 Related domains detected: {', '.join([s.name for s in related[:2]])}")
+        
+        # Suggest top detected domains
+        if suggestions:
+            top_suggestions = suggestions[:3]
+            improvements.append("🎯 Top detected domains in codebase:")
+            for suggestion in top_suggestions:
+                improvements.append(f"  • {suggestion.name} (confidence: {suggestion.confidence:.2f})")
+    
+    return improvements
 
 def create_directory_structure(package_name: str, base_path: str = "src/packages"):
     """Create standard directory structure for a domain package"""
@@ -53,8 +279,27 @@ def create_directory_structure(package_name: str, base_path: str = "src/packages
     print(f"✅ Created directory structure for {package_name}")
     return package_path
 
-def create_pyproject_toml(package_path: Path, package_name: str, description: str):
-    """Create pyproject.toml for the domain package"""
+def create_pyproject_toml(package_path: Path, package_name: str, description: str, intelligent_suggestions: Optional[Dict[str, Any]] = None):
+    """Create pyproject.toml for the domain package with intelligent dependency suggestions"""
+    
+    # Get intelligent dependency suggestions
+    dependencies = ["pydantic>=2.0.0", "typing-extensions>=4.0.0"]
+    dev_dependencies = [
+        "pytest>=8.0.0",
+        "pytest-cov>=6.0.0", 
+        "pytest-asyncio>=0.24.0",
+        "hypothesis>=6.115.0",
+        "factory-boy>=3.3.1",
+        "faker>=33.1.0"
+    ]
+    
+    if intelligent_suggestions:
+        suggested_deps = intelligent_suggestions.get('dependencies', [])
+        dependencies.extend(suggested_deps)
+    
+    # Format dependencies as strings
+    deps_str = ',\n    '.join([f'"{dep}"' for dep in dependencies])
+    dev_deps_str = ',\n    '.join([f'"{dep}"' for dep in dev_dependencies])
     
     content = f'''[build-system]
 requires = ["hatchling"]
@@ -83,27 +328,16 @@ classifiers = [
 ]
 
 dependencies = [
-    "pydantic>=2.0.0",
-    "typing-extensions>=4.0.0",
+    {deps_str}
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0.0",
-    "pytest-cov>=6.0.0",
-    "pytest-asyncio>=0.24.0",
-    "hypothesis>=6.115.0",
-    "factory-boy>=3.3.1",
-    "faker>=33.1.0",
+    {dev_deps_str}
 ]
 
 test = [
-    "pytest>=8.0.0",
-    "pytest-cov>=6.0.0",
-    "pytest-asyncio>=0.24.0",
-    "hypothesis>=6.115.0",
-    "factory-boy>=3.3.1",
-    "faker>=33.1.0",
+    {dev_deps_str}
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -642,6 +876,170 @@ class Test{service_name}:
     
     print(f"✅ Created sample tests for {package_name}")
 
+def create_intelligent_entities(package_path: Path, package_name: str, suggestions: Optional[Dict[str, Any]] = None):
+    """Create entities based on intelligent suggestions"""
+    if not suggestions or 'entities' not in suggestions:
+        return
+    
+    entities_dir = package_path / "core" / "domain" / "entities"
+    
+    for entity_name in suggestions['entities']:
+        entity_filename = f"{entity_name.lower()}.py"
+        entity_path = entities_dir / entity_filename
+        
+        content = f'''"""
+{entity_name} Entity
+
+Domain entity for {package_name} domain.
+Auto-generated based on intelligent analysis.
+"""
+
+from dataclasses import dataclass
+from typing import Optional, Dict, Any
+from datetime import datetime
+from software.core.domain.abstractions.base_entity import BaseEntity
+
+@dataclass
+class {entity_name}(BaseEntity):
+    """
+    {entity_name} entity for {package_name} domain.
+    
+    This entity was automatically generated based on detected domain patterns.
+    Customize as needed for your specific requirements.
+    """
+    
+    id: Optional[str] = None
+    name: str = ""
+    description: str = ""
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert entity to dictionary representation"""
+        return {{
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }}
+    
+    def __str__(self) -> str:
+        """String representation"""
+        return f"{entity_name}(id={{self.id}}, name={{self.name}})"
+'''
+        
+        with open(entity_path, 'w') as f:
+            f.write(content)
+        
+        print(f"✅ Created intelligent entity: {entity_name}")
+
+def create_intelligent_services(package_path: Path, package_name: str, suggestions: Optional[Dict[str, Any]] = None):
+    """Create services based on intelligent suggestions"""
+    if not suggestions or 'services' not in suggestions:
+        return
+    
+    services_dir = package_path / "core" / "domain" / "services"
+    
+    for service_name in suggestions['services']:
+        service_filename = f"{service_name.lower()}.py"
+        service_path = services_dir / service_filename
+        
+        content = f'''"""
+{service_name}
+
+Domain service for {package_name} domain.
+Auto-generated based on intelligent analysis.
+"""
+
+from typing import List, Optional, Dict, Any
+from software.core.domain.abstractions.base_service import BaseService
+
+class {service_name}(BaseService):
+    """
+    {service_name} for {package_name} domain.
+    
+    This service was automatically generated based on detected domain patterns.
+    Implement your specific business logic here.
+    """
+    
+    def __init__(self):
+        """Initialize service"""
+        super().__init__()
+    
+    async def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Process domain-specific data.
+        
+        Args:
+            data: Input data to process
+            
+        Returns:
+            Processed data
+        """
+        # TODO: Implement your business logic here
+        processed_data = {{
+            "status": "processed",
+            "data": data,
+            "processed_at": self._get_current_timestamp()
+        }}
+        
+        return processed_data
+    
+    async def validate(self, data: Dict[str, Any]) -> bool:
+        """
+        Validate domain-specific data.
+        
+        Args:
+            data: Data to validate
+            
+        Returns:
+            True if valid, False otherwise
+        """
+        # TODO: Implement your validation logic here
+        return bool(data)
+    
+    def get_summary(self, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Get summary of items.
+        
+        Args:
+            items: List of items to summarize
+            
+        Returns:
+            Summary information
+        """
+        return {{
+            "total_count": len(items),
+            "service_name": "{service_name}",
+            "domain": "{package_name}"
+        }}
+'''
+        
+        with open(service_path, 'w') as f:
+            f.write(content)
+        
+        print(f"✅ Created intelligent service: {service_name}")
+
+def analyze_and_suggest_domains() -> List[DomainSuggestion]:
+    """Analyze current codebase and suggest domain packages"""
+    print("🔍 Analyzing codebase for domain suggestions...")
+    analyzer = IntelligentDomainAnalyzer()
+    suggestions = analyzer.analyze_existing_code()
+    
+    if suggestions:
+        print(f"\n🎯 Found {len(suggestions)} domain suggestions:")
+        for i, suggestion in enumerate(suggestions[:5], 1):
+            confidence_emoji = "🟢" if suggestion.confidence > 0.8 else "🟡" if suggestion.confidence > 0.6 else "🔴"
+            print(f"  {i}. {confidence_emoji} {suggestion.name} (confidence: {suggestion.confidence:.2f})")
+            print(f"     Concepts: {', '.join(suggestion.concepts[:3])}")
+            print(f"     Files: {len(suggestion.files)}")
+            print()
+    else:
+        print("ℹ️  No clear domain patterns detected in current codebase")
+    
+    return suggestions
+
 def validate_package_name(package_name: str) -> bool:
     """Validate package name follows conventions"""
     
@@ -667,13 +1065,81 @@ def validate_package_name(package_name: str) -> bool:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description="Create a new domain package")
-    parser.add_argument("name", help="Package name (e.g., 'anomaly_detection')")
+    parser = argparse.ArgumentParser(description="Create a new domain package with intelligent suggestions")
+    parser.add_argument("name", nargs="?", help="Package name (e.g., 'user_management')")
     parser.add_argument("--description", default="", help="Package description")
     parser.add_argument("--base-path", default="src/packages", help="Base path for packages")
     parser.add_argument("--skip-samples", action="store_true", help="Skip creating sample files")
+    parser.add_argument("--intelligent", action="store_true", help="Use intelligent analysis for suggestions")
+    parser.add_argument("--analyze-only", action="store_true", help="Only analyze and suggest domains, don't create")
+    parser.add_argument("--auto-create", action="store_true", help="Auto-create from highest confidence suggestion")
+    parser.add_argument("--interactive", action="store_true", help="Interactive domain creation mode")
     
     args = parser.parse_args()
+    
+    # If no name provided or analyze-only mode, run analysis
+    if not args.name or args.analyze_only:
+        suggestions = analyze_and_suggest_domains()
+        
+        if args.analyze_only:
+            # Save suggestions to file
+            with open('domain_suggestions.json', 'w') as f:
+                suggestions_data = []
+                for suggestion in suggestions:
+                    suggestions_data.append({
+                        'name': suggestion.name,
+                        'confidence': suggestion.confidence,
+                        'concepts': suggestion.concepts,
+                        'files': suggestion.files,
+                        'suggested_structure': suggestion.suggested_structure,
+                        'reasoning': suggestion.reasoning
+                    })
+                json.dump(suggestions_data, f, indent=2)
+            
+            print(f"💾 Suggestions saved to domain_suggestions.json")
+            return
+        
+        # Auto-create mode
+        if args.auto_create and suggestions:
+            highest_confidence = suggestions[0]
+            if highest_confidence.confidence >= 0.8:
+                args.name = highest_confidence.name
+                print(f"🚀 Auto-creating package '{args.name}' (confidence: {highest_confidence.confidence:.2f})")
+            else:
+                print(f"❌ Highest confidence domain '{highest_confidence.name}' has low confidence ({highest_confidence.confidence:.2f})")
+                print("Use --interactive mode to select manually")
+                return
+        
+        # Interactive mode
+        if args.interactive and suggestions:
+            print("\n🎯 Select a domain to create:")
+            for i, suggestion in enumerate(suggestions[:5], 1):
+                confidence_emoji = "🟢" if suggestion.confidence > 0.8 else "🟡" if suggestion.confidence > 0.6 else "🔴"
+                print(f"  {i}. {confidence_emoji} {suggestion.name} (confidence: {suggestion.confidence:.2f})")
+            
+            print("  0. Enter custom name")
+            
+            try:
+                choice = int(input("\nEnter your choice (1-5 or 0): "))
+                if choice == 0:
+                    args.name = input("Enter custom package name: ").strip()
+                elif 1 <= choice <= len(suggestions):
+                    args.name = suggestions[choice - 1].name
+                else:
+                    print("Invalid choice")
+                    return
+            except (ValueError, KeyboardInterrupt):
+                print("\nCancelled")
+                return
+        
+        # If still no name, prompt for it
+        if not args.name:
+            if suggestions:
+                print("💡 Consider using one of the suggested domain names above, or enter a custom name")
+            args.name = input("Enter package name: ").strip()
+            if not args.name:
+                print("Package name is required")
+                return
     
     # Validate package name
     if not validate_package_name(args.name):
@@ -682,31 +1148,87 @@ def main():
     # Set description if not provided
     description = args.description or f"{args.name.replace('_', ' ').title()} domain package"
     
-    print(f"Creating domain package: {args.name}")
+    # Get intelligent suggestions for this domain
+    intelligent_suggestions = None
+    if args.intelligent:
+        print("🧠 Getting intelligent suggestions...")
+        improvements = suggest_domain_improvements(args.name)
+        for improvement in improvements:
+            print(f"  {improvement}")
+        
+        # Get suggestion structure
+        analyzer = IntelligentDomainAnalyzer()
+        all_suggestions = analyzer.analyze_existing_code()
+        for suggestion in all_suggestions:
+            if suggestion.name == args.name or args.name in suggestion.name:
+                intelligent_suggestions = suggestion.suggested_structure
+                break
+    
+    print(f"\nCreating domain package: {args.name}")
     print(f"Description: {description}")
     print(f"Base path: {args.base_path}")
     print("=" * 50)
     
     # Create package
     package_path = create_directory_structure(args.name, args.base_path)
-    create_pyproject_toml(package_path, args.name, description)
+    create_pyproject_toml(package_path, args.name, description, intelligent_suggestions)
     create_readme(package_path, args.name, description)
     create_license(package_path)
     
-    if not args.skip_samples:
+    # Create intelligent or sample files
+    if intelligent_suggestions and not args.skip_samples:
+        print("\n🧠 Creating intelligent entities and services...")
+        create_intelligent_entities(package_path, args.name, intelligent_suggestions)
+        create_intelligent_services(package_path, args.name, intelligent_suggestions)
+    elif not args.skip_samples:
         create_sample_entity(package_path, args.name)
         create_sample_service(package_path, args.name)
         create_sample_tests(package_path, args.name)
     
+    # Run domain boundary validation
+    print("\n🔍 Running domain boundary validation...")
+    try:
+        result = subprocess.run([
+            "python", "scripts/domain_boundary_validator.py", 
+            "--detect-new-domains", "--root-path", str(package_path)
+        ], capture_output=True, text=True, check=False)
+        
+        if result.returncode == 0:
+            print("✅ Domain boundaries validated successfully")
+        else:
+            print("⚠️  Domain boundary validation warnings (check output above)")
+    except Exception as e:
+        print(f"⚠️  Could not run domain boundary validation: {e}")
+    
     print("\n🎉 Domain package created successfully!")
     print(f"📁 Package location: {package_path}")
-    print("\nNext steps:")
+    
+    # Show intelligent recommendations if available
+    if intelligent_suggestions:
+        print(f"\n🧠 Intelligent Suggestions Applied:")
+        if intelligent_suggestions.get('entities'):
+            print(f"  📁 Created entities: {', '.join(intelligent_suggestions['entities'])}")
+        if intelligent_suggestions.get('services'):
+            print(f"  🔧 Created services: {', '.join(intelligent_suggestions['services'])}")
+        if intelligent_suggestions.get('dependencies'):
+            print(f"  📦 Added dependencies: {', '.join(intelligent_suggestions['dependencies'])}")
+    
+    print("\n📋 Next steps:")
     print("1. Review the generated files")
     print("2. Customize entities and services for your domain")
     print("3. Add your domain-specific logic")
     print("4. Run tests: pytest")
     print("5. Validate domain boundaries: python scripts/domain_boundary_validator.py")
     print("6. Install pre-commit hooks: python scripts/install_domain_hooks.py")
+    
+    # Show usage examples
+    print(f"\n🚀 Quick commands:")
+    print(f"  cd {package_path}")
+    print(f"  pytest")
+    print(f"  python -m {args.name}.core.domain.services")
+    
+    print(f"\n💡 To analyze domains again: python scripts/create_domain_package.py --analyze-only")
+    print(f"💡 For interactive mode: python scripts/create_domain_package.py --interactive")
 
 if __name__ == "__main__":
     main()
