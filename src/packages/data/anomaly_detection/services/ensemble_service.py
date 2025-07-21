@@ -7,10 +7,55 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
-from monorepo.domain.services import AnomalyScorer, EnsembleAggregator
-from monorepo.domain.value_objects import AnomalyScore
-# TODO: Create local DetectorProtocol, DetectorRepositoryProtocol
+from src.packages.data.anomaly_detection.core.domain_entities import (
+    Dataset,
+    DetectionResult,
+    AnomalyResult,
+    DetectorProtocol,
+    DetectorModelRepositoryProtocol as DetectorRepositoryProtocol
+)
+
+# Local domain services and value objects
+from abc import ABC, abstractmethod
+from typing import Dict, List
+from dataclasses import dataclass
+
+@dataclass
+class AnomalyScore:
+    """Anomaly score value object."""
+    value: float
+    confidence: float = 0.0
+    
+    def __post_init__(self):
+        if not 0.0 <= self.value <= 1.0:
+            raise ValueError("Anomaly score must be between 0 and 1")
+
+class AnomalyScorer(ABC):
+    """Abstract anomaly scorer service."""
+    
+    @abstractmethod
+    def score_anomaly(self, result: AnomalyResult) -> AnomalyScore:
+        """Score an anomaly result."""
+        pass
+
+class EnsembleAggregator(ABC):
+    """Abstract ensemble aggregator service."""
+    
+    @abstractmethod
+    def aggregate_results(self, results: List[DetectionResult], 
+                         weights: Dict[str, float] = None) -> DetectionResult:
+        """Aggregate ensemble results."""
+        pass
+
+# Domain entity for ensemble detector
+@dataclass 
+class EnsembleDetector:
+    """Ensemble detector entity."""
+    id: str
+    name: str
+    detector_ids: List[str]
+    weights: Dict[str, float]
+    aggregation_method: str = "average"
 
 
 class EnsembleService:

@@ -12,10 +12,16 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-# TODO: Create local Dataset entity
-from monorepo.domain.entities.detection_result import DetectionResult
-# TODO: Create local Detector entity
-from monorepo.domain.exceptions import ValidationError
+from src.packages.data.anomaly_detection.core.domain_entities import (
+    DetectionResult,
+    Dataset,
+    AnomalyResult
+)
+
+# Local domain exceptions
+class ValidationError(Exception):
+    """Validation error for visualization service."""
+    pass
 
 # Optional visualization libraries
 try:

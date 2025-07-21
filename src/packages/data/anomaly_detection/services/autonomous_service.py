@@ -8,26 +8,82 @@ from typing import Any
 
 import pandas as pd
 
-from monorepo.application.services.algorithm_adapter_registry import (
-    AlgorithmAdapterRegistry,
+from src.packages.data.anomaly_detection.core.domain_entities import (
+    Dataset,
+    DetectionResult,
+    DetectorConfiguration
 )
-from monorepo.application.services.autonomous_algorithm_recommender import (
-    AutonomousAlgorithmRecommender,
-)
-from monorepo.application.services.autonomous_data_loader import AutonomousDataLoader
-from monorepo.application.services.autonomous_data_profiler import (
-    AutonomousDataProfiler,
-)
-from monorepo.application.services.autonomous_detection_config import (
-    AlgorithmRecommendation,
-    AutonomousConfig,
-    DataProfile,
-)
-from monorepo.application.services.autonomous_preprocessing import (
-    AutonomousPreprocessingOrchestrator,
-)
-# TODO: Create local Dataset entity
-# TODO: Create local protocol interfaces
+from src.packages.data.anomaly_detection.core.dependency_injection import get_container
+
+# Local autonomous detection entities and services
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+from abc import ABC, abstractmethod
+
+@dataclass
+class DataProfile:
+    """Data profile for autonomous detection."""
+    feature_count: int
+    row_count: int 
+    data_types: Dict[str, str]
+    missing_value_ratio: float
+    correlation_matrix: Optional[Dict] = None
+    
+@dataclass
+class AlgorithmRecommendation:
+    """Algorithm recommendation for autonomous detection."""
+    algorithm_name: str
+    confidence: float
+    parameters: Dict[str, Any]
+    reasoning: str
+    
+@dataclass
+class AutonomousConfig:
+    """Configuration for autonomous detection."""
+    data_profile: DataProfile
+    recommendations: List[AlgorithmRecommendation]
+    preprocessing_steps: List[str]
+    
+# Service protocols for dependency injection
+class AlgorithmAdapterRegistry(ABC):
+    """Registry for algorithm adapters."""
+    
+    @abstractmethod
+    def get_adapter(self, algorithm_name: str):
+        """Get algorithm adapter."""
+        pass
+
+class AutonomousDataLoader(ABC):
+    """Autonomous data loader service."""
+    
+    @abstractmethod
+    def load_data(self, source: str) -> Dataset:
+        """Load data from source."""
+        pass
+        
+class AutonomousDataProfiler(ABC):
+    """Autonomous data profiler service."""
+    
+    @abstractmethod
+    def profile_data(self, dataset: Dataset) -> DataProfile:
+        """Profile dataset."""
+        pass
+
+class AutonomousAlgorithmRecommender(ABC):
+    """Autonomous algorithm recommender service."""
+    
+    @abstractmethod
+    def recommend_algorithms(self, profile: DataProfile) -> List[AlgorithmRecommendation]:
+        """Recommend algorithms based on data profile."""
+        pass
+
+class AutonomousPreprocessingOrchestrator(ABC):
+    """Autonomous preprocessing orchestrator service."""
+    
+    @abstractmethod
+    def create_preprocessing_pipeline(self, profile: DataProfile) -> List[str]:
+        """Create preprocessing pipeline."""
+        pass
 
 
 class AutonomousDetectionService:
