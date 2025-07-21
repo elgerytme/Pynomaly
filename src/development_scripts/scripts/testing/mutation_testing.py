@@ -331,7 +331,7 @@ class MutationTester:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Mutation Testing Report - Pynomaly</title>
+            <title>Mutation Testing Report - anomaly_detection</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 40px; }}
                 .header {{ background: #f5f5f5; padding: 20px; border-radius: 5px; }}
@@ -550,10 +550,10 @@ def quick(domain_only, fast):
     tester = MutationTester()
 
     if domain_only:
-        paths = ["src/pynomaly/domain/"]
+        paths = ["src/anomaly_detection/domain/"]
         click.echo("🎯 Quick mutation testing: Domain layer only")
     else:
-        paths = ["src/pynomaly/domain/", "src/pynomaly/application/"]
+        paths = ["src/anomaly_detection/domain/", "src/anomaly_detection/application/"]
         click.echo("🎯 Quick mutation testing: Domain + Application layers")
 
     max_mutations = 50 if fast else None

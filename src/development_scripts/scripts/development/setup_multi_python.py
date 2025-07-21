@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Multi-Version Python Setup Script for Pynomaly
+Multi-Version Python Setup Script for anomaly_detection
 Automates setup of multiple Python versions for local development and testing.
 """
 
@@ -499,7 +499,7 @@ def main():
         [str(python_path), "-c", "import mypy; print('mypy available')"],
 
         # Import tests
-        [str(python_path), "-c", "import sys; sys.path.insert(0, 'src'); import pynomaly; print('✓ pynomaly imports successfully')"],
+        [str(python_path), "-c", "import sys; sys.path.insert(0, 'src'); import anomaly_detection; print('✓ anomaly_detection imports successfully')"],
     ]
 
     for i, cmd in enumerate(test_commands, 1):
@@ -654,7 +654,7 @@ Usage:
 def main():
     """Main entry point for multi-version Python setup."""
     parser = argparse.ArgumentParser(
-        description="Multi-Version Python Setup for Pynomaly"
+        description="Multi-Version Python Setup for anomaly_detection"
     )
     parser.add_argument(
         "--check", action="store_true", help="Check current setup status"

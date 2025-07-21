@@ -56,11 +56,11 @@ class ComprehensiveUITestRunner:
         """Setup test environment variables and configuration."""
         # Set comprehensive testing environment variables
         test_env = {
-            "PYNOMALY_ENVIRONMENT": "testing",
-            "PYNOMALY_LOG_LEVEL": "WARNING",
-            "PYNOMALY_AUTH_ENABLED": "false",
-            "PYNOMALY_DOCS_ENABLED": "true",
-            "PYNOMALY_CORS_ENABLED": "true",
+            "ANOMALY_DETECTION_ENVIRONMENT": "testing",
+            "ANOMALY_DETECTION_LOG_LEVEL": "WARNING",
+            "ANOMALY_DETECTION_AUTH_ENABLED": "false",
+            "ANOMALY_DETECTION_DOCS_ENABLED": "true",
+            "ANOMALY_DETECTION_CORS_ENABLED": "true",
             # UI Testing specific
             "HEADLESS": str(self.config.get("headless", True)).lower(),
             "SLOW_MO": str(self.config.get("slow_mo", 0)),
@@ -665,7 +665,7 @@ class ComprehensiveUITestRunner:
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pynomaly Comprehensive UI Test Report</title>
+    <title>anomaly_detection Comprehensive UI Test Report</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 20px; }}
         .summary {{ background: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }}
@@ -683,7 +683,7 @@ class ComprehensiveUITestRunner:
     </style>
 </head>
 <body>
-    <h1>Pynomaly Comprehensive UI Test Report</h1>
+    <h1>anomaly_detection Comprehensive UI Test Report</h1>
 
     <div class="summary">
         <h2>Executive Summary</h2>
@@ -763,7 +763,7 @@ class ComprehensiveUITestRunner:
         summary = self.results["summary"]
 
         with open(filepath, "w") as f:
-            f.write("PYNOMALY COMPREHENSIVE UI TEST SUMMARY\n")
+            f.write("anomaly_detection COMPREHENSIVE UI TEST SUMMARY\n")
             f.write("=" * 50 + "\n\n")
             f.write(f"Total Categories: {summary['total_categories']}\n")
             f.write(f"Passed: {summary['passed']}\n")
@@ -821,7 +821,7 @@ class ComprehensiveUITestRunner:
 def main():
     """Main entry point for comprehensive UI testing."""
     parser = argparse.ArgumentParser(
-        description="Run comprehensive UI tests for Pynomaly"
+        description="Run comprehensive UI tests for anomaly_detection"
     )
 
     parser.add_argument(

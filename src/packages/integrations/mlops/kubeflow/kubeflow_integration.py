@@ -177,7 +177,7 @@ class KubeflowIntegration:
                 except:
                     experiment = self.kfp_client.create_experiment(
                         name=experiment_name,
-                        description=f"Pynomaly experiment for {pipeline.name}"
+                        description=f"anomaly_detection experiment for {pipeline.name}"
                     )
             else:
                 experiment = None
@@ -254,7 +254,7 @@ class KubeflowIntegration:
                                             "image": "python:3.11-slim",
                                             "command": [
                                                 "python",
-                                                "/opt/pynomaly-training.py",
+                                                "/opt/anomaly_detection-training.py",
                                                 "--tenant-id", str(experiment.tenant_id),
                                                 "--experiment-id", str(experiment.id)
                                             ]
@@ -272,7 +272,7 @@ class KubeflowIntegration:
                 api_version="kubeflow.org/v1beta1",
                 kind="Experiment",
                 metadata={
-                    "name": f"pynomaly-{experiment.name.lower().replace('_', '-')}-{uuid4().hex[:8]}",
+                    "name": f"anomaly_detection-{experiment.name.lower().replace('_', '-')}-{uuid4().hex[:8]}",
                     "namespace": self.namespace
                 },
                 spec={
@@ -330,9 +330,9 @@ class KubeflowIntegration:
                     "name": deployment.name.lower().replace('_', '-'),
                     "namespace": self.namespace,
                     "labels": {
-                        "pynomaly.tenant_id": str(deployment.tenant_id),
-                        "pynomaly.model_id": str(deployment.model_id),
-                        "pynomaly.deployment_id": str(deployment.id)
+                        "anomaly_detection.tenant_id": str(deployment.tenant_id),
+                        "anomaly_detection.model_id": str(deployment.model_id),
+                        "anomaly_detection.deployment_id": str(deployment.id)
                     }
                 },
                 "spec": {

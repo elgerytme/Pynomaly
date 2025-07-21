@@ -41,7 +41,7 @@ src/packages/data_observability/
 
 **Usage Example**:
 ```python
-from pynomaly.packages.data_observability import DataObservabilityFacade
+from anomaly_detection.packages.data_observability import DataObservabilityFacade
 
 # Track a data transformation
 facade.track_data_transformation(
@@ -158,13 +158,13 @@ forecast = facade.forecast_quality_metrics(
 The Data Observability Package is included as part of the anomaly detection framework. Ensure you have the main framework installed:
 
 ```bash
-pip install pynomaly
+pip install anomaly_detection
 ```
 
 ### Basic Setup
 
 ```python
-from pynomaly.packages.data_observability.infrastructure.di.container import DataObservabilityContainer
+from anomaly_detection.packages.data_observability.infrastructure.di.container import DataObservabilityContainer
 
 # Initialize the container
 container = DataObservabilityContainer()
@@ -278,9 +278,9 @@ for finding in investigation['findings']:
 - Adjust prediction models based on accuracy
 - Act on quality alerts proactively
 
-## Integration with Pynomaly
+## Integration with anomaly_detection
 
-The Data Observability Package integrates seamlessly with other Pynomaly components:
+The Data Observability Package integrates seamlessly with other anomaly_detection components:
 
 - **Anomaly Detection**: Quality predictions can trigger anomaly detection workflows
 - **Processing Pipelines**: Pipeline health monitoring supports model training pipelines
@@ -313,7 +313,7 @@ Enable logging to monitor package performance:
 
 ```python
 import logging
-logging.getLogger('pynomaly.packages.data_observability').setLevel(logging.INFO)
+logging.getLogger('anomaly_detection.packages.data_observability').setLevel(logging.INFO)
 ```
 
 ## Contributing

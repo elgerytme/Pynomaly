@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Real-time Performance Monitoring System for Pynomaly Production
+Real-time Performance Monitoring System for anomaly_detection Production
 
 Monitors performance metrics in real-time and triggers alerts when
 thresholds are exceeded, especially for high-load scenarios.

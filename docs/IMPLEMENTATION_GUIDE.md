@@ -54,7 +54,7 @@ src/packages/
 
 ### 2.3 Configuration Cleanup (✅)
 - **pyproject.toml**: Removed all domain-specific references
-- **Package Names**: Changed from "pynomaly-*" to "software-*"
+- **Package Names**: Changed from "anomaly_detection-*" to "software-*"
 - **Descriptions**: Made domain-agnostic
 - **URLs**: Updated to generic software references
 
@@ -103,7 +103,7 @@ src/packages/
 **Top Violation Categories**:
 1. **dataset**: 2,149 occurrences (11.6%)
 2. **model**: 1,690 occurrences (9.1%)
-3. **pynomaly**: 1,662 occurrences (9.0%)
+3. **anomaly_detection**: 1,662 occurrences (9.0%)
 4. **detection**: 1,606 occurrences (8.7%)
 5. **metrics**: 1,498 occurrences (8.1%)
 
@@ -113,7 +113,7 @@ src/packages/
 ```python
 # Text replacement script
 replacements = {
-    "pynomaly": "software",
+    "anomaly_detection": "software",
     "anomaly detection": "data processing",
     "machine learning": "computational analysis",
     "data science": "data analysis"

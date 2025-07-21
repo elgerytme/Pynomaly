@@ -51,8 +51,8 @@ from .application.dto.governance_dto import (
 )
 
 __version__ = "0.1.0"
-__author__ = "Pynomaly Enterprise Team"
-__email__ = "enterprise@pynomaly.org"
+__author__ = "anomaly_detection Enterprise Team"
+__email__ = "enterprise@anomaly_detection.org"
 
 __all__ = [
     # Domain entities
@@ -89,9 +89,9 @@ __all__ = [
 
 # Package metadata
 PACKAGE_INFO = {
-    "name": "pynomaly-enterprise-governance",
+    "name": "anomaly_detection-enterprise-governance",
     "version": __version__,
-    "description": "Enterprise governance, audit, and compliance for Pynomaly",
+    "description": "Enterprise governance, audit, and compliance for anomaly_detection",
     "author": __author__,
     "email": __email__,
     "features": [

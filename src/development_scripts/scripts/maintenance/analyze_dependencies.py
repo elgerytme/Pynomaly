@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Dependency Analysis Script for Pynomaly
+Dependency Analysis Script for anomaly_detection
 Analyzes dependency complexity and provides optimization recommendations.
 """
 
@@ -257,7 +257,7 @@ def create_consolidated_pyproject() -> str:
 # Consolidated pyproject.toml structure recommendation
 
 [project]
-name = "pynomaly"
+name = "anomaly_detection"
 dependencies = [
     # Core dependencies only
     "pyod>=2.0.5",
@@ -348,14 +348,14 @@ analytics = [
 
 # All dependencies (use sparingly)
 all = [
-    "pynomaly[production,dev,analytics,ml-heavy]"
+    "anomaly_detection[production,dev,analytics,ml-heavy]"
 ]
 """
 
 
 def main():
     """Main function to analyze dependencies."""
-    print("🔍 Analyzing Pynomaly dependency structure...")
+    print("🔍 Analyzing anomaly_detection dependency structure...")
 
     # Find all requirement files
     requirement_files = find_requirement_files()
@@ -491,16 +491,16 @@ The following files can be removed after consolidation:
 Provide clear installation instructions for different use cases:
 ```bash
 # Minimal installation
-pip install pynomaly[minimal]
+pip install anomaly_detection[minimal]
 
 # API server
-pip install pynomaly[api,production]
+pip install anomaly_detection[api,production]
 
 # Development
-pip install pynomaly[dev]
+pip install anomaly_detection[dev]
 
 # Full analytics
-pip install pynomaly[analytics,ml-heavy]
+pip install anomaly_detection[analytics,ml-heavy]
 ```
 
 {report['consolidated_structure']}

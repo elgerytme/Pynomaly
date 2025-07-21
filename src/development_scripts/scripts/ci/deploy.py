@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Deployment Script for Pynomaly CI/CD Pipeline.
+Deployment Script for anomaly_detection CI/CD Pipeline.
 This script handles automated deployment to different environments with comprehensive validation.
 """
 
@@ -50,8 +50,8 @@ class DeploymentStep:
         self.timestamp = datetime.now()
 
 
-class PynomAlyDeployer:
-    """Comprehensive deployment manager for Pynomaly."""
+class AnomalyDetectionDeployer:
+    """Comprehensive deployment manager for anomaly_detection."""
 
     def __init__(self, project_root: Path, environment: str):
         self.project_root = project_root
@@ -65,7 +65,7 @@ class PynomAlyDeployer:
                 "docker_compose": "docker-compose.development.yml",
                 "health_check_url": "http://localhost:8000/health",
                 "api_url": "http://localhost:8000",
-                "database_url": "sqlite:///pynomaly_dev.db",
+                "database_url": "sqlite:///anomaly_detection_dev.db",
                 "redis_url": "redis://localhost:6379/0",
                 "backup_required": False,
                 "smoke_tests": ["health", "api_ready"],
@@ -73,9 +73,9 @@ class PynomAlyDeployer:
             "staging": {
                 "description": "Staging environment",
                 "docker_compose": "docker-compose.staging.yml",
-                "health_check_url": "https://staging-api.pynomaly.io/health",
-                "api_url": "https://staging-api.pynomaly.io",
-                "database_url": "postgresql://pynomaly:password@staging-db:5432/pynomaly_staging",
+                "health_check_url": "https://staging-api.anomaly_detection.io/health",
+                "api_url": "https://staging-api.anomaly_detection.io",
+                "database_url": "postgresql://anomaly_detection:password@staging-db:5432/anomaly_detection_staging",
                 "redis_url": "redis://staging-redis:6379/0",
                 "backup_required": True,
                 "smoke_tests": ["health", "api_ready", "database", "auth"],
@@ -83,9 +83,9 @@ class PynomAlyDeployer:
             "production": {
                 "description": "Production environment",
                 "docker_compose": "docker-compose.production.yml",
-                "health_check_url": "https://api.pynomaly.io/health",
-                "api_url": "https://api.pynomaly.io",
-                "database_url": "postgresql://pynomaly:password@prod-db:5432/pynomaly_prod",
+                "health_check_url": "https://api.anomaly_detection.io/health",
+                "api_url": "https://api.anomaly_detection.io",
+                "database_url": "postgresql://anomaly_detection:password@prod-db:5432/anomaly_detection_prod",
                 "redis_url": "redis://prod-redis:6379/0",
                 "backup_required": True,
                 "smoke_tests": ["health", "api_ready", "database", "auth", "enterprise"],
@@ -136,7 +136,7 @@ class PynomAlyDeployer:
 
             # Check environment variables
             required_env_vars = [
-                "PYNOMALY_ENVIRONMENT",
+                "ANOMALY_DETECTION_ENVIRONMENT",
                 "DATABASE_URL",
                 "REDIS_URL",
             ]
@@ -206,14 +206,14 @@ echo "🗄️ Creating backup for $ENVIRONMENT environment..."
 
 # Database backup
 if [[ "$ENVIRONMENT" == "production" ]]; then
-    docker exec pynomaly-postgres pg_dump -U pynomaly pynomaly_prod > "$BACKUP_DIR/database_backup.sql"
+    docker exec anomaly_detection-postgres pg_dump -U anomaly_detection anomaly_detection_prod > "$BACKUP_DIR/database_backup.sql"
 elif [[ "$ENVIRONMENT" == "staging" ]]; then
-    docker exec pynomaly-postgres-staging pg_dump -U pynomaly pynomaly_staging > "$BACKUP_DIR/database_backup.sql"
+    docker exec anomaly_detection-postgres-staging pg_dump -U anomaly_detection anomaly_detection_staging > "$BACKUP_DIR/database_backup.sql"
 fi
 
 # Volume backup
-if [[ -d "/opt/pynomaly/data" ]]; then
-    tar -czf "$BACKUP_DIR/volumes_backup.tar.gz" -C /opt/pynomaly/data .
+if [[ -d "/opt/anomaly_detection/data" ]]; then
+    tar -czf "$BACKUP_DIR/volumes_backup.tar.gz" -C /opt/anomaly_detection/data .
 fi
 
 # Configuration backup
@@ -264,10 +264,10 @@ echo "✅ Backup completed at $BACKUP_DIR"
                 compose_content = {
                     "version": "3.8",
                     "services": {
-                        "pynomaly-api": {
-                            "image": "pynomaly:latest",
+                        "anomaly_detection-api": {
+                            "image": "anomaly_detection:latest",
                             "environment": [
-                                f"PYNOMALY_ENVIRONMENT={self.environment}",
+                                f"ANOMALY_DETECTION_ENVIRONMENT={self.environment}",
                                 f"DATABASE_URL={config['database_url']}",
                                 f"REDIS_URL={config['redis_url']}",
                             ],
@@ -682,9 +682,9 @@ if __name__ == "__main__":
                     "enabled": True,
                     "port": 3000,
                     "dashboards": [
-                        "pynomaly-api",
-                        "pynomaly-database",
-                        "pynomaly-redis",
+                        "anomaly_detection-api",
+                        "anomaly_detection-database",
+                        "anomaly_detection-redis",
                     ],
                 },
                 "alerting": {
@@ -889,7 +889,7 @@ if __name__ == "__main__":
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Pynomaly Deployment Manager")
+    parser = argparse.ArgumentParser(description="anomaly_detection Deployment Manager")
     parser.add_argument(
         "environment",
         choices=["development", "staging", "production"],
@@ -921,7 +921,7 @@ def main():
     args = parser.parse_args()
 
     # Initialize deployer
-    deployer = PynomAlyDeployer(args.project_root, args.environment)
+    deployer = AnomalyDetectionDeployer(args.project_root, args.environment)
 
     # Run deployment
     results = deployer.deploy(steps=args.steps)

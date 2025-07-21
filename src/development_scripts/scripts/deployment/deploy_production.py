@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Deployment Script for Pynomaly
+Production Deployment Script for anomaly_detection
 Orchestrates the complete production deployment on Kubernetes.
 """
 
@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 class DeploymentConfig:
     """Configuration for production deployment."""
 
-    namespace: str = "pynomaly-production"
-    domain: str = "pynomaly.ai"
-    api_domain: str = "api.pynomaly.ai"
-    monitoring_domain: str = "monitoring.pynomaly.ai"
-    admin_email: str = "admin@pynomaly.ai"
+    namespace: str = "anomaly_detection-production"
+    domain: str = "anomaly_detection.ai"
+    api_domain: str = "api.anomaly_detection.ai"
+    monitoring_domain: str = "monitoring.anomaly_detection.ai"
+    admin_email: str = "admin@anomaly_detection.ai"
     image_tag: str = "production-latest"
     storage_class: str = "gp3-encrypted"
     node_selector: str = "ml"
@@ -50,7 +50,7 @@ class DeploymentResult:
 
 
 class ProductionDeployer:
-    """Handles production deployment of Pynomaly on Kubernetes."""
+    """Handles production deployment of anomaly_detection on Kubernetes."""
 
     def __init__(self, config: DeploymentConfig):
         self.config = config
@@ -109,21 +109,21 @@ class ProductionDeployer:
         if not self.config.dry_run:
             try:
                 result = subprocess.run(
-                    ["docker", "images", f"pynomaly:{self.config.image_tag}"],
+                    ["docker", "images", f"anomaly_detection:{self.config.image_tag}"],
                     capture_output=True,
                     text=True,
                     check=True,
                 )
                 if self.config.image_tag in result.stdout:
                     logger.info(
-                        f"✓ Docker image available: pynomaly:{self.config.image_tag}"
+                        f"✓ Docker image available: anomaly_detection:{self.config.image_tag}"
                     )
                 else:
                     logger.warning(
-                        f"⚠ Docker image not found locally: pynomaly:{self.config.image_tag}"
+                        f"⚠ Docker image not found locally: anomaly_detection:{self.config.image_tag}"
                     )
                     self.warnings.append(
-                        f"Docker image not found: pynomaly:{self.config.image_tag}"
+                        f"Docker image not found: anomaly_detection:{self.config.image_tag}"
                     )
             except (subprocess.CalledProcessError, FileNotFoundError):
                 logger.warning("⚠ Docker not available - cannot verify image")
@@ -178,11 +178,11 @@ class ProductionDeployer:
             "REPLACE_WITH_ACTUAL_ENCRYPTION_KEY": self._generate_secure_password(32),
             "REPLACE_WITH_ADMIN_PASSWORD": self._generate_secure_password(),
             "REPLACE_WITH_SECRET_KEY": self._generate_secure_password(32),
-            "api.pynomaly.ai": self.config.api_domain,
-            "pynomaly.ai": self.config.domain,
-            "monitoring.pynomaly.ai": self.config.monitoring_domain,
-            "admin@pynomaly.ai": self.config.admin_email,
-            "pynomaly:production-latest": f"pynomaly:{self.config.image_tag}",
+            "api.anomaly_detection.ai": self.config.api_domain,
+            "anomaly_detection.ai": self.config.domain,
+            "monitoring.anomaly_detection.ai": self.config.monitoring_domain,
+            "admin@anomaly_detection.ai": self.config.admin_email,
+            "anomaly_detection:production-latest": f"anomaly_detection:{self.config.image_tag}",
             "gp3-encrypted": self.config.storage_class,
             'workload-type: "ml"': f'workload-type: "{self.config.node_selector}"',
             "replicas: 3": f"replicas: {self.config.replicas_api}",  # API replicas
@@ -212,7 +212,7 @@ kind: Namespace
 metadata:
   name: {self.config.namespace}
   labels:
-    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/name: anomaly_detection
     app.kubernetes.io/instance: production
     app.kubernetes.io/component: namespace
 """
@@ -322,8 +322,8 @@ stringData:
         logger.info("Waiting for deployments to be ready...")
 
         deployments = [
-            "pynomaly-api",
-            "pynomaly-worker",
+            "anomaly_detection-api",
+            "anomaly_detection-worker",
             "postgres",
             "redis",
             "prometheus",
@@ -460,7 +460,7 @@ stringData:
 
     def deploy(self) -> DeploymentResult:
         """Execute the complete production deployment."""
-        logger.info("Starting Pynomaly production deployment...")
+        logger.info("Starting anomaly_detection production deployment...")
         start_time = time.time()
 
         try:
@@ -572,7 +572,7 @@ stringData:
 
     def print_deployment_summary(self, result: DeploymentResult):
         """Print a summary of the deployment."""
-        print("\n=== Pynomaly Production Deployment Summary ===")
+        print("\n=== anomaly_detection Production Deployment Summary ===")
         print(f"Status: {'SUCCESS' if result.success else 'FAILED'}")
         print(f"Duration: {result.duration:.2f}s")
         print(f"Phase: {result.status.get('phase', 'unknown')}")
@@ -614,21 +614,21 @@ stringData:
 
 def main():
     """Main entry point for production deployment."""
-    parser = argparse.ArgumentParser(description="Pynomaly Production Deployment")
+    parser = argparse.ArgumentParser(description="anomaly_detection Production Deployment")
 
     # Configuration options
     parser.add_argument(
-        "--namespace", default="pynomaly-production", help="Kubernetes namespace"
+        "--namespace", default="anomaly_detection-production", help="Kubernetes namespace"
     )
-    parser.add_argument("--domain", default="pynomaly.ai", help="Main domain")
-    parser.add_argument("--api-domain", default="api.pynomaly.ai", help="API domain")
+    parser.add_argument("--domain", default="anomaly_detection.ai", help="Main domain")
+    parser.add_argument("--api-domain", default="api.anomaly_detection.ai", help="API domain")
     parser.add_argument(
         "--monitoring-domain",
-        default="monitoring.pynomaly.ai",
+        default="monitoring.anomaly_detection.ai",
         help="Monitoring domain",
     )
     parser.add_argument(
-        "--admin-email", default="admin@pynomaly.ai", help="Admin email"
+        "--admin-email", default="admin@anomaly_detection.ai", help="Admin email"
     )
     parser.add_argument(
         "--image-tag", default="production-latest", help="Docker image tag"

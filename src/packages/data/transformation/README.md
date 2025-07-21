@@ -1,4 +1,4 @@
-# Pynomaly Data Transformation Package
+# anomaly_detection Data Transformation Package
 
 A comprehensive, well-architected data transformation and feature engineering package designed for data processing workflows. Built with Clean Architecture principles and modern Python best practices.
 
@@ -75,13 +75,13 @@ print(f"Generated {result.features_created} features")
 
 ```bash
 # Basic installation
-pip install pynomaly-data-transformation
+pip install anomaly_detection-data-transformation
 
 # With enhanced features
-pip install pynomaly-data-transformation[enhanced]
+pip install anomaly_detection-data-transformation[enhanced]
 
 # With all features
-pip install pynomaly-data-transformation[all]
+pip install anomaly_detection-data-transformation[all]
 ```
 
 ## Configuration
@@ -107,7 +107,7 @@ Seamlessly integrates with:
 - MLflow and experiment tracking
 - Apache Airflow workflows
 - Jupyter notebooks
-- Pynomaly anomaly detection algorithms
+- anomaly_detection anomaly detection algorithms
 
 ## Contributing
 

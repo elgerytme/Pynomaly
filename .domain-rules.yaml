@@ -62,9 +62,9 @@ naming_conventions:
       allowed_packages: ["anomaly_detection"]
       message: "Anomaly-specific terms should only appear in anomaly_detection package"
     
-    - terms: ["pynomaly", "Pynomaly", "PYNOMALY"]
+    - terms: ["anomaly_detection", "anomaly_detection", "anomaly_detection"]
       allowed_packages: []
-      message: "Pynomaly references should be replaced with generic platform terms"
+      message: "anomaly_detection references should be replaced with generic platform terms"
     
     - terms: ["detector", "Detector"] 
       allowed_packages: ["anomaly_detection", "fraud_detection", "intrusion_detection"]
@@ -74,9 +74,9 @@ environment_variables:
   description: "Environment variable naming rules"
   
   deprecated_prefixes:
-    - prefix: "PYNOMALY_"
+    - prefix: "ANOMALY_DETECTION_"
       replacement: "PLATFORM_"
-      message: "Use generic PLATFORM_ prefix instead of anomaly-specific PYNOMALY_"
+      message: "Use generic PLATFORM_ prefix instead of anomaly-specific ANOMALY_DETECTION_"
 
 validation_rules:
   description: "Additional validation constraints"

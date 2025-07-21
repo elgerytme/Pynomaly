@@ -22,8 +22,8 @@ Successfully implemented clean domain architecture by removing anomaly detection
 ### 3. Interface Layer Abstraction
 - Created `generic_detection.py` CLI with algorithm-agnostic commands
 - Updated `detectors.py` CLI to use GenericDetector
-- Added environment variable migration mapping (`PYNOMALY_*` → `PLATFORM_*`)
-- Updated project branding from "Pynomaly" to generic "Monorepo"
+- Added environment variable migration mapping (`ANOMALY_DETECTION_*` → `PLATFORM_*`)
+- Updated project branding from "anomaly_detection" to generic "Monorepo"
 
 ### 4. Domain Boundary Enforcement
 - Enhanced domain boundary validator with **ISOLATED_PACKAGES** concept
@@ -88,12 +88,12 @@ generic_packages:
 - ✅ `generic_detection.py` CLI - Universal detection commands
 
 ### Environment Variables
-- ✅ Created migration mapping: `PYNOMALY_*` → `PLATFORM_*`
+- ✅ Created migration mapping: `ANOMALY_DETECTION_*` → `PLATFORM_*`
 - ✅ Documented 20+ environment variables for migration
 - ✅ Maintains backward compatibility during transition
 
 ### Project Branding
-- ✅ Updated CHANGELOG.md: "Pynomaly" → "monorepo detection platform"
+- ✅ Updated CHANGELOG.md: "anomaly_detection" → "monorepo detection platform"
 - ✅ Updated LICENSE: "Anomaly Detection Team" → "Monorepo Team"
 - ✅ Maintained generic project metadata in pyproject.toml
 

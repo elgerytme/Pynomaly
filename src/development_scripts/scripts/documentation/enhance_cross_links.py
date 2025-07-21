@@ -136,9 +136,9 @@ class CrossLinkEnhancer:
 ## 🆘 **Getting Help**
 
 - **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
-- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
-- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
-- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities
+- **[GitHub Issues](https://github.com/your-org/anomaly_detection/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/anomaly_detection/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@anomaly_detection.org)** - Report security vulnerabilities
 """,
             "developer-guide": """
 ---
@@ -172,7 +172,7 @@ class CrossLinkEnhancer:
 ## 🆘 **Getting Help**
 
 - **[Development Troubleshooting](../contributing/troubleshooting/)** - Development issues
-- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs
+- **[GitHub Issues](https://github.com/your-org/anomaly_detection/issues)** - Report bugs
 - **[Contributing Guidelines](../contributing/CONTRIBUTING.md)** - Contribution process
 """,
             "reference": """

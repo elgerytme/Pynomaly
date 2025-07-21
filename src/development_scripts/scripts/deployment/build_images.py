@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Docker Image Builder for Production Deployment
-Builds optimized Docker images for all Pynomaly components
+Builds optimized Docker images for all anomaly_detection components
 """
 
 import json
@@ -21,7 +21,7 @@ class DockerImageBuilder:
 
     def __init__(self):
         self.project_root = Path(__file__).parent.parent.parent
-        self.docker_registry = os.getenv("DOCKER_REGISTRY", "pynomaly")
+        self.docker_registry = os.getenv("DOCKER_REGISTRY", "anomaly_detection")
         self.image_tag = os.getenv("IMAGE_TAG", "latest")
         self.build_args = self._get_build_args()
 
@@ -50,7 +50,7 @@ class DockerImageBuilder:
     def _get_version(self) -> str:
         """Get application version"""
         try:
-            version_file = self.project_root / "src" / "pynomaly" / "_version.py"
+            version_file = self.project_root / "src" / "anomaly_detection" / "_version.py"
             if version_file.exists():
                 with open(version_file) as f:
                     content = f.read()
@@ -121,22 +121,22 @@ class DockerImageBuilder:
         images_to_build = [
             {
                 "dockerfile": "Dockerfile.production",
-                "image_name": "pynomaly-api",
+                "image_name": "anomaly_detection-api",
                 "context": None,
             },
             {
                 "dockerfile": "deploy/docker/Dockerfile.web",
-                "image_name": "pynomaly-web",
+                "image_name": "anomaly_detection-web",
                 "context": None,
             },
             {
                 "dockerfile": "deploy/docker/Dockerfile.worker",
-                "image_name": "pynomaly-worker",
+                "image_name": "anomaly_detection-worker",
                 "context": None,
             },
             {
                 "dockerfile": "deploy/docker/Dockerfile.monitoring",
-                "image_name": "pynomaly-monitoring",
+                "image_name": "anomaly_detection-monitoring",
                 "context": None,
             },
         ]

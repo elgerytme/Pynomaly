@@ -250,16 +250,16 @@ The standardization maintains monorepo benefits while enabling:
 ## File Paths Reference
 
 ### High Priority Packages
-- `/mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/` - Complete anomaly detection package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/ai/mlops/` - Complete MLOps package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure/` - Complete infrastructure package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/software/core/` - Complete core package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/` - Complete interfaces package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/data/anomaly_detection/` - Complete anomaly detection package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/ai/mlops/` - Complete MLOps package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/ops/infrastructure/` - Complete infrastructure package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/software/core/` - Complete core package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/software/interfaces/` - Complete interfaces package
 
 ### Additional Standardized Packages
-- `/mnt/c/Users/andre/Pynomaly/src/packages/data/data_observability/` - Data observability package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/` - Mathematics package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/ops/people_ops/` - People operations package
-- `/mnt/c/Users/andre/Pynomaly/src/packages/software/domain_library/` - Domain library package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/data/data_observability/` - Data observability package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/formal_sciences/mathematics/` - Mathematics package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/ops/people_ops/` - People operations package
+- `/mnt/c/Users/andre/anomaly_detection/src/packages/software/domain_library/` - Domain library package
 
 This standardization effort ensures each package follows professional standards and can function independently while maintaining the benefits of the monorepo structure.

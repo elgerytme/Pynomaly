@@ -5,14 +5,14 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pynomaly</groupId>
-    <artifactId>pynomaly-java-sdk</artifactId>
+    <groupId>com.anomaly_detection</groupId>
+    <artifactId>anomaly_detection-java-sdk</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Pynomaly Java SDK</name>
-    <description>Official Java client library for the Pynomaly anomaly detection API</description>
-    <url>https://github.com/pynomaly/pynomaly-java-sdk</url>
+    <name>anomaly_detection Java SDK</name>
+    <description>Official Java client library for the anomaly_detection anomaly detection API</description>
+    <url>https://github.com/anomaly_detection/anomaly_detection-java-sdk</url>
 
     <licenses>
         <license>
@@ -24,17 +24,17 @@
 
     <developers>
         <developer>
-            <name>Pynomaly Team</name>
-            <email>support@pynomaly.com</email>
-            <organization>Pynomaly</organization>
-            <organizationUrl>https://pynomaly.com</organizationUrl>
+            <name>anomaly_detection Team</name>
+            <email>support@anomaly_detection.com</email>
+            <organization>anomaly_detection</organization>
+            <organizationUrl>https://anomaly_detection.com</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/pynomaly/pynomaly-java-sdk.git</connection>
-        <developerConnection>scm:git:ssh://github.com:pynomaly/pynomaly-java-sdk.git</developerConnection>
-        <url>https://github.com/pynomaly/pynomaly-java-sdk/tree/main</url>
+        <connection>scm:git:git://github.com/anomaly_detection/anomaly_detection-java-sdk.git</connection>
+        <developerConnection>scm:git:ssh://github.com:anomaly_detection/anomaly_detection-java-sdk.git</developerConnection>
+        <url>https://github.com/anomaly_detection/anomaly_detection-java-sdk/tree/main</url>
     </scm>
 
     <properties>

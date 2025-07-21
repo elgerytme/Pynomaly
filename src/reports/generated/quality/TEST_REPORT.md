@@ -1,16 +1,16 @@
-# Pynomaly Test Report
+# anomaly_detection Test Report
 *Generated: 2025-01-07*
 
 ## Executive Summary
 
-This report documents the test execution results for the Pynomaly anomaly detection package. After identifying and fixing critical import errors, the test suite shows significant progress with 687 tests collected across various modules.
+This report documents the test execution results for the anomaly_detection anomaly detection package. After identifying and fixing critical import errors, the test suite shows significant progress with 687 tests collected across various modules.
 
 ## Test Environment
 
 - **Python Version**: 3.12.3
 - **Platform**: Linux (WSL2)
 - **Test Framework**: pytest 8.4.1
-- **Working Directory**: `/mnt/c/Users/andre/Pynomaly`
+- **Working Directory**: `/mnt/c/Users/andre/anomaly_detection`
 
 ## Issues Identified and Fixed
 
@@ -196,7 +196,7 @@ Several test modules still have import-related collection errors:
 
 ## Conclusion
 
-The Pynomaly test suite shows strong architectural foundations with comprehensive test coverage planned across all layers. The main issues were import-related and have been systematically resolved. With the remaining DTO implementations completed, the test suite should achieve full execution capability.
+The anomaly_detection test suite shows strong architectural foundations with comprehensive test coverage planned across all layers. The main issues were import-related and have been systematically resolved. With the remaining DTO implementations completed, the test suite should achieve full execution capability.
 
 The codebase demonstrates good adherence to clean architecture principles and modern Python patterns. The test infrastructure is well-organized with appropriate categorization and tooling.
 

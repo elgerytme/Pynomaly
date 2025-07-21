@@ -1,8 +1,8 @@
-# Pynomaly Knowledge Transfer Document
+# anomaly_detection Knowledge Transfer Document
 
 ## Overview
 
-This document provides comprehensive knowledge transfer for the Pynomaly open source anomaly detection platform. It's designed to help new team members, contributors, and maintainers understand the system architecture, implementation details, and operational procedures.
+This document provides comprehensive knowledge transfer for the anomaly_detection open source anomaly detection platform. It's designed to help new team members, contributors, and maintainers understand the system architecture, implementation details, and operational procedures.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ This document provides comprehensive knowledge transfer for the Pynomaly open so
 
 ### High-Level Architecture
 
-Pynomaly follows **Clean Architecture** principles with clear separation of concerns:
+anomaly_detection follows **Clean Architecture** principles with clear separation of concerns:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -121,8 +121,8 @@ The system is organized into bounded contexts:
 2. **Environment Setup**:
    ```bash
    # Clone repository
-   git clone https://github.com/yourusername/pynomaly.git
-   cd pynomaly
+   git clone https://github.com/yourusername/anomaly_detection.git
+   cd anomaly_detection
    
    # Create virtual environment
    python -m venv environments/.venv
@@ -146,7 +146,7 @@ The system is organized into bounded contexts:
    mypy src/packages/
    
    # Test CLI
-   pynomaly --help
+   anomaly_detection --help
    ```
 
 ### IDE Configuration
@@ -174,7 +174,7 @@ The system is organized into bounded contexts:
 ### Directory Layout
 
 ```
-pynomaly/
+anomaly_detection/
 ├── src/packages/           # 🎯 Core business domains
 │   ├── core/              # Shared domain patterns
 │   ├── anomaly_detection/ # ML detection algorithms
@@ -322,10 +322,10 @@ class Logger:
 
 **Commands**:
 ```bash
-pynomaly detect --input data.csv --algorithm isolation_forest
-pynomaly train --data training.csv --algorithm autoencoder
-pynomaly evaluate --model model.pkl --test test.csv
-pynomaly serve --host 0.0.0.0 --port 8000
+anomaly_detection detect --input data.csv --algorithm isolation_forest
+anomaly_detection train --data training.csv --algorithm autoencoder
+anomaly_detection evaluate --model model.pkl --test test.csv
+anomaly_detection serve --host 0.0.0.0 --port 8000
 ```
 
 ## Security Implementation
@@ -482,15 +482,15 @@ def test_detection_performance(benchmark, sample_dataset):
 FROM python:3.11-slim
 
 # Security: Create non-root user
-RUN useradd --create-home --shell /bin/bash pynomaly
-USER pynomaly
+RUN useradd --create-home --shell /bin/bash anomaly_detection
+USER anomaly_detection
 
 # Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application
-COPY --chown=pynomaly:pynomaly . /app
+COPY --chown=anomaly_detection:anomaly_detection . /app
 WORKDIR /app
 
 # Health check
@@ -498,7 +498,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Run application
-CMD ["uvicorn", "pynomaly.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "anomaly_detection.api:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 **Docker Compose** (`docker-compose.yml`):
@@ -506,12 +506,12 @@ CMD ["uvicorn", "pynomaly.api:app", "--host", "0.0.0.0", "--port", "8000"]
 version: '3.8'
 
 services:
-  pynomaly-api:
+  anomaly_detection-api:
     build: .
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/pynomaly
+      - DATABASE_URL=postgresql://user:pass@db:5432/anomaly_detection
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
@@ -521,7 +521,7 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: pynomaly
+      POSTGRES_DB: anomaly_detection
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
     volumes:
@@ -560,12 +560,12 @@ volumes:
 **Environment Variables**:
 ```bash
 # Core Configuration
-PYNOMALY_ENV=production
-PYNOMALY_DEBUG=false
-PYNOMALY_LOG_LEVEL=INFO
+ANOMALY_DETECTION_ENV=production
+ANOMALY_DETECTION_DEBUG=false
+ANOMALY_DETECTION_LOG_LEVEL=INFO
 
 # Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/pynomaly
+DATABASE_URL=postgresql://user:pass@localhost:5432/anomaly_detection
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -592,27 +592,27 @@ METRICS_PORT=9100
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pynomaly-api
+  name: anomaly_detection-api
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: pynomaly-api
+      app: anomaly_detection-api
   template:
     metadata:
       labels:
-        app: pynomaly-api
+        app: anomaly_detection-api
     spec:
       containers:
-      - name: pynomaly-api
-        image: pynomaly:latest
+      - name: anomaly_detection-api
+        image: anomaly_detection:latest
         ports:
         - containerPort: 8000
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: pynomaly-secrets
+              name: anomaly_detection-secrets
               key: database-url
         resources:
           requests:
@@ -645,26 +645,26 @@ from prometheus_client import Counter, Histogram, Gauge
 
 # Request metrics
 REQUEST_COUNT = Counter(
-    'pynomaly_requests_total',
+    'anomaly_detection_requests_total',
     'Total requests',
     ['method', 'endpoint', 'status']
 )
 
 REQUEST_DURATION = Histogram(
-    'pynomaly_request_duration_seconds',
+    'anomaly_detection_request_duration_seconds',
     'Request duration',
     ['method', 'endpoint']
 )
 
 # Business metrics
 ANOMALIES_DETECTED = Counter(
-    'pynomaly_anomalies_detected_total',
+    'anomaly_detection_anomalies_detected_total',
     'Total anomalies detected',
     ['algorithm', 'dataset']
 )
 
 MODEL_ACCURACY = Gauge(
-    'pynomaly_model_accuracy',
+    'anomaly_detection_model_accuracy',
     'Model accuracy score',
     ['model_id', 'algorithm']
 )
@@ -734,10 +734,10 @@ async def health_check():
 **Prometheus Alerts** (`monitoring/alerts.yml`):
 ```yaml
 groups:
-- name: pynomaly
+- name: anomaly_detection
   rules:
   - alert: HighErrorRate
-    expr: rate(pynomaly_requests_total{status=~"5.."}[5m]) > 0.1
+    expr: rate(anomaly_detection_requests_total{status=~"5.."}[5m]) > 0.1
     for: 5m
     labels:
       severity: critical
@@ -746,7 +746,7 @@ groups:
       description: "Error rate is {{ $value }} errors per second"
       
   - alert: HighResponseTime
-    expr: histogram_quantile(0.95, pynomaly_request_duration_seconds) > 2
+    expr: histogram_quantile(0.95, anomaly_detection_request_duration_seconds) > 2
     for: 5m
     labels:
       severity: warning
@@ -779,12 +779,12 @@ pip install -e ".[dev]" --force-reinstall
 
 #### 2. Import Errors
 
-**Issue**: `ModuleNotFoundError: No module named 'pynomaly'`
+**Issue**: `ModuleNotFoundError: No module named 'anomaly_detection'`
 
 **Solution**:
 ```bash
 # Verify package installation
-pip list | grep pynomaly
+pip list | grep anomaly_detection
 
 # Reinstall in development mode
 pip install -e .
@@ -843,7 +843,7 @@ python -m memory_profiler scripts/memory_test.py
 **Diagnosis**:
 ```bash
 # Check application logs
-docker logs pynomaly-api
+docker logs anomaly_detection-api
 
 # Test health endpoint
 curl -v http://localhost:8000/health
@@ -879,7 +879,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Or use environment variable
 import os
-os.environ['PYNOMALY_LOG_LEVEL'] = 'DEBUG'
+os.environ['ANOMALY_DETECTION_LOG_LEVEL'] = 'DEBUG'
 ```
 
 #### 3. Performance Profiling
@@ -1093,7 +1093,7 @@ git push origin v0.4.0
 ### Community
 - **GitHub Discussions**: Q&A and community support
 - **Issue Tracker**: Bug reports and feature requests
-- **Security Reports**: security@pynomaly.org
+- **Security Reports**: security@anomaly_detection.org
 
 ### Training Materials
 - [Getting Started Guide](docs/guides/GETTING_STARTED.md)
@@ -1103,7 +1103,7 @@ git push origin v0.4.0
 
 ---
 
-**Document Maintained By**: Pynomaly Development Team  
+**Document Maintained By**: anomaly_detection Development Team  
 **Last Updated**: 2025-01-21  
 **Version**: 1.0  
 **Review Schedule**: Monthly

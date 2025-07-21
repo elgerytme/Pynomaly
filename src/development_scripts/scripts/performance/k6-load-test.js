@@ -82,7 +82,7 @@ export default function(data) {
     const dashboardResponse = http.get(`${data.baseUrl}/`);
     check(dashboardResponse, {
       'dashboard loads successfully': (r) => r.status === 200,
-      'dashboard contains expected content': (r) => r.body.includes('Pynomaly'),
+      'dashboard contains expected content': (r) => r.body.includes('anomaly_detection'),
     }) || errorRate.add(1);
 
     responseTimeTrend.add(dashboardResponse.timings.duration);

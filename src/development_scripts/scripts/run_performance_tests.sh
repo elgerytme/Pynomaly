@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Performance Testing Script for Pynomaly
+# Performance Testing Script for anomaly_detection
 # This script runs comprehensive performance tests and optimization validation
 
 set -e
@@ -51,7 +51,7 @@ show_usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Run comprehensive performance tests and optimization validation for Pynomaly.
+Run comprehensive performance tests and optimization validation for anomaly_detection.
 
 OPTIONS:
     -t, --type TYPE              Test type (load, stress, endurance, comprehensive) [default: comprehensive]
@@ -349,7 +349,7 @@ generate_summary_report() {
     local summary_file="$REPORTS_DIR/performance_summary_$(date +%Y%m%d_%H%M%S).txt"
     
     cat > "$summary_file" << EOF
-PYNOMALY PERFORMANCE TEST SUMMARY
+anomaly_detection PERFORMANCE TEST SUMMARY
 =================================
 
 Test Configuration:
@@ -416,7 +416,7 @@ run_comprehensive_testing() {
 # Main function
 main() {
     echo "======================================"
-    echo "Pynomaly Performance Testing Script"
+    echo "anomaly_detection Performance Testing Script"
     echo "======================================"
     
     # Parse command line arguments

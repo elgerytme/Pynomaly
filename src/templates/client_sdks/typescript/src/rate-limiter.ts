@@ -1,5 +1,5 @@
 /**
- * Rate limiting implementation for the Pynomaly TypeScript SDK
+ * Rate limiting implementation for the anomaly_detection TypeScript SDK
  * Provides client-side rate limiting with token bucket algorithm
  */
 

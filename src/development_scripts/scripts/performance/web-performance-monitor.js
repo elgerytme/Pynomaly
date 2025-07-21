@@ -85,7 +85,7 @@ class WebPerformanceMonitor {
   }
   
   async analyzeBundleSizes() {
-    const distDir = path.join(process.cwd(), 'src/pynomaly/presentation/web/static/js/dist');
+    const distDir = path.join(process.cwd(), 'src/anomaly_detection/presentation/web/static/js/dist');
     
     if (!fs.existsSync(distDir)) {
       console.warn('⚠️ Build directory not found. Run npm run build first.');
@@ -154,7 +154,7 @@ class WebPerformanceMonitor {
   }
   
   async analyzeResourceOptimization() {
-    const staticDir = path.join(process.cwd(), 'src/pynomaly/presentation/web/static');
+    const staticDir = path.join(process.cwd(), 'src/anomaly_detection/presentation/web/static');
     
     // Analyze images
     const imgDir = path.join(staticDir, 'img');
@@ -421,7 +421,7 @@ class WebPerformanceMonitor {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pynomaly Web Performance Report</title>
+    <title>anomaly_detection Web Performance Report</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px; }
@@ -445,7 +445,7 @@ class WebPerformanceMonitor {
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Pynomaly Web Performance Report</h1>
+        <h1>🚀 anomaly_detection Web Performance Report</h1>
         <p><strong>Generated:</strong> ${this.results.timestamp}</p>
         
         <h2>📊 Performance Score</h2>
@@ -517,7 +517,7 @@ class WebPerformanceMonitor {
   }
   
   generateMarkdownSummary() {
-    return `# Pynomaly Web Performance Report
+    return `# anomaly_detection Web Performance Report
 
 **Generated:** ${this.results.timestamp}
 

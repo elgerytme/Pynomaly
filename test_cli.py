@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-"""Test CLI functionality for Pynomaly."""
+"""Test CLI functionality for anomaly_detection."""
 
 import sys
 import os
-sys.path.insert(0, '/mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/src')
+sys.path.insert(0, '/mnt/c/Users/andre/anomaly_detection/src/packages/data/anomaly_detection/src')
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
-app = typer.Typer(help="Pynomaly Anomaly Detection CLI")
+app = typer.Typer(help="anomaly_detection Anomaly Detection CLI")
 console = Console()
 
 @app.command()
@@ -28,7 +28,7 @@ def detect(
     try:
         # Test basic functionality
         import numpy as np
-        from pynomaly_detection import AnomalyDetector
+        from anomaly_detection import AnomalyDetector
         
         # Generate sample data for testing
         np.random.seed(42)
@@ -80,10 +80,10 @@ def algorithms():
 def version():
     """Show version information."""
     try:
-        import pynomaly_detection
-        console.print(f"[bold green]Pynomaly Detection v{pynomaly_detection.__version__}[/bold green]")
-        console.print(f"Author: {pynomaly_detection.__author__}")
-        console.print(f"Email: {pynomaly_detection.__email__}")
+        import anomaly_detection
+        console.print(f"[bold green]anomaly_detection Detection v{anomaly_detection.__version__}[/bold green]")
+        console.print(f"Author: {anomaly_detection.__author__}")
+        console.print(f"Email: {anomaly_detection.__email__}")
     except Exception as e:
         console.print(f"[bold red]Could not load version info: {e}[/bold red]")
 

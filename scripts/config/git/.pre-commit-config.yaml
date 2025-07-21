@@ -1,4 +1,4 @@
-# Pre-commit Configuration for Pynomaly
+# Pre-commit Configuration for anomaly_detection
 # See https://pre-commit.com for more information
 # Install: pre-commit install
 # Run manually: pre-commit run --all-files
@@ -130,7 +130,7 @@ repos:
       # Check for critical TODOs
       - id: check-critical-todos
         name: Check for critical TODOs
-        entry: bash -c 'grep -r "TODO.*CRITICAL\|FIXME.*URGENT\|XXX.*SECURITY" src/pynomaly/domain/ src/pynomaly/application/ --include="*.py" && exit 1 || exit 0'
+        entry: bash -c 'grep -r "TODO.*CRITICAL\|FIXME.*URGENT\|XXX.*SECURITY" src/anomaly_detection/domain/ src/anomaly_detection/application/ --include="*.py" && exit 1 || exit 0'
         language: system
         files: \.py$
 

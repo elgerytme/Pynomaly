@@ -1,7 +1,7 @@
 # Automated Test Coverage Report
 
 **Generated**: 20250709_162210
-**Project**: /mnt/c/Users/andre/Pynomaly
+**Project**: /mnt/c/Users/andre/anomaly_detection
 
 ## Overview
 

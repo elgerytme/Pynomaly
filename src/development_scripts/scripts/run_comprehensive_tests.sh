@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive Test Suite Runner for Pynomaly
+# Comprehensive Test Suite Runner for anomaly_detection
 # This script runs all test categories with proper reporting
 
 set -euo pipefail
@@ -67,7 +67,7 @@ run_unit_tests() {
     log "Running unit tests..."
 
     pytest tests/unit/ \
-        --cov=src/pynomaly \
+        --cov=src/anomaly_detection \
         --cov-report=html:${COVERAGE_DIR}/unit \
         --cov-report=xml:${COVERAGE_DIR}/unit_coverage.xml \
         --cov-report=term-missing \
@@ -88,7 +88,7 @@ run_integration_tests() {
     log "Running integration tests..."
 
     pytest tests/integration/ \
-        --cov=src/pynomaly \
+        --cov=src/anomaly_detection \
         --cov-append \
         --cov-report=html:${COVERAGE_DIR}/integration \
         --cov-report=xml:${COVERAGE_DIR}/integration_coverage.xml \
@@ -109,7 +109,7 @@ run_api_tests() {
     log "Running API tests..."
 
     pytest tests/api/ \
-        --cov=src/pynomaly \
+        --cov=src/anomaly_detection \
         --cov-append \
         --cov-report=html:${COVERAGE_DIR}/api \
         --cov-report=xml:${COVERAGE_DIR}/api_coverage.xml \
@@ -130,7 +130,7 @@ run_cli_tests() {
     log "Running CLI tests..."
 
     pytest tests/cli/ \
-        --cov=src/pynomaly \
+        --cov=src/anomaly_detection \
         --cov-append \
         --cov-report=html:${COVERAGE_DIR}/cli \
         --cov-report=xml:${COVERAGE_DIR}/cli_coverage.xml \
@@ -170,7 +170,7 @@ run_security_tests() {
     log "Running security tests..."
 
     # Run Bandit security scan
-    bandit -r src/pynomaly/ -f json -o ${REPORT_DIR}/bandit_report_${TIMESTAMP}.json || {
+    bandit -r src/anomaly_detection/ -f json -o ${REPORT_DIR}/bandit_report_${TIMESTAMP}.json || {
         warning "Bandit security scan found issues"
     }
 
@@ -187,12 +187,12 @@ run_code_quality_tests() {
     log "Running code quality tests..."
 
     # Run Ruff linting
-    ruff check src/pynomaly/ --output-format=json --output-file=${REPORT_DIR}/ruff_report_${TIMESTAMP}.json || {
+    ruff check src/anomaly_detection/ --output-format=json --output-file=${REPORT_DIR}/ruff_report_${TIMESTAMP}.json || {
         warning "Ruff linting found issues"
     }
 
     # Run MyPy type checking
-    mypy src/pynomaly/ --junit-xml=${REPORT_DIR}/mypy_report_${TIMESTAMP}.xml || {
+    mypy src/anomaly_detection/ --junit-xml=${REPORT_DIR}/mypy_report_${TIMESTAMP}.xml || {
         warning "MyPy type checking found issues"
     }
 

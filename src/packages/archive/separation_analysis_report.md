@@ -21,21 +21,21 @@
 - Has pyproject.toml: True
 - Has tests: True
 
-### data.anomaly_detection.src.monorepo_detection.core - ✅ READY (Score: 10/10)
+### data.anomaly_detection.src.anomaly_detection.core - ✅ READY (Score: 10/10)
 - Files: 146
 - Internal dependencies: 0
 - External dependencies: 182
 - Has pyproject.toml: True
 - Has tests: True
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder - ✅ READY (Score: 10/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder - ✅ READY (Score: 10/10)
 - Files: 435
 - Internal dependencies: 0
 - External dependencies: 320
 - Has pyproject.toml: True
 - Has tests: True
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core - ✅ READY (Score: 10/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core - ✅ READY (Score: 10/10)
 - Files: 150
 - Internal dependencies: 0
 - External dependencies: 182
@@ -70,7 +70,7 @@
 - Has pyproject.toml: True
 - Has tests: True
 
-### data.anomaly_detection.src.monorepo_detection - ✅ READY (Score: 9/10)
+### data.anomaly_detection.src.anomaly_detection - ✅ READY (Score: 9/10)
 - Files: 893
 - Internal dependencies: 0
 - External dependencies: 569
@@ -79,7 +79,7 @@
 - **Blockers:**
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly - ✅ READY (Score: 9/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection - ✅ READY (Score: 9/10)
 - Files: 145
 - Internal dependencies: 0
 - External dependencies: 45
@@ -142,7 +142,7 @@
 - **Blockers:**
   - incomplete_layers: Missing domain/application layers
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder - ✅ READY (Score: 8/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder - ✅ READY (Score: 8/10)
 - Files: 42
 - Internal dependencies: 0
 - External dependencies: 77
@@ -247,7 +247,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.algorithms - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms - ⚠️ PARTIAL (Score: 7/10)
 - Files: 79
 - Internal dependencies: 0
 - External dependencies: 129
@@ -257,7 +257,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder - ⚠️ PARTIAL (Score: 7/10)
 - Files: 42
 - Internal dependencies: 0
 - External dependencies: 125
@@ -267,7 +267,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.tests - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.tests - ⚠️ PARTIAL (Score: 7/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -277,7 +277,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.core.domain - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain - ⚠️ PARTIAL (Score: 7/10)
 - Files: 93
 - Internal dependencies: 0
 - External dependencies: 126
@@ -287,7 +287,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.entities - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.entities - ⚠️ PARTIAL (Score: 7/10)
 - Files: 42
 - Internal dependencies: 0
 - External dependencies: 34
@@ -297,7 +297,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain - ⚠️ PARTIAL (Score: 7/10)
 - Files: 95
 - Internal dependencies: 0
 - External dependencies: 126
@@ -307,7 +307,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.entities - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.entities - ⚠️ PARTIAL (Score: 7/10)
 - Files: 42
 - Internal dependencies: 0
 - External dependencies: 34
@@ -317,7 +317,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure - ⚠️ PARTIAL (Score: 7/10)
 - Files: 61
 - Internal dependencies: 0
 - External dependencies: 37
@@ -327,7 +327,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.storage - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.storage - ⚠️ PARTIAL (Score: 7/10)
 - Files: 9
 - Internal dependencies: 0
 - External dependencies: 25
@@ -337,7 +337,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.testing - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.testing - ⚠️ PARTIAL (Score: 7/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 0
@@ -347,7 +347,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.testing.orchestration - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.testing.orchestration - ⚠️ PARTIAL (Score: 7/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -357,7 +357,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.tests - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.tests - ⚠️ PARTIAL (Score: 7/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -367,7 +367,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.storage - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.storage - ⚠️ PARTIAL (Score: 7/10)
 - Files: 9
 - Internal dependencies: 0
 - External dependencies: 25
@@ -377,7 +377,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.tests - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.tests - ⚠️ PARTIAL (Score: 7/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -387,7 +387,7 @@
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 
-### data.anomaly_detection.src.monorepo_detection.services - ⚠️ PARTIAL (Score: 7/10)
+### data.anomaly_detection.src.anomaly_detection.services - ⚠️ PARTIAL (Score: 7/10)
 - Files: 132
 - Internal dependencies: 0
 - External dependencies: 222
@@ -1022,7 +1022,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.adapters - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.adapters - ⚠️ PARTIAL (Score: 6/10)
 - Files: 36
 - Internal dependencies: 0
 - External dependencies: 115
@@ -1033,7 +1033,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 25
@@ -1044,7 +1044,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters - ⚠️ PARTIAL (Score: 6/10)
 - Files: 31
 - Internal dependencies: 0
 - External dependencies: 106
@@ -1055,7 +1055,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 25
@@ -1066,7 +1066,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.algorithms - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.algorithms - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1077,7 +1077,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.application - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.application - ⚠️ PARTIAL (Score: 6/10)
 - Files: 20
 - Internal dependencies: 0
 - External dependencies: 61
@@ -1088,7 +1088,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.application.dto - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.application.dto - ⚠️ PARTIAL (Score: 6/10)
 - Files: 5
 - Internal dependencies: 0
 - External dependencies: 7
@@ -1099,7 +1099,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.application.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.application.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 38
@@ -1110,7 +1110,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.application.use_cases - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.application.use_cases - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 22
@@ -1121,7 +1121,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 9
@@ -1132,7 +1132,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.common - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.common - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 3
@@ -1143,7 +1143,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 8
@@ -1154,7 +1154,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 1
@@ -1165,7 +1165,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 17
 - Internal dependencies: 0
 - External dependencies: 73
@@ -1176,7 +1176,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.validation - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.validation - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 2
@@ -1187,7 +1187,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
 - Files: 14
 - Internal dependencies: 0
 - External dependencies: 17
@@ -1198,7 +1198,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.dto - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.dto - ⚠️ PARTIAL (Score: 6/10)
 - Files: 20
 - Internal dependencies: 0
 - External dependencies: 20
@@ -1209,7 +1209,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.shared - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.shared - ⚠️ PARTIAL (Score: 6/10)
 - Files: 17
 - Internal dependencies: 0
 - External dependencies: 32
@@ -1220,7 +1220,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.shared.error_handling - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.shared.error_handling - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 22
@@ -1231,7 +1231,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.shared.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.shared.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 12
@@ -1242,7 +1242,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.shared.utils - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.shared.utils - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1253,7 +1253,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.core.use_cases - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.core.use_cases - ⚠️ PARTIAL (Score: 6/10)
 - Files: 14
 - Internal dependencies: 0
 - External dependencies: 39
@@ -1264,7 +1264,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.domain - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.domain - ⚠️ PARTIAL (Score: 6/10)
 - Files: 28
 - Internal dependencies: 0
 - External dependencies: 37
@@ -1275,7 +1275,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1286,7 +1286,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.domain.entities - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.domain.entities - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 15
@@ -1297,7 +1297,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 4
@@ -1308,7 +1308,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.domain.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.domain.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 16
@@ -1319,7 +1319,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
 - Files: 10
 - Internal dependencies: 0
 - External dependencies: 13
@@ -1330,7 +1330,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.infrastructure - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.infrastructure - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 18
@@ -1341,7 +1341,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.infrastructure.adapters - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.infrastructure.adapters - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 10
@@ -1352,7 +1352,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.infrastructure.explainers - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.infrastructure.explainers - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 10
@@ -1363,7 +1363,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.infrastructure.preprocessing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.infrastructure.preprocessing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1374,7 +1374,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters - ⚠️ PARTIAL (Score: 6/10)
 - Files: 36
 - Internal dependencies: 0
 - External dependencies: 115
@@ -1385,7 +1385,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 25
@@ -1396,7 +1396,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.alerting - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.alerting - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1407,7 +1407,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms - ⚠️ PARTIAL (Score: 6/10)
 - Files: 37
 - Internal dependencies: 0
 - External dependencies: 115
@@ -1418,7 +1418,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters - ⚠️ PARTIAL (Score: 6/10)
 - Files: 36
 - Internal dependencies: 0
 - External dependencies: 115
@@ -1429,7 +1429,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 25
@@ -1440,7 +1440,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.auth - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.auth - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1451,7 +1451,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.automl - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.automl - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1462,7 +1462,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.backup - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.backup - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1473,7 +1473,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.batch - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.batch - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1484,7 +1484,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.business_intelligence - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.business_intelligence - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1495,7 +1495,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.cache - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.cache - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1506,7 +1506,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.caching - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.caching - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1517,7 +1517,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.cicd - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.cicd - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1528,7 +1528,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.compliance - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.compliance - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1539,7 +1539,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.config - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.config - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1550,7 +1550,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 8
@@ -1561,7 +1561,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 8
@@ -1572,7 +1572,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 9
@@ -1583,7 +1583,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.common - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.common - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 3
@@ -1594,7 +1594,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 7
 - Internal dependencies: 0
 - External dependencies: 8
@@ -1605,7 +1605,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 1
@@ -1616,7 +1616,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.repositories - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.repositories - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 3
@@ -1627,7 +1627,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.security - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.security - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 3
@@ -1638,7 +1638,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 17
 - Internal dependencies: 0
 - External dependencies: 73
@@ -1649,7 +1649,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.validation - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.validation - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 2
@@ -1660,7 +1660,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
 - Files: 14
 - Internal dependencies: 0
 - External dependencies: 17
@@ -1671,7 +1671,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.dto - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.dto - ⚠️ PARTIAL (Score: 6/10)
 - Files: 20
 - Internal dependencies: 0
 - External dependencies: 20
@@ -1682,7 +1682,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared - ⚠️ PARTIAL (Score: 6/10)
 - Files: 17
 - Internal dependencies: 0
 - External dependencies: 32
@@ -1693,7 +1693,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.error_handling - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.error_handling - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 22
@@ -1704,7 +1704,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 12
@@ -1715,7 +1715,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.utils - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.utils - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1726,7 +1726,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.use_cases - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.use_cases - ⚠️ PARTIAL (Score: 6/10)
 - Files: 14
 - Internal dependencies: 0
 - External dependencies: 39
@@ -1737,7 +1737,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data - ⚠️ PARTIAL (Score: 6/10)
 - Files: 4
 - Internal dependencies: 0
 - External dependencies: 15
@@ -1748,7 +1748,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_loaders - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_loaders - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1759,7 +1759,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_processing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_processing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1770,7 +1770,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_quality - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_quality - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1781,7 +1781,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.distributed - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.distributed - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1792,7 +1792,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.error_handling - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.error_handling - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1803,7 +1803,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.explainers - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.explainers - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1814,7 +1814,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.federated - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.federated - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1825,7 +1825,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.feedback - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.feedback - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1836,7 +1836,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.global_scale - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.global_scale - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1847,7 +1847,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces - ⚠️ PARTIAL (Score: 6/10)
 - Files: 8
 - Internal dependencies: 0
 - External dependencies: 24
@@ -1858,7 +1858,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.api - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.api - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 7
@@ -1869,7 +1869,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.cli - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.cli - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 10
@@ -1880,7 +1880,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.python_sdk - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.python_sdk - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 10
@@ -1891,7 +1891,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.lifecycle - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.lifecycle - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1902,7 +1902,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.logging - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.logging - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1913,7 +1913,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.messaging - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.messaging - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1924,7 +1924,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.middleware - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.middleware - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1935,7 +1935,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.ml_governance - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.ml_governance - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1946,7 +1946,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.monitoring - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.monitoring - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1957,7 +1957,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.multitenancy - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.multitenancy - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1968,7 +1968,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.notifications - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.notifications - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1979,7 +1979,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.optimization - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.optimization - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -1990,7 +1990,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2001,7 +2001,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance_v2 - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance_v2 - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2012,7 +2012,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.persistence - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.persistence - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2023,7 +2023,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.preprocessing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.preprocessing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2034,7 +2034,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.production - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.production - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2045,7 +2045,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application - ⚠️ PARTIAL (Score: 6/10)
 - Files: 8
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2056,7 +2056,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.di - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.di - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2067,7 +2067,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.dto - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.dto - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2078,7 +2078,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2089,7 +2089,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2100,7 +2100,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.services.automl - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.services.automl - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2111,7 +2111,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.services.interfaces - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.services.interfaces - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2122,7 +2122,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.use_cases - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.use_cases - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2133,7 +2133,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.docs_validation - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.docs_validation - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2144,7 +2144,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.docs_validation.checkers - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.docs_validation.checkers - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2155,7 +2155,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.docs_validation.core - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.docs_validation.core - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2166,7 +2166,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain - ⚠️ PARTIAL (Score: 6/10)
 - Files: 26
 - Internal dependencies: 0
 - External dependencies: 12
@@ -2177,7 +2177,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.abstractions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2188,7 +2188,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.common - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.common - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2199,7 +2199,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.entities - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.entities - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2210,7 +2210,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.exceptions - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2221,7 +2221,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.models - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.models - ⚠️ PARTIAL (Score: 6/10)
 - Files: 15
 - Internal dependencies: 0
 - External dependencies: 12
@@ -2232,7 +2232,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2243,7 +2243,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.repositories - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.repositories - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2254,7 +2254,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.security - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.security - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2265,7 +2265,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2276,7 +2276,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.validation - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.validation - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2287,7 +2287,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2298,7 +2298,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.enterprise - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.enterprise - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2309,7 +2309,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.features - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.features - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2320,7 +2320,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.adapters - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.adapters - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2331,7 +2331,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.adapters.deep_learning - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2342,7 +2342,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.alerting - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.alerting - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2353,7 +2353,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.auth - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.auth - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2364,7 +2364,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.automl - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.automl - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2375,7 +2375,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.backup - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.backup - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2386,7 +2386,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.batch - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.batch - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2397,7 +2397,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.business_intelligence - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.business_intelligence - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2408,7 +2408,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.cache - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.cache - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2419,7 +2419,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.caching - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.caching - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2430,7 +2430,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.cicd - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.cicd - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2441,7 +2441,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.compliance - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.compliance - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2452,7 +2452,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.config - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.config - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2463,7 +2463,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data - ⚠️ PARTIAL (Score: 6/10)
 - Files: 4
 - Internal dependencies: 0
 - External dependencies: 15
@@ -2474,7 +2474,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data_loaders - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data_loaders - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2485,7 +2485,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data_processing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data_processing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2496,7 +2496,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data_quality - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data_quality - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2507,7 +2507,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.distributed - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.distributed - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2518,7 +2518,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.error_handling - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.error_handling - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2529,7 +2529,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.explainers - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.explainers - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2540,7 +2540,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.federated - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.federated - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2551,7 +2551,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.feedback - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.feedback - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2562,7 +2562,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.global_scale - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.global_scale - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2573,7 +2573,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.lifecycle - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.lifecycle - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2584,7 +2584,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.logging - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.logging - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2595,7 +2595,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.messaging - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.messaging - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2606,7 +2606,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.middleware - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.middleware - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2617,7 +2617,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.ml_governance - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.ml_governance - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2628,7 +2628,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.monitoring - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.monitoring - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2639,7 +2639,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.multitenancy - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.multitenancy - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2650,7 +2650,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.notifications - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.notifications - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2661,7 +2661,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.optimization - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.optimization - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2672,7 +2672,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.performance - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.performance - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2683,7 +2683,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.performance_v2 - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.performance_v2 - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2694,7 +2694,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.persistence - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.persistence - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2705,7 +2705,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.preprocessing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.preprocessing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2716,7 +2716,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.production - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.production - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2727,7 +2727,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.quality - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.quality - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2738,7 +2738,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.repositories - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.repositories - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2749,7 +2749,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.resilience - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.resilience - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2760,7 +2760,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.scheduler - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.scheduler - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2771,7 +2771,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.security - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.security - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2782,7 +2782,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2793,7 +2793,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.serving - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.serving - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2804,7 +2804,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.streaming - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.streaming - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2815,7 +2815,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.tdd - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.tdd - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2826,7 +2826,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.tracing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.tracing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2837,7 +2837,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.websocket - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.websocket - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2848,7 +2848,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.mlops - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.mlops - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2859,7 +2859,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation - ⚠️ PARTIAL (Score: 6/10)
 - Files: 27
 - Internal dependencies: 0
 - External dependencies: 2
@@ -2870,7 +2870,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api - ⚠️ PARTIAL (Score: 6/10)
 - Files: 10
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2881,7 +2881,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.dependencies - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.dependencies - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2892,7 +2892,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.docs - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.docs - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2903,7 +2903,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.endpoints - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.endpoints - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2914,7 +2914,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.graphql - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.graphql - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2925,7 +2925,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.graphql.resolvers - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.graphql.resolvers - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2936,7 +2936,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.middleware - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.middleware - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2947,7 +2947,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.routers - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.routers - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2958,7 +2958,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.security - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.security - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2969,7 +2969,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.websocket - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.websocket - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2980,7 +2980,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.cli - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.cli - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 0
@@ -2991,7 +2991,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.cli._click_backup - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.cli._click_backup - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3002,7 +3002,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.graphql - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.graphql - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3013,7 +3013,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.sdk - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.sdk - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3024,7 +3024,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web - ⚠️ PARTIAL (Score: 6/10)
 - Files: 12
 - Internal dependencies: 0
 - External dependencies: 2
@@ -3035,7 +3035,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.models - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.models - ⚠️ PARTIAL (Score: 6/10)
 - Files: 4
 - Internal dependencies: 0
 - External dependencies: 2
@@ -3046,7 +3046,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.routes - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.routes - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3057,7 +3057,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.security - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.security - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3068,7 +3068,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static - ⚠️ PARTIAL (Score: 6/10)
 - Files: 5
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3079,7 +3079,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.data - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.data - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3090,7 +3090,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.js - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.js - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3101,7 +3101,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.js.src - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.js.src - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3112,7 +3112,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.js.src.components - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.js.src.components - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3123,7 +3123,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3134,7 +3134,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.automl - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.automl - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3145,7 +3145,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.edge - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.edge - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3156,7 +3156,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.explainability - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.explainability - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3167,7 +3167,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.quantum - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.quantum - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3178,7 +3178,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.synthetic - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.synthetic - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3189,7 +3189,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.schemas - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.schemas - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3200,7 +3200,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.schemas.analytics - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.schemas.analytics - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3211,7 +3211,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.scripts - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.scripts - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3222,7 +3222,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared - ⚠️ PARTIAL (Score: 6/10)
 - Files: 4
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3233,7 +3233,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared.error_handling - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared.error_handling - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3244,7 +3244,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared.protocols - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared.protocols - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3255,7 +3255,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared.utils - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared.utils - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3266,7 +3266,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.quality - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.quality - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3277,7 +3277,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.repositories - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.repositories - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3288,7 +3288,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.resilience - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.resilience - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3299,7 +3299,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.scheduler - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.scheduler - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3310,7 +3310,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.security - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.security - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3321,7 +3321,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.serving - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.serving - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3332,7 +3332,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.streaming - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.streaming - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3343,7 +3343,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.tdd - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.tdd - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3354,7 +3354,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.tracing - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.tracing - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3365,7 +3365,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.websocket - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.websocket - ⚠️ PARTIAL (Score: 6/10)
 - Files: 1
 - Internal dependencies: 0
 - External dependencies: 0
@@ -3376,7 +3376,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to anomaly_detection folder.application.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to anomaly_detection folder.application.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 6
@@ -3387,7 +3387,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.application - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.application - ⚠️ PARTIAL (Score: 6/10)
 - Files: 6
 - Internal dependencies: 0
 - External dependencies: 19
@@ -3398,7 +3398,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.application.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.application.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 5
 - Internal dependencies: 0
 - External dependencies: 18
@@ -3409,7 +3409,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain - ⚠️ PARTIAL (Score: 6/10)
 - Files: 16
 - Internal dependencies: 0
 - External dependencies: 29
@@ -3420,7 +3420,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.entities - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.entities - ⚠️ PARTIAL (Score: 6/10)
 - Files: 5
 - Internal dependencies: 0
 - External dependencies: 8
@@ -3431,7 +3431,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.repositories - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.repositories - ⚠️ PARTIAL (Score: 6/10)
 - Files: 4
 - Internal dependencies: 0
 - External dependencies: 10
@@ -3442,7 +3442,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.services - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.services - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 8
@@ -3453,7 +3453,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.value_objects - ⚠️ PARTIAL (Score: 6/10)
 - Files: 4
 - Internal dependencies: 0
 - External dependencies: 3
@@ -3464,7 +3464,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure - ⚠️ PARTIAL (Score: 6/10)
 - Files: 19
 - Internal dependencies: 0
 - External dependencies: 51
@@ -3475,7 +3475,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.config - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.config - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 6
@@ -3486,7 +3486,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.di - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.di - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 10
@@ -3497,7 +3497,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.execution - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.execution - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 4
@@ -3508,7 +3508,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.persistence - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.persistence - ⚠️ PARTIAL (Score: 6/10)
 - Files: 9
 - Internal dependencies: 0
 - External dependencies: 26
@@ -3519,7 +3519,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.storage - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.storage - ⚠️ PARTIAL (Score: 6/10)
 - Files: 2
 - Internal dependencies: 0
 - External dependencies: 9
@@ -3530,7 +3530,7 @@
   - no_pyproject: Missing pyproject.toml
   - no_tests: Missing tests
 
-### data.anomaly_detection.src.monorepo_detection.services.automl - ⚠️ PARTIAL (Score: 6/10)
+### data.anomaly_detection.src.anomaly_detection.services.automl - ⚠️ PARTIAL (Score: 6/10)
 - Files: 3
 - Internal dependencies: 0
 - External dependencies: 12
@@ -5765,12 +5765,12 @@
 ### High Priority (Ready packages - score ≥ 8)
 - **ai.mlops**: Can be separated immediately
 - **data.anomaly_detection**: Can be separated immediately
-- **data.anomaly_detection.src.monorepo_detection**: Can be separated immediately
-- **data.anomaly_detection.src.monorepo_detection.core**: Can be separated immediately
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder**: Can be separated immediately
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core**: Can be separated immediately
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly**: Can be separated immediately
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder**: Can be separated immediately
+- **data.anomaly_detection.src.anomaly_detection**: Can be separated immediately
+- **data.anomaly_detection.src.anomaly_detection.core**: Can be separated immediately
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder**: Can be separated immediately
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core**: Can be separated immediately
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection**: Can be separated immediately
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder**: Can be separated immediately
 - **data.data_observability**: Can be separated immediately
 - **data.data_platform**: Can be separated immediately
 - **data.data_platform.integration**: Can be separated immediately
@@ -5800,736 +5800,736 @@
 - **creative.documentation - move!**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_tests: Missing tests
-- **data.anomaly_detection.src.monorepo_detection.algorithms**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.adapters**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.adapters**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.adapters.deep_learning**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.adapters.deep_learning**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters.deep_learning**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.adapters.deep_learning**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.algorithms**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.algorithms**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.algorithms.algorithms - move to data anomaly_detection folder.tests**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.algorithms.algorithms - move to data anomaly_detection folder.tests**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.application**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.application**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.application.dto**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.application.dto**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.application.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.application.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.application.use_cases**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.application.use_cases**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.abstractions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.abstractions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.common**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.common**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.entities**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.entities**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.exceptions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.exceptions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.validation**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.validation**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.domain.value_objects**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.domain.value_objects**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.dto**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.dto**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.shared**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.shared**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.shared.error_handling**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.shared.error_handling**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.shared.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.shared.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.shared.utils**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.shared.utils**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.core.use_cases**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.core.use_cases**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.domain**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.domain**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.domain.abstractions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.domain.abstractions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.domain.entities**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.domain.entities**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.domain.exceptions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.domain.exceptions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.domain.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.domain.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.domain.value_objects**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.domain.value_objects**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.infrastructure**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.infrastructure**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.infrastructure.adapters**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.infrastructure.adapters**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.infrastructure.explainers**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.infrastructure.explainers**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.infrastructure.preprocessing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.infrastructure.preprocessing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters.deep_learning**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.adapters.deep_learning**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.alerting**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.alerting**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters.deep_learning**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.algorithms.adapters.deep_learning**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.auth**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.auth**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.automl**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.automl**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.backup**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.backup**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.batch**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.batch**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.business_intelligence**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.business_intelligence**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.cache**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.cache**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.caching**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.caching**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.cicd**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.cicd**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.compliance**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.compliance**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.config**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.config**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.application.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.abstractions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.abstractions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.common**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.common**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.entities**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.entities**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.exceptions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.exceptions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.repositories**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.repositories**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.security**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.security**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.validation**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.validation**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.value_objects**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.domain.value_objects**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.dto**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.dto**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.error_handling**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.error_handling**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.utils**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.shared.utils**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.use_cases**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.core.use_cases**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_loaders**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_loaders**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_processing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_processing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_quality**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.data_quality**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.distributed**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.distributed**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.error_handling**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.error_handling**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.explainers**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.explainers**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.federated**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.federated**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.feedback**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.feedback**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.global_scale**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.global_scale**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.api**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.api**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.cli**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.cli**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.python_sdk**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.interfaces.python_sdk**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.lifecycle**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.lifecycle**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.logging**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.logging**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.messaging**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.messaging**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.middleware**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.middleware**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.ml_governance**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.ml_governance**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.monitoring**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.monitoring**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.multitenancy**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.multitenancy**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.notifications**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.notifications**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.optimization**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.optimization**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance_v2**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.performance_v2**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.persistence**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.persistence**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.preprocessing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.preprocessing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.production**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.production**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.di**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.di**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.dto**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.dto**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.services.automl**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.services.automl**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.services.interfaces**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.services.interfaces**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.application.use_cases**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.application.use_cases**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.docs_validation**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.docs_validation**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.docs_validation.checkers**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.docs_validation.checkers**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.docs_validation.core**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.docs_validation.core**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.abstractions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.abstractions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.common**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.common**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.entities**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.entities**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.exceptions**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.exceptions**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.models**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.models**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.repositories**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.repositories**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.security**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.security**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.validation**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.validation**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.domain.value_objects**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.domain.value_objects**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.enterprise**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.enterprise**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.features**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.features**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.adapters**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.adapters**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.adapters.deep_learning**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.adapters.deep_learning**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.alerting**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.alerting**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.auth**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.auth**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.automl**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.automl**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.backup**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.backup**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.batch**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.batch**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.business_intelligence**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.business_intelligence**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.cache**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.cache**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.caching**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.caching**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.cicd**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.cicd**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.compliance**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.compliance**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.config**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.config**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data_loaders**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data_loaders**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data_processing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data_processing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.data_quality**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.data_quality**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.distributed**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.distributed**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.error_handling**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.error_handling**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.explainers**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.explainers**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.federated**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.federated**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.feedback**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.feedback**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.global_scale**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.global_scale**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.lifecycle**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.lifecycle**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.logging**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.logging**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.messaging**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.messaging**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.middleware**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.middleware**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.ml_governance**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.ml_governance**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.monitoring**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.monitoring**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.multitenancy**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.multitenancy**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.notifications**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.notifications**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.optimization**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.optimization**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.performance**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.performance**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.performance_v2**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.performance_v2**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.persistence**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.persistence**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.preprocessing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.preprocessing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.production**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.production**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.quality**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.quality**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.repositories**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.repositories**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.resilience**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.resilience**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.scheduler**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.scheduler**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.security**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.security**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.serving**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.serving**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.storage**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.storage**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.streaming**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.streaming**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.tdd**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.tdd**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.tracing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.tracing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.infrastructure.websocket**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.infrastructure.websocket**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.mlops**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.mlops**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.dependencies**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.dependencies**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.docs**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.docs**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.endpoints**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.endpoints**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.graphql**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.graphql**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.graphql.resolvers**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.graphql.resolvers**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.middleware**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.middleware**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.routers**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.routers**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.security**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.security**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.api.websocket**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.api.websocket**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.cli**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.cli**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.cli._click_backup**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.cli._click_backup**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.graphql**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.graphql**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.sdk**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.sdk**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.models**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.models**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.routes**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.routes**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.security**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.security**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.data**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.data**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.js**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.js**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.js.src**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.js.src**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.presentation.web.static.js.src.components**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.presentation.web.static.js.src.components**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.automl**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.automl**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.edge**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.edge**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.explainability**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.explainability**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.quantum**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.quantum**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.research.synthetic**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.research.synthetic**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.schemas**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.schemas**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.schemas.analytics**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.schemas.analytics**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.scripts**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.scripts**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared.error_handling**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared.error_handling**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared.protocols**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared.protocols**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.shared.utils**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.shared.utils**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.testing**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.testing**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.testing.orchestration**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.testing.orchestration**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.pynomaly.tests**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.anomaly_detection.tests**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.quality**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.quality**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.repositories**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.repositories**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.resilience**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.resilience**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.scheduler**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.scheduler**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.security**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.security**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.serving**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.serving**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.storage**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.storage**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.streaming**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.streaming**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.tdd**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.tdd**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.tests**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.tests**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.tracing**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.tracing**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.anomaly_detection - move to data anomaly_detection folder.websocket**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder.websocket**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to anomaly_detection folder.application.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to anomaly_detection folder.application.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.application**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.application**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.application.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.application.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.entities**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.entities**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.repositories**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.repositories**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.services**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.services**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.domain.value_objects**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.domain.value_objects**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.config**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.config**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.di**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.di**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.execution**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.execution**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.persistence**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.persistence**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.ml.pynomaly_mlops - move to data anomaly_detection folder.infrastructure.storage**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.ml.anomaly_detection_mlops - move to data anomaly_detection folder.infrastructure.storage**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.services**: Address 2 blockers
+- **data.anomaly_detection.src.anomaly_detection.services**: Address 2 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
-- **data.anomaly_detection.src.monorepo_detection.services.automl**: Address 3 blockers
+- **data.anomaly_detection.src.anomaly_detection.services.automl**: Address 3 blockers
   - incomplete_layers: Missing domain/application layers
   - no_pyproject: Missing pyproject.toml
 - **data.anomaly_detection.tests**: Address 2 blockers

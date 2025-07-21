@@ -284,7 +284,7 @@ class MicroservicesMigrationPrep:
                 "enabled": True,
                 "jaeger": {
                     "endpoint": "http://jaeger:14268/api/traces",
-                    "service_name": "pynomaly-service"
+                    "service_name": "anomaly_detection-service"
                 },
                 "sampling": {
                     "type": "probabilistic",
@@ -379,7 +379,7 @@ def get_tracer() -> DistributedTracing:
     """Get global tracing instance"""
     global _tracing
     if _tracing is None:
-        _tracing = DistributedTracing("pynomaly-service")
+        _tracing = DistributedTracing("anomaly_detection-service")
         _tracing.initialize()
     return _tracing
 
@@ -558,9 +558,9 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                 "apiVersion": "v1",
                 "kind": "Namespace",
                 "metadata": {
-                    "name": "pynomaly",
+                    "name": "anomaly_detection",
                     "labels": {
-                        "name": "pynomaly"
+                        "name": "anomaly_detection"
                     }
                 }
             }
@@ -577,14 +577,14 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                 "apiVersion": "install.istio.io/v1alpha1",
                 "kind": "IstioOperator",
                 "metadata": {
-                    "name": "pynomaly-istio",
+                    "name": "anomaly_detection-istio",
                     "namespace": "istio-system"
                 },
                 "spec": {
                     "values": {
                         "global": {
-                            "meshID": "pynomaly-mesh",
-                            "network": "pynomaly-network"
+                            "meshID": "anomaly_detection-mesh",
+                            "network": "anomaly_detection-network"
                         }
                     }
                 }
@@ -600,7 +600,7 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                     "kind": "Deployment",
                     "metadata": {
                         "name": boundary.name,
-                        "namespace": "pynomaly",
+                        "namespace": "anomaly_detection",
                         "labels": {
                             "app": boundary.name,
                             "domain": boundary.domain
@@ -624,7 +624,7 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                                 "containers": [
                                     {
                                         "name": boundary.name,
-                                        "image": f"pynomaly/{boundary.name}:latest",
+                                        "image": f"anomaly_detection/{boundary.name}:latest",
                                         "ports": [
                                             {
                                                 "containerPort": 8000,
@@ -665,7 +665,7 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                     "kind": "Service",
                     "metadata": {
                         "name": boundary.name,
-                        "namespace": "pynomaly",
+                        "namespace": "anomaly_detection",
                         "labels": {
                             "app": boundary.name
                         }
@@ -692,7 +692,7 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                 "version": "3.8",
                 "services": {},
                 "networks": {
-                    "pynomaly-network": {
+                    "anomaly_detection-network": {
                         "driver": "bridge"
                     }
                 }
@@ -709,7 +709,7 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
                     "environment": [
                         f"SERVICE_NAME={boundary.name}"
                     ],
-                    "networks": ["pynomaly-network"],
+                    "networks": ["anomaly_detection-network"],
                     "depends_on": ["jaeger", "prometheus"]
                 }
             
@@ -717,13 +717,13 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
             docker_compose["services"]["jaeger"] = {
                 "image": "jaegertracing/all-in-one:latest",
                 "ports": ["16686:16686", "14268:14268"],
-                "networks": ["pynomaly-network"]
+                "networks": ["anomaly_detection-network"]
             }
             
             docker_compose["services"]["prometheus"] = {
                 "image": "prom/prometheus:latest",
                 "ports": ["9090:9090"],
-                "networks": ["pynomaly-network"]
+                "networks": ["anomaly_detection-network"]
             }
             
             with open("docker-compose.yaml", 'w') as f:
@@ -746,7 +746,7 @@ def circuit_breaker(name: str, config: CircuitBreakerConfig = None):
 
 ## Executive Summary
 
-This document outlines the strategic roadmap for migrating the Pynomaly monolithic application to a microservices architecture. The migration will be conducted in phases to minimize risk and ensure business continuity.
+This document outlines the strategic roadmap for migrating the anomaly_detection monolithic application to a microservices architecture. The migration will be conducted in phases to minimize risk and ensure business continuity.
 
 ## Current State Assessment
 

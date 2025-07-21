@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-mlops"
+name = "anomaly_detection-mlops"
 version = "0.1.0"
-description = "MLOps package for Pynomaly - Comprehensive ML Operations platform"
+description = "MLOps package for anomaly_detection - Comprehensive ML Operations platform"
 readme = "README.md"
 authors = [
-    {name = "Anomaly Detection Team", email = "dev@pynomaly.io"},
+    {name = "Anomaly Detection Team", email = "dev@anomaly_detection.io"},
 ]
 license = {text = "MIT"}
 keywords = [
@@ -94,21 +94,21 @@ cloud = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Distracted-E421/Pynomaly"
-Documentation = "https://pynomaly.readthedocs.io/"
-Repository = "https://github.com/Distracted-E421/Pynomaly"
-"Bug Tracker" = "https://github.com/Distracted-E421/Pynomaly/issues"
+Homepage = "https://github.com/Distracted-E421/anomaly_detection"
+Documentation = "https://anomaly_detection.readthedocs.io/"
+Repository = "https://github.com/Distracted-E421/anomaly_detection"
+"Bug Tracker" = "https://github.com/Distracted-E421/anomaly_detection/issues"
 
 # [project.scripts]
-# pynomaly-mlops = "pynomaly_mlops.cli:main"
+# anomaly_detection-mlops = "anomaly_detection_mlops.cli:main"
 
 
 [tool.hatch.build.targets.wheel]
-packages = ["pynomaly_mlops"]
+packages = ["anomaly_detection_mlops"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/pynomaly_mlops",
+    "/anomaly_detection_mlops",
     "/tests",
     "/docs",
     "README.md",
@@ -137,7 +137,7 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["pynomaly_mlops", "pynomaly_core"]
+known_first_party = ["anomaly_detection_mlops", "anomaly_detection_core"]
 
 [tool.mypy]
 python_version = "3.9"
@@ -172,7 +172,7 @@ minversion = "7.0"
 addopts = [
     "--strict-markers",
     "--strict-config",
-    "--cov=pynomaly_mlops",
+    "--cov=anomaly_detection_mlops",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
@@ -191,7 +191,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["pynomaly_mlops"]
+source = ["anomaly_detection_mlops"]
 omit = [
     "*/tests/*",
     "*/test_*",

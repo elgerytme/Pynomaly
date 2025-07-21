@@ -116,7 +116,7 @@ def validate_architecture():
 def main():
     """Main performance validation."""
     print("=" * 60)
-    print("🔍 PYNOMALY PERFORMANCE VALIDATION")
+    print("🔍 anomaly_detection PERFORMANCE VALIDATION")
     print("=" * 60)
 
     # Test imports

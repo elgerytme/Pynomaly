@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Start the Pynomaly Real-time Monitoring Dashboard.
+Start the anomaly_detection Real-time Monitoring Dashboard.
 
 This script starts the real-time monitoring dashboard with comprehensive
 system monitoring, alerting, and visualization capabilities.
@@ -18,10 +18,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 # Try to import the dashboard module directly
 try:
-    from src.pynomaly.infrastructure.monitoring.realtime_dashboard import (
+    from src.anomaly_detection.infrastructure.monitoring.realtime_dashboard import (
         RealtimeDashboard,
     )
-    from src.pynomaly.shared.logging import configure_logging
+    from src.anomaly_detection.shared.logging import configure_logging
 except ImportError:
     # For testing without full package installation
     class RealtimeDashboard:
@@ -54,7 +54,7 @@ def setup_logging(log_level: str = "INFO"):
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Start Pynomaly Real-time Monitoring Dashboard"
+        description="Start anomaly_detection Real-time Monitoring Dashboard"
     )
 
     parser.add_argument(
@@ -102,7 +102,7 @@ async def main():
     setup_logging(args.log_level)
     logger = logging.getLogger(__name__)
 
-    logger.info("Starting Pynomaly Real-time Monitoring Dashboard")
+    logger.info("Starting anomaly_detection Real-time Monitoring Dashboard")
     logger.info(f"Host: {args.host}")
     logger.info(f"Port: {args.port}")
     logger.info(f"Log Level: {args.log_level}")

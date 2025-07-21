@@ -1,4 +1,4 @@
-"""Testing scripts for Pynomaly.
+"""Testing scripts for anomaly_detection.
 
 This package contains scripts used for testing tasks such as:
 - Running test suites

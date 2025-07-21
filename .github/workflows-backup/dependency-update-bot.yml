@@ -109,7 +109,7 @@ jobs:
       - name: Configure Git
         run: |
           git config --global user.name "Dependency Update Bot"
-          git config --global user.email "bot@pynomaly.io"
+          git config --global user.email "bot@anomaly_detection.io"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
@@ -193,7 +193,7 @@ jobs:
         run: |
           # Run security checks on updated dependencies
           uv run safety check --json --output safety-check.json || true
-          uv run bandit -r src/pynomaly -f json -o bandit-check.json || true
+          uv run bandit -r src/anomaly_detection -f json -o bandit-check.json || true
 
       - name: Generate update report
         run: |
@@ -290,7 +290,7 @@ jobs:
       - name: Configure Git
         run: |
           git config --global user.name "Security Update Bot"
-          git config --global user.email "security-bot@pynomaly.io"
+          git config --global user.email "security-bot@anomaly_detection.io"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3

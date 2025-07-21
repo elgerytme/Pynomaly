@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demo script for Pynomaly Real-time Alerting System.
+Demo script for anomaly_detection Real-time Alerting System.
 
 This script demonstrates the capabilities of the alerting system including:
 - Creating alert rules
@@ -40,7 +40,7 @@ class AlertingDemo:
         self.session.headers.update(
             {
                 "Content-Type": "application/json",
-                "User-Agent": "Pynomaly-Alerting-Demo/1.0",
+                "User-Agent": "anomaly_detection-Alerting-Demo/1.0",
             }
         )
 
@@ -91,7 +91,7 @@ class AlertingDemo:
             {
                 "name": "Anomaly Detection Rate",
                 "description": "Alert when anomaly detection rate is unusual",
-                "metric_name": "pynomaly.anomaly_rate",
+                "metric_name": "anomaly_detection.anomaly_rate",
                 "condition": ">",
                 "threshold": "0.1",
                 "duration": 180,
@@ -148,7 +148,7 @@ class AlertingDemo:
                 "metadata": {"host": "web-server-01", "datacenter": "us-east-1"},
             },
             {
-                "metric_name": "pynomaly.anomaly_rate",
+                "metric_name": "anomaly_detection.anomaly_rate",
                 "value": 0.15,  # Above threshold
                 "metadata": {"detector": "isolation-forest", "dataset": "production"},
             },
@@ -306,7 +306,7 @@ class AlertingDemo:
 
     def run_demo(self) -> None:
         """Run the complete alerting demo."""
-        logger.info("Starting Pynomaly Alerting System Demo")
+        logger.info("Starting anomaly_detection Alerting System Demo")
         logger.info("=" * 50)
 
         try:
@@ -323,7 +323,7 @@ class AlertingDemo:
             except Exception as e:
                 logger.error(f"Could not connect to alerting service: {e}")
                 logger.info(
-                    "Make sure the Pynomaly server is running on http://localhost:8000"
+                    "Make sure the anomaly_detection server is running on http://localhost:8000"
                 )
                 return
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Disaster Recovery Testing Framework for Pynomaly
+Disaster Recovery Testing Framework for anomaly_detection
 This script performs comprehensive disaster recovery testing and validation
 """
 
@@ -82,11 +82,11 @@ class DisasterRecoveryTester:
         """Load configuration from YAML file"""
         default_config = {
             'environment': 'staging',
-            'namespace': 'pynomaly-staging',
+            'namespace': 'anomaly_detection-staging',
             'database': {
                 'host': 'postgres-staging-service',
                 'port': 5432,
-                'database': 'pynomaly_staging',
+                'database': 'anomaly_detection_staging',
                 'username': 'postgres'
             },
             'application': {
@@ -275,7 +275,7 @@ class DisasterRecoveryTester:
             backup_dir.mkdir(parents=True, exist_ok=True)
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            backup_path = backup_dir / f"pynomaly_backup_{timestamp}"
+            backup_path = backup_dir / f"anomaly_detection_backup_{timestamp}"
 
             # Database backup
             namespace = self.config['namespace']
@@ -284,7 +284,7 @@ class DisasterRecoveryTester:
             backup_path.mkdir(parents=True, exist_ok=True)
 
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl exec -n {namespace} postgres-0 -- pg_dump -U postgres pynomaly_staging > {db_backup_file}"
+                f"kubectl exec -n {namespace} postgres-0 -- pg_dump -U postgres anomaly_detection_staging > {db_backup_file}"
             )
 
             if returncode != 0:
@@ -373,13 +373,13 @@ class DisasterRecoveryTester:
             logger.info(f"Restoring from backup: {self.recovery_point}")
 
             namespace = self.config['namespace']
-            backup_path = Path(self.config['backup']['storage_path']) / f"pynomaly_backup_{self.recovery_point}"
+            backup_path = Path(self.config['backup']['storage_path']) / f"anomaly_detection_backup_{self.recovery_point}"
 
             # Restore database
             db_backup_file = backup_path / "database.sql"
             if db_backup_file.exists():
                 returncode, stdout, stderr = self._execute_command(
-                    f"kubectl exec -i -n {namespace} postgres-0 -- psql -U postgres pynomaly_staging < {db_backup_file}"
+                    f"kubectl exec -i -n {namespace} postgres-0 -- psql -U postgres anomaly_detection_staging < {db_backup_file}"
                 )
 
                 if returncode != 0:
@@ -464,7 +464,7 @@ class DisasterRecoveryTester:
 
             # Check database integrity
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d pynomaly_staging -c 'SELECT COUNT(*) FROM information_schema.tables;'"
+                f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d anomaly_detection_staging -c 'SELECT COUNT(*) FROM information_schema.tables;'"
             )
 
             if returncode != 0:
@@ -573,7 +573,7 @@ class DisasterRecoveryTester:
             # Simulate data modification
             namespace = self.config['namespace']
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d pynomaly_staging -c 'CREATE TABLE test_table (id INTEGER);'"
+                f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d anomaly_detection_staging -c 'CREATE TABLE test_table (id INTEGER);'"
             )
 
             # Restore from backup
@@ -582,7 +582,7 @@ class DisasterRecoveryTester:
 
             # Verify restoration
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d pynomaly_staging -c 'SELECT * FROM test_table;'"
+                f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d anomaly_detection_staging -c 'SELECT * FROM test_table;'"
             )
 
             # Test table should not exist after restore

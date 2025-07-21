@@ -298,7 +298,7 @@ async def list_supported_algorithms(
         ):
             return {
                 "error": "AutoML features are not enabled",
-                "message": "Enable AutoML by setting PYNOMALY_AUTOML=true or PYNOMALY_ADVANCED_AUTOML=true",
+                "message": "Enable AutoML by setting ANOMALY_DETECTION_AUTOML=true or ANOMALY_DETECTION_ADVANCED_AUTOML=true",
                 "total_algorithms": 0,
                 "all_algorithms": [],
                 "by_family": {},

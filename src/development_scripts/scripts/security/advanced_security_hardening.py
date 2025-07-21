@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Advanced Security Hardening Script for Pynomaly Production Environment
+Advanced Security Hardening Script for anomaly_detection Production Environment
 
 This script implements comprehensive security hardening measures for production deployment.
 """
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class SecurityHardeningManager:
     """Comprehensive security hardening manager."""
 
-    def __init__(self, project_root: str = "/mnt/c/Users/andre/Pynomaly"):
+    def __init__(self, project_root: str = "/mnt/c/Users/andre/anomaly_detection"):
         self.project_root = Path(project_root)
         self.config_dir = self.project_root / "config" / "security"
         self.scripts_dir = self.project_root / "scripts"
@@ -91,7 +91,7 @@ class SecurityHardeningManager:
         """Create secure environment file."""
         self.log_action("Creating security environment file", "INFO")
 
-        env_content = f"""# Pynomaly Security Environment Variables
+        env_content = f"""# anomaly_detection Security Environment Variables
 # Generated on {datetime.now().isoformat()}
 # WARNING: Keep this file secure and never commit to version control
 
@@ -126,7 +126,7 @@ RATE_LIMIT_BURST_SIZE=20
 
 # CORS Configuration
 CORS_ENABLED=true
-CORS_ALLOWED_ORIGINS=https://app.pynomaly.com,https://dashboard.pynomaly.com
+CORS_ALLOWED_ORIGINS=https://app.anomaly_detection.com,https://dashboard.anomaly_detection.com
 
 # Authentication
 JWT_REQUIRED=true
@@ -136,8 +136,8 @@ MAX_CONCURRENT_SESSIONS=3
 
 # SSL/TLS Configuration
 SSL_REQUIRED=true
-SSL_CERT_PATH=/etc/ssl/certs/pynomaly.crt
-SSL_KEY_PATH=/etc/ssl/private/pynomaly.key
+SSL_CERT_PATH=/etc/ssl/certs/anomaly_detection.crt
+SSL_KEY_PATH=/etc/ssl/private/anomaly_detection.key
 
 # Password Policy
 PASSWORD_MIN_LENGTH=12
@@ -169,7 +169,7 @@ DEBUG_MODE=false
         """Create security checklist."""
         self.log_action("Creating security checklist", "INFO")
 
-        checklist = f"""# Pynomaly Security Checklist
+        checklist = f"""# anomaly_detection Security Checklist
 Generated on {datetime.now().isoformat()}
 
 ## Pre-Deployment Security Checklist

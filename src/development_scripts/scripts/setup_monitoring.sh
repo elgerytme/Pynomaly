@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pynomaly Production Monitoring Setup Script
+# anomaly_detection Production Monitoring Setup Script
 
 set -e
 
@@ -79,9 +79,9 @@ alerting:
           - alertmanager:9093
 
 scrape_configs:
-  - job_name: 'pynomaly'
+  - job_name: 'anomaly_detection'
     static_configs:
-      - targets: ['pynomaly-api:8000']
+      - targets: ['anomaly_detection-api:8000']
     metrics_path: '/metrics'
     scrape_interval: 5s
     scrape_timeout: 10s
@@ -127,7 +127,7 @@ generate_alertmanager_config() {
     cat > "$MONITORING_DIR/alertmanager/alertmanager.yml" << EOF
 global:
   smtp_smarthost: 'localhost:587'
-  smtp_from: 'pynomaly-alerts@your-domain.com'
+  smtp_from: 'anomaly_detection-alerts@your-domain.com'
   smtp_auth_username: 'alerts@your-domain.com'
   smtp_auth_password: 'your-email-password'
 
@@ -154,7 +154,7 @@ receivers:
   - name: 'critical-alerts'
     email_configs:
       - to: 'admin@your-domain.com'
-        subject: 'CRITICAL: Pynomaly Alert - {{ .GroupLabels.alertname }}'
+        subject: 'CRITICAL: anomaly_detection Alert - {{ .GroupLabels.alertname }}'
         body: |
           Alert: {{ .GroupLabels.alertname }}
           Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
@@ -169,8 +169,8 @@ receivers:
           {{ end }}
     slack_configs:
       - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
-        channel: '#pynomaly-alerts'
-        title: 'CRITICAL: Pynomaly Alert'
+        channel: '#anomaly_detection-alerts'
+        title: 'CRITICAL: anomaly_detection Alert'
         text: |
           Alert: {{ .GroupLabels.alertname }}
           {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
@@ -178,7 +178,7 @@ receivers:
   - name: 'warning-alerts'
     email_configs:
       - to: 'team@your-domain.com'
-        subject: 'WARNING: Pynomaly Alert - {{ .GroupLabels.alertname }}'
+        subject: 'WARNING: anomaly_detection Alert - {{ .GroupLabels.alertname }}'
         body: |
           Alert: {{ .GroupLabels.alertname }}
           Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
@@ -220,7 +220,7 @@ apiVersion: 1
 providers:
   - name: 'default'
     orgId: 1
-    folder: 'Pynomaly'
+    folder: 'anomaly_detection'
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10
@@ -242,7 +242,7 @@ version: '3.8'
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: pynomaly-prometheus
+    container_name: anomaly_detection-prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -262,7 +262,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: pynomaly-grafana
+    container_name: anomaly_detection-grafana
     ports:
       - "3000:3000"
     environment:
@@ -282,7 +282,7 @@ services:
 
   alertmanager:
     image: prom/alertmanager:latest
-    container_name: pynomaly-alertmanager
+    container_name: anomaly_detection-alertmanager
     ports:
       - "9093:9093"
     volumes:
@@ -298,7 +298,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: pynomaly-node-exporter
+    container_name: anomaly_detection-node-exporter
     ports:
       - "9100:9100"
     volumes:
@@ -315,18 +315,18 @@ services:
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
-    container_name: pynomaly-postgres-exporter
+    container_name: anomaly_detection-postgres-exporter
     ports:
       - "9187:9187"
     environment:
-      - DATA_SOURCE_NAME=postgresql://pynomaly_user:your-password@postgres:5432/pynomaly_prod?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://anomaly_detection_user:your-password@postgres:5432/anomaly_detection_prod?sslmode=disable
     restart: unless-stopped
     networks:
       - monitoring
 
   redis-exporter:
     image: oliver006/redis_exporter:latest
-    container_name: pynomaly-redis-exporter
+    container_name: anomaly_detection-redis-exporter
     ports:
       - "9121:9121"
     environment:
@@ -337,7 +337,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: pynomaly-cadvisor
+    container_name: anomaly_detection-cadvisor
     ports:
       - "8080:8080"
     volumes:
@@ -389,7 +389,7 @@ display_access_info() {
 
 # Main function
 main() {
-    log "Starting Pynomaly monitoring setup..."
+    log "Starting anomaly_detection monitoring setup..."
 
     check_docker
     create_directories

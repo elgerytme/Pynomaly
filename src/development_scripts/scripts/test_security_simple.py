@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simplified security testing script for Pynomaly.
+Simplified security testing script for anomaly_detection.
 Tests core security components without complex imports.
 """
 
@@ -13,9 +13,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Set up test environment
-os.environ["PYNOMALY_ENV"] = "testing"
-os.environ["PYNOMALY_JWT_SECRET"] = "test-secret-key-for-testing-only"
-os.environ["PYNOMALY_MASTER_KEY"] = "test-master-key-for-testing"
+os.environ["ANOMALY_DETECTION_ENV"] = "testing"
+os.environ["ANOMALY_DETECTION_JWT_SECRET"] = "test-secret-key-for-testing-only"
+os.environ["ANOMALY_DETECTION_MASTER_KEY"] = "test-master-key-for-testing"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def test_security_imports():
 def test_jwt_functionality():
     """Test JWT token functionality."""
     try:
-        from pynomaly.presentation.api.security.authentication import JWTManager
+        from anomaly_detection.presentation.api.security.authentication import JWTManager
 
         jwt_manager = JWTManager("test-secret", "HS256")
 
@@ -58,7 +58,7 @@ def test_jwt_functionality():
 def test_input_validation():
     """Test input validation functionality."""
     try:
-        from pynomaly.presentation.api.security.input_validation import (
+        from anomaly_detection.presentation.api.security.input_validation import (
             SecurityValidator,
         )
 
@@ -84,7 +84,7 @@ def test_input_validation():
 def test_rate_limiting():
     """Test rate limiting functionality."""
     try:
-        from pynomaly.presentation.api.security.rate_limiting import (
+        from anomaly_detection.presentation.api.security.rate_limiting import (
             RateLimiter,
             RateLimitType,
         )
@@ -111,7 +111,7 @@ def test_rate_limiting():
 def test_encryption():
     """Test encryption functionality."""
     try:
-        from pynomaly.presentation.api.security.encryption import EncryptionManager
+        from anomaly_detection.presentation.api.security.encryption import EncryptionManager
 
         encryption_manager = EncryptionManager()
 
@@ -134,7 +134,7 @@ def test_encryption():
 def test_vulnerability_scanner():
     """Test vulnerability scanner functionality."""
     try:
-        from pynomaly.presentation.api.security.vulnerability_scanner import (
+        from anomaly_detection.presentation.api.security.vulnerability_scanner import (
             VulnerabilityScanner,
         )
 
@@ -159,7 +159,7 @@ def test_vulnerability_scanner():
 
 def run_security_tests():
     """Run all security tests."""
-    logger.info("🔒 Starting Pynomaly Security Test Suite")
+    logger.info("🔒 Starting anomaly_detection Security Test Suite")
     logger.info("=" * 50)
 
     tests = [

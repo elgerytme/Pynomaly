@@ -177,31 +177,31 @@ Analysis Orchestrator
 ### **Installation**
 ```bash
 # Install the comprehensive analysis tool
-pip install pynomaly-analysis
+pip install anomaly_detection-analysis
 
 # Run analysis on current directory
-pynomaly-analyze .
+anomaly_detection-analyze .
 
 # Use strict profile
-pynomaly-analyze --profile strict src/
+anomaly_detection-analyze --profile strict src/
 
 # Generate HTML report
-pynomaly-analyze --output-format html --output-file report.html .
+anomaly_detection-analyze --output-format html --output-file report.html .
 ```
 
 ### **Configuration**
 ```toml
 # pyproject.toml
-[tool.pynomaly.analysis]
+[tool.anomaly_detection.analysis]
 profile = "strict"
 python_version = "3.11"
 enable_caching = true
 
-[tool.pynomaly.analysis.type_checking]
+[tool.anomaly_detection.analysis.type_checking]
 strict_mode = true
 require_type_annotations = true
 
-[tool.pynomaly.analysis.security]
+[tool.anomaly_detection.analysis.security]
 level = "high"
 confidence_threshold = 90
 ```

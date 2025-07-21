@@ -1,4 +1,4 @@
-# Pynomaly Presentation Components Test Suite - PowerShell Version
+# anomaly_detection Presentation Components Test Suite - PowerShell Version
 # Tests CLI, API, and Web UI components in fresh environments
 
 param(
@@ -78,7 +78,7 @@ function Test-Environment {
 
     # Set environment variables
     $env:PYTHONPATH = "$(Get-Location)\src;$env:PYTHONPATH"
-    $env:PYNOMALY_TEST_ENV = "PowerShell"
+    $env:ANOMALY_DETECTION_TEST_ENV = "PowerShell"
 
     Write-Success "PowerShell environment setup complete"
     return $true
@@ -134,7 +134,7 @@ sys.path.insert(0, "src")
 
 try:
     # Test CLI imports
-    from pynomaly.presentation.cli.app import app
+    from anomaly_detection.presentation.cli.app import app
     print("✅ CLI app imported successfully")
 
     # Test dependencies
@@ -171,7 +171,7 @@ sys.path.insert(0, "src")
 
 try:
     # Test API imports
-    from pynomaly.presentation.api.app import create_app
+    from anomaly_detection.presentation.api.app import create_app
     print("✅ API create_app imported successfully")
 
     # Test dependencies
@@ -217,7 +217,7 @@ sys.path.insert(0, "src")
 
 try:
     # Test Web UI imports
-    from pynomaly.presentation.web.app import create_web_app, mount_web_ui
+    from anomaly_detection.presentation.web.app import create_web_app, mount_web_ui
     print("✅ Web UI functions imported successfully")
 
     # Test dependencies
@@ -276,16 +276,16 @@ import platform
 print("PowerShell Environment Test:")
 print(f"  System: {platform.system()}")
 print(f"  Python: {platform.python_version()}")
-print(f"  Test Env: {os.getenv('PYNOMALY_TEST_ENV', 'Unknown')}")
+print(f"  Test Env: {os.getenv('ANOMALY_DETECTION_TEST_ENV', 'Unknown')}")
 print()
 
 try:
     sys.path.insert(0, "src")
 
     # Test imports
-    from pynomaly.presentation.cli.app import app as cli_app
-    from pynomaly.presentation.api.app import create_app
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.cli.app import app as cli_app
+    from anomaly_detection.presentation.api.app import create_app
+    from anomaly_detection.presentation.web.app import create_web_app
 
     print("✅ All presentation components importable")
 
@@ -311,7 +311,7 @@ except Exception as e:
 
 # Main execution
 function Main {
-    Write-Host "🧪 Pynomaly Presentation Components Test Suite (PowerShell)" -ForegroundColor Cyan
+    Write-Host "🧪 anomaly_detection Presentation Components Test Suite (PowerShell)" -ForegroundColor Cyan
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
 
@@ -366,9 +366,9 @@ function Main {
         Write-Host "✅ Web UI Component: Ready for use"
         Write-Host ""
         Write-Host "You can now run:"
-        Write-Host "  - CLI: pynomaly --help"
-        Write-Host "  - API: uvicorn pynomaly.presentation.api:app"
-        Write-Host "  - Web UI: uvicorn pynomaly.presentation.web.app:create_web_app"
+        Write-Host "  - CLI: anomaly_detection --help"
+        Write-Host "  - API: uvicorn anomaly_detection.presentation.api:app"
+        Write-Host "  - Web UI: uvicorn anomaly_detection.presentation.web.app:create_web_app"
 
         exit 0
     }

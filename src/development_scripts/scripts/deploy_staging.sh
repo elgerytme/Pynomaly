@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Deploy Pynomaly to Staging Environment
+# Deploy anomaly_detection to Staging Environment
 # This script deploys the complete anomaly detection application to the staging environment
 
 set -euo pipefail
 
 # Configuration
-NAMESPACE="pynomaly-staging"
+NAMESPACE="anomaly_detection-staging"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 K8S_STAGING_DIR="${PROJECT_ROOT}/k8s/staging"
@@ -43,14 +43,14 @@ show_help() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Deploy Pynomaly to staging environment
+Deploy anomaly_detection to staging environment
 
 OPTIONS:
     -h, --help           Show this help message
     -v, --verbose        Enable verbose output
     -d, --dry-run        Show what would be deployed without actually deploying
     -t, --timeout SECS   Timeout for deployment operations (default: 600)
-    -n, --namespace NAME Override namespace (default: pynomaly-staging)
+    -n, --namespace NAME Override namespace (default: anomaly_detection-staging)
     --skip-build         Skip Docker image build
     --skip-tests         Skip pre-deployment tests
     --force              Force deployment even if validation fails
@@ -161,7 +161,7 @@ build_staging_image() {
     cd "$PROJECT_ROOT"
 
     # Build staging image
-    docker build -t pynomaly:staging \
+    docker build -t anomaly_detection:staging \
         --build-arg ENV=staging \
         --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
         --build-arg VCS_REF="$(git rev-parse --short HEAD)" \
@@ -232,7 +232,7 @@ apply_manifests() {
         "configmap.yaml"
         "secrets.yaml"
         "databases.yaml"
-        "pynomaly-staging.yaml"
+        "anomaly_detection-staging.yaml"
         "monitoring.yaml"
         "ingress.yaml"
     )
@@ -268,7 +268,7 @@ wait_for_deployments() {
     log_info "Waiting for deployments to be ready..."
 
     local deployments=(
-        "pynomaly-staging-app"
+        "anomaly_detection-staging-app"
         "postgres-staging"
         "redis-staging"
         "mongodb-staging"
@@ -303,7 +303,7 @@ run_health_checks() {
     log_info "Running post-deployment health checks..."
 
     # Check if main application is healthy
-    local app_pod=$(kubectl get pods -n "$NAMESPACE" -l app=pynomaly,component=app -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+    local app_pod=$(kubectl get pods -n "$NAMESPACE" -l app=anomaly_detection,component=app -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
     if [[ -n "$app_pod" ]]; then
         log_info "Testing application health endpoint..."
@@ -321,7 +321,7 @@ run_health_checks() {
     fi
 
     # Check database connectivity
-    local postgres_pod=$(kubectl get pods -n "$NAMESPACE" -l app=pynomaly,component=postgres -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+    local postgres_pod=$(kubectl get pods -n "$NAMESPACE" -l app=anomaly_detection,component=postgres -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
     if [[ -n "$postgres_pod" ]]; then
         log_info "Testing PostgreSQL connectivity..."
@@ -337,7 +337,7 @@ run_health_checks() {
     fi
 
     # Check Redis connectivity
-    local redis_pod=$(kubectl get pods -n "$NAMESPACE" -l app=pynomaly,component=redis -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+    local redis_pod=$(kubectl get pods -n "$NAMESPACE" -l app=anomaly_detection,component=redis -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
     if [[ -n "$redis_pod" ]]; then
         log_info "Testing Redis connectivity..."
@@ -396,25 +396,25 @@ show_access_info() {
     log_info "Access Information:"
 
     # Get ingress external IP
-    local ingress_ip=$(kubectl get ingress pynomaly-staging-ingress -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    local ingress_ip=$(kubectl get ingress anomaly_detection-staging-ingress -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
 
     echo
     echo "Application URLs (add to /etc/hosts if using local cluster):"
-    echo "  Main Application: https://staging.pynomaly.com"
-    echo "  API Endpoint: https://api-staging.pynomaly.com"
-    echo "  Grafana Dashboard: https://grafana-staging.pynomaly.com"
-    echo "  Prometheus Metrics: https://prometheus-staging.pynomaly.com"
+    echo "  Main Application: https://staging.anomaly_detection.com"
+    echo "  API Endpoint: https://api-staging.anomaly_detection.com"
+    echo "  Grafana Dashboard: https://grafana-staging.anomaly_detection.com"
+    echo "  Prometheus Metrics: https://prometheus-staging.anomaly_detection.com"
     echo
     echo "Ingress IP: $ingress_ip"
     echo
     echo "Port Forward Commands (for local development):"
-    echo "  kubectl port-forward -n $NAMESPACE svc/pynomaly-staging-service 8000:8000"
+    echo "  kubectl port-forward -n $NAMESPACE svc/anomaly_detection-staging-service 8000:8000"
     echo "  kubectl port-forward -n $NAMESPACE svc/grafana-staging-service 3000:3000"
     echo "  kubectl port-forward -n $NAMESPACE svc/prometheus-staging-service 9090:9090"
     echo
     echo "Useful Commands:"
     echo "  kubectl get pods -n $NAMESPACE"
-    echo "  kubectl logs -n $NAMESPACE -l app=pynomaly,component=app -f"
+    echo "  kubectl logs -n $NAMESPACE -l app=anomaly_detection,component=app -f"
     echo "  kubectl exec -n $NAMESPACE -it <pod-name> -- /bin/bash"
 }
 
@@ -426,7 +426,7 @@ cleanup() {
 
         if [[ "$DRY_RUN" == "false" ]]; then
             log_info "Recent logs from failed deployment:"
-            kubectl logs -n "$NAMESPACE" -l app=pynomaly,component=app --tail=50 2>/dev/null || true
+            kubectl logs -n "$NAMESPACE" -l app=anomaly_detection,component=app --tail=50 2>/dev/null || true
         fi
     fi
     exit $exit_code
@@ -434,7 +434,7 @@ cleanup() {
 
 # Main deployment function
 main() {
-    log_info "Starting Pynomaly staging deployment..."
+    log_info "Starting anomaly_detection staging deployment..."
 
     # Set up error handling
     trap cleanup EXIT

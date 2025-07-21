@@ -1,4 +1,4 @@
-# Pynomaly Isolation System
+# anomaly_detection Isolation System
 
 A comprehensive isolation framework for safe development without conflicts with staging, commits, merging, and checkout operations.
 
@@ -41,7 +41,7 @@ vim .project-rules/isolation-config.yaml
 ```bash
 # For container isolation
 cd .isolated-work/container-*/
-docker-compose exec pynomaly-isolated /bin/bash
+docker-compose exec anomaly_detection-isolated /bin/bash
 
 # For venv isolation
 ./activate-isolation.sh

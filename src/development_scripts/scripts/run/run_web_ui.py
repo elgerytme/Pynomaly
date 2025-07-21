@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Web UI server runner for Pynomaly.
+Web UI server runner for anomaly_detection.
 
-This script provides a dedicated entry point for running the Pynomaly Progressive Web App
+This script provides a dedicated entry point for running the anomaly_detection Progressive Web App
 with optimized settings for UI serving and static file handling.
 """
 
@@ -20,10 +20,10 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.infrastructure.config.settings import get_settings
-    from pynomaly.presentation.api.app import create_app
+    from anomaly_detection.infrastructure.config.settings import get_settings
+    from anomaly_detection.presentation.api.app import create_app
 except ImportError as e:
-    print(f"Failed to import Pynomaly Web UI modules: {e}")
+    print(f"Failed to import anomaly_detection Web UI modules: {e}")
     print("Please ensure the package is installed with: poetry install")
     sys.exit(1)
 
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class WebUIServer:
-    """Manages the Pynomaly Web UI server."""
+    """Manages the anomaly_detection Web UI server."""
 
     def __init__(self):
         self.settings = get_settings()
@@ -94,7 +94,7 @@ class WebUIServer:
         config = self.create_ui_config(host, port, reload, log_level)
         self.server = uvicorn.Server(config)
 
-        logger.info(f"Starting Pynomaly Web UI server on {host}:{port}")
+        logger.info(f"Starting anomaly_detection Web UI server on {host}:{port}")
         logger.info(f"Development Mode: {dev_mode}, Auto-reload: {reload}")
         logger.info(f"Web UI: http://{host}:{port}/")
         logger.info(f"API Documentation: http://{host}:{port}/docs")
@@ -136,7 +136,7 @@ def check_ui_dependencies():
 
 def validate_static_files():
     """Validate that static files for the UI exist."""
-    static_dir = PROJECT_ROOT / "src" / "pynomaly" / "presentation" / "web" / "static"
+    static_dir = PROJECT_ROOT / "src" / "anomaly_detection" / "presentation" / "web" / "static"
 
     if not static_dir.exists():
         logger.warning(f"Static files directory not found: {static_dir}")
@@ -163,7 +163,7 @@ def validate_static_files():
 def main():
     """Main entry point for the Web UI server."""
     parser = argparse.ArgumentParser(
-        description="Pynomaly Web UI Server",
+        description="anomaly_detection Web UI Server",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

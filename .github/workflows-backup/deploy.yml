@@ -136,12 +136,12 @@ jobs:
 
     - name: Deploy to staging
       run: |
-        helm upgrade --install pynomaly-staging ./deploy/helm/pynomaly \
-          --namespace pynomaly-staging \
+        helm upgrade --install anomaly_detection-staging ./deploy/helm/anomaly_detection \
+          --namespace anomaly_detection-staging \
           --create-namespace \
-          --set pynomaly.image.tag=${{ github.event.release.tag_name || github.sha }} \
-          --set pynomaly.environment=staging \
-          --set ingress.hosts[0].host=staging-api.pynomaly.ai \
+          --set anomaly_detection.image.tag=${{ github.event.release.tag_name || github.sha }} \
+          --set anomaly_detection.environment=staging \
+          --set ingress.hosts[0].host=staging-api.anomaly_detection.ai \
           --set api.replicaCount=2 \
           --set worker.replicaCount=1 \
           --set postgresql.primary.persistence.size=20Gi \
@@ -150,7 +150,7 @@ jobs:
 
     - name: Wait for deployment
       run: |
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly-staging --timeout=600s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=anomaly_detection -n anomaly_detection-staging --timeout=600s
 
     - name: Run health checks
       run: |
@@ -158,7 +158,7 @@ jobs:
         sleep 30
 
         # Get service endpoint
-        ENDPOINT=$(kubectl get ingress -n pynomaly-staging -o jsonpath='{.items[0].spec.rules[0].host}')
+        ENDPOINT=$(kubectl get ingress -n anomaly_detection-staging -o jsonpath='{.items[0].spec.rules[0].host}')
 
         # Health check
         curl -f https://${ENDPOINT}/api/v1/health || exit 1
@@ -168,7 +168,7 @@ jobs:
 
     - name: Run Helm tests
       run: |
-        helm test pynomaly-staging --namespace pynomaly-staging --timeout=5m
+        helm test anomaly_detection-staging --namespace anomaly_detection-staging --timeout=5m
 
     - name: Notify staging deployment
       uses: 8398a7/action-slack@v3
@@ -179,7 +179,7 @@ jobs:
         text: |
           Staging deployment ${{ job.status }}!
           Version: ${{ github.event.release.tag_name || github.sha }}
-          Environment: https://staging-api.pynomaly.ai
+          Environment: https://staging-api.anomaly_detection.ai
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -204,7 +204,7 @@ jobs:
       run: |
         k6 run --out json=performance-results.json tests/performance/load_test.js
       env:
-        API_BASE_URL: https://staging-api.pynomaly.ai
+        API_BASE_URL: https://staging-api.anomaly_detection.ai
         K6_VUS: 50
         K6_DURATION: 5m
 
@@ -250,16 +250,16 @@ jobs:
     - name: Backup current deployment
       run: |
         # Create backup of current Helm values
-        helm get values pynomaly --namespace pynomaly > backup-values-$(date +%Y%m%d-%H%M%S).yaml || echo "No existing deployment to backup"
+        helm get values anomaly_detection --namespace anomaly_detection > backup-values-$(date +%Y%m%d-%H%M%S).yaml || echo "No existing deployment to backup"
 
     - name: Deploy to production
       run: |
-        helm upgrade --install pynomaly ./deploy/helm/pynomaly \
-          --namespace pynomaly \
+        helm upgrade --install anomaly_detection ./deploy/helm/anomaly_detection \
+          --namespace anomaly_detection \
           --create-namespace \
-          --set pynomaly.image.tag=${{ github.event.release.tag_name || github.event.inputs.version }} \
-          --set pynomaly.environment=production \
-          --set ingress.hosts[0].host=api.pynomaly.ai \
+          --set anomaly_detection.image.tag=${{ github.event.release.tag_name || github.event.inputs.version }} \
+          --set anomaly_detection.environment=production \
+          --set ingress.hosts[0].host=api.anomaly_detection.ai \
           --set api.replicaCount=5 \
           --set worker.replicaCount=3 \
           --set postgresql.primary.persistence.size=100Gi \
@@ -276,18 +276,18 @@ jobs:
 
     - name: Wait for deployment
       run: |
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly --timeout=900s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=anomaly_detection -n anomaly_detection --timeout=900s
 
     - name: Verify deployment
       run: |
         # Check pod status
-        kubectl get pods -n pynomaly -l app.kubernetes.io/name=pynomaly
+        kubectl get pods -n anomaly_detection -l app.kubernetes.io/name=anomaly_detection
 
         # Check service endpoints
-        kubectl get svc -n pynomaly
+        kubectl get svc -n anomaly_detection
 
         # Check ingress
-        kubectl get ingress -n pynomaly
+        kubectl get ingress -n anomaly_detection
 
     - name: Run health checks
       run: |
@@ -295,20 +295,20 @@ jobs:
         sleep 60
 
         # Health check
-        curl -f https://api.pynomaly.ai/api/v1/health || exit 1
-        curl -f https://api.pynomaly.ai/api/v1/health/ready || exit 1
+        curl -f https://api.anomaly_detection.ai/api/v1/health || exit 1
+        curl -f https://api.anomaly_detection.ai/api/v1/health/ready || exit 1
 
         echo "✅ Production health checks passed"
 
     - name: Run production tests
       run: |
-        helm test pynomaly --namespace pynomaly --timeout=10m
+        helm test anomaly_detection --namespace anomaly_detection --timeout=10m
 
     - name: Update deployment status
       run: |
         # Create deployment record
         kubectl create configmap deployment-info-$(date +%Y%m%d-%H%M%S) \
-          --namespace pynomaly \
+          --namespace anomaly_detection \
           --from-literal=version=${{ github.event.release.tag_name || github.event.inputs.version }} \
           --from-literal=deployed-at=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
           --from-literal=deployed-by=${{ github.actor }} \
@@ -321,11 +321,11 @@ jobs:
         status: success
         channel: '#deployments'
         text: |
-          🚀 Successfully deployed Pynomaly ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
+          🚀 Successfully deployed anomaly_detection ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
 
           Release: ${{ github.event.release.html_url }}
-          API: https://api.pynomaly.ai
-          Docs: https://api.pynomaly.ai/docs
+          API: https://api.anomaly_detection.ai
+          Docs: https://api.anomaly_detection.ai/docs
 
           Deployment completed at $(date -u +"%Y-%m-%d %H:%M:%S UTC")
       env:
@@ -338,7 +338,7 @@ jobs:
         status: failure
         channel: '#deployments'
         text: |
-          ❌ Failed to deploy Pynomaly ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
+          ❌ Failed to deploy anomaly_detection ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
 
           Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           Please check logs and consider rollback if necessary.
@@ -371,10 +371,10 @@ jobs:
     - name: Rollback deployment
       run: |
         echo "🔄 Rolling back production deployment..."
-        helm rollback pynomaly --namespace pynomaly
+        helm rollback anomaly_detection --namespace anomaly_detection
 
         # Wait for rollback to complete
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly --timeout=600s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=anomaly_detection -n anomaly_detection --timeout=600s
 
     - name: Notify rollback
       uses: 8398a7/action-slack@v3

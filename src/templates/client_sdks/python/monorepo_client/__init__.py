@@ -1,7 +1,7 @@
 """
-Pynomaly Python SDK
+anomaly_detection Python SDK
 
-Official Python client library for the Pynomaly anomaly detection API.
+Official Python client library for the anomaly_detection anomaly detection API.
 This SDK provides convenient access to the anomaly detection API with full type support,
 authentication handling, error management, and comprehensive documentation.
 
@@ -16,12 +16,12 @@ Features:
 
 Example Usage:
     import asyncio
-    from pynomaly_client import PynomaliClient
+    from anomaly_detection_client import AnomalyDetectionClient
 
     async def main():
         # Initialize client
-        client = PynomaliClient(
-            base_url="https://api.pynomaly.com",
+        client = AnomalyDetectionClient(
+            base_url="https://api.anomaly_detection.com",
             api_key="your-api-key"
         )
 
@@ -45,15 +45,15 @@ Example Usage:
 
 __version__ = "1.0.0"
 __author__ = "Anomaly Detection Team"
-__email__ = "support@pynomaly.com"
+__email__ = "support@anomaly_detection.com"
 __license__ = "MIT"
 
-from .client import AsyncPynomaliClient, PynomaliClient
+from .client import AsyncAnomalyDetectionClient, AnomalyDetectionClient
 from .exceptions import (
     AuthenticationError,
     AuthorizationError,
     NetworkError,
-    PynomaliException,
+    anomaly-detectionException,
     RateLimitError,
     ServerError,
     ValidationError,
@@ -71,10 +71,10 @@ from .models import (
 
 __all__ = [
     # Clients
-    "PynomaliClient",
-    "AsyncPynomaliClient",
+    "AnomalyDetectionClient",
+    "AsyncAnomalyDetectionClient",
     # Exceptions
-    "PynomaliException",
+    "anomaly-detectionException",
     "AuthenticationError",
     "AuthorizationError",
     "ValidationError",

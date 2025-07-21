@@ -11,7 +11,7 @@
 
 ### software.core
 **Status**: ✅ READY FOR SEPARATION (Score: 10/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/software/core`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/software/core`
 - **Files analyzed**: 100
 - **Internal dependencies**: 0
 - **External dependencies**: 103
@@ -21,7 +21,7 @@
 
 ### data.anomaly_detection
 **Status**: ✅ READY FOR SEPARATION (Score: 9/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/data/anomaly_detection`
 - **Files analyzed**: 100
 - **Internal dependencies**: 0
 - **External dependencies**: 176
@@ -33,7 +33,7 @@
 
 ### data.data_observability
 **Status**: ✅ READY FOR SEPARATION (Score: 9/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/data/data_observability`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/data/data_observability`
 - **Files analyzed**: 14
 - **Internal dependencies**: 0
 - **External dependencies**: 16
@@ -45,7 +45,7 @@
 
 ### software.enterprise
 **Status**: ✅ READY FOR SEPARATION (Score: 9/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/software/enterprise`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/software/enterprise`
 - **Files analyzed**: 17
 - **Internal dependencies**: 0
 - **External dependencies**: 46
@@ -57,7 +57,7 @@
 
 ### software.services
 **Status**: ✅ READY FOR SEPARATION (Score: 9/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/software/services`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/software/services`
 - **Files analyzed**: 100
 - **Internal dependencies**: 0
 - **External dependencies**: 165
@@ -69,7 +69,7 @@
 
 ### ai.mlops
 **Status**: ✅ READY FOR SEPARATION (Score: 8/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/ai/mlops`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/ai/mlops`
 - **Files analyzed**: 3
 - **Internal dependencies**: 0
 - **External dependencies**: 1
@@ -81,7 +81,7 @@
 
 ### ai.machine_learning
 **Status**: ⚠️ PARTIALLY READY (Score: 7/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/ai/machine_learning`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/ai/machine_learning`
 - **Files analyzed**: 1
 - **Internal dependencies**: 0
 - **External dependencies**: 0
@@ -94,7 +94,7 @@
 
 ### formal_sciences.mathematics
 **Status**: ⚠️ PARTIALLY READY (Score: 7/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/formal_sciences/mathematics`
 - **Files analyzed**: 6
 - **Internal dependencies**: 0
 - **External dependencies**: 23
@@ -107,7 +107,7 @@
 
 ### ops.people_ops
 **Status**: ⚠️ PARTIALLY READY (Score: 7/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/ops/people_ops`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/ops/people_ops`
 - **Files analyzed**: 1
 - **Internal dependencies**: 0
 - **External dependencies**: 0
@@ -120,7 +120,7 @@
 
 ### software.domain_library
 **Status**: ⚠️ PARTIALLY READY (Score: 7/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/software/domain_library`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/software/domain_library`
 - **Files analyzed**: 14
 - **Internal dependencies**: 0
 - **External dependencies**: 17
@@ -133,7 +133,7 @@
 
 ### data.data_platform
 **Status**: ⚠️ PARTIALLY READY (Score: 6/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/data/data_platform`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/data/data_platform`
 - **Files analyzed**: 100
 - **Internal dependencies**: 4
 - **External dependencies**: 151
@@ -152,7 +152,7 @@
 
 ### software.interfaces
 **Status**: ⚠️ PARTIALLY READY (Score: 6/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/software/interfaces`
 - **Files analyzed**: 100
 - **Internal dependencies**: 0
 - **External dependencies**: 223
@@ -166,7 +166,7 @@
 
 ### software.mobile
 **Status**: ⚠️ PARTIALLY READY (Score: 6/10)
-- **Path**: `/mnt/c/Users/andre/Pynomaly/src/packages/software/mobile`
+- **Path**: `/mnt/c/Users/andre/anomaly_detection/src/packages/software/mobile`
 - **Files analyzed**: 8
 - **Internal dependencies**: 0
 - **External dependencies**: 12

@@ -20,7 +20,7 @@ def test_require_role_function():
     """Test the require_role function."""
     print("Testing require_role function...")
 
-    from pynomaly.infrastructure.auth import require_role
+    from anomaly_detection.infrastructure.auth import require_role
 
     # Test creating role dependencies
     admin_dep = require_role("admin")
@@ -42,7 +42,7 @@ def test_default_roles_and_permissions():
     """Test default role and permission definitions."""
     print("Testing default roles and permissions...")
 
-    from pynomaly.domain.entities.user import DEFAULT_PERMISSIONS, UserRole
+    from anomaly_detection.domain.entities.user import DEFAULT_PERMISSIONS, UserRole
 
     # Test that we have default permissions for all roles
     assert UserRole.SUPER_ADMIN in DEFAULT_PERMISSIONS
@@ -67,8 +67,8 @@ def test_api_key_functionality():
     """Test API key generation and validation."""
     print("Testing API key functionality...")
 
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from pynomaly.infrastructure.config import Settings
+    from anomaly_detection.infrastructure.auth.jwt_auth import JWTAuthService
+    from anomaly_detection.infrastructure.config import Settings
 
     settings = Settings()
     auth_service = JWTAuthService(settings)
@@ -98,9 +98,9 @@ def test_websocket_auth_middleware():
     """Test WebSocket authentication middleware."""
     print("Testing WebSocket auth middleware...")
 
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from pynomaly.infrastructure.auth.websocket_auth import WebSocketAuthMiddleware
-    from pynomaly.infrastructure.config import Settings
+    from anomaly_detection.infrastructure.auth.jwt_auth import JWTAuthService
+    from anomaly_detection.infrastructure.auth.websocket_auth import WebSocketAuthMiddleware
+    from anomaly_detection.infrastructure.config import Settings
 
     settings = Settings()
     auth_service = JWTAuthService(settings)
@@ -118,9 +118,9 @@ def test_htmx_auth_middleware():
     """Test HTMX authentication middleware."""
     print("Testing HTMX auth middleware...")
 
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from pynomaly.infrastructure.auth.websocket_auth import HTMXAuthMiddleware
-    from pynomaly.infrastructure.config import Settings
+    from anomaly_detection.infrastructure.auth.jwt_auth import JWTAuthService
+    from anomaly_detection.infrastructure.auth.websocket_auth import HTMXAuthMiddleware
+    from anomaly_detection.infrastructure.config import Settings
 
     settings = Settings()
     auth_service = JWTAuthService(settings)

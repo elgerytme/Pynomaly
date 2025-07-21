@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive implementation plan for three new data science packages in the Pynomaly ecosystem:
+This document outlines the comprehensive implementation plan for three new data science packages in the anomaly_detection ecosystem:
 
 1. **data_science**: Data analysis, exploration, and statistical modeling
 2. **data_profiling**: Automated data profiling and quality assessment  
@@ -14,7 +14,7 @@ This document outlines the comprehensive implementation plan for three new data 
 **Goal**: Establish package structure and core domain models
 
 #### Week 1: Package Structure Setup
-- [ ] Create package directory structures following Pynomaly patterns
+- [ ] Create package directory structures following anomaly_detection patterns
 - [ ] Set up pyproject.toml configurations for each package
 - [ ] Establish clean architecture layers (domain, application, infrastructure, presentation)
 - [ ] Create base container and dependency injection setup
@@ -225,7 +225,7 @@ This document outlines the comprehensive implementation plan for three new data 
 ### Phase 6: Integration and Testing (Weeks 33-36)
 
 #### Week 33: Package Integration
-- [ ] Integrate packages with Pynomaly ecosystem
+- [ ] Integrate packages with anomaly_detection ecosystem
 - [ ] Create cross-package workflows
 - [ ] Implement shared data contracts
 - [ ] Add ecosystem-wide monitoring

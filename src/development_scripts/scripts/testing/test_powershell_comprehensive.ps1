@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 
 Write-Host "========================================"
-Write-Host "PYNOMALY COMPREHENSIVE POWERSHELL TEST SUITE"
+Write-Host "anomaly_detection COMPREHENSIVE POWERSHELL TEST SUITE"
 Write-Host "========================================"
 Write-Host "Environment: $($PSVersionTable.PSVersion)"
 Write-Host "OS: $($PSVersionTable.OS)"
@@ -74,8 +74,8 @@ if (Invoke-TestCase "API Detector Creation" "python3 -m pytest tests/presentatio
 # Test 6: Direct API Usage Test
 $totalTests++
 $apiTestScript = @"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.presentation.api.app import create_app
 from fastapi.testclient import TestClient
 
 container = create_container()
@@ -116,8 +116,8 @@ $totalTests++
 $domainTestScript = @"
 import numpy as np
 import pandas as pd
-from pynomaly.domain.entities import Dataset, Detector, Anomaly
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from anomaly_detection.domain.entities import Dataset, Detector, Anomaly
+from anomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
 
 # Create dataset
 data = pd.DataFrame({'feature1': [1, 2, 3, 100], 'feature2': [1, 1, 1, 50]})
@@ -148,9 +148,9 @@ $totalTests++
 $adapterTestScript = @"
 import numpy as np
 import pandas as pd
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 
 # Create test data
 data = pd.DataFrame({
@@ -185,9 +185,9 @@ $totalTests++
 $useCaseTestScript = @"
 import numpy as np
 import pandas as pd
-from pynomaly.application.services.ensemble_service import EnsembleService
-from pynomaly.infrastructure.persistence.repositories import InMemoryDetectorRepository, InMemoryDatasetRepository, InMemoryResultRepository
-from pynomaly.domain.entities import Dataset, Detector
+from anomaly_detection.application.services.ensemble_service import EnsembleService
+from anomaly_detection.infrastructure.persistence.repositories import InMemoryDetectorRepository, InMemoryDatasetRepository, InMemoryResultRepository
+from anomaly_detection.domain.entities import Dataset, Detector
 
 # Setup repositories
 detector_repo = InMemoryDetectorRepository()
@@ -220,8 +220,8 @@ if (Invoke-TestCase "Application Use Cases" "python3 -c `"$useCaseTestScript`"")
 # Test 10: Configuration and Settings
 $totalTests++
 $configTestScript = @"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.infrastructure.config.settings import get_settings
 
 # Test settings
 settings = get_settings()

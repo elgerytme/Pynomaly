@@ -1,4 +1,4 @@
-import '../src/pynomaly/presentation/web/static/css/design-system.css';
+import '../src/anomaly_detection/presentation/web/static/css/design-system.css';
 
 /** @type { import('@storybook/html').Preview } */
 const preview = {
@@ -13,9 +13,9 @@ const preview = {
     docs: {
       theme: {
         base: 'light',
-        brandTitle: 'Pynomaly Design System',
-        brandUrl: 'https://pynomaly.io',
-        brandImage: '/static/images/pynomaly-logo.svg',
+        brandTitle: 'anomaly_detection Design System',
+        brandUrl: 'https://anomaly_detection.io',
+        brandImage: '/static/images/anomaly_detection-logo.svg',
         brandTarget: '_self',
 
         colorPrimary: '#0ea5e9',

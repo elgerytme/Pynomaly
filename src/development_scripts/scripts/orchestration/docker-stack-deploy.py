@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Docker Swarm Stack Deployment Script for Pynomaly
+Docker Swarm Stack Deployment Script for anomaly_detection
 Alternative to Kubernetes for simpler production deployments
 """
 
@@ -53,7 +53,7 @@ def initialize_docker_swarm():
 def create_docker_networks():
     """Create Docker overlay networks for the stack."""
     networks = [
-        ("pynomaly-network", "attachable"),
+        ("anomaly_detection-network", "attachable"),
         ("monitoring-network", "attachable"),
         ("tracing-network", "attachable"),
         ("logging-network", "attachable"),
@@ -101,7 +101,7 @@ def create_docker_networks():
 def create_docker_secrets():
     """Create Docker secrets for sensitive data."""
     secrets = {
-        "postgres_password": "pynomaly_prod_secret_2024",
+        "postgres_password": "anomaly_detection_prod_secret_2024",
         "redis_password": "redis_prod_secret_2024",
         "jwt_secret_key": "jwt_super_secret_key_for_production_2024",
         "app_secret_key": "app_super_secret_key_for_production_2024",
@@ -163,23 +163,23 @@ global:
   evaluation_interval: 15s
 
 rule_files:
-  - "/etc/prometheus/pynomaly_alerts.yml"
+  - "/etc/prometheus/anomaly_detection_alerts.yml"
 
 scrape_configs:
-  - job_name: 'pynomaly-api'
+  - job_name: 'anomaly_detection-api'
     dns_sd_configs:
       - names:
-          - 'tasks.pynomaly-api'
+          - 'tasks.anomaly_detection-api'
         type: 'A'
         port: 9090
     scrape_interval: 15s
     metrics_path: /metrics
 
-  - job_name: 'pynomaly-workers'
+  - job_name: 'anomaly_detection-workers'
     dns_sd_configs:
       - names:
-          - 'tasks.pynomaly-worker-training'
-          - 'tasks.pynomaly-worker-drift'
+          - 'tasks.anomaly_detection-worker-training'
+          - 'tasks.anomaly_detection-worker-drift'
         type: 'A'
         port: 9090
     scrape_interval: 30s
@@ -204,8 +204,8 @@ events {
 }
 
 http {
-    upstream pynomaly_api {
-        server pynomaly-api:8000;
+    upstream anomaly_detection_api {
+        server anomaly_detection-api:8000;
     }
 
     upstream grafana {
@@ -218,10 +218,10 @@ http {
 
     server {
         listen 80;
-        server_name api.pynomaly.local;
+        server_name api.anomaly_detection.local;
 
         location / {
-            proxy_pass http://pynomaly_api;
+            proxy_pass http://anomaly_detection_api;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -229,13 +229,13 @@ http {
         }
 
         location /health {
-            proxy_pass http://pynomaly_api/health;
+            proxy_pass http://anomaly_detection_api/health;
         }
     }
 
     server {
         listen 80;
-        server_name grafana.pynomaly.local;
+        server_name grafana.anomaly_detection.local;
 
         location / {
             proxy_pass http://grafana;
@@ -248,7 +248,7 @@ http {
 
     server {
         listen 80;
-        server_name jaeger.pynomaly.local;
+        server_name jaeger.anomaly_detection.local;
 
         location / {
             proxy_pass http://jaeger;
@@ -283,7 +283,7 @@ exporters:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
-    namespace: "pynomaly"
+    namespace: "anomaly_detection"
 
 service:
   pipelines:
@@ -353,15 +353,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: pynomaly
-      POSTGRES_USER: pynomaly
+      POSTGRES_DB: anomaly_detection
+      POSTGRES_USER: anomaly_detection
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     secrets:
       - postgres_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       replicas: 1
       placement:
@@ -388,7 +388,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       replicas: 1
       resources:
@@ -403,11 +403,11 @@ services:
         delay: 5s
 
   # anomaly detection API
-  pynomaly-api:
-    image: pynomaly/api:1.0.0
+  anomaly_detection-api:
+    image: anomaly_detection/api:1.0.0
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql://pynomaly:$(cat /run/secrets/postgres_password)@postgres:5432/pynomaly
+      - DATABASE_URL=postgresql://anomaly_detection:$(cat /run/secrets/postgres_password)@postgres:5432/anomaly_detection
       - REDIS_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - JAEGER_AGENT_HOST=jaeger
@@ -420,7 +420,7 @@ services:
       - app_storage:/app/storage
       - app_logs:/app/logs
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     depends_on:
       - postgres
       - redis
@@ -448,13 +448,13 @@ services:
         max_attempts: 3
 
   # Training Worker
-  pynomaly-worker-training:
-    image: pynomaly/worker:1.0.0
-    command: celery worker -A pynomaly.workers -Q model_training,anomaly_detection --concurrency=4
+  anomaly_detection-worker-training:
+    image: anomaly_detection/worker:1.0.0
+    command: celery worker -A anomaly_detection.workers -Q model_training,anomaly_detection --concurrency=4
     environment:
       - ENVIRONMENT=production
       - CELERY_BROKER_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
-      - DATABASE_URL=postgresql://pynomaly:$(cat /run/secrets/postgres_password)@postgres:5432/pynomaly
+      - DATABASE_URL=postgresql://anomaly_detection:$(cat /run/secrets/postgres_password)@postgres:5432/anomaly_detection
     secrets:
       - postgres_password
       - redis_password
@@ -462,7 +462,7 @@ services:
       - app_storage:/app/storage
       - app_logs:/app/logs
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     depends_on:
       - postgres
       - redis
@@ -480,13 +480,13 @@ services:
         delay: 5s
 
   # Drift Worker
-  pynomaly-worker-drift:
-    image: pynomaly/worker:1.0.0
-    command: celery worker -A pynomaly.workers -Q drift_monitoring,alert_processing --concurrency=2
+  anomaly_detection-worker-drift:
+    image: anomaly_detection/worker:1.0.0
+    command: celery worker -A anomaly_detection.workers -Q drift_monitoring,alert_processing --concurrency=2
     environment:
       - ENVIRONMENT=production
       - CELERY_BROKER_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
-      - DATABASE_URL=postgresql://pynomaly:$(cat /run/secrets/postgres_password)@postgres:5432/pynomaly
+      - DATABASE_URL=postgresql://anomaly_detection:$(cat /run/secrets/postgres_password)@postgres:5432/anomaly_detection
     secrets:
       - postgres_password
       - redis_password
@@ -494,7 +494,7 @@ services:
       - app_storage:/app/storage
       - app_logs:/app/logs
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     depends_on:
       - postgres
       - redis
@@ -512,13 +512,13 @@ services:
         delay: 5s
 
   # Celery Scheduler
-  pynomaly-scheduler:
-    image: pynomaly/scheduler:1.0.0
-    command: celery beat -A pynomaly.workers --loglevel=info
+  anomaly_detection-scheduler:
+    image: anomaly_detection/scheduler:1.0.0
+    command: celery beat -A anomaly_detection.workers --loglevel=info
     environment:
       - ENVIRONMENT=production
       - CELERY_BROKER_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
-      - DATABASE_URL=postgresql://pynomaly:$(cat /run/secrets/postgres_password)@postgres:5432/pynomaly
+      - DATABASE_URL=postgresql://anomaly_detection:$(cat /run/secrets/postgres_password)@postgres:5432/anomaly_detection
     secrets:
       - postgres_password
       - redis_password
@@ -526,7 +526,7 @@ services:
       - app_storage:/app/storage
       - app_logs:/app/logs
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     depends_on:
       - postgres
       - redis
@@ -559,7 +559,7 @@ services:
       - prometheus_data:/prometheus
     networks:
       - monitoring-network
-      - pynomaly-network
+      - anomaly_detection-network
     ports:
       - "9090:9090"
     deploy:
@@ -614,7 +614,7 @@ services:
       - jaeger_data:/badger
     networks:
       - tracing-network
-      - pynomaly-network
+      - anomaly_detection-network
     ports:
       - "16686:16686"
       - "14268:14268"
@@ -640,7 +640,7 @@ services:
         target: /etc/otel-collector-config.yaml
     networks:
       - tracing-network
-      - pynomaly-network
+      - anomaly_detection-network
       - monitoring-network
     ports:
       - "4317:4317"
@@ -666,14 +666,14 @@ services:
       - source: nginx_config
         target: /etc/nginx/nginx.conf
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
       - monitoring-network
       - tracing-network
     ports:
       - "80:80"
       - "443:443"
     depends_on:
-      - pynomaly-api
+      - anomaly_detection-api
       - grafana
       - jaeger
     deploy:
@@ -739,7 +739,7 @@ services:
           cpus: '0.1'
 
 networks:
-  pynomaly-network:
+  anomaly_detection-network:
     driver: overlay
     attachable: true
   monitoring-network:
@@ -784,7 +784,7 @@ configs:
     external: true
 """
 
-    stack_dir = Path("/mnt/c/Users/andre/Pynomaly/deploy/docker-swarm")
+    stack_dir = Path("/mnt/c/Users/andre/anomaly_detection/deploy/docker-swarm")
     stack_dir.mkdir(parents=True, exist_ok=True)
     stack_file = stack_dir / "docker-stack.yml"
 
@@ -795,7 +795,7 @@ configs:
     return stack_file
 
 
-def deploy_stack(stack_file: Path, stack_name: str = "pynomaly"):
+def deploy_stack(stack_file: Path, stack_name: str = "anomaly_detection"):
     """Deploy the Docker Stack."""
     print(f"Deploying Docker Stack '{stack_name}'...")
 
@@ -830,17 +830,17 @@ def deploy_stack(stack_file: Path, stack_name: str = "pynomaly"):
 
 def create_management_scripts():
     """Create management scripts for Docker Swarm."""
-    scripts_dir = Path("/opt/pynomaly/scripts/docker-swarm")
+    scripts_dir = Path("/opt/anomaly_detection/scripts/docker-swarm")
     scripts_dir.mkdir(parents=True, exist_ok=True)
 
     # Deploy script
     deploy_script = """#!/bin/bash
-# Docker Swarm deployment script for Pynomaly
+# Docker Swarm deployment script for anomaly_detection
 
-STACK_NAME="${STACK_NAME:-pynomaly}"
+STACK_NAME="${STACK_NAME:-anomaly_detection}"
 COMPOSE_FILE="${COMPOSE_FILE:-./deploy/docker-swarm/docker-stack.yml}"
 
-echo "🚀 Deploying Pynomaly Stack to Docker Swarm..."
+echo "🚀 Deploying anomaly_detection Stack to Docker Swarm..."
 echo "Stack: $STACK_NAME"
 echo "Compose file: $COMPOSE_FILE"
 
@@ -876,11 +876,11 @@ docker stack services "$STACK_NAME"
 
     # Monitor script
     monitor_script = """#!/bin/bash
-# Docker Swarm monitoring script for Pynomaly
+# Docker Swarm monitoring script for anomaly_detection
 
-STACK_NAME="${STACK_NAME:-pynomaly}"
+STACK_NAME="${STACK_NAME:-anomaly_detection}"
 
-echo "📊 Pynomaly Docker Swarm Monitoring"
+echo "📊 anomaly_detection Docker Swarm Monitoring"
 echo "Stack: $STACK_NAME"
 echo "=" * 50
 
@@ -902,7 +902,7 @@ docker stack ps "$STACK_NAME" --no-trunc
 # Service logs (sample)
 echo ""
 echo "📄 Recent Logs (API):"
-docker service logs --tail 20 "${STACK_NAME}_pynomaly-api" 2>/dev/null || echo "No API service logs"
+docker service logs --tail 20 "${STACK_NAME}_anomaly-detection-api" 2>/dev/null || echo "No API service logs"
 
 # System resource usage
 echo ""
@@ -917,9 +917,9 @@ docker system df
 
     # Scale script
     scale_script = """#!/bin/bash
-# Docker Swarm scaling script for Pynomaly
+# Docker Swarm scaling script for anomaly_detection
 
-STACK_NAME="${STACK_NAME:-pynomaly}"
+STACK_NAME="${STACK_NAME:-anomaly_detection}"
 
 usage() {
     echo "Usage: $0 <service> <replicas>"
@@ -937,13 +937,13 @@ REPLICAS="$2"
 
 case $SERVICE in
     "api")
-        SERVICE_NAME="${STACK_NAME}_pynomaly-api"
+        SERVICE_NAME="${STACK_NAME}_anomaly-detection-api"
         ;;
     "worker-training")
-        SERVICE_NAME="${STACK_NAME}_pynomaly-worker-training"
+        SERVICE_NAME="${STACK_NAME}_anomaly-detection-worker-training"
         ;;
     "worker-drift")
-        SERVICE_NAME="${STACK_NAME}_pynomaly-worker-drift"
+        SERVICE_NAME="${STACK_NAME}_anomaly-detection-worker-drift"
         ;;
     "nginx")
         SERVICE_NAME="${STACK_NAME}_nginx"
@@ -971,11 +971,11 @@ docker service ls --filter name="$SERVICE_NAME"
 
     # Cleanup script
     cleanup_script = """#!/bin/bash
-# Docker Swarm cleanup script for Pynomaly
+# Docker Swarm cleanup script for anomaly_detection
 
-STACK_NAME="${STACK_NAME:-pynomaly}"
+STACK_NAME="${STACK_NAME:-anomaly_detection}"
 
-echo "🧹 Cleaning up Pynomaly Docker Stack..."
+echo "🧹 Cleaning up anomaly_detection Docker Stack..."
 echo "Stack: $STACK_NAME"
 
 read -p "Are you sure you want to remove the stack? (y/N): " -n 1 -r
@@ -1022,7 +1022,7 @@ echo "✅ Cleanup completed!"
 
 def main():
     """Main Docker Swarm setup function."""
-    print("Setting up Pynomaly Docker Swarm Deployment...")
+    print("Setting up anomaly_detection Docker Swarm Deployment...")
     print("=" * 60)
 
     try:
@@ -1071,16 +1071,16 @@ def main():
         print("\n3. Scale services:")
         print("   ./scripts/docker-swarm/scale.sh api 5")
         print("\n4. Access services:")
-        print("   - API: http://api.pynomaly.local")
-        print("   - Grafana: http://grafana.pynomaly.local (admin/admin)")
-        print("   - Jaeger: http://jaeger.pynomaly.local")
+        print("   - API: http://api.anomaly_detection.local")
+        print("   - Grafana: http://grafana.anomaly_detection.local (admin/admin)")
+        print("   - Jaeger: http://jaeger.anomaly_detection.local")
         print("   - Prometheus: http://localhost:9090")
         print("\n5. Clean up:")
         print("   ./scripts/docker-swarm/cleanup.sh")
 
         print("\nKey files created:")
         print(f"- Docker Stack: {stack_file}")
-        print("- Management scripts: /opt/pynomaly/scripts/docker-swarm/")
+        print("- Management scripts: /opt/anomaly_detection/scripts/docker-swarm/")
 
     except Exception as e:
         print(f"\n❌ Setup failed: {e}")

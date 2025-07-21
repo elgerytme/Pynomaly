@@ -12,7 +12,7 @@ This package provides comprehensive data observability capabilities including:
 
 __version__ = "0.1.0"
 __author__ = "Anomaly Detection Team"
-__email__ = "support@pynomaly.com"
+__email__ = "support@anomaly_detection.com"
 
 from typing import Any, Dict, List, Optional
 from datetime import datetime

@@ -1,8 +1,8 @@
 /**
- * Pynomaly Java SDK
+ * anomaly_detection Java SDK
  *
- * Official Java client library for the Pynomaly anomaly detection API.
- * This SDK provides convenient access to the Pynomaly API with full type safety,
+ * Official Java client library for the anomaly_detection anomaly detection API.
+ * This SDK provides convenient access to the anomaly_detection API with full type safety,
  * authentication handling, error management, and comprehensive documentation.
  *
  * Features:
@@ -18,8 +18,8 @@
  * Example Usage:
  * <pre>
  * {@code
- * PynomaliClient client = PynomaliClient.builder()
- *     .baseUrl("https://api.pynomaly.com")
+ * AnomalyDetectionClient client = AnomalyDetectionClient.builder()
+ *     .baseUrl("https://api.anomaly_detection.com")
  *     .apiKey("your-api-key")
  *     .build();
  *
@@ -40,16 +40,16 @@
  * }
  * </pre>
  */
-package com.pynomaly.client;
+package com.anomaly_detection.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.pynomaly.client.api.*;
-import com.pynomaly.client.auth.AuthManager;
-import com.pynomaly.client.exception.*;
-import com.pynomaly.client.http.HttpClient;
-import com.pynomaly.client.http.RateLimiter;
-import com.pynomaly.client.model.*;
+import com.anomaly_detection.client.api.*;
+import com.anomaly_detection.client.auth.AuthManager;
+import com.anomaly_detection.client.exception.*;
+import com.anomaly_detection.client.http.HttpClient;
+import com.anomaly_detection.client.http.RateLimiter;
+import com.anomaly_detection.client.model.*;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,16 +60,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Main Pynomali client for Java applications.
+ * Main anomaly-detection client for Java applications.
  */
-public class PynomaliClient implements AutoCloseable {
+public class AnomalyDetectionClient implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PynomaliClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnomalyDetectionClient.class);
 
-    private static final String DEFAULT_BASE_URL = "https://api.pynomaly.com";
+    private static final String DEFAULT_BASE_URL = "https://api.anomaly_detection.com";
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
     private static final int DEFAULT_MAX_RETRIES = 3;
-    private static final String USER_AGENT = "pynomaly-java-sdk/1.0.0";
+    private static final String USER_AGENT = "anomaly_detection-java-sdk/1.0.0";
 
     private final String baseUrl;
     private final Duration timeout;
@@ -89,7 +89,7 @@ public class PynomaliClient implements AutoCloseable {
     private final ExplainabilityAPI explainabilityAPI;
     private final HealthAPI healthAPI;
 
-    private PynomaliClient(Builder builder) {
+    private AnomalyDetectionClient(Builder builder) {
         this.baseUrl = builder.baseUrl.replaceAll("/$", "");
         this.timeout = builder.timeout;
         this.maxRetries = builder.maxRetries;
@@ -132,7 +132,7 @@ public class PynomaliClient implements AutoCloseable {
     /**
      * Make HTTP request with error handling and rate limiting.
      */
-    public <T> T request(String method, String endpoint, Object data, Class<T> responseType) throws PynomaliException {
+    public <T> T request(String method, String endpoint, Object data, Class<T> responseType) throws anomaly-detectionException {
         return requestAsync(method, endpoint, data, responseType).join();
     }
 
@@ -182,7 +182,7 @@ public class PynomaliClient implements AutoCloseable {
                 }
 
             } catch (Exception e) {
-                if (e instanceof PynomaliException) {
+                if (e instanceof anomaly-detectionException) {
                     throw new RuntimeException(e);
                 }
                 throw new RuntimeException(new NetworkException("Request failed: " + e.getMessage(), e));
@@ -193,7 +193,7 @@ public class PynomaliClient implements AutoCloseable {
     /**
      * Handle HTTP response and raise appropriate exceptions.
      */
-    private <T> T handleResponse(Response response, Class<T> responseType) throws IOException, PynomaliException {
+    private <T> T handleResponse(Response response, Class<T> responseType) throws IOException, anomaly-detectionException {
         int status = response.code();
 
         if (status == 401) {
@@ -215,7 +215,7 @@ public class PynomaliClient implements AutoCloseable {
         } else if (status >= 500) {
             throw new ServerException("Server error: " + status);
         } else if (status < 200 || status >= 300) {
-            throw new PynomaliException("Unexpected status code: " + status);
+            throw new anomaly-detectionException("Unexpected status code: " + status);
         }
 
         // Parse JSON response
@@ -289,7 +289,7 @@ public class PynomaliClient implements AutoCloseable {
     }
 
     /**
-     * Builder for PynomaliClient.
+     * Builder for AnomalyDetectionClient.
      */
     public static class Builder {
         private String baseUrl = DEFAULT_BASE_URL;
@@ -325,8 +325,8 @@ public class PynomaliClient implements AutoCloseable {
             return this;
         }
 
-        public PynomaliClient build() {
-            return new PynomaliClient(this);
+        public AnomalyDetectionClient build() {
+            return new AnomalyDetectionClient(this);
         }
     }
 

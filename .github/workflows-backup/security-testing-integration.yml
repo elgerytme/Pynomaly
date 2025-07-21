@@ -313,8 +313,8 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: pynomaly_test
-          POSTGRES_USER: pynomaly
+          POSTGRES_DB: anomaly_detection_test
+          POSTGRES_USER: anomaly_detection
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -341,13 +341,13 @@ jobs:
       - name: Set up test environment
         run: |
           cp .env.example .env
-          echo "DATABASE_URL=postgresql://pynomaly:test_password@localhost:5432/pynomaly_test" >> .env
+          echo "DATABASE_URL=postgresql://anomaly_detection:test_password@localhost:5432/anomaly_detection_test" >> .env
           echo "ENVIRONMENT=test" >> .env
           echo "AUTH_ENABLED=true" >> .env
 
       - name: Start API server
         run: |
-          python -m pynomaly.presentation.api.app &
+          python -m anomaly_detection.presentation.api.app &
           API_PID=$!
           echo $API_PID > api.pid
           sleep 15  # Wait for server to start

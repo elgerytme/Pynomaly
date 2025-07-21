@@ -4,14 +4,14 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
       - 'docker-compose.ui-testing.yml'
       - '.github/workflows/ui-tests.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
 
 env:
@@ -31,7 +31,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: testpass
           POSTGRES_USER: testuser
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -70,10 +70,10 @@ jobs:
           --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max
 
         # Start application
-        docker-compose -f docker-compose.ui-testing.yml up -d pynomaly-app
+        docker-compose -f docker-compose.ui-testing.yml up -d anomaly_detection-app
 
         # Wait for application to be ready
-        timeout 120s bash -c 'until docker-compose -f docker-compose.ui-testing.yml ps pynomaly-app | grep -q healthy; do sleep 5; done'
+        timeout 120s bash -c 'until docker-compose -f docker-compose.ui-testing.yml ps anomaly_detection-app | grep -q healthy; do sleep 5; done'
 
     - name: Run UI tests
       run: |

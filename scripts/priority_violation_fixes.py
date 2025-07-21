@@ -5,7 +5,7 @@ Priority Violation Fixes
 This script targets the top 5 most common violations for maximum impact:
 1. dataset: 2,149 occurrences (11.6%)
 2. model: 1,690 occurrences (9.1%)
-3. pynomaly: 1,662 occurrences (9.0%)
+3. anomaly_detection: 1,662 occurrences (9.0%)
 4. detection: 1,606 occurrences (8.7%)
 5. metrics: 1,498 occurrences (8.1%)
 """
@@ -61,20 +61,20 @@ class PriorityViolationFixer:
                     r'model.*data'
                 ]
             },
-            'pynomaly': {
+            'anomaly_detection': {
                 'replacements': [
                     (r'anomaly_detection', 'software'),
                     (r'Anomaly Detection Platform', 'Software'),
-                    (r'pynomaly-', 'software-'),
-                    (r'pynomaly_', 'software_'),
-                    (r'from pynomaly', 'from software'),
-                    (r'import pynomaly', 'import software')
+                    (r'anomaly_detection-', 'software-'),
+                    (r'anomaly_detection_', 'software_'),
+                    (r'from anomaly_detection', 'from software'),
+                    (r'import anomaly_detection', 'import software')
                 ],
                 'safe_files': ['.py', '.toml', '.yaml', '.json', '.md'],
                 'excluded_patterns': [
-                    r'github\.com.*pynomaly',
-                    r'pynomaly\.io',
-                    r'repository.*pynomaly'
+                    r'github\.com.*anomaly_detection',
+                    r'anomaly_detection\.io',
+                    r'repository.*anomaly_detection'
                 ]
             },
             'detection': {
@@ -288,7 +288,7 @@ class PriorityViolationFixer:
             "expected_impact": {
                 "dataset": f"{self.stats['replacements_by_type'].get('dataset', 0)} of ~2,149",
                 "model": f"{self.stats['replacements_by_type'].get('model', 0)} of ~1,690",
-                "pynomaly": f"{self.stats['replacements_by_type'].get('pynomaly', 0)} of ~1,662",
+                "anomaly_detection": f"{self.stats['replacements_by_type'].get('anomaly_detection', 0)} of ~1,662",
                 "detection": f"{self.stats['replacements_by_type'].get('detection', 0)} of ~1,606",
                 "metrics": f"{self.stats['replacements_by_type'].get('metrics', 0)} of ~1,498"
             }

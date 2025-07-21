@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================"
-echo "PYNOMALY COMPREHENSIVE BASH TEST SUITE"
+echo "anomaly_detection COMPREHENSIVE BASH TEST SUITE"
 echo "========================================"
 echo "Environment: $(uname -a)"
 echo "Python: $(python3 --version)"
@@ -64,8 +64,8 @@ fi
 # Test 6: Direct API Usage Test
 ((total_tests++))
 if run_test "Direct API Usage" "python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.presentation.api.app import create_app
 from fastapi.testclient import TestClient
 
 container = create_container()
@@ -104,8 +104,8 @@ fi
 if run_test "Domain Entity Creation" "python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.domain.entities import Dataset, Detector, Anomaly
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from anomaly_detection.domain.entities import Dataset, Detector, Anomaly
+from anomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
 
 # Create dataset
 data = pd.DataFrame({'feature1': [1, 2, 3, 100], 'feature2': [1, 1, 1, 50]})
@@ -134,9 +134,9 @@ fi
 if run_test "ML Adapter Integration" "python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 
 # Create test data
 data = pd.DataFrame({
@@ -169,9 +169,9 @@ fi
 if run_test "Application Use Cases" "python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.application.services.ensemble_service import EnsembleService
-from pynomaly.infrastructure.persistence.repositories import InMemoryDetectorRepository, InMemoryDatasetRepository, InMemoryResultRepository
-from pynomaly.domain.entities import Dataset, Detector
+from anomaly_detection.application.services.ensemble_service import EnsembleService
+from anomaly_detection.infrastructure.persistence.repositories import InMemoryDetectorRepository, InMemoryDatasetRepository, InMemoryResultRepository
+from anomaly_detection.domain.entities import Dataset, Detector
 
 # Setup repositories
 detector_repo = InMemoryDetectorRepository()
@@ -202,8 +202,8 @@ fi
 # Test 10: Configuration and Settings
 ((total_tests++))
 if run_test "Configuration and Settings" "python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.infrastructure.config.settings import get_settings
 
 # Test settings
 settings = get_settings()

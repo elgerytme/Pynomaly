@@ -16,13 +16,13 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 def measure_cli_startup(use_lazy: bool = True) -> float:
     """Measure CLI startup time with and without lazy loading."""
     env = os.environ.copy()
-    env["PYNOMALY_USE_LAZY_CLI"] = "true" if use_lazy else "false"
-    env["PYNOMALY_USE_FAST_CLI"] = "true" if use_lazy else "false"
+    env["ANOMALY_DETECTION_USE_LAZY_CLI"] = "true" if use_lazy else "false"
+    env["ANOMALY_DETECTION_USE_FAST_CLI"] = "true" if use_lazy else "false"
 
     start_time = time.perf_counter()
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "pynomaly.presentation.cli.app", "--help"],
+            [sys.executable, "-m", "anomaly_detection.presentation.cli.app", "--help"],
             capture_output=True,
             text=True,
             timeout=30,
@@ -83,13 +83,13 @@ def main():
 
     for cmd in commands:
         env = os.environ.copy()
-        env["PYNOMALY_USE_LAZY_CLI"] = "true"
-        env["PYNOMALY_USE_FAST_CLI"] = "true"
+        env["ANOMALY_DETECTION_USE_LAZY_CLI"] = "true"
+        env["ANOMALY_DETECTION_USE_FAST_CLI"] = "true"
 
         start_time = time.perf_counter()
         try:
             result = subprocess.run(
-                [sys.executable, "-m", "pynomaly.presentation.cli.app", cmd],
+                [sys.executable, "-m", "anomaly_detection.presentation.cli.app", cmd],
                 capture_output=True,
                 text=True,
                 timeout=10,

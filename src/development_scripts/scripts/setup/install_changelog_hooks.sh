@@ -10,7 +10,7 @@
 
 set -e
 
-echo "🔧 Installing Pynomaly Changelog Management Automation"
+echo "🔧 Installing anomaly_detection Changelog Management Automation"
 echo "=" * 60
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
@@ -19,7 +19,7 @@ HOOKS_DIR="$PROJECT_ROOT/.git/hooks"
 # Check if we're in a git repository
 if [ ! -d "$PROJECT_ROOT/.git" ]; then
     echo "❌ Not in a git repository!"
-    echo "   Please run this script from within the Pynomaly git repository"
+    echo "   Please run this script from within the anomaly_detection git repository"
     exit 1
 fi
 
@@ -102,7 +102,7 @@ case "$1" in
         head -50 CHANGELOG.md
         ;;
     "help"|"h"|"")
-        echo "Pynomaly Changelog Helper"
+        echo "anomaly_detection Changelog Helper"
         echo ""
         echo "Usage: ./scripts/changelog <command>"
         echo ""

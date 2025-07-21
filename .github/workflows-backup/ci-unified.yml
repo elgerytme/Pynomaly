@@ -151,7 +151,7 @@ jobs:
         ls -la dist/
         # Test wheel installation
         pip install dist/*.whl
-        python -c "import pynomaly; print('Package installation successful')"
+        python -c "import anomaly_detection; print('Package installation successful')"
         echo "::endgroup::"
 
     - name: Upload build artifacts
@@ -183,8 +183,8 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: pynomaly_test
-          POSTGRES_USER: pynomaly
+          POSTGRES_DB: anomaly_detection_test
+          POSTGRES_USER: anomaly_detection
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -232,9 +232,9 @@ jobs:
     - name: Set up environment
       run: |
         cp .env.production .env.test
-        echo "DATABASE_URL=postgresql://pynomaly:test_password@localhost:5432/pynomaly_test" >> .env.test
+        echo "DATABASE_URL=postgresql://anomaly_detection:test_password@localhost:5432/anomaly_detection_test" >> .env.test
         echo "REDIS_URL=redis://localhost:6379" >> .env.test
-        echo "PYNOMALY_ENVIRONMENT=test" >> .env.test
+        echo "ANOMALY_DETECTION_ENVIRONMENT=test" >> .env.test
 
     - name: Run database migrations
       run: |
@@ -247,7 +247,7 @@ jobs:
       run: |
         echo "::group::Unit Tests"
         hatch env run test:run tests/unit/ tests/domain/ tests/application/ \
-          --cov=src/pynomaly --cov-report=xml --cov-report=html \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=html \
           --junitxml=test-results-unit.xml
         echo "::endgroup::"
 
@@ -256,7 +256,7 @@ jobs:
       run: |
         echo "::group::Integration Tests"
         hatch env run test:run tests/integration/ tests/infrastructure/ \
-          --cov=src/pynomaly --cov-report=xml --cov-report=html \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=html \
           --junitxml=test-results-integration.xml
         echo "::endgroup::"
 
@@ -273,7 +273,7 @@ jobs:
       run: |
         echo "::group::API Tests"
         # Start API server in background
-        hatch env run uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 &
+        hatch env run uvicorn anomaly_detection.presentation.api.app:app --host 0.0.0.0 --port 8000 &
         sleep 10
         # Test API endpoints
         curl -f http://localhost:8000/api/health/ready || echo "API health check failed"
@@ -331,14 +331,14 @@ jobs:
         file: deploy/docker/Dockerfile.production
         target: runtime
         push: false
-        tags: pynomaly:ci-test
+        tags: anomaly_detection:ci-test
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: pynomaly:ci-test
+        image-ref: anomaly_detection:ci-test
         format: 'sarif'
         output: 'trivy-results.sarif'
 
@@ -351,7 +351,7 @@ jobs:
       run: |
         echo "::group::Docker Image Testing"
         # Test if the image starts correctly
-        docker run --rm -d --name test-container pynomaly:ci-test
+        docker run --rm -d --name test-container anomaly_detection:ci-test
         sleep 10
         docker logs test-container
         docker stop test-container

@@ -104,7 +104,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -144,8 +144,8 @@ jobs:
       run: |
         # Create test configuration
         cat > test.env << EOF
-        PYNOMALY_ENV=test
-        DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        ANOMALY_DETECTION_ENV=test
+        DATABASE_URL=postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
         REDIS_URL=redis://localhost:6379/0
         SECRET_KEY=test-secret-key-not-for-production
         JWT_SECRET_KEY=test-jwt-secret
@@ -154,8 +154,8 @@ jobs:
 
     - name: Run ${{ matrix.test-type }} tests
       env:
-        PYNOMALY_ENV: test
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        ANOMALY_DETECTION_ENV: test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
         REDIS_URL: redis://localhost:6379/0
       run: |
         case "${{ matrix.test-type }}" in
@@ -300,8 +300,8 @@ jobs:
 
     - name: Lint Helm charts
       run: |
-        if [ -d deploy/helm/pynomaly ]; then
-          helm lint deploy/helm/pynomaly
+        if [ -d deploy/helm/anomaly_detection ]; then
+          helm lint deploy/helm/anomaly_detection
         fi
 
     - name: Test Kubernetes deployment
@@ -312,7 +312,7 @@ jobs:
         sudo mv ./kind /usr/local/bin/kind
 
         # Start kind cluster
-        kind create cluster --name pynomaly-test
+        kind create cluster --name anomaly_detection-test
 
         # Deploy to test cluster
         kubectl apply -f deploy/kubernetes/namespace.yaml
@@ -330,7 +330,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: staging
-      url: https://staging.pynomaly.io
+      url: https://staging.anomaly_detection.io
 
     steps:
     - name: Checkout code
@@ -345,26 +345,26 @@ jobs:
 
     - name: Set up kubectl
       run: |
-        aws eks update-kubeconfig --region us-west-2 --name pynomaly-staging
+        aws eks update-kubeconfig --region us-west-2 --name anomaly_detection-staging
 
     - name: Deploy to staging
       run: |
         # Update image tag in deployment
-        sed -i "s/pynomaly:production-latest/${{ needs.build.outputs.image-tag }}/g" deploy/kubernetes/staging/deployment.yaml
+        sed -i "s/anomaly_detection:production-latest/${{ needs.build.outputs.image-tag }}/g" deploy/kubernetes/staging/deployment.yaml
 
         # Apply staging configuration
         kubectl apply -f deploy/kubernetes/staging/
 
         # Wait for rollout to complete
-        kubectl rollout status deployment/pynomaly-api -n pynomaly-staging --timeout=600s
+        kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-staging --timeout=600s
 
     - name: Run smoke tests
       run: |
         # Wait for service to be ready
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly-staging --timeout=300s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=anomaly_detection -n anomaly_detection-staging --timeout=300s
 
         # Get service URL
-        STAGING_URL=$(kubectl get svc pynomaly-api-service -n pynomaly-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        STAGING_URL=$(kubectl get svc anomaly_detection-api-service -n anomaly_detection-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
         # Run health check
         curl -f "http://${STAGING_URL}/api/health" || exit 1
@@ -380,7 +380,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[deploy-prod]'))
     environment:
       name: production
-      url: https://api.pynomaly.io
+      url: https://api.anomaly_detection.io
 
     steps:
     - name: Checkout code
@@ -395,39 +395,39 @@ jobs:
 
     - name: Set up kubectl
       run: |
-        aws eks update-kubeconfig --region us-west-2 --name pynomaly-production
+        aws eks update-kubeconfig --region us-west-2 --name anomaly_detection-production
 
     - name: Pre-deployment backup
       run: |
         # Trigger backup job
-        kubectl create job --from=cronjob/pynomaly-backup pynomaly-backup-pre-deploy -n pynomaly-production
+        kubectl create job --from=cronjob/anomaly_detection-backup anomaly_detection-backup-pre-deploy -n anomaly_detection-production
 
         # Wait for backup to complete
-        kubectl wait --for=condition=complete job/pynomaly-backup-pre-deploy -n pynomaly-production --timeout=1800s
+        kubectl wait --for=condition=complete job/anomaly_detection-backup-pre-deploy -n anomaly_detection-production --timeout=1800s
 
     - name: Deploy to production
       run: |
         # Update image tag in deployment
-        sed -i "s/pynomaly:production-latest/${{ needs.build.outputs.image-tag }}/g" deploy/kubernetes/production-deployment.yaml
+        sed -i "s/anomaly_detection:production-latest/${{ needs.build.outputs.image-tag }}/g" deploy/kubernetes/production-deployment.yaml
 
         # Apply production configuration
         kubectl apply -f deploy/kubernetes/production-deployment.yaml
         kubectl apply -f deploy/kubernetes/production-enhanced.yaml
 
         # Perform rolling update
-        kubectl rollout status deployment/pynomaly-api -n pynomaly-production --timeout=900s
-        kubectl rollout status deployment/pynomaly-worker -n pynomaly-production --timeout=900s
+        kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-production --timeout=900s
+        kubectl rollout status deployment/anomaly_detection-worker -n anomaly_detection-production --timeout=900s
 
     - name: Post-deployment verification
       run: |
         # Wait for all pods to be ready
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly-production --timeout=600s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=anomaly_detection -n anomaly_detection-production --timeout=600s
 
         # Verify API health
-        kubectl exec -n pynomaly-production deployment/pynomaly-api -- curl -f http://localhost:8000/api/health
+        kubectl exec -n anomaly_detection-production deployment/anomaly_detection-api -- curl -f http://localhost:8000/api/health
 
         # Check metrics endpoint
-        kubectl exec -n pynomaly-production deployment/pynomaly-api -- curl -f http://localhost:9090/metrics
+        kubectl exec -n anomaly_detection-production deployment/anomaly_detection-api -- curl -f http://localhost:9090/metrics
 
         # Run comprehensive health checks
         python scripts/testing/test_production_health.py
@@ -466,7 +466,7 @@ jobs:
       run: |
         # Clean up kind clusters if they exist
         if command -v kind &> /dev/null; then
-          kind delete cluster --name pynomaly-test || true
+          kind delete cluster --name anomaly_detection-test || true
         fi
 
     - name: Notify deployment status
@@ -481,7 +481,7 @@ jobs:
         curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
           -H "Content-Type: application/json" \
           -d "{
-            \"text\": \"Pynomaly Deployment $STATUS\",
+            \"text\": \"anomaly_detection Deployment $STATUS\",
             \"attachments\": [{
               \"color\": \"${{ needs.deploy-production.result == 'success' && 'good' || 'danger' }}\",
               \"fields\": [

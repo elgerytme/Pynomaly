@@ -181,7 +181,7 @@ jobs:
           for file in $CHANGED_FILES; do
             if [ -f "$file" ]; then
               echo "Validating: $file"
-              poetry run python -m pynomaly.presentation.cli.quality validate "$file" \
+              poetry run python -m anomaly_detection.presentation.cli.quality validate "$file" \
                 --threshold 70 \
                 --fail-on-critical \
                 --verbose || echo "Warning: Quality gate failed for $file"
@@ -194,7 +194,7 @@ jobs:
     - name: Run batch quality validation on new features
       run: |
         echo "Running batch quality validation on src/ directory..."
-        poetry run python -m pynomaly.presentation.cli.quality batch src/ \
+        poetry run python -m anomaly_detection.presentation.cli.quality batch src/ \
           --pattern "*.py" \
           --threshold 75 \
           --format summary || echo "Warning: Some quality gates failed"

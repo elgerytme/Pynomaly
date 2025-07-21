@@ -1,4 +1,4 @@
-# Percy Configuration for Pynomaly Visual Regression Testing
+# Percy Configuration for anomaly_detection Visual Regression Testing
 version: 2
 
 # Snapshot configuration

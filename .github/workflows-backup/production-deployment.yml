@@ -80,7 +80,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -139,7 +139,7 @@ jobs:
 
     - name: Run comprehensive tests
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
         REDIS_URL: redis://localhost:6379/0
       run: |
         poetry run python scripts/testing/run_comprehensive_tests.py --type all
@@ -289,7 +289,7 @@ jobs:
 
     - name: Lint Helm charts
       run: |
-        helm lint deploy/helm/pynomaly/
+        helm lint deploy/helm/anomaly_detection/
 
     - name: Validate with kubeval
       run: |
@@ -306,7 +306,7 @@ jobs:
       (github.event.inputs.deploy_environment == 'staging')
     environment:
       name: staging
-      url: https://staging.pynomaly.example.com
+      url: https://staging.anomaly_detection.example.com
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -320,27 +320,27 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region us-west-2 --name pynomaly-staging
+        aws eks update-kubeconfig --region us-west-2 --name anomaly_detection-staging
 
     - name: Update image in manifests
       run: |
-        sed -i 's|image: pynomaly:production-.*|image: ${{ needs.build-and-push.outputs.image }}|g' deploy/kubernetes/staging/deployment.yaml
+        sed -i 's|image: anomaly_detection:production-.*|image: ${{ needs.build-and-push.outputs.image }}|g' deploy/kubernetes/staging/deployment.yaml
 
     - name: Deploy to staging
       run: |
         kubectl apply -f deploy/kubernetes/namespace.yaml
         kubectl apply -f deploy/kubernetes/staging/
-        kubectl rollout status deployment/pynomaly-api -n pynomaly-staging --timeout=600s
+        kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-staging --timeout=600s
 
     - name: Run smoke tests
       run: |
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=api -n pynomaly-staging --timeout=300s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=api -n anomaly_detection-staging --timeout=300s
         poetry install --no-interaction
         poetry run python scripts/testing/run_smoke_tests.py --environment staging
 
     - name: Run integration tests
       run: |
-        export STAGING_URL="https://staging.pynomaly.example.com"
+        export STAGING_URL="https://staging.anomaly_detection.example.com"
         poetry run python scripts/testing/run_integration_tests.py --url $STAGING_URL
 
   # Production Deployment
@@ -352,7 +352,7 @@ jobs:
       (github.event.inputs.deploy_environment == 'production')
     environment:
       name: production
-      url: https://api.pynomaly.example.com
+      url: https://api.anomaly_detection.example.com
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -366,32 +366,32 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region us-west-2 --name pynomaly-production
+        aws eks update-kubeconfig --region us-west-2 --name anomaly_detection-production
 
     - name: Create backup before deployment
       run: |
         kubectl create job backup-$(date +%Y%m%d-%H%M%S) \
           --from=cronjob/database-backup \
-          -n pynomaly-production
+          -n anomaly_detection-production
 
     - name: Update image in manifests
       run: |
-        sed -i 's|image: pynomaly:production-.*|image: ${{ needs.build-and-push.outputs.image }}|g' deploy/kubernetes/enhanced-production.yaml
+        sed -i 's|image: anomaly_detection:production-.*|image: ${{ needs.build-and-push.outputs.image }}|g' deploy/kubernetes/enhanced-production.yaml
 
     - name: Deploy to production
       run: |
         kubectl apply -f deploy/kubernetes/enhanced-production.yaml
-        kubectl rollout status deployment/pynomaly-api -n pynomaly-production --timeout=900s
-        kubectl rollout status deployment/pynomaly-worker -n pynomaly-production --timeout=900s
+        kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-production --timeout=900s
+        kubectl rollout status deployment/anomaly_detection-worker -n anomaly_detection-production --timeout=900s
 
     - name: Wait for deployment to be ready
       run: |
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=api -n pynomaly-production --timeout=600s
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=worker -n pynomaly-production --timeout=600s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=api -n anomaly_detection-production --timeout=600s
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=worker -n anomaly_detection-production --timeout=600s
 
     - name: Run production smoke tests
       run: |
-        export PRODUCTION_URL="https://api.pynomaly.example.com"
+        export PRODUCTION_URL="https://api.anomaly_detection.example.com"
         poetry install --no-interaction
         poetry run python scripts/testing/run_smoke_tests.py --environment production --url $PRODUCTION_URL
 
@@ -433,7 +433,7 @@ jobs:
 
     - name: Run end-to-end tests
       env:
-        PRODUCTION_URL: "https://api.pynomaly.example.com"
+        PRODUCTION_URL: "https://api.anomaly_detection.example.com"
         API_KEY: ${{ secrets.PRODUCTION_API_KEY }}
       run: |
         poetry run python scripts/testing/run_e2e_tests.py \

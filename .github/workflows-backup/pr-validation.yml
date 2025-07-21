@@ -86,10 +86,10 @@ jobs:
         run: uv run isort --check-only --diff .
 
       - name: Run mypy (type checking)
-        run: uv run mypy src/pynomaly tests --config-file pyproject.toml
+        run: uv run mypy src/anomaly_detection tests --config-file pyproject.toml
 
       - name: Run Bandit (security linting)
-        run: uv run bandit -r src/pynomaly -f json -o bandit-report.json || true
+        run: uv run bandit -r src/anomaly_detection -f json -o bandit-report.json || true
 
       - name: Upload Bandit results
         uses: actions/upload-artifact@v4
@@ -137,7 +137,7 @@ jobs:
       - name: Run unit tests
         run: |
           uv run pytest tests/ -m "not integration and not e2e" \
-            --cov=pynomaly \
+            --cov=anomaly_detection \
             --cov-report=xml \
             --cov-report=html \
             --cov-report=term-missing \
@@ -204,7 +204,7 @@ jobs:
       - name: Run integration tests
         run: |
           uv run pytest tests/ -m "integration" \
-            --cov=pynomaly \
+            --cov=anomaly_detection \
             --cov-report=xml \
             --cov-append \
             --junit-xml=integration-test-results.xml \
@@ -327,7 +327,7 @@ jobs:
 
       - name: Run Bandit security scan
         run: |
-          uv run bandit -r src/pynomaly \
+          uv run bandit -r src/anomaly_detection \
             -f json \
             -o bandit-security-report.json \
             --severity-level medium \
@@ -396,7 +396,7 @@ jobs:
           uv run pip-licenses \
             --format=json \
             --output-file=licenses-report.json \
-            --ignore-packages pynomaly
+            --ignore-packages anomaly_detection
 
       - name: Upload license report
         uses: actions/upload-artifact@v4

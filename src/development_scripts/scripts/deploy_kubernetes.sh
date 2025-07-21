@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Pynomaly Kubernetes Deployment Script
-# This script deploys Pynomaly to a Kubernetes cluster
+# anomaly_detection Kubernetes Deployment Script
+# This script deploys anomaly_detection to a Kubernetes cluster
 
 set -euo pipefail
 
 # Configuration
-NAMESPACE="pynomaly-production"
-DOCKER_IMAGE="pynomaly:latest"
+NAMESPACE="anomaly_detection-production"
+DOCKER_IMAGE="anomaly_detection:latest"
 DOCKER_REGISTRY="your-registry.com"
 KUBECTL_CONTEXT="production-cluster"
 
@@ -97,20 +97,20 @@ deploy_secrets() {
     log "Deploying secrets..."
 
     # Check if secrets exist
-    if kubectl get secret pynomaly-secrets -n ${NAMESPACE} &> /dev/null; then
+    if kubectl get secret anomaly_detection-secrets -n ${NAMESPACE} &> /dev/null; then
         warning "Secrets already exist. Skipping secret creation."
         return
     fi
 
     # Create database password secret
-    kubectl create secret generic pynomaly-secrets \
+    kubectl create secret generic anomaly_detection-secrets \
         --from-literal=SECRET_KEY="$(openssl rand -base64 32)" \
         --from-literal=JWT_SECRET_KEY="$(openssl rand -base64 32)" \
         --from-literal=POSTGRES_PASSWORD="$(openssl rand -base64 16)" \
-        --from-literal=POSTGRES_USER="pynomaly_user" \
+        --from-literal=POSTGRES_USER="anomaly_detection_user" \
         --from-literal=REDIS_PASSWORD="$(openssl rand -base64 16)" \
         --from-literal=MONGODB_PASSWORD="$(openssl rand -base64 16)" \
-        --from-literal=MONGODB_USER="pynomaly_user" \
+        --from-literal=MONGODB_USER="anomaly_detection_user" \
         -n ${NAMESPACE}
 
     success "Secrets deployed"
@@ -163,9 +163,9 @@ deploy_application() {
     log "Deploying application..."
 
     # Update image in deployment
-    sed -i "s|pynomaly:latest|${DOCKER_REGISTRY}/${DOCKER_IMAGE}|g" k8s/pynomaly-app.yaml
+    sed -i "s|anomaly_detection:latest|${DOCKER_REGISTRY}/${DOCKER_IMAGE}|g" k8s/anomaly_detection-app.yaml
 
-    kubectl apply -f k8s/pynomaly-app.yaml
+    kubectl apply -f k8s/anomaly_detection-app.yaml
 
     success "Application deployed"
 }
@@ -192,7 +192,7 @@ deploy_ingress() {
 wait_for_application() {
     log "Waiting for application to be ready..."
 
-    kubectl wait --for=condition=available deployment/pynomaly-app -n ${NAMESPACE} --timeout=300s
+    kubectl wait --for=condition=available deployment/anomaly_detection-app -n ${NAMESPACE} --timeout=300s
 
     success "Application is ready"
 }

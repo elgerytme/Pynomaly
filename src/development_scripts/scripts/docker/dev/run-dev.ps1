@@ -3,8 +3,8 @@
 
 param(
     [string]$Port = "8000",
-    [string]$Name = "pynomaly-dev",
-    [string]$Image = "pynomaly:dev",
+    [string]$Name = "anomaly_detection-dev",
+    [string]$Image = "anomaly_detection:dev",
     [string]$EnvFile = ".env.dev",
     [switch]$Build,
     [switch]$Clean,
@@ -15,8 +15,8 @@ function Show-Usage {
     Write-Host "Usage: .\run-dev.ps1 [OPTIONS]"
     Write-Host "Options:"
     Write-Host "  -Port PORT         Host port to bind (default: 8000)"
-    Write-Host "  -Name NAME         Container name (default: pynomaly-dev)"
-    Write-Host "  -Image IMAGE       Docker image name (default: pynomaly:dev)"
+    Write-Host "  -Name NAME         Container name (default: anomaly_detection-dev)"
+    Write-Host "  -Image IMAGE       Docker image name (default: anomaly_detection:dev)"
     Write-Host "  -EnvFile FILE      Environment file path (default: .env.dev)"
     Write-Host "  -Build             Build image before running"
     Write-Host "  -Clean             Remove existing container first"
@@ -30,7 +30,7 @@ if ($Help) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ProjectRoot = Resolve-Path "$ScriptDir\..\..\..\"
-$NetworkName = "pynomaly-dev"
+$NetworkName = "anomaly_detection-dev"
 $ContainerPort = "8000"
 $EnvFilePath = Join-Path $ProjectRoot $EnvFile
 
@@ -49,7 +49,7 @@ if ($Build) {
     docker build -t $Image -f "$ProjectRoot\Dockerfile" $ProjectRoot
 }
 
-Write-Host "Starting Pynomaly development environment..."
+Write-Host "Starting anomaly_detection development environment..."
 Write-Host "Container: $Name"
 Write-Host "Image: $Image"
 Write-Host "Port: $Port -> $ContainerPort"
@@ -70,7 +70,7 @@ docker run -it --rm `
     -e LOG_LEVEL=DEBUG `
     -e RELOAD=true `
     $Image `
-    poetry run uvicorn pynomaly.presentation.api:app `
+    poetry run uvicorn anomaly_detection.presentation.api:app `
     --host 0.0.0.0 `
     --port $ContainerPort `
     --reload `

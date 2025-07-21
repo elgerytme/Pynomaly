@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Production Deployment Verification Script
-# Comprehensive verification checklist for Pynomaly production deployment
+# Comprehensive verification checklist for anomaly_detection production deployment
 
 set -e
 
@@ -163,7 +163,7 @@ main() {
     total_checks=$((total_checks + 3))
 
     log INFO "Testing database connectivity"
-    if docker-compose -f docker-compose.production.yml exec -T postgres pg_isready -U pynomaly -d pynomaly_prod >/dev/null 2>&1; then
+    if docker-compose -f docker-compose.production.yml exec -T postgres pg_isready -U anomaly_detection -d anomaly_detection_prod >/dev/null 2>&1; then
         log SUCCESS "Database connectivity test passed"
         passed_checks=$((passed_checks + 1))
     else
@@ -172,7 +172,7 @@ main() {
     fi
 
     log INFO "Checking database tables"
-    if docker-compose -f docker-compose.production.yml exec -T postgres psql -U pynomaly -d pynomaly_prod -c "\dt" >/dev/null 2>&1; then
+    if docker-compose -f docker-compose.production.yml exec -T postgres psql -U anomaly_detection -d anomaly_detection_prod -c "\dt" >/dev/null 2>&1; then
         log SUCCESS "Database tables accessible"
         passed_checks=$((passed_checks + 1))
     else
@@ -181,7 +181,7 @@ main() {
     fi
 
     log INFO "Testing database performance"
-    if docker-compose -f docker-compose.production.yml exec -T postgres psql -U pynomaly -d pynomaly_prod -c "SELECT 1;" >/dev/null 2>&1; then
+    if docker-compose -f docker-compose.production.yml exec -T postgres psql -U anomaly_detection -d anomaly_detection_prod -c "SELECT 1;" >/dev/null 2>&1; then
         log SUCCESS "Database query test passed"
         passed_checks=$((passed_checks + 1))
     else
@@ -410,7 +410,7 @@ fi
 
 # Check if we're in the right directory
 if [ ! -f "docker-compose.production.yml" ]; then
-    log ERROR "docker-compose.production.yml not found. Please run this script from the Pynomaly root directory."
+    log ERROR "docker-compose.production.yml not found. Please run this script from the anomaly_detection root directory."
     exit 1
 fi
 

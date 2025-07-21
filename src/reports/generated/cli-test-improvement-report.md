@@ -257,7 +257,7 @@ pytest tests/cli/ -m integration
 pytest tests/cli/ -m error
 
 # Run with coverage
-pytest tests/cli/ --cov=src/pynomaly/presentation/cli --cov-report=html
+pytest tests/cli/ --cov=src/anomaly_detection/presentation/cli --cov-report=html
 ```
 
 ## Benefits Achieved

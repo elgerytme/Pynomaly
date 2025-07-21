@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production deployment validation script for Pynomaly.
+Production deployment validation script for anomaly_detection.
 This script deploys the system and validates all components are working correctly.
 """
 
@@ -176,7 +176,7 @@ class DeploymentValidator:
         """Create default environment file."""
         env_content = """# Production Environment Variables
 POSTGRES_PASSWORD=secure_prod_password_123
-DATABASE_URL=postgresql://pynomaly:secure_prod_password_123@postgres:5432/pynomaly_prod
+DATABASE_URL=postgresql://anomaly_detection:secure_prod_password_123@postgres:5432/anomaly_detection_prod
 REDIS_URL=redis://redis-cluster:6379
 SECRET_KEY=your_very_secure_secret_key_change_this_in_production
 GRAFANA_PASSWORD=admin_password_123
@@ -307,8 +307,8 @@ ENVIRONMENT=production
 
             # Check expected services
             expected_services = [
-                "pynomaly-api",
-                "pynomaly-streaming",
+                "anomaly_detection-api",
+                "anomaly_detection-streaming",
                 "postgres",
                 "redis-cluster",
                 "prometheus",
@@ -377,9 +377,9 @@ ENVIRONMENT=production
                     "postgres",
                     "pg_isready",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-d",
-                    "pynomaly_prod",
+                    "anomaly_detection_prod",
                 ],
                 capture_output=True,
                 text=True,
@@ -405,9 +405,9 @@ ENVIRONMENT=production
                     "postgres",
                     "psql",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-d",
-                    "pynomaly_prod",
+                    "anomaly_detection_prod",
                     "-c",
                     "SELECT version();",
                 ],
@@ -633,7 +633,7 @@ ENVIRONMENT=production
         validation = report["deployment_validation"]
 
         print("\n" + "=" * 60)
-        print("🚀 PYNOMALY DEPLOYMENT VALIDATION SUMMARY")
+        print("🚀 anomaly_detection DEPLOYMENT VALIDATION SUMMARY")
         print("=" * 60)
         print(f"Timestamp: {validation['timestamp']}")
         print(f"Total Checks: {validation['total_checks']}")

@@ -100,7 +100,7 @@ class BackupValidator:
 
                 # Write simulated backup content
                 backup_content = f"""
--- Pynomaly Database Backup
+-- anomaly_detection Database Backup
 -- Generated: {datetime.now().isoformat()}
 -- Version: 1.0.0
 
@@ -406,12 +406,12 @@ INSERT INTO detection_results (detector_id, dataset_id, anomaly_count) VALUES
                 # Simulate configuration files
                 config_files = {
                     "production.yml": {
-                        "app_name": "pynomaly",
+                        "app_name": "anomaly_detection",
                         "environment": "production",
                         "database": {
                             "host": "prod-db.internal",
                             "port": 5432,
-                            "name": "pynomaly_prod",
+                            "name": "anomaly_detection_prod",
                         },
                         "cache": {"redis_url": "redis://prod-cache.internal:6379"},
                     },

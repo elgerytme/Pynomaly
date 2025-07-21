@@ -3,10 +3,10 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-enterprise-scalability"
+name = "anomaly_detection-enterprise-scalability"
 dynamic = ["version"]
-description = "Enterprise scalability with distributed computing and streaming for Pynomaly"
-authors = [{name = "Pynomaly Enterprise Team", email = "enterprise@pynomaly.org"}]
+description = "Enterprise scalability with distributed computing and streaming for anomaly_detection"
+authors = [{name = "anomaly_detection Enterprise Team", email = "enterprise@anomaly_detection.org"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
@@ -234,14 +234,14 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/pynomaly"
-Repository = "https://github.com/yourusername/pynomaly"
-Documentation = "https://docs.pynomaly.org/enterprise/scalability"
-Issues = "https://github.com/yourusername/pynomaly/issues"
-Changelog = "https://github.com/yourusername/pynomaly/blob/main/src/packages/enterprise/enterprise_scalability/CHANGELOG.md"
+Homepage = "https://github.com/yourusername/anomaly_detection"
+Repository = "https://github.com/yourusername/anomaly_detection"
+Documentation = "https://docs.anomaly_detection.org/enterprise/scalability"
+Issues = "https://github.com/yourusername/anomaly_detection/issues"
+Changelog = "https://github.com/yourusername/anomaly_detection/blob/main/src/packages/enterprise/enterprise_scalability/CHANGELOG.md"
 
 [project.scripts]
-pynomaly-enterprise-scalability = "enterprise_scalability.presentation.cli.main:app"
+anomaly_detection-enterprise-scalability = "enterprise_scalability.presentation.cli.main:app"
 
 [tool.hatch.version]
 source = "vcs"

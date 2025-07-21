@@ -27,7 +27,7 @@ on:
         type: string
 
 env:
-  PACKAGE_NAME: pynomaly-data-observability
+  PACKAGE_NAME: anomaly_detection-data-observability
   PACKAGE_PATH: src/packages/data/data_observability
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
   ci-cd:
     uses: ./.github/workflows/_reusable-python-ci.yml
     with:
-      package-name: pynomaly-data-observability
+      package-name: anomaly_detection-data-observability
       package-path: src/packages/data/data_observability
       python-version: ${{ github.event.inputs.python_version || '3.11' }}
       python-versions: '["3.9", "3.10", "3.11", "3.12"]'

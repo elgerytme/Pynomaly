@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate PDF versions of Pynomaly documentation.
+Generate PDF versions of anomaly_detection documentation.
 
 This script converts all Markdown documentation files to PDF format
 with professional styling and formatting.
@@ -23,7 +23,7 @@ except ImportError:
 
 
 class DocumentationPDFGenerator:
-    """Generate PDF versions of Pynomaly documentation."""
+    """Generate PDF versions of anomaly_detection documentation."""
 
     def __init__(self, docs_dir: str):
         self.docs_dir = Path(docs_dir)
@@ -57,7 +57,7 @@ class DocumentationPDFGenerator:
             size: A4;
             margin: 1in;
             @top-center {
-                content: "Pynomaly Documentation";
+                content: "anomaly_detection Documentation";
                 font-family: Arial, sans-serif;
                 font-size: 10pt;
                 color: #666;
@@ -263,7 +263,7 @@ class DocumentationPDFGenerator:
             <p><strong>Title:</strong> {title}</p>
             <p><strong>Generated:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
             <p><strong>Version:</strong> 1.0</p>
-            <p><strong>Project:</strong> Pynomaly - State-of-the-Art Anomaly Detection Platform</p>
+            <p><strong>Project:</strong> anomaly_detection - State-of-the-Art Anomaly Detection Platform</p>
         </div>
 
         <div class="page-break"></div>
@@ -341,7 +341,7 @@ class DocumentationPDFGenerator:
 
             # Add cover page
             cover_content = f"""
-            # Pynomaly Documentation
+            # anomaly_detection Documentation
             ## Complete Guide to State-of-the-Art Anomaly Detection
 
             <div class="document-info">
@@ -376,7 +376,7 @@ class DocumentationPDFGenerator:
                 combined_content += f"<div class='page-break'></div>\n\n{content}\n\n"
 
             # Convert combined content to HTML
-            title = "Pynomaly Complete Documentation"
+            title = "anomaly_detection Complete Documentation"
             html_content = self.convert_markdown_to_html(combined_content, title)
 
             # Generate PDF
@@ -432,11 +432,11 @@ class DocumentationPDFGenerator:
 def main():
     """Main function to generate PDFs."""
     parser = argparse.ArgumentParser(
-        description="Generate PDF versions of Pynomaly documentation"
+        description="Generate PDF versions of anomaly_detection documentation"
     )
     parser.add_argument(
         "--docs-dir",
-        default="/mnt/c/Users/andre/Pynomaly/docs/comprehensive",
+        default="/mnt/c/Users/andre/anomaly_detection/docs/comprehensive",
         help="Directory containing Markdown documentation files",
     )
     parser.add_argument(

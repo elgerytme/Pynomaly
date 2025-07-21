@@ -12,7 +12,7 @@ sys.path.insert(0, str(project_root / "src"))
 def demo_bdd_framework_completion():
     """Demonstrate the completed BDD framework features."""
 
-    print("🎭 Pynomaly BDD Framework Implementation Demo")
+    print("🎭 anomaly_detection BDD Framework Implementation Demo")
     print("=" * 60)
 
     print("\n✅ **PHASE 5.2 COMPLETED**: Comprehensive BDD Framework Implementation")
@@ -169,7 +169,7 @@ def demo_bdd_framework_completion():
     print("• **Developer Productivity**: Quick feedback loops and detailed reporting")
 
     print("\n🎉 **Phase 5.2 BDD Framework Implementation: COMPLETED!**")
-    print("The Pynomaly web application now has enterprise-grade behavior-driven")
+    print("The anomaly_detection web application now has enterprise-grade behavior-driven")
     print("testing infrastructure supporting continuous quality assurance and")
     print("comprehensive user experience validation.")
 

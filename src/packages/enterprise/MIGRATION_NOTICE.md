@@ -24,7 +24,7 @@ from enterprise_mlops.infrastructure.monitoring.datadog import DatadogIntegratio
 
 ### After (New)
 ```python
-from pynomaly_mlops import (
+from anomaly_detection_mlops import (
     EnterpriseMlopsService,
     MLflowIntegration, 
     DatadogIntegration
@@ -35,23 +35,23 @@ from pynomaly_mlops import (
 
 **Before:**
 ```bash
-pip install pynomaly-enterprise-mlops[all]
+pip install anomaly_detection-enterprise-mlops[all]
 ```
 
 **After:**
 ```bash
-pip install pynomaly-mlops[enterprise]
+pip install anomaly_detection-mlops[enterprise]
 ```
 
 ## Feature Parity
 
 All features from the standalone enterprise package are now available in the consolidated package:
 
-✅ **MLflow Integration** - `pip install pynomaly-mlops[mlflow]`  
-✅ **Kubeflow Integration** - `pip install pynomaly-mlops[kubeflow]`  
-✅ **Datadog Monitoring** - `pip install pynomaly-mlops[datadog]`  
-✅ **New Relic Monitoring** - `pip install pynomaly-mlops[newrelic]`  
-✅ **All Enterprise Features** - `pip install pynomaly-mlops[enterprise]`
+✅ **MLflow Integration** - `pip install anomaly_detection-mlops[mlflow]`  
+✅ **Kubeflow Integration** - `pip install anomaly_detection-mlops[kubeflow]`  
+✅ **Datadog Monitoring** - `pip install anomaly_detection-mlops[datadog]`  
+✅ **New Relic Monitoring** - `pip install anomaly_detection-mlops[newrelic]`  
+✅ **All Enterprise Features** - `pip install anomaly_detection-mlops[enterprise]`
 
 ## Backward Compatibility
 

@@ -1,6 +1,6 @@
 # Enterprise Authentication & Authorization Package
 
-This package provides enterprise-grade authentication and authorization capabilities for Pynomaly, including SSO, SAML, OAuth2, RBAC, and multi-tenancy support.
+This package provides enterprise-grade authentication and authorization capabilities for anomaly_detection, including SSO, SAML, OAuth2, RBAC, and multi-tenancy support.
 
 ## Features
 
@@ -35,7 +35,7 @@ This package provides enterprise-grade authentication and authorization capabili
 ### Installation
 
 ```bash
-pip install pynomaly-enterprise-auth
+pip install anomaly_detection-enterprise-auth
 ```
 
 ### Basic Usage
@@ -93,22 +93,22 @@ async def protected_route(current_user: User = Depends(get_current_user)):
 
 ```bash
 # Setup authentication
-pynomaly-enterprise-auth setup --tenant-id <tenant-id>
+anomaly_detection-enterprise-auth setup --tenant-id <tenant-id>
 
 # Create user
-pynomaly-enterprise-auth user create \
+anomaly_detection-enterprise-auth user create \
     --email admin@company.com \
     --first-name Admin \
     --last-name User \
     --role tenant_admin
 
 # Setup SAML
-pynomaly-enterprise-auth saml configure \
+anomaly_detection-enterprise-auth saml configure \
     --tenant-id <tenant-id> \
     --metadata-url https://idp.company.com/metadata
 
 # Enable MFA for user
-pynomaly-enterprise-auth mfa setup --user-id <user-id>
+anomaly_detection-enterprise-auth mfa setup --user-id <user-id>
 ```
 
 ## Configuration
@@ -117,31 +117,31 @@ pynomaly-enterprise-auth mfa setup --user-id <user-id>
 
 ```bash
 # JWT Configuration
-PYNOMALY_JWT_SECRET_KEY=your-secret-key
-PYNOMALY_JWT_ALGORITHM=HS256
-PYNOMALY_ACCESS_TOKEN_EXPIRE_MINUTES=60
-PYNOMALY_REFRESH_TOKEN_EXPIRE_DAYS=30
+ANOMALY_DETECTION_JWT_SECRET_KEY=your-secret-key
+ANOMALY_DETECTION_JWT_ALGORITHM=HS256
+ANOMALY_DETECTION_ACCESS_TOKEN_EXPIRE_MINUTES=60
+ANOMALY_DETECTION_REFRESH_TOKEN_EXPIRE_DAYS=30
 
 # Password Policy
-PYNOMALY_MIN_PASSWORD_LENGTH=8
-PYNOMALY_REQUIRE_PASSWORD_UPPERCASE=true
-PYNOMALY_REQUIRE_PASSWORD_NUMBERS=true
-PYNOMALY_REQUIRE_PASSWORD_SPECIAL=true
+ANOMALY_DETECTION_MIN_PASSWORD_LENGTH=8
+ANOMALY_DETECTION_REQUIRE_PASSWORD_UPPERCASE=true
+ANOMALY_DETECTION_REQUIRE_PASSWORD_NUMBERS=true
+ANOMALY_DETECTION_REQUIRE_PASSWORD_SPECIAL=true
 
 # Account Security
-PYNOMALY_MAX_FAILED_ATTEMPTS=5
-PYNOMALY_LOCKOUT_DURATION_MINUTES=30
-PYNOMALY_MAX_CONCURRENT_SESSIONS=5
+ANOMALY_DETECTION_MAX_FAILED_ATTEMPTS=5
+ANOMALY_DETECTION_LOCKOUT_DURATION_MINUTES=30
+ANOMALY_DETECTION_MAX_CONCURRENT_SESSIONS=5
 
 # MFA Settings
-PYNOMALY_MFA_ISSUER_NAME="Pynomaly Enterprise"
-PYNOMALY_MFA_TOKEN_LIFETIME_SECONDS=300
+ANOMALY_DETECTION_MFA_ISSUER_NAME="anomaly_detection Enterprise"
+ANOMALY_DETECTION_MFA_TOKEN_LIFETIME_SECONDS=300
 
 # Database
-PYNOMALY_AUTH_DATABASE_URL=postgresql://user:pass@localhost/pynomaly_auth
+ANOMALY_DETECTION_AUTH_DATABASE_URL=postgresql://user:pass@localhost/anomaly_detection_auth
 
 # Redis (for sessions)
-PYNOMALY_REDIS_URL=redis://localhost:6379/1
+ANOMALY_DETECTION_REDIS_URL=redis://localhost:6379/1
 ```
 
 ### Configuration File
@@ -171,7 +171,7 @@ auth:
     session_timeout_minutes: 480
   
   mfa:
-    issuer_name: "Pynomaly Enterprise"
+    issuer_name: "anomaly_detection Enterprise"
     token_lifetime_seconds: 300
     backup_codes_count: 8
 
@@ -180,7 +180,7 @@ sso:
   saml:
     enabled: true
     metadata_url: "https://idp.company.com/metadata"
-    sp_entity_id: "pynomaly-sp"
+    sp_entity_id: "anomaly_detection-sp"
   
   oauth2:
     enabled: true
@@ -431,24 +431,24 @@ CMD ["uvicorn", "enterprise_auth.presentation.api.app:app", "--host", "0.0.0.0",
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pynomaly-enterprise-auth
+  name: anomaly_detection-enterprise-auth
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: pynomaly-enterprise-auth
+      app: anomaly_detection-enterprise-auth
   template:
     metadata:
       labels:
-        app: pynomaly-enterprise-auth
+        app: anomaly_detection-enterprise-auth
     spec:
       containers:
       - name: auth-service
-        image: pynomaly/enterprise-auth:latest
+        image: anomaly_detection/enterprise-auth:latest
         ports:
         - containerPort: 8000
         env:
-        - name: PYNOMALY_JWT_SECRET_KEY
+        - name: ANOMALY_DETECTION_JWT_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: auth-secrets
@@ -468,8 +468,8 @@ spec:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly/src/packages/enterprise/enterprise_auth
+git clone https://github.com/yourusername/anomaly_detection.git
+cd anomaly_detection/src/packages/enterprise/enterprise_auth
 
 # Create virtual environment
 python -m venv venv
@@ -493,10 +493,10 @@ This package is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Support
 
-- **Documentation**: [https://docs.pynomaly.org/enterprise/auth](https://docs.pynomaly.org/enterprise/auth)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/pynomaly/issues)
-- **Enterprise Support**: enterprise-support@pynomaly.org
+- **Documentation**: [https://docs.anomaly_detection.org/enterprise/auth](https://docs.anomaly_detection.org/enterprise/auth)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/anomaly_detection/issues)
+- **Enterprise Support**: enterprise-support@anomaly_detection.org
 
 ---
 
-**Enterprise Authentication & Authorization Package** - Part of the Pynomaly Enterprise Suite
+**Enterprise Authentication & Authorization Package** - Part of the anomaly_detection Enterprise Suite

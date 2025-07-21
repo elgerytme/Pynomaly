@@ -205,7 +205,7 @@ jobs:
 
         # Test installation
         pip install dist/*.whl
-        python -c "import pynomaly; print('✅ Package installation test successful')"
+        python -c "import anomaly_detection; print('✅ Package installation test successful')"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -308,8 +308,8 @@ jobs:
         python -c "
         import sys
         sys.path.insert(0, 'src')
-        from pynomaly.domain.entities import Dataset, Anomaly
-        from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+        from anomaly_detection.domain.entities import Dataset, Anomaly
+        from anomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
         print('✅ Core domain imports successful')
         "
 
@@ -319,7 +319,7 @@ jobs:
 
     - name: Test API startup (10 second timeout)
       run: |
-        timeout 10s python -m uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 || echo "✅ API startup test completed (expected timeout)"
+        timeout 10s python -m uvicorn anomaly_detection.presentation.api.app:app --host 0.0.0.0 --port 8000 || echo "✅ API startup test completed (expected timeout)"
       continue-on-error: true
 
   # Job 5: Security & Dependencies
@@ -391,7 +391,7 @@ jobs:
         context: .
         file: deploy/docker/Dockerfile
         push: false
-        tags: pynomaly:latest
+        tags: anomaly_detection:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
 

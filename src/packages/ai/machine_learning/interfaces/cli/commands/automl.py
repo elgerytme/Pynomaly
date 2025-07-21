@@ -103,9 +103,9 @@ def optimize(
     ALGORITHM_NAME: Algorithm to optimize (IsolationForest, LocalOutlierFactor, OneClassSVM)
 
     Examples:
-        pynomaly automl optimize data.csv IsolationForest
-        pynomaly automl optimize data.csv LOF --max-time 1800 --max-trials 50
-        pynomaly automl optimize data.parquet OneClassSVM --objectives accuracy speed
+        anomaly_detection automl optimize data.csv IsolationForest
+        anomaly_detection automl optimize data.csv LOF --max-time 1800 --max-trials 50
+        anomaly_detection automl optimize data.parquet OneClassSVM --objectives accuracy speed
     """
     try:
         # Load dataset
@@ -225,8 +225,8 @@ def compare(
     DATASET_PATH: Path to the dataset file
 
     Examples:
-        pynomaly automl compare data.csv
-        pynomaly automl compare data.csv --algorithms IsolationForest LOF
+        anomaly_detection automl compare data.csv
+        anomaly_detection automl compare data.csv --algorithms IsolationForest LOF
     """
     try:
         # Load dataset
@@ -304,8 +304,8 @@ def insights(
     """Analyze optimization history and learning insights.
 
     Examples:
-        pynomaly automl insights
-        pynomaly automl insights --storage-path /path/to/storage
+        anomaly_detection automl insights
+        anomaly_detection automl insights --storage-path /path/to/storage
     """
     try:
         # Initialize AutoML service
@@ -347,7 +347,7 @@ def predict_performance(
     ALGORITHM_NAME: Algorithm to predict performance for
 
     Examples:
-        pynomaly automl predict-performance data.csv IsolationForest
+        anomaly_detection automl predict-performance data.csv IsolationForest
     """
     try:
         # Load dataset
@@ -672,9 +672,9 @@ def comprehensive(
     ALGORITHM_NAME: Algorithm to optimize (IsolationForest, LOF, OneClassSVM, etc.)
 
     Examples:
-        pynomaly automl comprehensive data.csv IsolationForest
-        pynomaly automl comprehensive data.csv LOF --strategy grid_search --ensemble stacking
-        pynomaly automl comprehensive data.parquet OneClassSVM --feature-engineering --max-trials 200
+        anomaly_detection automl comprehensive data.csv IsolationForest
+        anomaly_detection automl comprehensive data.csv LOF --strategy grid_search --ensemble stacking
+        anomaly_detection automl comprehensive data.parquet OneClassSVM --feature-engineering --max-trials 200
     """
     try:
         # Load dataset
@@ -799,9 +799,9 @@ def run(
     ALGORITHM_NAME: PyOD algorithm to optimize (KNN, LOF, IsolationForest, etc.)
 
     Examples:
-        pynomaly automl run data.csv KNN
-        pynomaly automl run data.csv IsolationForest --max-trials 50
-        pynomaly automl run data.parquet LOF --storage ./results
+        anomaly_detection automl run data.csv KNN
+        anomaly_detection automl run data.csv IsolationForest --max-trials 50
+        anomaly_detection automl run data.parquet LOF --storage ./results
     """
     try:
         console.print(f"📊 Loading dataset: {dataset_path}")

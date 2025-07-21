@@ -33,12 +33,12 @@ cp "../scripts/setup_simple.py" . 2>/dev/null || {
 }
 
 # Create minimal src structure
-mkdir -p "src/pynomaly/domain/entities"
-echo "__version__ = '0.1.0'" > "src/pynomaly/__init__.py"
-touch "src/pynomaly/domain/__init__.py"
+mkdir -p "src/anomaly_detection/domain/entities"
+echo "__version__ = '0.1.0'" > "src/anomaly_detection/__init__.py"
+touch "src/anomaly_detection/domain/__init__.py"
 
 # Create minimal domain entities
-cat > "src/pynomaly/domain/entities/__init__.py" << 'EOF'
+cat > "src/anomaly_detection/domain/entities/__init__.py" << 'EOF'
 class Dataset:
     pass
 

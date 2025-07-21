@@ -1,4 +1,4 @@
-# Pynomaly Windows PowerShell Setup Script
+# anomaly_detection Windows PowerShell Setup Script
 # This script sets up the project in development mode on Windows
 
 param(
@@ -72,20 +72,20 @@ function Test-Prerequisites {
 function Clear-ExistingInstall {
     Write-Step "Cleaning Up Existing Installations"
 
-    Write-Info "Removing any existing pynomaly installations..."
+    Write-Info "Removing any existing anomaly_detection installations..."
 
-    # Uninstall the wrong PyNomaly package if installed
-    $wrongPackage = pip list | Select-String "PyNomaly"
+    # Uninstall the wrong anomaly_detection package if installed
+    $wrongPackage = pip list | Select-String "anomaly_detection"
     if ($wrongPackage) {
-        Write-Warning-Custom "Found wrong 'PyNomaly' package - removing it"
-        pip uninstall -y PyNomaly python-utils
+        Write-Warning-Custom "Found wrong 'anomaly_detection' package - removing it"
+        pip uninstall -y anomaly_detection python-utils
     }
 
     # Uninstall our package if installed in development mode
-    $ourPackage = pip list | Select-String "pynomaly.*editable"
+    $ourPackage = pip list | Select-String "anomaly_detection.*editable"
     if ($ourPackage) {
         Write-Info "Uninstalling existing development installation"
-        pip uninstall -y pynomaly
+        pip uninstall -y anomaly_detection
     }
 
     Write-Success "Cleanup completed"
@@ -232,18 +232,18 @@ try:
     print("✅ Pandas available")
 
     # Test project imports
-    from pynomaly.domain.entities import Dataset
-    print("✅ Pynomaly core imports working")
+    from anomaly_detection.domain.entities import Dataset
+    print("✅ anomaly_detection core imports working")
 
     # Test optional imports
     try:
-        from pynomaly.presentation.cli.app import app
+        from anomaly_detection.presentation.cli.app import app
         print("✅ CLI component available")
     except ImportError:
         print("⚠️  CLI component not available (install with: pip install typer rich)")
 
     try:
-        from pynomaly.presentation.api.app import create_app
+        from anomaly_detection.presentation.api.app import create_app
         print("✅ API component available")
     except ImportError:
         print("⚠️  API component not available (install with: pip install fastapi uvicorn)")
@@ -272,7 +272,7 @@ function Show-Usage {
     Write-Step "Setup Complete - Usage Information"
 
     Write-Host ""
-    Write-Host "🎉 Pynomaly setup completed successfully!" -ForegroundColor Green
+    Write-Host "🎉 anomaly_detection setup completed successfully!" -ForegroundColor Green
     Write-Host ""
     Write-Host "📋 Next Steps:" -ForegroundColor Yellow
     Write-Host ""
@@ -283,18 +283,18 @@ function Show-Usage {
 
     # Test if CLI is available
     try {
-        python -c "from pynomaly.presentation.cli.app import app" 2>$null
-        Write-Host "   pynomaly --help                 # CLI help" -ForegroundColor Cyan
-        Write-Host "   python -m pynomaly.presentation.cli.app --help  # Alternative CLI" -ForegroundColor Cyan
+        python -c "from anomaly_detection.presentation.cli.app import app" 2>$null
+        Write-Host "   anomaly_detection --help                 # CLI help" -ForegroundColor Cyan
+        Write-Host "   python -m anomaly_detection.presentation.cli.app --help  # Alternative CLI" -ForegroundColor Cyan
     }
     catch {
-        Write-Host "   python -m pynomaly.presentation.cli.app --help  # CLI (typer needed)" -ForegroundColor Cyan
+        Write-Host "   python -m anomaly_detection.presentation.cli.app --help  # CLI (typer needed)" -ForegroundColor Cyan
     }
 
     # Test if API is available
     try {
-        python -c "from pynomaly.presentation.api.app import create_app" 2>$null
-        Write-Host "   uvicorn pynomaly.presentation.api:app --reload  # API server" -ForegroundColor Cyan
+        python -c "from anomaly_detection.presentation.api.app import create_app" 2>$null
+        Write-Host "   uvicorn anomaly_detection.presentation.api:app --reload  # API server" -ForegroundColor Cyan
     }
     catch {
         Write-Host "   # API server (fastapi uvicorn needed)" -ForegroundColor Cyan
@@ -302,8 +302,8 @@ function Show-Usage {
 
     # Test if Web UI is available
     try {
-        python -c "from pynomaly.presentation.web.app import create_web_app" 2>$null
-        Write-Host "   uvicorn pynomaly.presentation.web.app:create_web_app --reload  # Web UI" -ForegroundColor Cyan
+        python -c "from anomaly_detection.presentation.web.app import create_web_app" 2>$null
+        Write-Host "   uvicorn anomaly_detection.presentation.web.app:create_web_app --reload  # Web UI" -ForegroundColor Cyan
     }
     catch {
         Write-Host "   # Web UI (fastapi uvicorn jinja2 needed)" -ForegroundColor Cyan
@@ -323,7 +323,7 @@ function Show-Usage {
 
 # Main execution
 function Main {
-    Write-Host "🚀 Pynomaly Windows Setup Script" -ForegroundColor Magenta
+    Write-Host "🚀 anomaly_detection Windows Setup Script" -ForegroundColor Magenta
     Write-Host "=================================" -ForegroundColor Magenta
     Write-Host ""
     Write-Host "Install Profile: $InstallProfile"

@@ -25,7 +25,7 @@ from kafka import KafkaProducer
 
 
 class KafkaStreamProducer:
-    def __init__(self, bootstrap_servers=["localhost:9092"], topic="pynomaly_events"):
+    def __init__(self, bootstrap_servers=["localhost:9092"], topic="anomaly_detection_events"):
         self.topic = topic
         self.bootstrap_servers = bootstrap_servers
         self.producer = None
@@ -210,7 +210,7 @@ class KafkaStreamProducer:
 
 def main():
     # Parse command line arguments
-    topic = sys.argv[1] if len(sys.argv) > 1 else "pynomaly_events"
+    topic = sys.argv[1] if len(sys.argv) > 1 else "anomaly_detection_events"
     duration = int(sys.argv[2]) if len(sys.argv) > 2 else 60
     eps = int(sys.argv[3]) if len(sys.argv) > 3 else 1000
 

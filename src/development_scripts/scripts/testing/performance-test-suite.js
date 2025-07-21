@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Comprehensive Performance Test Suite for Pynomaly Web UI
+ * Comprehensive Performance Test Suite for anomaly_detection Web UI
  * Tests Core Web Vitals, bundle sizes, and optimization opportunities
  */
 
@@ -155,7 +155,7 @@ class PerformanceTestSuite {
 
     try {
       // Check if built files exist
-      const staticDir = './src/pynomaly/presentation/web/static';
+      const staticDir = './src/anomaly_detection/presentation/web/static';
       const jsDir = path.join(staticDir, 'js/dist');
       const cssDir = path.join(staticDir, 'css');
 
@@ -447,7 +447,7 @@ class PerformanceTestSuite {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pynomaly Performance Test Report</title>
+    <title>anomaly_detection Performance Test Report</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; background: #f8fafc; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -475,7 +475,7 @@ class PerformanceTestSuite {
 <body>
     <div class="container">
         <div class="header">
-            <h1>Pynomaly Performance Test Report</h1>
+            <h1>anomaly_detection Performance Test Report</h1>
             <p>Generated on ${new Date().toLocaleString()}</p>
         </div>
 

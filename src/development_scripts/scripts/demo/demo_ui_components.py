@@ -12,7 +12,7 @@ sys.path.insert(0, str(project_root / "src"))
 def demo_ui_components_completion():
     """Demonstrate the completed UI components and design system features."""
 
-    print("🎨 Pynomaly UI Components & Design System Demo")
+    print("🎨 anomaly_detection UI Components & Design System Demo")
     print("=" * 60)
 
     print("\n✅ **PHASE 5.3 COMPLETED**: Production-Ready UI Components")
@@ -49,7 +49,7 @@ def demo_ui_components_completion():
 
     # 3. Component Architecture
     print("\n3. 🧩 **Component-Based Architecture**")
-    print("   📄 File: src/pynomaly/presentation/web/static/js/src/main.js")
+    print("   📄 File: src/anomaly_detection/presentation/web/static/js/src/main.js")
     print("   🎯 Features:")
     print("      • Main application class with component management")
     print("      • Theme switching with system preference detection")
@@ -145,7 +145,7 @@ def demo_ui_components_completion():
 
     # File Structure
     print("\n📁 **Component File Structure:**")
-    print("src/pynomaly/presentation/web/")
+    print("src/anomaly_detection/presentation/web/")
     print("├── templates/")
     print("│   └── dashboard.html          # Production-ready dashboard template")
     print("├── static/")
@@ -250,7 +250,7 @@ def demo_ui_components_completion():
     print("- Performance regression testing")
 
     print("\n🎉 **Phase 5.3 UI Components Implementation: COMPLETED!**")
-    print("The Pynomaly web application now has a production-ready design system")
+    print("The anomaly_detection web application now has a production-ready design system")
     print("with comprehensive UI components, PWA capabilities, and accessibility-first")
     print("architecture supporting enterprise-grade user experiences.")
 

@@ -57,7 +57,7 @@ class AuthConfig(BaseModel):
     session_timeout_minutes: int = Field(default=480)  # 8 hours
     
     # MFA settings
-    mfa_issuer_name: str = Field(default="Pynomaly Enterprise")
+    mfa_issuer_name: str = Field(default="anomaly_detection Enterprise")
     mfa_token_lifetime_seconds: int = Field(default=300)  # 5 minutes
 
 

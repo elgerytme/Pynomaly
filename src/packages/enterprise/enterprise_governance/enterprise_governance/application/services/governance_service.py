@@ -79,7 +79,7 @@ class GovernanceService:
                 message=self._generate_message(event_type, details or {}),
                 details=details or {},
                 ip_address=ip_address,
-                source_system="pynomaly-enterprise",
+                source_system="anomaly_detection-enterprise",
                 environment=self._get_environment(),
                 compliance_tags=self._get_compliance_tags(event_type)
             )
@@ -522,7 +522,7 @@ class GovernanceService:
     def _get_environment(self) -> str:
         """Get current environment."""
         import os
-        return os.getenv("PYNOMALY_ENVIRONMENT", "development")
+        return os.getenv("ANOMALY_DETECTION_ENVIRONMENT", "development")
     
     def _get_compliance_tags(self, event_type: str) -> List[str]:
         """Get compliance tags for event type."""

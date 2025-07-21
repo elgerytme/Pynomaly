@@ -60,7 +60,7 @@ jobs:
     - name: 🧪 Run core tests
       run: |
         pip install -e ".[test]"
-        python -m pytest src/pynomaly/tests/test_basic_coverage.py -v
+        python -m pytest src/anomaly_detection/tests/test_basic_coverage.py -v
         
     - name: 🏗️ Test package build
       run: |
@@ -180,14 +180,14 @@ jobs:
         TARGET="${{ github.event.inputs.environment || 'pypi' }}"
         VERSION="${{ needs.validate.outputs.version }}"
         
-        echo "🎉 Successfully published pynomaly v${VERSION} to ${TARGET}!"
+        echo "🎉 Successfully published anomaly_detection v${VERSION} to ${TARGET}!"
         echo
         if [[ "$TARGET" == "testpypi" ]]; then
-          echo "📦 TestPyPI Package: https://test.pypi.org/project/pynomaly/${VERSION}/"
-          echo "📥 Install with: pip install -i https://test.pypi.org/simple/ pynomaly==${VERSION}"
+          echo "📦 TestPyPI Package: https://test.pypi.org/project/anomaly_detection/${VERSION}/"
+          echo "📥 Install with: pip install -i https://test.pypi.org/simple/ anomaly_detection==${VERSION}"
         else
-          echo "📦 PyPI Package: https://pypi.org/project/pynomaly/${VERSION}/"
-          echo "📥 Install with: pip install pynomaly==${VERSION}"
+          echo "📦 PyPI Package: https://pypi.org/project/anomaly_detection/${VERSION}/"
+          echo "📥 Install with: pip install anomaly_detection==${VERSION}"
         fi
 
   verify:
@@ -213,19 +213,19 @@ jobs:
         VERSION="${{ needs.validate.outputs.version }}"
         
         if [[ "$TARGET" == "testpypi" ]]; then
-          pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "pynomaly==${VERSION}"
+          pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "anomaly_detection==${VERSION}"
         else
-          pip install "pynomaly==${VERSION}"
+          pip install "anomaly_detection==${VERSION}"
         fi
         
     - name: 🧪 Test core functionality
       run: |
         python -c "
-        import pynomaly
-        print(f'✅ Pynomaly version: {pynomaly.__version__}')
+        import anomaly_detection
+        print(f'✅ anomaly_detection version: {anomaly_detection.__version__}')
         
         # Test core imports
-        from pynomaly import create_detector, load_dataset, detect_anomalies
+        from anomaly_detection import create_detector, load_dataset, detect_anomalies
         print('✅ Core functions imported successfully')
         
         # Test basic functionality
@@ -253,4 +253,4 @@ jobs:
     - name: 🎉 Verification complete
       run: |
         echo "✅ Package verification completed successfully!"
-        echo "🚀 Pynomaly ${{ needs.validate.outputs.version }} is now available for use!"
+        echo "🚀 anomaly_detection ${{ needs.validate.outputs.version }} is now available for use!"

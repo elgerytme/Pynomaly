@@ -1,4 +1,4 @@
-# Pynomaly Production Configuration
+# anomaly_detection Production Configuration
 
 This directory contains generated production configuration files.
 
@@ -7,7 +7,7 @@ This directory contains generated production configuration files.
 - .env.production
 - docker-compose.prod.yml
 - nginx.conf
-- pynomaly.service
+- anomaly_detection.service
 - monitoring/prometheus.yml
 - monitoring/grafana/datasource.yml
 - scripts/backup.sh

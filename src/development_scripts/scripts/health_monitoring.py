@@ -37,44 +37,44 @@ logger = logging.getLogger(__name__)
 # Prometheus metrics
 REGISTRY = CollectorRegistry()
 REQUEST_COUNT = Counter(
-    'pynomaly_requests_total',
+    'anomaly_detection_requests_total',
     'Total requests',
     ['method', 'endpoint', 'status'],
     registry=REGISTRY
 )
 REQUEST_DURATION = Histogram(
-    'pynomaly_request_duration_seconds',
+    'anomaly_detection_request_duration_seconds',
     'Request duration',
     ['method', 'endpoint'],
     registry=REGISTRY
 )
 ACTIVE_CONNECTIONS = Gauge(
-    'pynomaly_active_connections',
+    'anomaly_detection_active_connections',
     'Active connections',
     registry=REGISTRY
 )
 SYSTEM_CPU = Gauge(
-    'pynomaly_system_cpu_percent',
+    'anomaly_detection_system_cpu_percent',
     'System CPU usage',
     registry=REGISTRY
 )
 SYSTEM_MEMORY = Gauge(
-    'pynomaly_system_memory_percent',
+    'anomaly_detection_system_memory_percent',
     'System memory usage',
     registry=REGISTRY
 )
 SYSTEM_DISK = Gauge(
-    'pynomaly_system_disk_percent',
+    'anomaly_detection_system_disk_percent',
     'System disk usage',
     registry=REGISTRY
 )
 DETECTOR_COUNT = Gauge(
-    'pynomaly_active_detectors',
+    'anomaly_detection_active_detectors',
     'Number of active detectors',
     registry=REGISTRY
 )
 DETECTION_RATE = Counter(
-    'pynomaly_detections_total',
+    'anomaly_detections_total',
     'Total detections performed',
     ['detector_type', 'status'],
     registry=REGISTRY
@@ -564,7 +564,7 @@ class HealthDashboard:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Pynomaly Health Dashboard</title>
+            <title>anomaly_detection Health Dashboard</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; }}
                 .status-healthy {{ color: green; }}
@@ -582,7 +582,7 @@ class HealthDashboard:
             </script>
         </head>
         <body>
-            <h1>Pynomaly Health Dashboard</h1>
+            <h1>anomaly_detection Health Dashboard</h1>
             <button class="refresh" onclick="refreshPage()">Refresh Now</button>
             
             <h2>Overall Status: <span class="status-{health_status['status']}">{health_status['status'].upper()}</span></h2>
@@ -620,7 +620,7 @@ class HealthDashboard:
 
 def main():
     """Main function for standalone execution."""
-    print("Starting Pynomaly Health Monitoring System...")
+    print("Starting anomaly_detection Health Monitoring System...")
     
     # Create health monitor
     monitor = HealthMonitor()

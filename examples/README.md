@@ -1,6 +1,6 @@
-# Pynomaly Examples
+# anomaly_detection Examples
 
-This directory contains comprehensive examples demonstrating Pynomaly's capabilities across different domains and use cases.
+This directory contains comprehensive examples demonstrating anomaly_detection's capabilities across different domains and use cases.
 
 ## Getting Started
 
@@ -9,7 +9,7 @@ All examples are self-contained and can be run independently. Each example inclu
 ### Prerequisites
 
 ```bash
-# Install Pynomaly with examples dependencies
+# Install anomaly_detection with examples dependencies
 pip install -e ".[all]"
 
 # Or install minimal dependencies for basic examples
@@ -24,7 +24,7 @@ pip install matplotlib seaborn plotly
 ### 1. Basic Usage (`basic_usage.py`)
 
 **What it covers:**
-- Fundamental Pynomaly operations
+- Fundamental anomaly_detection operations
 - Loading and preparing data
 - Initializing and fitting detectors
 - Making predictions and interpreting results
@@ -196,7 +196,7 @@ Brief description of what this example demonstrates.
 # 1. Imports and setup
 import pandas as pd
 import numpy as np
-from pynomaly import AnomalyDetector
+from anomaly_detection import AnomalyDetector
 
 # 2. Data generation or loading
 def create_sample_data():

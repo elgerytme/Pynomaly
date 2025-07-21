@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Performance Optimization Suite for Pynomaly
+Performance Optimization Suite for anomaly_detection
 This script analyzes performance metrics and implements optimization strategies
 """
 
@@ -240,7 +240,7 @@ class PerformanceOptimizer:
     def _collect_custom_metrics(self) -> dict:
         """Collect custom application metrics"""
         try:
-            # This would collect custom metrics specific to Pynomaly
+            # This would collect custom metrics specific to anomaly_detection
             return {
                 "anomaly_detection_latency": 125,  # milliseconds
                 "model_training_time": 3600,  # seconds
@@ -882,7 +882,7 @@ class PerformanceOptimizer:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description="Pynomaly Performance Optimization")
+    parser = argparse.ArgumentParser(description="anomaly_detection Performance Optimization")
     parser.add_argument("--config", help="Configuration file path")
     parser.add_argument(
         "--strategies",

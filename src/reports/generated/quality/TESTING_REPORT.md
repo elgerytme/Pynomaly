@@ -58,7 +58,7 @@ Comprehensive testing revealed **5 critical issues** requiring immediate attenti
 ### CLI Testing ✅ FULLY FUNCTIONAL
 
 ```bash
-# Command: pynomaly --help
+# Command: anomaly_detection --help
 ✅ Main help displayed correctly
 ✅ All subcommands listed (detect, train, evaluate, etc.)
 
@@ -101,17 +101,17 @@ Comprehensive testing revealed **5 critical issues** requiring immediate attenti
 #### Working Routes ✅
 | Route | Status | Title | HTMX Components |
 |-------|--------|-------|-----------------|
-| `/web/` | ✅ 200 | Pynomaly Dashboard | ✅ Working |
-| `/web/datasets` | ✅ 200 | Datasets - Pynomaly | ✅ Working |
-| `/web/detection` | ✅ 200 | Detection - Pynomaly | ✅ Working |
-| `/web/automl` | ✅ 200 | AutoML - Pynomaly | ✅ Working |
-| `/web/explainability` | ✅ 200 | Explainability - Pynomaly | ✅ Working |
-| `/web/monitoring` | ✅ 200 | Monitoring - Pynomaly | ✅ Working |
-| `/web/visualizations` | ✅ 200 | Visualizations - Pynomaly | ✅ Working |
-| `/web/workflows` | ✅ 200 | Workflows - Pynomaly | ✅ Working |
-| `/web/collaboration` | ✅ 200 | Collaboration - Pynomaly | ✅ Working |
-| `/web/advanced-visualizations` | ✅ 200 | Advanced Visualizations - Pynomaly | ✅ Working |
-| `/web/exports` | ✅ 200 | Exports - Pynomaly | ✅ Working |
+| `/web/` | ✅ 200 | anomaly_detection Dashboard | ✅ Working |
+| `/web/datasets` | ✅ 200 | Datasets - anomaly_detection | ✅ Working |
+| `/web/detection` | ✅ 200 | Detection - anomaly_detection | ✅ Working |
+| `/web/automl` | ✅ 200 | AutoML - anomaly_detection | ✅ Working |
+| `/web/explainability` | ✅ 200 | Explainability - anomaly_detection | ✅ Working |
+| `/web/monitoring` | ✅ 200 | Monitoring - anomaly_detection | ✅ Working |
+| `/web/visualizations` | ✅ 200 | Visualizations - anomaly_detection | ✅ Working |
+| `/web/workflows` | ✅ 200 | Workflows - anomaly_detection | ✅ Working |
+| `/web/collaboration` | ✅ 200 | Collaboration - anomaly_detection | ✅ Working |
+| `/web/advanced-visualizations` | ✅ 200 | Advanced Visualizations - anomaly_detection | ✅ Working |
+| `/web/exports` | ✅ 200 | Exports - anomaly_detection | ✅ Working |
 
 #### Broken Routes ❌
 - `/web/experiments` - 500 Internal Server Error

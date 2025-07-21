@@ -123,14 +123,14 @@ jobs:
           kubectl apply -f k8s/staging/
           
           # Update image tags
-          kubectl set image deployment/pynomaly-api pynomaly-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/software/interfaces:${{ github.sha }} -n pynomaly-staging
-          kubectl set image deployment/pynomaly-mlops pynomaly-mlops=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai/mlops:${{ github.sha }} -n pynomaly-staging
-          kubectl set image deployment/pynomaly-data pynomaly-data=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/data/anomaly_detection:${{ github.sha }} -n pynomaly-staging
+          kubectl set image deployment/anomaly_detection-api anomaly_detection-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/software/interfaces:${{ github.sha }} -n anomaly_detection-staging
+          kubectl set image deployment/anomaly_detection-mlops anomaly_detection-mlops=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai/mlops:${{ github.sha }} -n anomaly_detection-staging
+          kubectl set image deployment/anomaly_detection-data anomaly_detection-data=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/data/anomaly_detection:${{ github.sha }} -n anomaly_detection-staging
           
           # Wait for rollout
-          kubectl rollout status deployment/pynomaly-api -n pynomaly-staging --timeout=300s
-          kubectl rollout status deployment/pynomaly-mlops -n pynomaly-staging --timeout=300s
-          kubectl rollout status deployment/pynomaly-data -n pynomaly-staging --timeout=300s
+          kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-staging --timeout=300s
+          kubectl rollout status deployment/anomaly_detection-mlops -n anomaly_detection-staging --timeout=300s
+          kubectl rollout status deployment/anomaly_detection-data -n anomaly_detection-staging --timeout=300s
       
       - name: Run deployment tests
         run: |
@@ -164,14 +164,14 @@ jobs:
           kubectl apply -f k8s/production/
           
           # Update green deployment with new images
-          kubectl set image deployment/pynomaly-api-green pynomaly-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/software/interfaces:${{ github.sha }} -n pynomaly-production
-          kubectl set image deployment/pynomaly-mlops-green pynomaly-mlops=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai/mlops:${{ github.sha }} -n pynomaly-production
-          kubectl set image deployment/pynomaly-data-green pynomaly-data=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/data/anomaly_detection:${{ github.sha }} -n pynomaly-production
+          kubectl set image deployment/anomaly_detection-api-green anomaly_detection-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/software/interfaces:${{ github.sha }} -n anomaly_detection-production
+          kubectl set image deployment/anomaly_detection-mlops-green anomaly_detection-mlops=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai/mlops:${{ github.sha }} -n anomaly_detection-production
+          kubectl set image deployment/anomaly_detection-data-green anomaly_detection-data=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/data/anomaly_detection:${{ github.sha }} -n anomaly_detection-production
           
           # Wait for green deployment
-          kubectl rollout status deployment/pynomaly-api-green -n pynomaly-production --timeout=600s
-          kubectl rollout status deployment/pynomaly-mlops-green -n pynomaly-production --timeout=600s
-          kubectl rollout status deployment/pynomaly-data-green -n pynomaly-production --timeout=600s
+          kubectl rollout status deployment/anomaly_detection-api-green -n anomaly_detection-production --timeout=600s
+          kubectl rollout status deployment/anomaly_detection-mlops-green -n anomaly_detection-production --timeout=600s
+          kubectl rollout status deployment/anomaly_detection-data-green -n anomaly_detection-production --timeout=600s
       
       - name: Run production validation
         run: |
@@ -181,9 +181,9 @@ jobs:
       - name: Switch traffic to green
         run: |
           # Switch service selectors to green deployment
-          kubectl patch service pynomaly-api-service -n pynomaly-production -p '{"spec":{"selector":{"version":"green"}}}'
-          kubectl patch service pynomaly-mlops-service -n pynomaly-production -p '{"spec":{"selector":{"version":"green"}}}'
-          kubectl patch service pynomaly-data-service -n pynomaly-production -p '{"spec":{"selector":{"version":"green"}}}'
+          kubectl patch service anomaly_detection-api-service -n anomaly_detection-production -p '{"spec":{"selector":{"version":"green"}}}'
+          kubectl patch service anomaly_detection-mlops-service -n anomaly_detection-production -p '{"spec":{"selector":{"version":"green"}}}'
+          kubectl patch service anomaly_detection-data-service -n anomaly_detection-production -p '{"spec":{"selector":{"version":"green"}}}'
       
       - name: Monitor deployment
         run: |
@@ -196,14 +196,14 @@ jobs:
       - name: Cleanup old deployment
         run: |
           # Remove blue deployment
-          kubectl delete deployment pynomaly-api-blue -n pynomaly-production || true
-          kubectl delete deployment pynomaly-mlops-blue -n pynomaly-production || true
-          kubectl delete deployment pynomaly-data-blue -n pynomaly-production || true
+          kubectl delete deployment anomaly_detection-api-blue -n anomaly_detection-production || true
+          kubectl delete deployment anomaly_detection-mlops-blue -n anomaly_detection-production || true
+          kubectl delete deployment anomaly_detection-data-blue -n anomaly_detection-production || true
           
           # Rename green to blue for next deployment
-          kubectl patch deployment pynomaly-api-green -n pynomaly-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
-          kubectl patch deployment pynomaly-mlops-green -n pynomaly-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
-          kubectl patch deployment pynomaly-data-green -n pynomaly-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
+          kubectl patch deployment anomaly_detection-api-green -n anomaly_detection-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
+          kubectl patch deployment anomaly_detection-mlops-green -n anomaly_detection-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
+          kubectl patch deployment anomaly_detection-data-green -n anomaly_detection-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
       
       - name: Notify deployment success
         if: success()
@@ -220,14 +220,14 @@ jobs:
       - name: Rollback deployment
         run: |
           # Rollback to previous version
-          kubectl rollout undo deployment/pynomaly-api -n pynomaly-${{ needs.deployment-strategy.outputs.environment }}
-          kubectl rollout undo deployment/pynomaly-mlops -n pynomaly-${{ needs.deployment-strategy.outputs.environment }}
-          kubectl rollout undo deployment/pynomaly-data -n pynomaly-${{ needs.deployment-strategy.outputs.environment }}
+          kubectl rollout undo deployment/anomaly_detection-api -n anomaly_detection-${{ needs.deployment-strategy.outputs.environment }}
+          kubectl rollout undo deployment/anomaly_detection-mlops -n anomaly_detection-${{ needs.deployment-strategy.outputs.environment }}
+          kubectl rollout undo deployment/anomaly_detection-data -n anomaly_detection-${{ needs.deployment-strategy.outputs.environment }}
           
           # Wait for rollback
-          kubectl rollout status deployment/pynomaly-api -n pynomaly-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
-          kubectl rollout status deployment/pynomaly-mlops -n pynomaly-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
-          kubectl rollout status deployment/pynomaly-data -n pynomaly-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
+          kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
+          kubectl rollout status deployment/anomaly_detection-mlops -n anomaly_detection-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
+          kubectl rollout status deployment/anomaly_detection-data -n anomaly_detection-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
       
       - name: Notify rollback
         run: |

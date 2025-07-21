@@ -1,12 +1,12 @@
 #!/bin/bash
-# Pynomaly Production Monitoring Script
+# anomaly_detection Production Monitoring Script
 
 set -e
 
 # Configuration
 API_URL="http://localhost:8000"
 ALERT_EMAIL="admin@your-domain.com"
-LOG_FILE="/var/log/pynomaly/monitoring.log"
+LOG_FILE="/var/log/anomaly_detection/monitoring.log"
 
 # Create log directory
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -31,7 +31,7 @@ health_check() {
     response=$(curl -s -w "%{http_code}" -o /dev/null "$API_URL/health" || echo "000")
 
     if [[ "$response" != "200" ]]; then
-        send_alert "Pynomaly Health Check Failed" "Health check returned status: $response"
+        send_alert "anomaly_detection Health Check Failed" "Health check returned status: $response"
         return 1
     fi
 
@@ -45,7 +45,7 @@ performance_check() {
     response_time=$(curl -s -w "%{time_total}" -o /dev/null "$API_URL/health")
 
     if (( $(echo "$response_time > 5.0" | bc -l) )); then
-        send_alert "Pynomaly Performance Degradation" "Response time: ${response_time}s"
+        send_alert "anomaly_detection Performance Degradation" "Response time: ${response_time}s"
         return 1
     fi
 
@@ -68,7 +68,7 @@ disk_check() {
     disk_usage=$(df -h /app | awk 'NR==2{print $5}' | sed 's/%//')
 
     if [[ "$disk_usage" -gt 80 ]]; then
-        send_alert "Pynomaly Disk Space Warning" "Disk usage: ${disk_usage}%"
+        send_alert "anomaly_detection Disk Space Warning" "Disk usage: ${disk_usage}%"
         return 1
     fi
 

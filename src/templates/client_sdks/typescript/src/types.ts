@@ -1,11 +1,11 @@
 /**
- * Comprehensive TypeScript definitions for the Pynomaly SDK
+ * Comprehensive TypeScript definitions for the anomaly_detection SDK
  * Supporting modern JavaScript features and full type safety
  */
 
 // Base configuration and utility types
 export interface ClientConfig {
-  /** Base URL of the Pynomaly API */
+  /** Base URL of the anomaly_detection API */
   baseUrl?: string;
   /** API key for authentication */
   apiKey?: string;

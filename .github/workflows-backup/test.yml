@@ -54,7 +54,7 @@ jobs:
       if: matrix.test-type == 'unit'
       run: |
         hatch run test:pytest tests/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=term \
           --cov-fail-under=80 \
           -m "not slow and not integration and not benchmark" \
           --maxfail=10
@@ -132,7 +132,7 @@ jobs:
           -v --tb=short \
           -m "${{ matrix.test-suite.markers }}" \
           --maxfail=10 \
-          --cov=src/pynomaly \
+          --cov=src/anomaly_detection \
           --cov-report=xml \
           --cov-report=term
 

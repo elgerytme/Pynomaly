@@ -95,7 +95,7 @@ class MLOpsDeployer:
         try:
             from sklearn.ensemble import IsolationForest
 
-            from pynomaly.mlops.model_registry import ModelType, model_registry
+            from anomaly_detection.mlops.model_registry import ModelType, model_registry
 
             # Create a test model
             model = IsolationForest(contamination=0.1, random_state=42)
@@ -149,7 +149,7 @@ class MLOpsDeployer:
         logger.info("🧪 Testing experiment tracker...")
 
         try:
-            from pynomaly.mlops.experiment_tracker import experiment_tracker
+            from anomaly_detection.mlops.experiment_tracker import experiment_tracker
 
             # Create experiment
             experiment_id = experiment_tracker.create_experiment(
@@ -202,11 +202,11 @@ class MLOpsDeployer:
         try:
             from sklearn.ensemble import IsolationForest
 
-            from pynomaly.mlops.model_deployment import (
+            from anomaly_detection.mlops.model_deployment import (
                 DeploymentEnvironment,
                 deployment_manager,
             )
-            from pynomaly.mlops.model_registry import ModelType, model_registry
+            from anomaly_detection.mlops.model_registry import ModelType, model_registry
 
             # First, register a model to deploy
             model = IsolationForest(contamination=0.1, random_state=42)
@@ -263,7 +263,7 @@ class MLOpsDeployer:
         logger.info("🔄 Testing automated retraining...")
 
         try:
-            from pynomaly.mlops.automated_retraining import (
+            from anomaly_detection.mlops.automated_retraining import (
                 RetrainingConfig,
                 TriggerType,
                 retraining_pipeline,
@@ -298,7 +298,7 @@ class MLOpsDeployer:
             import numpy as np
             import pandas as pd
 
-            from pynomaly.mlops.automated_retraining import DataDriftDetector
+            from anomaly_detection.mlops.automated_retraining import DataDriftDetector
 
             drift_detector = DataDriftDetector()
 
@@ -345,7 +345,7 @@ class MLOpsDeployer:
         logger.info("🔧 Testing MLOps service...")
 
         try:
-            from pynomaly.mlops.mlops_service import mlops_service
+            from anomaly_detection.mlops.mlops_service import mlops_service
 
             # Get dashboard data
             dashboard_data = await mlops_service.get_mlops_dashboard_data()

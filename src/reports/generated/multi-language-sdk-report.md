@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This report documents the successful completion of multi-language SDK development for the Pynomaly anomaly detection API. The project has delivered comprehensive, production-ready client libraries for three major programming languages: Python, TypeScript/JavaScript, and Java.
+This report documents the successful completion of multi-language SDK development for the anomaly_detection anomaly detection API. The project has delivered comprehensive, production-ready client libraries for three major programming languages: Python, TypeScript/JavaScript, and Java.
 
 ## Project Overview
 
@@ -27,7 +27,7 @@ This report documents the successful completion of multi-language SDK developmen
 ### 1. Python SDK (`sdks/python/`)
 
 **Features Implemented:**
-- **Dual Client Support**: Both synchronous (`PynomaliClient`) and asynchronous (`AsyncPynomaliClient`) clients
+- **Dual Client Support**: Both synchronous (`AnomalyDetectionClient`) and asynchronous (`AsyncAnomalyDetectionClient`) clients
 - **Type Safety**: Full type hints with Pydantic models for request/response validation
 - **Authentication**: JWT and API Key authentication with automatic token refresh
 - **Error Handling**: Comprehensive exception hierarchy with specific error types
@@ -38,8 +38,8 @@ This report documents the successful completion of multi-language SDK developmen
 **Key Components:**
 ```python
 # Main client classes
-- PynomaliClient (sync)
-- AsyncPynomaliClient (async)
+- AnomalyDetectionClient (sync)
+- AsyncAnomalyDetectionClient (async)
 
 # API modules
 - AuthAPI: Authentication and token management
@@ -54,15 +54,15 @@ This report documents the successful completion of multi-language SDK developmen
 
 **Installation & Usage:**
 ```bash
-pip install pynomaly-client
+pip install anomaly_detection-client
 ```
 
 ```python
 import asyncio
-from pynomaly_client import AsyncPynomaliClient
+from anomaly_detection_client import AsyncAnomalyDetectionClient
 
 async def main():
-    async with AsyncPynomaliClient(api_key="your-key") as client:
+    async with AsyncAnomalyDetectionClient(api_key="your-key") as client:
         result = await client.detection.detect(
             data=[1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
             algorithm="isolation_forest",
@@ -87,7 +87,7 @@ asyncio.run(main())
 **Key Components:**
 ```typescript
 // Main client class
-- PynomaliClient
+- AnomalyDetectionClient
 
 // API modules with full TypeScript support
 - AuthAPI, DetectionAPI, TrainingAPI
@@ -102,14 +102,14 @@ asyncio.run(main())
 
 **Installation & Usage:**
 ```bash
-npm install @pynomaly/client
+npm install @anomaly_detection/client
 ```
 
 ```typescript
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
-const client = new PynomaliClient({
-  baseUrl: 'https://api.pynomaly.com',
+const client = new AnomalyDetectionClient({
+  baseUrl: 'https://api.anomaly_detection.com',
   apiKey: 'your-api-key'
 });
 
@@ -136,7 +136,7 @@ console.log('Anomalies detected:', result.anomalies);
 **Key Components:**
 ```java
 // Main client
-- PynomaliClient (with builder pattern)
+- AnomalyDetectionClient (with builder pattern)
 
 // API modules
 - AuthAPI, DetectionAPI, TrainingAPI
@@ -152,15 +152,15 @@ console.log('Anomalies detected:', result.anomalies);
 **Installation & Usage:**
 ```xml
 <dependency>
-    <groupId>com.pynomaly</groupId>
-    <artifactId>pynomaly-java-sdk</artifactId>
+    <groupId>com.anomaly_detection</groupId>
+    <artifactId>anomaly_detection-java-sdk</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 
 ```java
-PynomaliClient client = PynomaliClient.builder()
-    .baseUrl("https://api.pynomaly.com")
+AnomalyDetectionClient client = AnomalyDetectionClient.builder()
+    .baseUrl("https://api.anomaly_detection.com")
     .apiKey("your-api-key")
     .build();
 
@@ -265,7 +265,7 @@ python scripts/cli/sdk_cli.py publish java --registry maven-central
 
 ### 1. Python SDK Distribution
 
-**PyPI Package**: `pynomaly-client`
+**PyPI Package**: `anomaly_detection-client`
 - Package structure following Python best practices
 - Proper dependency management with version constraints
 - Entry points for CLI tools
@@ -273,7 +273,7 @@ python scripts/cli/sdk_cli.py publish java --registry maven-central
 
 ### 2. TypeScript SDK Distribution
 
-**NPM Package**: `@pynomaly/client`
+**NPM Package**: `@anomaly_detection/client`
 - UMD, CommonJS, and ES modules support
 - TypeScript declaration files included
 - Optimized bundle sizes
@@ -281,7 +281,7 @@ python scripts/cli/sdk_cli.py publish java --registry maven-central
 
 ### 3. Java SDK Distribution
 
-**Maven Central**: `com.pynomaly:pynomaly-java-sdk`
+**Maven Central**: `com.anomaly_detection:anomaly_detection-java-sdk`
 - Standard Maven artifact structure
 - Source and Javadoc JARs included
 - OSGi metadata for enterprise environments
@@ -441,7 +441,7 @@ The multi-language SDK development project has been successfully completed, deli
 
 ### Business Impact
 
-- **Reduced Integration Time**: Developers can integrate Pynomaly in minutes instead of hours
+- **Reduced Integration Time**: Developers can integrate anomaly_detection in minutes instead of hours
 - **Broader Market Reach**: Support for major programming languages increases adoption
 - **Improved Developer Satisfaction**: High-quality SDKs with excellent documentation
 - **Reduced Support Burden**: Self-documenting code and comprehensive examples
@@ -453,7 +453,7 @@ The multi-language SDK development project has been successfully completed, deli
 - **Reliability**: Comprehensive error handling and retry mechanisms
 - **Maintainability**: Clean, well-documented code with automated testing
 
-The SDKs are now ready for production use and will significantly improve the developer experience for integrating with the Pynomaly anomaly detection platform.
+The SDKs are now ready for production use and will significantly improve the developer experience for integrating with the anomaly_detection anomaly detection platform.
 
 ---
 

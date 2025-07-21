@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pytest-based Incremental Test Runner for Pynomaly
+Pytest-based Incremental Test Runner for anomaly_detection
 Fallback implementation that uses pytest instead of Buck2 while maintaining incremental testing logic.
 """
 

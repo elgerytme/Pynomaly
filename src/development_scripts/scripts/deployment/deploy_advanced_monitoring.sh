@@ -95,7 +95,7 @@ generate_configurations() {
 
     # Elasticsearch configuration
     cat > "${DEPLOYMENT_DIR}/config/elasticsearch.yml" << 'EOF'
-cluster.name: pynomaly-logs
+cluster.name: anomaly_detection-logs
 node.name: elasticsearch
 network.host: 0.0.0.0
 discovery.type: single-node
@@ -104,7 +104,7 @@ xpack.monitoring.collection.enabled: true
 EOF
 
     # Logstash pipeline configuration
-    cat > "${DEPLOYMENT_DIR}/config/logstash/pipeline/pynomaly.conf" << 'EOF'
+    cat > "${DEPLOYMENT_DIR}/config/logstash/pipeline/anomaly_detection.conf" << 'EOF'
 input {
   beats {
     port => 5044
@@ -120,7 +120,7 @@ input {
 }
 
 filter {
-  if [fields][logtype] == "pynomaly" {
+  if [fields][logtype] == "anomaly_detection" {
     # Parse JSON logs
     if [message] =~ /^\{.*\}$/ {
       json {
@@ -173,11 +173,11 @@ filter {
 output {
   elasticsearch {
     hosts => ["elasticsearch:9200"]
-    index => "pynomaly-logs-%{+YYYY.MM.dd}"
-    template_name => "pynomaly-logs"
-    template_pattern => "pynomaly-logs-*"
+    index => "anomaly_detection-logs-%{+YYYY.MM.dd}"
+    template_name => "anomaly_detection-logs"
+    template_pattern => "anomaly_detection-logs-*"
     template => {
-      "index_patterns" => ["pynomaly-logs-*"],
+      "index_patterns" => ["anomaly_detection-logs-*"],
       "settings" => {
         "number_of_shards" => 1,
         "number_of_replicas" => 0,
@@ -209,9 +209,9 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /var/log/pynomaly/*.log
+    - /var/log/anomaly_detection/*.log
   fields:
-    logtype: pynomaly
+    logtype: anomaly_detection
   fields_under_root: true
   multiline.pattern: '^\d{4}-\d{2}-\d{2}'
   multiline.negate: true
@@ -399,8 +399,8 @@ WHERE measurement_time >= NOW() - INTERVAL '30 days'
 GROUP BY slo_name;
 
 -- Grant permissions
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pynomaly;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pynomaly;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anomaly_detection;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anomaly_detection;
 EOF
 
     log_success "Configuration files generated successfully"
@@ -410,11 +410,11 @@ EOF
 create_network() {
     log_info "Creating Docker network..."
 
-    if ! docker network ls | grep -q "pynomaly-network"; then
-        docker network create pynomaly-network --driver bridge
-        log_success "Created Docker network: pynomaly-network"
+    if ! docker network ls | grep -q "anomaly_detection-network"; then
+        docker network create anomaly_detection-network --driver bridge
+        log_success "Created Docker network: anomaly_detection-network"
     else
-        log_info "Docker network 'pynomaly-network' already exists"
+        log_info "Docker network 'anomaly_detection-network' already exists"
     fi
 }
 
@@ -475,7 +475,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8090/health || exit 1
 
 # Run the application
-CMD ["python", "-m", "src.pynomaly.infrastructure.monitoring.advanced_monitoring"]
+CMD ["python", "-m", "src.anomaly_detection.infrastructure.monitoring.advanced_monitoring"]
 EOF
 
     # Anomaly Detector Dockerfile
@@ -508,7 +508,7 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8092
 
-CMD ["python", "-c", "from src.pynomaly.infrastructure.monitoring.advanced_monitoring import AnomalyDetector; import asyncio; import time; detector = AnomalyDetector(); print('Anomaly detector started'); time.sleep(3600)"]
+CMD ["python", "-c", "from src.anomaly_detection.infrastructure.monitoring.advanced_monitoring import AnomalyDetector; import asyncio; import time; detector = AnomalyDetector(); print('Anomaly detector started'); time.sleep(3600)"]
 EOF
 
     # Capacity Planner Dockerfile
@@ -541,7 +541,7 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8093
 
-CMD ["python", "-c", "from src.pynomaly.infrastructure.monitoring.advanced_monitoring import CapacityPlanner; import time; planner = CapacityPlanner(); print('Capacity planner started'); time.sleep(3600)"]
+CMD ["python", "-c", "from src.anomaly_detection.infrastructure.monitoring.advanced_monitoring import CapacityPlanner; import time; planner = CapacityPlanner(); print('Capacity planner started'); time.sleep(3600)"]
 EOF
 
     # SLO Monitor Dockerfile
@@ -576,7 +576,7 @@ EXPOSE 8094
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8094/health || exit 1
 
-CMD ["python", "-c", "from src.pynomaly.infrastructure.monitoring.advanced_monitoring import SLOMonitor; import time; monitor = SLOMonitor(); print('SLO monitor started'); time.sleep(3600)"]
+CMD ["python", "-c", "from src.anomaly_detection.infrastructure.monitoring.advanced_monitoring import SLOMonitor; import time; monitor = SLOMonitor(); print('SLO monitor started'); time.sleep(3600)"]
 EOF
 
     # BI Dashboard Dockerfile
@@ -616,7 +616,7 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-CMD ["python", "-m", "src.pynomaly.infrastructure.monitoring.business_intelligence_dashboard"]
+CMD ["python", "-m", "src.anomaly_detection.infrastructure.monitoring.business_intelligence_dashboard"]
 EOF
 
     log_success "Docker images configuration created"
@@ -687,12 +687,12 @@ configure_initial_setup() {
 
     # Create Kibana index patterns
     log_info "Creating Kibana index patterns..."
-    curl -X POST "localhost:5601/api/saved_objects/index-pattern/pynomaly-logs-*" \
+    curl -X POST "localhost:5601/api/saved_objects/index-pattern/anomaly_detection-logs-*" \
         -H "Content-Type: application/json" \
         -H "kbn-xsrf: true" \
         -d '{
             "attributes": {
-                "title": "pynomaly-logs-*",
+                "title": "anomaly_detection-logs-*",
                 "timeFieldName": "@timestamp"
             }
         }' || log_warning "Failed to create Kibana index pattern"

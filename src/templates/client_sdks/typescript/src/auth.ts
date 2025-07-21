@@ -1,5 +1,5 @@
 /**
- * Authentication manager for the Pynomaly TypeScript SDK
+ * Authentication manager for the anomaly_detection TypeScript SDK
  * Handles JWT tokens, API keys, and session management
  */
 
@@ -17,7 +17,7 @@ export interface AuthManagerConfig {
 }
 
 /**
- * Manages authentication state and tokens for the Pynomaly client
+ * Manages authentication state and tokens for the anomaly_detection client
  */
 export class AuthManager {
   private apiKey?: string;
@@ -31,7 +31,7 @@ export class AuthManager {
 
   constructor(config: AuthManagerConfig = {}) {
     this.apiKey = config.apiKey;
-    this.tokenStorageKey = config.tokenStorageKey || 'pynomaly_auth_token';
+    this.tokenStorageKey = config.tokenStorageKey || 'anomaly_detection_auth_token';
     this.autoRefresh = config.autoRefresh ?? true;
     this.refreshThreshold = config.refreshThreshold || 300; // 5 minutes
 
@@ -370,7 +370,7 @@ export class OAuthManager {
       ...(state && { state }),
     });
 
-    return `https://auth.pynomaly.com/oauth/${provider}/authorize?${params}`;
+    return `https://auth.anomaly_detection.com/oauth/${provider}/authorize?${params}`;
   }
 
   /**

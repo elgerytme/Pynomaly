@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive deployment validation script for Pynomaly production environment.
+Comprehensive deployment validation script for anomaly_detection production environment.
 Validates API endpoints, database connectivity, security configurations, and more.
 """
 
@@ -172,12 +172,12 @@ class DeploymentValidator:
     async def _validate_docker_services(self) -> list[ValidationResult]:
         """Validate Docker services are running."""
         services = [
-            "pynomaly-api",
-            "pynomaly-postgres",
-            "pynomaly-redis",
-            "pynomaly-nginx",
-            "pynomaly-grafana",
-            "pynomaly-prometheus",
+            "anomaly_detection-api",
+            "anomaly_detection-postgres",
+            "anomaly_detection-redis",
+            "anomaly_detection-nginx",
+            "anomaly_detection-grafana",
+            "anomaly_detection-prometheus",
         ]
 
         results = []
@@ -237,7 +237,7 @@ class DeploymentValidator:
         """Validate database connectivity and configuration."""
         try:
             db_url = self.config.get(
-                "DATABASE_URL", "postgresql://pynomaly:password@localhost:5432/pynomaly"
+                "DATABASE_URL", "postgresql://anomaly_detection:password@localhost:5432/anomaly_detection"
             )
 
             conn = await asyncpg.connect(db_url)
@@ -625,7 +625,7 @@ class DeploymentValidator:
         total_count = len(self.results)
 
         report = f"""
-# Pynomaly Deployment Validation Report
+# anomaly_detection Deployment Validation Report
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 **Total Checks:** {total_count}
@@ -711,7 +711,7 @@ async def main():
     """Main validation function."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Validate Pynomaly deployment")
+    parser = argparse.ArgumentParser(description="Validate anomaly_detection deployment")
     parser.add_argument(
         "--config",
         default="config/production/.env.prod",

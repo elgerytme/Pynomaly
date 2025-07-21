@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Multi-Environment Testing Framework for Pynomaly Scripts
+Multi-Environment Testing Framework for anomaly_detection Scripts
 
 This script provides comprehensive testing of Python scripts, modules, and packages
 across different environments including:
@@ -610,7 +610,7 @@ fi
 def main():
     """Main entry point for multi-environment testing."""
     parser = argparse.ArgumentParser(
-        description="Multi-Environment Testing Framework for Pynomaly Scripts",
+        description="Multi-Environment Testing Framework for anomaly_detection Scripts",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

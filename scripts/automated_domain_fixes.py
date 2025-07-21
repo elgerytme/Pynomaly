@@ -64,10 +64,10 @@ class AutomatedDomainFixer:
                 pattern=r'anomaly_detection',
                 replacement='software',
                 category='package_names',
-                description='Replace pynomaly with software',
+                description='Replace anomaly_detection with software',
                 safe_contexts=['comments', 'strings', 'documentation'],
                 excluded_files=['README.md', 'CHANGELOG.md', 'HISTORY.md'],
-                excluded_patterns=[r'pynomaly\.io', r'github\.com.*pynomaly']
+                excluded_patterns=[r'anomaly_detection\.io', r'github\.com.*anomaly_detection']
             ),
             
             # Domain-specific terminology
@@ -113,23 +113,23 @@ class AutomatedDomainFixer:
             
             # Configuration fixes
             ReplacementRule(
-                pattern=r'"pynomaly-([^"]+)"',
+                pattern=r'"anomaly_detection-([^"]+)"',
                 replacement=r'"software-\1"',
                 category='configuration',
-                description='Replace pynomaly- prefixed package names with software-',
+                description='Replace anomaly_detection- prefixed package names with software-',
                 safe_contexts=['json', 'toml', 'yaml'],
                 excluded_files=[],
-                excluded_patterns=[r'repository.*pynomaly']
+                excluded_patterns=[r'repository.*anomaly_detection']
             ),
             
             ReplacementRule(
-                pattern=r"'pynomaly-([^']+)'",
+                pattern=r"'anomaly_detection-([^']+)'",
                 replacement=r"'software-\1'",
                 category='configuration',
-                description='Replace pynomaly- prefixed package names with software-',
+                description='Replace anomaly_detection- prefixed package names with software-',
                 safe_contexts=['json', 'toml', 'yaml'],
                 excluded_files=[],
-                excluded_patterns=[r'repository.*pynomaly']
+                excluded_patterns=[r'repository.*anomaly_detection']
             ),
             
             # Variable and function name fixes
@@ -196,20 +196,20 @@ class AutomatedDomainFixer:
             
             # Import statement fixes
             ReplacementRule(
-                pattern=r'from pynomaly\.([^.]+)',
+                pattern=r'from anomaly_detection\.([^.]+)',
                 replacement=r'from software.\1',
                 category='imports',
-                description='Replace pynomaly imports with software imports',
+                description='Replace anomaly_detection imports with software imports',
                 safe_contexts=['code'],
                 excluded_files=[],
                 excluded_patterns=[]
             ),
             
             ReplacementRule(
-                pattern=r'import pynomaly\.([^.]+)',
+                pattern=r'import anomaly_detection\.([^.]+)',
                 replacement=r'import software.\1',
                 category='imports',
-                description='Replace pynomaly imports with software imports',
+                description='Replace anomaly_detection imports with software imports',
                 safe_contexts=['code'],
                 excluded_files=[],
                 excluded_patterns=[]
@@ -217,10 +217,10 @@ class AutomatedDomainFixer:
             
             # URL and reference fixes
             ReplacementRule(
-                pattern=r'https://github\.com/[^/]+/pynomaly',
+                pattern=r'https://github\.com/[^/]+/anomaly_detection',
                 replacement='https://github.com/domain-team/software',
                 category='urls',
-                description='Replace pynomaly GitHub URLs with software URLs',
+                description='Replace anomaly_detection GitHub URLs with software URLs',
                 safe_contexts=['strings', 'documentation'],
                 excluded_files=[],
                 excluded_patterns=[]

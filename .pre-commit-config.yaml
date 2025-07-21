@@ -89,7 +89,7 @@ repos:
               echo ""
               echo "See REPOSITORY_RULES.md for naming conventions."
               echo "See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
-              echo "GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+              echo "GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830"
               exit 1
             fi
             

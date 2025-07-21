@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Automated Security Scanner for Pynomaly Web Application
+Automated Security Scanner for anomaly_detection Web Application
 Performs comprehensive security testing including OWASP Top 10 vulnerabilities
 """
 
@@ -95,7 +95,7 @@ class SecurityScanner:
         self.max_concurrent = self.options.get('max_concurrent', 10)
         self.request_delay = self.options.get('request_delay', 0.1)
         self.timeout = self.options.get('timeout', 30)
-        self.user_agent = self.options.get('user_agent', 'Pynomaly-SecurityScanner/1.0')
+        self.user_agent = self.options.get('user_agent', 'anomaly_detection-SecurityScanner/1.0')
         self.include_tests = self.options.get('include_tests', [])
         self.exclude_tests = self.options.get('exclude_tests', [])
 
@@ -838,7 +838,7 @@ def generate_html_report(scan_result: ScanResult) -> str:
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Pynomaly Security Scan Report</title>
+        <title>anomaly_detection Security Scan Report</title>
         <style>
             body {{ font-family: Arial, sans-serif; margin: 20px; }}
             .header {{ background: #2563eb; color: white; padding: 20px; border-radius: 8px; }}
@@ -856,7 +856,7 @@ def generate_html_report(scan_result: ScanResult) -> str:
     </head>
     <body>
         <div class="header">
-            <h1>🛡️ Pynomaly Security Scan Report</h1>
+            <h1>🛡️ anomaly_detection Security Scan Report</h1>
             <p>Target: {scan_result.target_url}</p>
             <p>Scan Date: {scan_result.scan_start.strftime('%Y-%m-%d %H:%M:%S')}</p>
             <p>Duration: {scan_result.scan_duration:.2f} seconds</p>
@@ -922,7 +922,7 @@ def generate_text_report(scan_result: ScanResult) -> str:
     """Generate text security report"""
 
     report = f"""
-PYNOMALY SECURITY SCAN REPORT
+anomaly_detection SECURITY SCAN REPORT
 =============================
 
 Target: {scan_result.target_url}
@@ -958,7 +958,7 @@ VULNERABILITIES
 
 async def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description='Pynomaly Security Scanner')
+    parser = argparse.ArgumentParser(description='anomaly_detection Security Scanner')
     parser.add_argument('target', help='Target URL to scan')
     parser.add_argument('--output', '-o', choices=['json', 'html', 'text'], default='json', help='Output format')
     parser.add_argument('--output-file', '-f', help='Output file path')

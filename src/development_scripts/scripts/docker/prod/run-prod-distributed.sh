@@ -10,8 +10,8 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Default configuration
 ENV_FILE="${PROJECT_ROOT}/.env.prod"
-NETWORK_NAME="pynomaly-distributed"
-IMAGE_NAME="pynomaly:latest"
+NETWORK_NAME="anomaly_detection-distributed"
+IMAGE_NAME="anomaly_detection:latest"
 WORKERS=3
 API_REPLICAS=2
 STORAGE_TYPE="postgres"
@@ -80,27 +80,27 @@ done
 # Function to stop all distributed containers
 stop_containers() {
     echo "Stopping all distributed containers..."
-    docker rm -f pynomaly-haproxy 2>/dev/null || true
-    docker rm -f pynomaly-consul 2>/dev/null || true
-    docker rm -f pynomaly-vault 2>/dev/null || true
+    docker rm -f anomaly_detection-haproxy 2>/dev/null || true
+    docker rm -f anomaly_detection-consul 2>/dev/null || true
+    docker rm -f anomaly_detection-vault 2>/dev/null || true
 
     for i in $(seq 1 $API_REPLICAS); do
-        docker rm -f "pynomaly-api-${i}" 2>/dev/null || true
+        docker rm -f "anomaly_detection-api-${i}" 2>/dev/null || true
     done
 
     for i in $(seq 1 $WORKERS); do
-        docker rm -f "pynomaly-worker-${i}" 2>/dev/null || true
+        docker rm -f "anomaly_detection-worker-${i}" 2>/dev/null || true
     done
 
     # Storage containers
-    docker rm -f pynomaly-postgres-master 2>/dev/null || true
-    docker rm -f pynomaly-postgres-replica 2>/dev/null || true
-    docker rm -f pynomaly-mongodb-primary 2>/dev/null || true
-    docker rm -f pynomaly-mongodb-secondary1 2>/dev/null || true
-    docker rm -f pynomaly-mongodb-secondary2 2>/dev/null || true
-    docker rm -f pynomaly-redis-master 2>/dev/null || true
-    docker rm -f pynomaly-redis-replica1 2>/dev/null || true
-    docker rm -f pynomaly-redis-replica2 2>/dev/null || true
+    docker rm -f anomaly_detection-postgres-master 2>/dev/null || true
+    docker rm -f anomaly_detection-postgres-replica 2>/dev/null || true
+    docker rm -f anomaly_detection-mongodb-primary 2>/dev/null || true
+    docker rm -f anomaly_detection-mongodb-secondary1 2>/dev/null || true
+    docker rm -f anomaly_detection-mongodb-secondary2 2>/dev/null || true
+    docker rm -f anomaly_detection-redis-master 2>/dev/null || true
+    docker rm -f anomaly_detection-redis-replica1 2>/dev/null || true
+    docker rm -f anomaly_detection-redis-replica2 2>/dev/null || true
 
     echo "All distributed containers stopped."
     exit 0
@@ -129,7 +129,7 @@ fi
 if [[ "$CONSUL_ENABLED" == "true" ]]; then
     echo "Starting Consul for service discovery..."
     docker run -d \
-        --name pynomaly-consul \
+        --name anomaly_detection-consul \
         --network "$NETWORK_NAME" \
         -p 8500:8500 \
         -v consul-data:/consul/data \
@@ -140,7 +140,7 @@ fi
 if [[ "$VAULT_ENABLED" == "true" ]]; then
     echo "Starting Vault for secrets management..."
     docker run -d \
-        --name pynomaly-vault \
+        --name anomaly_detection-vault \
         --network "$NETWORK_NAME" \
         -p 8200:8200 \
         --cap-add=IPC_LOCK \
@@ -155,10 +155,10 @@ case "$STORAGE_TYPE" in
         echo "Starting PostgreSQL cluster..."
         # Master
         docker run -d \
-            --name pynomaly-postgres-master \
+            --name anomaly_detection-postgres-master \
             --network "$NETWORK_NAME" \
-            -e POSTGRES_DB=pynomaly \
-            -e POSTGRES_USER=pynomaly \
+            -e POSTGRES_DB=anomaly_detection \
+            -e POSTGRES_USER=anomaly_detection \
             -e POSTGRES_PASSWORD=prod_password \
             -e POSTGRES_REPLICATION_MODE=master \
             -e POSTGRES_REPLICATION_USER=replicator \
@@ -169,12 +169,12 @@ case "$STORAGE_TYPE" in
 
         # Replica
         docker run -d \
-            --name pynomaly-postgres-replica \
+            --name anomaly_detection-postgres-replica \
             --network "$NETWORK_NAME" \
             -e POSTGRES_REPLICATION_MODE=slave \
             -e POSTGRES_REPLICATION_USER=replicator \
             -e POSTGRES_REPLICATION_PASSWORD=replicator_password \
-            -e POSTGRES_MASTER_HOST=pynomaly-postgres-master \
+            -e POSTGRES_MASTER_HOST=anomaly_detection-postgres-master \
             -e POSTGRES_MASTER_PORT_NUMBER=5432 \
             -p 5433:5432 \
             -v postgres-replica-data:/var/lib/postgresql/data \
@@ -185,7 +185,7 @@ case "$STORAGE_TYPE" in
         echo "Starting MongoDB replica set..."
         # Primary
         docker run -d \
-            --name pynomaly-mongodb-primary \
+            --name anomaly_detection-mongodb-primary \
             --network "$NETWORK_NAME" \
             -e MONGODB_REPLICA_SET_MODE=primary \
             -e MONGODB_REPLICA_SET_NAME=rs0 \
@@ -197,11 +197,11 @@ case "$STORAGE_TYPE" in
         # Secondary nodes
         for i in 1 2; do
             docker run -d \
-                --name "pynomaly-mongodb-secondary${i}" \
+                --name "anomaly_detection-mongodb-secondary${i}" \
                 --network "$NETWORK_NAME" \
                 -e MONGODB_REPLICA_SET_MODE=secondary \
                 -e MONGODB_REPLICA_SET_NAME=rs0 \
-                -e MONGODB_PRIMARY_HOST=pynomaly-mongodb-primary \
+                -e MONGODB_PRIMARY_HOST=anomaly_detection-mongodb-primary \
                 -e MONGODB_PRIMARY_ROOT_PASSWORD=prod_password \
                 -p "$((27017 + i)):27017" \
                 -v "mongodb-secondary${i}-data:/bitnami/mongodb" \
@@ -213,7 +213,7 @@ case "$STORAGE_TYPE" in
         echo "Starting Redis cluster..."
         # Master
         docker run -d \
-            --name pynomaly-redis-master \
+            --name anomaly_detection-redis-master \
             --network "$NETWORK_NAME" \
             -p 6379:6379 \
             -v redis-master-data:/data \
@@ -222,11 +222,11 @@ case "$STORAGE_TYPE" in
         # Replicas
         for i in 1 2; do
             docker run -d \
-                --name "pynomaly-redis-replica${i}" \
+                --name "anomaly_detection-redis-replica${i}" \
                 --network "$NETWORK_NAME" \
                 -p "$((6379 + i)):6379" \
                 -v "redis-replica${i}-data:/data" \
-                redis:7-alpine redis-server --appendonly yes --replicaof pynomaly-redis-master 6379
+                redis:7-alpine redis-server --appendonly yes --replicaof anomaly_detection-redis-master 6379
         done
         ;;
 esac
@@ -242,7 +242,7 @@ for i in $(seq 1 $API_REPLICAS); do
     echo "Starting API replica $i on port $API_PORT..."
 
     docker run -d \
-        --name "pynomaly-api-${i}" \
+        --name "anomaly_detection-api-${i}" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         --env-file "$ENV_FILE" \
@@ -260,7 +260,7 @@ for i in $(seq 1 $API_REPLICAS); do
         --health-timeout 10s \
         --health-retries 3 \
         "$IMAGE_NAME" \
-        poetry run gunicorn pynomaly.presentation.api:app \
+        poetry run gunicorn anomaly_detection.presentation.api:app \
         --bind 0.0.0.0:8000 \
         --workers 2 \
         --worker-class uvicorn.workers.UvicornWorker \
@@ -275,7 +275,7 @@ for i in $(seq 1 $WORKERS); do
     echo "Starting worker node $i..."
 
     docker run -d \
-        --name "pynomaly-worker-${i}" \
+        --name "anomaly_detection-worker-${i}" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         --env-file "$ENV_FILE" \
@@ -290,7 +290,7 @@ for i in $(seq 1 $WORKERS); do
         --memory 4g \
         --cpus 2.0 \
         "$IMAGE_NAME" \
-        poetry run python -m pynomaly.infrastructure.distributed.worker \
+        poetry run python -m anomaly_detection.infrastructure.distributed.worker \
         --worker-id "$i" \
         --concurrency 4
 done
@@ -320,11 +320,11 @@ EOF
 
 for i in $(seq 1 $API_REPLICAS); do
     API_PORT=$((8000 + i - 1))
-    echo "    server api${i} pynomaly-api-${i}:8000 check" >> /tmp/haproxy.cfg
+    echo "    server api${i} anomaly_detection-api-${i}:8000 check" >> /tmp/haproxy.cfg
 done
 
 docker run -d \
-    --name pynomaly-haproxy \
+    --name anomaly_detection-haproxy \
     --network "$NETWORK_NAME" \
     -p 80:80 \
     -v /tmp/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg \

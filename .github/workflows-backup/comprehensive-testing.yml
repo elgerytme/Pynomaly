@@ -12,7 +12,7 @@ on:
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.6.1'
-  PYNOMALY_ENV: testing
+  ANOMALY_DETECTION_ENV: testing
   COVERAGE_THRESHOLD_LINE: 80
   COVERAGE_THRESHOLD_BRANCH: 65
 
@@ -90,22 +90,22 @@ jobs:
       run: |
         case "${{ matrix.test-group }}" in
           "domain")
-            poetry run pytest tests/domain/ --cov=src/pynomaly/domain --cov-report=xml:coverage-domain.xml --junitxml=junit-domain.xml -v
+            poetry run pytest tests/domain/ --cov=src/anomaly_detection/domain --cov-report=xml:coverage-domain.xml --junitxml=junit-domain.xml -v
             ;;
           "infrastructure-adapters")
-            poetry run pytest tests/infrastructure/adapters/ --cov=src/pynomaly/infrastructure/adapters --cov-report=xml:coverage-adapters.xml --junitxml=junit-adapters.xml -v
+            poetry run pytest tests/infrastructure/adapters/ --cov=src/anomaly_detection/infrastructure/adapters --cov-report=xml:coverage-adapters.xml --junitxml=junit-adapters.xml -v
             ;;
           "infrastructure-auth")
-            poetry run pytest tests/infrastructure/auth/ tests/security/ --cov=src/pynomaly/infrastructure/auth --cov-report=xml:coverage-auth.xml --junitxml=junit-auth.xml -v
+            poetry run pytest tests/infrastructure/auth/ tests/security/ --cov=src/anomaly_detection/infrastructure/auth --cov-report=xml:coverage-auth.xml --junitxml=junit-auth.xml -v
             ;;
           "application")
-            poetry run pytest tests/application/ --cov=src/pynomaly/application --cov-report=xml:coverage-application.xml --junitxml=junit-application.xml -v
+            poetry run pytest tests/application/ --cov=src/anomaly_detection/application --cov-report=xml:coverage-application.xml --junitxml=junit-application.xml -v
             ;;
           "presentation-api")
-            poetry run pytest tests/presentation/api/ --cov=src/pynomaly/presentation/api --cov-report=xml:coverage-api.xml --junitxml=junit-api.xml -v
+            poetry run pytest tests/presentation/api/ --cov=src/anomaly_detection/presentation/api --cov-report=xml:coverage-api.xml --junitxml=junit-api.xml -v
             ;;
           "presentation-cli")
-            poetry run pytest tests/presentation/cli/ --cov=src/pynomaly/presentation/cli --cov-report=xml:coverage-cli.xml --junitxml=junit-cli.xml -v
+            poetry run pytest tests/presentation/cli/ --cov=src/anomaly_detection/presentation/cli --cov-report=xml:coverage-cli.xml --junitxml=junit-cli.xml -v
             ;;
         esac
 
@@ -146,7 +146,7 @@ jobs:
     - name: Run Branch Coverage Tests
       run: |
         poetry run pytest tests/branch_coverage/ \
-          --cov=src/pynomaly \
+          --cov=src/anomaly_detection \
           --cov-branch \
           --cov-report=xml:coverage-branch.xml \
           --cov-report=html:htmlcov-branch \
@@ -176,7 +176,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -218,12 +218,12 @@ jobs:
 
     - name: Run Integration Tests
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
         REDIS_URL: redis://localhost:6379/0
-        PYNOMALY_TEST_INTEGRATION: true
+        ANOMALY_DETECTION_TEST_INTEGRATION: true
       run: |
         poetry run pytest tests/integration/ \
-          --cov=src/pynomaly \
+          --cov=src/anomaly_detection \
           --cov-report=xml:coverage-integration.xml \
           --junitxml=junit-integration.xml \
           -v --tb=short
@@ -311,27 +311,27 @@ jobs:
         case "${{ matrix.framework }}" in
           "pyod")
             poetry run pytest tests/infrastructure/adapters/test_pyod_*.py \
-              --cov=src/pynomaly/infrastructure/adapters/pyod_adapter.py \
+              --cov=src/anomaly_detection/infrastructure/adapters/pyod_adapter.py \
               --junitxml=junit-ml-pyod.xml -v
             ;;
           "sklearn")
             poetry run pytest tests/infrastructure/adapters/test_sklearn_*.py \
-              --cov=src/pynomaly/infrastructure/adapters/sklearn_adapter.py \
+              --cov=src/anomaly_detection/infrastructure/adapters/sklearn_adapter.py \
               --junitxml=junit-ml-sklearn.xml -v
             ;;
           "pytorch")
             poetry run pytest tests/infrastructure/adapters/test_pytorch_*.py \
-              --cov=src/pynomaly/infrastructure/adapters/pytorch_adapter.py \
+              --cov=src/anomaly_detection/infrastructure/adapters/pytorch_adapter.py \
               --junitxml=junit-ml-pytorch.xml -v
             ;;
           "tensorflow")
             poetry run pytest tests/infrastructure/adapters/test_tensorflow_*.py \
-              --cov=src/pynomaly/infrastructure/adapters/tensorflow_adapter.py \
+              --cov=src/anomaly_detection/infrastructure/adapters/tensorflow_adapter.py \
               --junitxml=junit-ml-tensorflow.xml -v
             ;;
           "jax")
             poetry run pytest tests/infrastructure/adapters/test_jax_*.py \
-              --cov=src/pynomaly/infrastructure/adapters/jax_adapter.py \
+              --cov=src/anomaly_detection/infrastructure/adapters/jax_adapter.py \
               --junitxml=junit-ml-jax.xml -v
             ;;
         esac
@@ -364,12 +364,12 @@ jobs:
       run: |
         poetry install --with dev,test
 
-    - name: Start Pynomaly Server
+    - name: Start anomaly_detection Server
       run: |
-        poetry run uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 &
+        poetry run uvicorn anomaly_detection.presentation.api:app --host 0.0.0.0 --port 8000 &
         sleep 10
       env:
-        PYNOMALY_ENV: testing
+        ANOMALY_DETECTION_ENV: testing
 
     - name: Run End-to-End Tests
       run: |
@@ -379,7 +379,7 @@ jobs:
           --self-contained-html \
           -v
       env:
-        PYNOMALY_API_URL: http://localhost:8000
+        ANOMALY_DETECTION_API_URL: http://localhost:8000
 
     - name: Upload E2E Test Results
       uses: actions/upload-artifact@v3

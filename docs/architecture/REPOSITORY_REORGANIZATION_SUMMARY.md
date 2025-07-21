@@ -7,13 +7,13 @@ The repository has been successfully reorganized following modern monorepo best 
 ## New Structure
 
 ```
-pynomaly/
+anomaly_detection/
 ├── .temp/                    # 🗂️  All temporary and archived content
 ├── .github/                  # ⚙️  GitHub workflows and templates  
 ├── .vscode/                  # 🔧  VS Code settings and workspace
 ├── src/                      # 📦  Source code (packages only)
 │   └── packages/             # All domain packages
-│       ├── core/             # Core domain logic (main pynomaly code)
+│       ├── core/             # Core domain logic (main anomaly_detection code)
 │       ├── anomaly_detection/# Consolidated anomaly detection
 │       ├── machine_learning/ # ML operations & lifecycle
 │       ├── people_ops/       # User management & auth
@@ -53,7 +53,7 @@ pynomaly/
 ### 2. ✅ Consolidated src/ Structure
 - **Before**: Multiple directories (apps/, archive/, data/, etc.)
 - **After**: Only `src/packages/` containing domain packages
-- **Core Code**: Moved main pynomaly implementation to `src/packages/core/pynomaly/`
+- **Core Code**: Moved main anomaly_detection implementation to `src/packages/core/anomaly_detection/`
 
 ### 3. ✅ Reorganized Documentation
 - **Main docs**: Moved to root-level `docs/` directory
@@ -115,7 +115,7 @@ pynomaly/
 - Documentation properly organized and accessible
 
 ### ✅ Functionality Preserved
-- Core application code intact in `src/packages/core/pynomaly/`
+- Core application code intact in `src/packages/core/anomaly_detection/`
 - All domain packages properly structured
 - Build configurations updated and functional
 

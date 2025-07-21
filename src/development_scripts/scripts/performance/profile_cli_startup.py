@@ -39,19 +39,19 @@ class CLIStartupProfiler:
     def profile_cli_imports(self) -> dict[str, float]:
         """Profile import times for CLI modules."""
         cli_modules = [
-            "pynomaly.presentation.cli.app",
-            "pynomaly.presentation.cli.autonomous",
-            "pynomaly.presentation.cli.automl",
-            "pynomaly.presentation.cli.datasets",
-            "pynomaly.presentation.cli.deep_learning",
-            "pynomaly.presentation.cli.detection",
-            "pynomaly.presentation.cli.detectors",
-            "pynomaly.presentation.cli.explainability",
-            "pynomaly.presentation.cli.preprocessing",
-            "pynomaly.presentation.cli.selection",
-            "pynomaly.presentation.cli.server",
-            "pynomaly.presentation.cli.tdd",
-            "pynomaly.presentation.cli.validation",
+            "anomaly_detection.presentation.cli.app",
+            "anomaly_detection.presentation.cli.autonomous",
+            "anomaly_detection.presentation.cli.automl",
+            "anomaly_detection.presentation.cli.datasets",
+            "anomaly_detection.presentation.cli.deep_learning",
+            "anomaly_detection.presentation.cli.detection",
+            "anomaly_detection.presentation.cli.detectors",
+            "anomaly_detection.presentation.cli.explainability",
+            "anomaly_detection.presentation.cli.preprocessing",
+            "anomaly_detection.presentation.cli.selection",
+            "anomaly_detection.presentation.cli.server",
+            "anomaly_detection.presentation.cli.tdd",
+            "anomaly_detection.presentation.cli.validation",
         ]
 
         import_times = {}
@@ -64,7 +64,7 @@ class CLIStartupProfiler:
         """Profile container creation time."""
         start_time = time.perf_counter()
         try:
-            from pynomaly.infrastructure.config.container import create_container
+            from anomaly_detection.infrastructure.config.container import create_container
 
             container = create_container()
             end_time = time.perf_counter()
@@ -77,7 +77,7 @@ class CLIStartupProfiler:
         """Profile CLI container creation time."""
         start_time = time.perf_counter()
         try:
-            from pynomaly.presentation.cli.container import get_cli_container
+            from anomaly_detection.presentation.cli.container import get_cli_container
 
             container = get_cli_container()
             end_time = time.perf_counter()
@@ -92,7 +92,7 @@ class CLIStartupProfiler:
         try:
             # Run CLI command in subprocess to get real startup time
             result = subprocess.run(
-                [sys.executable, "-m", "pynomaly.presentation.cli.app", command],
+                [sys.executable, "-m", "anomaly_detection.presentation.cli.app", command],
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -110,11 +110,11 @@ class CLIStartupProfiler:
     def profile_heavy_services(self) -> dict[str, float]:
         """Profile heavy service imports."""
         services = {
-            "deep_learning_service": "pynomaly.application.services.deep_learning_integration_service",
-            "automl_service": "pynomaly.application.services.automl_service",
-            "explainability_service": "pynomaly.application.services.explainable_ai_service",
-            "training_service": "pynomaly.application.services.training_service",
-            "autonomous_service": "pynomaly.application.services.autonomous_service",
+            "deep_learning_service": "anomaly_detection.application.services.deep_learning_integration_service",
+            "automl_service": "anomaly_detection.application.services.automl_service",
+            "explainability_service": "anomaly_detection.application.services.explainable_ai_service",
+            "training_service": "anomaly_detection.application.services.training_service",
+            "autonomous_service": "anomaly_detection.application.services.autonomous_service",
         }
 
         service_times = {}
@@ -132,7 +132,7 @@ class CLIStartupProfiler:
         pr.enable()
 
         try:
-            from pynomaly.presentation.cli.container import get_cli_container
+            from anomaly_detection.presentation.cli.container import get_cli_container
 
             container = get_cli_container()
         except Exception as e:

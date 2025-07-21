@@ -53,7 +53,7 @@ jobs:
 
           ### Why is this required?
           Your changes meet one or more of these criteria:
-          - Modified core functionality (src/, pynomaly/)
+          - Modified core functionality (src/, anomaly_detection/)
           - Added new features or capabilities
           - Fixed bugs or issues
           - Updated documentation, examples, or scripts

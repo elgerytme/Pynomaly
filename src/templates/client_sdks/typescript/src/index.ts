@@ -1,8 +1,8 @@
 /**
- * Pynomaly TypeScript SDK
+ * anomaly_detection TypeScript SDK
  *
- * Official TypeScript/JavaScript client library for the Pynomaly anomaly detection API.
- * This SDK provides convenient access to the Pynomaly API with full TypeScript support,
+ * Official TypeScript/JavaScript client library for the anomaly_detection anomaly detection API.
+ * This SDK provides convenient access to the anomaly_detection API with full TypeScript support,
  * authentication handling, error management, and comprehensive documentation.
  *
  * Features:
@@ -17,10 +17,10 @@
  *
  * @example
  * ```typescript
- * import { PynomaliClient } from '@pynomaly/client';
+ * import { AnomalyDetectionClient } from '@anomaly_detection/client';
  *
- * const client = new PynomaliClient({
- *   baseUrl: 'https://api.pynomaly.com',
+ * const client = new AnomalyDetectionClient({
+ *   baseUrl: 'https://api.anomaly_detection.com',
  *   apiKey: 'your-api-key'
  * });
  *
@@ -38,8 +38,8 @@
  * ```
  */
 
-export { PynomaliClient } from './client';
-export { PynomaliError, AuthenticationError, AuthorizationError, ValidationError, ServerError, NetworkError, RateLimitError } from './errors';
+export { AnomalyDetectionClient } from './client';
+export { anomaly-detectionError, AuthenticationError, AuthorizationError, ValidationError, ServerError, NetworkError, RateLimitError } from './errors';
 export * from './types';
 export * from './auth';
 export * from './rate-limiter';

@@ -1,5 +1,5 @@
 /**
- * Real User Monitoring (RUM) for Pynomaly Web UI
+ * Real User Monitoring (RUM) for anomaly_detection Web UI
  * Collects performance metrics from actual users in production
  */
 

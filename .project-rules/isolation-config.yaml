@@ -1,4 +1,4 @@
-# Pynomaly Project Isolation Configuration
+# anomaly_detection Project Isolation Configuration
 # Defines rules and automation for working on changes in isolation
 
 version: "1.0"

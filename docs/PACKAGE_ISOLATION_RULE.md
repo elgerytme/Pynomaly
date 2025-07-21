@@ -49,15 +49,15 @@ This rule has defined exceptions for reasonable cases. See [PACKAGE_ISOLATION_EX
 
 ```python
 # ✅ ALLOWED: Simple import and usage
-from pynomaly.math.statistics import calculate_mean
+from anomaly_detection.math.statistics import calculate_mean
 result = calculate_mean(data)
 
 # ✅ ALLOWED: Interface contract usage
-from pynomaly.interfaces.detection import DetectionInterface
+from anomaly_detection.interfaces.detection import DetectionInterface
 detector = DetectionInterface()
 
 # ✅ ALLOWED: Generic utility usage
-from pynomaly.core.validation import validate_data
+from anomaly_detection.core.validation import validate_data
 is_valid = validate_data(input_data)
 ```
 
@@ -66,7 +66,7 @@ is_valid = validate_data(input_data)
 ```python
 # ❌ PROHIBITED: Domain-specific knowledge
 # Package A knowing about Package B's domain entities
-from pynomaly.anomaly_detection.domain import AnomalyScore  # Wrong domain knowledge
+from anomaly_detection.anomaly_detection.domain import AnomalyScore  # Wrong domain knowledge
 
 # ❌ PROHIBITED: Implementation details
 # Package A testing Package B's internal logic

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Run Pynomaly Test Suite in Isolation
+# Run anomaly_detection Test Suite in Isolation
 # Comprehensive testing with coverage and reporting
 
 set -euo pipefail
 
-echo "🧪 Running Pynomaly Test Suite in Isolation..."
+echo "🧪 Running anomaly_detection Test Suite in Isolation..."
 
 # Configuration
 WORKSPACE="/workspace"
@@ -17,16 +17,16 @@ mkdir -p "$TEST_RESULTS_DIR" "$COVERAGE_DIR"
 
 # Set environment variables for testing
 export PYTHONPATH="$WORKSPACE/src"
-export PYNOMALY_ENV="test"
+export ANOMALY_DETECTION_ENV="test"
 export LOG_LEVEL="WARNING"  # Reduce noise during testing
 export TESTING="true"
 
 # Test database configuration
-export DATABASE_URL="${DATABASE_URL:-postgresql://pynomaly:isolated@postgres-isolated:5432/pynomaly_test}"
+export DATABASE_URL="${DATABASE_URL:-postgresql://anomaly_detection:isolated@postgres-isolated:5432/anomaly_detection_test}"
 export REDIS_URL="${REDIS_URL:-redis://redis-isolated:6379/1}"
 
 echo "📋 Test Configuration:"
-echo "  - Environment: $PYNOMALY_ENV"
+echo "  - Environment: $ANOMALY_DETECTION_ENV"
 echo "  - Python Path: $PYTHONPATH"
 echo "  - Test Database: $DATABASE_URL"
 echo "  - Redis: $REDIS_URL"
@@ -67,13 +67,13 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 # Connect to default database
-conn = psycopg2.connect('postgresql://pynomaly:isolated@postgres-isolated:5432/postgres')
+conn = psycopg2.connect('postgresql://anomaly_detection:isolated@postgres-isolated:5432/postgres')
 conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 cur = conn.cursor()
 
 # Drop and recreate test database
-cur.execute('DROP DATABASE IF EXISTS pynomaly_test')
-cur.execute('CREATE DATABASE pynomaly_test')
+cur.execute('DROP DATABASE IF EXISTS anomaly_detection_test')
+cur.execute('CREATE DATABASE anomaly_detection_test')
 print('✅ Test database created')
 
 cur.close()
@@ -179,7 +179,7 @@ fi
 
 # Add coverage if enabled
 if [ "$COVERAGE_ENABLED" = "true" ]; then
-    PYTEST_CMD="$PYTEST_CMD --cov=src/pynomaly --cov-report=html:$COVERAGE_DIR/html --cov-report=xml:$COVERAGE_DIR/coverage.xml --cov-report=term-missing"
+    PYTEST_CMD="$PYTEST_CMD --cov=src/anomaly_detection --cov-report=html:$COVERAGE_DIR/html --cov-report=xml:$COVERAGE_DIR/coverage.xml --cov-report=term-missing"
 fi
 
 # Add HTML report if enabled

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive Load Testing Framework for Pynomaly
+Comprehensive Load Testing Framework for anomaly_detection
 
 This module provides automated load testing capabilities with support for:
 - Multi-scenario testing (authentication, detection, training, dataset management)
@@ -645,7 +645,7 @@ class LoadTestReporter:
 
 async def main():
     """Main entry point for load testing."""
-    parser = argparse.ArgumentParser(description="Pynomaly Load Testing Framework")
+    parser = argparse.ArgumentParser(description="anomaly_detection Load Testing Framework")
     parser.add_argument(
         "--base-url", default="http://localhost:8000", help="Base URL for testing"
     )

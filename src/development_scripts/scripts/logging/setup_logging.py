@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Logging Setup Script for Pynomaly
+Production Logging Setup Script for anomaly_detection
 
 This script sets up and configures the production logging infrastructure
 including log directories, configuration files, and monitoring.
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 
-def create_log_directories(base_dir: str = "/var/log/pynomaly"):
+def create_log_directories(base_dir: str = "/var/log/anomaly_detection"):
     """Create logging directory structure."""
     directories = [
         base_dir,
@@ -39,8 +39,8 @@ def create_log_directories(base_dir: str = "/var/log/pynomaly"):
 def setup_log_rotation():
     """Set up log rotation configuration."""
     logrotate_config = """
-# Pynomaly log rotation configuration
-/var/log/pynomaly/*.log {
+# anomaly_detection log rotation configuration
+/var/log/anomaly_detection/*.log {
     daily
     rotate 30
     compress
@@ -48,13 +48,13 @@ def setup_log_rotation():
     missingok
     notifempty
     copytruncate
-    su pynomaly pynomaly
+    su anomaly_detection anomaly_detection
     postrotate
-        systemctl reload pynomaly || true
+        systemctl reload anomaly_detection || true
     endscript
 }
 
-/var/log/pynomaly/application/*.log {
+/var/log/anomaly_detection/application/*.log {
     hourly
     rotate 24
     compress
@@ -62,10 +62,10 @@ def setup_log_rotation():
     missingok
     notifempty
     copytruncate
-    su pynomaly pynomaly
+    su anomaly_detection anomaly_detection
 }
 
-/var/log/pynomaly/access/*.log {
+/var/log/anomaly_detection/access/*.log {
     daily
     rotate 30
     compress
@@ -73,10 +73,10 @@ def setup_log_rotation():
     missingok
     notifempty
     copytruncate
-    su pynomaly pynomaly
+    su anomaly_detection anomaly_detection
 }
 
-/var/log/pynomaly/audit/*.log {
+/var/log/anomaly_detection/audit/*.log {
     daily
     rotate 365
     compress
@@ -84,11 +84,11 @@ def setup_log_rotation():
     missingok
     notifempty
     copytruncate
-    su pynomaly pynomaly
+    su anomaly_detection anomaly_detection
 }
 """
 
-    logrotate_file = "/etc/logrotate.d/pynomaly"
+    logrotate_file = "/etc/logrotate.d/anomaly_detection"
 
     print("Setting up log rotation...")
     with open(logrotate_file, "w") as f:
@@ -101,26 +101,26 @@ def setup_log_rotation():
 def setup_rsyslog_integration():
     """Set up rsyslog integration for centralized logging."""
     rsyslog_config = """
-# Pynomaly logging configuration for rsyslog
+# anomaly_detection logging configuration for rsyslog
 
 # Create separate files for different log levels
-:programname, isequal, "pynomaly" /var/log/pynomaly/application/pynomaly.log
-:programname, isequal, "pynomaly" ~
+:programname, isequal, "anomaly_detection" /var/log/anomaly_detection/application/anomaly_detection.log
+:programname, isequal, "anomaly_detection" ~
 
 # High priority logs
-*.emerg;*.alert;*.crit;*.err /var/log/pynomaly/error/critical.log
+*.emerg;*.alert;*.crit;*.err /var/log/anomaly_detection/error/critical.log
 
 # Security logs
-authpriv.* /var/log/pynomaly/security/auth.log
+authpriv.* /var/log/anomaly_detection/security/auth.log
 
 # Performance logs
-local0.* /var/log/pynomaly/performance/metrics.log
+local0.* /var/log/anomaly_detection/performance/metrics.log
 
-# Stop processing after handling pynomaly logs
+# Stop processing after handling anomaly_detection logs
 & stop
 """
 
-    rsyslog_file = "/etc/rsyslog.d/10-pynomaly.conf"
+    rsyslog_file = "/etc/rsyslog.d/10-anomaly_detection.conf"
 
     print("Setting up rsyslog integration...")
     with open(rsyslog_file, "w") as f:
@@ -139,14 +139,14 @@ local0.* /var/log/pynomaly/performance/metrics.log
 def setup_fluentd_config():
     """Set up Fluentd configuration for log forwarding."""
     fluentd_config = """
-# Pynomaly Fluentd configuration
+# anomaly_detection Fluentd configuration
 
 <source>
   @type tail
-  @id pynomaly_application_logs
-  path /var/log/pynomaly/application/*.log
-  pos_file /var/log/fluentd/pynomaly-application.log.pos
-  tag pynomaly.application
+  @id anomaly_detection_application_logs
+  path /var/log/anomaly_detection/application/*.log
+  pos_file /var/log/fluentd/anomaly_detection-application.log.pos
+  tag anomaly_detection.application
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
@@ -154,10 +154,10 @@ def setup_fluentd_config():
 
 <source>
   @type tail
-  @id pynomaly_access_logs
-  path /var/log/pynomaly/access/*.log
-  pos_file /var/log/fluentd/pynomaly-access.log.pos
-  tag pynomaly.access
+  @id anomaly_detection_access_logs
+  path /var/log/anomaly_detection/access/*.log
+  pos_file /var/log/fluentd/anomaly_detection-access.log.pos
+  tag anomaly_detection.access
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
@@ -165,10 +165,10 @@ def setup_fluentd_config():
 
 <source>
   @type tail
-  @id pynomaly_error_logs
-  path /var/log/pynomaly/error/*.log
-  pos_file /var/log/fluentd/pynomaly-error.log.pos
-  tag pynomaly.error
+  @id anomaly_detection_error_logs
+  path /var/log/anomaly_detection/error/*.log
+  pos_file /var/log/fluentd/anomaly_detection-error.log.pos
+  tag anomaly_detection.error
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
@@ -176,30 +176,30 @@ def setup_fluentd_config():
 
 <source>
   @type tail
-  @id pynomaly_audit_logs
-  path /var/log/pynomaly/audit/*.log
-  pos_file /var/log/fluentd/pynomaly-audit.log.pos
-  tag pynomaly.audit
+  @id anomaly_detection_audit_logs
+  path /var/log/anomaly_detection/audit/*.log
+  pos_file /var/log/fluentd/anomaly_detection-audit.log.pos
+  tag anomaly_detection.audit
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
 </source>
 
-<filter pynomaly.**>
+<filter anomaly_detection.**>
   @type record_transformer
   <record>
     hostname "#{Socket.gethostname}"
-    service pynomaly
+    service anomaly_detection
     environment "#{ENV['ENVIRONMENT'] || 'production'}"
   </record>
 </filter>
 
 # Output to Elasticsearch
-<match pynomaly.**>
+<match anomaly_detection.**>
   @type elasticsearch
-  @id pynomaly_elasticsearch
+  @id anomaly_detection_elasticsearch
   hosts elasticsearch.company.com:9200
-  index_name pynomaly-logs
+  index_name anomaly_detection-logs
   type_name _doc
   include_timestamp true
   reconnect_on_error true
@@ -207,7 +207,7 @@ def setup_fluentd_config():
   reload_connections false
   <buffer>
     @type file
-    path /var/log/fluentd/pynomaly-elasticsearch
+    path /var/log/fluentd/anomaly_detection-elasticsearch
     flush_mode interval
     flush_interval 10s
     flush_thread_count 2
@@ -221,16 +221,16 @@ def setup_fluentd_config():
 </match>
 
 # Output to CloudWatch Logs (if enabled)
-<match pynomaly.**>
+<match anomaly_detection.**>
   @type cloudwatch_logs
-  @id pynomaly_cloudwatch
-  log_group_name pynomaly-production
+  @id anomaly_detection_cloudwatch
+  log_group_name anomaly_detection-production
   log_stream_name "#{Socket.gethostname}-application"
   region us-east-1
   auto_create_stream true
   <buffer>
     @type file
-    path /var/log/fluentd/pynomaly-cloudwatch
+    path /var/log/fluentd/anomaly_detection-cloudwatch
     flush_mode interval
     flush_interval 10s
     retry_type exponential_backoff
@@ -241,10 +241,10 @@ def setup_fluentd_config():
 </match>
 
 # Backup to local file in case of forwarding failures
-<match pynomaly.**>
+<match anomaly_detection.**>
   @type file
-  @id pynomaly_backup
-  path /var/log/pynomaly/archived/backup.%Y%m%d
+  @id anomaly_detection_backup
+  path /var/log/anomaly_detection/archived/backup.%Y%m%d
   append true
   <buffer time>
     timekey 1d
@@ -260,7 +260,7 @@ def setup_fluentd_config():
     fluentd_dir = "/etc/fluentd"
     Path(fluentd_dir).mkdir(parents=True, exist_ok=True)
 
-    fluentd_file = f"{fluentd_dir}/pynomaly.conf"
+    fluentd_file = f"{fluentd_dir}/anomaly_detection.conf"
 
     print("Setting up Fluentd configuration...")
     with open(fluentd_file, "w") as f:
@@ -273,9 +273,9 @@ def setup_fluentd_config():
 def setup_log_monitoring():
     """Set up log monitoring and alerting."""
     monitoring_script = """#!/bin/bash
-# Log monitoring script for Pynomaly
+# Log monitoring script for anomaly_detection
 
-LOG_DIR="/var/log/pynomaly"
+LOG_DIR="/var/log/anomaly_detection"
 ALERT_THRESHOLD_ERRORS=10
 ALERT_THRESHOLD_DISK=85
 SLACK_WEBHOOK="${SLACK_WEBHOOK_URL}"
@@ -290,7 +290,7 @@ send_alert() {
     if [ -n "$SLACK_WEBHOOK" ]; then
         curl -X POST "$SLACK_WEBHOOK" \
             -H 'Content-type: application/json' \
-            --data "{\"text\":\"🚨 Pynomaly Log Alert [$severity]: $message\"}"
+            --data "{\"text\":\"🚨 anomaly_detection Log Alert [$severity]: $message\"}"
     fi
 }
 
@@ -323,7 +323,7 @@ check_log_growth() {
 
 # Check for missing logs
 check_missing_logs() {
-    local expected_logs=("application/pynomaly.log" "access/access.log" "error/error.log")
+    local expected_logs=("application/anomaly_detection.log" "access/access.log" "error/error.log")
 
     for log in "${expected_logs[@]}"; do
         if [ ! -f "$LOG_DIR/$log" ]; then
@@ -345,7 +345,7 @@ check_missing_logs
 echo "$(date): Log monitoring checks completed" >> "$LOG_DIR/monitoring.log"
 """
 
-    monitoring_dir = "/opt/pynomaly/scripts/monitoring"
+    monitoring_dir = "/opt/anomaly_detection/scripts/monitoring"
     Path(monitoring_dir).mkdir(parents=True, exist_ok=True)
 
     monitoring_file = f"{monitoring_dir}/log_monitoring.sh"
@@ -360,7 +360,7 @@ echo "$(date): Log monitoring checks completed" >> "$LOG_DIR/monitoring.log"
     cron_entry = f"*/5 * * * * {monitoring_file}\n"
 
     try:
-        # Add to pynomaly user's crontab
+        # Add to anomaly_detection user's crontab
         subprocess.run(["crontab", "-l"], capture_output=True, text=True, check=True)
         result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
         current_cron = result.stdout
@@ -380,7 +380,7 @@ echo "$(date): Log monitoring checks completed" >> "$LOG_DIR/monitoring.log"
 def setup_log_analysis_tools():
     """Set up log analysis and visualization tools."""
     analysis_script = """#!/usr/bin/env python3
-'''Log analysis tool for Pynomaly logs'''
+'''Log analysis tool for anomaly_detection logs'''
 
 import json
 import re
@@ -518,7 +518,7 @@ if __name__ == "__main__":
     analyze_performance_metrics(log_directory, hours)
 """
 
-    analysis_dir = "/opt/pynomaly/scripts/analysis"
+    analysis_dir = "/opt/anomaly_detection/scripts/analysis"
     Path(analysis_dir).mkdir(parents=True, exist_ok=True)
 
     analysis_file = f"{analysis_dir}/log_analysis.py"
@@ -534,7 +534,7 @@ if __name__ == "__main__":
 def setup_log_dashboard():
     """Set up simple log dashboard."""
     dashboard_script = """#!/usr/bin/env python3
-'''Simple log dashboard for Pynomaly'''
+'''Simple log dashboard for anomaly_detection'''
 
 import json
 import time
@@ -596,7 +596,7 @@ class LogDashboard:
                 # Clear screen
                 print('\\033[2J\\033[H')
 
-                print("Pynomaly Log Dashboard")
+                print("anomaly_detection Log Dashboard")
                 print("=" * 50)
                 print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 print()
@@ -649,7 +649,7 @@ if __name__ == "__main__":
     dashboard.display_dashboard()
 """
 
-    dashboard_dir = "/opt/pynomaly/scripts/dashboard"
+    dashboard_dir = "/opt/anomaly_detection/scripts/dashboard"
     Path(dashboard_dir).mkdir(parents=True, exist_ok=True)
 
     dashboard_file = f"{dashboard_dir}/log_dashboard.py"
@@ -663,12 +663,12 @@ if __name__ == "__main__":
 
 
 def create_logging_user():
-    """Create pynomaly user for logging."""
+    """Create anomaly_detection user for logging."""
     try:
         # Check if user exists
-        result = subprocess.run(["id", "pynomaly"], capture_output=True)
+        result = subprocess.run(["id", "anomaly_detection"], capture_output=True)
         if result.returncode == 0:
-            print("User 'pynomaly' already exists")
+            print("User 'anomaly_detection' already exists")
             return
 
         # Create user
@@ -677,29 +677,29 @@ def create_logging_user():
                 "useradd",
                 "--system",
                 "--home",
-                "/opt/pynomaly",
+                "/opt/anomaly_detection",
                 "--shell",
                 "/bin/false",
-                "pynomaly",
+                "anomaly_detection",
             ],
             check=True,
         )
 
-        print("Created system user 'pynomaly'")
+        print("Created system user 'anomaly_detection'")
 
         # Set ownership of log directories
         subprocess.run(
-            ["chown", "-R", "pynomaly:pynomaly", "/var/log/pynomaly"], check=True
+            ["chown", "-R", "anomaly_detection:anomaly_detection", "/var/log/anomaly_detection"], check=True
         )
-        print("Set ownership of log directories to pynomaly user")
+        print("Set ownership of log directories to anomaly_detection user")
 
     except subprocess.CalledProcessError as e:
-        print(f"Warning: Could not create pynomaly user: {e}")
+        print(f"Warning: Could not create anomaly_detection user: {e}")
 
 
 def main():
     """Main setup function."""
-    print("Setting up Pynomaly production logging infrastructure...")
+    print("Setting up anomaly_detection production logging infrastructure...")
     print("=" * 60)
 
     # Check if running as root
@@ -742,13 +742,13 @@ def main():
         print("5. Test logging setup with sample applications")
 
         print("\nKey files created:")
-        print("- Log directories: /var/log/pynomaly/")
-        print("- Log rotation: /etc/logrotate.d/pynomaly")
-        print("- Rsyslog config: /etc/rsyslog.d/10-pynomaly.conf")
-        print("- Fluentd config: /etc/fluentd/pynomaly.conf")
-        print("- Monitoring script: /opt/pynomaly/scripts/monitoring/log_monitoring.sh")
-        print("- Analysis tools: /opt/pynomaly/scripts/analysis/log_analysis.py")
-        print("- Dashboard: /opt/pynomaly/scripts/dashboard/log_dashboard.py")
+        print("- Log directories: /var/log/anomaly_detection/")
+        print("- Log rotation: /etc/logrotate.d/anomaly_detection")
+        print("- Rsyslog config: /etc/rsyslog.d/10-anomaly_detection.conf")
+        print("- Fluentd config: /etc/fluentd/anomaly_detection.conf")
+        print("- Monitoring script: /opt/anomaly_detection/scripts/monitoring/log_monitoring.sh")
+        print("- Analysis tools: /opt/anomaly_detection/scripts/analysis/log_analysis.py")
+        print("- Dashboard: /opt/anomaly_detection/scripts/dashboard/log_dashboard.py")
 
     except Exception as e:
         print(f"\n❌ Error during setup: {e}")

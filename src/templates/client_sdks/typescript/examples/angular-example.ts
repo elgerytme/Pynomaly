@@ -1,6 +1,6 @@
 /**
- * Angular Example: Pynomaly SDK Integration
- * Demonstrates how to use the Pynomaly TypeScript SDK in Angular applications
+ * Angular Example: anomaly_detection SDK Integration
+ * Demonstrates how to use the anomaly_detection TypeScript SDK in Angular applications
  */
 
 import { Component, OnInit, OnDestroy, Injectable } from '@angular/core';
@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { PynomaliClient } from '../src/index';
+import { AnomalyDetectionClient } from '../src/index';
 import {
   DetectionRequest,
   DetectionResponse,
@@ -19,12 +19,12 @@ import {
   UserProfile,
 } from '../src/types';
 
-// Angular Service for Pynomaly SDK
+// Angular Service for anomaly_detection SDK
 @Injectable({
   providedIn: 'root'
 })
-export class PynomaliService {
-  private client: PynomaliClient;
+export class anomaly-detectionService {
+  private client: AnomalyDetectionClient;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
   private isConnectedSubject = new BehaviorSubject<boolean>(false);
@@ -40,9 +40,9 @@ export class PynomaliService {
   public healthStatus$ = this.healthStatusSubject.asObservable();
 
   constructor() {
-    this.client = new PynomaliClient({
-      baseUrl: process.env['NG_APP_PYNOMALY_API_URL'] || 'https://api.pynomaly.com',
-      apiKey: process.env['NG_APP_PYNOMALY_API_KEY'],
+    this.client = new AnomalyDetectionClient({
+      baseUrl: process.env['NG_APP_ANOMALY_DETECTION_API_URL'] || 'https://api.anomaly_detection.com',
+      apiKey: process.env['NG_APP_ANOMALY_DETECTION_API_KEY'],
       debug: process.env['NODE_ENV'] === 'development',
       websocket: {
         enabled: true,
@@ -122,14 +122,14 @@ export class PynomaliService {
     return health;
   }
 
-  getClient(): PynomaliClient {
+  getClient(): AnomalyDetectionClient {
     return this.client;
   }
 }
 
 // Authentication Component
 @Component({
-  selector: 'app-pynomaly-auth',
+  selector: 'app-anomaly_detection-auth',
   template: `
     <div class="auth-container">
       <div *ngIf="isAuthenticated$ | async; else loginForm">
@@ -144,7 +144,7 @@ export class PynomaliService {
       
       <ng-template #loginForm>
         <form (ngSubmit)="login()" #authForm="ngForm">
-          <h2>Login to Pynomaly</h2>
+          <h2>Login to anomaly_detection</h2>
           
           <div class="form-group">
             <label>Username:</label>
@@ -253,7 +253,7 @@ export class PynomaliService {
     }
   `]
 })
-export class PynomaliAuthComponent implements OnInit, OnDestroy {
+export class anomaly-detectionAuthComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   isAuthenticated$: Observable<boolean>;
@@ -267,9 +267,9 @@ export class PynomaliAuthComponent implements OnInit, OnDestroy {
     mfaCode: '',
   };
 
-  constructor(private pynomaliService: PynomaliService) {
-    this.isAuthenticated$ = this.pynomaliService.isAuthenticated$;
-    this.userProfile$ = this.pynomaliService.userProfile$;
+  constructor(private anomaly-detectionService: anomaly-detectionService) {
+    this.isAuthenticated$ = this.anomaly-detectionService.isAuthenticated$;
+    this.userProfile$ = this.anomaly-detectionService.userProfile$;
   }
 
   ngOnInit(): void {}
@@ -284,7 +284,7 @@ export class PynomaliAuthComponent implements OnInit, OnDestroy {
     this.error = null;
 
     try {
-      await this.pynomaliService.login(this.credentials);
+      await this.anomaly-detectionService.login(this.credentials);
     } catch (err: any) {
       this.error = err.message || 'Login failed';
     } finally {
@@ -295,7 +295,7 @@ export class PynomaliAuthComponent implements OnInit, OnDestroy {
   async logout(): Promise<void> {
     this.loading = true;
     try {
-      await this.pynomaliService.logout();
+      await this.anomaly-detectionService.logout();
     } catch (err: any) {
       this.error = err.message || 'Logout failed';
     } finally {
@@ -306,7 +306,7 @@ export class PynomaliAuthComponent implements OnInit, OnDestroy {
 
 // Anomaly Detection Component
 @Component({
-  selector: 'app-pynomaly-detection',
+  selector: 'app-anomaly_detection-detection',
   template: `
     <div class="detection-container">
       <h2>Anomaly Detection</h2>
@@ -466,7 +466,7 @@ export class PynomaliAuthComponent implements OnInit, OnDestroy {
     }
   `]
 })
-export class PynomaliDetectionComponent implements OnInit, OnDestroy {
+export class anomaly-detectionDetectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   inputData = '1,2,3,4,5,100,6,7,8,9';
@@ -475,7 +475,7 @@ export class PynomaliDetectionComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
 
-  constructor(private pynomaliService: PynomaliService) {}
+  constructor(private anomaly-detectionService: anomaly-detectionService) {}
 
   ngOnInit(): void {}
 
@@ -501,7 +501,7 @@ export class PynomaliDetectionComponent implements OnInit, OnDestroy {
         includeExplanations: true,
       };
 
-      this.result = await this.pynomaliService.detectAnomalies(request);
+      this.result = await this.anomaly-detectionService.detectAnomalies(request);
     } catch (err: any) {
       this.error = err.message || 'Detection failed';
     } finally {
@@ -512,7 +512,7 @@ export class PynomaliDetectionComponent implements OnInit, OnDestroy {
 
 // Streaming Component
 @Component({
-  selector: 'app-pynomaly-streaming',
+  selector: 'app-anomaly_detection-streaming',
   template: `
     <div class="streaming-container">
       <h2>Real-time Streaming</h2>
@@ -659,7 +659,7 @@ export class PynomaliDetectionComponent implements OnInit, OnDestroy {
     }
   `]
 })
-export class PynomaliStreamingComponent implements OnInit, OnDestroy {
+export class anomaly-detectionStreamingComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   isConnected$: Observable<boolean>;
@@ -668,10 +668,10 @@ export class PynomaliStreamingComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
 
-  constructor(private pynomaliService: PynomaliService) {
-    this.isConnected$ = this.pynomaliService.isConnected$;
-    this.streamData$ = this.pynomaliService.streamData$;
-    this.alerts$ = this.pynomaliService.alerts$;
+  constructor(private anomaly-detectionService: anomaly-detectionService) {
+    this.isConnected$ = this.anomaly-detectionService.isConnected$;
+    this.streamData$ = this.anomaly-detectionService.streamData$;
+    this.alerts$ = this.anomaly-detectionService.alerts$;
   }
 
   ngOnInit(): void {}
@@ -686,7 +686,7 @@ export class PynomaliStreamingComponent implements OnInit, OnDestroy {
     this.error = null;
 
     try {
-      await this.pynomaliService.connectWebSocket();
+      await this.anomaly-detectionService.connectWebSocket();
     } catch (err: any) {
       this.error = err.message || 'Connection failed';
     } finally {
@@ -695,12 +695,12 @@ export class PynomaliStreamingComponent implements OnInit, OnDestroy {
   }
 
   disconnectWebSocket(): void {
-    this.pynomaliService.disconnectWebSocket();
+    this.anomaly-detectionService.disconnectWebSocket();
   }
 
   async sendTestData(): Promise<void> {
     try {
-      await this.pynomaliService.sendTestData();
+      await this.anomaly-detectionService.sendTestData();
     } catch (err: any) {
       this.error = err.message || 'Failed to send data';
     }
@@ -713,7 +713,7 @@ export class PynomaliStreamingComponent implements OnInit, OnDestroy {
 
 // Health Component
 @Component({
-  selector: 'app-pynomaly-health',
+  selector: 'app-anomaly_detection-health',
   template: `
     <div class="health-container">
       <h2>System Health</h2>
@@ -870,7 +870,7 @@ export class PynomaliStreamingComponent implements OnInit, OnDestroy {
     .status-unhealthy { color: #dc3545; }
   `]
 })
-export class PynomaliHealthComponent implements OnInit, OnDestroy {
+export class anomaly-detectionHealthComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private refreshInterval: any;
 
@@ -879,8 +879,8 @@ export class PynomaliHealthComponent implements OnInit, OnDestroy {
   error: string | null = null;
   autoRefresh = false;
 
-  constructor(private pynomaliService: PynomaliService) {
-    this.healthStatus$ = this.pynomaliService.healthStatus$;
+  constructor(private anomaly-detectionService: anomaly-detectionService) {
+    this.healthStatus$ = this.anomaly-detectionService.healthStatus$;
   }
 
   ngOnInit(): void {
@@ -900,7 +900,7 @@ export class PynomaliHealthComponent implements OnInit, OnDestroy {
     this.error = null;
 
     try {
-      await this.pynomaliService.getHealth();
+      await this.anomaly-detectionService.getHealth();
     } catch (err: any) {
       this.error = err.message || 'Failed to fetch health status';
     } finally {
@@ -930,11 +930,11 @@ export class PynomaliHealthComponent implements OnInit, OnDestroy {
 
 // Main Application Component
 @Component({
-  selector: 'app-pynomaly-main',
+  selector: 'app-anomaly_detection-main',
   template: `
-    <div class="pynomaly-app">
+    <div class="anomaly_detection-app">
       <header>
-        <h1>Pynomaly Angular Example</h1>
+        <h1>anomaly_detection Angular Example</h1>
         <nav>
           <button 
             *ngFor="let tab of tabs" 
@@ -947,15 +947,15 @@ export class PynomaliHealthComponent implements OnInit, OnDestroy {
       </header>
 
       <main>
-        <app-pynomaly-auth *ngIf="activeTab === 'auth'"></app-pynomaly-auth>
-        <app-pynomaly-detection *ngIf="activeTab === 'detection'"></app-pynomaly-detection>
-        <app-pynomaly-streaming *ngIf="activeTab === 'streaming'"></app-pynomaly-streaming>
-        <app-pynomaly-health *ngIf="activeTab === 'health'"></app-pynomaly-health>
+        <app-anomaly_detection-auth *ngIf="activeTab === 'auth'"></app-anomaly_detection-auth>
+        <app-anomaly_detection-detection *ngIf="activeTab === 'detection'"></app-anomaly_detection-detection>
+        <app-anomaly_detection-streaming *ngIf="activeTab === 'streaming'"></app-anomaly_detection-streaming>
+        <app-anomaly_detection-health *ngIf="activeTab === 'health'"></app-anomaly_detection-health>
       </main>
     </div>
   `,
   styles: [`
-    .pynomaly-app {
+    .anomaly_detection-app {
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
@@ -997,7 +997,7 @@ export class PynomaliHealthComponent implements OnInit, OnDestroy {
     }
   `]
 })
-export class PynomaliMainComponent {
+export class anomaly-detectionMainComponent {
   activeTab = 'auth';
 
   tabs = [
@@ -1016,11 +1016,11 @@ import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
-    PynomaliMainComponent,
-    PynomaliAuthComponent,
-    PynomaliDetectionComponent,
-    PynomaliStreamingComponent,
-    PynomaliHealthComponent,
+    anomaly-detectionMainComponent,
+    anomaly-detectionAuthComponent,
+    anomaly-detectionDetectionComponent,
+    anomaly-detectionStreamingComponent,
+    anomaly-detectionHealthComponent,
   ],
   imports: [
     BrowserModule,
@@ -1028,19 +1028,19 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
   ],
   providers: [
-    PynomaliService,
+    anomaly-detectionService,
   ],
-  bootstrap: [PynomaliMainComponent]
+  bootstrap: [anomaly-detectionMainComponent]
 })
-export class PynomaliModule { }
+export class anomaly-detectionModule { }
 
 // Export all components for use in other modules
 export {
-  PynomaliService,
-  PynomaliMainComponent,
-  PynomaliAuthComponent,
-  PynomaliDetectionComponent,
-  PynomaliStreamingComponent,
-  PynomaliHealthComponent,
-  PynomaliModule,
+  anomaly-detectionService,
+  anomaly-detectionMainComponent,
+  anomaly-detectionAuthComponent,
+  anomaly-detectionDetectionComponent,
+  anomaly-detectionStreamingComponent,
+  anomaly-detectionHealthComponent,
+  anomaly-detectionModule,
 };

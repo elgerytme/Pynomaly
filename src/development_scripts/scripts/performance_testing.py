@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Performance testing and optimization script for Pynomaly production deployment.
+Performance testing and optimization script for anomaly_detection production deployment.
 This script runs comprehensive performance tests and provides optimization recommendations.
 """
 
@@ -670,7 +670,7 @@ class PerformanceTester:
         test_info = report["performance_test_report"]
 
         print("\n" + "=" * 70)
-        print("🚀 PYNOMALY PERFORMANCE TEST SUMMARY")
+        print("🚀 anomaly_detection PERFORMANCE TEST SUMMARY")
         print("=" * 70)
         print(f"Test Duration: {test_info['test_duration_minutes']:.1f} minutes")
         print(f"Test Scenarios: {test_info['total_test_scenarios']}")

@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-07-14
 
 ### Added
-- Initial release of Pynomaly anomaly detection platform
+- Initial release of anomaly_detection anomaly detection platform
 - Clean Architecture implementation with Domain-Driven Design
 - PyOD integration with 40+ anomaly detection algorithms
 - FastAPI REST API with 65+ endpoints
@@ -112,5 +112,5 @@ When making changes to this repository:
 
 For more information, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-[Unreleased]: https://github.com/elgerytme/Pynomaly/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/elgerytme/Pynomaly/releases/tag/v0.1.0
+[Unreleased]: https://github.com/elgerytme/anomaly_detection/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/elgerytme/anomaly_detection/releases/tag/v0.1.0

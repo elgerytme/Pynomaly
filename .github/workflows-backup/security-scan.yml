@@ -45,7 +45,7 @@ jobs:
 
       - name: Run Bandit security scan
         run: |
-          uv run bandit -r src/pynomaly \
+          uv run bandit -r src/anomaly_detection \
             -f json \
             -o bandit-report.json \
             --severity-level medium \
@@ -54,7 +54,7 @@ jobs:
 
       - name: Run Bandit with SARIF output
         run: |
-          uv run bandit -r src/pynomaly \
+          uv run bandit -r src/anomaly_detection \
             -f sarif \
             -o bandit-sarif-report.sarif \
             --severity-level medium \
@@ -221,14 +221,14 @@ jobs:
         with:
           context: .
           push: false
-          tags: pynomaly:security-scan
+          tags: anomaly_detection:security-scan
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: pynomaly:security-scan
+          image-ref: anomaly_detection:security-scan
           format: sarif
           output: trivy-results.sarif
 
@@ -249,7 +249,7 @@ jobs:
         uses: docker/scout-action@v1
         with:
           command: cves
-          image: pynomaly:security-scan
+          image: anomaly_detection:security-scan
           only-severities: critical,high
           write-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -286,14 +286,14 @@ jobs:
             --output-file=licenses-report.json \
             --with-urls \
             --with-description \
-            --ignore-packages pynomaly
+            --ignore-packages anomaly_detection
 
       - name: Generate license summary
         run: |
           uv run pip-licenses \
             --format=markdown \
             --output-file=licenses-summary.md \
-            --ignore-packages pynomaly
+            --ignore-packages anomaly_detection
 
       - name: Check for problematic licenses
         run: |

@@ -14,25 +14,25 @@ This report presents the results of a static code survey to identify:
 ## 1. CLI and Click Command Analysis
 
 ### 1.1 TODO Comments Related to Click/CLI
-- **Location:** `src/pynomaly/presentation/api/auth_deps.py:114`
+- **Location:** `src/anomaly_detection/presentation/api/auth_deps.py:114`
 - **Content:** `# TODO: Implement actual permission checking`
 - **Context:** In SimplePermissionChecker class, the permission checking is simplified and needs proper implementation
 
 ### 1.2 Commented-out Click Commands
 - **Status:** No commented-out `@click.command` or `@click.group` decorators found
 - **Active CLI modules:** 11 CLI modules found with active click implementations:
-  - `src/pynomaly/presentation/cli/dashboard.py`
-  - `src/pynomaly/presentation/cli/training_automation_commands.py`
-  - `src/pynomaly/presentation/cli/governance.py`
-  - `src/pynomaly/presentation/cli/tenant.py`
-  - `src/pynomaly/presentation/cli/ensemble.py`
-  - `src/pynomaly/presentation/cli/quality.py`
-  - `src/pynomaly/presentation/cli/security.py`
-  - `src/pynomaly/presentation/cli/explain.py`
-  - `src/pynomaly/presentation/cli/benchmarking.py`
-  - `src/pynomaly/presentation/cli/cost_optimization.py`
-  - `src/pynomaly/presentation/cli/enhanced_automl.py`
-  - `src/pynomaly/presentation/cli/alert.py`
+  - `src/anomaly_detection/presentation/cli/dashboard.py`
+  - `src/anomaly_detection/presentation/cli/training_automation_commands.py`
+  - `src/anomaly_detection/presentation/cli/governance.py`
+  - `src/anomaly_detection/presentation/cli/tenant.py`
+  - `src/anomaly_detection/presentation/cli/ensemble.py`
+  - `src/anomaly_detection/presentation/cli/quality.py`
+  - `src/anomaly_detection/presentation/cli/security.py`
+  - `src/anomaly_detection/presentation/cli/explain.py`
+  - `src/anomaly_detection/presentation/cli/benchmarking.py`
+  - `src/anomaly_detection/presentation/cli/cost_optimization.py`
+  - `src/anomaly_detection/presentation/cli/enhanced_automl.py`
+  - `src/anomaly_detection/presentation/cli/alert.py`
 
 ## 2. Import Errors Analysis
 
@@ -49,17 +49,17 @@ This report presents the results of a static code survey to identify:
 - **Validation:** `bleach` missing
 
 #### Module Structure Issues
-- **Missing base modules:** `pynomaly.domain.models.base` not found (affects federated learning)
-- **Missing protocols:** `pynomaly.shared.protocols.repository` not found
-- **Missing config:** `pynomaly.shared.config` not found
+- **Missing base modules:** `anomaly_detection.domain.models.base` not found (affects federated learning)
+- **Missing protocols:** `anomaly_detection.shared.protocols.repository` not found
+- **Missing config:** `anomaly_detection.shared.config` not found
 
 ### 2.2 Import Resolution Errors
 
 #### Undefined Classes/Functions
 1. **API Endpoints Issue:**
-   - **File:** `src/pynomaly/presentation/api/endpoints/datasets.py:219`
+   - **File:** `src/anomaly_detection/presentation/api/endpoints/datasets.py:219`
    - **Error:** `NameError: name 'get_container_simple' is not defined`
-   - **Solution:** Missing import from `pynomaly.presentation.api.auth_deps`
+   - **Solution:** Missing import from `anomaly_detection.presentation.api.auth_deps`
 
 2. **Missing DTO Classes:**
    - `OptimizationConfigDTO` not found in `configuration_dto.py`
@@ -123,8 +123,8 @@ pip install shap lime
 ### 3.1 Immediate Actions
 1. **Fix critical import:** Add missing import in `datasets.py`:
    ```python
-   from pynomaly.presentation.api.auth_deps import get_container_simple
-   from pynomaly.infrastructure.security.rbac_middleware import require_permissions, CommonPermissions
+   from anomaly_detection.presentation.api.auth_deps import get_container_simple
+   from anomaly_detection.infrastructure.security.rbac_middleware import require_permissions, CommonPermissions
    ```
 
 2. **Install missing dependencies:** See package list above

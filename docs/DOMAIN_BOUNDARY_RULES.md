@@ -87,7 +87,7 @@ The repository follows a domain-driven design (DDD) approach with clear boundari
 
 ### Software Package Rules
 The software package must NOT contain references to:
-- `pynomaly`, `anomaly`, `anomaly_detection`, `outlier`, `detection`
+- `anomaly_detection`, `anomaly`, `anomaly_detection`, `outlier`, `detection`
 - `automl`, `ensemble`, `explainability`, `explainable_ai`
 - `drift`, `model`, `training`, `dataset`, `preprocessing`
 - `contamination`, `threshold`, `severity`, `confidence_interval`
@@ -98,7 +98,7 @@ The software package must NOT contain references to:
 
 ### Configuration Rules
 All `pyproject.toml` files must:
-- Use domain-appropriate package names (no "pynomaly" references)
+- Use domain-appropriate package names (no "anomaly_detection" references)
 - Include domain-appropriate descriptions
 - Use domain-appropriate keywords and classifiers
 - Reference domain-appropriate documentation URLs
@@ -137,7 +137,7 @@ The validator will:
 **Fix**: Move to appropriate domain package (e.g., `machine_learning/core/domain/entities/`)
 
 ### 2. Domain-Specific Configuration
-**Problem**: References to "pynomaly" or "anomaly" in package names/descriptions
+**Problem**: References to "anomaly_detection" or "anomaly" in package names/descriptions
 **Fix**: Use generic software terminology
 
 ### 3. Domain-Specific Dependencies

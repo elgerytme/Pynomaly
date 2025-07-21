@@ -1,6 +1,6 @@
-# Getting Started with Pynomaly
+# Getting Started with anomaly_detection
 
-Welcome to Pynomaly, a production-ready open source anomaly detection platform built with clean architecture principles and enterprise-grade features.
+Welcome to anomaly_detection, a production-ready open source anomaly detection platform built with clean architecture principles and enterprise-grade features.
 
 ## Quick Start
 
@@ -16,8 +16,8 @@ Welcome to Pynomaly, a production-ready open source anomaly detection platform b
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly
+git clone https://github.com/yourusername/anomaly_detection.git
+cd anomaly_detection
 
 # Create virtual environment
 python -m venv environments/.venv
@@ -38,7 +38,7 @@ pip install -e ".[dev,test,lint]"
 pre-commit install
 
 # Verify installation
-python -c "import pynomaly; print('Installation successful')"
+python -c "import anomaly_detection; print('Installation successful')"
 ```
 
 #### Option 3: Full Installation
@@ -53,7 +53,7 @@ pip install -e ".[all]"
 ### Python API
 
 ```python
-from pynomaly import AnomalyDetector
+from anomaly_detection import AnomalyDetector
 import pandas as pd
 import numpy as np
 
@@ -81,23 +81,23 @@ print(f"Found {anomalies.sum()} anomalies out of {len(data)} samples")
 
 ```bash
 # Show help
-pynomaly --help
+anomaly_detection --help
 
 # Run anomaly detection on a CSV file
-pynomaly detect --input data.csv --output results.csv --algorithm isolation_forest
+anomaly_detection detect --input data.csv --output results.csv --algorithm isolation_forest
 
 # List available algorithms
-pynomaly algorithms list
+anomaly_detection algorithms list
 
 # Get algorithm information
-pynomaly algorithms info --name isolation_forest
+anomaly_detection algorithms info --name isolation_forest
 ```
 
 ### API Server
 
 ```bash
 # Start the API server
-uvicorn pynomaly.api:app --reload --host 0.0.0.0 --port 8000
+uvicorn anomaly_detection.api:app --reload --host 0.0.0.0 --port 8000
 
 # API will be available at:
 # - Swagger docs: http://localhost:8000/docs
@@ -110,24 +110,24 @@ uvicorn pynomaly.api:app --reload --host 0.0.0.0 --port 8000
 
 ```bash
 # Core configuration
-export PYNOMALY_ENV=development
-export PYNOMALY_LOG_LEVEL=INFO
-export PYNOMALY_DEBUG=true
+export ANOMALY_DETECTION_ENV=development
+export ANOMALY_DETECTION_LOG_LEVEL=INFO
+export ANOMALY_DETECTION_DEBUG=true
 
 # API configuration
-export PYNOMALY_API_HOST=0.0.0.0
-export PYNOMALY_API_PORT=8000
+export ANOMALY_DETECTION_API_HOST=0.0.0.0
+export ANOMALY_DETECTION_API_PORT=8000
 
 # Database configuration (optional)
-export PYNOMALY_DATABASE_URL=postgresql://user:pass@localhost/pynomaly
+export ANOMALY_DETECTION_DATABASE_URL=postgresql://user:pass@localhost/anomaly_detection
 
 # Redis configuration (optional)
-export PYNOMALY_REDIS_URL=redis://localhost:6379/0
+export ANOMALY_DETECTION_REDIS_URL=redis://localhost:6379/0
 ```
 
 ### Configuration File
 
-Create `pynomaly.yaml` in your project root:
+Create `anomaly_detection.yaml` in your project root:
 
 ```yaml
 # Core settings
@@ -162,10 +162,10 @@ security:
 
 ## Architecture Overview
 
-Pynomaly follows Clean Architecture principles:
+anomaly_detection follows Clean Architecture principles:
 
 ```
-pynomaly/
+anomaly_detection/
 ├── domain/              # Business logic and entities
 │   ├── entities/        # Core business objects
 │   ├── value_objects/   # Immutable value objects
@@ -186,7 +186,7 @@ pynomaly/
 
 ## Available Algorithms
 
-Pynomaly supports 40+ anomaly detection algorithms:
+anomaly_detection supports 40+ anomaly detection algorithms:
 
 ### Statistical Methods
 - Isolation Forest
@@ -222,7 +222,7 @@ Pynomaly supports 40+ anomaly detection algorithms:
 
 ```python
 import pandas as pd
-from pynomaly import TimeSeriesDetector
+from anomaly_detection import TimeSeriesDetector
 
 # Load time series data
 df = pd.read_csv('timeseries.csv', parse_dates=['timestamp'])
@@ -245,7 +245,7 @@ detector.plot_results()
 ### Multivariate Anomaly Detection
 
 ```python
-from pynomaly import MultivariateDetector
+from anomaly_detection import MultivariateDetector
 import pandas as pd
 
 # Load data
@@ -271,7 +271,7 @@ print(importance)
 ### Streaming Anomaly Detection
 
 ```python
-from pynomaly import StreamingDetector
+from anomaly_detection import StreamingDetector
 
 # Initialize streaming detector
 detector = StreamingDetector(
@@ -303,7 +303,7 @@ pytest -m integration   # Integration tests only
 pytest -m performance   # Performance tests only
 
 # Run tests with coverage
-pytest --cov=pynomaly --cov-report=html
+pytest --cov=anomaly_detection --cov-report=html
 
 # Run tests in parallel
 pytest -n auto
@@ -334,10 +334,10 @@ pre-commit run --all-files
 
 ```bash
 # Build development image
-docker build -t pynomaly:dev .
+docker build -t anomaly_detection:dev .
 
 # Run development container
-docker run -it --rm -p 8000:8000 pynomaly:dev
+docker run -it --rm -p 8000:8000 anomaly_detection:dev
 ```
 
 ### Production
@@ -365,8 +365,8 @@ docker-compose -f docker-compose.prod.yml up -d
 - **Documentation**: Full documentation at `/docs`
 - **Issues**: Report issues on GitHub
 - **Discussions**: Join community discussions
-- **Security**: Report security issues to security@pynomaly.org
+- **Security**: Report security issues to security@anomaly_detection.org
 
 ## License
 
-Pynomaly is licensed under the MIT License. See `LICENSE` file for details.
+anomaly_detection is licensed under the MIT License. See `LICENSE` file for details.

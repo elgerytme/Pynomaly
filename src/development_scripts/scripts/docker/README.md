@@ -1,6 +1,6 @@
 # Docker Deployment Scripts
 
-This directory contains comprehensive Docker deployment scripts for Pynomaly across different environments and infrastructure configurations.
+This directory contains comprehensive Docker deployment scripts for anomaly_detection across different environments and infrastructure configurations.
 
 ## Directory Structure
 
@@ -218,7 +218,7 @@ ENVIRONMENT=development
 DEBUG=true
 LOG_LEVEL=DEBUG
 RELOAD=true
-DATABASE_URL=postgresql://pynomaly:dev_password@localhost:5432/pynomaly_dev
+DATABASE_URL=postgresql://anomaly_detection:dev_password@localhost:5432/anomaly_detection_dev
 REDIS_URL=redis://localhost:6379/0
 ```
 
@@ -229,7 +229,7 @@ Create `.env.test` file:
 ENVIRONMENT=test
 DEBUG=false
 LOG_LEVEL=WARNING
-DATABASE_URL=postgresql://test_user:test_password@localhost:5433/pynomaly_test
+DATABASE_URL=postgresql://test_user:test_password@localhost:5433/anomaly_detection_test
 REDIS_URL=redis://localhost:6380/0
 ```
 
@@ -240,7 +240,7 @@ Create `.env.prod` file:
 ENVIRONMENT=production
 DEBUG=false
 LOG_LEVEL=INFO
-DATABASE_URL=postgresql://pynomaly:prod_password@postgres-master:5432/pynomaly
+DATABASE_URL=postgresql://anomaly_detection:prod_password@postgres-master:5432/anomaly_detection
 REDIS_URL=redis://redis-master:6379/0
 SECRET_KEY=your-secret-key
 JWT_SECRET=your-jwt-secret
@@ -250,17 +250,17 @@ JWT_SECRET=your-jwt-secret
 
 Each environment uses its own Docker network:
 
-- **Development**: `pynomaly-dev`
-- **Test**: `pynomaly-test` / `pynomaly-benchmark`
-- **Production**: `pynomaly-prod` / `pynomaly-distributed`
-- **Storage**: `pynomaly-postgres` / `pynomaly-redis` / `pynomaly-minio` / `pynomaly-mongodb`
+- **Development**: `anomaly_detection-dev`
+- **Test**: `anomaly_detection-test` / `anomaly_detection-benchmark`
+- **Production**: `anomaly_detection-prod` / `anomaly_detection-distributed`
+- **Storage**: `anomaly_detection-postgres` / `anomaly_detection-redis` / `anomaly_detection-minio` / `anomaly_detection-mongodb`
 
 ## Volumes and Data Persistence
 
 ### Development
-- `pynomaly-postgres-dev`: PostgreSQL development data
-- `pynomaly-redis-dev`: Redis development data
-- `pynomaly-minio-dev`: MinIO development data
+- `anomaly_detection-postgres-dev`: PostgreSQL development data
+- `anomaly_detection-redis-dev`: Redis development data
+- `anomaly_detection-minio-dev`: MinIO development data
 
 ### Production
 - `postgres-master-data`, `postgres-replica-N-data`: PostgreSQL data
@@ -380,7 +380,7 @@ Each environment uses its own Docker network:
 3. **Storage Issues:**
    ```bash
    # Check volume usage
-   docker volume ls | grep pynomaly
+   docker volume ls | grep anomaly_detection
 
    # Clean up volumes (WARNING: Data loss)
    docker volume prune
@@ -389,11 +389,11 @@ Each environment uses its own Docker network:
 4. **Network Issues:**
    ```bash
    # Check networks
-   docker network ls | grep pynomaly
+   docker network ls | grep anomaly_detection
 
    # Recreate network
-   docker network rm pynomaly-dev
-   docker network create pynomaly-dev
+   docker network rm anomaly_detection-dev
+   docker network create anomaly_detection-dev
    ```
 
 ### Health Checks
@@ -411,13 +411,13 @@ docker inspect --format='{{json .State.Health}}' container-name
 
 ```bash
 # View container logs
-docker logs -f pynomaly-prod-1
+docker logs -f anomaly_detection-prod-1
 
 # View aggregated logs
-docker logs -f $(docker ps -q --filter name=pynomaly)
+docker logs -f $(docker ps -q --filter name=anomaly_detection)
 
 # Enter container for debugging
-docker exec -it pynomaly-prod-1 /bin/bash
+docker exec -it anomaly_detection-prod-1 /bin/bash
 ```
 
 ## Best Practices

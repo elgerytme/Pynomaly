@@ -50,7 +50,7 @@ See: `REPOSITORY_RULES.md` for the formal rule implementation.
 
 ## GitHub Issue Tracking
 
-GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830
+GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830
 
 ## Resolution Steps
 

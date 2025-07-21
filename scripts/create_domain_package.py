@@ -1045,7 +1045,7 @@ def validate_package_name(package_name: str) -> bool:
     
     # Check for prohibited terms (domain boundary violations)
     prohibited_terms = [
-        "pynomaly", "software", "core", "infrastructure", "interface"
+        "anomaly_detection", "software", "core", "infrastructure", "interface"
     ]
     
     if package_name.lower() in prohibited_terms:

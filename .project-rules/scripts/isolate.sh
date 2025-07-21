@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pynomaly Isolation Manager
+# anomaly_detection Isolation Manager
 # Main script for creating and managing isolated development environments
 
 set -euo pipefail
@@ -117,7 +117,7 @@ EOF
     cd "$isolation_dir"
 
     info "Building isolation container..."
-    docker-compose build pynomaly-isolated
+    docker-compose build anomaly_detection-isolated
 
     info "Starting isolation environment..."
     if [ "$profile" = "testing" ]; then
@@ -138,7 +138,7 @@ EOF
     if docker-compose ps | grep -q "Up (healthy)"; then
         success "Container isolation created successfully: $isolation_id"
         info "Access your isolated environment:"
-        info "  - Shell: docker-compose exec pynomaly-isolated /bin/bash"
+        info "  - Shell: docker-compose exec anomaly_detection-isolated /bin/bash"
         info "  - API: http://localhost:$(grep HOST_API_PORT .env | cut -d= -f2)"
         info "  - Database: localhost:$(grep HOST_DB_PORT .env | cut -d= -f2)"
 
@@ -188,9 +188,9 @@ create_venv_isolation() {
 #!/bin/bash
 cd "$isolation_dir"
 source .venv/bin/activate
-export PYNOMALY_ENV=isolated
+export ANOMALY_DETECTION_ENV=isolated
 export PYTHONPATH="$isolation_dir/src"
-echo "🔒 Pynomaly Virtual Environment Isolation Activated"
+echo "🔒 anomaly_detection Virtual Environment Isolation Activated"
 echo "📁 Workspace: \$(pwd)"
 echo "🐍 Python: \$(python --version)"
 exec /bin/bash
@@ -366,7 +366,7 @@ auto_cleanup() {
 # Show help
 show_help() {
     cat <<EOF
-Pynomaly Isolation Manager
+anomaly_detection Isolation Manager
 
 Usage: $0 <command> [options]
 

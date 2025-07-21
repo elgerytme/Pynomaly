@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pynomaly Deployment Automation Script
+# anomaly_detection Deployment Automation Script
 # Comprehensive deployment automation for all environments and platforms
 
 set -euo pipefail
@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 DEPLOY_CONFIG="${PROJECT_ROOT}/deploy/config/deployment.yaml"
-LOG_FILE="/tmp/pynomaly_deploy_$(date +%Y%m%d_%H%M%S).log"
+LOG_FILE="/tmp/anomaly_detection_deploy_$(date +%Y%m%d_%H%M%S).log"
 
 # Colors for output
 RED='\033[0;31m'
@@ -61,7 +61,7 @@ EOF
 # Help function
 show_help() {
     cat << EOF
-Pynomaly Deployment Automation Script
+anomaly_detection Deployment Automation Script
 
 USAGE:
     $0 [OPTIONS] COMMAND
@@ -302,7 +302,7 @@ execute_deployment() {
 
     # Set environment variables
     export VERSION="$VERSION"
-    export PYNOMALY_ENVIRONMENT="$ENVIRONMENT"
+    export ANOMALY_DETECTION_ENVIRONMENT="$ENVIRONMENT"
 
     # Execute deployment
     log_info "Executing: $deploy_cmd"
@@ -366,10 +366,10 @@ check_health() {
     local base_url
     case "$ENVIRONMENT" in
         production)
-            base_url="https://api.pynomaly.io"
+            base_url="https://api.anomaly_detection.io"
             ;;
         staging)
-            base_url="https://staging-api.pynomaly.io"
+            base_url="https://staging-api.anomaly_detection.io"
             ;;
         development)
             base_url="http://localhost:8000"
@@ -425,7 +425,7 @@ cleanup_deployments() {
     docker system prune -f &> /dev/null || true
     
     # Remove old deployment logs (older than 30 days)
-    find /tmp -name "pynomaly_deploy_*.log" -mtime +30 -delete 2>/dev/null || true
+    find /tmp -name "anomaly_detection_deploy_*.log" -mtime +30 -delete 2>/dev/null || true
     
     # Kubernetes cleanup (if applicable)
     if command -v kubectl &> /dev/null; then
@@ -458,7 +458,7 @@ send_notification() {
         esac
         
         local payload="{
-            \"text\": \"Pynomaly Deployment $event_type\",
+            \"text\": \"anomaly_detection Deployment $event_type\",
             \"attachments\": [{
                 \"color\": \"$color\",
                 \"fields\": [{
@@ -487,7 +487,7 @@ send_notification() {
 main() {
     print_banner
     
-    log "Starting Pynomaly deployment automation..."
+    log "Starting anomaly_detection deployment automation..."
     log "Log file: $LOG_FILE"
     
     parse_args "$@"

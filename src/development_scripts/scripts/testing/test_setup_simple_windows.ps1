@@ -21,16 +21,16 @@ try {
     Copy-Item "../scripts/setup_simple.py" . -Force
 
     # Create minimal src structure
-    New-Item -ItemType Directory -Path "src\pynomaly" -Force | Out-Null
-    New-Item -ItemType File -Path "src\pynomaly\__init__.py" -Force | Out-Null
-    Set-Content -Path "src\pynomaly\__init__.py" -Value "__version__ = '0.1.0'"
+    New-Item -ItemType Directory -Path "src\anomaly_detection" -Force | Out-Null
+    New-Item -ItemType File -Path "src\anomaly_detection\__init__.py" -Force | Out-Null
+    Set-Content -Path "src\anomaly_detection\__init__.py" -Value "__version__ = '0.1.0'"
 
     # Create minimal domain entities
-    New-Item -ItemType Directory -Path "src\pynomaly\domain" -Force | Out-Null
-    New-Item -ItemType Directory -Path "src\pynomaly\domain\entities" -Force | Out-Null
-    New-Item -ItemType File -Path "src\pynomaly\domain\__init__.py" -Force | Out-Null
-    New-Item -ItemType File -Path "src\pynomaly\domain\entities\__init__.py" -Force | Out-Null
-    Set-Content -Path "src\pynomaly\domain\entities\__init__.py" -Value @"
+    New-Item -ItemType Directory -Path "src\anomaly_detection\domain" -Force | Out-Null
+    New-Item -ItemType Directory -Path "src\anomaly_detection\domain\entities" -Force | Out-Null
+    New-Item -ItemType File -Path "src\anomaly_detection\domain\__init__.py" -Force | Out-Null
+    New-Item -ItemType File -Path "src\anomaly_detection\domain\entities\__init__.py" -Force | Out-Null
+    Set-Content -Path "src\anomaly_detection\domain\entities\__init__.py" -Value @"
 class Dataset:
     pass
 

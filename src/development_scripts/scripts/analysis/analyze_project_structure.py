@@ -100,7 +100,7 @@ def analyze_project_structure(config_path: str | None = None) -> dict:
         "package.json",
         "package-lock.json",
         # IDE/Editor
-        "Pynomaly.code-workspace",
+        "anomaly_detection.code-workspace",
         # Git
         ".gitignore",
         ".gitattributes",

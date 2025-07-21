@@ -51,7 +51,7 @@ class FeatureDomainBoundaryValidator:
                 domain_package="software",
                 prohibited_terms=[
                     # Core domain violations - business logic terms
-                    "pynomaly", "anomaly", "anomaly_detection", "outlier", "detection",
+                    "anomaly_detection", "anomaly", "anomaly_detection", "outlier", "detection",
                     "automl", "ensemble", "explainability", "explainable_ai",
                     "drift", "model", "training", "dataset", "preprocessing",
                     "contamination", "threshold", "severity", "confidence_interval",

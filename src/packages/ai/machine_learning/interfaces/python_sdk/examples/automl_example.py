@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pynomaly AutoML Example
+anomaly_detection AutoML Example
 =======================
 
 This example demonstrates AutoML functionality using multiple algorithms
@@ -215,7 +215,7 @@ def create_automl_test_data():
 
 def run_automl_example():
     """Run the AutoML example."""
-    print("🧠 Pynomaly AutoML Example")
+    print("🧠 anomaly_detection AutoML Example")
     print("=" * 50)
 
     # Create test dataset

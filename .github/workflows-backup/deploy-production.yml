@@ -256,7 +256,7 @@ jobs:
     if: ${{ needs.validate.outputs.environment == 'staging' || (needs.validate.outputs.environment == 'production' && github.ref_type == 'tag') }}
     environment:
       name: staging
-      url: https://staging.pynomaly.ai
+      url: https://staging.anomaly_detection.ai
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -287,7 +287,7 @@ jobs:
             --environment staging \
             --image-tag ${{ needs.validate.outputs.image_tag }} \
             --strategy ${{ needs.validate.outputs.strategy }} \
-            --namespace pynomaly-staging
+            --namespace anomaly_detection-staging
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
@@ -303,7 +303,7 @@ jobs:
     if: ${{ needs.validate.outputs.environment == 'production' && (success() || needs.deploy-staging.result == 'skipped') }}
     environment:
       name: production
-      url: https://pynomaly.ai
+      url: https://anomaly_detection.ai
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -363,7 +363,7 @@ jobs:
             --environment production \
             --image-tag ${{ needs.validate.outputs.image_tag }} \
             --strategy ${{ needs.validate.outputs.strategy }} \
-            --namespace pynomaly-prod \
+            --namespace anomaly_detection-prod \
             --rollback-on-failure
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -385,7 +385,7 @@ jobs:
               deployment_id: ${{ steps.deployment.outputs.result }},
               state: 'success',
               description: 'Deployment completed successfully',
-              environment_url: 'https://pynomaly.ai'
+              environment_url: 'https://anomaly_detection.ai'
             });
 
       - name: Update deployment status to failure

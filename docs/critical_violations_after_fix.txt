@@ -1,162 +1,162 @@
 🚨 CRITICAL VIOLATIONS REQUIRING IMMEDIATE ATTENTION
 ============================================================
 
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@rollup.plugin-commonjs
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.@rollup.plugin-commonjs
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
 Line 58: Setting this option to `"auto"` will only wrap CommonJS files when they are part of a CommonJS dependency cycle, e.g. an index file that is required by some of its dependencies, or if they are only required in a potentially "conditional" way like from within an if-statement or a function. All other CommonJS files are hoisted. This is the recommended setting for most code bases. Note that the detection of conditional requires can be subject to race conditions if there are both conditional and unconditional requires of the same file, which in edge cases may result in inconsistencies between builds. If you think this is a problem for you, you can avoid this by using any value other than `"auto"` or `"debug"`.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@rollup.plugin-commonjs
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.@rollup.plugin-commonjs
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
 Line 142: Instructs the plugin whether to enable mixed module transformations. This is useful in scenarios with modules that contain a mix of ES `import` statements and CommonJS `require` expressions. Set to `true` if `require` calls should be transformed to imports in mixed modules, or `false` if the `require` expressions should survive the transformation. The latter can be important if the code contains environment detection, or you are coding for an environment with special treatment for `require` calls such as [ElectronJS](https://www.electronjs.org/). See also the "ignore" option.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@rollup.plugin-commonjs
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.@rollup.plugin-commonjs
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
 Line 457: This plugin exposes the result of its CommonJS file type detection for other plugins to use. You can access it via `this.getModuleInfo` or the `moduleParsed` hook:
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@rollup.plugin-commonjs
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.@rollup.plugin-commonjs
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
 Line 460: function cjsDetectionPlugin() {
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@rollup.plugin-commonjs
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.@rollup.plugin-commonjs
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/@rollup/plugin-commonjs/README.md
 Line 462: name: 'cjs-detection',
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.anymatch.node_modules.picomatch
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/anymatch/node_modules/picomatch/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.anymatch.node_modules.picomatch
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/anymatch/node_modules/picomatch/README.md
 Line 343: picomatch has automatic detection for regex positive and negative lookbehinds. If the pattern contains a negative lookbehind, you must be using Node.js >= 8.10 or else picomatch will throw an error.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.ci-info
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/ci-info/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.ci-info
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/ci-info/README.md
 Line 105: Returns a boolean if PR detection is supported for the current CI server. Will
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.ci-info
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/ci-info/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.ci-info
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/ci-info/README.md
 Line 106: be `true` if a PR is being tested, otherwise `false`. If PR detection is
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 19: _Detection patterns for this project are **frozen**_. This is because adding any new export detection patterns would result in fragmented backwards-compatibility. Specifically, it would be very difficult to figure out why an ES module named export for CommonJS might work in newer Node.js versions but not older versions. This problem would only be discovered downstream of module authors, with the fix for module authors being to then have to understand which patterns in this project provide full backwards-compatibily. Rather, by fully freezing the detected patterns, if it works in any Node.js version it will work in any other. Build tools can also reliably treat the supported syntax for this project as a part of their output target for ensuring syntax support.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 35: // named exports detection
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 43: // reexports detection
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 50: // __esModule detection
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 157: Because there is no scope analysis, the above detection may overclassify:
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 287: Object properties that are not identifiers or string expressions will bail out of the object detection, while spreads are ignored:
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 295: c: "not detected since require('c') above bails the object detection"
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.cjs-module-lexer
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/cjs-module-lexer/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.cjs-module-lexer
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/cjs-module-lexer/README.md
 Line 349: detection.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.emittery
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/emittery/readme.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.emittery
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/emittery/readme.md
 Line 532: There are many things to not like about `EventEmitter`: its huge API surface, synchronous event emitting, magic error event, flawed memory leak detection. Emittery has none of that.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.jest-util.node_modules.picomatch
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/jest-util/node_modules/picomatch/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.jest-util.node_modules.picomatch
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/jest-util/node_modules/picomatch/README.md
 Line 343: picomatch has automatic detection for regex positive and negative lookbehinds. If the pattern contains a negative lookbehind, you must be using Node.js >= 8.10 or else picomatch will throw an error.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.kleur
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/kleur/readme.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.kleur
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/kleur/readme.md
 Line 85: Toggle color support as needed; `kleur` includes simple auto-detection which may not cover all cases.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.micromatch.node_modules.picomatch
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/micromatch/node_modules/picomatch/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.micromatch.node_modules.picomatch
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/micromatch/node_modules/picomatch/README.md
 Line 343: picomatch has automatic detection for regex positive and negative lookbehinds. If the pattern contains a negative lookbehind, you must be using Node.js >= 8.10 or else picomatch will throw an error.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.picomatch
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/picomatch/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.picomatch
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/picomatch/README.md
 Line 133: For environments without `node.js`, `picomatch/posix` provides you a dependency-free matcher, without automatic OS detection.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.rollup-plugin-typescript2.node_modules.picomatch
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/rollup-plugin-typescript2/node_modules/picomatch/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.rollup-plugin-typescript2.node_modules.picomatch
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/rollup-plugin-typescript2/node_modules/picomatch/README.md
 Line 343: picomatch has automatic detection for regex positive and negative lookbehinds. If the pattern contains a negative lookbehind, you must be using Node.js >= 8.10 or else picomatch will throw an error.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
-🚨 Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.type-detect
-File: src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/type-detect/README.md
+🚨 Package: software.interfaces.sdk.anomaly_detection-js-sdk.node_modules.type-detect
+File: src/packages/software/interfaces/sdk/anomaly_detection-js-sdk/node_modules/type-detect/README.md
 Line 8: Improved typeof detection for <a href="http://nodejs.org">node</a> and the browser.
 Term: detection
 Severity: critical
@@ -409,28 +409,28 @@ Reason: Domain-specific term in interface layer
 ----------------------------------------
 🚨 Package: software.interfaces.web.docs.design-system
 File: src/packages/software/interfaces/web/docs/design-system/README.md
-Line 10: The Pynomaly Design System is a comprehensive, accessibility-first component library and design framework for building production-ready anomaly detection interfaces. Built with WCAG 2.1 AA compliance, performance optimization, and developer experience at its core.
+Line 10: The anomaly_detection Design System is a comprehensive, accessibility-first component library and design framework for building production-ready anomaly detection interfaces. Built with WCAG 2.1 AA compliance, performance optimization, and developer experience at its core.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
 🚨 Package: software.interfaces.web.docs.design-system
 File: src/packages/software/interfaces/web/docs/design-system/README.md
-Line 10: The Pynomaly Design System is a comprehensive, accessibility-first component library and design framework for building production-ready anomaly detection interfaces. Built with WCAG 2.1 AA compliance, performance optimization, and developer experience at its core.
+Line 10: The anomaly_detection Design System is a comprehensive, accessibility-first component library and design framework for building production-ready anomaly detection interfaces. Built with WCAG 2.1 AA compliance, performance optimization, and developer experience at its core.
 Term: anomaly
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
 🚨 Package: software.interfaces.web.docs.web-ui
 File: src/packages/software/interfaces/web/docs/web-ui/README.md
-Line 3: Welcome to the Pynomaly Web UI! This comprehensive interface provides a powerful, user-friendly way to manage anomaly detection workflows, monitor system performance, and analyze results.
+Line 3: Welcome to the anomaly_detection Web UI! This comprehensive interface provides a powerful, user-friendly way to manage anomaly detection workflows, monitor system performance, and analyze results.
 Term: detection
 Severity: critical
 Reason: Domain-specific term in interface layer
 ----------------------------------------
 🚨 Package: software.interfaces.web.docs.web-ui
 File: src/packages/software/interfaces/web/docs/web-ui/README.md
-Line 3: Welcome to the Pynomaly Web UI! This comprehensive interface provides a powerful, user-friendly way to manage anomaly detection workflows, monitor system performance, and analyze results.
+Line 3: Welcome to the anomaly_detection Web UI! This comprehensive interface provides a powerful, user-friendly way to manage anomaly detection workflows, monitor system performance, and analyze results.
 Term: anomaly
 Severity: critical
 Reason: Domain-specific term in interface layer

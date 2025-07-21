@@ -62,9 +62,9 @@ class ImportUpdater:
             (r"from \.\.([a-zA-Z_]+)\.([a-zA-Z_]+) import", r"from .\1.\2 import"),
             
             # Common problematic patterns
-            (r"from pynomaly_detection\.services\.([a-zA-Z_]+) import", 
+            (r"from anomaly_detection\.services\.([a-zA-Z_]+) import", 
              r"from anomaly_detection.application.services.\1 import"),
-            (r"from pynomaly_detection\.core\.([a-zA-Z_]+) import",
+            (r"from anomaly_detection\.core\.([a-zA-Z_]+) import",
              r"from anomaly_detection.infrastructure.config.\1 import"),
         ]
     

@@ -1,5 +1,5 @@
 /**
- * Pynomaly Storybook Theme
+ * anomaly_detection Storybook Theme
  * Custom theming for the Storybook interface
  */
 
@@ -9,9 +9,9 @@ export default create({
   base: 'light',
 
   // Brand information
-  brandTitle: 'Pynomaly Design System',
-  brandUrl: 'https://github.com/pynomaly/pynomaly',
-  brandImage: '/static/images/pynomaly-logo.svg',
+  brandTitle: 'anomaly_detection Design System',
+  brandUrl: 'https://github.com/anomaly_detection/anomaly_detection',
+  brandImage: '/static/images/anomaly_detection-logo.svg',
   brandTarget: '_self',
 
   // Color palette

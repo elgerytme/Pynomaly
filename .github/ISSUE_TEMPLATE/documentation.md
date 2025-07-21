@@ -95,7 +95,7 @@ What it should say instead
 **Code Examples (if applicable)**
 ```python
 # Example code that should be included
-from pynomaly import DetectionService
+from anomaly_detection import DetectionService
 
 service = DetectionService()
 result = service.detect_anomalies(data)

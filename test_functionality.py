@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test basic functionality of Pynomaly."""
+"""Test basic functionality of anomaly_detection."""
 
 import sys
 from pathlib import Path
@@ -9,11 +9,11 @@ import numpy as np
 package_root = Path(__file__).parent / "src/packages/data/anomaly_detection/src"
 sys.path.insert(0, str(package_root))
 
-from pynomaly_detection import AnomalyDetector, __version__
+from anomaly_detection import AnomalyDetector, __version__
 
 def test_basic_functionality():
     """Test basic anomaly detection functionality."""
-    print(f"Testing Pynomaly version: {__version__}")
+    print(f"Testing anomaly_detection version: {__version__}")
     
     # Create sample data
     np.random.seed(42)

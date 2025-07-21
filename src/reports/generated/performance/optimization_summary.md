@@ -34,8 +34,8 @@ Added environment variables to control performance optimizations
 
 ## Environment Variables
 
-- `PYNOMALY_USE_LAZY_CLI`: true (default) - enables lazy loading
-- `PYNOMALY_USE_FAST_CLI`: true (default) - enables fast container
+- `ANOMALY_DETECTION_USE_LAZY_CLI`: true (default) - enables lazy loading
+- `ANOMALY_DETECTION_USE_FAST_CLI`: true (default) - enables fast container
 
 ## Next Steps
 

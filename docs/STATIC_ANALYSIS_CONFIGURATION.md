@@ -8,23 +8,23 @@ The comprehensive static analysis system uses a hierarchical configuration syste
 
 ### Precedence Order (highest to lowest)
 1. **Command-line arguments** - Direct CLI flags and options
-2. **Environment variables** - `PYNOMALY_ANALYSIS_*` variables
+2. **Environment variables** - `ANOMALY_DETECTION_ANALYSIS_*` variables
 3. **Explicit config file** - File specified with `--config` flag
-4. **Project configuration** - `pyproject.toml` or `.pynomaly.toml` in project root
-5. **User configuration** - `~/.pynomaly/config.toml`
+4. **Project configuration** - `pyproject.toml` or `.anomaly_detection.toml` in project root
+5. **User configuration** - `~/.anomaly_detection/config.toml`
 6. **Default configuration** - Built-in defaults
 
 ## Configuration File Formats
 
 ### Primary Configuration (`pyproject.toml`)
 ```toml
-[tool.pynomaly.analysis]
+[tool.anomaly_detection.analysis]
 # Global settings
 profile = "strict"  # strict, balanced, permissive, custom
 python_version = "3.11"
 max_workers = 4
 enable_caching = true
-cache_dir = ".pynomaly_cache"
+cache_dir = ".anomaly_detection_cache"
 
 # File discovery
 include_patterns = ["src/**/*.py", "tests/**/*.py"]
@@ -43,7 +43,7 @@ colored_output = true
 show_context = true
 max_issues_per_file = 50
 
-[tool.pynomaly.analysis.type_checking]
+[tool.anomaly_detection.analysis.type_checking]
 # Type checking configuration
 strict_mode = true
 require_type_annotations = true
@@ -51,21 +51,21 @@ check_untyped_defs = true
 warn_unused_ignores = true
 plugins = ["mypy_django", "mypy_drf"]
 
-[tool.pynomaly.analysis.security]
+[tool.anomaly_detection.analysis.security]
 # Security scanning configuration
 level = "high"  # low, medium, high
 confidence_threshold = 80
 ignore_vulnerabilities = ["39462", "39463"]
 custom_rules = ["security/custom_rules.yaml"]
 
-[tool.pynomaly.analysis.performance]
+[tool.anomaly_detection.analysis.performance]
 # Performance analysis configuration
 check_complexity = true
 max_complexity = 10
 check_memory_usage = true
 detect_antipatterns = true
 
-[tool.pynomaly.analysis.documentation]
+[tool.anomaly_detection.analysis.documentation]
 # Documentation checking configuration
 require_docstrings = true
 docstring_style = "google"  # google, numpy, sphinx
@@ -74,7 +74,7 @@ min_coverage = 80
 
 ### Tool-Specific Configuration
 ```toml
-[tool.pynomaly.analysis.tools.mypy]
+[tool.anomaly_detection.analysis.tools.mypy]
 enabled = true
 config_file = "mypy.ini"
 strict = true
@@ -82,36 +82,36 @@ disallow_untyped_defs = true
 warn_return_any = true
 show_error_codes = true
 
-[tool.pynomaly.analysis.tools.ruff]
+[tool.anomaly_detection.analysis.tools.ruff]
 enabled = true
 line_length = 88
 select = ["E", "F", "W", "C", "N", "B", "I"]
 ignore = ["E501", "W503"]
 per_file_ignores = {"tests/**" = ["B011"]}
 
-[tool.pynomaly.analysis.tools.black]
+[tool.anomaly_detection.analysis.tools.black]
 enabled = true
 line_length = 88
 skip_string_normalization = false
 target_version = ["py311"]
 
-[tool.pynomaly.analysis.tools.bandit]
+[tool.anomaly_detection.analysis.tools.bandit]
 enabled = true
 confidence_level = "medium"
 severity_level = "medium"
 skip_rules = ["B101", "B601"]
 
-[tool.pynomaly.analysis.tools.safety]
+[tool.anomaly_detection.analysis.tools.safety]
 enabled = true
 ignore_vulnerabilities = []
 include_dev_dependencies = false
 
-[tool.pynomaly.analysis.tools.vulture]
+[tool.anomaly_detection.analysis.tools.vulture]
 enabled = true
 min_confidence = 80
 whitelist_files = ["vulture_whitelist.py"]
 
-[tool.pynomaly.analysis.tools.semgrep]
+[tool.anomaly_detection.analysis.tools.semgrep]
 enabled = true
 config = "auto"
 custom_rules = ["semgrep/custom_rules.yaml"]
@@ -233,7 +233,7 @@ class AnalysisConfig:
     python_version: str = "3.11"
     max_workers: int = 4
     enable_caching: bool = True
-    cache_dir: Path = Path(".pynomaly_cache")
+    cache_dir: Path = Path(".anomaly_detection_cache")
     
     # File discovery
     include_patterns: List[str] = field(default_factory=lambda: ["**/*.py"])
@@ -383,7 +383,7 @@ class ConfigManager:
         """Load configuration from project files."""
         project_files = [
             Path("pyproject.toml"),
-            Path(".pynomaly.toml"),
+            Path(".anomaly_detection.toml"),
             Path("setup.cfg")
         ]
         
@@ -396,11 +396,11 @@ class ConfigManager:
     def _apply_env_vars(self, config: AnalysisConfig) -> AnalysisConfig:
         """Apply environment variable overrides."""
         env_mappings = {
-            "PYNOMALY_ANALYSIS_PROFILE": "profile",
-            "PYNOMALY_ANALYSIS_PYTHON_VERSION": "python_version",
-            "PYNOMALY_ANALYSIS_MAX_WORKERS": "max_workers",
-            "PYNOMALY_ANALYSIS_ENABLE_CACHING": "enable_caching",
-            "PYNOMALY_ANALYSIS_OUTPUT_FORMAT": "output_format",
+            "ANOMALY_DETECTION_ANALYSIS_PROFILE": "profile",
+            "ANOMALY_DETECTION_ANALYSIS_PYTHON_VERSION": "python_version",
+            "ANOMALY_DETECTION_ANALYSIS_MAX_WORKERS": "max_workers",
+            "ANOMALY_DETECTION_ANALYSIS_ENABLE_CACHING": "enable_caching",
+            "ANOMALY_DETECTION_ANALYSIS_OUTPUT_FORMAT": "output_format",
         }
         
         for env_var, config_key in env_mappings.items():
@@ -464,38 +464,38 @@ class ConfigValidator:
 ```python
 ENVIRONMENT_VARIABLES = {
     # Global settings
-    "PYNOMALY_ANALYSIS_PROFILE": ("profile", str),
-    "PYNOMALY_ANALYSIS_PYTHON_VERSION": ("python_version", str),
-    "PYNOMALY_ANALYSIS_MAX_WORKERS": ("max_workers", int),
-    "PYNOMALY_ANALYSIS_ENABLE_CACHING": ("enable_caching", bool),
-    "PYNOMALY_ANALYSIS_CACHE_DIR": ("cache_dir", Path),
+    "ANOMALY_DETECTION_ANALYSIS_PROFILE": ("profile", str),
+    "ANOMALY_DETECTION_ANALYSIS_PYTHON_VERSION": ("python_version", str),
+    "ANOMALY_DETECTION_ANALYSIS_MAX_WORKERS": ("max_workers", int),
+    "ANOMALY_DETECTION_ANALYSIS_ENABLE_CACHING": ("enable_caching", bool),
+    "ANOMALY_DETECTION_ANALYSIS_CACHE_DIR": ("cache_dir", Path),
     
     # File discovery
-    "PYNOMALY_ANALYSIS_INCLUDE_PATTERNS": ("include_patterns", list),
-    "PYNOMALY_ANALYSIS_EXCLUDE_PATTERNS": ("exclude_patterns", list),
+    "ANOMALY_DETECTION_ANALYSIS_INCLUDE_PATTERNS": ("include_patterns", list),
+    "ANOMALY_DETECTION_ANALYSIS_EXCLUDE_PATTERNS": ("exclude_patterns", list),
     
     # Analysis phases
-    "PYNOMALY_ANALYSIS_ENABLE_TYPE_CHECKING": ("enable_type_checking", bool),
-    "PYNOMALY_ANALYSIS_ENABLE_SECURITY": ("enable_security_scanning", bool),
-    "PYNOMALY_ANALYSIS_ENABLE_PERFORMANCE": ("enable_performance_analysis", bool),
-    "PYNOMALY_ANALYSIS_ENABLE_DOCS": ("enable_documentation_checking", bool),
+    "ANOMALY_DETECTION_ANALYSIS_ENABLE_TYPE_CHECKING": ("enable_type_checking", bool),
+    "ANOMALY_DETECTION_ANALYSIS_ENABLE_SECURITY": ("enable_security_scanning", bool),
+    "ANOMALY_DETECTION_ANALYSIS_ENABLE_PERFORMANCE": ("enable_performance_analysis", bool),
+    "ANOMALY_DETECTION_ANALYSIS_ENABLE_DOCS": ("enable_documentation_checking", bool),
     
     # Reporting
-    "PYNOMALY_ANALYSIS_OUTPUT_FORMAT": ("output_format", str),
-    "PYNOMALY_ANALYSIS_SHOW_PROGRESS": ("show_progress", bool),
-    "PYNOMALY_ANALYSIS_COLORED_OUTPUT": ("colored_output", bool),
+    "ANOMALY_DETECTION_ANALYSIS_OUTPUT_FORMAT": ("output_format", str),
+    "ANOMALY_DETECTION_ANALYSIS_SHOW_PROGRESS": ("show_progress", bool),
+    "ANOMALY_DETECTION_ANALYSIS_COLORED_OUTPUT": ("colored_output", bool),
     
     # Type checking
-    "PYNOMALY_ANALYSIS_STRICT_MODE": ("type_checking.strict_mode", bool),
-    "PYNOMALY_ANALYSIS_REQUIRE_ANNOTATIONS": ("type_checking.require_type_annotations", bool),
+    "ANOMALY_DETECTION_ANALYSIS_STRICT_MODE": ("type_checking.strict_mode", bool),
+    "ANOMALY_DETECTION_ANALYSIS_REQUIRE_ANNOTATIONS": ("type_checking.require_type_annotations", bool),
     
     # Security
-    "PYNOMALY_ANALYSIS_SECURITY_LEVEL": ("security.level", str),
-    "PYNOMALY_ANALYSIS_CONFIDENCE_THRESHOLD": ("security.confidence_threshold", int),
+    "ANOMALY_DETECTION_ANALYSIS_SECURITY_LEVEL": ("security.level", str),
+    "ANOMALY_DETECTION_ANALYSIS_CONFIDENCE_THRESHOLD": ("security.confidence_threshold", int),
     
     # Performance
-    "PYNOMALY_ANALYSIS_MAX_COMPLEXITY": ("performance.max_complexity", int),
-    "PYNOMALY_ANALYSIS_CHECK_MEMORY": ("performance.check_memory_usage", bool),
+    "ANOMALY_DETECTION_ANALYSIS_MAX_COMPLEXITY": ("performance.max_complexity", int),
+    "ANOMALY_DETECTION_ANALYSIS_CHECK_MEMORY": ("performance.check_memory_usage", bool),
 }
 ```
 

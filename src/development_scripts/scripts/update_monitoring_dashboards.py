@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class GrafanaDashboardUpdater:
-    """Updates Grafana dashboards for Pynomaly"""
+    """Updates Grafana dashboards for anomaly_detection"""
 
     def __init__(self):
         self.grafana_url = os.getenv("GRAFANA_URL", "http://grafana:3000")

@@ -274,7 +274,7 @@ jobs:
                     "short": true
                   }
                 ],
-                "footer": "Pynomaly DR Testing",
+                "footer": "anomaly_detection DR Testing",
                 "ts": $(date +%s)
               }
             ]

@@ -1,12 +1,12 @@
 #!/bin/bash
-# Pynomaly Production Backup Script
+# anomaly_detection Production Backup Script
 
 set -e
 
 # Configuration
 BACKUP_DIR="/app/backups"
-DB_NAME="pynomaly_prod"
-DB_USER="pynomaly_user"
+DB_NAME="anomaly_detection_prod"
+DB_USER="anomaly_detection_user"
 DATA_DIR="/app/data"
 RETENTION_DAYS=7
 

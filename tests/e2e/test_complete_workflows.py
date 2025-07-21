@@ -1,5 +1,5 @@
 """
-End-to-End Tests for Complete Pynomaly Workflows
+End-to-End Tests for Complete anomaly_detection Workflows
 
 These tests verify complete user journeys from data input to anomaly detection results,
 integrating all system components including API, data processing, and ML models.

@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following versions of Pynomaly are currently supported with security updates:
+The following versions of anomaly_detection are currently supported with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -12,7 +12,7 @@ The following versions of Pynomaly are currently supported with security updates
 
 ## Reporting a Vulnerability
 
-We take security vulnerabilities seriously. If you discover a security vulnerability within Pynomaly, please send an email to security@pynomaly.org. All security vulnerabilities will be promptly addressed.
+We take security vulnerabilities seriously. If you discover a security vulnerability within anomaly_detection, please send an email to security@anomaly_detection.org. All security vulnerabilities will be promptly addressed.
 
 ### What to Include
 
@@ -42,7 +42,7 @@ This security policy applies to:
 
 ### Security Features
 
-Pynomaly includes several built-in security features:
+anomaly_detection includes several built-in security features:
 
 - Input validation and sanitization
 - Rate limiting and DoS protection
@@ -53,7 +53,7 @@ Pynomaly includes several built-in security features:
 
 ### Security Best Practices
 
-When using Pynomaly, please follow these security guidelines:
+When using anomaly_detection, please follow these security guidelines:
 
 1. **Keep Dependencies Updated**: Regularly update to the latest version
 2. **Secure Configuration**: Use secure configuration settings in production
@@ -68,4 +68,4 @@ We acknowledge security researchers who responsibly disclose vulnerabilities:
 
 <!-- Future contributors will be listed here -->
 
-Thank you for helping keep Pynomaly secure!
+Thank you for helping keep anomaly_detection secure!

@@ -7,7 +7,7 @@ name = "data-quality"
 version = "0.1.0" 
 description = "Data quality assessment and validation framework"
 authors = [
-    {name = "Anomaly Detection Team", email = "team@pynomaly.com"}
+    {name = "Anomaly Detection Team", email = "team@anomaly_detection.com"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"
@@ -109,11 +109,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pynomaly/pynomaly"
-Documentation = "https://github.com/pynomaly/pynomaly/tree/main/src/packages/data/data_quality/docs"
-Repository = "https://github.com/pynomaly/pynomaly"
-"Bug Tracker" = "https://github.com/pynomaly/pynomaly/issues"
-Changelog = "https://github.com/pynomaly/pynomaly/blob/main/src/packages/data/data_quality/docs/CHANGELOG.md"
+Homepage = "https://github.com/anomaly_detection/anomaly_detection"
+Documentation = "https://github.com/anomaly_detection/anomaly_detection/tree/main/src/packages/data/data_quality/docs"
+Repository = "https://github.com/anomaly_detection/anomaly_detection"
+"Bug Tracker" = "https://github.com/anomaly_detection/anomaly_detection/issues"
+Changelog = "https://github.com/anomaly_detection/anomaly_detection/blob/main/src/packages/data/data_quality/docs/CHANGELOG.md"
 
 [project.scripts]
 data-quality = "data_quality.cli:main"

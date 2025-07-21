@@ -206,7 +206,7 @@ class FileOrganizer:
             "requirements-test.txt",
             "package.json",
             "package-lock.json",
-            "Pynomaly.code-workspace",
+            "anomaly_detection.code-workspace",
             ".gitignore",
             ".gitattributes",
             ".pre-commit-config.yaml",
@@ -476,7 +476,7 @@ def main():
         # Initialize organizer
         organizer = FileOrganizer(dry_run=not args.execute)
 
-        print("[*] Pynomaly File Organization Tool")
+        print("[*] anomaly_detection File Organization Tool")
         print("=" * 50)
 
         # Analyze current state

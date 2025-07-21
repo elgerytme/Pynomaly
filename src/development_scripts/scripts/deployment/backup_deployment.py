@@ -48,7 +48,7 @@ class BackupConfig:
     retention_days: int = 30
     compression: bool = True
     encryption: bool = True
-    storage_location: str = "s3://pynomaly-backups"
+    storage_location: str = "s3://anomaly_detection-backups"
     schedule: str | None = None
     notification_channels: list[str] = field(default_factory=list)
 
@@ -81,7 +81,7 @@ class BackupManager:
 
         # AWS configuration
         self.aws_region = os.getenv("AWS_REGION", "us-east-1")
-        self.s3_bucket = os.getenv("BACKUP_S3_BUCKET", "pynomaly-backups")
+        self.s3_bucket = os.getenv("BACKUP_S3_BUCKET", "anomaly_detection-backups")
 
     def _load_backup_config(self) -> dict:
         """Load backup configuration"""
@@ -111,7 +111,7 @@ class BackupManager:
                 "encryption_key": os.getenv("BACKUP_ENCRYPTION_KEY"),
             },
             "notifications": {
-                "email": {"enabled": True, "recipients": ["ops@pynomaly.com"]},
+                "email": {"enabled": True, "recipients": ["ops@anomaly_detection.com"]},
                 "slack": {
                     "enabled": True,
                     "webhook_url": os.getenv("SLACK_WEBHOOK_URL"),

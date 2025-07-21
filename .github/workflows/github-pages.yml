@@ -68,7 +68,7 @@ jobs:
         mkdir -p gh-pages
         
         # Copy static assets
-        cp -r src/pynomaly/presentation/web/static/* gh-pages/
+        cp -r src/anomaly_detection/presentation/web/static/* gh-pages/
         
         # Copy generated dashboard
         cp -r static_dashboard/* gh-pages/ 2>/dev/null || true

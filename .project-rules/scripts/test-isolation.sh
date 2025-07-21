@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test script for Pynomaly isolation framework
+# Test script for anomaly_detection isolation framework
 # Validates that isolation system works correctly
 
 set -euo pipefail
@@ -8,7 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-echo "🧪 Testing Pynomaly Isolation Framework"
+echo "🧪 Testing anomaly_detection Isolation Framework"
 echo "======================================"
 
 # Colors for output

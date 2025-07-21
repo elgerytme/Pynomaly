@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive stability tests for Pynomaly v0.1.1
+Comprehensive stability tests for anomaly_detection v0.1.1
 Tests core functionality, error handling, and adapter stability.
 """
 
@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 import numpy as np
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities.dataset import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 def test_basic_import():
@@ -81,7 +81,7 @@ def test_pytorch_adapter():
     """Test PyTorchAdapter functionality with graceful fallbacks."""
     print("\n🔍 Testing PyTorchAdapter...")
     try:
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from anomaly_detection.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         # Test creating adapter without PyTorch
         try:
@@ -103,7 +103,7 @@ def test_tensorflow_adapter():
     """Test TensorFlowAdapter functionality with graceful fallbacks."""
     print("\n🔍 Testing TensorFlowAdapter...")
     try:
-        from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+        from anomaly_detection.infrastructure.adapters.tensorflow_adapter import (
             TensorFlowAdapter,
         )
 
@@ -215,7 +215,7 @@ def test_caching_system():
 
 def main():
     """Run all stability tests."""
-    print("🚀 Running Pynomaly v0.1.1 Stability Tests")
+    print("🚀 Running anomaly_detection v0.1.1 Stability Tests")
     print("=" * 50)
 
     tests = [

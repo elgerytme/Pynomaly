@@ -153,12 +153,12 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -f deploy/docker/Dockerfile.api -t pynomaly:latest .
+        docker build -f deploy/docker/Dockerfile.api -t anomaly_detection:latest .
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'pynomaly:latest'
+        image-ref: 'anomaly_detection:latest'
         format: 'sarif'
         output: 'trivy-results.sarif'
 

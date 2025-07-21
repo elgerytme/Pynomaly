@@ -1,5 +1,5 @@
 """
-Pynomaly Data Transformation Package
+anomaly_detection Data Transformation Package
 
 A comprehensive data transformation and feature engineering package for anomaly detection.
 Provides tools for data integration, cleaning, preparation, and advanced feature engineering.

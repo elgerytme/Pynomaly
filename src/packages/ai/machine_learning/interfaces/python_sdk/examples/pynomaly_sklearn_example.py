@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Pynomaly SklearnAdapter Example
+anomaly_detection SklearnAdapter Example
 ==============================
 
-This example demonstrates how to use Pynomaly's SklearnAdapter properly
+This example demonstrates how to use anomaly_detection's SklearnAdapter properly
 with the clean architecture approach.
 """
 
@@ -67,18 +67,18 @@ def create_sample_data(n_samples=1000, contamination=0.1):
     return df
 
 
-def run_pynomaly_sklearn_example():
-    """Run Pynomaly SklearnAdapter example."""
-    print("🔍 Pynomaly SklearnAdapter Example")
+def run_anomaly_detection_sklearn_example():
+    """Run anomaly_detection SklearnAdapter example."""
+    print("🔍 anomaly_detection SklearnAdapter Example")
     print("=" * 50)
 
     # Step 1: Create sample data
     data_df = create_sample_data(n_samples=1000, contamination=0.1)
 
-    # Step 2: Create Pynomaly dataset (excluding true labels)
+    # Step 2: Create anomaly_detection dataset (excluding true labels)
     feature_data = data_df[["feature_1", "feature_2"]]
     dataset = Dataset(
-        name="Pynomaly Example Dataset",
+        name="anomaly_detection Example Dataset",
         data=feature_data,
         feature_names=["feature_1", "feature_2"],
     )
@@ -87,16 +87,16 @@ def run_pynomaly_sklearn_example():
         f"📊 Dataset created: {len(dataset.data)} samples, {len(dataset.feature_names)} features"
     )
 
-    # Step 3: Create detector using Pynomaly SklearnAdapter
+    # Step 3: Create detector using anomaly_detection SklearnAdapter
     try:
         detector = SklearnAdapter(
             algorithm_name="IsolationForest",
-            name="Pynomaly Isolation Forest",
+            name="anomaly_detection Isolation Forest",
             contamination_rate=ContaminationRate(0.1),
             random_state=42,
             n_estimators=100,
         )
-        print(f"🤖 Created Pynomaly detector: {detector.name}")
+        print(f"🤖 Created anomaly_detection detector: {detector.name}")
     except Exception as e:
         print(f"❌ Failed to create detector: {e}")
         return False
@@ -183,7 +183,7 @@ def run_pynomaly_sklearn_example():
     print(f"Training samples: {detector.metadata.get('training_samples', 'unknown')}")
     print(f"Training features: {detector.metadata.get('training_features', 'unknown')}")
 
-    print("\n🎉 Pynomaly SklearnAdapter example completed successfully!")
+    print("\n🎉 anomaly_detection SklearnAdapter example completed successfully!")
     print("\nNext steps:")
     print(
         "- Try different algorithms: LocalOutlierFactor, OneClassSVM, EllipticEnvelope"
@@ -198,11 +198,11 @@ def run_pynomaly_sklearn_example():
 def main():
     """Main function."""
     try:
-        success = run_pynomaly_sklearn_example()
+        success = run_anomaly_detection_sklearn_example()
         return 0 if success else 1
     except ImportError as e:
         print(f"❌ Import error: {e}")
-        print("\n💡 Solution: Install Pynomaly with:")
+        print("\n💡 Solution: Install anomaly_detection with:")
         print("   pip install -e .")
         return 1
     except Exception as e:

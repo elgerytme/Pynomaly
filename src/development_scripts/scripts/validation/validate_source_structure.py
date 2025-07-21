@@ -39,7 +39,7 @@ class SourceStructureValidator:
 
     def __init__(self, src_root: Path):
         self.src_root = src_root
-        self.pynomaly_root = src_root / "pynomaly"
+        self.anomaly_detection_root = src_root / "anomaly_detection"
         self.violations = []
         self.warnings = []
         self.metrics = {}
@@ -136,8 +136,8 @@ class SourceStructureValidator:
         """
         print("🏗️ Starting source code structure validation...")
 
-        if not self.pynomaly_root.exists():
-            self.violations.append(f"Source root not found: {self.pynomaly_root}")
+        if not self.anomaly_detection_root.exists():
+            self.violations.append(f"Source root not found: {self.anomaly_detection_root}")
             return ValidationResult(False, self.violations, self.warnings, self.metrics)
 
         # Run all validation checks
@@ -159,12 +159,12 @@ class SourceStructureValidator:
         print("📁 Validating basic structure...")
 
         # Check main package exists
-        if not (self.pynomaly_root / "__init__.py").exists():
+        if not (self.anomaly_detection_root / "__init__.py").exists():
             self.violations.append("Missing __init__.py in main package")
 
         # Check required layers
         for layer, config in self.expected_structure.items():
-            layer_path = self.pynomaly_root / layer
+            layer_path = self.anomaly_detection_root / layer
 
             if config["required"] and not layer_path.exists():
                 self.violations.append(f"Missing required layer: {layer}")
@@ -199,7 +199,7 @@ class SourceStructureValidator:
 
     def _check_domain_purity(self, rule: ArchitectureRule):
         """Check that domain layer has no external dependencies."""
-        domain_path = self.pynomaly_root / "domain"
+        domain_path = self.anomaly_detection_root / "domain"
         if not domain_path.exists():
             return
 
@@ -259,8 +259,8 @@ class SourceStructureValidator:
                             module = node.module.split(".")[0]
                             if (
                                 module not in allowed_imports
-                                and not module.startswith("pynomaly.domain")
-                                and not module.startswith("pynomaly.shared")
+                                and not module.startswith("anomaly_detection.domain")
+                                and not module.startswith("anomaly_detection.shared")
                             ):  # Allow shared utilities
                                 self.violations.append(
                                     f"Domain layer imports external dependency: "
@@ -275,7 +275,7 @@ class SourceStructureValidator:
         layer_order = ["domain", "application", "infrastructure", "presentation"]
 
         for i, layer in enumerate(layer_order):
-            layer_path = self.pynomaly_root / layer
+            layer_path = self.anomaly_detection_root / layer
             if not layer_path.exists():
                 continue
 
@@ -293,7 +293,7 @@ class SourceStructureValidator:
 
                     for node in ast.walk(tree):
                         if isinstance(node, ast.ImportFrom) and node.module:
-                            if node.module.startswith("pynomaly."):
+                            if node.module.startswith("anomaly_detection."):
                                 imported_layer = (
                                     node.module.split(".")[1]
                                     if len(node.module.split(".")) > 1
@@ -315,7 +315,7 @@ class SourceStructureValidator:
 
     def _check_naming_conventions(self, rule: ArchitectureRule):
         """Check naming conventions for modules, classes, and functions."""
-        for py_file in self.pynomaly_root.rglob("*.py"):
+        for py_file in self.anomaly_detection_root.rglob("*.py"):
             # Check module name
             module_name = py_file.stem
             if module_name != "__init__" and not re.match(
@@ -361,7 +361,7 @@ class SourceStructureValidator:
     def _check_module_organization(self, rule: ArchitectureRule):
         """Check that modules are properly organized within layers."""
         for layer, config in self.expected_structure.items():
-            layer_path = self.pynomaly_root / layer
+            layer_path = self.anomaly_detection_root / layer
             if not layer_path.exists():
                 continue
 
@@ -387,7 +387,7 @@ class SourceStructureValidator:
         # This is a simplified check - a full check would require import graph analysis
         import_graph = {}
 
-        for py_file in self.pynomaly_root.rglob("*.py"):
+        for py_file in self.anomaly_detection_root.rglob("*.py"):
             if py_file.name == "__init__.py":
                 continue
 
@@ -404,7 +404,7 @@ class SourceStructureValidator:
 
                 for node in ast.walk(tree):
                     if isinstance(node, ast.ImportFrom) and node.module:
-                        if node.module.startswith("pynomaly."):
+                        if node.module.startswith("anomaly_detection."):
                             imports.add(node.module)
 
                 import_graph[module_path] = imports
@@ -426,7 +426,7 @@ class SourceStructureValidator:
         protocol_count = 0
         abc_count = 0
 
-        for py_file in self.pynomaly_root.rglob("*.py"):
+        for py_file in self.anomaly_detection_root.rglob("*.py"):
             try:
                 with open(py_file, encoding="utf-8") as f:
                     content = f.read()
@@ -468,13 +468,13 @@ class SourceStructureValidator:
         print("📊 Collecting metrics...")
 
         # Count files and directories
-        total_files = len(list(self.pynomaly_root.rglob("*.py")))
-        total_dirs = len([d for d in self.pynomaly_root.rglob("*") if d.is_dir()])
+        total_files = len(list(self.anomaly_detection_root.rglob("*.py")))
+        total_dirs = len([d for d in self.anomaly_detection_root.rglob("*") if d.is_dir()])
 
         # Count by layer
         layer_metrics = {}
         for layer in self.expected_structure.keys():
-            layer_path = self.pynomaly_root / layer
+            layer_path = self.anomaly_detection_root / layer
             if layer_path.exists():
                 layer_files = len(list(layer_path.rglob("*.py")))
                 layer_dirs = len([d for d in layer_path.rglob("*") if d.is_dir()])
@@ -482,8 +482,8 @@ class SourceStructureValidator:
 
         # Calculate depth
         max_depth = 0
-        for path in self.pynomaly_root.rglob("*"):
-            depth = len(path.relative_to(self.pynomaly_root).parts)
+        for path in self.anomaly_detection_root.rglob("*"):
+            depth = len(path.relative_to(self.anomaly_detection_root).parts)
             max_depth = max(max_depth, depth)
 
         self.metrics.update(

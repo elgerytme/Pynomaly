@@ -13,7 +13,7 @@ sys.path.insert(0, str(package_root))
 def test_web_api_import():
     """Test that the Web API can be imported."""
     try:
-        from pynomaly_detection.infrastructure.web_api import app, detect_anomalies, get_algorithms
+        from anomaly_detection.infrastructure.web_api import app, detect_anomalies, get_algorithms
         print("✅ Web API import test passed")
         return True
     except Exception as e:
@@ -23,7 +23,7 @@ def test_web_api_import():
 def test_api_endpoints():
     """Test Web API endpoints."""
     try:
-        from pynomaly_detection.infrastructure.web_api import (
+        from anomaly_detection.infrastructure.web_api import (
             root, health_check, get_version, get_algorithms,
             DetectionRequest, DetectionResponse
         )
@@ -54,7 +54,7 @@ def test_api_endpoints():
 def test_detection_models():
     """Test Pydantic models."""
     try:
-        from pynomaly_detection.infrastructure.web_api import DetectionRequest, DetectionResponse
+        from anomaly_detection.infrastructure.web_api import DetectionRequest, DetectionResponse
         
         # Test request model
         sample_data = [[1.0, 2.0, 3.0], [1.1, 2.1, 3.1], [10.0, 20.0, 30.0]]

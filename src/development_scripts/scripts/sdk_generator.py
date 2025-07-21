@@ -49,13 +49,13 @@ class SDKGenerator:
         self.languages = {
             "python": {
                 "generator": "python",
-                "package_name": "pynomaly_client",
-                "client_name": "PynomaliClient",
+                "package_name": "anomaly_detection_client",
+                "client_name": "AnomalyDetectionClient",
                 "additional_properties": {
-                    "packageName": "pynomaly_client",
-                    "projectName": "pynomaly-python-client",
+                    "packageName": "anomaly_detection_client",
+                    "projectName": "anomaly_detection-python-client",
                     "packageVersion": "1.0.0",
-                    "packageUrl": "https://github.com/pynomaly/python-client",
+                    "packageUrl": "https://github.com/anomaly_detection/python-client",
                     "pythonAtLeast": "3.8",
                     "library": "requests",
                     "generateSourceCodeOnly": "false",
@@ -63,10 +63,10 @@ class SDKGenerator:
             },
             "typescript": {
                 "generator": "typescript-fetch",
-                "package_name": "@pynomaly/client",
-                "client_name": "PynomaliClient",
+                "package_name": "@anomaly_detection/client",
+                "client_name": "AnomalyDetectionClient",
                 "additional_properties": {
-                    "npmName": "@pynomaly/client",
+                    "npmName": "@anomaly_detection/client",
                     "npmVersion": "1.0.0",
                     "npmRepository": "https://registry.npmjs.org",
                     "typescriptThreePlus": "true",
@@ -76,11 +76,11 @@ class SDKGenerator:
             },
             "java": {
                 "generator": "java",
-                "package_name": "com.pynomaly.client",
-                "client_name": "PynomaliClient",
+                "package_name": "com.anomaly_detection.client",
+                "client_name": "AnomalyDetectionClient",
                 "additional_properties": {
-                    "groupId": "com.pynomaly",
-                    "artifactId": "pynomaly-client",
+                    "groupId": "com.anomaly_detection",
+                    "artifactId": "anomaly_detection-client",
                     "artifactVersion": "1.0.0",
                     "library": "okhttp-gson",
                     "java8": "true",
@@ -89,23 +89,23 @@ class SDKGenerator:
             },
             "go": {
                 "generator": "go",
-                "package_name": "pynomaly",
+                "package_name": "anomaly_detection",
                 "client_name": "Client",
                 "additional_properties": {
-                    "packageName": "pynomaly",
+                    "packageName": "anomaly_detection",
                     "packageVersion": "1.0.0",
-                    "packageUrl": "github.com/pynomaly/go-client",
+                    "packageUrl": "github.com/anomaly_detection/go-client",
                     "withGoCodegenComment": "true",
                 },
             },
             "csharp": {
                 "generator": "csharp",
-                "package_name": "Pynomaly.Client",
-                "client_name": "PynomaliClient",
+                "package_name": "anomaly_detection.Client",
+                "client_name": "AnomalyDetectionClient",
                 "additional_properties": {
-                    "packageName": "Pynomaly.Client",
+                    "packageName": "anomaly_detection.Client",
                     "packageVersion": "1.0.0",
-                    "packageCompany": "Pynomaly",
+                    "packageCompany": "anomaly_detection",
                     "packageTitle": "anomaly detection API Client",
                     "packageDescription": "C# client library for anomaly detection API",
                     "targetFramework": "net6.0",
@@ -113,38 +113,38 @@ class SDKGenerator:
             },
             "php": {
                 "generator": "php",
-                "package_name": "pynomaly/client",
-                "client_name": "PynomaliClient",
+                "package_name": "anomaly_detection/client",
+                "client_name": "AnomalyDetectionClient",
                 "additional_properties": {
-                    "packageName": "pynomaly/client",
+                    "packageName": "anomaly_detection/client",
                     "packageVersion": "1.0.0",
-                    "invokerPackage": "Pynomaly\\Client",
-                    "composerVendorName": "pynomaly",
+                    "invokerPackage": "anomaly_detection\\Client",
+                    "composerVendorName": "anomaly_detection",
                     "composerProjectName": "client",
                 },
             },
             "ruby": {
                 "generator": "ruby",
-                "package_name": "pynomaly_client",
-                "client_name": "PynomaliClient",
+                "package_name": "anomaly_detection_client",
+                "client_name": "AnomalyDetectionClient",
                 "additional_properties": {
-                    "gemName": "pynomaly_client",
+                    "gemName": "anomaly_detection_client",
                     "gemVersion": "1.0.0",
-                    "gemHomepage": "https://github.com/pynomaly/ruby-client",
+                    "gemHomepage": "https://github.com/anomaly_detection/ruby-client",
                     "gemSummary": "Ruby client library for anomaly detection API",
-                    "gemDescription": "Ruby client library for Pynomaly anomaly detection API",
+                    "gemDescription": "Ruby client library for anomaly_detection anomaly detection API",
                     "gemAuthor": "Anomaly Detection Team",
-                    "gemAuthorEmail": "support@pynomaly.com",
+                    "gemAuthorEmail": "support@anomaly_detection.com",
                 },
             },
             "rust": {
                 "generator": "rust",
-                "package_name": "pynomaly_client",
+                "package_name": "anomaly_detection_client",
                 "client_name": "Client",
                 "additional_properties": {
-                    "packageName": "pynomaly_client",
+                    "packageName": "anomaly_detection_client",
                     "packageVersion": "1.0.0",
-                    "packageAuthors": "Anomaly Detection Team <support@pynomaly.com>",
+                    "packageAuthors": "Anomaly Detection Team <support@anomaly_detection.com>",
                     "supportAsync": "true",
                     "library": "reqwest",
                 },
@@ -327,16 +327,16 @@ class SDKGenerator:
         # Add language-specific installation instructions
         if language == "python":
             readme_content += """```bash
-pip install pynomaly-client
+pip install anomaly_detection-client
 ```
 
 ## Quick Start
 
 ```python
-from pynomaly_client import PynomaliClient
+from anomaly_detection_client import AnomalyDetectionClient
 
 # Initialize client
-client = PynomaliClient(base_url="https://api.pynomaly.com")
+client = AnomalyDetectionClient(base_url="https://api.anomaly_detection.com")
 
 # Authenticate
 token_response = client.auth.login("username", "password")
@@ -353,17 +353,17 @@ print(f"Detected anomalies: {result.anomalies}")
 """
         elif language == "typescript":
             readme_content += """```bash
-npm install @pynomaly/client
+npm install @anomaly_detection/client
 ```
 
 ## Quick Start
 
 ```typescript
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
 // Initialize client
-const client = new PynomaliClient({
-    basePath: 'https://api.pynomaly.com'
+const client = new AnomalyDetectionClient({
+    basePath: 'https://api.anomaly_detection.com'
 });
 
 // Authenticate
@@ -390,8 +390,8 @@ console.log('Detected anomalies:', result.anomalies);
 
 ```xml
 <dependency>
-    <groupId>com.pynomaly</groupId>
-    <artifactId>pynomaly-client</artifactId>
+    <groupId>com.anomaly_detection</groupId>
+    <artifactId>anomaly_detection-client</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -399,21 +399,21 @@ console.log('Detected anomalies:', result.anomalies);
 ### Gradle
 
 ```gradle
-implementation 'com.pynomaly:pynomaly-client:1.0.0'
+implementation 'com.anomaly_detection:anomaly_detection-client:1.0.0'
 ```
 
 ## Quick Start
 
 ```java
-import com.pynomaly.client.ApiClient;
-import com.pynomaly.client.Configuration;
-import com.pynomaly.client.api.AuthApi;
-import com.pynomaly.client.api.DetectionApi;
-import com.pynomaly.client.model.*;
+import com.anomaly_detection.client.ApiClient;
+import com.anomaly_detection.client.Configuration;
+import com.anomaly_detection.client.api.AuthApi;
+import com.anomaly_detection.client.api.DetectionApi;
+import com.anomaly_detection.client.model.*;
 
 // Initialize client
 ApiClient client = Configuration.getDefaultApiClient();
-client.setBasePath("https://api.pynomaly.com");
+client.setBasePath("https://api.anomaly_detection.com");
 
 // Authenticate
 AuthApi authApi = new AuthApi(client);
@@ -438,7 +438,7 @@ System.out.println("Detected anomalies: " + result.getAnomalies());
 """
         elif language == "go":
             readme_content += """```bash
-go get github.com/pynomaly/go-client
+go get github.com/anomaly_detection/go-client
 ```
 
 ## Quick Start
@@ -451,18 +451,18 @@ import (
     "fmt"
     "log"
 
-    "github.com/pynomaly/go-client"
+    "github.com/anomaly_detection/go-client"
 )
 
 func main() {
     // Initialize client
-    client := pynomaly.NewAPIClient(pynomaly.NewConfiguration())
-    client.GetConfig().BasePath = "https://api.pynomaly.com"
+    client := anomaly_detection.NewAPIClient(anomaly_detection.NewConfiguration())
+    client.GetConfig().BasePath = "https://api.anomaly_detection.com"
 
     ctx := context.Background()
 
     // Authenticate
-    loginReq := pynomaly.LoginRequest{
+    loginReq := anomaly_detection.LoginRequest{
         Username: "username",
         Password: "password",
     }
@@ -473,10 +473,10 @@ func main() {
     }
 
     // Set authentication
-    auth := context.WithValue(ctx, pynomaly.ContextAccessToken, tokenResp.AccessToken)
+    auth := context.WithValue(ctx, anomaly_detection.ContextAccessToken, tokenResp.AccessToken)
 
     // Detect anomalies
-    detectReq := pynomaly.DetectionRequest{
+    detectReq := anomaly_detection.DetectionRequest{
         Data:      []float64{1.0, 2.0, 3.0, 100.0, 4.0, 5.0},
         Algorithm: "isolation_forest",
         Parameters: map[string]interface{}{
@@ -561,9 +561,9 @@ The SDK automatically handles rate limiting with exponential backoff:
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Issues**: https://github.com/pynomaly/{language}-client/issues
+- **Documentation**: https://docs.anomaly_detection.com
+- **Support**: support@anomaly_detection.com
+- **Issues**: https://github.com/anomaly_detection/{language}-client/issues
 
 ## License
 
@@ -585,17 +585,17 @@ Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         if language == "python":
             # Python examples
             basic_example = '''"""
-Basic Pynomaly Client Example
+Basic anomaly_detection Client Example
 """
 
 import asyncio
-from pynomaly_client import PynomaliClient
-from pynomaly_client.exceptions import ApiException
+from anomaly_detection_client import AnomalyDetectionClient
+from anomaly_detection_client.exceptions import ApiException
 
 async def main():
     """Basic usage example."""
     # Initialize client
-    client = PynomaliClient(base_url="https://api.pynomaly.com")
+    client = AnomalyDetectionClient(base_url="https://api.anomaly_detection.com")
 
     try:
         # Login
@@ -643,24 +643,24 @@ if __name__ == "__main__":
 
             # Advanced example
             advanced_example = '''"""
-Advanced Pynomaly Client Example with Error Handling and Retries
+Advanced anomaly_detection Client Example with Error Handling and Retries
 """
 
 import asyncio
 import logging
 from typing import List
-from pynomaly_client import PynomaliClient
-from pynomaly_client.exceptions import ApiException
+from anomaly_detection_client import AnomalyDetectionClient
+from anomaly_detection_client.exceptions import ApiException
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class PynomaliWrapper:
+class anomaly-detectionWrapper:
     """Advanced wrapper with retry logic and error handling."""
 
-    def __init__(self, base_url: str = "https://api.pynomaly.com"):
-        self.client = PynomaliClient(base_url=base_url)
+    def __init__(self, base_url: str = "https://api.anomaly_detection.com"):
+        self.client = AnomalyDetectionClient(base_url=base_url)
         self.authenticated = False
 
     async def authenticate(self, username: str, password: str) -> bool:
@@ -772,7 +772,7 @@ class PynomaliWrapper:
 
 async def main():
     """Advanced usage example."""
-    wrapper = PynomaliWrapper()
+    wrapper = anomaly-detectionWrapper()
 
     try:
         # Authenticate
@@ -795,7 +795,7 @@ async def main():
 
         # Train and validate model
         model_result = await wrapper.train_and_validate_model(
-            training_data="s3://pynomaly-data/training/sample.csv",
+            training_data="s3://anomaly_detection-data/training/sample.csv",
             validation_data=[1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
             algorithm="lstm_autoencoder",
             parameters={"epochs": 50, "batch_size": 32}
@@ -865,11 +865,11 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Type check with mypy
-      run: mypy pynomaly_client
+      run: mypy anomaly_detection_client
 
     - name: Test with pytest
       run: |
-        pytest --cov=pynomaly_client --cov-report=xml --cov-report=html
+        pytest --cov=anomaly_detection_client --cov-report=xml --cov-report=html
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -1115,7 +1115,7 @@ asyncio_mode = auto
         successful = [lang for lang, success in results.items() if success]
         failed = [lang for lang, success in results.items() if not success]
 
-        summary_content = f"""# Pynomaly SDK Generation Summary
+        summary_content = f"""# anomaly_detection SDK Generation Summary
 
 Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -1194,9 +1194,9 @@ go mod tidy
         summary_content += """
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Issues**: https://github.com/pynomaly/client-sdks/issues
+- **Documentation**: https://docs.anomaly_detection.com
+- **Support**: support@anomaly_detection.com
+- **Issues**: https://github.com/anomaly_detection/client-sdks/issues
 """
 
         with open(self.output_dir / "README.md", "w") as f:

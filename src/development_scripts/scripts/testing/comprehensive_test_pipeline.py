@@ -97,7 +97,7 @@ class ComprehensiveTestPipeline:
             TestSuite(
                 name="Core Unit Tests",
                 test_type=TestType.UNIT,
-                command="./environments/.venv/bin/python -m pytest tests/unit/ -v --cov=src/pynomaly --cov-report=json --cov-report=html --tb=short",
+                command="./environments/.venv/bin/python -m pytest tests/unit/ -v --cov=src/anomaly_detection --cov-report=json --cov-report=html --tb=short",
                 timeout=600,
                 artifacts=["htmlcov/", "coverage.json"],
             ),
@@ -247,7 +247,7 @@ class ComprehensiveTestPipeline:
             TestSuite(
                 name="Type Checking",
                 test_type=TestType.REGRESSION,
-                command="./environments/.venv/bin/python -m mypy src/pynomaly --ignore-missing-imports",
+                command="./environments/.venv/bin/python -m mypy src/anomaly_detection --ignore-missing-imports",
                 timeout=180,
                 required=False,
             ),

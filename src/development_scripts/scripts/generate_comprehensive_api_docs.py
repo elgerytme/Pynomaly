@@ -23,8 +23,8 @@ import yaml
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
-    from pynomaly.infrastructure.config import create_container
-    from pynomaly.presentation.api.app import create_app
+    from anomaly_detection.infrastructure.config import create_container
+    from anomaly_detection.presentation.api.app import create_app
 except ImportError as e:
     print(f"Warning: Could not import anomaly_detection modules: {e}")
     print("API documentation will be generated from static analysis")
@@ -333,8 +333,8 @@ class APIDocumentationGenerator:
                 "version": "1.0.0",
                 "contact": {
                     "name": "Anomaly Detection Team",
-                    "url": "https://github.com/pynomaly/pynomaly",
-                    "email": "support@pynomaly.com"
+                    "url": "https://github.com/anomaly_detection/anomaly_detection",
+                    "email": "support@anomaly_detection.com"
                 },
                 "license": {
                     "name": "MIT",
@@ -347,7 +347,7 @@ class APIDocumentationGenerator:
                     "description": "Development server"
                 },
                 {
-                    "url": "https://api.pynomaly.com",
+                    "url": "https://api.anomaly_detection.com",
                     "description": "Production server"
                 }
             ],
@@ -635,7 +635,7 @@ The anomaly detection API provides comprehensive anomaly detection capabilities 
 ## Base URL
 
 - **Development**: `http://localhost:8000`
-- **Production**: `https://api.pynomaly.com`
+- **Production**: `https://api.anomaly_detection.com`
 
 ## Authentication
 
@@ -684,8 +684,8 @@ curl -X POST http://localhost:8000/api/v1/mfa/totp/setup \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "app_name": "Pynomaly",
-    "issuer": "Pynomaly Security"
+    "app_name": "anomaly_detection",
+    "issuer": "anomaly_detection Security"
   }'
 ```
 
@@ -760,7 +760,7 @@ The API uses RFC 7807 Problem Details for HTTP APIs format:
 
 ```json
 {
-  "type": "https://api.pynomaly.com/problems/validation-error",
+  "type": "https://api.anomaly_detection.com/problems/validation-error",
   "title": "Validation Error",
   "detail": "The request body contains invalid data",
   "status": 400,
@@ -790,7 +790,7 @@ X-RateLimit-Reset: 1640995200
 import requests
 from typing import List, Dict, Any
 
-class PynomaliAPI:
+class anomaly-detectionAPI:
     def __init__(self, base_url: str, token: str):
         self.base_url = base_url
         self.headers = {
@@ -814,7 +814,7 @@ class PynomaliAPI:
         return response.json()
 
 # Usage
-api = PynomaliAPI("http://localhost:8000", "your_jwt_token")
+api = anomaly-detectionAPI("http://localhost:8000", "your_jwt_token")
 result = api.detect_anomalies([1, 2, 3, 4, 5, 100, 6, 7, 8, 9])
 print(result)
 ```
@@ -822,7 +822,7 @@ print(result)
 ### JavaScript SDK
 
 ```javascript
-class PynomaliAPI {
+class anomaly-detectionAPI {
     constructor(baseUrl, token) {
         this.baseUrl = baseUrl;
         this.headers = {
@@ -852,7 +852,7 @@ class PynomaliAPI {
 }
 
 // Usage
-const api = new PynomaliAPI('http://localhost:8000', 'your_jwt_token');
+const api = new anomaly-detectionAPI('http://localhost:8000', 'your_jwt_token');
 api.detectAnomalies([1, 2, 3, 4, 5, 100, 6, 7, 8, 9])
     .then(result => console.log(result));
 ```
@@ -870,9 +870,9 @@ api.detectAnomalies([1, 2, 3, 4, 5, 100, 6, 7, 8, 9])
 ## Support
 
 For support and questions:
-- GitHub Issues: https://github.com/pynomaly/pynomaly/issues
-- Email: support@pynomaly.com
-- Documentation: https://docs.pynomaly.com
+- GitHub Issues: https://github.com/anomaly_detection/anomaly_detection/issues
+- Email: support@anomaly_detection.com
+- Documentation: https://docs.anomaly_detection.com
 """
 
         return guide
@@ -998,10 +998,10 @@ class TOTPManager:
     def __init__(self, api_client):
         self.api_client = api_client
 
-    def setup_totp(self, app_name: str = "Pynomaly") -> dict:
+    def setup_totp(self, app_name: str = "anomaly_detection") -> dict:
         response = self.api_client.post("/api/v1/mfa/totp/setup", {
             "app_name": app_name,
-            "issuer": "Pynomaly Security"
+            "issuer": "anomaly_detection Security"
         })
         return response.json()
 
@@ -1102,7 +1102,7 @@ anomaly detection API follows semantic versioning and provides multiple versioni
 
 ### Header Versioning (Alternative)
 ```
-Accept: application/vnd.pynomaly.v1+json
+Accept: application/vnd.anomaly_detection.v1+json
 ```
 
 ## Version Lifecycle
@@ -1157,8 +1157,8 @@ class VersionedClient:
 
     def get_headers(self) -> dict:
         return {
-            "Accept": f"application/vnd.pynomaly.{self.version}+json",
-            "User-Agent": "Pynomaly-Client/1.0"
+            "Accept": f"application/vnd.anomaly_detection.{self.version}+json",
+            "User-Agent": "anomaly_detection-Client/1.0"
         }
 ```
 
@@ -1240,7 +1240,7 @@ def test_health_endpoint(version):
         print("📮 Generating Postman collection...")
         postman_collection = self.generate_postman_collection()
 
-        with open(self.output_dir / "pynomaly_api.postman_collection.json", "w") as f:
+        with open(self.output_dir / "anomaly_detection_api.postman_collection.json", "w") as f:
             json.dump(postman_collection, f, indent=2)
 
         # Generate documentation files
@@ -1280,7 +1280,7 @@ Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 - **[OpenAPI JSON](openapi.json)** - Machine-readable API specification
 - **[OpenAPI YAML](openapi.yaml)** - Human-readable API specification
-- **[Postman Collection](pynomaly_api.postman_collection.json)** - Ready-to-use API testing
+- **[Postman Collection](anomaly_detection_api.postman_collection.json)** - Ready-to-use API testing
 
 ## API Overview
 
@@ -1338,7 +1338,7 @@ curl -X GET http://localhost:8000/api/v1/health \\
 ### Import Postman Collection
 1. Open Postman
 2. Click "Import"
-3. Select `pynomaly_api.postman_collection.json`
+3. Select `anomaly_detection_api.postman_collection.json`
 4. Set environment variables:
    - `base_url`: Your API base URL
    - `auth_token`: Your JWT token
@@ -1355,9 +1355,9 @@ openapi-generator-cli generate -i openapi.json -g javascript -o javascript-sdk/
 
 ## Support
 
-- **GitHub**: https://github.com/pynomaly/pynomaly
-- **Issues**: https://github.com/pynomaly/pynomaly/issues
-- **Email**: support@pynomaly.com
+- **GitHub**: https://github.com/anomaly_detection/anomaly_detection
+- **Issues**: https://github.com/anomaly_detection/anomaly_detection/issues
+- **Email**: support@anomaly_detection.com
 
 ## Security
 

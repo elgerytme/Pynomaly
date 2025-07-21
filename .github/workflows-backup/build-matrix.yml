@@ -126,12 +126,12 @@ jobs:
           uv run python --version
           uv run python -c "import sys; print(f'Python executable: {sys.executable}')"
           uv run python -c "import platform; print(f'Platform: {platform.platform()}')"
-          uv run python -c "import pynomaly; print(f'Pynomaly version: {pynomaly.__version__}')"
+          uv run python -c "import anomaly_detection; print(f'anomaly_detection version: {anomaly_detection.__version__}')"
 
       - name: Run basic smoke tests
         run: |
-          uv run python -c "import pynomaly; print('Basic import successful')"
-          uv run python -c "from pynomaly.presentation.cli.app import app; print('CLI import successful')"
+          uv run python -c "import anomaly_detection; print('Basic import successful')"
+          uv run python -c "from anomaly_detection.presentation.cli.app import app; print('CLI import successful')"
 
       - name: Run unit tests
         run: |
@@ -164,13 +164,13 @@ jobs:
 
       - name: Test CLI functionality
         run: |
-          uv run pynomaly --help
-          uv run pynomaly --version
+          uv run anomaly_detection --help
+          uv run anomaly_detection --version
 
       - name: Test package installation
         run: |
           uv pip install --no-deps .
-          uv run python -c "import pynomaly; print('Package installation successful')"
+          uv run python -c "import anomaly_detection; print('Package installation successful')"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -220,7 +220,7 @@ jobs:
         run: |
           ls -la dist/
           uv run python -m pip install dist/*.whl
-          uv run python -c "import pynomaly; print(f'Installed version: {pynomaly.__version__}')"
+          uv run python -c "import anomaly_detection; print(f'Installed version: {anomaly_detection.__version__}')"
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
@@ -246,7 +246,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: pynomaly:test
+          tags: anomaly_detection:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -254,9 +254,9 @@ jobs:
 
       - name: Test container
         run: |
-          docker run --rm pynomaly:test python -c "import pynomaly; print('Container test successful')"
-          docker run --rm pynomaly:test pynomaly --help
-          docker run --rm pynomaly:test pynomaly --version
+          docker run --rm anomaly_detection:test python -c "import anomaly_detection; print('Container test successful')"
+          docker run --rm anomaly_detection:test anomaly_detection --help
+          docker run --rm anomaly_detection:test anomaly_detection --version
 
   # Performance comparison across platforms
   performance-comparison:

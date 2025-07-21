@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Performance Optimization System for Pynomaly Production
+Performance Optimization System for anomaly_detection Production
 
 Addresses high-load performance issues identified in production deployment,
 implementing optimizations for scenarios with >500 concurrent users.

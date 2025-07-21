@@ -24,7 +24,7 @@ def test_quality_gates_core():
     print("🔧 Testing Quality Gates Core System...")
 
     try:
-        from pynomaly.infrastructure.quality.quality_gates import (
+        from anomaly_detection.infrastructure.quality.quality_gates import (
             QualityGateReport,
             QualityGateResult,
             QualityGateType,
@@ -90,7 +90,7 @@ def test_quality_validation():
     print("\n🧪 Testing Quality Validation...")
 
     try:
-        from pynomaly.infrastructure.quality.quality_gates import (
+        from anomaly_detection.infrastructure.quality.quality_gates import (
             validate_feature_quality,
         )
 
@@ -274,7 +274,7 @@ def test_specific_quality_gates():
     print("\n🚪 Testing Specific Quality Gates...")
 
     try:
-        from pynomaly.infrastructure.quality.quality_gates import QualityGateValidator
+        from anomaly_detection.infrastructure.quality.quality_gates import QualityGateValidator
 
         validator = QualityGateValidator()
 
@@ -409,7 +409,7 @@ def test_html_report_generation():
     print("\n📄 Testing HTML Report Generation...")
 
     try:
-        from pynomaly.infrastructure.quality.quality_gates import (
+        from anomaly_detection.infrastructure.quality.quality_gates import (
             QualityGateReport,
             QualityGateResult,
             QualityGateType,
@@ -483,7 +483,7 @@ def test_convenience_functions():
     print("\n🛠️ Testing Convenience Functions...")
 
     try:
-        from pynomaly.infrastructure.quality.quality_gates import (
+        from anomaly_detection.infrastructure.quality.quality_gates import (
             validate_feature_quality,
         )
 
@@ -561,7 +561,7 @@ def test_quality_gates_readiness():
 
 def main():
     """Run all quality gates validation tests."""
-    print("🧪 Pynomaly Quality Gates Infrastructure Validation")
+    print("🧪 anomaly_detection Quality Gates Infrastructure Validation")
     print("=" * 70)
 
     try:

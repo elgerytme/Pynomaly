@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Production monitoring setup script for Pynomaly.
+"""Production monitoring setup script for anomaly_detection.
 
 This script sets up comprehensive production monitoring including:
 - Prometheus metrics collection
@@ -36,7 +36,7 @@ class ProductionMonitoringSetup:
 
     def setup_monitoring_stack(self):
         """Set up the complete monitoring stack."""
-        print("🚀 Setting up Pynomaly Production Monitoring Stack...")
+        print("🚀 Setting up anomaly_detection Production Monitoring Stack...")
 
         try:
             # 1. Create configuration files
@@ -80,7 +80,7 @@ class ProductionMonitoringSetup:
                 "scrape_interval": "15s",
                 "evaluation_interval": "15s",
                 "external_labels": {
-                    "monitor": "pynomaly-production",
+                    "monitor": "anomaly_detection-production",
                     "environment": "production",
                 },
             },
@@ -90,15 +90,15 @@ class ProductionMonitoringSetup:
             ],
             "scrape_configs": [
                 {
-                    "job_name": "pynomaly-api",
-                    "static_configs": [{"targets": ["pynomaly-app:8000"]}],
+                    "job_name": "anomaly_detection-api",
+                    "static_configs": [{"targets": ["anomaly_detection-app:8000"]}],
                     "metrics_path": "/metrics",
                     "scrape_interval": "10s",
                     "scrape_timeout": "5s",
                 },
                 {
-                    "job_name": "pynomaly-realtime-dashboard",
-                    "static_configs": [{"targets": ["pynomaly-dashboard:8080"]}],
+                    "job_name": "anomaly_detection-realtime-dashboard",
+                    "static_configs": [{"targets": ["anomaly_detection-dashboard:8080"]}],
                     "metrics_path": "/metrics",
                     "scrape_interval": "15s",
                 },
@@ -231,7 +231,7 @@ class ProductionMonitoringSetup:
                     "email_configs": [
                         {
                             "to": "${ALERT_EMAIL_TO}",
-                            "subject": "Pynomaly Alert: {{ .GroupLabels.alertname }}",
+                            "subject": "anomaly_detection Alert: {{ .GroupLabels.alertname }}",
                             "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}",
                         }
                     ],
@@ -241,7 +241,7 @@ class ProductionMonitoringSetup:
                     "email_configs": [
                         {
                             "to": "${CRITICAL_ALERT_EMAIL_TO}",
-                            "subject": "🚨 CRITICAL: Pynomaly Alert - {{ .GroupLabels.alertname }}",
+                            "subject": "🚨 CRITICAL: anomaly_detection Alert - {{ .GroupLabels.alertname }}",
                             "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}\\n\\nLabels: {{ .Labels }}{{ end }}",
                         }
                     ],
@@ -259,7 +259,7 @@ class ProductionMonitoringSetup:
                     "email_configs": [
                         {
                             "to": "${ALERT_EMAIL_TO}",
-                            "subject": "⚠️ WARNING: Pynomaly Alert - {{ .GroupLabels.alertname }}",
+                            "subject": "⚠️ WARNING: anomaly_detection Alert - {{ .GroupLabels.alertname }}",
                             "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}",
                         }
                     ],
@@ -286,11 +286,11 @@ class ProductionMonitoringSetup:
         rules = {
             "groups": [
                 {
-                    "name": "pynomaly.alerts",
+                    "name": "anomaly_detection.alerts",
                     "rules": [
                         {
                             "alert": "PynomályServiceDown",
-                            "expr": 'up{job="pynomaly-api"} == 0',
+                            "expr": 'up{job="anomaly_detection-api"} == 0',
                             "for": "1m",
                             "labels": {"severity": "critical"},
                             "annotations": {
@@ -391,7 +391,7 @@ class ProductionMonitoringSetup:
                     ],
                 },
                 {
-                    "name": "pynomaly.performance",
+                    "name": "anomaly_detection.performance",
                     "rules": [
                         {
                             "alert": "ModelTrainingTimeout",
@@ -429,13 +429,13 @@ class ProductionMonitoringSetup:
         dashboard_dir = self.config_dir / "grafana" / "dashboards"
         dashboard_dir.mkdir(parents=True, exist_ok=True)
 
-        # Main Pynomaly dashboard
+        # Main anomaly_detection dashboard
         main_dashboard = {
             "dashboard": {
                 "id": None,
-                "title": "Pynomaly Production Overview",
-                "description": "Comprehensive monitoring for Pynomaly production deployment",
-                "tags": ["pynomaly", "production", "overview"],
+                "title": "anomaly_detection Production Overview",
+                "description": "Comprehensive monitoring for anomaly_detection production deployment",
+                "tags": ["anomaly_detection", "production", "overview"],
                 "timezone": "UTC",
                 "refresh": "30s",
                 "time": {"from": "now-1h", "to": "now"},
@@ -446,7 +446,7 @@ class ProductionMonitoringSetup:
                         "type": "stat",
                         "targets": [
                             {
-                                "expr": 'up{job="pynomaly-api"}',
+                                "expr": 'up{job="anomaly_detection-api"}',
                                 "legendFormat": "API Service",
                                 "refId": "A",
                             }
@@ -558,7 +558,7 @@ class ProductionMonitoringSetup:
             "overwrite": True,
         }
 
-        dashboard_file = dashboard_dir / "pynomaly-overview.json"
+        dashboard_file = dashboard_dir / "anomaly_detection-overview.json"
         with open(dashboard_file, "w") as f:
             json.dump(main_dashboard, f, indent=2)
 
@@ -571,7 +571,7 @@ class ProductionMonitoringSetup:
             "services": {
                 "prometheus": {
                     "image": "prom/prometheus:latest",
-                    "container_name": "pynomaly-prometheus",
+                    "container_name": "anomaly_detection-prometheus",
                     "ports": ["9090:9090"],
                     "volumes": [
                         "./config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml",
@@ -592,7 +592,7 @@ class ProductionMonitoringSetup:
                 },
                 "grafana": {
                     "image": "grafana/grafana:latest",
-                    "container_name": "pynomaly-grafana",
+                    "container_name": "anomaly_detection-grafana",
                     "ports": ["3000:3000"],
                     "environment": [
                         "GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}",
@@ -609,7 +609,7 @@ class ProductionMonitoringSetup:
                 },
                 "alertmanager": {
                     "image": "prom/alertmanager:latest",
-                    "container_name": "pynomaly-alertmanager",
+                    "container_name": "anomaly_detection-alertmanager",
                     "ports": ["9093:9093"],
                     "volumes": [
                         "./config/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml"
@@ -624,7 +624,7 @@ class ProductionMonitoringSetup:
                 },
                 "node-exporter": {
                     "image": "prom/node-exporter:latest",
-                    "container_name": "pynomaly-node-exporter",
+                    "container_name": "anomaly_detection-node-exporter",
                     "ports": ["9100:9100"],
                     "volumes": [
                         "/proc:/host/proc:ro",
@@ -642,7 +642,7 @@ class ProductionMonitoringSetup:
                 },
                 "postgres-exporter": {
                     "image": "quay.io/prometheuscommunity/postgres-exporter",
-                    "container_name": "pynomaly-postgres-exporter",
+                    "container_name": "anomaly_detection-postgres-exporter",
                     "ports": ["9187:9187"],
                     "environment": ["DATA_SOURCE_NAME=${DATABASE_URL}"],
                     "restart": "unless-stopped",
@@ -650,7 +650,7 @@ class ProductionMonitoringSetup:
                 },
                 "redis-exporter": {
                     "image": "oliver006/redis_exporter",
-                    "container_name": "pynomaly-redis-exporter",
+                    "container_name": "anomaly_detection-redis-exporter",
                     "ports": ["9121:9121"],
                     "environment": ["REDIS_ADDR=${REDIS_URL}"],
                     "restart": "unless-stopped",
@@ -674,7 +674,7 @@ class ProductionMonitoringSetup:
         start_script = """#!/bin/bash
 set -e
 
-echo "🚀 Starting Pynomaly Monitoring Stack..."
+echo "🚀 Starting anomaly_detection Monitoring Stack..."
 
 # Check if Docker is running
 if ! docker info >/dev/null 2>&1; then
@@ -733,7 +733,7 @@ echo "🎯 To view logs: docker-compose -f monitoring/docker-compose.monitoring.
 
         # Stop script
         stop_script = """#!/bin/bash
-echo "🛑 Stopping Pynomaly Monitoring Stack..."
+echo "🛑 Stopping anomaly_detection Monitoring Stack..."
 
 docker-compose -f monitoring/docker-compose.monitoring.yml down
 
@@ -747,7 +747,7 @@ echo "✅ Monitoring stack stopped."
 
         # Status script
         status_script = """#!/bin/bash
-echo "📊 Pynomaly Monitoring Stack Status"
+echo "📊 anomaly_detection Monitoring Stack Status"
 echo "=================================="
 
 docker-compose -f monitoring/docker-compose.monitoring.yml ps
@@ -866,7 +866,7 @@ docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemU
     def print_service_info(self):
         """Print service information."""
         print("\n" + "=" * 60)
-        print("🎉 PYNOMALY MONITORING STACK READY!")
+        print("🎉 anomaly_detection MONITORING STACK READY!")
         print("=" * 60)
         print()
         print("📊 Service URLs:")
@@ -908,7 +908,7 @@ docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemU
 
 def main():
     """Main entry point."""
-    print("🔥 Pynomaly Production Monitoring Setup")
+    print("🔥 anomaly_detection Production Monitoring Setup")
     print("=" * 50)
 
     setup = ProductionMonitoringSetup()

@@ -10,9 +10,9 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Default configuration
 ENV_FILE="${PROJECT_ROOT}/.env.dev"
-NETWORK_NAME="pynomaly-dev"
-CONTAINER_NAME="pynomaly-dev"
-IMAGE_NAME="pynomaly:dev"
+NETWORK_NAME="anomaly_detection-dev"
+CONTAINER_NAME="anomaly_detection-dev"
+IMAGE_NAME="anomaly_detection:dev"
 HOST_PORT=8000
 CONTAINER_PORT=8000
 
@@ -26,8 +26,8 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  -p, --port PORT      Host port to bind (default: 8000)"
-    echo "  -n, --name NAME      Container name (default: pynomaly-dev)"
-    echo "  -i, --image IMAGE    Docker image name (default: pynomaly:dev)"
+    echo "  -n, --name NAME      Container name (default: anomaly_detection-dev)"
+    echo "  -i, --image IMAGE    Docker image name (default: anomaly_detection:dev)"
     echo "  --env-file FILE      Environment file path (default: .env.dev)"
     echo "  --build              Build image before running"
     echo "  --clean              Remove existing container first"
@@ -87,7 +87,7 @@ if [[ "$BUILD_IMAGE" == "true" ]]; then
     docker build -t "$IMAGE_NAME" -f "$PROJECT_ROOT/Dockerfile" "$PROJECT_ROOT"
 fi
 
-echo "Starting Pynomaly development environment..."
+echo "Starting anomaly_detection development environment..."
 echo "Container: $CONTAINER_NAME"
 echo "Image: $IMAGE_NAME"
 echo "Port: $HOST_PORT -> $CONTAINER_PORT"
@@ -108,7 +108,7 @@ docker run -it --rm \
     -e LOG_LEVEL=DEBUG \
     -e RELOAD=true \
     "$IMAGE_NAME" \
-    poetry run uvicorn pynomaly.presentation.api:app \
+    poetry run uvicorn anomaly_detection.presentation.api:app \
     --host 0.0.0.0 \
     --port "$CONTAINER_PORT" \
     --reload \

@@ -129,7 +129,7 @@ class NewRelicIntegration:
                 
                 # Add default tags
                 metric_tags.update({
-                    "service": "pynomaly",
+                    "service": "anomaly_detection",
                     "component": "anomaly_detection"
                 })
                 
@@ -173,7 +173,7 @@ class NewRelicIntegration:
                 "model_id": str(model_id),
                 "deployment_id": str(deployment_id),
                 "tenant_id": str(tenant_id),
-                "service": "pynomaly",
+                "service": "anomaly_detection",
                 "component": "ml_model"
             }
             
@@ -186,7 +186,7 @@ class NewRelicIntegration:
             
             for metric_name, value in metrics.items():
                 nr_metrics.append({
-                    "name": f"pynomaly.model.{metric_name}",
+                    "name": f"anomaly_detection.model.{metric_name}",
                     "value": value,
                     "timestamp": timestamp,
                     "type": "gauge",
@@ -215,7 +215,7 @@ class NewRelicIntegration:
             base_tags = {
                 "tenant_id": str(tenant_id),
                 "data_source": data_source,
-                "service": "pynomaly",
+                "service": "anomaly_detection",
                 "component": "anomaly_detection"
             }
             
@@ -227,28 +227,28 @@ class NewRelicIntegration:
             
             metrics = [
                 {
-                    "name": "pynomaly.anomaly.count",
+                    "name": "anomaly_detection.anomaly.count",
                     "value": anomaly_count,
                     "timestamp": timestamp,
                     "type": "count",
                     "tags": base_tags
                 },
                 {
-                    "name": "pynomaly.anomaly.rate",
+                    "name": "anomaly_detection.anomaly.rate",
                     "value": anomaly_rate,
                     "timestamp": timestamp,
                     "type": "gauge",
                     "tags": base_tags
                 },
                 {
-                    "name": "pynomaly.anomaly.score",
+                    "name": "anomaly_detection.anomaly.score",
                     "value": anomaly_score,
                     "timestamp": timestamp,
                     "type": "gauge",
                     "tags": base_tags
                 },
                 {
-                    "name": "pynomaly.records.processed",
+                    "name": "anomaly_detection.records.processed",
                     "value": total_records,
                     "timestamp": timestamp,
                     "type": "count",
@@ -279,7 +279,7 @@ class NewRelicIntegration:
             # Add default attributes
             event_attributes = dict(attributes)
             event_attributes.update({
-                "service": "pynomaly",
+                "service": "anomaly_detection",
                 "timestamp": (timestamp or datetime.utcnow()).timestamp()
             })
             
@@ -429,7 +429,7 @@ class NewRelicIntegration:
             # Build NRQL query
             nrql_parts = [f"SELECT average({metric_name}) FROM Metric"]
             
-            where_conditions = ["service = 'pynomaly'"]
+            where_conditions = ["service = 'anomaly_detection'"]
             if tenant_id:
                 where_conditions.append(f"tenant_id = '{tenant_id}'")
             if data_source:

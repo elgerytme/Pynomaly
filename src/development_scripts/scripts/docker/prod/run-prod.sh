@@ -10,9 +10,9 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Default configuration
 ENV_FILE="${PROJECT_ROOT}/.env.prod"
-NETWORK_NAME="pynomaly-prod"
-CONTAINER_NAME="pynomaly-prod"
-IMAGE_NAME="pynomaly:latest"
+NETWORK_NAME="anomaly_detection-prod"
+CONTAINER_NAME="anomaly_detection-prod"
+IMAGE_NAME="anomaly_detection:latest"
 HOST_PORT=80
 CONTAINER_PORT=8000
 REPLICAS=1
@@ -23,7 +23,7 @@ usage() {
     echo "Options:"
     echo "  -p, --port PORT      Host port to bind (default: 80)"
     echo "  -r, --replicas NUM   Number of replicas (default: 1)"
-    echo "  -i, --image IMAGE    Docker image name (default: pynomaly:latest)"
+    echo "  -i, --image IMAGE    Docker image name (default: anomaly_detection:latest)"
     echo "  --ssl                Enable SSL/TLS (requires certificates)"
     echo "  --monitoring         Include monitoring stack"
     echo "  --logging            Include centralized logging"
@@ -89,12 +89,12 @@ stop_containers() {
     for i in $(seq 1 $REPLICAS); do
         docker rm -f "${CONTAINER_NAME}-${i}" 2>/dev/null || true
     done
-    docker rm -f "pynomaly-nginx-prod" 2>/dev/null || true
-    docker rm -f "pynomaly-prometheus-prod" 2>/dev/null || true
-    docker rm -f "pynomaly-grafana-prod" 2>/dev/null || true
-    docker rm -f "pynomaly-elasticsearch-prod" 2>/dev/null || true
-    docker rm -f "pynomaly-logstash-prod" 2>/dev/null || true
-    docker rm -f "pynomaly-kibana-prod" 2>/dev/null || true
+    docker rm -f "anomaly_detection-nginx-prod" 2>/dev/null || true
+    docker rm -f "anomaly_detection-prometheus-prod" 2>/dev/null || true
+    docker rm -f "anomaly_detection-grafana-prod" 2>/dev/null || true
+    docker rm -f "anomaly_detection-elasticsearch-prod" 2>/dev/null || true
+    docker rm -f "anomaly_detection-logstash-prod" 2>/dev/null || true
+    docker rm -f "anomaly_detection-kibana-prod" 2>/dev/null || true
     echo "All production containers stopped."
     exit 0
 }
@@ -124,7 +124,7 @@ if [[ "$MONITORING" == "true" ]]; then
 
     # Start Prometheus
     docker run -d \
-        --name "pynomaly-prometheus-prod" \
+        --name "anomaly_detection-prometheus-prod" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         -p 9090:9090 \
@@ -140,7 +140,7 @@ if [[ "$MONITORING" == "true" ]]; then
 
     # Start Grafana
     docker run -d \
-        --name "pynomaly-grafana-prod" \
+        --name "anomaly_detection-grafana-prod" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         -p 3000:3000 \
@@ -156,7 +156,7 @@ if [[ "$LOGGING" == "true" ]]; then
 
     # Start Elasticsearch
     docker run -d \
-        --name "pynomaly-elasticsearch-prod" \
+        --name "anomaly_detection-elasticsearch-prod" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         -p 9200:9200 \
@@ -167,7 +167,7 @@ if [[ "$LOGGING" == "true" ]]; then
 
     # Start Logstash
     docker run -d \
-        --name "pynomaly-logstash-prod" \
+        --name "anomaly_detection-logstash-prod" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         -p 5044:5044 \
@@ -176,11 +176,11 @@ if [[ "$LOGGING" == "true" ]]; then
 
     # Start Kibana
     docker run -d \
-        --name "pynomaly-kibana-prod" \
+        --name "anomaly_detection-kibana-prod" \
         --network "$NETWORK_NAME" \
         --restart unless-stopped \
         -p 5601:5601 \
-        -e ELASTICSEARCH_HOSTS=http://pynomaly-elasticsearch-prod:9200 \
+        -e ELASTICSEARCH_HOSTS=http://anomaly_detection-elasticsearch-prod:9200 \
         kibana:8.11.0
 fi
 
@@ -192,7 +192,7 @@ if [[ "$SSL_ENABLED" == "true" ]]; then
 fi
 
 docker run -d \
-    --name "pynomaly-nginx-prod" \
+    --name "anomaly_detection-nginx-prod" \
     --network "$NETWORK_NAME" \
     --restart unless-stopped \
     -p "${HOST_PORT}:80" \
@@ -237,7 +237,7 @@ for i in $(seq 1 $REPLICAS); do
         --health-timeout 10s \
         --health-retries 3 \
         "$IMAGE_NAME" \
-        poetry run gunicorn pynomaly.presentation.api:app \
+        poetry run gunicorn anomaly_detection.presentation.api:app \
         --bind 0.0.0.0:8000 \
         --workers 4 \
         --worker-class uvicorn.workers.UvicornWorker \

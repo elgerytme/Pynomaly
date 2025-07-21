@@ -177,10 +177,10 @@ class TidyStructureChecker:
 
     def _check_source_organization(self):
         """Check source code directory organization."""
-        src_path = self.root_path / "src" / "pynomaly"
+        src_path = self.root_path / "src" / "anomaly_detection"
 
         if not src_path.exists():
-            self.violations.append("Source directory src/pynomaly/ not found")
+            self.violations.append("Source directory src/anomaly_detection/ not found")
             return
 
         # Check for expected domain structure

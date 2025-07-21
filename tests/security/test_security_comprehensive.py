@@ -1,5 +1,5 @@
 """
-Comprehensive Security Tests for Pynomaly
+Comprehensive Security Tests for anomaly_detection
 
 This module contains security-focused tests including:
 - Input validation and sanitization

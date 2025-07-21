@@ -162,7 +162,7 @@ def create_training_job(
                 rprint(f"[green]Training job {job.job_id} started successfully[/green]")
             else:
                 rprint(
-                    f"[blue]To start the job, run: pynomaly training start {job.job_id}[/blue]"
+                    f"[blue]To start the job, run: anomaly_detection training start {job.job_id}[/blue]"
                 )
 
         except Exception as e:
@@ -506,7 +506,7 @@ def quick_optimize(
                 await _monitor_job(service, job.job_id)
             else:
                 rprint(
-                    f"[blue]To monitor progress: pynomaly training status {job.job_id} --detailed[/blue]"
+                    f"[blue]To monitor progress: anomaly_detection training status {job.job_id} --detailed[/blue]"
                 )
 
         except Exception as e:

@@ -86,7 +86,7 @@ class CoverageMonitor:
             Coverage results dictionary
         """
         if test_command is None:
-            test_command = "python -m pytest tests/ --cov=src/pynomaly --cov-report=json --cov-report=term"
+            test_command = "python -m pytest tests/ --cov=src/anomaly_detection --cov-report=json --cov-report=term"
 
         self.logger.info(f"Running coverage with command: {test_command}")
 
@@ -321,7 +321,7 @@ class CoverageMonitor:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Pynomaly Coverage Report</title>
+            <title>anomaly_detection Coverage Report</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 40px; }}
                 .header {{ background: #f5f5f5; padding: 20px; border-radius: 5px; }}
@@ -341,7 +341,7 @@ class CoverageMonitor:
         </head>
         <body>
             <div class="header">
-                <h1>Pynomaly Test Coverage Report</h1>
+                <h1>anomaly_detection Test Coverage Report</h1>
                 <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p>Branch: {latest['branch']} | Commit: {latest['commit_hash'][:8]}</p>
             </div>

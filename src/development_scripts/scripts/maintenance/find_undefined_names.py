@@ -181,7 +181,7 @@ def find_undefined_names_in_file(file_path: Path) -> list[tuple[str, int, int]]:
 
 
 def main():
-    src_dir = Path("src/pynomaly")
+    src_dir = Path("src/anomaly_detection")
 
     if not src_dir.exists():
         print(f"Source directory {src_dir} not found!")

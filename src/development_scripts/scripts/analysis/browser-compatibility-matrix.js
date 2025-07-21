@@ -62,7 +62,7 @@ class BrowserCompatibilityMatrix {
       await this.exportResults();
 
       console.log(` Compatibility matrix generated successfully`);
-      console.log(`=Ê Results saved to: ${this.outputDir}`);
+      console.log(`= Results saved to: ${this.outputDir}`);
 
       return this.matrix;
 
@@ -73,7 +73,7 @@ class BrowserCompatibilityMatrix {
   }
 
   async loadTestResults() {
-    console.log('=Ä Loading test results...');
+    console.log('= Loading test results...');
 
     try {
       // Load Playwright results
@@ -182,7 +182,7 @@ class BrowserCompatibilityMatrix {
   }
 
   generateFeatureMatrix() {
-    console.log('=Ê Generating feature compatibility matrix...');
+    console.log('= Generating feature compatibility matrix...');
 
     this.matrix.compatibility = {};
 
@@ -276,7 +276,7 @@ class BrowserCompatibilityMatrix {
   }
 
   generateRecommendations() {
-    console.log('=¡ Generating recommendations...');
+    console.log('= Generating recommendations...');
 
     const recommendations = [];
 
@@ -434,7 +434,7 @@ class BrowserCompatibilityMatrix {
   }
 
   async exportResults() {
-    console.log('=Ä Exporting compatibility matrix...');
+    console.log('= Exporting compatibility matrix...');
 
     // Save JSON results
     const jsonPath = path.join(this.outputDir, 'compatibility-matrix.json');
@@ -459,7 +459,7 @@ class BrowserCompatibilityMatrix {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Browser Compatibility Matrix - Pynomaly</title>
+    <title>Browser Compatibility Matrix - anomaly_detection</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; background: #f8fafc; }
         .container { max-width: 1400px; margin: 0 auto; }
@@ -553,7 +553,7 @@ class BrowserCompatibilityMatrix {
 
   generateRecommendationsHTML() {
     if (this.matrix.recommendations.length === 0) {
-      return '<div class="card"><h2>Recommendations</h2><p>Excellent compatibility! No issues found. <‰</p></div>';
+      return '<div class="card"><h2>Recommendations</h2><p>Excellent compatibility! No issues found. <</p></div>';
     }
 
     return `
@@ -649,7 +649,7 @@ if (require.main === module) {
 
   matrix.generate()
     .then(results => {
-      console.log(`\n=Ê Compatibility matrix generated with ${results.summary.overallCompatibility.toFixed(1)}% overall compatibility`);
+      console.log(`\n= Compatibility matrix generated with ${results.summary.overallCompatibility.toFixed(1)}% overall compatibility`);
       process.exit(results.summary.criticalIssues > 0 ? 1 : 0);
     })
     .catch(error => {

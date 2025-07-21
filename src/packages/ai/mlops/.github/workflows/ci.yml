@@ -32,7 +32,7 @@ on:
         type: string
 
 env:
-  PACKAGE_NAME: pynomaly-mlops
+  PACKAGE_NAME: anomaly_detection-mlops
   PACKAGE_PATH: src/packages/ai/mlops
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
   ci-cd:
     uses: ./.github/workflows/_reusable-python-ci.yml
     with:
-      package-name: pynomaly-mlops
+      package-name: anomaly_detection-mlops
       package-path: src/packages/ai/mlops
       python-version: ${{ github.event.inputs.python_version || '3.11' }}
       python-versions: '["3.9", "3.10", "3.11"]'
@@ -213,7 +213,7 @@ jobs:
           
           # Test cloud provider configuration
           try:
-              from pynomaly_mlops.infrastructure.cloud import ${{ matrix.cloud_provider }}_adapter
+              from anomaly_detection_mlops.infrastructure.cloud import ${{ matrix.cloud_provider }}_adapter
               print(f'✅ ${{ matrix.cloud_provider }} adapter loaded successfully')
           except ImportError as e:
               print(f'⚠️ ${{ matrix.cloud_provider }} adapter not available: {e}')
@@ -259,7 +259,7 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
         run: |
           # Start the API server in background
-          python -m uvicorn pynomaly_mlops.api.main:app --host 0.0.0.0 --port 8000 &
+          python -m uvicorn anomaly_detection_mlops.api.main:app --host 0.0.0.0 --port 8000 &
           API_PID=$!
           
           # Wait for API to start
@@ -281,16 +281,16 @@ jobs:
         working-directory: ${{ env.PACKAGE_PATH }}
         run: |
           # Test CLI functionality
-          python -m pynomaly_mlops.cli --help
-          python -m pynomaly_mlops.cli version
+          python -m anomaly_detection_mlops.cli --help
+          python -m anomaly_detection_mlops.cli version
           python -c "
           import subprocess
           import sys
           
           # Test basic CLI commands
           commands = [
-              ['python', '-m', 'pynomaly_mlops.cli', '--help'],
-              ['python', '-m', 'pynomaly_mlops.cli', 'version'],
+              ['python', '-m', 'anomaly_detection_mlops.cli', '--help'],
+              ['python', '-m', 'anomaly_detection_mlops.cli', 'version'],
           ]
           
           for cmd in commands:
@@ -386,7 +386,7 @@ jobs:
           
           EXPOSE 8000
           
-          CMD ["python", "-m", "uvicorn", "pynomaly_mlops.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+          CMD ["python", "-m", "uvicorn", "anomaly_detection_mlops.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
           EOF
           fi
           
@@ -538,7 +538,7 @@ jobs:
           sys.path.insert(0, 'src')
           
           try:
-              from pynomaly_mlops.api.main import app
+              from anomaly_detection_mlops.api.main import app
               import json
               
               # Get OpenAPI schema
@@ -626,7 +626,7 @@ jobs:
           
           # Validate entry points
           scripts = project.get('scripts', {})
-          if 'pynomaly-mlops' in scripts:
+          if 'anomaly_detection-mlops' in scripts:
               print('✅ CLI entry point configured')
           else:
               print('⚠️ CLI entry point not found')
@@ -643,11 +643,11 @@ jobs:
           sys.path.insert(0, 'src')
           
           critical_modules = [
-              'pynomaly_mlops.api.main',
-              'pynomaly_mlops.core.model_manager',
-              'pynomaly_mlops.core.experiment_tracker',
-              'pynomaly_mlops.infrastructure.database',
-              'pynomaly_mlops.infrastructure.storage'
+              'anomaly_detection_mlops.api.main',
+              'anomaly_detection_mlops.core.model_manager',
+              'anomaly_detection_mlops.core.experiment_tracker',
+              'anomaly_detection_mlops.infrastructure.database',
+              'anomaly_detection_mlops.infrastructure.storage'
           ]
           
           for module in critical_modules:

@@ -48,7 +48,7 @@ def generate_sarif_report(violations: list[str]) -> dict:
             "fullDescription": {
                 "text": "File or directory violates project organization standards"
             },
-            "helpUri": "https://github.com/pynomaly/pynomaly/blob/main/docs/development/FILE_ORGANIZATION_STANDARDS.md",
+            "helpUri": "https://github.com/anomaly_detection/anomaly_detection/blob/main/docs/development/FILE_ORGANIZATION_STANDARDS.md",
             "properties": {"category": "maintainability", "severity": "error"},
         }
         rules.append(rule)
@@ -77,7 +77,7 @@ def generate_sarif_report(violations: list[str]) -> dict:
                     "driver": {
                         "name": "validate_structure",
                         "version": "1.0.0",
-                        "informationUri": "https://github.com/pynomaly/pynomaly",
+                        "informationUri": "https://github.com/anomaly_detection/anomaly_detection",
                         "rules": rules,
                     }
                 },

@@ -1,12 +1,12 @@
-# Pynomaly SDKs
+# anomaly_detection SDKs
 
-This directory contains official client SDKs for the Pynomaly anomaly detection API in multiple programming languages.
+This directory contains official client SDKs for the anomaly_detection anomaly detection API in multiple programming languages.
 
 ## Available SDKs
 
 ### 🐍 Python SDK
 **Location**: `python/`  
-**Installation**: `pip install pynomaly-client`  
+**Installation**: `pip install anomaly_detection-client`  
 **Features**: 
 - Full async/await support
 - Type hints with Pydantic models
@@ -14,9 +14,9 @@ This directory contains official client SDKs for the Pynomaly anomaly detection 
 - Built-in retry logic and rate limiting
 
 ```python
-from pynomaly_client import PynomaliClient
+from anomaly_detection_client import AnomalyDetectionClient
 
-async with PynomaliClient(api_key="your-key") as client:
+async with AnomalyDetectionClient(api_key="your-key") as client:
     result = await client.detection.detect(
         data=[1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
         algorithm="isolation_forest"
@@ -26,7 +26,7 @@ async with PynomaliClient(api_key="your-key") as client:
 
 ### 📘 TypeScript SDK
 **Location**: `typescript/`  
-**Installation**: `npm install @pynomaly/client`  
+**Installation**: `npm install @anomaly_detection/client`  
 **Features**:
 - Full TypeScript type definitions
 - Node.js and browser compatibility
@@ -34,9 +34,9 @@ async with PynomaliClient(api_key="your-key") as client:
 - Comprehensive error handling
 
 ```typescript
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
-const client = new PynomaliClient({ apiKey: 'your-key' });
+const client = new AnomalyDetectionClient({ apiKey: 'your-key' });
 
 const result = await client.detection.detect({
   data: [1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
@@ -56,7 +56,7 @@ console.log('Anomalies:', result.anomalies);
 - Jackson JSON serialization
 
 ```java
-PynomaliClient client = PynomaliClient.builder()
+AnomalyDetectionClient client = AnomalyDetectionClient.builder()
     .apiKey("your-key")
     .build();
 
@@ -86,19 +86,19 @@ All SDKs provide:
 
 1. **Choose your SDK** based on your preferred programming language
 2. **Install the SDK** using the language's package manager
-3. **Get your API key** from the Pynomaly dashboard
+3. **Get your API key** from the anomaly_detection dashboard
 4. **Follow the examples** in each SDK's README file
 
 ## API Documentation
 
-For detailed API documentation, visit: https://docs.pynomaly.com/api
+For detailed API documentation, visit: https://docs.anomaly_detection.com/api
 
 ## Support
 
-- 📧 Email: support@pynomaly.com
-- 📖 Documentation: https://docs.pynomaly.com
-- 🐛 Issues: https://github.com/pynomaly/pynomaly/issues
-- 💬 Community: https://discord.gg/pynomaly
+- 📧 Email: support@anomaly_detection.com
+- 📖 Documentation: https://docs.anomaly_detection.com
+- 🐛 Issues: https://github.com/anomaly_detection/anomaly_detection/issues
+- 💬 Community: https://discord.gg/anomaly_detection
 
 ## Contributing
 

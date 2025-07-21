@@ -30,7 +30,7 @@ ALLOWED_ROOT_FILES = {
     "package.json",
     "package-lock.json",
     # IDE/Editor
-    "Pynomaly.code-workspace",
+    "anomaly_detection.code-workspace",
     # Git and CI/CD
     ".gitignore",
     ".gitattributes",

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Pynomaly Production Secrets Setup Script
+# anomaly_detection Production Secrets Setup Script
 # This script sets up AWS Secrets Manager and Kubernetes secrets for production deployment
 
 set -euo pipefail
 
 # Configuration
 AWS_REGION="${AWS_REGION:-us-west-2}"
-NAMESPACE="${NAMESPACE:-pynomaly-production}"
-SECRET_PREFIX="pynomaly/production"
+NAMESPACE="${NAMESPACE:-anomaly_detection-production}"
+SECRET_PREFIX="anomaly_detection/production"
 
 # Colors for output
 RED='\033[0;31m'
@@ -67,8 +67,8 @@ generate_secrets() {
 
     # Database secrets
     POSTGRES_PASSWORD=$(openssl rand -base64 32)
-    POSTGRES_USER="pynomaly_user"
-    POSTGRES_DB="pynomaly_prod"
+    POSTGRES_USER="anomaly_detection_user"
+    POSTGRES_DB="anomaly_detection_prod"
 
     # Redis secrets
     REDIS_PASSWORD=$(openssl rand -base64 32)
@@ -95,7 +95,7 @@ create_aws_secrets() {
     log_info "Creating database secrets..."
     aws secretsmanager create-secret \
         --name "${SECRET_PREFIX}/database" \
-        --description "Pynomaly production database credentials" \
+        --description "anomaly_detection production database credentials" \
         --secret-string "{
             \"username\": \"$POSTGRES_USER\",
             \"password\": \"$POSTGRES_PASSWORD\",
@@ -106,7 +106,7 @@ create_aws_secrets() {
         --region $AWS_REGION \
         --tags '[
             {"Key": "Environment", "Value": "production"},
-            {"Key": "Application", "Value": "pynomaly"},
+            {"Key": "Application", "Value": "anomaly_detection"},
             {"Key": "Component", "Value": "database"}
         ]' 2>/dev/null || {
             log_warning "Database secret already exists, updating..."
@@ -126,7 +126,7 @@ create_aws_secrets() {
     log_info "Creating Redis secrets..."
     aws secretsmanager create-secret \
         --name "${SECRET_PREFIX}/redis" \
-        --description "Pynomaly production Redis credentials" \
+        --description "anomaly_detection production Redis credentials" \
         --secret-string "{
             \"password\": \"$REDIS_PASSWORD\",
             \"host\": \"redis-service.${NAMESPACE}.svc.cluster.local\",
@@ -135,7 +135,7 @@ create_aws_secrets() {
         --region $AWS_REGION \
         --tags '[
             {"Key": "Environment", "Value": "production"},
-            {"Key": "Application", "Value": "pynomaly"},
+            {"Key": "Application", "Value": "anomaly_detection"},
             {"Key": "Component", "Value": "redis"}
         ]' 2>/dev/null || {
             log_warning "Redis secret already exists, updating..."
@@ -153,7 +153,7 @@ create_aws_secrets() {
     log_info "Creating application secrets..."
     aws secretsmanager create-secret \
         --name "${SECRET_PREFIX}/app" \
-        --description "Pynomaly production application secrets" \
+        --description "anomaly_detection production application secrets" \
         --secret-string "{
             \"secret_key\": \"$APP_SECRET_KEY\",
             \"jwt_secret_key\": \"$JWT_SECRET_KEY\",
@@ -163,7 +163,7 @@ create_aws_secrets() {
         --region $AWS_REGION \
         --tags '[
             {"Key": "Environment", "Value": "production"},
-            {"Key": "Application", "Value": "pynomaly"},
+            {"Key": "Application", "Value": "anomaly_detection"},
             {"Key": "Component", "Value": "application"}
         ]' 2>/dev/null || {
             log_warning "Application secret already exists, updating..."
@@ -182,7 +182,7 @@ create_aws_secrets() {
     log_info "Creating monitoring secrets..."
     aws secretsmanager create-secret \
         --name "${SECRET_PREFIX}/monitoring" \
-        --description "Pynomaly production monitoring secrets" \
+        --description "anomaly_detection production monitoring secrets" \
         --secret-string "{
             \"prometheus_password\": \"$PROMETHEUS_PASSWORD\",
             \"grafana_admin_password\": \"$GRAFANA_ADMIN_PASSWORD\",
@@ -191,7 +191,7 @@ create_aws_secrets() {
         --region $AWS_REGION \
         --tags '[
             {"Key": "Environment", "Value": "production"},
-            {"Key": "Application", "Value": "pynomaly"},
+            {"Key": "Application", "Value": "anomaly_detection"},
             {"Key": "Component", "Value": "monitoring"}
         ]' 2>/dev/null || {
             log_warning "Monitoring secret already exists, updating..."
@@ -218,7 +218,7 @@ setup_kubernetes() {
     # Label the namespace
     kubectl label namespace $NAMESPACE \
         environment=production \
-        app=pynomaly \
+        app=anomaly_detection \
         secrets-management=enabled \
         --overwrite
 
@@ -275,7 +275,7 @@ create_iam_role() {
             "Action": "sts:AssumeRoleWithWebIdentity",
             "Condition": {
                 "StringEquals": {
-                    "${OIDC_ISSUER#https://}:sub": "system:serviceaccount:${NAMESPACE}:pynomaly-secrets-sa",
+                    "${OIDC_ISSUER#https://}:sub": "system:serviceaccount:${NAMESPACE}:anomaly_detection-secrets-sa",
                     "${OIDC_ISSUER#https://}:aud": "sts.amazonaws.com"
                 }
             }
@@ -286,12 +286,12 @@ EOF
 
         # Create IAM role
         aws iam create-role \
-            --role-name pynomaly-secrets-role \
+            --role-name anomaly_detection-secrets-role \
             --assume-role-policy-document file:///tmp/trust-policy.json \
-            --description "Role for Pynomaly External Secrets access" 2>/dev/null || {
+            --description "Role for anomaly_detection External Secrets access" 2>/dev/null || {
                 log_warning "IAM role already exists, updating trust policy..."
                 aws iam update-assume-role-policy \
-                    --role-name pynomaly-secrets-role \
+                    --role-name anomaly_detection-secrets-role \
                     --policy-document file:///tmp/trust-policy.json
             }
 
@@ -313,7 +313,7 @@ EOF
 EOF
 
         aws iam put-role-policy \
-            --role-name pynomaly-secrets-role \
+            --role-name anomaly_detection-secrets-role \
             --policy-name SecretsManagerAccess \
             --policy-document file:///tmp/secrets-policy.json
 
@@ -336,11 +336,11 @@ apply_secret_manifests() {
     # Wait for External Secrets to sync
     log_info "Waiting for External Secrets to sync..."
     kubectl wait --for=condition=Ready externalsecret \
-        pynomaly-external-secrets \
+        anomaly_detection-external-secrets \
         --namespace=$NAMESPACE \
         --timeout=300s 2>/dev/null || {
             log_warning "External Secret sync timeout, checking manually..."
-            kubectl get externalsecret pynomaly-external-secrets -n $NAMESPACE -o yaml
+            kubectl get externalsecret anomaly_detection-external-secrets -n $NAMESPACE -o yaml
         }
 
     log_success "Kubernetes secrets configured"
@@ -360,16 +360,16 @@ verify_secrets() {
     done
 
     # Check Kubernetes secrets
-    if kubectl get secret pynomaly-production-secrets -n $NAMESPACE &> /dev/null; then
-        log_success "Kubernetes secret pynomaly-production-secrets exists"
+    if kubectl get secret anomaly_detection-production-secrets -n $NAMESPACE &> /dev/null; then
+        log_success "Kubernetes secret anomaly_detection-production-secrets exists"
 
         # Show secret keys (not values)
         log_info "Secret keys available:"
-        kubectl get secret pynomaly-production-secrets -n $NAMESPACE -o jsonpath='{.data}' | jq -r 'keys[]' | while read key; do
+        kubectl get secret anomaly_detection-production-secrets -n $NAMESPACE -o jsonpath='{.data}' | jq -r 'keys[]' | while read key; do
             echo "  - $key"
         done
     else
-        log_error "Kubernetes secret pynomaly-production-secrets not found"
+        log_error "Kubernetes secret anomaly_detection-production-secrets not found"
     fi
 
     log_success "Secrets verification completed"
@@ -380,10 +380,10 @@ generate_documentation() {
     log_info "Generating secrets documentation..."
 
     cat > docs/secrets-management.md <<EOF
-# Pynomaly Production Secrets Management
+# anomaly_detection Production Secrets Management
 
 ## Overview
-This document describes the secrets management setup for Pynomaly production deployment.
+This document describes the secrets management setup for anomaly_detection production deployment.
 
 ## Architecture
 - **AWS Secrets Manager**: Centralized secret storage
@@ -428,13 +428,13 @@ Manual rotation can be triggered by running the secret rotation job.
 
 ### Manual Secret Rotation
 \`\`\`bash
-kubectl create job --from=cronjob/pynomaly-secret-rotation manual-rotation-\$(date +%Y%m%d) -n ${NAMESPACE}
+kubectl create job --from=cronjob/anomaly_detection-secret-rotation manual-rotation-\$(date +%Y%m%d) -n ${NAMESPACE}
 \`\`\`
 
 ### Secret Recovery
 1. Check AWS Secrets Manager console
 2. Verify External Secrets status: \`kubectl get externalsecret -n ${NAMESPACE}\`
-3. Force resync: \`kubectl annotate externalsecret pynomaly-external-secrets force-sync=\$(date +%s) -n ${NAMESPACE}\`
+3. Force resync: \`kubectl annotate externalsecret anomaly_detection-external-secrets force-sync=\$(date +%s) -n ${NAMESPACE}\`
 
 ### Troubleshooting
 - Check External Secrets logs: \`kubectl logs -l app.kubernetes.io/name=external-secrets -n external-secrets-system\`
@@ -455,7 +455,7 @@ EOF
 
 # Main execution
 main() {
-    log_info "Starting Pynomaly production secrets setup..."
+    log_info "Starting anomaly_detection production secrets setup..."
 
     # Create docs directory if it doesn't exist
     mkdir -p docs
@@ -470,7 +470,7 @@ main() {
     verify_secrets
     generate_documentation
 
-    log_success "Pynomaly production secrets setup completed successfully!"
+    log_success "anomaly_detection production secrets setup completed successfully!"
     log_info "Next steps:"
     echo "  1. Review the generated documentation in docs/secrets-management.md"
     echo "  2. Test the application deployment with the new secrets"

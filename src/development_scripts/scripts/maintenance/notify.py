@@ -243,7 +243,7 @@ Please review and fix the quality violations found during the maintenance scan.
 # Run the same checks locally
 python scripts/validation/validate_structure.py
 ruff check src/ tests/
-mypy src/pynomaly/
+mypy src/anomaly_detection/
 bandit -r src/
 safety check --full-report
 pip-audit

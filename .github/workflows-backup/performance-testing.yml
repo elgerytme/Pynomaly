@@ -25,7 +25,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.12'
-  PYNOMALY_TEST_URL: 'http://localhost:8000'
+  ANOMALY_DETECTION_TEST_URL: 'http://localhost:8000'
 
 jobs:
   # Job 1: Setup and basic validation
@@ -71,7 +71,7 @@ jobs:
           
           CONFIG=$(cat <<EOF
           {
-            "base_url": "$PYNOMALY_TEST_URL",
+            "base_url": "$ANOMALY_DETECTION_TEST_URL",
             "concurrent_users": $USERS,
             "duration_seconds": $DURATION,
             "ramp_up_seconds": 10,
@@ -100,7 +100,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -143,7 +143,7 @@ jobs:
           cat > config/test/settings.json << EOF
           {
             "database": {
-              "url": "postgresql://postgres:postgres@localhost:5432/pynomaly_test"
+              "url": "postgresql://postgres:postgres@localhost:5432/anomaly_detection_test"
             },
             "redis": {
               "url": "redis://localhost:6379/0"
@@ -158,14 +158,14 @@ jobs:
 
       - name: Run database migrations
         run: |
-          export PYNOMALY_ENV=test
-          python -m pynomaly.infrastructure.database.migrations.migrate
+          export ANOMALY_DETECTION_ENV=test
+          python -m anomaly_detection.infrastructure.database.migrations.migrate
 
       - name: Start application
         run: |
-          export PYNOMALY_ENV=test
-          export PYNOMALY_LOG_LEVEL=WARNING
-          python -m uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 &
+          export ANOMALY_DETECTION_ENV=test
+          export ANOMALY_DETECTION_LOG_LEVEL=WARNING
+          python -m uvicorn anomaly_detection.presentation.api.app:app --host 0.0.0.0 --port 8000 &
           echo $! > app.pid
           
           # Wait for application to start
@@ -288,7 +288,7 @@ jobs:
       - name: Establish performance baselines
         run: |
           python scripts/performance/establish_baselines.py \
-            --base-url $PYNOMALY_TEST_URL \
+            --base-url $ANOMALY_DETECTION_TEST_URL \
             --output-dir baseline_results
 
       - name: Upload baseline results
@@ -449,4 +449,4 @@ jobs:
           fi
           
           # Kill any remaining processes
-          pkill -f "uvicorn.*pynomaly" || true
+          pkill -f "uvicorn.*anomaly_detection" || true

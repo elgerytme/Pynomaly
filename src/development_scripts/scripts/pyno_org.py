@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Unified CLI entry point for Pynomaly file organization.
+Unified CLI entry point for anomaly_detection file organization.
 
 This script provides a unified command-line interface for validating and organizing
-project files according to Pynomaly standards.
+project files according to anomaly_detection standards.
 
 Usage:
     pyno-org validate        # exits 0/1
@@ -72,7 +72,7 @@ def organize_command(dry_run: bool = True, output_file: str = None) -> int:
     try:
         organizer = FileOrganizer(dry_run=dry_run)
 
-        print("[*] Pynomaly File Organization Tool")
+        print("[*] anomaly_detection File Organization Tool")
         print("=" * 50)
 
         # Analyze current state
@@ -168,7 +168,7 @@ def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         prog="pyno-org",
-        description="Unified CLI for Pynomaly file organization",
+        description="Unified CLI for anomaly_detection file organization",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

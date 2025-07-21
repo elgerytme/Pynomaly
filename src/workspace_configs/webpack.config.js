@@ -1,5 +1,5 @@
 /**
- * Webpack Configuration for Pynomaly Web UI Performance Optimization
+ * Webpack Configuration for anomaly_detection Web UI Performance Optimization
  * Implements code splitting, tree shaking, and advanced optimization strategies
  */
 
@@ -18,7 +18,7 @@ module.exports = {
 
   entry: {
     // Core application entry points
-    main: './src/pynomaly/presentation/web/static/js/main.js',
+    main: './src/anomaly_detection/presentation/web/static/js/main.js',
 
     // Vendor libraries (will be split automatically)
     vendor: [
@@ -29,34 +29,34 @@ module.exports = {
     ],
 
     // Chart components (code splitting)
-    charts: './src/pynomaly/presentation/web/static/js/charts/index.js',
+    charts: './src/anomaly_detection/presentation/web/static/js/charts/index.js',
 
     // Dashboard components (code splitting)
-    dashboard: './src/pynomaly/presentation/web/static/js/components/dashboard-index.js',
+    dashboard: './src/anomaly_detection/presentation/web/static/js/components/dashboard-index.js',
 
     // Utilities and shared modules
-    utils: './src/pynomaly/presentation/web/static/js/utils/index.js'
+    utils: './src/anomaly_detection/presentation/web/static/js/utils/index.js'
   },
 
   output: {
-    path: path.resolve(__dirname, 'src/pynomaly/presentation/web/static/js/dist'),
+    path: path.resolve(__dirname, 'src/anomaly_detection/presentation/web/static/js/dist'),
     filename: isProduction ? '[name].[contenthash:8].js' : '[name].js',
     chunkFilename: isProduction ? '[name].[contenthash:8].chunk.js' : '[name].chunk.js',
     clean: true,
     publicPath: '/static/js/dist/',
 
     // Enable dynamic imports for code splitting
-    chunkLoadingGlobal: 'pynomaly_chunks'
+    chunkLoadingGlobal: 'anomaly_detection_chunks'
   },
 
   resolve: {
     extensions: ['.js', '.mjs'],
     alias: {
-      '@': path.resolve(__dirname, 'src/pynomaly/presentation/web/static/js'),
-      '@charts': path.resolve(__dirname, 'src/pynomaly/presentation/web/static/js/charts'),
-      '@components': path.resolve(__dirname, 'src/pynomaly/presentation/web/static/js/components'),
-      '@utils': path.resolve(__dirname, 'src/pynomaly/presentation/web/static/js/utils'),
-      '@state': path.resolve(__dirname, 'src/pynomaly/presentation/web/static/js/state')
+      '@': path.resolve(__dirname, 'src/anomaly_detection/presentation/web/static/js'),
+      '@charts': path.resolve(__dirname, 'src/anomaly_detection/presentation/web/static/js/charts'),
+      '@components': path.resolve(__dirname, 'src/anomaly_detection/presentation/web/static/js/components'),
+      '@utils': path.resolve(__dirname, 'src/anomaly_detection/presentation/web/static/js/utils'),
+      '@state': path.resolve(__dirname, 'src/anomaly_detection/presentation/web/static/js/state')
     }
   },
 
@@ -295,7 +295,7 @@ module.exports = {
   // Development server configuration
   devServer: {
     static: {
-      directory: path.join(__dirname, 'src/pynomaly/presentation/web/static')
+      directory: path.join(__dirname, 'src/anomaly_detection/presentation/web/static')
     },
     compress: true,
     port: 9000,

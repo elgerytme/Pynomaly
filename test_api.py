@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""Test API functionality for Pynomaly."""
+"""Test API functionality for anomaly_detection."""
 
 import sys
 import os
-sys.path.insert(0, '/mnt/c/Users/andre/Pynomaly/src/packages/data/anomaly_detection/src')
+sys.path.insert(0, '/mnt/c/Users/andre/anomaly_detection/src/packages/data/anomaly_detection/src')
 
 try:
     from fastapi import FastAPI
@@ -19,14 +19,14 @@ try:
     
     @app.get("/health")
     async def health():
-        return {"status": "healthy", "service": "pynomaly-api"}
+        return {"status": "healthy", "service": "anomaly_detection-api"}
     
     @app.post("/detect")
     async def detect(data: dict):
         """Detect anomalies in provided data."""
         try:
             import numpy as np
-            from pynomaly_detection import AnomalyDetector
+            from anomaly_detection import AnomalyDetector
             
             # Extract data from request
             input_data = data.get("data", [])

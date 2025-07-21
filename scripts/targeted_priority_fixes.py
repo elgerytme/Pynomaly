@@ -24,13 +24,13 @@ class TargetedPriorityFixer:
     
     def __init__(self):
         self.priority_fixes = {
-            'pynomaly': [
+            'anomaly_detection': [
                 (r'anomaly_detection', 'software'),
                 (r'Anomaly Detection Platform', 'Software'),
-                (r'pynomaly-', 'software-'),
-                (r'pynomaly_', 'software_'),
-                (r'"pynomaly"', '"software"'),
-                (r"'pynomaly'", "'software'")
+                (r'anomaly_detection-', 'software-'),
+                (r'anomaly_detection_', 'software_'),
+                (r'"anomaly_detection"', '"software"'),
+                (r"'anomaly_detection'", "'software'")
             ],
             'dataset': [
                 (r'\bdataset\b', 'data_collection'),
@@ -248,7 +248,7 @@ class TargetedPriorityFixer:
             "replacements_by_type": self.stats['replacements_by_type'],
             "files_modified_list": self.stats['files_modified_list'][:50],  # Limit to first 50
             "expected_impact": {
-                "pynomaly": f"{self.stats['replacements_by_type']['pynomaly']} replacements",
+                "anomaly_detection": f"{self.stats['replacements_by_type']['anomaly_detection']} replacements",
                 "dataset": f"{self.stats['replacements_by_type']['dataset']} replacements",
                 "model": f"{self.stats['replacements_by_type']['model']} replacements", 
                 "detection": f"{self.stats['replacements_by_type']['detection']} replacements",

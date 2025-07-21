@@ -51,8 +51,8 @@ class LocalPerformanceRunner:
             env_vars = os.environ.copy()
             env_vars.update(
                 {
-                    "PYNOMALY_ENV": env,
-                    "PYNOMALY_LOG_LEVEL": "WARNING",
+                    "ANOMALY_DETECTION_ENV": env,
+                    "ANOMALY_DETECTION_LOG_LEVEL": "WARNING",
                     "UVICORN_LOG_LEVEL": "warning",
                 }
             )
@@ -63,7 +63,7 @@ class LocalPerformanceRunner:
                     sys.executable,
                     "-m",
                     "uvicorn",
-                    "pynomaly.presentation.api.app:app",
+                    "anomaly_detection.presentation.api.app:app",
                     "--host",
                     "0.0.0.0",
                     "--port",

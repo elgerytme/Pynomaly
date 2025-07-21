@@ -1,14 +1,14 @@
 /**
- * Comprehensive error handling for the Pynomaly TypeScript SDK
+ * Comprehensive error handling for the anomaly_detection TypeScript SDK
  * Provides structured error types with detailed information
  */
 
 import { ErrorResponse } from './types';
 
 /**
- * Base error class for all Pynomaly SDK errors
+ * Base error class for all anomaly_detection SDK errors
  */
-export class PynomaliError extends Error {
+export class anomaly-detectionError extends Error {
   public readonly code: string;
   public readonly statusCode?: number;
   public readonly details?: any;
@@ -17,7 +17,7 @@ export class PynomaliError extends Error {
 
   constructor(
     message: string,
-    code: string = 'PYNOMALY_ERROR',
+    code: string = 'ANOMALY_DETECTION_ERROR',
     statusCode?: number,
     details?: any,
     requestId?: string
@@ -52,8 +52,8 @@ export class PynomaliError extends Error {
   /**
    * Create error from API response
    */
-  static fromResponse(response: ErrorResponse): PynomaliError {
-    return new PynomaliError(
+  static fromResponse(response: ErrorResponse): anomaly-detectionError {
+    return new anomaly-detectionError(
       response.message,
       response.code,
       undefined,
@@ -66,7 +66,7 @@ export class PynomaliError extends Error {
 /**
  * Authentication related errors
  */
-export class AuthenticationError extends PynomaliError {
+export class AuthenticationError extends anomaly-detectionError {
   constructor(
     message: string = 'Authentication failed',
     details?: any,
@@ -79,7 +79,7 @@ export class AuthenticationError extends PynomaliError {
 /**
  * Authorization/permission related errors
  */
-export class AuthorizationError extends PynomaliError {
+export class AuthorizationError extends anomaly-detectionError {
   public readonly requiredPermissions?: string[];
   public readonly userPermissions?: string[];
 
@@ -101,7 +101,7 @@ export class AuthorizationError extends PynomaliError {
 /**
  * Input validation errors
  */
-export class ValidationError extends PynomaliError {
+export class ValidationError extends anomaly-detectionError {
   public readonly fieldErrors?: Record<string, string[]>;
 
   constructor(
@@ -144,7 +144,7 @@ export class ValidationError extends PynomaliError {
 /**
  * Server-side errors (5xx)
  */
-export class ServerError extends PynomaliError {
+export class ServerError extends anomaly-detectionError {
   constructor(
     message: string = 'Internal server error',
     statusCode: number = 500,
@@ -158,7 +158,7 @@ export class ServerError extends PynomaliError {
 /**
  * Network connectivity errors
  */
-export class NetworkError extends PynomaliError {
+export class NetworkError extends anomaly-detectionError {
   public readonly isTimeout: boolean;
   public readonly isOffline: boolean;
 
@@ -180,7 +180,7 @@ export class NetworkError extends PynomaliError {
 /**
  * Rate limiting errors
  */
-export class RateLimitError extends PynomaliError {
+export class RateLimitError extends anomaly-detectionError {
   public readonly retryAfter: number;
   public readonly limit: number;
   public readonly remaining: number;
@@ -210,7 +210,7 @@ export class RateLimitError extends PynomaliError {
 /**
  * Resource not found errors
  */
-export class NotFoundError extends PynomaliError {
+export class NotFoundError extends anomaly-detectionError {
   public readonly resourceType?: string;
   public readonly resourceId?: string;
 
@@ -232,7 +232,7 @@ export class NotFoundError extends PynomaliError {
 /**
  * Configuration errors
  */
-export class ConfigurationError extends PynomaliError {
+export class ConfigurationError extends anomaly-detectionError {
   public readonly configKey?: string;
   public readonly expectedType?: string;
   public readonly actualValue?: any;
@@ -257,7 +257,7 @@ export class ConfigurationError extends PynomaliError {
 /**
  * Algorithm or model related errors
  */
-export class AlgorithmError extends PynomaliError {
+export class AlgorithmError extends anomaly-detectionError {
   public readonly algorithmName?: string;
   public readonly parameters?: Record<string, any>;
 
@@ -279,7 +279,7 @@ export class AlgorithmError extends PynomaliError {
 /**
  * Data processing errors
  */
-export class DataError extends PynomaliError {
+export class DataError extends anomaly-detectionError {
   public readonly dataSize?: number;
   public readonly expectedFormat?: string;
   public readonly actualFormat?: string;
@@ -305,7 +305,7 @@ export class DataError extends PynomaliError {
 /**
  * Streaming related errors
  */
-export class StreamingError extends PynomaliError {
+export class StreamingError extends anomaly-detectionError {
   public readonly streamId?: string;
   public readonly connectionState?: string;
 
@@ -327,7 +327,7 @@ export class StreamingError extends PynomaliError {
 /**
  * WebSocket connection errors
  */
-export class WebSocketError extends PynomaliError {
+export class WebSocketError extends anomaly-detectionError {
   public readonly wsCode?: number;
   public readonly wsReason?: string;
   public readonly wasClean?: boolean;
@@ -352,7 +352,7 @@ export class WebSocketError extends PynomaliError {
 /**
  * Model training errors
  */
-export class TrainingError extends PynomaliError {
+export class TrainingError extends anomaly-detectionError {
   public readonly jobId?: string;
   public readonly phase?: string;
   public readonly progress?: number;
@@ -378,7 +378,7 @@ export class TrainingError extends PynomaliError {
 /**
  * SDK version compatibility errors
  */
-export class CompatibilityError extends PynomaliError {
+export class CompatibilityError extends anomaly-detectionError {
   public readonly sdkVersion?: string;
   public readonly apiVersion?: string;
   public readonly minimumSdkVersion?: string;
@@ -411,7 +411,7 @@ export class ErrorHandler {
     status: number,
     data: any,
     requestId?: string
-  ): PynomaliError {
+  ): anomaly-detectionError {
     const message = data?.message || data?.error || 'Unknown error';
     const details = data?.details;
 
@@ -449,7 +449,7 @@ export class ErrorHandler {
       case 504:
         return new ServerError(message, status, details, requestId);
       default:
-        return new PynomaliError(message, 'HTTP_ERROR', status, details, requestId);
+        return new anomaly-detectionError(message, 'HTTP_ERROR', status, details, requestId);
     }
   }
 
@@ -487,7 +487,7 @@ export class ErrorHandler {
    * Format error for logging
    */
   static formatForLogging(error: Error): Record<string, any> {
-    if (error instanceof PynomaliError) {
+    if (error instanceof anomaly-detectionError) {
       return {
         name: error.name,
         code: error.code,

@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-mlops-basic"
+name = "anomaly_detection-mlops-basic"
 version = "0.1.0"
-description = "Basic open-source MLOps configuration for Pynomaly"
-authors = [{name = "Anomaly Detection Team", email = "dev@pynomaly.io"}]
+description = "Basic open-source MLOps configuration for anomaly_detection"
+authors = [{name = "Anomaly Detection Team", email = "dev@anomaly_detection.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
@@ -55,12 +55,12 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/pynomaly"
-Repository = "https://github.com/your-org/pynomaly"
-Documentation = "https://docs.pynomaly.org/mlops/basic"
+Homepage = "https://github.com/your-org/anomaly_detection"
+Repository = "https://github.com/your-org/anomaly_detection"
+Documentation = "https://docs.anomaly_detection.org/mlops/basic"
 
 [project.scripts]
-pynomaly-mlops-basic = "mlops_basic.cli:main"
+anomaly_detection-mlops-basic = "mlops_basic.cli:main"
 
 [tool.hatch.build.targets.wheel] 
 packages = ["mlops_basic"]

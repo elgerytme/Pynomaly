@@ -25,21 +25,21 @@ jobs:
       with:
         python-version: "3.11"
     
-    - name: Change to pynomaly-detection directory
-      run: cd pynomaly-detection
+    - name: Change to anomaly_detection-detection directory
+      run: cd anomaly_detection-detection
     
     - name: Install dependencies and test
       run: |
-        cd pynomaly-detection
+        cd anomaly_detection-detection
         python -m pip install --upgrade pip
         pip install pytest pytest-cov numpy pandas scikit-learn scipy
         pip install -e .
         
         # Run quick tests
         python -c "
-import pynomaly_detection
+import anomaly_detection
 import numpy as np
-detector = pynomaly_detection.AnomalyDetector()
+detector = anomaly_detection.AnomalyDetector()
 X = np.random.randn(100, 5)
 detector.fit(X)
 predictions = detector.predict(X)
@@ -48,7 +48,7 @@ print(f'✅ Basic functionality test passed: {predictions.sum()} anomalies detec
     
     - name: Build package
       run: |
-        cd pynomaly-detection
+        cd anomaly_detection-detection
         pip install build twine
         python -m build
         twine check dist/*
@@ -57,7 +57,7 @@ print(f'✅ Basic functionality test passed: {predictions.sum()} anomalies detec
       uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
-        path: pynomaly-detection/dist/
+        path: anomaly_detection-detection/dist/
 
   publish:
     needs: test-and-build
@@ -70,7 +70,7 @@ print(f'✅ Basic functionality test passed: {predictions.sum()} anomalies detec
       uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
-        path: pynomaly-detection/dist/
+        path: anomaly_detection-detection/dist/
     
     - name: Publish to TestPyPI
       if: ${{ github.event.inputs.target == 'testpypi' || github.event_name == 'workflow_dispatch' }}

@@ -79,22 +79,22 @@ curl -X GET "/datasets/{id}/transformation-recommendations?anomaly_detection_typ
 **Usage**:
 ```bash
 # Transform dataset
-pynomaly advanced-preprocessing transform data.csv --output clean_data.csv --verbose
+anomaly_detection advanced-preprocessing transform data.csv --output clean_data.csv --verbose
 
 # Analyze dataset
-pynomaly advanced-preprocessing analyze data.csv --format table
+anomaly_detection advanced-preprocessing analyze data.csv --format table
 
 # Quality check
-pynomaly advanced-preprocessing quality-check data.csv --threshold 0.8
+anomaly_detection advanced-preprocessing quality-check data.csv --threshold 0.8
 
 # Optimize for algorithm
-pynomaly advanced-preprocessing optimize data.csv isolation_forest --output optimized_data.csv
+anomaly_detection advanced-preprocessing optimize data.csv isolation_forest --output optimized_data.csv
 ```
 
 ## Dependencies Updated
 
 ### Infrastructure Package
-Added `pynomaly-data-transformation>=0.1.0` to dependencies in `infrastructure/pyproject.toml`
+Added `anomaly_detection-data-transformation>=0.1.0` to dependencies in `infrastructure/pyproject.toml`
 
 ## Integration Benefits
 
@@ -110,11 +110,11 @@ Added `pynomaly-data-transformation>=0.1.0` to dependencies in `infrastructure/p
 ### Environment Variables
 ```bash
 # Enable advanced features
-PYNOMALY_ENABLE_DATA_TRANSFORMATION=true
+ANOMALY_DETECTION_ENABLE_DATA_TRANSFORMATION=true
 
 # Configure processing
-PYNOMALY_DEFAULT_CLEANING_STRATEGY=auto
-PYNOMALY_ENABLE_PARALLEL_PROCESSING=true
+ANOMALY_DETECTION_DEFAULT_CLEANING_STRATEGY=auto
+ANOMALY_DETECTION_ENABLE_PARALLEL_PROCESSING=true
 ```
 
 ### Service Configuration
@@ -231,8 +231,8 @@ For issues or questions regarding the data_transformation integration:
 ## Version Compatibility
 
 - **data_transformation**: >= 0.1.0
-- **pynomaly-core**: >= 0.1.1
-- **pynomaly-infrastructure**: Compatible with enhanced loader factory
+- **anomaly_detection-core**: >= 0.1.1
+- **anomaly_detection-infrastructure**: Compatible with enhanced loader factory
 - **Python**: >= 3.11
 
 ---

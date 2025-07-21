@@ -1,4 +1,4 @@
-# Pynomaly File Organization Configuration
+# anomaly_detection File Organization Configuration
 # This file defines how files should be categorized and organized
 
 # Define patterns for automatic deletion (artifacts)
@@ -149,7 +149,7 @@ allowed_root_files:
   - "requirements*.txt"
   - "package.json"
   - "package-lock.json"
-  - "Pynomaly.code-workspace"
+  - "anomaly_detection.code-workspace"
   - ".gitignore"
   - ".gitattributes"
   - ".pre-commit-config.yaml"

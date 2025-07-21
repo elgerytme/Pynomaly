@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive Load Testing Script for Pynomaly
+# Comprehensive Load Testing Script for anomaly_detection
 # This script runs various load testing scenarios using Locust
 
 set -euo pipefail
@@ -11,7 +11,7 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOAD_TEST_DIR="${PROJECT_ROOT}/tests/load"
 REPORTS_DIR="${PROJECT_ROOT}/reports/load_tests"
 STAGING_HOST="http://localhost:8000"
-PRODUCTION_HOST="https://api.pynomaly.com"
+PRODUCTION_HOST="https://api.anomaly_detection.com"
 DEFAULT_USERS=50
 DEFAULT_SPAWN_RATE=10
 DEFAULT_DURATION="5m"
@@ -46,7 +46,7 @@ show_help() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Run comprehensive load tests for Pynomaly
+Run comprehensive load tests for anomaly_detection
 
 OPTIONS:
     -h, --help              Show this help message
@@ -590,7 +590,7 @@ post_test_analysis() {
 
 # Main function
 main() {
-    log_info "Starting Pynomaly load testing..."
+    log_info "Starting anomaly_detection load testing..."
 
     # Set up error handling
     trap cleanup EXIT

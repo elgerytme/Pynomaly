@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Production Deployment Script for Pynomaly
+# Production Deployment Script for anomaly_detection
 # This script handles the complete deployment process
 
 set -e
@@ -136,10 +136,10 @@ validate_environment() {
 create_backup() {
     log "Creating database backup..."
 
-    BACKUP_FILE="$BACKUP_DIR/pynomaly_backup_$(date +%Y%m%d_%H%M%S).sql"
+    BACKUP_FILE="$BACKUP_DIR/anomaly_detection_backup_$(date +%Y%m%d_%H%M%S).sql"
 
     if docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" ps postgres | grep -q "Up"; then
-        docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T postgres pg_dump -U pynomaly pynomaly > "$BACKUP_FILE"
+        docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T postgres pg_dump -U anomaly_detection anomaly_detection > "$BACKUP_FILE"
         log "Database backup created: $BACKUP_FILE"
     else
         info "Database not running, skipping backup"
@@ -156,7 +156,7 @@ deploy_application() {
     docker-compose -f docker-compose.prod.yml pull
 
     # Build application image
-    docker-compose -f docker-compose.prod.yml build pynomaly-api
+    docker-compose -f docker-compose.prod.yml build anomaly_detection-api
 
     # Start services
     docker-compose -f docker-compose.prod.yml up -d
@@ -170,7 +170,7 @@ wait_for_services() {
 
     # Wait for database
     info "Waiting for PostgreSQL..."
-    timeout 60 bash -c 'until docker-compose -f '"$PROD_CONFIG_DIR"'/docker-compose.prod.yml exec postgres pg_isready -U pynomaly; do sleep 2; done'
+    timeout 60 bash -c 'until docker-compose -f '"$PROD_CONFIG_DIR"'/docker-compose.prod.yml exec postgres pg_isready -U anomaly_detection; do sleep 2; done'
 
     # Wait for Redis
     info "Waiting for Redis..."
@@ -195,7 +195,7 @@ run_health_checks() {
     fi
 
     # Check database connectivity
-    if docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T postgres pg_isready -U pynomaly &>/dev/null; then
+    if docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T postgres pg_isready -U anomaly_detection &>/dev/null; then
         log "Database health check passed"
     else
         error "Database health check failed"
@@ -256,7 +256,7 @@ display_summary() {
 
 # Main deployment function
 main() {
-    log "Starting Pynomaly production deployment..."
+    log "Starting anomaly_detection production deployment..."
 
     check_prerequisites
     create_directories
@@ -314,7 +314,7 @@ DEPLOY_DIR="$PROJECT_ROOT/deploy"
 
 # Default values
 ENVIRONMENT="production"
-NAMESPACE="pynomaly-production"
+NAMESPACE="anomaly_detection-production"
 IMAGE_TAG="latest"
 SKIP_TESTS="false"
 FORCE_DEPLOY="false"
@@ -357,7 +357,7 @@ Deploy anomaly detection API to Kubernetes
 
 OPTIONS:
     -e, --environment ENV       Deployment environment (default: production)
-    -n, --namespace NAMESPACE   Kubernetes namespace (default: pynomaly-production)
+    -n, --namespace NAMESPACE   Kubernetes namespace (default: anomaly_detection-production)
     -t, --tag TAG              Docker image tag (default: latest)
     -s, --skip-tests           Skip pre-deployment tests
     -f, --force                Force deployment without confirmation
@@ -445,7 +445,7 @@ validate_environment() {
             log "Validating production environment..."
 
             # Check for required secrets
-            if ! kubectl get secret pynomaly-secrets -n "$NAMESPACE" &> /dev/null; then
+            if ! kubectl get secret anomaly_detection-secrets -n "$NAMESPACE" &> /dev/null; then
                 error "Production secrets not found in namespace '$NAMESPACE'"
             fi
 
@@ -473,7 +473,7 @@ validate_environment() {
 validate_image() {
     log "Validating Docker image..."
 
-    local image_name="ghcr.io/pynomaly/pynomaly:$IMAGE_TAG"
+    local image_name="ghcr.io/anomaly_detection/anomaly_detection:$IMAGE_TAG"
 
     # Check if image exists in registry
     if command -v docker &> /dev/null; then
@@ -500,15 +500,15 @@ run_pre_deployment_tests() {
     log "Running pre-deployment tests..."
 
     # API health check on current deployment
-    if kubectl get deployment pynomaly-api -n "$NAMESPACE" &> /dev/null; then
+    if kubectl get deployment anomaly_detection-api -n "$NAMESPACE" &> /dev/null; then
         log "Checking current deployment health..."
 
         local service_ip
-        service_ip=$(kubectl get service pynomaly-api-internal -n "$NAMESPACE" -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
+        service_ip=$(kubectl get service anomaly_detection-api-internal -n "$NAMESPACE" -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
 
         if [[ -n "$service_ip" ]]; then
             # Run health check via port-forward
-            kubectl port-forward service/pynomaly-api-internal 8080:8000 -n "$NAMESPACE" &
+            kubectl port-forward service/anomaly_detection-api-internal 8080:8000 -n "$NAMESPACE" &
             local port_forward_pid=$!
 
             sleep 5
@@ -544,10 +544,10 @@ backup_current_deployment() {
     mkdir -p "$backup_dir"
 
     # Backup current deployment manifests
-    if kubectl get deployment pynomaly-api -n "$NAMESPACE" &> /dev/null; then
-        kubectl get deployment pynomaly-api -n "$NAMESPACE" -o yaml > "$backup_dir/deployment.yaml"
-        kubectl get service pynomaly-api-service -n "$NAMESPACE" -o yaml > "$backup_dir/service.yaml"
-        kubectl get configmap pynomaly-config -n "$NAMESPACE" -o yaml > "$backup_dir/configmap.yaml"
+    if kubectl get deployment anomaly_detection-api -n "$NAMESPACE" &> /dev/null; then
+        kubectl get deployment anomaly_detection-api -n "$NAMESPACE" -o yaml > "$backup_dir/deployment.yaml"
+        kubectl get service anomaly_detection-api-service -n "$NAMESPACE" -o yaml > "$backup_dir/service.yaml"
+        kubectl get configmap anomaly_detection-config -n "$NAMESPACE" -o yaml > "$backup_dir/configmap.yaml"
 
         success "Backup created at $backup_dir"
     else
@@ -599,11 +599,11 @@ deploy_api() {
     log "Deploying API application..."
 
     # Update image tag in deployment manifest
-    local temp_manifest="/tmp/pynomaly-deployment.yaml"
-    local image_name="ghcr.io/pynomaly/pynomaly:$IMAGE_TAG"
+    local temp_manifest="/tmp/anomaly_detection-deployment.yaml"
+    local image_name="ghcr.io/anomaly_detection/anomaly_detection:$IMAGE_TAG"
 
     # Create temporary manifest with updated image
-    sed "s|image: pynomaly:production-latest|image: $image_name|g" \
+    sed "s|image: anomaly_detection:production-latest|image: $image_name|g" \
         "$DEPLOY_DIR/kubernetes/production-deployment.yaml" > "$temp_manifest"
 
     if [[ "$DRY_RUN" == "true" ]]; then
@@ -618,7 +618,7 @@ deploy_api() {
 
     # Wait for rollout to complete
     log "Waiting for API deployment rollout..."
-    kubectl rollout status deployment/pynomaly-api -n "$NAMESPACE" --timeout=600s
+    kubectl rollout status deployment/anomaly_detection-api -n "$NAMESPACE" --timeout=600s
 
     # Wait for pods to be ready
     kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=api -n "$NAMESPACE" --timeout=300s
@@ -669,7 +669,7 @@ verify_deployment() {
     log "Checking service accessibility..."
 
     # Port forward for testing
-    kubectl port-forward service/pynomaly-api-internal 8081:8000 -n "$NAMESPACE" &
+    kubectl port-forward service/anomaly_detection-api-internal 8081:8000 -n "$NAMESPACE" &
     local port_forward_pid=$!
 
     sleep 10
@@ -714,7 +714,7 @@ post_deployment_tasks() {
     fi
 
     # Update deployment annotations
-    kubectl annotate deployment pynomaly-api -n "$NAMESPACE" \
+    kubectl annotate deployment anomaly_detection-api -n "$NAMESPACE" \
         deployment.kubernetes.io/revision-last-deployed="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
         deployment.kubernetes.io/image-tag="$IMAGE_TAG" \
         --overwrite
@@ -724,7 +724,7 @@ post_deployment_tasks() {
     log "  Environment: $ENVIRONMENT"
     log "  Namespace: $NAMESPACE"
     log "  Image Tag: $IMAGE_TAG"
-    log "  Replicas: $(kubectl get deployment pynomaly-api -n "$NAMESPACE" -o jsonpath='{.status.readyReplicas}')"
+    log "  Replicas: $(kubectl get deployment anomaly_detection-api -n "$NAMESPACE" -o jsonpath='{.status.readyReplicas}')"
 
     success "Post-deployment tasks completed"
 }
@@ -774,7 +774,7 @@ main() {
     if [[ "$DRY_RUN" == "false" ]]; then
         log "Access your deployment:"
         log "  kubectl get services -n $NAMESPACE"
-        log "  kubectl port-forward service/pynomaly-api-internal 8080:8000 -n $NAMESPACE"
+        log "  kubectl port-forward service/anomaly_detection-api-internal 8080:8000 -n $NAMESPACE"
         log "  curl http://localhost:8080/api/v1/health"
     fi
 }

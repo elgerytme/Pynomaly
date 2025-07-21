@@ -132,7 +132,7 @@ class QualityLineageService:
     def _initialize_persistent_cache(self):
         """Initialize persistent cache using SQLite."""
         try:
-            cache_dir = Path.home() / ".pynomaly" / "cache"
+            cache_dir = Path.home() / ".anomaly_detection" / "cache"
             cache_dir.mkdir(parents=True, exist_ok=True)
             
             cache_file = cache_dir / "lineage_cache.db"

@@ -1,14 +1,14 @@
 
 [tool.mutmut]
-# Mutation testing configuration for Pynomaly
+# Mutation testing configuration for anomaly_detection
 
 # Paths to mutate (critical business logic)
 paths_to_mutate = [
-    "src/pynomaly/domain/",
-    "src/pynomaly/application/services/detection_service.py",
-    "src/pynomaly/application/services/ensemble_service.py",
-    "src/pynomaly/infrastructure/adapters/pyod_adapter.py",
-    "src/pynomaly/infrastructure/adapters/sklearn_adapter.py",
+    "src/anomaly_detection/domain/",
+    "src/anomaly_detection/application/services/detection_service.py",
+    "src/anomaly_detection/application/services/ensemble_service.py",
+    "src/anomaly_detection/infrastructure/adapters/pyod_adapter.py",
+    "src/anomaly_detection/infrastructure/adapters/sklearn_adapter.py",
 ]
 
 # Test command to run for each mutation

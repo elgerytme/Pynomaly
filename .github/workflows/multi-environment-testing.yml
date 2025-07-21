@@ -201,8 +201,8 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: pynomaly_test
-          POSTGRES_USER: pynomaly
+          POSTGRES_DB: anomaly_detection_test
+          POSTGRES_USER: anomaly_detection
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -294,14 +294,14 @@ jobs:
 
     - name: Validate installation
       run: |
-        python -c "import pynomaly; print(f'Pynomaly {pynomaly.__version__} installed successfully')"
+        python -c "import anomaly_detection; print(f'anomaly_detection {anomaly_detection.__version__} installed successfully')"
         python scripts/validate_dependencies.py --groups ${{ matrix.group }}
 
     - name: Setup test environment
       run: |
         # Create test environment configuration
-        echo "PYNOMALY_ENVIRONMENT=testing" >> test.env
-        echo "DATABASE_URL=postgresql://pynomaly:test_password@localhost:5432/pynomaly_test" >> test.env
+        echo "ANOMALY_DETECTION_ENVIRONMENT=testing" >> test.env
+        echo "DATABASE_URL=postgresql://anomaly_detection:test_password@localhost:5432/anomaly_detection_test" >> test.env
         echo "REDIS_URL=redis://localhost:6379" >> test.env
         echo "LOG_LEVEL=INFO" >> test.env
 
@@ -309,9 +309,9 @@ jobs:
       run: |
         # Test basic imports and core functionality
         python -c "
-        import pynomaly
-        from pynomaly.domain.entities import Dataset, Detector
-        from pynomaly.application.services import DetectionService
+        import anomaly_detection
+        from anomaly_detection.domain.entities import Dataset, Detector
+        from anomaly_detection.application.services import DetectionService
         print('✅ Core imports successful')
         "
 
@@ -325,7 +325,7 @@ jobs:
         # Add coverage and reporting options
         coverage_opts=""
         if [[ "${{ matrix.category }}" == "unit" || "${{ matrix.category }}" == "integration" ]]; then
-          coverage_opts="--cov=src/pynomaly --cov-report=xml --cov-report=html"
+          coverage_opts="--cov=src/anomaly_detection --cov-report=xml --cov-report=html"
         fi
         
         # Execute test command
@@ -413,8 +413,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[dev,test]"
         python -c "
-        import pynomaly
-        from pynomaly.presentation.cli.app import app
+        import anomaly_detection
+        from anomaly_detection.presentation.cli.app import app
         print('✅ Development environment ready')
         "
 
@@ -424,8 +424,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[production]"
         python -c "
-        import pynomaly
-        from pynomaly.presentation.api.app import app
+        import anomaly_detection
+        from anomaly_detection.presentation.api.app import app
         print('✅ Production environment ready')
         "
 
@@ -433,10 +433,10 @@ jobs:
       if: matrix.scenario == 'container'
       run: |
         # Build container image
-        docker build -f Dockerfile -t pynomaly-test .
+        docker build -f Dockerfile -t anomaly_detection-test .
         
         # Test container functionality
-        docker run --rm -d --name test-container -p 8080:8000 pynomaly-test
+        docker run --rm -d --name test-container -p 8080:8000 anomaly_detection-test
         sleep 10
         curl -f http://localhost:8080/api/health/ || echo "Container health check failed"
         docker stop test-container
@@ -446,7 +446,7 @@ jobs:
       run: |
         pip install -e ".[api,minimal]"
         python -c "
-        from pynomaly.presentation.api.app import app
+        from anomaly_detection.presentation.api.app import app
         from fastapi.testclient import TestClient
         client = TestClient(app)
         response = client.get('/api/health/')
@@ -484,7 +484,7 @@ jobs:
         pip install -e ".[test]"
         python -c "
         import sys
-        import pynomaly
+        import anomaly_detection
         print(f'✅ Python {sys.version} compatibility verified')
         "
 
@@ -494,12 +494,12 @@ jobs:
         # Test pip installation
         python -m pip install --upgrade pip
         pip install -e ".[test]"
-        python -c "import pynomaly; print('✅ pip installation works')"
+        python -c "import anomaly_detection; print('✅ pip installation works')"
         
         # Test pipx installation (if available)
         if command -v pipx &> /dev/null; then
           pipx install .
-          pipx run pynomaly --version
+          pipx run anomaly_detection --version
           echo "✅ pipx installation works"
         fi
 
@@ -515,8 +515,8 @@ jobs:
         
         # Validate core imports still work
         python -c "
-        import pynomaly
-        from pynomaly.domain.entities import Dataset
+        import anomaly_detection
+        from anomaly_detection.domain.entities import Dataset
         print('✅ Core functionality maintained despite potential conflicts')
         "
 

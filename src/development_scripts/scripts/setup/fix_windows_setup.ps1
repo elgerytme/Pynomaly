@@ -1,13 +1,13 @@
-# Fix Windows Setup Issues for Pynomaly
+# Fix Windows Setup Issues for anomaly_detection
 # PowerShell script to resolve common Windows installation problems
 
-Write-Host "🔧 Fixing Pynomaly Windows Setup Issues" -ForegroundColor Cyan
+Write-Host "🔧 Fixing anomaly_detection Windows Setup Issues" -ForegroundColor Cyan
 Write-Host "=" * 50
 
 # Step 1: Remove conflicting package
 Write-Host "`n📌 Step 1: Removing conflicting anomaly_detection package" -ForegroundColor Yellow
 try {
-    python -m pip uninstall pynomaly -y
+    python -m pip uninstall anomaly_detection -y
     Write-Host "✅ Removed existing anomaly_detection package" -ForegroundColor Green
 } catch {
     Write-Host "⚠️  No existing package found or removal failed" -ForegroundColor Yellow
@@ -40,7 +40,7 @@ Write-Host "Upgrading pip..." -ForegroundColor Blue
 python -m pip install --upgrade pip
 
 # Install package
-Write-Host "Installing pynomaly in development mode..." -ForegroundColor Blue
+Write-Host "Installing anomaly_detection in development mode..." -ForegroundColor Blue
 try {
     python -m pip install -e .[server]
     Write-Host "✅ Installed with server extras" -ForegroundColor Green
@@ -71,13 +71,13 @@ foreach ($dep in $dependencies) {
 Write-Host "`n📌 Step 5: Verifying installation" -ForegroundColor Yellow
 
 try {
-    python -c "import pynomaly; print('✅ pynomaly imports successfully')"
+    python -c "import anomaly_detection; print('✅ anomaly_detection imports successfully')"
 } catch {
-    Write-Host "❌ Failed to import pynomaly" -ForegroundColor Red
+    Write-Host "❌ Failed to import anomaly_detection" -ForegroundColor Red
 }
 
 try {
-    python -c "from pynomaly.presentation.cli.app import app; print('✅ CLI module available')"
+    python -c "from anomaly_detection.presentation.cli.app import app; print('✅ CLI module available')"
 } catch {
     Write-Host "❌ CLI module import failed" -ForegroundColor Red
 }
@@ -86,15 +86,15 @@ try {
 Write-Host "`n📌 Step 6: Testing CLI access" -ForegroundColor Yellow
 
 try {
-    python -m pynomaly.presentation.cli.app --help | Select-Object -First 5
-    Write-Host "✅ CLI accessible via python -m pynomaly.presentation.cli.app" -ForegroundColor Green
+    python -m anomaly_detection.presentation.cli.app --help | Select-Object -First 5
+    Write-Host "✅ CLI accessible via python -m anomaly_detection.presentation.cli.app" -ForegroundColor Green
 } catch {
     Write-Host "❌ CLI module test failed" -ForegroundColor Red
 }
 
 # Final instructions
 Write-Host "`n📌 Setup Complete! Next Steps:" -ForegroundColor Cyan
-Write-Host "1. CLI: python -m pynomaly.presentation.cli.app --help"
+Write-Host "1. CLI: python -m anomaly_detection.presentation.cli.app --help"
 Write-Host "2. API: python scripts\run_api.py"
 Write-Host "3. Web UI: python scripts\run_web_ui.py"
 Write-Host "4. For production: python -m pip install -e .[production]"

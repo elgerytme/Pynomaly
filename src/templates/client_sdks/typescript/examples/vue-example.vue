@@ -1,7 +1,7 @@
 <template>
-  <div class="pynomaly-app">
+  <div class="anomaly_detection-app">
     <header>
-      <h1>Pynomaly Vue.js Example</h1>
+      <h1>anomaly_detection Vue.js Example</h1>
       <nav>
         <button
           v-for="tab in tabs"
@@ -24,7 +24,7 @@
           </button>
         </div>
         <form v-else @submit.prevent="login">
-          <h2>Login to Pynomaly</h2>
+          <h2>Login to anomaly_detection</h2>
           
           <div>
             <label>Username:</label>
@@ -223,7 +223,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
-import { PynomaliClient } from '../src/index';
+import { AnomalyDetectionClient } from '../src/index';
 import type {
   DetectionRequest,
   DetectionResponse,
@@ -262,9 +262,9 @@ const health = ref<HealthStatus | null>(null);
 const autoRefresh = ref(false);
 
 // Client instance
-const client = new PynomaliClient({
-  baseUrl: import.meta.env.VITE_PYNOMALY_API_URL || 'https://api.pynomaly.com',
-  apiKey: import.meta.env.VITE_PYNOMALY_API_KEY,
+const client = new AnomalyDetectionClient({
+  baseUrl: import.meta.env.VITE_ANOMALY_DETECTION_API_URL || 'https://api.anomaly_detection.com',
+  apiKey: import.meta.env.VITE_ANOMALY_DETECTION_API_KEY,
   debug: import.meta.env.DEV,
   websocket: {
     enabled: true,
@@ -445,7 +445,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.pynomaly-app {
+.anomaly_detection-app {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;

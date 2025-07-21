@@ -1,4 +1,4 @@
-# Pynomaly Feature Gap Analysis
+# anomaly_detection Feature Gap Analysis
 
 ## Executive Summary
 
@@ -103,9 +103,9 @@ LIME not available. Install with: pip install lime
 **Disabled Commands**:
 ```python
 # From cli/app.py - Multiple features commented out:
-# from pynomaly.presentation.cli import performance  # Temporarily disabled
-# from pynomaly.presentation.cli import deep_learning  # Temporarily disabled  
-# from pynomaly.presentation.cli import explainability  # Temporarily disabled
+# from anomaly_detection.presentation.cli import performance  # Temporarily disabled
+# from anomaly_detection.presentation.cli import deep_learning  # Temporarily disabled  
+# from anomaly_detection.presentation.cli import explainability  # Temporarily disabled
 ```
 
 ### 📊 Gap Analysis by Category
@@ -184,6 +184,6 @@ Most of these are architectural frameworks without functional implementations.
 
 ## Conclusion
 
-Pynomaly demonstrates excellent architectural planning and has a solid foundation with PyOD integration and clean domain design. However, there's a substantial gap between marketing claims and actual implementation. The codebase appears to be in an "architectural prototype" stage rather than the "production-ready" system claimed.
+anomaly_detection demonstrates excellent architectural planning and has a solid foundation with PyOD integration and clean domain design. However, there's a substantial gap between marketing claims and actual implementation. The codebase appears to be in an "architectural prototype" stage rather than the "production-ready" system claimed.
 
 **Recommendation**: Update documentation to accurately reflect current capabilities and create a roadmap for implementing claimed features, or focus on delivering the claimed functionality before marketing the platform as production-ready.

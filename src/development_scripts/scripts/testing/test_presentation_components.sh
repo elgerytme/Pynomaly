@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Pynomaly Presentation Components Test Suite
+# anomaly_detection Presentation Components Test Suite
 # Tests CLI, API, and Web UI components in fresh environments
 # Compatible with bash and can be adapted for PowerShell
 
 set -e  # Exit on any error
 
-echo "🧪 Pynomaly Presentation Components Test Suite"
+echo "🧪 anomaly_detection Presentation Components Test Suite"
 echo "=============================================="
 echo
 
@@ -83,7 +83,7 @@ sys.path.insert(0, \"src\")
 
 try:
     # Test CLI imports
-    from pynomaly.presentation.cli.app import app
+    from anomaly_detection.presentation.cli.app import app
     print(\"✅ CLI app imported successfully\")
 
     # Test dependencies
@@ -117,7 +117,7 @@ sys.path.insert(0, \"src\")
 
 try:
     # Test API imports
-    from pynomaly.presentation.api.app import create_app
+    from anomaly_detection.presentation.api.app import create_app
     print(\"✅ API create_app imported successfully\")
 
     # Test dependencies
@@ -160,7 +160,7 @@ sys.path.insert(0, \"src\")
 
 try:
     # Test Web UI imports
-    from pynomaly.presentation.web.app import create_web_app, mount_web_ui
+    from anomaly_detection.presentation.web.app import create_web_app, mount_web_ui
     print(\"✅ Web UI functions imported successfully\")
 
     # Test dependencies
@@ -229,9 +229,9 @@ try:
     sys.path.insert(0, \"src\")
 
     # Test basic imports
-    from pynomaly.presentation.cli.app import app as cli_app
-    from pynomaly.presentation.api.app import create_app
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.cli.app import app as cli_app
+    from anomaly_detection.presentation.api.app import create_app
+    from anomaly_detection.presentation.web.app import create_web_app
 
     print(\"✅ All presentation components importable in fresh environment\")
 
@@ -320,15 +320,15 @@ sys.path.insert(0, \"src\")
 
 try:
     # Test imports work across platforms
-    from pynomaly.presentation.cli.app import app
-    from pynomaly.presentation.api.app import create_app
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.cli.app import app
+    from anomaly_detection.presentation.api.app import create_app
+    from anomaly_detection.presentation.web.app import create_web_app
 
     print(\"✅ Cross-platform imports successful\")
 
     # Test path separators
     from pathlib import Path
-    test_path = Path(\"src\") / \"pynomaly\" / \"presentation\"
+    test_path = Path(\"src\") / \"anomaly_detection\" / \"presentation\"
     if test_path.exists():
         print(\"✅ Cross-platform path handling working\")
 
@@ -346,7 +346,7 @@ except Exception as e:
 
 # Main test execution
 main() {
-    echo "Starting Pynomaly presentation components test suite..."
+    echo "Starting anomaly_detection presentation components test suite..."
     echo "Test environment: $(uname -s) $(uname -r)"
     echo "Python version: $(python3 --version 2>/dev/null || echo 'Python not found')"
     echo
@@ -383,9 +383,9 @@ main() {
         echo "✅ Web UI Component: Ready for use"
         echo
         echo "You can now run:"
-        echo "  - CLI: pynomaly --help"
-        echo "  - API: uvicorn pynomaly.presentation.api:app"
-        echo "  - Web UI: uvicorn pynomaly.presentation.web.app:create_web_app"
+        echo "  - CLI: anomaly_detection --help"
+        echo "  - API: uvicorn anomaly_detection.presentation.api:app"
+        echo "  - Web UI: uvicorn anomaly_detection.presentation.web.app:create_web_app"
 
         exit 0
     else

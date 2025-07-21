@@ -32,7 +32,7 @@ class CICDSummaryGenerator:
         summary = {
             "metadata": {
                 "generated_at": self.timestamp.isoformat(),
-                "generator": "Pynomaly CI/CD Summary Script",
+                "generator": "anomaly_detection CI/CD Summary Script",
                 "version": "2.0.0",
             },
             "overview": self._generate_overview(),
@@ -51,7 +51,7 @@ class CICDSummaryGenerator:
     def _generate_overview(self) -> dict[str, Any]:
         """Generate high-level overview"""
         return {
-            "description": "Comprehensive CI/CD pipeline for Pynomaly anomaly detection platform",
+            "description": "Comprehensive CI/CD pipeline for anomaly_detection anomaly detection platform",
             "objectives": [
                 "Automated testing and quality assurance",
                 "Secure and reliable deployments",
@@ -529,7 +529,7 @@ class CICDSummaryGenerator:
     def print_summary(self, summary: dict[str, Any]):
         """Print formatted summary to console"""
         print("\n" + "=" * 80)
-        print("PYNOMALY CI/CD INFRASTRUCTURE SUMMARY")
+        print("anomaly_detection CI/CD INFRASTRUCTURE SUMMARY")
         print("=" * 80)
 
         print("\n📊 OVERVIEW")

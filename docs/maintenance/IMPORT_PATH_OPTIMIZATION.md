@@ -25,7 +25,7 @@ from src.packages.infrastructure.config import Settings, create_container
 # User interfaces
 from src.packages.interfaces.api import create_app
 from src.packages.interfaces.cli import PynomaCLI
-from src.packages.interfaces.sdk.python import PynomalyClient
+from src.packages.interfaces.sdk.python import AnomalyDetectionClient
 ```
 
 ### Application Services
@@ -58,7 +58,7 @@ Focus on imports that break core functionality:
 1. **Domain Entity Imports**
    ```python
    # Old (broken)
-   from pynomaly.domain.entities.anomaly import Anomaly
+   from anomaly_detection.domain.entities.anomaly import Anomaly
    
    # New (correct)
    from src.packages.core.domain.entities.anomaly import Anomaly
@@ -67,7 +67,7 @@ Focus on imports that break core functionality:
 2. **Algorithm Adapter Imports**
    ```python
    # Old (scattered)
-   from pynomaly.algorithms.adapters.pyod_adapter import PyODAdapter
+   from anomaly_detection.algorithms.adapters.pyod_adapter import PyODAdapter
    
    # New (consolidated)
    from src.packages.anomaly_detection.adapters.pyod_adapter import PyODAdapter
@@ -79,7 +79,7 @@ Update application service imports:
 1. **Detection Services**
    ```python
    # Old
-   from pynomaly.application.services.detection_service import DetectionService
+   from anomaly_detection.application.services.detection_service import DetectionService
    
    # New
    from src.packages.anomaly_detection.application.services.detection_service import DetectionService
@@ -88,7 +88,7 @@ Update application service imports:
 2. **Infrastructure Services**
    ```python
    # Old
-   from pynomaly.infrastructure.persistence import ModelRepository
+   from anomaly_detection.infrastructure.persistence import ModelRepository
    
    # New
    from src.packages.infrastructure.persistence.repositories import ModelRepository
@@ -116,13 +116,13 @@ Update test file imports systematically:
 ### Using sed (Linux/macOS)
 ```bash
 # Fix core domain imports
-find . -name "*.py" -exec sed -i 's/from pynomaly\.domain\.entities/from src.packages.core.domain.entities/g' {} \;
+find . -name "*.py" -exec sed -i 's/from anomaly_detection\.domain\.entities/from src.packages.core.domain.entities/g' {} \;
 
 # Fix anomaly detection imports
-find . -name "*.py" -exec sed -i 's/from pynomaly\.algorithms/from src.packages.anomaly_detection.algorithms/g' {} \;
+find . -name "*.py" -exec sed -i 's/from anomaly_detection\.algorithms/from src.packages.anomaly_detection.algorithms/g' {} \;
 
 # Fix infrastructure imports
-find . -name "*.py" -exec sed -i 's/from pynomaly\.infrastructure/from src.packages.infrastructure/g' {} \;
+find . -name "*.py" -exec sed -i 's/from anomaly_detection\.infrastructure/from src.packages.infrastructure/g' {} \;
 ```
 
 ### Using Python Script
@@ -141,11 +141,11 @@ def update_imports(file_path):
     
     # Define import mappings
     mappings = {
-        r'from pynomaly\.domain\.entities': 'from src.packages.core.domain.entities',
-        r'from pynomaly\.domain\.value_objects': 'from src.packages.core.domain.value_objects',
-        r'from pynomaly\.algorithms': 'from src.packages.anomaly_detection.algorithms',
-        r'from pynomaly\.infrastructure': 'from src.packages.infrastructure',
-        r'from pynomaly\.application\.services': 'from src.packages.services.application.services',
+        r'from anomaly_detection\.domain\.entities': 'from src.packages.core.domain.entities',
+        r'from anomaly_detection\.domain\.value_objects': 'from src.packages.core.domain.value_objects',
+        r'from anomaly_detection\.algorithms': 'from src.packages.anomaly_detection.algorithms',
+        r'from anomaly_detection\.infrastructure': 'from src.packages.infrastructure',
+        r'from anomaly_detection\.application\.services': 'from src.packages.services.application.services',
     }
     
     # Apply mappings

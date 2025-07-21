@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "========================================"
-echo "PYNOMALY FRESH ENVIRONMENT TEST SUITE"
+echo "anomaly_detection FRESH ENVIRONMENT TEST SUITE"
 echo "========================================"
-echo "This script tests Pynomaly in a fresh virtual environment"
+echo "This script tests anomaly_detection in a fresh virtual environment"
 echo "Environment: $(uname -a)"
 echo "Python: $(python3 --version)"
 echo "Current directory: $(pwd)"
@@ -106,13 +106,13 @@ else
     ((failed_steps++))
 fi
 
-# Step 5: Install pynomaly in development mode
+# Step 5: Install anomaly_detection in development mode
 ((total_steps++))
-if run_test_step "Install Pynomaly Development Mode" "$VENV_ACTIVATE && pip install -e ."; then
+if run_test_step "Install anomaly_detection Development Mode" "$VENV_ACTIVATE && pip install -e ."; then
     ((successful_steps++))
 else
     ((failed_steps++))
-    print_status "ERROR" "Cannot install Pynomaly. This is critical for testing."
+    print_status "ERROR" "Cannot install anomaly_detection. This is critical for testing."
 fi
 
 # Step 6: Install test dependencies
@@ -133,21 +133,21 @@ print('Python version:', sys.version)
 
 # Test basic imports
 try:
-    import pynomaly
-    print('✓ pynomaly imported successfully')
+    import anomaly_detection
+    print('✓ anomaly_detection imported successfully')
 except Exception as e:
-    print('✗ pynomaly import failed:', str(e))
+    print('✗ anomaly_detection import failed:', str(e))
     raise
 
 try:
-    from pynomaly.domain.entities import Dataset, Detector, Anomaly
+    from anomaly_detection.domain.entities import Dataset, Detector, Anomaly
     print('✓ Domain entities imported successfully')
 except Exception as e:
     print('✗ Domain entities import failed:', str(e))
     raise
 
 try:
-    from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+    from anomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
     print('✓ Value objects imported successfully')
 except Exception as e:
     print('✗ Value objects import failed:', str(e))
@@ -165,7 +165,7 @@ fi
 if run_test_step "Test Infrastructure Adapters" "$VENV_ACTIVATE && python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.domain.entities import Dataset
 
 # Create test data
 data = pd.DataFrame({
@@ -180,7 +180,7 @@ adapters_tested = 0
 adapters_successful = 0
 
 try:
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
     sklearn_adapter = SklearnAdapter('IsolationForest')
     print(f'✓ SklearnAdapter created: {sklearn_adapter.algorithm_name}')
     adapters_tested += 1
@@ -190,7 +190,7 @@ except Exception as e:
     adapters_tested += 1
 
 try:
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+    from anomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
     pyod_adapter = PyODAdapter('IsolationForest')
     print(f'✓ PyODAdapter created: {pyod_adapter.algorithm_name}')
     adapters_tested += 1
@@ -209,8 +209,8 @@ fi
 # Step 9: Test API functionality
 ((total_steps++))
 if run_test_step "Test API Functionality" "$VENV_ACTIVATE && python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.presentation.api.app import create_app
 from fastapi.testclient import TestClient
 
 print('Creating dependency injection container...')
@@ -257,8 +257,8 @@ fi
 # Step 10: Test configuration system
 ((total_steps++))
 if run_test_step "Test Configuration System" "$VENV_ACTIVATE && python3 -c \"
-from pynomaly.infrastructure.config.settings import get_settings
-from pynomaly.infrastructure.config import create_container
+from anomaly_detection.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config import create_container
 
 print('Loading application settings...')
 settings = get_settings()
@@ -323,8 +323,8 @@ fi
 if run_test_step "Test ML Pipeline" "$VENV_ACTIVATE && python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -380,16 +380,16 @@ echo "Success rate: $success_rate%"
 if [ $failed_steps -eq 0 ]; then
     echo ""
     print_status "SUCCESS" "🎉 ALL FRESH ENVIRONMENT TESTS PASSED!"
-    print_status "SUCCESS" "Pynomaly is ready for deployment in fresh environments!"
+    print_status "SUCCESS" "anomaly_detection is ready for deployment in fresh environments!"
     exit 0
 elif [ $successful_steps -ge $((total_steps * 75 / 100)) ]; then
     echo ""
     print_status "WARNING" "⚠️ Most tests passed but some failed."
-    print_status "WARNING" "Pynomaly should work in fresh environments with minor issues."
+    print_status "WARNING" "anomaly_detection should work in fresh environments with minor issues."
     exit 0
 else
     echo ""
     print_status "ERROR" "❌ Too many tests failed."
-    print_status "ERROR" "Pynomaly may have issues in fresh environments."
+    print_status "ERROR" "anomaly_detection may have issues in fresh environments."
     exit 1
 fi

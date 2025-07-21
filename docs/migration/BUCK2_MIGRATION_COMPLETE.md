@@ -57,9 +57,9 @@ buck2 build //:enterprise          # Enterprise features
 buck2 build //:testing             # Testing utilities
 
 # Application binaries
-buck2 build //:pynomaly-cli        # CLI application
-buck2 build //:pynomaly-api        # API server
-buck2 build //:pynomaly-web        # Web application
+buck2 build //:anomaly_detection-cli        # CLI application
+buck2 build //:anomaly_detection-api        # API server
+buck2 build //:anomaly_detection-web        # Web application
 ```
 
 ## 🚀 Performance Benefits Achieved
@@ -96,7 +96,7 @@ nx affected:test
 ## 📈 Migration Results
 
 ### **Before:**
-- **Dual structure confusion** (src/pynomaly + src/packages)
+- **Dual structure confusion** (src/anomaly_detection + src/packages)
 - **17 scattered packages** with inconsistent builds
 - **Nested enterprise structure** difficult to navigate
 - **Separate data packages** with unclear boundaries

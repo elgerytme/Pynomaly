@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Health Validator for Pynomaly v1.0.0
+Production Health Validator for anomaly_detection v1.0.0
 
 This script validates the health and performance of the production deployment,
 running comprehensive tests to ensure system stability and readiness.
@@ -31,10 +31,10 @@ class ProductionHealthValidator:
         self.start_time = datetime.now()
         self.test_results = []
         self.production_urls = {
-            "api": "https://api.pynomaly.io",
-            "dashboard": "https://app.pynomaly.io",
-            "docs": "https://docs.pynomaly.io",
-            "monitoring": "https://grafana.pynomaly.io",
+            "api": "https://api.anomaly_detection.io",
+            "dashboard": "https://app.anomaly_detection.io",
+            "docs": "https://docs.anomaly_detection.io",
+            "monitoring": "https://grafana.anomaly_detection.io",
         }
 
     def log_test_result(

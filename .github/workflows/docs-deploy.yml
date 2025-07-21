@@ -91,7 +91,7 @@ jobs:
           - `index.html` - Interactive Swagger UI documentation
           - `openapi.json` - OpenAPI 3.0 specification (JSON format)
           - `openapi.yaml` - OpenAPI 3.0 specification (YAML format)
-          - `pynomaly_api.postman_collection.json` - Postman collection for API testing
+          - `anomaly_detection_api.postman_collection.json` - Postman collection for API testing
           - `examples/` - Code examples in various languages
 
           ## Usage
@@ -157,9 +157,9 @@ jobs:
       - name: Create MkDocs configuration
         run: |
           cat > mkdocs.yml << 'EOF'
-          site_name: Pynomaly Documentation
-          site_description: Comprehensive documentation for Pynomaly anomaly detection platform
-          site_url: https://pynomaly.github.io/pynomaly
+          site_name: anomaly_detection Documentation
+          site_description: Comprehensive documentation for anomaly_detection anomaly detection platform
+          site_url: https://anomaly_detection.github.io/anomaly_detection
           
           theme:
             name: material
@@ -245,9 +245,9 @@ jobs:
           
           # Create index page
           cat > docs/index.md << 'EOF'
-          # Pynomaly Documentation
+          # anomaly_detection Documentation
 
-          Welcome to the comprehensive documentation for Pynomaly, a state-of-the-art anomaly detection platform.
+          Welcome to the comprehensive documentation for anomaly_detection, a state-of-the-art anomaly detection platform.
 
           ## Features
 
@@ -264,9 +264,9 @@ jobs:
           ```
 
           ```python
-          from pynomaly_client import PynomalyClient
+          from anomaly_detection_client import AnomalyDetectionClient
 
-          client = PynomalyClient(api_key="your-api-key")
+          client = AnomalyDetectionClient(api_key="your-api-key")
           detector = client.detectors.create(
               name="My Detector",
               algorithm="IsolationForest"
@@ -279,7 +279,7 @@ jobs:
 
           ## Architecture
 
-          Pynomaly follows a clean architecture pattern with clear domain boundaries:
+          anomaly_detection follows a clean architecture pattern with clear domain boundaries:
 
           - **Data Layer**: Anomaly detection algorithms and data processing
           - **Software Layer**: Core business logic and interfaces
@@ -288,9 +288,9 @@ jobs:
 
           ## Support
 
-          - **Documentation**: [docs.pynomaly.com](https://docs.pynomaly.com)
-          - **GitHub**: [github.com/pynomaly/pynomaly](https://github.com/pynomaly/pynomaly)
-          - **Support**: support@pynomaly.com
+          - **Documentation**: [docs.anomaly_detection.com](https://docs.anomaly_detection.com)
+          - **GitHub**: [github.com/anomaly_detection/anomaly_detection](https://github.com/anomaly_detection/anomaly_detection)
+          - **Support**: support@anomaly_detection.com
           EOF
 
           # Create API overview
@@ -301,8 +301,8 @@ jobs:
 
           ## Base URL
 
-          - **Production**: `https://api.pynomaly.com`
-          - **Staging**: `https://staging-api.pynomaly.com`
+          - **Production**: `https://api.anomaly_detection.com`
+          - **Staging**: `https://staging-api.anomaly_detection.com`
 
           ## Authentication
 
@@ -323,7 +323,7 @@ jobs:
           cat > docs/monitoring/health-checks.md << 'EOF'
           # Health Checks
 
-          Pynomaly provides comprehensive health monitoring capabilities.
+          anomaly_detection provides comprehensive health monitoring capabilities.
 
           ## Health Endpoints
 
@@ -388,7 +388,7 @@ jobs:
             "docs/api/generated/index.html"
             "docs/api/generated/openapi.json"
             "docs/api/generated/openapi.yaml"
-            "docs/api/generated/pynomaly_api.postman_collection.json"
+            "docs/api/generated/anomaly_detection_api.postman_collection.json"
           )
           
           for file in "${files[@]}"; do
@@ -407,7 +407,7 @@ jobs:
           
           files = [
               'docs/api/generated/openapi.json',
-              'docs/api/generated/pynomaly_api.postman_collection.json'
+              'docs/api/generated/anomaly_detection_api.postman_collection.json'
           ]
           
           for file in files:
@@ -452,8 +452,8 @@ jobs:
           echo "" >> report.md
           if [ "${{ needs.generate-api-docs.result }}" == "success" ] && [ "${{ needs.generate-mkdocs.result }}" == "success" ]; then
             echo "✅ Documentation deployment completed successfully!" >> report.md
-            echo "📖 Documentation available at: https://pynomaly.github.io/pynomaly" >> report.md
-            echo "🔗 API Documentation: https://pynomaly.github.io/pynomaly/api-docs/" >> report.md
+            echo "📖 Documentation available at: https://anomaly_detection.github.io/anomaly_detection" >> report.md
+            echo "🔗 API Documentation: https://anomaly_detection.github.io/anomaly_detection/api-docs/" >> report.md
           else
             echo "❌ Documentation deployment failed!" >> report.md
           fi

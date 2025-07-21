@@ -210,7 +210,7 @@ def evaluate_predictions(true_labels, predictions):
 
 async def main():
     """Demonstrate ensemble anomaly detection."""
-    print("🔍 Pynomaly Ensemble Detection Example\n")
+    print("🔍 anomaly_detection Ensemble Detection Example\n")
 
     # Initialize container
     container = create_container()

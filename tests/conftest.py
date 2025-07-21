@@ -1,5 +1,5 @@
 """
-Global pytest configuration for Pynomaly comprehensive testing
+Global pytest configuration for anomaly_detection comprehensive testing
 
 This configuration file provides fixtures, marks, and settings
 for all test categories across the comprehensive testing framework.
@@ -261,7 +261,7 @@ def api_headers() -> Dict[str, str]:
     return {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "User-Agent": "Pynomaly-Test-Suite/1.0"
+        "User-Agent": "anomaly_detection-Test-Suite/1.0"
     }
 
 

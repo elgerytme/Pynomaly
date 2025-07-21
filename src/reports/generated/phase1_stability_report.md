@@ -16,7 +16,7 @@
 ## Critical Issues Identified
 
 ### 1. Domain Model Import Cascade Failures
-- **Primary Issue**: `ModuleNotFoundError: No module named 'pynomaly.domain.value_objects.anomaly_score'`
+- **Primary Issue**: `ModuleNotFoundError: No module named 'anomaly_detection.domain.value_objects.anomaly_score'`
 - **Secondary Issue**: Missing domain abstractions imports
 - **Root Cause**: Incomplete domain model implementation
 - **Impact**: Complete test suite failure - cannot load conftest.py
@@ -27,7 +27,7 @@
 - **Impact**: E2E tests fail with port binding errors
 
 ### 3. Configuration File Corruption
-- **Issue**: Non-printable characters in `src/pynomaly/infrastructure/config/settings.py`
+- **Issue**: Non-printable characters in `src/anomaly_detection/infrastructure/config/settings.py`
 - **Status**: ✅ **PARTIALLY FIXED** - Some non-printable characters resolved
 - **Impact**: Syntax errors preventing module imports
 
@@ -78,9 +78,9 @@ Test Execution: NOT ATTEMPTED
 ## Import Dependency Analysis
 
 **Missing Critical Modules**:
-- `pynomaly.domain.value_objects.anomaly_score`
-- `pynomaly.domain.value_objects.confidence_interval`
-- `pynomaly.domain.value_objects.contamination_rate`
+- `anomaly_detection.domain.value_objects.anomaly_score`
+- `anomaly_detection.domain.value_objects.confidence_interval`
+- `anomaly_detection.domain.value_objects.contamination_rate`
 - Multiple other domain value objects
 
 **Import Chain Failures**:
@@ -166,6 +166,6 @@ conftest.py → domain.entities → value_objects → [MISSING MODULES]
 
 **Report Generated**: 2025-07-09 00:30:00 UTC
 **Environment**: Windows 11, Python 3.11.9, pytest 8.4.1
-**Current Working Directory**: C:\Users\andre\pynomaly
+**Current Working Directory**: C:\Users\andre\anomaly_detection
 **Test Infrastructure**: ✅ FUNCTIONAL
 **Merge Status**: ✅ APPROVED

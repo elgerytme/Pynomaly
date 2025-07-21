@@ -384,7 +384,7 @@ class PerformanceBaseline:
 
         ci_config = {
             "load_test_config": {
-                "base_url": "${PYNOMALY_TEST_URL:-http://localhost:8000}",
+                "base_url": "${ANOMALY_DETECTION_TEST_URL:-http://localhost:8000}",
                 "concurrent_users": 10,
                 "duration_seconds": 60,
                 "scenario": "mixed",
@@ -418,7 +418,7 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Establish Pynomaly Performance Baselines"
+        description="Establish anomaly_detection Performance Baselines"
     )
     parser.add_argument(
         "--base-url",

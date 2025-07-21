@@ -1,4 +1,4 @@
-name: Pynomaly CI/CD Pipeline
+name: anomaly_detection CI/CD Pipeline
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
       - name: Run linting
         run: |
           ruff check src/ tests/ --output-format=github
-          mypy src/pynomaly/
+          mypy src/anomaly_detection/
 
       - name: Run security scan
         run: |
@@ -76,8 +76,8 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: pynomaly_test
-          POSTGRES_USER: pynomaly
+          POSTGRES_DB: anomaly_detection_test
+          POSTGRES_USER: anomaly_detection
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -127,16 +127,16 @@ jobs:
 
       - name: Set up test environment
         run: |
-          export PYNOMALY_DATABASE_URL="postgresql://pynomaly:test_password@localhost:5432/pynomaly_test"
-          export PYNOMALY_REDIS_URL="redis://localhost:6379/0"
-          export PYNOMALY_SECRET_KEY="test-secret-key"
-          export PYNOMALY_TESTING=true
+          export ANOMALY_DETECTION_DATABASE_URL="postgresql://anomaly_detection:test_password@localhost:5432/anomaly_detection_test"
+          export ANOMALY_DETECTION_REDIS_URL="redis://localhost:6379/0"
+          export ANOMALY_DETECTION_SECRET_KEY="test-secret-key"
+          export ANOMALY_DETECTION_TESTING=true
 
       - name: Run unit tests
         if: matrix.test-type == 'unit'
         run: |
           pytest tests/unit/ -v \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml \
             --cov-report=html \
             --cov-fail-under=80 \
@@ -146,7 +146,7 @@ jobs:
         if: matrix.test-type == 'integration'
         run: |
           pytest tests/integration/ -v \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml \
             --cov-report=html \
             --junitxml=test-results-integration.xml
@@ -194,28 +194,28 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'src/pynomaly/presentation/web/static/package-lock.json'
+          cache-dependency-path: 'src/anomaly_detection/presentation/web/static/package-lock.json'
 
       - name: Install frontend dependencies
         run: |
-          cd src/pynomaly/presentation/web/static
+          cd src/anomaly_detection/presentation/web/static
           npm ci
 
       - name: Build frontend
         run: |
-          cd src/pynomaly/presentation/web/static
+          cd src/anomaly_detection/presentation/web/static
           npm run build
 
       - name: Run frontend tests
         run: |
-          cd src/pynomaly/presentation/web/static
+          cd src/anomaly_detection/presentation/web/static
           npm test
 
       - name: Upload frontend build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: frontend-build
-          path: src/pynomaly/presentation/web/static/dist/
+          path: src/anomaly_detection/presentation/web/static/dist/
 
   # Build and Security Scan Docker Images
   build-and-scan:
@@ -241,14 +241,14 @@ jobs:
         with:
           context: .
           push: false
-          tags: pynomaly:test
+          tags: anomaly_detection:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: pynomaly:test
+          image-ref: anomaly_detection:test
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -300,8 +300,8 @@ jobs:
       - name: Run smoke tests
         run: |
           sleep 60  # Wait for deployment
-          curl -f https://staging.pynomaly.io/health || exit 1
-          curl -f https://staging.pynomaly.io/api/health || exit 1
+          curl -f https://staging.anomaly_detection.io/health || exit 1
+          curl -f https://staging.anomaly_detection.io/api/health || exit 1
 
   # Deploy to Production
   deploy-production:
@@ -346,8 +346,8 @@ jobs:
       - name: Run production health checks
         run: |
           sleep 120  # Wait for deployment
-          curl -f https://pynomaly.io/health || exit 1
-          curl -f https://pynomaly.io/api/health || exit 1
+          curl -f https://anomaly_detection.io/health || exit 1
+          curl -f https://anomaly_detection.io/api/health || exit 1
 
       - name: Send deployment notification
         uses: 8398a7/action-slack@v3
@@ -379,7 +379,7 @@ jobs:
           sudo mv k6-v0.47.0-linux-amd64/k6 /usr/local/bin/
           
           # Run performance tests
-          k6 run scripts/performance/k6-load-test.js --env BASE_URL=https://staging.pynomaly.io
+          k6 run scripts/performance/k6-load-test.js --env BASE_URL=https://staging.anomaly_detection.io
 
       - name: Upload performance results
         uses: actions/upload-artifact@v3

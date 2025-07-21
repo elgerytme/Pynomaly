@@ -1,6 +1,6 @@
 # Enterprise Scalability & Distributed Computing Package
 
-This package provides comprehensive distributed computing and streaming processing capabilities for Pynomaly, enabling enterprise-scale anomaly detection and data processing across multiple frameworks and cloud platforms.
+This package provides comprehensive distributed computing and streaming processing capabilities for anomaly_detection, enabling enterprise-scale anomaly detection and data processing across multiple frameworks and cloud platforms.
 
 ## Features
 
@@ -37,10 +37,10 @@ This package provides comprehensive distributed computing and streaming processi
 ### Installation
 
 ```bash
-pip install pynomaly-enterprise-scalability
+pip install anomaly_detection-enterprise-scalability
 
 # With specific framework support
-pip install pynomaly-enterprise-scalability[dask,ray,streaming,all]
+pip install anomaly_detection-enterprise-scalability[dask,ray,streaming,all]
 ```
 
 ### Basic Usage
@@ -78,7 +78,7 @@ cluster = await scalability_service.create_compute_cluster(
 task = await scalability_service.submit_task(
     tenant_id=tenant_id,
     function_name="detect_anomalies",
-    module_name="pynomaly.detection",
+    module_name="anomaly_detection.detection",
     args=[dataset_path],
     task_type=TaskType.ANOMALY_DETECTION,
     resources=ResourceRequirements(
@@ -146,7 +146,7 @@ from enterprise_scalability import TaskType, TaskPriority
 training_task = await scalability_service.submit_task(
     tenant_id=tenant_id,
     function_name="train_distributed_model",
-    module_name="pynomaly.ml.training",
+    module_name="anomaly_detection.ml.training",
     args=[training_data_path, model_config],
     task_type=TaskType.MODEL_TRAINING,
     priority=TaskPriority.HIGH,
@@ -214,7 +214,7 @@ async def get_overview(
 
 ```bash
 # Create compute cluster
-pynomaly-enterprise-scalability cluster create \
+anomaly_detection-enterprise-scalability cluster create \
     --name "ml-cluster" \
     --type dask \
     --min-nodes 2 \
@@ -223,15 +223,15 @@ pynomaly-enterprise-scalability cluster create \
     --memory-gb 32
 
 # Submit task
-pynomaly-enterprise-scalability task submit \
+anomaly_detection-enterprise-scalability task submit \
     --function detect_anomalies \
-    --module pynomaly.detection \
+    --module anomaly_detection.detection \
     --args dataset.parquet \
     --cpu-cores 4 \
     --memory-gb 16
 
 # Create stream processor
-pynomaly-enterprise-scalability stream create \
+anomaly_detection-enterprise-scalability stream create \
     --name "sensor-processor" \
     --source-type kafka \
     --source-url kafka:9092 \
@@ -241,12 +241,12 @@ pynomaly-enterprise-scalability stream create \
     --sink-topic anomalies
 
 # Scale cluster
-pynomaly-enterprise-scalability cluster scale \
+anomaly_detection-enterprise-scalability cluster scale \
     --cluster-id <cluster-id> \
     --target-nodes 15
 
 # Monitor resources
-pynomaly-enterprise-scalability monitor resources \
+anomaly_detection-enterprise-scalability monitor resources \
     --cluster-id <cluster-id> \
     --watch
 ```
@@ -257,52 +257,52 @@ pynomaly-enterprise-scalability monitor resources \
 
 ```bash
 # Distributed Computing
-PYNOMALY_SCALABILITY_DEFAULT_CLUSTER_TYPE=dask
-PYNOMALY_SCALABILITY_MAX_CLUSTER_NODES=100
-PYNOMALY_SCALABILITY_AUTO_SCALING_ENABLED=true
-PYNOMALY_SCALABILITY_RESOURCE_CHECK_INTERVAL=60
+ANOMALY_DETECTION_SCALABILITY_DEFAULT_CLUSTER_TYPE=dask
+ANOMALY_DETECTION_SCALABILITY_MAX_CLUSTER_NODES=100
+ANOMALY_DETECTION_SCALABILITY_AUTO_SCALING_ENABLED=true
+ANOMALY_DETECTION_SCALABILITY_RESOURCE_CHECK_INTERVAL=60
 
 # Dask Configuration
-PYNOMALY_DASK_SCHEDULER_PORT=8786
-PYNOMALY_DASK_DASHBOARD_PORT=8787
-PYNOMALY_DASK_WORKER_MEMORY_LIMIT=8GB
-PYNOMALY_DASK_THREADS_PER_WORKER=4
+ANOMALY_DETECTION_DASK_SCHEDULER_PORT=8786
+ANOMALY_DETECTION_DASK_DASHBOARD_PORT=8787
+ANOMALY_DETECTION_DASK_WORKER_MEMORY_LIMIT=8GB
+ANOMALY_DETECTION_DASK_THREADS_PER_WORKER=4
 
 # Ray Configuration
-PYNOMALY_RAY_HEAD_PORT=10001
-PYNOMALY_RAY_DASHBOARD_PORT=8265
-PYNOMALY_RAY_OBJECT_STORE_MEMORY=2GB
-PYNOMALY_RAY_PLASMA_DIRECTORY=/tmp/ray
+ANOMALY_DETECTION_RAY_HEAD_PORT=10001
+ANOMALY_DETECTION_RAY_DASHBOARD_PORT=8265
+ANOMALY_DETECTION_RAY_OBJECT_STORE_MEMORY=2GB
+ANOMALY_DETECTION_RAY_PLASMA_DIRECTORY=/tmp/ray
 
 # Stream Processing
-PYNOMALY_STREAMING_DEFAULT_PARALLELISM=1
-PYNOMALY_STREAMING_MAX_PARALLELISM=50
-PYNOMALY_STREAMING_CHECKPOINT_INTERVAL=60000
-PYNOMALY_STREAMING_AUTO_SCALING_THRESHOLD=80
+ANOMALY_DETECTION_STREAMING_DEFAULT_PARALLELISM=1
+ANOMALY_DETECTION_STREAMING_MAX_PARALLELISM=50
+ANOMALY_DETECTION_STREAMING_CHECKPOINT_INTERVAL=60000
+ANOMALY_DETECTION_STREAMING_AUTO_SCALING_THRESHOLD=80
 
 # Kafka Configuration
-PYNOMALY_KAFKA_BOOTSTRAP_SERVERS=kafka-cluster:9092
-PYNOMALY_KAFKA_CONSUMER_TIMEOUT=10000
-PYNOMALY_KAFKA_BATCH_SIZE=16384
-PYNOMALY_KAFKA_COMPRESSION_TYPE=gzip
+ANOMALY_DETECTION_KAFKA_BOOTSTRAP_SERVERS=kafka-cluster:9092
+ANOMALY_DETECTION_KAFKA_CONSUMER_TIMEOUT=10000
+ANOMALY_DETECTION_KAFKA_BATCH_SIZE=16384
+ANOMALY_DETECTION_KAFKA_COMPRESSION_TYPE=gzip
 
 # Task Management
-PYNOMALY_TASKS_DEFAULT_TIMEOUT=3600
-PYNOMALY_TASKS_MAX_RETRIES=3
-PYNOMALY_TASKS_CLEANUP_DAYS=30
-PYNOMALY_TASKS_PRIORITY_QUEUE_SIZE=10000
+ANOMALY_DETECTION_TASKS_DEFAULT_TIMEOUT=3600
+ANOMALY_DETECTION_TASKS_MAX_RETRIES=3
+ANOMALY_DETECTION_TASKS_CLEANUP_DAYS=30
+ANOMALY_DETECTION_TASKS_PRIORITY_QUEUE_SIZE=10000
 
 # Monitoring
-PYNOMALY_MONITORING_METRICS_INTERVAL=30
-PYNOMALY_MONITORING_HEALTH_CHECK_INTERVAL=60
-PYNOMALY_MONITORING_ALERT_THRESHOLDS_CPU=85
-PYNOMALY_MONITORING_ALERT_THRESHOLDS_MEMORY=90
+ANOMALY_DETECTION_MONITORING_METRICS_INTERVAL=30
+ANOMALY_DETECTION_MONITORING_HEALTH_CHECK_INTERVAL=60
+ANOMALY_DETECTION_MONITORING_ALERT_THRESHOLDS_CPU=85
+ANOMALY_DETECTION_MONITORING_ALERT_THRESHOLDS_MEMORY=90
 
 # Cloud Provider Settings
-PYNOMALY_CLOUD_PROVIDER=aws
-PYNOMALY_CLUSTER_REGION=us-west-2
-PYNOMALY_SPOT_INSTANCES_ENABLED=true
-PYNOMALY_SPOT_MAX_PRICE=0.50
+ANOMALY_DETECTION_CLOUD_PROVIDER=aws
+ANOMALY_DETECTION_CLUSTER_REGION=us-west-2
+ANOMALY_DETECTION_SPOT_INSTANCES_ENABLED=true
+ANOMALY_DETECTION_SPOT_MAX_PRICE=0.50
 ```
 
 ### Configuration File
@@ -339,7 +339,7 @@ scalability:
         temp_dir: "/tmp/ray"
         
       kubernetes:
-        namespace: "pynomaly-compute"
+        namespace: "anomaly_detection-compute"
         resource_quotas:
           cpu: "1000"
           memory: "2000Gi"
@@ -434,8 +434,8 @@ cloud:
 
 # Kubernetes configuration
 kubernetes:
-  cluster_name: "pynomaly-compute"
-  namespace: "pynomaly"
+  cluster_name: "anomaly_detection-compute"
+  namespace: "anomaly_detection"
   
   resources:
     requests:
@@ -650,20 +650,20 @@ CMD ["uvicorn", "enterprise_scalability.presentation.api.app:app", "--host", "0.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pynomaly-enterprise-scalability
+  name: anomaly_detection-enterprise-scalability
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: pynomaly-enterprise-scalability
+      app: anomaly_detection-enterprise-scalability
   template:
     metadata:
       labels:
-        app: pynomaly-enterprise-scalability
+        app: anomaly_detection-enterprise-scalability
     spec:
       containers:
       - name: scalability-service
-        image: pynomaly/enterprise-scalability:latest
+        image: anomaly_detection/enterprise-scalability:latest
         ports:
         - containerPort: 8000
         resources:
@@ -687,7 +687,7 @@ spec:
 replicaCount: 3
 
 image:
-  repository: pynomaly/enterprise-scalability
+  repository: anomaly_detection/enterprise-scalability
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -701,7 +701,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: scalability.pynomaly.com
+    - host: scalability.anomaly_detection.com
       paths: ["/"]
 
 resources:
@@ -732,8 +732,8 @@ autoscaling:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly/src/packages/enterprise/enterprise_scalability
+git clone https://github.com/yourusername/anomaly_detection.git
+cd anomaly_detection/src/packages/enterprise/enterprise_scalability
 
 # Create virtual environment
 python -m venv venv
@@ -756,10 +756,10 @@ This package is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Support
 
-- **Documentation**: [https://docs.pynomaly.org/enterprise/scalability](https://docs.pynomaly.org/enterprise/scalability)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/pynomaly/issues)
-- **Enterprise Support**: enterprise-support@pynomaly.org
+- **Documentation**: [https://docs.anomaly_detection.org/enterprise/scalability](https://docs.anomaly_detection.org/enterprise/scalability)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/anomaly_detection/issues)
+- **Enterprise Support**: enterprise-support@anomaly_detection.org
 
 ---
 
-**Enterprise Scalability & Distributed Computing Package** - Part of the Pynomaly Enterprise Suite
+**Enterprise Scalability & Distributed Computing Package** - Part of the anomaly_detection Enterprise Suite

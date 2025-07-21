@@ -31,10 +31,10 @@ cp "../poetry.lock" . 2>/dev/null || echo "Info: poetry.lock not found (will be 
 # Copy source code
 cp -r "../src" . 2>/dev/null || {
     echo "Creating minimal src structure..."
-    mkdir -p "src/pynomaly/domain/entities"
-    echo "__version__ = '0.1.0'" > "src/pynomaly/__init__.py"
-    touch "src/pynomaly/domain/__init__.py"
-    cat > "src/pynomaly/domain/entities/__init__.py" << 'EOF'
+    mkdir -p "src/anomaly_detection/domain/entities"
+    echo "__version__ = '0.1.0'" > "src/anomaly_detection/__init__.py"
+    touch "src/anomaly_detection/domain/__init__.py"
+    cat > "src/anomaly_detection/domain/entities/__init__.py" << 'EOF'
 class Dataset:
     pass
 
@@ -75,13 +75,13 @@ print(f'NumPy version: {np.__version__}')
 print(f'Pandas version: {pd.__version__}')
 "
 
-echo "Testing Pynomaly imports..."
+echo "Testing anomaly_detection imports..."
 poetry run python -c "
 try:
-    from pynomaly.domain.entities import Dataset, Anomaly
-    print('✅ Pynomaly imports successful')
+    from anomaly_detection.domain.entities import Dataset, Anomaly
+    print('✅ anomaly_detection imports successful')
 except ImportError as e:
-    print(f'⚠️  Pynomaly import failed: {e}')
+    print(f'⚠️  anomaly_detection import failed: {e}')
 "
 
 echo ""

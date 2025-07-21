@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup monitoring infrastructure for Pynomaly production deployment.
+Setup monitoring infrastructure for anomaly_detection production deployment.
 This script configures Prometheus, Grafana, and Alertmanager.
 """
 
@@ -75,9 +75,9 @@ rule_files:
   - "/etc/prometheus/rules/*.yml"
 
 scrape_configs:
-  - job_name: 'pynomaly-api'
+  - job_name: 'anomaly_detection-api'
     static_configs:
-      - targets: ['pynomaly-api:8000']
+      - targets: ['anomaly_detection-api:8000']
     metrics_path: '/metrics'
     scrape_interval: 30s
     scrape_timeout: 10s
@@ -252,10 +252,10 @@ alerting:
             return False
 
     async def _import_dashboard(self) -> bool:
-        """Import the main Pynomaly dashboard."""
+        """Import the main anomaly_detection dashboard."""
         try:
             # Read dashboard configuration
-            dashboard_path = "config/grafana/dashboards/pynomaly-main-dashboard.json"
+            dashboard_path = "config/grafana/dashboards/anomaly_detection-main-dashboard.json"
             if not os.path.exists(dashboard_path):
                 logger.warning(f"Dashboard file not found: {dashboard_path}")
                 return False
@@ -307,8 +307,8 @@ alerting:
             realtime_dashboard = {
                 "dashboard": {
                     "id": None,
-                    "title": "Pynomaly Real-time Monitoring",
-                    "tags": ["pynomaly", "real-time", "monitoring"],
+                    "title": "anomaly_detection Real-time Monitoring",
+                    "tags": ["anomaly_detection", "real-time", "monitoring"],
                     "timezone": "browser",
                     "panels": [
                         {
@@ -317,7 +317,7 @@ alerting:
                             "type": "graph",
                             "targets": [
                                 {
-                                    "expr": "rate(pynomaly_requests_total[1m])",
+                                    "expr": "rate(anomaly_detection_requests_total[1m])",
                                     "legendFormat": "Requests/sec",
                                     "refId": "A",
                                 }
@@ -331,7 +331,7 @@ alerting:
                             "type": "singlestat",
                             "targets": [
                                 {
-                                    "expr": "rate(pynomaly_detections_total[1m])",
+                                    "expr": "rate(anomaly_detections_total[1m])",
                                     "legendFormat": "Detections/sec",
                                     "refId": "A",
                                 }
@@ -422,7 +422,7 @@ alerting:
                         "labels": {
                             "alertname": "TestAlert",
                             "severity": "warning",
-                            "service": "pynomaly-api",
+                            "service": "anomaly_detection-api",
                         },
                         "annotations": {
                             "summary": "Test alert from monitoring setup",
@@ -482,7 +482,7 @@ alerting:
         # Test Grafana dashboards
         try:
             response = self.session.get(
-                f"{self.config.grafana_url}/api/search?query=pynomaly",
+                f"{self.config.grafana_url}/api/search?query=anomaly_detection",
                 auth=(
                     self.config.grafana_admin_user,
                     self.config.grafana_admin_password,
@@ -542,13 +542,13 @@ alerting:
             },
             "dashboards": [
                 {
-                    "name": "Pynomaly Production Dashboard",
-                    "url": f"{self.config.grafana_url}/dashboard/db/pynomaly-production-dashboard",
+                    "name": "anomaly_detection Production Dashboard",
+                    "url": f"{self.config.grafana_url}/dashboard/db/anomaly_detection-production-dashboard",
                     "description": "Main production monitoring dashboard",
                 },
                 {
                     "name": "Real-time Monitoring",
-                    "url": f"{self.config.grafana_url}/dashboard/db/pynomaly-real-time-monitoring",
+                    "url": f"{self.config.grafana_url}/dashboard/db/anomaly_detection-real-time-monitoring",
                     "description": "Real-time metrics and alerts",
                 },
             ],
@@ -588,7 +588,7 @@ alerting:
         setup = report["monitoring_setup"]
 
         print("\n" + "=" * 60)
-        print("🎯 PYNOMALY MONITORING SETUP SUMMARY")
+        print("🎯 anomaly_detection MONITORING SETUP SUMMARY")
         print("=" * 60)
         print(f"Setup Time: {setup['timestamp']}")
         print(f"Components: {setup['total_components']}")

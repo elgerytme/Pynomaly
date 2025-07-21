@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Production Deployment Orchestrator
-Comprehensive automation for Pynomaly production deployments
+Comprehensive automation for anomaly_detection production deployments
 """
 
 import asyncio
@@ -51,7 +51,7 @@ class DeploymentConfig:
 
     environment: str
     target_platform: str = "kubernetes"
-    namespace: str = "pynomaly-production"
+    namespace: str = "anomaly_detection-production"
     image_tag: str = "latest"
     replicas: int = 3
 
@@ -546,7 +546,7 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Pynomaly Production Deployment Orchestrator"
+        description="anomaly_detection Production Deployment Orchestrator"
     )
     parser.add_argument("--config", help="Path to deployment configuration file")
     parser.add_argument(

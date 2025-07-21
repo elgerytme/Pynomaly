@@ -1,5 +1,5 @@
 """
-Pynomaly Python Client Implementation
+anomaly_detection Python Client Implementation
 
 This module provides the main client classes for interacting with the anomaly detection API.
 Includes both synchronous and asynchronous clients with comprehensive functionality.
@@ -20,7 +20,7 @@ from .exceptions import (
     AuthenticationError,
     AuthorizationError,
     NetworkError,
-    PynomaliException,
+    anomaly-detectionException,
     RateLimitError,
     ServerError,
     ValidationError,
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 class BaseClient:
     """Base client with common functionality."""
 
-    DEFAULT_BASE_URL = "https://api.pynomaly.com"
+    DEFAULT_BASE_URL = "https://api.anomaly_detection.com"
     DEFAULT_TIMEOUT = 30
     DEFAULT_MAX_RETRIES = 3
 
@@ -59,7 +59,7 @@ class BaseClient:
         self.rate_limiter = RateLimiter(rate_limit_requests, rate_limit_period)
 
         # User agent
-        self.user_agent = user_agent or f"pynomaly-python-sdk/{__version__}"
+        self.user_agent = user_agent or f"anomaly_detection-python-sdk/{__version__}"
 
         # Request session (will be set in subclasses)
         self.session = None
@@ -104,7 +104,7 @@ class BaseClient:
             elif response.status_code >= 500:
                 raise ServerError(f"Server error: {response.status_code}")
             elif response.status_code != expected_status:
-                raise PynomaliException(
+                raise anomaly-detectionException(
                     f"Unexpected status code: {response.status_code}"
                 )
 
@@ -116,10 +116,10 @@ class BaseClient:
         except requests.exceptions.RequestException as e:
             raise NetworkError(f"Network error: {str(e)}")
         except json.JSONDecodeError as e:
-            raise PynomaliException(f"Invalid JSON response: {str(e)}")
+            raise anomaly-detectionException(f"Invalid JSON response: {str(e)}")
 
 
-class PynomaliClient(BaseClient):
+class AnomalyDetectionClient(BaseClient):
     """Synchronous client for the anomaly detection API."""
 
     def __init__(self, **kwargs):
@@ -215,7 +215,7 @@ class PynomaliClient(BaseClient):
         self.close()
 
 
-class AsyncPynomaliClient(BaseClient):
+class AsyncAnomalyDetectionClient(BaseClient):
     """Asynchronous client for the anomaly detection API."""
 
     def __init__(self, **kwargs):
@@ -291,7 +291,7 @@ class AsyncPynomaliClient(BaseClient):
             elif response.status >= 500:
                 raise ServerError(f"Server error: {response.status}")
             elif response.status != expected_status:
-                raise PynomaliException(f"Unexpected status code: {response.status}")
+                raise anomaly-detectionException(f"Unexpected status code: {response.status}")
 
             # Parse JSON response
             if response.content_length:
@@ -299,7 +299,7 @@ class AsyncPynomaliClient(BaseClient):
             return None
 
         except aiohttp.ContentTypeError as e:
-            raise PynomaliException(f"Invalid JSON response: {str(e)}")
+            raise anomaly-detectionException(f"Invalid JSON response: {str(e)}")
 
     async def close(self):
         """Close the async client session."""
@@ -317,7 +317,7 @@ class AsyncPynomaliClient(BaseClient):
 class AuthAPI:
     """Authentication API methods."""
 
-    def __init__(self, client: PynomaliClient):
+    def __init__(self, client: AnomalyDetectionClient):
         self.client = client
 
     def login(self, username: str, password: str) -> AuthToken:
@@ -350,7 +350,7 @@ class AuthAPI:
 class DetectionAPI:
     """Anomaly detection API methods."""
 
-    def __init__(self, client: PynomaliClient):
+    def __init__(self, client: AnomalyDetectionClient):
         self.client = client
 
     def detect(
@@ -387,7 +387,7 @@ class DetectionAPI:
 class TrainingAPI:
     """Model training API methods."""
 
-    def __init__(self, client: PynomaliClient):
+    def __init__(self, client: AnomalyDetectionClient):
         self.client = client
 
     def train_model(
@@ -411,7 +411,7 @@ class TrainingAPI:
 
 # Add async versions
 class AsyncAuthAPI:
-    def __init__(self, client: AsyncPynomaliClient):
+    def __init__(self, client: AsyncAnomalyDetectionClient):
         self.client = client
 
     async def login(self, username: str, password: str) -> AuthToken:
@@ -425,7 +425,7 @@ class AsyncAuthAPI:
 
 
 class AsyncDetectionAPI:
-    def __init__(self, client: AsyncPynomaliClient):
+    def __init__(self, client: AsyncAnomalyDetectionClient):
         self.client = client
 
     async def detect(

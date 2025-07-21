@@ -16,7 +16,7 @@ on:
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.6.1'
-  PYNOMALY_ENV: testing
+  ANOMALY_DETECTION_ENV: testing
 
 jobs:
   detect-changes:
@@ -50,10 +50,10 @@ jobs:
         echo "$CHANGED_FILES"
 
         # Analyze changes and determine test selection strategy
-        DOMAIN_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/domain/" | wc -l)
-        APPLICATION_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/application/" | wc -l)
-        INFRASTRUCTURE_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/infrastructure/" | wc -l)
-        PRESENTATION_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/presentation/" | wc -l)
+        DOMAIN_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/anomaly_detection/domain/" | wc -l)
+        APPLICATION_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/anomaly_detection/application/" | wc -l)
+        INFRASTRUCTURE_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/anomaly_detection/infrastructure/" | wc -l)
+        PRESENTATION_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/anomaly_detection/presentation/" | wc -l)
         TEST_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^tests/" | wc -l)
         CONFIG_CHANGES=$(echo "$CHANGED_FILES" | grep -E "(pyproject.toml|requirements|Dockerfile|\.github/)" | wc -l)
 
@@ -130,7 +130,7 @@ jobs:
           "domain")
             echo "Running domain tests..."
             poetry run pytest tests/domain/ tests/unit/domain/ \
-              --cov=src/pynomaly/domain \
+              --cov=src/anomaly_detection/domain \
               --cov-report=xml:coverage-domain-smart.xml \
               --junitxml=junit-domain-smart.xml \
               -v --maxfail=10
@@ -138,7 +138,7 @@ jobs:
           "application")
             echo "Running application tests..."
             poetry run pytest tests/application/ tests/unit/application/ \
-              --cov=src/pynomaly/application \
+              --cov=src/anomaly_detection/application \
               --cov-report=xml:coverage-application-smart.xml \
               --junitxml=junit-application-smart.xml \
               -v --maxfail=10
@@ -146,7 +146,7 @@ jobs:
           "infrastructure")
             echo "Running infrastructure tests..."
             poetry run pytest tests/infrastructure/ tests/unit/infrastructure/ \
-              --cov=src/pynomaly/infrastructure \
+              --cov=src/anomaly_detection/infrastructure \
               --cov-report=xml:coverage-infrastructure-smart.xml \
               --junitxml=junit-infrastructure-smart.xml \
               -v --maxfail=10
@@ -154,7 +154,7 @@ jobs:
           "presentation")
             echo "Running presentation tests..."
             poetry run pytest tests/presentation/ \
-              --cov=src/pynomaly/presentation \
+              --cov=src/anomaly_detection/presentation \
               --cov-report=xml:coverage-presentation-smart.xml \
               --junitxml=junit-presentation-smart.xml \
               -v --maxfail=10
@@ -203,7 +203,7 @@ jobs:
         if [[ "${{ needs.detect-changes.outputs.test-selection }}" == "comprehensive" ]]; then
           echo "Running comprehensive test suite..."
           poetry run pytest tests/domain/ tests/application/ tests/infrastructure/ tests/presentation/ \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml:coverage-extended.xml \
             --junitxml=junit-extended.xml \
             -v --maxfail=20
@@ -230,7 +230,7 @@ jobs:
           TEST_PATHS="$TEST_PATHS tests/integration/"
 
           poetry run pytest $TEST_PATHS \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml:coverage-extended.xml \
             --junitxml=junit-extended.xml \
             -v --maxfail=15

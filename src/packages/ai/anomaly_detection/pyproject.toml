@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 name = "anomaly-detection"
 version = "0.3.0"
 description = "Domain-focused anomaly detection package with ML integration"
-authors = [{name = "Anomaly Detection Team", email = "team@pynomaly.io"}]
+authors = [{name = "Anomaly Detection Team", email = "team@anomaly_detection.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
@@ -45,10 +45,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/elgerytme/Pynomaly"
-Repository = "https://github.com/elgerytme/Pynomaly"
-Documentation = "https://github.com/elgerytme/Pynomaly/blob/main/docs/"
-Issues = "https://github.com/elgerytme/Pynomaly/issues"
+Homepage = "https://github.com/elgerytme/anomaly_detection"
+Repository = "https://github.com/elgerytme/anomaly_detection"
+Documentation = "https://github.com/elgerytme/anomaly_detection/blob/main/docs/"
+Issues = "https://github.com/elgerytme/anomaly_detection/issues"
 
 [project.optional-dependencies]
 # Algorithm adapters
@@ -61,7 +61,7 @@ deeplearning = [
 # ML integration (depends on AI packages)
 ml = [
     # These would typically be internal dependencies to other packages
-    # "pynomaly-ai-ml>=0.1.0",  # When packaged separately
+    # "anomaly_detection-ai-ml>=0.1.0",  # When packaged separately
 ]
 
 # Development and testing

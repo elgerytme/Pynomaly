@@ -1,4 +1,4 @@
-"""Alembic environment configuration for Pynomaly."""
+"""Alembic environment configuration for anomaly_detection."""
 
 import os
 import sys
@@ -11,8 +11,8 @@ from alembic import context
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import Base
+from anomaly_detection.infrastructure.config.settings import Settings
+from anomaly_detection.infrastructure.repositories.sqlalchemy_user_repository import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -46,7 +46,7 @@ def get_database_url():
         return settings.database_url
     except Exception:
         # Fall back to default
-        return "sqlite:///./storage/pynomaly.db"
+        return "sqlite:///./storage/anomaly_detection.db"
 
 
 def run_migrations_offline() -> None:

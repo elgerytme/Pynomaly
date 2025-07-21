@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Penetration Testing Framework for Pynomaly
+Penetration Testing Framework for anomaly_detection
 
 This framework provides automated penetration testing capabilities for defensive
 security purposes. It helps identify vulnerabilities that attackers might exploit
@@ -72,7 +72,7 @@ class PenetrationTester:
         # Set reasonable timeouts and headers
         self.session.timeout = 10
         self.session.headers.update({
-            'User-Agent': 'Pynomaly-Security-Scanner/1.0 (Defensive Security Testing)'
+            'User-Agent': 'anomaly_detection-Security-Scanner/1.0 (Defensive Security Testing)'
         })
     
     def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:

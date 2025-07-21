@@ -1,11 +1,11 @@
 # Production Docker Compose Configuration
-# Complete production-ready stack for Pynomaly Anomaly Detection Platform
+# Complete production-ready stack for anomaly_detection Anomaly Detection Platform
 
 version: '3.8'
 
 services:
   # Main Application Service
-  pynomaly-api:
+  anomaly_detection-api:
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,8 +14,8 @@ services:
         BUILD_DATE: ${BUILD_DATE}
         VERSION: ${VERSION:-latest}
         GIT_COMMIT: ${GIT_COMMIT}
-    image: pynomaly/anomaly-detection:${VERSION:-latest}
-    container_name: pynomaly-api
+    image: anomaly_detection/anomaly-detection:${VERSION:-latest}
+    container_name: anomaly_detection-api
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -37,13 +37,13 @@ services:
       - redis
       - prometheus
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.pynomaly-api.rule=Host(`api.pynomaly.com`)"
-      - "traefik.http.routers.pynomaly-api.tls=true"
-      - "traefik.http.routers.pynomaly-api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.pynomaly-api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.anomaly_detection-api.rule=Host(`api.anomaly_detection.com`)"
+      - "traefik.http.routers.anomaly_detection-api.tls=true"
+      - "traefik.http.routers.anomaly_detection-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.anomaly_detection-api.loadbalancer.server.port=8000"
     deploy:
       resources:
         limits:
@@ -56,18 +56,18 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: pynomaly-postgres
+    container_name: anomaly_detection-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-pynomaly}
-      POSTGRES_USER: ${POSTGRES_USER:-pynomaly}
+      POSTGRES_DB: ${POSTGRES_DB:-anomaly_detection}
+      POSTGRES_USER: ${POSTGRES_USER:-anomaly_detection}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     ports:
       - "5432:5432"
     deploy:
@@ -82,13 +82,13 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: pynomaly-redis
+    container_name: anomaly_detection-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     ports:
       - "6379:6379"
     deploy:
@@ -103,7 +103,7 @@ services:
   # Nginx Reverse Proxy & Load Balancer
   nginx:
     image: nginx:alpine
-    container_name: pynomaly-nginx
+    container_name: anomaly_detection-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -113,9 +113,9 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./logs/nginx:/var/log/nginx
     depends_on:
-      - pynomaly-api
+      - anomaly_detection-api
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -125,7 +125,7 @@ services:
   # Prometheus Monitoring
   prometheus:
     image: prom/prometheus:latest
-    container_name: pynomaly-prometheus
+    container_name: anomaly_detection-prometheus
     restart: unless-stopped
     ports:
       - "9090:9090"
@@ -142,7 +142,7 @@ services:
       - '--web.enable-lifecycle'
       - '--web.enable-admin-api'
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -152,14 +152,14 @@ services:
   # Grafana Dashboards  
   grafana:
     image: grafana/grafana:latest
-    container_name: pynomaly-grafana
+    container_name: anomaly_detection-grafana
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_ROOT_URL=https://monitoring.pynomaly.com
+      - GF_SERVER_ROOT_URL=https://monitoring.anomaly_detection.com
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
@@ -167,7 +167,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -177,7 +177,7 @@ services:
   # Elasticsearch for Logging
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    container_name: pynomaly-elasticsearch
+    container_name: anomaly_detection-elasticsearch
     restart: unless-stopped
     environment:
       - discovery.type=single-node
@@ -188,7 +188,7 @@ services:
     ports:
       - "9200:9200"
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -201,7 +201,7 @@ services:
   # Logstash for Log Processing
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.0
-    container_name: pynomaly-logstash
+    container_name: anomaly_detection-logstash
     restart: unless-stopped
     volumes:
       - ./monitoring/logstash/pipeline:/usr/share/logstash/pipeline:ro
@@ -210,7 +210,7 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -220,17 +220,17 @@ services:
   # Kibana for Log Visualization
   kibana:
     image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: pynomaly-kibana
+    container_name: anomaly_detection-kibana
     restart: unless-stopped
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_PUBLICBASEURL=https://logs.pynomaly.com
+      - SERVER_PUBLICBASEURL=https://logs.anomaly_detection.com
     ports:
       - "5601:5601"
     depends_on:
       - elasticsearch
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -240,7 +240,7 @@ services:
   # Jaeger for Distributed Tracing
   jaeger:
     image: jaegertracing/all-in-one:latest
-    container_name: pynomaly-jaeger
+    container_name: anomaly_detection-jaeger
     restart: unless-stopped
     ports:
       - "16686:16686"
@@ -248,7 +248,7 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -261,8 +261,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: pynomaly/anomaly-detection:${VERSION:-latest}
-    container_name: pynomaly-celery-worker
+    image: anomaly_detection/anomaly-detection:${VERSION:-latest}
+    container_name: anomaly_detection-celery-worker
     restart: unless-stopped
     command: celery -A src.packages.data.anomaly_detection.tasks worker --loglevel=info --concurrency=4
     environment:
@@ -278,7 +278,7 @@ services:
       - postgres
       - redis
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -294,8 +294,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: pynomaly/anomaly-detection:${VERSION:-latest}
-    container_name: pynomaly-celery-beat
+    image: anomaly_detection/anomaly-detection:${VERSION:-latest}
+    container_name: anomaly_detection-celery-beat
     restart: unless-stopped
     command: celery -A src.packages.data.anomaly_detection.tasks beat --loglevel=info
     environment:
@@ -309,7 +309,7 @@ services:
       - postgres
       - redis
     networks:
-      - pynomaly-network
+      - anomaly_detection-network
     deploy:
       resources:
         limits:
@@ -329,7 +329,7 @@ volumes:
     driver: local
 
 networks:
-  pynomaly-network:
+  anomaly_detection-network:
     driver: bridge
     ipam:
       config:

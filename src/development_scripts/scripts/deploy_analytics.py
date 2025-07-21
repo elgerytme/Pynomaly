@@ -316,7 +316,7 @@ class AnalyticsDashboardDeployer:
             # Check if dashboard contains expected elements
             html_content = response.text
             expected_elements = [
-                "Pynomaly Analytics Dashboard",
+                "anomaly_detection Analytics Dashboard",
                 "metrics-grid",
                 "detection-chart",
                 "performance-chart",

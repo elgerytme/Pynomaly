@@ -1,7 +1,7 @@
 /** @type { import('@storybook/html-vite').StorybookConfig } */
 const config = {
   stories: [
-    '../src/pynomaly/presentation/web/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../src/anomaly_detection/presentation/web/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../docs/ui/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../stories/**/*.stories.@(js|jsx|ts|tsx|mdx)'
   ],
@@ -35,7 +35,7 @@ const config = {
   },
 
   staticDirs: [
-    '../src/pynomaly/presentation/web/static',
+    '../src/anomaly_detection/presentation/web/static',
     '../docs/ui/assets'
   ],
 
@@ -44,10 +44,10 @@ const config = {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': '/src/pynomaly/presentation/web/static',
-      '@components': '/src/pynomaly/presentation/web/static/js/src/components',
-      '@utils': '/src/pynomaly/presentation/web/static/js/src/utils',
-      '@styles': '/src/pynomaly/presentation/web/static/css'
+      '@': '/src/anomaly_detection/presentation/web/static',
+      '@components': '/src/anomaly_detection/presentation/web/static/js/src/components',
+      '@utils': '/src/anomaly_detection/presentation/web/static/js/src/utils',
+      '@styles': '/src/anomaly_detection/presentation/web/static/css'
     };
 
     // Add PostCSS support for Tailwind
@@ -66,7 +66,7 @@ const config = {
 
   env: (config) => ({
     ...config,
-    STORYBOOK_THEME: 'pynomaly'
+    STORYBOOK_THEME: 'anomaly_detection'
   }),
 
   typescript: {

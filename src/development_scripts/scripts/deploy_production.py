@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Deployment Script for Pynomaly
+Production Deployment Script for anomaly_detection
 This script handles automated deployment to production environment
 """
 
@@ -47,7 +47,7 @@ class DeploymentStatus(Enum):
 class DeploymentConfig:
     """Deployment configuration"""
     environment: str = "production"
-    namespace: str = "pynomaly-prod"
+    namespace: str = "anomaly_detection-prod"
     image_tag: str = "latest"
     replicas: int = 5
     min_replicas: int = 3
@@ -143,9 +143,9 @@ class ProductionDeployer:
 
         # Check Docker image exists
         if not self.config.dry_run:
-            returncode, stdout, stderr = self._execute_command(f"docker pull pynomaly:{self.config.image_tag}")
+            returncode, stdout, stderr = self._execute_command(f"docker pull anomaly_detection:{self.config.image_tag}")
             if returncode != 0:
-                self._log_deployment_step(f"Docker image pynomaly:{self.config.image_tag} not found", "ERROR")
+                self._log_deployment_step(f"Docker image anomaly_detection:{self.config.image_tag} not found", "ERROR")
                 return False
 
         # Check database connectivity
@@ -219,12 +219,12 @@ class ProductionDeployer:
         try:
             self._log_deployment_step("Backing up current deployment...")
 
-            backup_dir = Path(f"/tmp/pynomaly-backup-{self.deployment_id}")
+            backup_dir = Path(f"/tmp/anomaly_detection-backup-{self.deployment_id}")
             backup_dir.mkdir(parents=True, exist_ok=True)
 
             # Backup current deployment
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get deployment pynomaly-prod-app -n {self.config.namespace} -o yaml > {backup_dir}/deployment.yaml"
+                f"kubectl get deployment anomaly_detection-prod-app -n {self.config.namespace} -o yaml > {backup_dir}/deployment.yaml"
             )
             if returncode != 0:
                 self._log_deployment_step(f"Failed to backup deployment: {stderr}", "ERROR")
@@ -232,7 +232,7 @@ class ProductionDeployer:
 
             # Backup current configmap
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get configmap pynomaly-prod-config -n {self.config.namespace} -o yaml > {backup_dir}/configmap.yaml"
+                f"kubectl get configmap anomaly_detection-prod-config -n {self.config.namespace} -o yaml > {backup_dir}/configmap.yaml"
             )
             if returncode != 0:
                 self._log_deployment_step(f"Failed to backup configmap: {stderr}", "ERROR")
@@ -301,7 +301,7 @@ class ProductionDeployer:
                 "configmap.yaml",
                 "secrets.yaml",
                 "databases.yaml",
-                "pynomaly-production.yaml",
+                "anomaly_detection-production.yaml",
                 "ingress.yaml"
             ]
 
@@ -365,7 +365,7 @@ class ProductionDeployer:
 
         try:
             # Wait for deployment rollout
-            command = f"kubectl rollout status deployment/pynomaly-prod-app -n {self.config.namespace} --timeout={self.config.timeout}s"
+            command = f"kubectl rollout status deployment/anomaly_detection-prod-app -n {self.config.namespace} --timeout={self.config.timeout}s"
             returncode, stdout, stderr = self._execute_command(command, timeout=self.config.timeout)
 
             if returncode != 0:
@@ -377,7 +377,7 @@ class ProductionDeployer:
 
             # Check pod status
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get pods -n {self.config.namespace} -l app=pynomaly,environment=production"
+                f"kubectl get pods -n {self.config.namespace} -l app=anomaly_detection,environment=production"
             )
 
             if returncode != 0:
@@ -430,7 +430,7 @@ class ProductionDeployer:
         try:
             # Get service endpoint
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get service pynomaly-prod-service -n {self.config.namespace} -o jsonpath='{{.spec.clusterIP}}'"
+                f"kubectl get service anomaly_detection-prod-service -n {self.config.namespace} -o jsonpath='{{.spec.clusterIP}}'"
             )
 
             if returncode != 0:
@@ -444,7 +444,7 @@ class ProductionDeployer:
                 try:
                     # Use port-forward for testing
                     returncode, stdout, stderr = self._execute_command(
-                        f"kubectl port-forward -n {self.config.namespace} service/pynomaly-prod-service 8080:8000 &"
+                        f"kubectl port-forward -n {self.config.namespace} service/anomaly_detection-prod-service 8080:8000 &"
                     )
 
                     time.sleep(5)  # Wait for port-forward
@@ -518,7 +518,7 @@ class ProductionDeployer:
         try:
             # Rollback to previous deployment
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl rollout undo deployment/pynomaly-prod-app -n {self.config.namespace}"
+                f"kubectl rollout undo deployment/anomaly_detection-prod-app -n {self.config.namespace}"
             )
 
             if returncode != 0:
@@ -527,7 +527,7 @@ class ProductionDeployer:
 
             # Wait for rollback to complete
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl rollout status deployment/pynomaly-prod-app -n {self.config.namespace} --timeout=300s"
+                f"kubectl rollout status deployment/anomaly_detection-prod-app -n {self.config.namespace} --timeout=300s"
             )
 
             if returncode != 0:
@@ -578,21 +578,21 @@ class ProductionDeployer:
 
             # Get deployment status
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get deployment pynomaly-prod-app -n {self.config.namespace} -o json"
+                f"kubectl get deployment anomaly_detection-prod-app -n {self.config.namespace} -o json"
             )
             if returncode == 0:
                 resources["deployment"] = json.loads(stdout)
 
             # Get pod status
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get pods -n {self.config.namespace} -l app=pynomaly -o json"
+                f"kubectl get pods -n {self.config.namespace} -l app=anomaly_detection -o json"
             )
             if returncode == 0:
                 resources["pods"] = json.loads(stdout)
 
             # Get service status
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl get service pynomaly-prod-service -n {self.config.namespace} -o json"
+                f"kubectl get service anomaly_detection-prod-service -n {self.config.namespace} -o json"
             )
             if returncode == 0:
                 resources["service"] = json.loads(stdout)
@@ -616,7 +616,7 @@ class ProductionDeployer:
 
             # Get pod metrics
             returncode, stdout, stderr = self._execute_command(
-                f"kubectl top pods -n {self.config.namespace} -l app=pynomaly --no-headers"
+                f"kubectl top pods -n {self.config.namespace} -l app=anomaly_detection --no-headers"
             )
             if returncode == 0:
                 lines = stdout.strip().split('\n')
@@ -754,7 +754,7 @@ class ProductionDeployer:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description='Pynomaly Production Deployment')
+    parser = argparse.ArgumentParser(description='anomaly_detection Production Deployment')
     parser.add_argument('--image-tag', default='latest', help='Docker image tag to deploy')
     parser.add_argument('--replicas', type=int, default=5, help='Number of replicas')
     parser.add_argument('--timeout', type=int, default=1800, help='Deployment timeout in seconds')

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup configuration for the Pynomaly Python SDK.
+Setup configuration for the anomaly_detection Python SDK.
 """
 
 from pathlib import Path
@@ -17,22 +17,22 @@ long_description = (
 
 # Read version from __init__.py
 version = {}
-with open("pynomaly_client/__init__.py") as fp:
+with open("anomaly_detection_client/__init__.py") as fp:
     exec(fp.read(), version)
 
 setup(
-    name="pynomaly-client",
+    name="anomaly_detection-client",
     version=version["__version__"],
     author="Anomaly Detection Team",
-    author_email="support@pynomaly.com",
-    description="Official Python client library for the Pynomaly anomaly detection API",
+    author_email="support@anomaly_detection.com",
+    description="Official Python client library for the anomaly_detection anomaly detection API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pynomaly/pynomaly-python-sdk",
+    url="https://github.com/anomaly_detection/anomaly_detection-python-sdk",
     project_urls={
-        "Bug Tracker": "https://github.com/pynomaly/pynomaly-python-sdk/issues",
-        "Documentation": "https://docs.pynomaly.com/sdk/python",
-        "Source Code": "https://github.com/pynomaly/pynomaly-python-sdk",
+        "Bug Tracker": "https://github.com/anomaly_detection/anomaly_detection-python-sdk/issues",
+        "Documentation": "https://docs.anomaly_detection.com/sdk/python",
+        "Source Code": "https://github.com/anomaly_detection/anomaly_detection-python-sdk",
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -79,12 +79,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "pynomaly-client=pynomaly_client.cli:main",
+            "anomaly_detection-client=anomaly_detection_client.cli:main",
         ],
     },
     include_package_data=True,
     package_data={
-        "pynomaly_client": ["py.typed"],
+        "anomaly_detection_client": ["py.typed"],
     },
     zip_safe=False,
 )

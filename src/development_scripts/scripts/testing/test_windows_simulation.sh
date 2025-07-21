@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================"
-echo "PYNOMALY WINDOWS/POWERSHELL SIMULATION TEST"
+echo "anomaly_detection WINDOWS/POWERSHELL SIMULATION TEST"
 echo "========================================"
 echo "Environment: Windows Simulation on $(uname -a)"
 echo "Python: $(python3 --version)"
@@ -44,21 +44,21 @@ print('Python path:', sys.path[:3])  # Show first 3 paths
 
 # Test importing main modules
 try:
-    import pynomaly
-    print('✓ Successfully imported pynomaly')
+    import anomaly_detection
+    print('✓ Successfully imported anomaly_detection')
 except Exception as e:
-    print('✗ Failed to import pynomaly:', str(e))
+    print('✗ Failed to import anomaly_detection:', str(e))
     raise
 
 try:
-    from pynomaly.domain.entities import Dataset, Detector
+    from anomaly_detection.domain.entities import Dataset, Detector
     print('✓ Successfully imported domain entities')
 except Exception as e:
     print('✗ Failed to import domain entities:', str(e))
     raise
 
 try:
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+    from anomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
     print('✓ Successfully imported PyOD adapter')
 except Exception as e:
     print('✗ Failed to import PyOD adapter:', str(e))
@@ -72,8 +72,8 @@ fi
 # Test 2: Windows-style API Server Test
 ((total_tests++))
 if run_windows_test "FastAPI Application Test" "python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.presentation.api.app import create_app
 from fastapi.testclient import TestClient
 import json
 
@@ -115,8 +115,8 @@ fi
 if run_windows_test "Machine Learning Pipeline Test" "python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -151,8 +151,8 @@ fi
 # Test 4: Windows-style Configuration Test
 ((total_tests++))
 if run_windows_test "Configuration Management Test" "python3 -c \"
-from pynomaly.infrastructure.config.settings import get_settings
-from pynomaly.infrastructure.config import create_container
+from anomaly_detection.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config import create_container
 
 print('Loading application settings...')
 settings = get_settings()

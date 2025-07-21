@@ -1,4 +1,4 @@
-# CI/CD Pipeline for Pynomaly Anomaly Detection Platform
+# CI/CD Pipeline for anomaly_detection Anomaly Detection Platform
 name: CI/CD Pipeline
 
 on:
@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: pynomaly/anomaly-detection
+  IMAGE_NAME: anomaly_detection/anomaly-detection
 
 jobs:
   # Code Quality and Security
@@ -56,7 +56,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -91,7 +91,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://postgres:test@localhost:5432/pynomaly_test
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/anomaly_detection_test
           REDIS_URL: redis://localhost:6379
           ENVIRONMENT: testing
         run: |
@@ -116,6 +116,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: pynomaly/anomaly-detection:latest
+          tags: anomaly_detection/anomaly-detection:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

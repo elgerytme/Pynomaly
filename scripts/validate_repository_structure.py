@@ -283,7 +283,7 @@ def main():
             print("📖 For more information, see:")
             print("    - docs/REPLACEMENT_FOLDERS_ISSUE.md")
             print("    - REPOSITORY_RULES.md")
-            print("    - GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830")
+            print("    - GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830")
             
             sys.exit(1)
         

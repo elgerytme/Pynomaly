@@ -842,7 +842,7 @@ async def demonstrate_uncertainty_analysis(ensemble_results: dict):
 
 async def main():
     """Demonstrate advanced multi-classifier ensemble anomaly detection."""
-    print("🔍 Pynomaly Advanced Multi-Classifier Ensemble Detection\n")
+    print("🔍 anomaly_detection Advanced Multi-Classifier Ensemble Detection\n")
     print("This example demonstrates cutting-edge ensemble techniques:")
     print("• Performance-weighted voting with MCC and balanced accuracy")
     print("• Uncertainty quantification with 95% confidence intervals")

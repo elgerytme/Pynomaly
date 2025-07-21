@@ -1,6 +1,6 @@
 # Anomaly Detection Package
 
-A clean, domain-focused anomaly detection package that integrates with the broader Pynomaly ML infrastructure.
+A clean, domain-focused anomaly detection package that integrates with the broader anomaly_detection ML infrastructure.
 
 ## Overview
 

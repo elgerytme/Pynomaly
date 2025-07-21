@@ -44,10 +44,10 @@ else:
 "
 
 # Test import
-echo "Testing Pynomaly import..."
+echo "Testing anomaly_detection import..."
 python3 -c "
 try:
-    from pynomaly.presentation.api import app
+    from anomaly_detection.presentation.api import app
     print('✓ anomaly detection API imported successfully')
 except ImportError as e:
     print(f'✗ Import failed: {e}')
@@ -62,4 +62,4 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-uvicorn pynomaly.presentation.api:app --host "$HOST" --port "$PORT" --reload
+uvicorn anomaly_detection.presentation.api:app --host "$HOST" --port "$PORT" --reload

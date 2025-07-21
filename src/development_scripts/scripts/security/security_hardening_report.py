@@ -31,8 +31,8 @@ def create_security_hardening_report():
                 "description": "Python pickle module allows arbitrary code execution",
                 "fix_implemented": "Replaced with SecureModelSerializer using joblib and encrypted JSON",
                 "files_modified": [
-                    "src/pynomaly/infrastructure/security/security_hardening.py",
-                    "src/pynomaly/application/services/model_persistence_service.py",
+                    "src/anomaly_detection/infrastructure/security/security_hardening.py",
+                    "src/anomaly_detection/application/services/model_persistence_service.py",
                 ],
                 "risk_level": "Before: 10/10 (Critical) -> After: 2/10 (Low)",
             },
@@ -42,8 +42,8 @@ def create_security_hardening_report():
                 "description": "Direct SQL string concatenation in migration scripts",
                 "fix_implemented": "Replaced with parameterized queries via SecureMigrationManager",
                 "files_modified": [
-                    "src/pynomaly/infrastructure/security/secure_database.py",
-                    "src/pynomaly/infrastructure/persistence/migrations.py",
+                    "src/anomaly_detection/infrastructure/security/secure_database.py",
+                    "src/anomaly_detection/infrastructure/persistence/migrations.py",
                 ],
                 "risk_level": "Before: 8/10 (High) -> After: 1/10 (Very Low)",
             },
@@ -53,8 +53,8 @@ def create_security_hardening_report():
                 "description": "Hardcoded default secret key in production",
                 "fix_implemented": "Secure key generation with environment variable enforcement",
                 "files_modified": [
-                    "src/pynomaly/infrastructure/security/security_hardening.py",
-                    "src/pynomaly/infrastructure/security/security_integration.py",
+                    "src/anomaly_detection/infrastructure/security/security_hardening.py",
+                    "src/anomaly_detection/infrastructure/security/security_integration.py",
                 ],
                 "risk_level": "Before: 9/10 (Critical) -> After: 1/10 (Very Low)",
             },
@@ -64,7 +64,7 @@ def create_security_hardening_report():
                 "description": "CSP allows unsafe-inline and unsafe-eval",
                 "fix_implemented": "Strict CSP with nonce-based approach",
                 "files_modified": [
-                    "src/pynomaly/infrastructure/security/security_hardening.py"
+                    "src/anomaly_detection/infrastructure/security/security_hardening.py"
                 ],
                 "risk_level": "Before: 6/10 (Medium) -> After: 2/10 (Low)",
             },
@@ -190,8 +190,8 @@ def create_security_hardening_report():
         ],
         "deployment_security": {
             "production_checklist": [
-                "Set PYNOMALY_SECRET_KEY environment variable",
-                "Configure PYNOMALY_MASTER_KEY for encryption",
+                "Set ANOMALY_DETECTION_SECRET_KEY environment variable",
+                "Configure ANOMALY_DETECTION_MASTER_KEY for encryption",
                 "Enable HTTPS-only mode",
                 "Set secure database credentials",
                 "Configure WAF protection",
@@ -202,11 +202,11 @@ def create_security_hardening_report():
                 "Enable security headers middleware",
             ],
             "environment_variables": {
-                "PYNOMALY_SECRET_KEY": "Cryptographically secure secret key (required)",
-                "PYNOMALY_MASTER_KEY": "Master encryption key (required)",
-                "PYNOMALY_SERIALIZATION_KEY": "Model serialization key (auto-generated)",
-                "PYNOMALY_USE_FAST_CLI": "CLI performance optimization (default: true)",
-                "PYNOMALY_USE_LAZY_CLI": "CLI lazy loading (default: true)",
+                "ANOMALY_DETECTION_SECRET_KEY": "Cryptographically secure secret key (required)",
+                "ANOMALY_DETECTION_MASTER_KEY": "Master encryption key (required)",
+                "ANOMALY_DETECTION_SERIALIZATION_KEY": "Model serialization key (auto-generated)",
+                "ANOMALY_DETECTION_USE_FAST_CLI": "CLI performance optimization (default: true)",
+                "ANOMALY_DETECTION_USE_LAZY_CLI": "CLI lazy loading (default: true)",
             },
             "security_monitoring": [
                 "Query audit logs",

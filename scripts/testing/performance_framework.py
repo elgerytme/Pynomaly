@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Performance Testing Framework for Pynomaly
+Performance Testing Framework for anomaly_detection
 
 Implements comprehensive performance testing framework for all packages to ensure
 performance regressions are detected early and performance baselines are maintained.

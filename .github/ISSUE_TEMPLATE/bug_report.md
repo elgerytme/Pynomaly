@@ -27,7 +27,7 @@ assignees: ''
 **Minimal Code Example**
 ```python
 # Minimal code that reproduces the bug
-import pynomaly
+import anomaly_detection
 
 # Your code here
 ```
@@ -37,7 +37,7 @@ import pynomaly
 **System Information:**
 - OS: [e.g. Ubuntu 22.04, Windows 11, macOS 13.0]
 - Python Version: [e.g. 3.11.5]
-- Pynomaly Version: [e.g. 1.2.0]
+- anomaly_detection Version: [e.g. 1.2.0]
 - Installation Method: [e.g. pip, conda, source]
 
 **Dependencies:**
@@ -48,7 +48,7 @@ import pynomaly
 
 **Environment Details:**
 ```bash
-# Output of: pip list | grep -E "(pynomaly|pyod|numpy|pandas|scikit-learn)"
+# Output of: pip list | grep -E "(anomaly_detection|pyod|numpy|pandas|scikit-learn)"
 ```
 
 ## 📊 Data Context

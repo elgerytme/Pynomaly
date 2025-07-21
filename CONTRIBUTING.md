@@ -1,6 +1,6 @@
-# 🤝 Contributing to Pynomaly
+# 🤝 Contributing to anomaly_detection
 
-Thank you for your interest in contributing to Pynomaly! We welcome contributions from the community and are excited to work with you.
+Thank you for your interest in contributing to anomaly_detection! We welcome contributions from the community and are excited to work with you.
 
 ## 📋 Table of Contents
 
@@ -31,9 +31,9 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 1. **Fork the repository**
    ```bash
    # Click the "Fork" button on GitHub, then:
-   git clone https://github.com/YOUR_USERNAME/pynomaly.git
-   cd pynomaly
-   git remote add upstream https://github.com/pynomaly/pynomaly.git
+   git clone https://github.com/YOUR_USERNAME/anomaly_detection.git
+   cd anomaly_detection
+   git remote add upstream https://github.com/anomaly_detection/anomaly_detection.git
    ```
 
 2. **Create a virtual environment**
@@ -67,10 +67,10 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 docker-compose up -d
 
 # Run tests in container
-docker-compose exec pynomaly-api pytest
+docker-compose exec anomaly_detection-api pytest
 
 # Access container shell
-docker-compose exec pynomaly-api bash
+docker-compose exec anomaly_detection-api bash
 ```
 
 ## 🔄 Development Process
@@ -107,7 +107,7 @@ docker-compose exec pynomaly-api bash
    pytest tests/performance/
    
    # Check code coverage
-   pytest --cov=pynomaly --cov-report=html
+   pytest --cov=anomaly_detection --cov-report=html
    ```
 
 4. **Lint and format**
@@ -275,7 +275,7 @@ What you expected to happen.
 ## Environment
 - OS: [e.g., Ubuntu 20.04]
 - Python: [e.g., 3.11.0]
-- Pynomaly: [e.g., 1.2.0]
+- anomaly_detection: [e.g., 1.2.0]
 
 ## Additional Context
 Any other context about the problem.
@@ -300,7 +300,7 @@ Other solutions you considered.
 ### Security Issues
 
 For security vulnerabilities, **DO NOT** create a public issue. Instead:
-- Email: [security@pynomaly.org](mailto:security@pynomaly.org)
+- Email: [security@anomaly_detection.org](mailto:security@anomaly_detection.org)
 - Use GitHub's private vulnerability reporting
 - Include detailed information about the vulnerability
 
@@ -450,10 +450,10 @@ Contributors are recognized in:
 
 ## 📞 Getting Help
 
-- **Discord**: [Join our community](https://discord.gg/pynomaly)
+- **Discord**: [Join our community](https://discord.gg/anomaly_detection)
 - **GitHub Discussions**: Ask questions and discuss ideas
-- **Email**: [contributors@pynomaly.org](mailto:contributors@pynomaly.org)
-- **Documentation**: [docs.pynomaly.org](https://docs.pynomaly.org)
+- **Email**: [contributors@anomaly_detection.org](mailto:contributors@anomaly_detection.org)
+- **Documentation**: [docs.anomaly_detection.org](https://docs.anomaly_detection.org)
 
 ## 🏆 Monthly Recognition
 
@@ -464,6 +464,6 @@ Contributors are recognized in:
 
 ---
 
-**Thank you for contributing to Pynomaly! 🎉**
+**Thank you for contributing to anomaly_detection! 🎉**
 
 Your contributions make the open source community an amazing place to learn, inspire, and create.

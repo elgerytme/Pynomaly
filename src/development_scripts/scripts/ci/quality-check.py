@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quality Check Script for Pynomaly CI/CD Pipeline.
+Quality Check Script for anomaly_detection CI/CD Pipeline.
 This script runs comprehensive code quality checks including linting, formatting, and type checking.
 """
 
@@ -49,7 +49,7 @@ class QualityCheck:
 
 
 class QualityChecker:
-    """Comprehensive quality checker for Pynomaly."""
+    """Comprehensive quality checker for anomaly_detection."""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
@@ -73,7 +73,7 @@ class QualityChecker:
             },
             "mypy": {
                 "description": "MyPy type checking",
-                "command": ["mypy", "src/pynomaly", "--config-file=pyproject.toml"],
+                "command": ["mypy", "src/anomaly_detection", "--config-file=pyproject.toml"],
                 "timeout": 600,
                 "required": True,
             },
@@ -109,7 +109,7 @@ class QualityChecker:
             },
             "docstring": {
                 "description": "Docstring coverage check",
-                "command": ["pydocstyle", "src/pynomaly", "--config=pyproject.toml"],
+                "command": ["pydocstyle", "src/anomaly_detection", "--config=pyproject.toml"],
                 "timeout": 300,
                 "required": False,
             },
@@ -387,7 +387,7 @@ class QualityChecker:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Pynomaly Quality Report</title>
+            <title>anomaly_detection Quality Report</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; }}
                 .header {{ background-color: #f5f5f5; padding: 20px; border-radius: 5px; }}
@@ -405,7 +405,7 @@ class QualityChecker:
         </head>
         <body>
             <div class="header">
-                <h1>🔍 Pynomaly Quality Report</h1>
+                <h1>🔍 anomaly_detection Quality Report</h1>
                 <p class="status">Overall Status: {json_report['summary']['overall_status']}</p>
                 <p>Generated: {json_report['timestamp']}</p>
             </div>
@@ -466,7 +466,7 @@ class QualityChecker:
         """Generate markdown quality report."""
         status_emoji = "✅" if json_report["summary"]["overall_status"] == "PASS" else "❌"
 
-        md = f"""# 🔍 Pynomaly Quality Report
+        md = f"""# 🔍 anomaly_detection Quality Report
 
 {status_emoji} **Overall Status:** {json_report['summary']['overall_status']}
 
@@ -514,7 +514,7 @@ class QualityChecker:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Pynomaly Quality Checker")
+    parser = argparse.ArgumentParser(description="anomaly_detection Quality Checker")
     parser.add_argument(
         "--checks",
         nargs="+",

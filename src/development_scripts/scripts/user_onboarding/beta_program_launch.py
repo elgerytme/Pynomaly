@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Beta Program Launch System for Pynomaly v1.0.0
+Beta Program Launch System for anomaly_detection v1.0.0
 
 This script manages the beta user onboarding process, including user registration,
 access provisioning, and initial setup for the beta program.
@@ -242,9 +242,9 @@ class BetaProgramLauncher:
                     "email": user.email,
                     "company": user.company,
                     "industry": user.industry.value,
-                    "beta_access_url": f"https://beta.pynomaly.io/register?token={hash(user.email) % 100000}",
-                    "support_email": "beta-support@pynomaly.io",
-                    "documentation_url": "https://docs.pynomaly.io/beta",
+                    "beta_access_url": f"https://beta.anomaly_detection.io/register?token={hash(user.email) % 100000}",
+                    "support_email": "beta-support@anomaly_detection.io",
+                    "documentation_url": "https://docs.anomaly_detection.io/beta",
                 }
 
                 self.log_launch_step(
@@ -329,12 +329,12 @@ class BetaProgramLauncher:
         self.log_launch_step("Feedback", "START", "Collecting beta user feedback")
 
         feedback_questions = [
-            "How easy was it to get started with Pynomaly?",
-            "How well does Pynomaly fit your use case?",
+            "How easy was it to get started with anomaly_detection?",
+            "How well does anomaly_detection fit your use case?",
             "What features are most valuable to you?",
             "What features are missing that you need?",
-            "How likely are you to recommend Pynomaly to a colleague?",
-            "What is your overall satisfaction with Pynomaly?",
+            "How likely are you to recommend anomaly_detection to a colleague?",
+            "What is your overall satisfaction with anomaly_detection?",
         ]
 
         try:
@@ -389,7 +389,7 @@ class BetaProgramLauncher:
                 self.log_launch_step("Monitoring", "SUCCESS", f"{component} configured")
 
             monitoring_config = {
-                "analytics_dashboard": "https://analytics.pynomaly.io/beta",
+                "analytics_dashboard": "https://analytics.anomaly_detection.io/beta",
                 "user_activity_tracking": "enabled",
                 "feature_usage_metrics": "enabled",
                 "feedback_collection": "enabled",
@@ -492,10 +492,10 @@ class BetaProgramLauncher:
             "beta_users": [asdict(user) for user in self.beta_users],
             "launch_log": self.launch_log,
             "production_urls": {
-                "beta_portal": "https://beta.pynomaly.io",
-                "documentation": "https://docs.pynomaly.io/beta",
-                "support": "beta-support@pynomaly.io",
-                "feedback": "https://feedback.pynomaly.io",
+                "beta_portal": "https://beta.anomaly_detection.io",
+                "documentation": "https://docs.anomaly_detection.io/beta",
+                "support": "beta-support@anomaly_detection.io",
+                "feedback": "https://feedback.anomaly_detection.io",
             },
             "next_steps": [
                 "Monitor beta user engagement and feature usage",
@@ -512,7 +512,7 @@ class BetaProgramLauncher:
         self, target_users: int = 10, target_industries: list[str] = None
     ) -> tuple[bool, dict[str, Any]]:
         """Launch complete beta program."""
-        logger.info("🚀 Launching Pynomaly Beta Program")
+        logger.info("🚀 Launching anomaly_detection Beta Program")
         logger.info("=" * 60)
         logger.info(f"📋 Launch ID: {self.launch_id}")
         logger.info(f"🎯 Target Users: {target_users}")
@@ -588,7 +588,7 @@ async def main():
     """Main beta launch execution."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Launch Pynomaly Beta Program")
+    parser = argparse.ArgumentParser(description="Launch anomaly_detection Beta Program")
     parser.add_argument(
         "--target-users", type=int, default=10, help="Number of beta users to target"
     )

@@ -82,8 +82,8 @@ The Repository Governance System provides:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/pynomaly.git
-cd pynomaly
+git clone https://github.com/your-org/anomaly_detection.git
+cd anomaly_detection
 
 # Install dependencies
 pip install -r scripts/requirements-analysis.txt
@@ -439,8 +439,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/your-org/pynomaly/issues)
-- 💬 [Discussions](https://github.com/your-org/pynomaly/discussions)
+- 🐛 [Issue Tracker](https://github.com/your-org/anomaly_detection/issues)
+- 💬 [Discussions](https://github.com/your-org/anomaly_detection/discussions)
 - 📧 [Email Support](mailto:support@example.com)
 
 ## Changelog

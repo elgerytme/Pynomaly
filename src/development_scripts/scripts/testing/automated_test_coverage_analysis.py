@@ -20,7 +20,7 @@ class TestCoverageAnalyzer:
 
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
-        self.src_dir = self.project_root / "src" / "pynomaly"
+        self.src_dir = self.project_root / "src" / "anomaly_detection"
         self.tests_dir = self.project_root / "tests"
         self.reports_dir = self.project_root / "reports"
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -289,7 +289,7 @@ class TestCoverageAnalyzer:
                 sys.executable,
                 "-m",
                 "pytest",
-                "--cov=pynomaly",
+                "--cov=anomaly_detection",
                 "--cov-report=json",
                 "--cov-report=html",
                 "--cov-report=xml",

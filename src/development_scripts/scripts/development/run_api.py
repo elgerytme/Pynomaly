@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-API server runner for Pynomaly.
+API server runner for anomaly_detection.
 
-This script provides a dedicated entry point for running the Pynomaly FastAPI
+This script provides a dedicated entry point for running the anomaly_detection FastAPI
 web server with production-ready configuration options.
 """
 
@@ -20,8 +20,8 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.infrastructure.config.settings import get_settings
-    from pynomaly.presentation.api.app import create_app
+    from anomaly_detection.infrastructure.config.settings import get_settings
+    from anomaly_detection.presentation.api.app import create_app
 except ImportError as e:
     print(f"Failed to import anomaly detection API modules: {e}")
     print("Please ensure the package is installed with: poetry install")

@@ -2,7 +2,7 @@
 """
 Time Series Anomaly Detection Example
 
-This example demonstrates time series anomaly detection using Pynomaly:
+This example demonstrates time series anomaly detection using anomaly_detection:
 - Creating synthetic time series data with seasonal patterns
 - Detecting point anomalies, collective anomalies, and trend changes
 - Visualizing results with interactive plots
@@ -18,9 +18,9 @@ from typing import Tuple, List, Optional
 import warnings
 warnings.filterwarnings('ignore')
 
-# Note: These would be actual Pynomaly imports in real implementation
-# from pynomaly import TimeSeriesDetector
-# from pynomaly.preprocessing import TimeSeriesPreprocessor
+# Note: These would be actual anomaly_detection imports in real implementation
+# from anomaly_detection import TimeSeriesDetector
+# from anomaly_detection.preprocessing import TimeSeriesPreprocessor
 
 
 class TimeSeriesDetector:
@@ -410,7 +410,7 @@ def evaluate_time_series_detection(
 
 def main():
     """Main example execution."""
-    print("⏰ Pynomaly Time Series Anomaly Detection Example")
+    print("⏰ anomaly_detection Time Series Anomaly Detection Example")
     print("=" * 60)
     
     # 1. Create synthetic time series

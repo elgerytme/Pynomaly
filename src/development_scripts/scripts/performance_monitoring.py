@@ -10,13 +10,13 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pynomaly.presentation.web.performance_alerts import (
+from anomaly_detection.presentation.web.performance_alerts import (
     AlertSeverity,
     MetricType,
     PerformanceMetric,
     performance_monitor,
 )
-from pynomaly.presentation.web.performance_integration import (
+from anomaly_detection.presentation.web.performance_integration import (
     create_test_alert,
     export_prometheus_metrics,
     get_health_check,

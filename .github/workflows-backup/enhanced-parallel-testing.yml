@@ -267,8 +267,8 @@ jobs:
         if: contains(matrix.requires, 'postgres')
         env:
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: pynomaly_test
-          POSTGRES_USER: pynomaly
+          POSTGRES_DB: anomaly_detection_test
+          POSTGRES_USER: anomaly_detection
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -317,13 +317,13 @@ jobs:
         run: |
           cp .env.example .env
           if [ "${{ contains(matrix.requires, 'postgres') }}" == "true" ]; then
-            echo "DATABASE_URL=postgresql://pynomaly:test_password@localhost:5432/pynomaly_test" >> .env
+            echo "DATABASE_URL=postgresql://anomaly_detection:test_password@localhost:5432/anomaly_detection_test" >> .env
           fi
           if [ "${{ contains(matrix.requires, 'redis') }}" == "true" ]; then
             echo "REDIS_URL=redis://localhost:6379" >> .env
           fi
           echo "ENVIRONMENT=test" >> .env
-          echo "PYNOMALY_USE_LAZY_CLI=false" >> .env
+          echo "ANOMALY_DETECTION_USE_LAZY_CLI=false" >> .env
 
       - name: Run database migrations
         if: contains(matrix.requires, 'postgres')
@@ -339,7 +339,7 @@ jobs:
             -n ${{ matrix.workers }} \
             --dist=worksteal \
             --timeout=300 \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml:coverage-${{ matrix.category }}.xml \
             --cov-report=html:htmlcov-${{ matrix.category }} \
             --cov-context=test \

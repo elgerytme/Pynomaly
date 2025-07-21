@@ -1,6 +1,6 @@
 # Enterprise Governance & Compliance Package
 
-This package provides comprehensive governance, audit, compliance, and SLA management capabilities for Pynomaly, supporting multiple regulatory frameworks and enterprise governance requirements.
+This package provides comprehensive governance, audit, compliance, and SLA management capabilities for anomaly_detection, supporting multiple regulatory frameworks and enterprise governance requirements.
 
 ## Features
 
@@ -40,7 +40,7 @@ This package provides comprehensive governance, audit, compliance, and SLA manag
 ### Installation
 
 ```bash
-pip install pynomaly-enterprise-governance
+pip install anomaly_detection-enterprise-governance
 ```
 
 ### Basic Usage
@@ -111,7 +111,7 @@ async def get_compliance_report(
 
 ```bash
 # Generate audit report
-pynomaly-enterprise-governance audit report \
+anomaly_detection-enterprise-governance audit report \
     --tenant-id <tenant-id> \
     --start-date 2024-01-01 \
     --end-date 2024-03-31 \
@@ -119,15 +119,15 @@ pynomaly-enterprise-governance audit report \
     --compliance-framework soc2
 
 # Create SLA
-pynomaly-enterprise-governance sla create \
+anomaly_detection-enterprise-governance sla create \
     --name "API Availability SLA" \
     --type availability \
     --target 99.9 \
-    --service "pynomaly-api" \
+    --service "anomaly_detection-api" \
     --provider "Internal IT"
 
 # Check compliance status
-pynomaly-enterprise-governance compliance status \
+anomaly_detection-enterprise-governance compliance status \
     --framework soc2 \
     --tenant-id <tenant-id>
 ```
@@ -138,37 +138,37 @@ pynomaly-enterprise-governance compliance status \
 
 ```bash
 # Database Configuration
-PYNOMALY_GOVERNANCE_DATABASE_URL=postgresql://user:pass@localhost/governance
-PYNOMALY_GOVERNANCE_REDIS_URL=redis://localhost:6379/2
+ANOMALY_DETECTION_GOVERNANCE_DATABASE_URL=postgresql://user:pass@localhost/governance
+ANOMALY_DETECTION_GOVERNANCE_REDIS_URL=redis://localhost:6379/2
 
 # Audit Settings
-PYNOMALY_AUDIT_RETENTION_DAYS=2557  # 7 years default
-PYNOMALY_AUDIT_ENCRYPTION_ENABLED=true
-PYNOMALY_AUDIT_REAL_TIME_ALERTS=true
+ANOMALY_DETECTION_AUDIT_RETENTION_DAYS=2557  # 7 years default
+ANOMALY_DETECTION_AUDIT_ENCRYPTION_ENABLED=true
+ANOMALY_DETECTION_AUDIT_REAL_TIME_ALERTS=true
 
 # Compliance Settings
-PYNOMALY_COMPLIANCE_AUTO_ASSESSMENT=true
-PYNOMALY_COMPLIANCE_NOTIFICATION_THRESHOLD=90  # Alert below 90% compliance
+ANOMALY_DETECTION_COMPLIANCE_AUTO_ASSESSMENT=true
+ANOMALY_DETECTION_COMPLIANCE_NOTIFICATION_THRESHOLD=90  # Alert below 90% compliance
 
 # SLA Settings
-PYNOMALY_SLA_CHECK_INTERVAL_MINUTES=5
-PYNOMALY_SLA_VIOLATION_ESCALATION=true
-PYNOMALY_SLA_CREDITS_AUTO_APPLY=true
+ANOMALY_DETECTION_SLA_CHECK_INTERVAL_MINUTES=5
+ANOMALY_DETECTION_SLA_VIOLATION_ESCALATION=true
+ANOMALY_DETECTION_SLA_CREDITS_AUTO_APPLY=true
 
 # Privacy Settings
-PYNOMALY_PRIVACY_DATA_RETENTION_CHECK_DAILY=true
-PYNOMALY_PRIVACY_CONSENT_RENEWAL_DAYS=365
-PYNOMALY_PRIVACY_BREACH_NOTIFICATION_HOURS=72
+ANOMALY_DETECTION_PRIVACY_DATA_RETENTION_CHECK_DAILY=true
+ANOMALY_DETECTION_PRIVACY_CONSENT_RENEWAL_DAYS=365
+ANOMALY_DETECTION_PRIVACY_BREACH_NOTIFICATION_HOURS=72
 
 # Notification Settings
-PYNOMALY_NOTIFICATIONS_SLACK_WEBHOOK=https://hooks.slack.com/...
-PYNOMALY_NOTIFICATIONS_EMAIL_SENDER=governance@company.com
-PYNOMALY_NOTIFICATIONS_PAGERDUTY_API_KEY=<api-key>
+ANOMALY_DETECTION_NOTIFICATIONS_SLACK_WEBHOOK=https://hooks.slack.com/...
+ANOMALY_DETECTION_NOTIFICATIONS_EMAIL_SENDER=governance@company.com
+ANOMALY_DETECTION_NOTIFICATIONS_PAGERDUTY_API_KEY=<api-key>
 
 # Report Generation
-PYNOMALY_REPORTS_STORAGE_PATH=/var/lib/pynomaly/reports
-PYNOMALY_REPORTS_RETENTION_DAYS=2557
-PYNOMALY_REPORTS_ENCRYPTION_ENABLED=true
+ANOMALY_DETECTION_REPORTS_STORAGE_PATH=/var/lib/anomaly_detection/reports
+ANOMALY_DETECTION_REPORTS_RETENTION_DAYS=2557
+ANOMALY_DETECTION_REPORTS_ENCRYPTION_ENABLED=true
 ```
 
 ### Configuration File
@@ -486,20 +486,20 @@ CMD ["uvicorn", "enterprise_governance.presentation.api.app:app", "--host", "0.0
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pynomaly-enterprise-governance
+  name: anomaly_detection-enterprise-governance
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: pynomaly-enterprise-governance
+      app: anomaly_detection-enterprise-governance
   template:
     metadata:
       labels:
-        app: pynomaly-enterprise-governance
+        app: anomaly_detection-enterprise-governance
     spec:
       containers:
       - name: governance-service
-        image: pynomaly/enterprise-governance:latest
+        image: anomaly_detection/enterprise-governance:latest
         ports:
         - containerPort: 8000
         env:
@@ -568,8 +568,8 @@ spec:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly/src/packages/enterprise/enterprise_governance
+git clone https://github.com/yourusername/anomaly_detection.git
+cd anomaly_detection/src/packages/enterprise/enterprise_governance
 
 # Create virtual environment
 python -m venv venv
@@ -596,11 +596,11 @@ This package is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Support
 
-- **Documentation**: [https://docs.pynomaly.org/enterprise/governance](https://docs.pynomaly.org/enterprise/governance)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/pynomaly/issues)
-- **Enterprise Support**: enterprise-support@pynomaly.org
-- **Security Issues**: security@pynomaly.org
+- **Documentation**: [https://docs.anomaly_detection.org/enterprise/governance](https://docs.anomaly_detection.org/enterprise/governance)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/anomaly_detection/issues)
+- **Enterprise Support**: enterprise-support@anomaly_detection.org
+- **Security Issues**: security@anomaly_detection.org
 
 ---
 
-**Enterprise Governance & Compliance Package** - Part of the Pynomaly Enterprise Suite
+**Enterprise Governance & Compliance Package** - Part of the anomaly_detection Enterprise Suite

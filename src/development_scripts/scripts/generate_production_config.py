@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Production Configuration Generator for Pynomaly
+Production Configuration Generator for anomaly_detection
 
-This script generates production-ready configuration files for Pynomaly deployment.
+This script generates production-ready configuration files for anomaly_detection deployment.
 """
 
 import os
@@ -28,8 +28,8 @@ def generate_api_key() -> str:
 def generate_database_url(
     host: str = "localhost",
     port: int = 5432,
-    database: str = "pynomaly_prod",
-    username: str = "pynomaly_user",
+    database: str = "anomaly_detection_prod",
+    username: str = "anomaly_detection_user",
     password: str = None,
 ) -> str:
     """Generate database URL."""
@@ -42,10 +42,10 @@ def generate_environment_config() -> dict[str, Any]:
     """Generate environment configuration."""
     return {
         # Application
-        "PYNOMALY_ENV": "production",
-        "PYNOMALY_DEBUG": "false",
-        "PYNOMALY_LOG_LEVEL": "INFO",
-        "PYNOMALY_VERSION": "0.1.1",
+        "ANOMALY_DETECTION_ENV": "production",
+        "ANOMALY_DETECTION_DEBUG": "false",
+        "ANOMALY_DETECTION_LOG_LEVEL": "INFO",
+        "ANOMALY_DETECTION_VERSION": "0.1.1",
         # Security
         "SECRET_KEY": generate_secret_key(),
         "API_KEY_SALT": generate_secret_key(32),
@@ -84,7 +84,7 @@ def generate_environment_config() -> dict[str, Any]:
         "ENABLE_DRIFT_DETECTION": "true",
         # Deployment
         "DEPLOYMENT_TYPE": "docker",
-        "CONTAINER_NAME": "pynomaly-prod",
+        "CONTAINER_NAME": "anomaly_detection-prod",
         "HEALTHCHECK_INTERVAL": "30",
         "RESTART_POLICY": "unless-stopped",
     }
@@ -95,11 +95,11 @@ def generate_docker_compose() -> dict[str, Any]:
     return {
         "version": "3.8",
         "services": {
-            "pynomaly-api": {
+            "anomaly_detection-api": {
                 "build": ".",
                 "ports": ["8000:8000"],
                 "environment": [
-                    "PYNOMALY_ENV=production",
+                    "ANOMALY_DETECTION_ENV=production",
                     "DATABASE_URL=${DATABASE_URL}",
                     "REDIS_URL=${REDIS_URL}",
                     "SECRET_KEY=${SECRET_KEY}",
@@ -119,9 +119,9 @@ def generate_docker_compose() -> dict[str, Any]:
                     "start_period": "60s",
                 },
             },
-            "pynomaly-worker": {
+            "anomaly_detection-worker": {
                 "build": ".",
-                "command": "celery -A pynomaly.infrastructure.celery worker --loglevel=info",
+                "command": "celery -A anomaly_detection.infrastructure.celery worker --loglevel=info",
                 "depends_on": ["postgres", "redis"],
                 "volumes": [
                     "./data:/app/data",
@@ -129,7 +129,7 @@ def generate_docker_compose() -> dict[str, Any]:
                 ],
                 "restart": "unless-stopped",
                 "environment": [
-                    "PYNOMALY_ENV=production",
+                    "ANOMALY_DETECTION_ENV=production",
                     "DATABASE_URL=${DATABASE_URL}",
                     "REDIS_URL=${REDIS_URL}",
                 ],
@@ -137,8 +137,8 @@ def generate_docker_compose() -> dict[str, Any]:
             "postgres": {
                 "image": "postgres:13",
                 "environment": [
-                    "POSTGRES_DB=pynomaly_prod",
-                    "POSTGRES_USER=pynomaly_user",
+                    "POSTGRES_DB=anomaly_detection_prod",
+                    "POSTGRES_USER=anomaly_detection_user",
                     "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}",
                 ],
                 "volumes": ["postgres_data:/var/lib/postgresql/data"],
@@ -147,7 +147,7 @@ def generate_docker_compose() -> dict[str, Any]:
                 "healthcheck": {
                     "test": [
                         "CMD-SHELL",
-                        "pg_isready -U pynomaly_user -d pynomaly_prod",
+                        "pg_isready -U anomaly_detection_user -d anomaly_detection_prod",
                     ],
                     "interval": "30s",
                     "timeout": "10s",
@@ -206,7 +206,7 @@ def generate_docker_compose() -> dict[str, Any]:
         },
         "networks": {
             "default": {
-                "name": "pynomaly-network",
+                "name": "anomaly_detection-network",
             },
         },
     }
@@ -215,9 +215,9 @@ def generate_docker_compose() -> dict[str, Any]:
 def generate_nginx_config() -> str:
     """Generate Nginx configuration."""
     return """
-# Pynomaly Production Nginx Configuration
+# anomaly_detection Production Nginx Configuration
 
-upstream pynomaly_backend {
+upstream anomaly_detection_backend {
     server 127.0.0.1:8000;
     keepalive 32;
 }
@@ -244,8 +244,8 @@ server {
     server_name your-domain.com;
 
     # SSL configuration
-    ssl_certificate /etc/ssl/certs/pynomaly.crt;
-    ssl_certificate_key /etc/ssl/private/pynomaly.key;
+    ssl_certificate /etc/ssl/certs/anomaly_detection.crt;
+    ssl_certificate_key /etc/ssl/private/anomaly_detection.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -259,14 +259,14 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
     # Logging
-    access_log /var/log/nginx/pynomaly.access.log;
-    error_log /var/log/nginx/pynomaly.error.log;
+    access_log /var/log/nginx/anomaly_detection.access.log;
+    error_log /var/log/nginx/anomaly_detection.error.log;
 
     # API endpoints
     location /api/ {
         limit_req zone=api burst=20 nodelay;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -288,7 +288,7 @@ server {
 
     # WebSocket support
     location /ws/ {
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -299,7 +299,7 @@ server {
     # Health check
     location /health {
         access_log off;
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_set_header Host $host;
     }
 
@@ -309,7 +309,7 @@ server {
         allow 10.0.0.0/8;
         deny all;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_set_header Host $host;
     }
 
@@ -343,7 +343,7 @@ def generate_prometheus_config() -> dict[str, Any]:
         },
         "scrape_configs": [
             {
-                "job_name": "pynomaly",
+                "job_name": "anomaly_detection",
                 "static_configs": [{"targets": ["localhost:8000"]}],
                 "metrics_path": "/metrics",
                 "scrape_interval": "5s",
@@ -392,16 +392,16 @@ def generate_systemd_service() -> str:
     """Generate systemd service file."""
     return """
 [Unit]
-Description=Pynomaly Production Service
+Description=anomaly_detection Production Service
 After=network.target postgresql.service redis.service
 
 [Service]
 Type=forking
-User=pynomaly
-Group=pynomaly
+User=anomaly_detection
+Group=anomaly_detection
 WorkingDirectory=/app
-Environment=PYNOMALY_ENV=production
-ExecStart=/usr/local/bin/gunicorn -c gunicorn.conf.py pynomaly.presentation.api.app:app
+Environment=ANOMALY_DETECTION_ENV=production
+ExecStart=/usr/local/bin/gunicorn -c gunicorn.conf.py anomaly_detection.presentation.api.app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
@@ -416,14 +416,14 @@ WantedBy=multi-user.target
 def generate_backup_script() -> str:
     """Generate backup script."""
     return """#!/bin/bash
-# Pynomaly Production Backup Script
+# anomaly_detection Production Backup Script
 
 set -e
 
 # Configuration
 BACKUP_DIR="/app/backups"
-DB_NAME="pynomaly_prod"
-DB_USER="pynomaly_user"
+DB_NAME="anomaly_detection_prod"
+DB_USER="anomaly_detection_user"
 DATA_DIR="/app/data"
 RETENTION_DAYS=7
 
@@ -459,14 +459,14 @@ echo "Backup completed successfully!"
 def generate_monitoring_script() -> str:
     """Generate monitoring script."""
     return """#!/bin/bash
-# Pynomaly Production Monitoring Script
+# anomaly_detection Production Monitoring Script
 
 set -e
 
 # Configuration
 API_URL="http://localhost:8000"
 ALERT_EMAIL="admin@your-domain.com"
-LOG_FILE="/var/log/pynomaly/monitoring.log"
+LOG_FILE="/var/log/anomaly_detection/monitoring.log"
 
 # Create log directory
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -491,7 +491,7 @@ health_check() {
     response=$(curl -s -w "%{http_code}" -o /dev/null "$API_URL/health" || echo "000")
 
     if [[ "$response" != "200" ]]; then
-        send_alert "Pynomaly Health Check Failed" "Health check returned status: $response"
+        send_alert "anomaly_detection Health Check Failed" "Health check returned status: $response"
         return 1
     fi
 
@@ -505,7 +505,7 @@ performance_check() {
     response_time=$(curl -s -w "%{time_total}" -o /dev/null "$API_URL/health")
 
     if (( $(echo "$response_time > 5.0" | bc -l) )); then
-        send_alert "Pynomaly Performance Degradation" "Response time: ${response_time}s"
+        send_alert "anomaly_detection Performance Degradation" "Response time: ${response_time}s"
         return 1
     fi
 
@@ -528,7 +528,7 @@ disk_check() {
     disk_usage=$(df -h /app | awk 'NR==2{print $5}' | sed 's/%//')
 
     if [[ "$disk_usage" -gt 80 ]]; then
-        send_alert "Pynomaly Disk Space Warning" "Disk usage: ${disk_usage}%"
+        send_alert "anomaly_detection Disk Space Warning" "Disk usage: ${disk_usage}%"
         return 1
     fi
 
@@ -594,7 +594,7 @@ def main():
         yaml.dump(grafana_datasource, f, default_flow_style=False)
 
     # Generate systemd service
-    with open(base_dir / "pynomaly.service", "w") as f:
+    with open(base_dir / "anomaly_detection.service", "w") as f:
         f.write(generate_systemd_service())
 
     # Generate scripts
@@ -614,7 +614,7 @@ def main():
             ".env.production",
             "docker-compose.prod.yml",
             "nginx.conf",
-            "pynomaly.service",
+            "anomaly_detection.service",
             "monitoring/prometheus.yml",
             "monitoring/grafana/datasource.yml",
             "scripts/backup.sh",
@@ -640,7 +640,7 @@ def main():
     }
 
     with open(base_dir / "README.md", "w") as f:
-        f.write("# Pynomaly Production Configuration\n\n")
+        f.write("# anomaly_detection Production Configuration\n\n")
         f.write("This directory contains generated production configuration files.\n\n")
         f.write("## Generated Files\n\n")
         for file in summary["generated_files"]:

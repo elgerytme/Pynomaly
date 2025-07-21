@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-data-transformation"
+name = "anomaly_detection-data-transformation"
 dynamic = ["version"]
 description = "Advanced data transformation and feature engineering for anomaly detection"
-authors = [{name = "Anomaly Detection Team", email = "team@pynomaly.io"}]
+authors = [{name = "Anomaly Detection Team", email = "team@anomaly_detection.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
@@ -112,7 +112,7 @@ test = [
 ]
 
 all = [
-    "pynomaly-data-transformation[enhanced,database,cloud,streaming,feature-engineering,quality]"
+    "anomaly_detection-data-transformation[enhanced,database,cloud,streaming,feature-engineering,quality]"
 ]
 
 [tool.hatch.version]

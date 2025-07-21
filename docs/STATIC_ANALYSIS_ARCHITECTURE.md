@@ -73,7 +73,7 @@ class AnalysisOrchestrator:
 ```
 1. Default configuration (built-in)
 2. Project configuration (pyproject.toml)
-3. User configuration (~/.pynomaly/config.toml)
+3. User configuration (~/.anomaly_detection/config.toml)
 4. Environment variables
 5. Command-line arguments
 ```

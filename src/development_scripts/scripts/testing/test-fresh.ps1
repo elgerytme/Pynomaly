@@ -1,6 +1,6 @@
 # Test script for fresh PowerShell environment
 
-Write-Host "=== Testing Pynomaly Web App in Fresh PowerShell Environment ===" -ForegroundColor Cyan
+Write-Host "=== Testing anomaly_detection Web App in Fresh PowerShell Environment ===" -ForegroundColor Cyan
 Write-Host "Date: $(Get-Date)"
 Write-Host "Current directory: $(Get-Location)"
 Write-Host "Python version: $(python --version 2>$null)"
@@ -99,9 +99,9 @@ try:
         print(f'⚠️  Missing packages: {missing_packages}')
         print('⚠️  Cannot test full functionality, but testing core imports...')
 
-    # Test pynomaly imports
-    from pynomaly.presentation.web.app import create_web_app
-    print('✓ Pynomaly import successful in fresh environment')
+    # Test anomaly_detection imports
+    from anomaly_detection.presentation.web.app import create_web_app
+    print('✓ anomaly_detection import successful in fresh environment')
 
 except Exception as e:
     print('✗ Import failed in fresh environment:', e)
@@ -123,7 +123,7 @@ Write-Host ""
 Write-Host "Test 5: Testing app creation in fresh environment..." -ForegroundColor Yellow
 $appResult = python -c @"
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     app = create_web_app()
     print('✓ App creation successful in fresh environment')
     print('✓ Routes count:', len(app.routes))
@@ -160,10 +160,10 @@ Write-Host ""
 # Test 6: Check that required files are present
 Write-Host "Test 6: Verifying file structure in fresh environment..." -ForegroundColor Yellow
 $requiredFiles = @(
-    "src\pynomaly\__init__.py",
-    "src\pynomaly\presentation\api\app.py",
-    "src\pynomaly\presentation\web\app.py",
-    "src\pynomaly\infrastructure\config\container.py",
+    "src\anomaly_detection\__init__.py",
+    "src\anomaly_detection\presentation\api\app.py",
+    "src\anomaly_detection\presentation\web\app.py",
+    "src\anomaly_detection\infrastructure\config\container.py",
     "scripts\run_web_app.py"
 )
 
@@ -231,7 +231,7 @@ try {
 Write-Host "Testing Web UI endpoint in fresh environment..."
 try {
     $webResponse = Invoke-WebRequest -Uri "http://localhost:8000/web/" -TimeoutSec 15
-    if ($webResponse.Content -like "*Dashboard - Pynomaly*") {
+    if ($webResponse.Content -like "*Dashboard - anomaly_detection*") {
         Write-Host "✓ Web UI endpoint working in fresh environment" -ForegroundColor Green
     } else {
         Write-Host "✗ Web UI endpoint failed - unexpected content" -ForegroundColor Red
@@ -275,7 +275,7 @@ Remove-Item -Recurse -Force $testEnvDir
 Write-Host "✓ Test environment cleaned up" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "🎉 All fresh environment tests passed! Pynomaly web app works correctly in fresh PowerShell environment." -ForegroundColor Green
+Write-Host "🎉 All fresh environment tests passed! anomaly_detection web app works correctly in fresh PowerShell environment." -ForegroundColor Green
 Write-Host "✓ Virtual environment setup (or graceful fallback)" -ForegroundColor Green
 Write-Host "✓ Dependency management" -ForegroundColor Green
 Write-Host "✓ Source code setup in fresh location" -ForegroundColor Green

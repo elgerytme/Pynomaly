@@ -1,10 +1,10 @@
 /**
- * React Example: Pynomaly SDK Integration
- * Demonstrates how to use the Pynomaly TypeScript SDK in React applications
+ * React Example: anomaly_detection SDK Integration
+ * Demonstrates how to use the anomaly_detection TypeScript SDK in React applications
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { PynomaliClient } from '../src/index';
+import { AnomalyDetectionClient } from '../src/index';
 import type {
   DetectionRequest,
   DetectionResponse,
@@ -13,11 +13,11 @@ import type {
   HealthStatus,
 } from '../src/types';
 
-// Custom hook for Pynomaly client
-export const usePynomaliClient = (config?: any) => {
-  const [client] = useState(() => new PynomaliClient({
-    baseUrl: process.env.REACT_APP_PYNOMALY_API_URL || 'https://api.pynomaly.com',
-    apiKey: process.env.REACT_APP_PYNOMALY_API_KEY,
+// Custom hook for anomaly_detection client
+export const useAnomalyDetectionClient = (config?: any) => {
+  const [client] = useState(() => new AnomalyDetectionClient({
+    baseUrl: process.env.REACT_APP_ANOMALY_DETECTION_API_URL || 'https://api.anomaly_detection.com',
+    apiKey: process.env.REACT_APP_ANOMALY_DETECTION_API_KEY,
     debug: process.env.NODE_ENV === 'development',
     websocket: {
       enabled: true,
@@ -31,7 +31,7 @@ export const usePynomaliClient = (config?: any) => {
 
 // Authentication component
 export const AuthComponent: React.FC = () => {
-  const client = usePynomaliClient();
+  const client = useAnomalyDetectionClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -94,7 +94,7 @@ export const AuthComponent: React.FC = () => {
   return (
     <div className="auth-container">
       <form onSubmit={handleLogin}>
-        <h2>Login to Pynomaly</h2>
+        <h2>Login to anomaly_detection</h2>
         
         <div>
           <label>Username:</label>
@@ -137,7 +137,7 @@ export const AuthComponent: React.FC = () => {
 
 // Anomaly detection component
 export const AnomalyDetectionComponent: React.FC = () => {
-  const client = usePynomaliClient();
+  const client = useAnomalyDetectionClient();
   const [inputData, setInputData] = useState('1,2,3,4,5,100,6,7,8,9');
   const [algorithm, setAlgorithm] = useState('isolation_forest');
   const [result, setResult] = useState<DetectionResponse | null>(null);
@@ -242,7 +242,7 @@ export const AnomalyDetectionComponent: React.FC = () => {
 
 // Real-time streaming component
 export const StreamingComponent: React.FC = () => {
-  const client = usePynomaliClient();
+  const client = useAnomalyDetectionClient();
   const [isConnected, setIsConnected] = useState(false);
   const [streamData, setStreamData] = useState<StreamDetectionResult[]>([]);
   const [alerts, setAlerts] = useState<StreamAlert[]>([]);
@@ -356,7 +356,7 @@ export const StreamingComponent: React.FC = () => {
 
 // Health monitoring component
 export const HealthComponent: React.FC = () => {
-  const client = usePynomaliClient();
+  const client = useAnomalyDetectionClient();
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -437,7 +437,7 @@ export const HealthComponent: React.FC = () => {
 };
 
 // Main application component
-export const PynomaliApp: React.FC = () => {
+export const anomaly-detectionApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('auth');
 
   const tabs = [
@@ -450,9 +450,9 @@ export const PynomaliApp: React.FC = () => {
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component || AuthComponent;
 
   return (
-    <div className="pynomaly-app">
+    <div className="anomaly_detection-app">
       <header>
-        <h1>Pynomaly React Example</h1>
+        <h1>anomaly_detection React Example</h1>
         <nav>
           {tabs.map(tab => (
             <button
@@ -471,7 +471,7 @@ export const PynomaliApp: React.FC = () => {
       </main>
 
       <style jsx>{`
-        .pynomaly-app {
+        .anomaly_detection-app {
           max-width: 1200px;
           margin: 0 auto;
           padding: 20px;
@@ -546,4 +546,4 @@ export const PynomaliApp: React.FC = () => {
   );
 };
 
-export default PynomaliApp;
+export default anomaly-detectionApp;

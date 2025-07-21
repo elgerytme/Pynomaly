@@ -1,5 +1,5 @@
 """
-Enterprise Authentication & Authorization Package for Pynomaly
+Enterprise Authentication & Authorization Package for anomaly_detection
 
 This package provides enterprise-grade authentication and authorization capabilities
 including SSO, SAML, OAuth2, RBAC, and multi-tenancy support.
@@ -13,8 +13,8 @@ from .application.services.tenant_service import TenantService
 from .application.services.rbac_service import RBACService
 
 __version__ = "0.4.0"
-__author__ = "Pynomaly Enterprise Team"
-__email__ = "enterprise@pynomaly.org"
+__author__ = "anomaly_detection Enterprise Team"
+__email__ = "enterprise@anomaly_detection.org"
 
 __all__ = [
     # Domain Entities

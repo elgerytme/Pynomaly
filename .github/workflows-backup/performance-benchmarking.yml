@@ -181,7 +181,7 @@ jobs:
         if: matrix.benchmark_category == 'api-throughput'
         run: |
           # Start API server in background
-          python -m pynomaly.presentation.api.app &
+          python -m anomaly_detection.presentation.api.app &
           API_PID=$!
           sleep 10
           
@@ -332,8 +332,8 @@ jobs:
         run: |
           python -m memory_profiler -T 0.1 << 'EOF'
           # Profile memory usage of core operations
-          from pynomaly.domain.entities import Detector
-          from pynomaly.infrastructure.adapters.pyod_adapter import PyodAdapter
+          from anomaly_detection.domain.entities import Detector
+          from anomaly_detection.infrastructure.adapters.pyod_adapter import PyodAdapter
           import numpy as np
           
           @profile
@@ -366,7 +366,7 @@ jobs:
           python -c "
           import time
           import numpy as np
-          from pynomaly.infrastructure.adapters.pyod_adapter import PyodAdapter
+          from anomaly_detection.infrastructure.adapters.pyod_adapter import PyodAdapter
           
           adapter = PyodAdapter()
           

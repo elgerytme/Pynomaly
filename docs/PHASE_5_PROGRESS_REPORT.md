@@ -35,14 +35,14 @@ The automated fixes targeted the top 5 most common violations:
 | **dataset** | 2,850 | #1 (2,149 occurrences) | High impact |
 | **metrics** | 2,296 | #5 (1,498 occurrences) | High impact |
 | **detection** | 1,270 | #4 (1,606 occurrences) | Medium impact |
-| **pynomaly** | 570 | #3 (1,662 occurrences) | Medium impact |
+| **anomaly_detection** | 570 | #3 (1,662 occurrences) | Medium impact |
 
 ### Current Top Violations (After Phase 5)
 
 | Rank | Violation Term | Occurrences | Status |
 |------|---------------|-------------|---------|
 | 1 | anomaly | 1,429 | New #1 priority |
-| 2 | pynomaly | 1,379 | Still problematic |
+| 2 | anomaly_detection | 1,379 | Still problematic |
 | 3 | detection | 1,099 | Reduced from 1,606 |
 | 4 | alert | 1,035 | Needs attention |
 | 5 | dataset | 908 | Reduced from 2,149 |
@@ -78,9 +78,9 @@ The automated fixes targeted the top 5 most common violations:
 The following replacement patterns were successfully applied:
 
 #### Package Names
-- `pynomaly` → `software`
-- `pynomaly-*` → `software-*`
-- `"pynomaly"` → `"software"`
+- `anomaly_detection` → `software`
+- `anomaly_detection-*` → `software-*`
+- `"anomaly_detection"` → `"software"`
 
 #### Domain Terminology
 - `dataset` → `data_collection`
@@ -148,7 +148,7 @@ The following replacement patterns were successfully applied:
 Based on the current violation analysis, the next phase should focus on:
 
 1. **anomaly** (1,429 occurrences) - New top priority
-2. **pynomaly** (1,379 occurrences) - Still needs attention
+2. **anomaly_detection** (1,379 occurrences) - Still needs attention
 3. **alert** (1,035 occurrences) - Emerging issue
 4. **severity** (578 occurrences) - Domain-specific term
 5. **contamination** (572 occurrences) - ML-specific term

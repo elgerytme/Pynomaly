@@ -27,7 +27,7 @@ class RootDirectoryValidator:
         "package.json",
         "package-lock.json",
         "Makefile",
-        "Pynomaly.code-workspace",
+        "anomaly_detection.code-workspace",
         "CONTRIBUTING.md",
     }
 

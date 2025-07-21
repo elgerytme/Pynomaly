@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Security hardening script for Pynomaly production deployment.
+Security hardening script for anomaly_detection production deployment.
 This script implements comprehensive security measures and SSL configuration.
 """
 
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 class SecurityConfig:
     """Security configuration data structure."""
 
-    domain: str = "pynomaly.local"
-    ssl_cert_path: str = "/etc/ssl/certs/pynomaly"
-    ssl_key_path: str = "/etc/ssl/private/pynomaly"
+    domain: str = "anomaly_detection.local"
+    ssl_cert_path: str = "/etc/ssl/certs/anomaly_detection"
+    ssl_key_path: str = "/etc/ssl/private/anomaly_detection"
     firewall_enabled: bool = True
     fail2ban_enabled: bool = True
     rate_limiting_enabled: bool = True
@@ -60,7 +60,7 @@ prompt = no
 C = US
 ST = Production
 L = Server
-O = Pynomaly
+O = anomaly_detection
 CN = {self.config.domain}
 
 [v3_req]
@@ -140,9 +140,9 @@ IP.1 = 127.0.0.1
 
         try:
             nginx_config = rf"""
-# Nginx Security Configuration for Pynomaly
-upstream pynomaly_backend {{
-    server pynomaly-api:8000;
+# Nginx Security Configuration for anomaly_detection
+upstream anomaly_detection_backend {{
+    server anomaly_detection-api:8000;
     keepalive 32;
 }}
 
@@ -253,7 +253,7 @@ server {{
         limit_req zone=api burst=20 nodelay;
         limit_req_status 429;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -290,7 +290,7 @@ server {{
         limit_req zone=login burst=5 nodelay;
         limit_req_status 429;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -306,7 +306,7 @@ server {{
     location /health {{
         limit_req zone=general burst=50 nodelay;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         access_log off;
 
         # Allow health checks from monitoring
@@ -321,7 +321,7 @@ server {{
     location /docs {{
         limit_req zone=general burst=10 nodelay;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -391,7 +391,7 @@ server {{
     location / {{
         limit_req zone=general burst=20 nodelay;
 
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -729,9 +729,9 @@ auto-aof-rewrite-min-size 64mb
         try:
             # Create security monitoring script
             security_monitor_script = """#!/bin/bash
-# Security Monitoring Script for Pynomaly
+# Security Monitoring Script for anomaly_detection
 
-LOG_FILE="/var/log/pynomaly/security.log"
+LOG_FILE="/var/log/anomaly_detection/security.log"
 DATE=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Function to log security events
@@ -741,7 +741,7 @@ log_security_event() {
 
 # Monitor failed login attempts
 check_failed_logins() {
-    FAILED_LOGINS=$(grep "authentication failed" /var/log/pynomaly/app.log | tail -n 100 | wc -l)
+    FAILED_LOGINS=$(grep "authentication failed" /var/log/anomaly_detection/app.log | tail -n 100 | wc -l)
     if [ $FAILED_LOGINS -gt 10 ]; then
         log_security_event "HIGH: $FAILED_LOGINS failed login attempts detected"
         # Send alert
@@ -764,7 +764,7 @@ check_suspicious_ips() {
 
 # Monitor SSL certificate expiration
 check_ssl_expiration() {
-    CERT_FILE="/etc/ssl/certs/pynomaly.crt"
+    CERT_FILE="/etc/ssl/certs/anomaly_detection.crt"
     if [ -f "$CERT_FILE" ]; then
         EXPIRY_DATE=$(openssl x509 -enddate -noout -in $CERT_FILE | cut -d= -f2)
         EXPIRY_EPOCH=$(date -d "$EXPIRY_DATE" +%s)
@@ -905,7 +905,7 @@ main
         hardening = report["security_hardening"]
 
         print("\n" + "=" * 60)
-        print("🔒 PYNOMALY SECURITY HARDENING SUMMARY")
+        print("🔒 anomaly_detection SECURITY HARDENING SUMMARY")
         print("=" * 60)
         print(f"Domain: {hardening['domain']}")
         print(f"SSL Enabled: {hardening['ssl_enabled']}")

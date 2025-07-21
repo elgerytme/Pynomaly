@@ -402,7 +402,7 @@ class SecurityTester:
         """Generate a comprehensive test report."""
         report = [
             "=" * 80,
-            "PYNOMALY SECURITY TEST REPORT",
+            "anomaly_detection SECURITY TEST REPORT",
             "=" * 80,
             f"Timestamp: {test_results['timestamp']}",
             f"Base URL: {test_results['base_url']}",
@@ -520,7 +520,7 @@ class SecurityTester:
 
 async def main():
     """Main test execution function."""
-    parser = argparse.ArgumentParser(description="Test Pynomaly security features")
+    parser = argparse.ArgumentParser(description="Test anomaly_detection security features")
     parser.add_argument(
         "--url",
         default="http://localhost:8000",

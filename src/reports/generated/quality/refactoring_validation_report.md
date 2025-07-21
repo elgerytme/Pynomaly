@@ -1,7 +1,7 @@
 # URL Refactoring Validation Report
 
 ## Overview
-Successfully refactored the Pynomaly web application URL scheme from `/web` to `/` (root).
+Successfully refactored the anomaly_detection web application URL scheme from `/web` to `/` (root).
 
 ## Changes Made
 
@@ -35,8 +35,8 @@ Old endpoints disabled: 4/4 correctly return 404
 ```
 
 ### Critical Files Validation
-- ✅ `src/pynomaly/presentation/web/app.py` - No `/web` references
-- ✅ `src/pynomaly/presentation/web/templates/base.html` - No `/web` references  
+- ✅ `src/anomaly_detection/presentation/web/app.py` - No `/web` references
+- ✅ `src/anomaly_detection/presentation/web/templates/base.html` - No `/web` references  
 - ✅ `config/web/nginx.conf` - Updated for root location
 - ✅ `scripts/run/run_web_app.py` - Updated URL display
 

@@ -1,4 +1,4 @@
-# Pynomaly Project Rules
+# anomaly_detection Project Rules
 
 ## Issue Management
 

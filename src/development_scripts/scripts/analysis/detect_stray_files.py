@@ -159,7 +159,7 @@ def get_expected_directory(filename: str, current_dir: str) -> str:
             "requirements-test.txt",
             "package.json",
             "package-lock.json",
-            "Pynomaly.code-workspace",
+            "anomaly_detection.code-workspace",
             ".gitignore",
             ".gitattributes",
             ".pre-commit-config.yaml",

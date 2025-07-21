@@ -134,8 +134,8 @@ jobs:
 
         def test_import_performance():
             start = time.time()
-            from pynomaly.domain.entities import Dataset, Detector
-            from pynomaly.application.services import DetectionService
+            from anomaly_detection.domain.entities import Dataset, Detector
+            from anomaly_detection.application.services import DetectionService
             end = time.time()
             import_time = end - start
             print(f"Import time: {import_time:.3f}s")
@@ -145,7 +145,7 @@ jobs:
             start = time.time()
             import pandas as pd
             import numpy as np
-            from pynomaly.domain.entities import Dataset
+            from anomaly_detection.domain.entities import Dataset
 
             # Create test data
             data = pd.DataFrame({

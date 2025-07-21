@@ -38,32 +38,32 @@ def analyze_coverage_quality(coverage_data):
     # Critical component analysis
     critical_components = {
         "DTOs (Data Transfer Objects)": [
-            "src/pynomaly/application/dto/automl_dto.py",
-            "src/pynomaly/application/dto/dataset_dto.py",
-            "src/pynomaly/application/dto/detector_dto.py",
-            "src/pynomaly/application/dto/experiment_dto.py",
-            "src/pynomaly/application/dto/explainability_dto.py",
-            "src/pynomaly/application/dto/result_dto.py",
+            "src/anomaly_detection/application/dto/automl_dto.py",
+            "src/anomaly_detection/application/dto/dataset_dto.py",
+            "src/anomaly_detection/application/dto/detector_dto.py",
+            "src/anomaly_detection/application/dto/experiment_dto.py",
+            "src/anomaly_detection/application/dto/explainability_dto.py",
+            "src/anomaly_detection/application/dto/result_dto.py",
         ],
         "Core Entities": [
-            "src/pynomaly/domain/entities/dataset.py",
-            "src/pynomaly/domain/entities/anomaly.py",
-            "src/pynomaly/domain/entities/detector.py",
+            "src/anomaly_detection/domain/entities/dataset.py",
+            "src/anomaly_detection/domain/entities/anomaly.py",
+            "src/anomaly_detection/domain/entities/detector.py",
         ],
         "Value Objects": [
-            "src/pynomaly/domain/value_objects/contamination_rate.py",
-            "src/pynomaly/domain/value_objects/confidence_interval.py",
-            "src/pynomaly/domain/value_objects/anomaly_score.py",
+            "src/anomaly_detection/domain/value_objects/contamination_rate.py",
+            "src/anomaly_detection/domain/value_objects/confidence_interval.py",
+            "src/anomaly_detection/domain/value_objects/anomaly_score.py",
         ],
         "Infrastructure": [
-            "src/pynomaly/infrastructure/repositories/in_memory_repositories.py",
-            "src/pynomaly/infrastructure/config/settings.py",
-            "src/pynomaly/infrastructure/config/container.py",
+            "src/anomaly_detection/infrastructure/repositories/in_memory_repositories.py",
+            "src/anomaly_detection/infrastructure/config/settings.py",
+            "src/anomaly_detection/infrastructure/config/container.py",
         ],
         "Protocols": [
-            "src/pynomaly/shared/protocols/detector_protocol.py",
-            "src/pynomaly/shared/protocols/repository_protocol.py",
-            "src/pynomaly/shared/protocols/data_loader_protocol.py",
+            "src/anomaly_detection/shared/protocols/detector_protocol.py",
+            "src/anomaly_detection/shared/protocols/repository_protocol.py",
+            "src/anomaly_detection/shared/protocols/data_loader_protocol.py",
         ],
     }
 
@@ -172,7 +172,7 @@ def validate_production_readiness(analysis):
                 "run",
                 "python",
                 "-c",
-                "from pynomaly.domain.entities import Dataset; from pynomaly.domain.value_objects import ContaminationRate; print('Core imports: OK')",
+                "from anomaly_detection.domain.entities import Dataset; from anomaly_detection.domain.value_objects import ContaminationRate; print('Core imports: OK')",
             ],
             capture_output=True,
             text=True,
@@ -306,7 +306,7 @@ def generate_deployment_summary():
 def main():
     """Main validation execution."""
 
-    print("🎯 PYNOMALY PRODUCTION DEPLOYMENT VALIDATION")
+    print("🎯 anomaly_detection PRODUCTION DEPLOYMENT VALIDATION")
     print("=" * 60)
     print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
@@ -328,7 +328,7 @@ def main():
     print("🎉 VALIDATION COMPLETE")
 
     if is_ready:
-        print("✅ Pynomaly is ready for production deployment!")
+        print("✅ anomaly_detection is ready for production deployment!")
         sys.exit(0)
     else:
         print("⚠️  Additional testing recommended before production deployment.")

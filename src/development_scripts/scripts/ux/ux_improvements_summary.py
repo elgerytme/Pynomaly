@@ -29,8 +29,8 @@ def create_ux_improvements_report():
                     "Detailed error information with recovery suggestions",
                 ],
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/ux_improvements.py (CLIErrorHandler)",
-                    "src/pynomaly/presentation/cli/detectors.py (enhanced error handling)",
+                    "src/anomaly_detection/presentation/cli/ux_improvements.py (CLIErrorHandler)",
+                    "src/anomaly_detection/presentation/cli/detectors.py (enhanced error handling)",
                 ],
                 "impact": "Users get helpful guidance instead of cryptic error messages",
             },
@@ -45,8 +45,8 @@ def create_ux_improvements_report():
                     "Dedicated examples command for complex workflows",
                 ],
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/detectors.py (enhanced help text)",
-                    "src/pynomaly/presentation/cli/ux_improvements.py (CLIHelpers.show_command_examples)",
+                    "src/anomaly_detection/presentation/cli/detectors.py (enhanced help text)",
+                    "src/anomaly_detection/presentation/cli/ux_improvements.py (CLIHelpers.show_command_examples)",
                 ],
                 "impact": "Users can quickly understand how to use commands effectively",
             },
@@ -61,9 +61,9 @@ def create_ux_improvements_report():
                     "Progress indicators for multi-step operations",
                 ],
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/detectors.py (interactive command)",
-                    "src/pynomaly/presentation/cli/app.py (setup command)",
-                    "src/pynomaly/presentation/cli/ux_improvements.py (interactive utilities)",
+                    "src/anomaly_detection/presentation/cli/detectors.py (interactive command)",
+                    "src/anomaly_detection/presentation/cli/app.py (setup command)",
+                    "src/anomaly_detection/presentation/cli/ux_improvements.py (interactive utilities)",
                 ],
                 "impact": "New users can get started quickly with guided assistance",
             },
@@ -78,8 +78,8 @@ def create_ux_improvements_report():
                     "Export capabilities for programmatic use",
                 ],
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/detectors.py (format options)",
-                    "src/pynomaly/presentation/cli/ux_improvements.py (CLIHelpers.display_enhanced_table)",
+                    "src/anomaly_detection/presentation/cli/detectors.py (format options)",
+                    "src/anomaly_detection/presentation/cli/ux_improvements.py (CLIHelpers.display_enhanced_table)",
                 ],
                 "impact": "Users can choose the best format for their workflow",
             },
@@ -94,7 +94,7 @@ def create_ux_improvements_report():
                     "Standardized rich help panel organization",
                 ],
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/detectors.py (standardized patterns)"
+                    "src/anomaly_detection/presentation/cli/detectors.py (standardized patterns)"
                 ],
                 "impact": "Users can predict command behavior and options",
             },
@@ -109,9 +109,9 @@ def create_ux_improvements_report():
                     "Contextual help and tips",
                 ],
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/app.py (setup wizard)",
-                    "src/pynomaly/presentation/cli/detectors.py (examples and guidance)",
-                    "src/pynomaly/presentation/cli/ux_improvements.py (setup utilities)",
+                    "src/anomaly_detection/presentation/cli/app.py (setup wizard)",
+                    "src/anomaly_detection/presentation/cli/detectors.py (examples and guidance)",
+                    "src/anomaly_detection/presentation/cli/ux_improvements.py (setup utilities)",
                 ],
                 "impact": "Users can discover features and learn best practices",
             },

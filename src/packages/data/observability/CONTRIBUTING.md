@@ -1,6 +1,6 @@
 # Contributing to Data Observability Package
 
-Thank you for your interest in contributing to the Data Observability package! This package provides comprehensive monitoring, tracking, and quality assurance capabilities for data assets within the Pynomaly ecosystem.
+Thank you for your interest in contributing to the Data Observability package! This package provides comprehensive monitoring, tracking, and quality assurance capabilities for data assets within the anomaly_detection ecosystem.
 
 ## Table of Contents
 
@@ -847,7 +847,7 @@ async def track_data_transformation(
 2. **Performance Testing**: Validate performance with realistic data volumes
 3. **Documentation**: Update observability guides and API documentation
 4. **Data Privacy**: Review for any privacy or security implications
-5. **Integration Testing**: Test with other Pynomaly components
+5. **Integration Testing**: Test with other anomaly_detection components
 
 ### Pull Request Template
 
@@ -979,4 +979,4 @@ class SecureObservabilityService:
 3. **Performance Issues**: Include profiling data and dataset characteristics
 4. **Integration Questions**: Describe the integration scenario and requirements
 
-Thank you for contributing to the Data Observability package! Your contributions help improve data visibility and quality for the entire Pynomaly community.
+Thank you for contributing to the Data Observability package! Your contributions help improve data visibility and quality for the entire anomaly_detection community.

@@ -12,7 +12,7 @@ Total violations: 23479
   dataset: 2991 occurrences
   detection: 2062 occurrences
   metrics: 1933 occurrences
-  pynomaly: 1915 occurrences
+  anomaly_detection: 1915 occurrences
   model: 1903 occurrences
   anomaly: 1775 occurrences
   alert: 1278 occurrences

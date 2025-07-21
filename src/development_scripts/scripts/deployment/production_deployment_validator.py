@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Deployment Validator for Pynomaly v1.0.0
+Production Deployment Validator for anomaly_detection v1.0.0
 
 This script simulates and validates the production deployment process,
 checking all prerequisites and system readiness before actual deployment.
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProductionDeploymentValidator:
-    """Validates production deployment readiness for Pynomaly."""
+    """Validates production deployment readiness for anomaly_detection."""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
@@ -57,9 +57,9 @@ class ProductionDeploymentValidator:
         # Check project structure
         required_files = [
             "pyproject.toml",
-            "src/pynomaly/__init__.py",
+            "src/anomaly_detection/__init__.py",
             "deploy/config/deployment.yaml",
-            "deploy/helm/pynomaly/Chart.yaml",
+            "deploy/helm/anomaly_detection/Chart.yaml",
             "scripts/deployment/deploy.sh",
         ]
 
@@ -146,7 +146,7 @@ class ProductionDeploymentValidator:
 
         # Check alerting system
         alerting_path = (
-            self.project_root / "src" / "pynomaly" / "infrastructure" / "alerting"
+            self.project_root / "src" / "anomaly_detection" / "infrastructure" / "alerting"
         )
         if alerting_path.exists():
             self.log_validation(
@@ -198,8 +198,8 @@ class ProductionDeploymentValidator:
 
         # Check health endpoint implementations
         health_files = [
-            "src/pynomaly/presentation/api/endpoints/health.py",
-            "src/pynomaly/presentation/web_api/health.py",
+            "src/anomaly_detection/presentation/api/endpoints/health.py",
+            "src/anomaly_detection/presentation/web_api/health.py",
         ]
 
         health_endpoints_found = False
@@ -421,7 +421,7 @@ class ProductionDeploymentValidator:
 
     def run_validation(self) -> tuple[bool, dict[str, Any]]:
         """Run complete production deployment validation."""
-        logger.info("🎯 Starting production deployment validation for Pynomaly v1.0.0")
+        logger.info("🎯 Starting production deployment validation for anomaly_detection v1.0.0")
         logger.info(f"📋 Deployment ID: {self.deployment_id}")
 
         validation_steps = [
@@ -459,7 +459,7 @@ def main():
     project_root = Path(__file__).parent.parent.parent
     validator = ProductionDeploymentValidator(project_root)
 
-    logger.info("🚀 Pynomaly Production Deployment Validation")
+    logger.info("🚀 anomaly_detection Production Deployment Validation")
     logger.info("=" * 60)
 
     success, report = validator.run_validation()

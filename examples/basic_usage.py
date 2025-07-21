@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Basic Pynomaly Usage Example
+Basic anomaly_detection Usage Example
 
-This example demonstrates the fundamental features of Pynomaly:
+This example demonstrates the fundamental features of anomaly_detection:
 - Loading and preparing data
 - Initializing anomaly detectors
 - Fitting models and detecting anomalies
@@ -16,9 +16,9 @@ import seaborn as sns
 from sklearn.datasets import make_blobs
 from typing import Tuple, Optional
 
-# Note: These imports would be actual Pynomaly imports in a real implementation
-# from pynomaly import AnomalyDetector
-# from pynomaly.visualization import plot_anomalies
+# Note: These imports would be actual anomaly_detection imports in a real implementation
+# from anomaly_detection import AnomalyDetector
+# from anomaly_detection.visualization import plot_anomalies
 
 
 class AnomalyDetector:
@@ -221,7 +221,7 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
 
 def main():
     """Main example execution."""
-    print("🔍 Pynomaly Basic Usage Example")
+    print("🔍 anomaly_detection Basic Usage Example")
     print("=" * 50)
     
     # 1. Create sample data

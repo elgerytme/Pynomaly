@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Pynomaly Production Validation Script
+# anomaly_detection Production Validation Script
 # This script validates the production deployment
 
 set -euo pipefail
 
 # Configuration
-NAMESPACE="pynomaly-production"
+NAMESPACE="anomaly_detection-production"
 API_ENDPOINT="http://localhost:8000"
 PROMETHEUS_ENDPOINT="http://localhost:9090"
 GRAFANA_ENDPOINT="http://localhost:3000"
@@ -92,7 +92,7 @@ check_pods() {
 
 # Check services are available
 check_services() {
-    local services=("pynomaly-service" "postgres-service" "redis-service" "mongodb-service")
+    local services=("anomaly_detection-service" "postgres-service" "redis-service" "mongodb-service")
 
     for service in "${services[@]}"; do
         run_check "Service $service exists" "kubectl get service $service -n $NAMESPACE"
@@ -101,7 +101,7 @@ check_services() {
 
 # Check persistent volumes
 check_persistent_volumes() {
-    local pvcs=("pynomaly-app-storage" "postgres-storage" "redis-storage" "mongodb-storage")
+    local pvcs=("anomaly_detection-app-storage" "postgres-storage" "redis-storage" "mongodb-storage")
 
     for pvc in "${pvcs[@]}"; do
         run_check "PVC $pvc is bound" "kubectl get pvc $pvc -n $NAMESPACE -o jsonpath='{.status.phase}' | grep -q 'Bound'"
@@ -110,18 +110,18 @@ check_persistent_volumes() {
 
 # Check ingress
 check_ingress() {
-    run_check "Ingress exists" "kubectl get ingress pynomaly-ingress -n $NAMESPACE"
+    run_check "Ingress exists" "kubectl get ingress anomaly_detection-ingress -n $NAMESPACE"
 }
 
 # Check horizontal pod autoscaler
 check_hpa() {
-    run_check "HPA is configured" "kubectl get hpa pynomaly-app-hpa -n $NAMESPACE"
+    run_check "HPA is configured" "kubectl get hpa anomaly_detection-app-hpa -n $NAMESPACE"
 }
 
 # Check application health endpoint
 check_app_health() {
     # Port forward to access the service
-    kubectl port-forward -n $NAMESPACE service/pynomaly-service 8000:8000 &
+    kubectl port-forward -n $NAMESPACE service/anomaly_detection-service 8000:8000 &
     local PF_PID=$!
 
     # Wait for port forward to be ready
@@ -263,7 +263,7 @@ check_security() {
     log "Checking security configuration..."
 
     # Check if secrets exist
-    local secrets=("pynomaly-secrets" "pynomaly-tls")
+    local secrets=("anomaly_detection-secrets" "anomaly_detection-tls")
     for secret in "${secrets[@]}"; do
         run_check "Secret $secret exists" "kubectl get secret $secret -n $NAMESPACE"
     done
@@ -301,7 +301,7 @@ run_performance_tests() {
     log "Running basic performance tests..."
 
     # Port forward to access the service
-    kubectl port-forward -n $NAMESPACE service/pynomaly-service 8000:8000 &
+    kubectl port-forward -n $NAMESPACE service/anomaly_detection-service 8000:8000 &
     local PF_PID=$!
     sleep 3
 
@@ -325,7 +325,7 @@ generate_report() {
     local REPORT_FILE="production_validation_report_$(date +%Y%m%d_%H%M%S).md"
 
     cat > "$REPORT_FILE" << EOF
-# Pynomaly Production Validation Report
+# anomaly_detection Production Validation Report
 
 **Date:** $(date)
 **Namespace:** $NAMESPACE
@@ -366,7 +366,7 @@ EOF
 
 # Main execution
 main() {
-    log "Starting Pynomaly Production Validation..."
+    log "Starting anomaly_detection Production Validation..."
 
     # Infrastructure checks
     check_kubectl

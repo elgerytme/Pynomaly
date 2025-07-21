@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive Test Runner for Pynomaly CI/CD Pipeline.
+Comprehensive Test Runner for anomaly_detection CI/CD Pipeline.
 This script provides unified test execution with intelligent test selection and reporting.
 """
 
@@ -50,7 +50,7 @@ class TestResult:
 
 
 class TestRunner:
-    """Comprehensive test runner for Pynomaly."""
+    """Comprehensive test runner for anomaly_detection."""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
@@ -96,7 +96,7 @@ class TestRunner:
 
         # Test environment setup
         self.env_vars = {
-            "PYNOMALY_ENVIRONMENT": "test",
+            "ANOMALY_DETECTION_ENVIRONMENT": "test",
             "PYTHONPATH": str(self.project_root / "src"),
             "LOG_LEVEL": "DEBUG",
             "DATABASE_URL": "sqlite:///test.db",
@@ -201,7 +201,7 @@ class TestRunner:
         # Add coverage if requested
         if coverage:
             cmd.extend([
-                f"--cov={self.project_root / 'src' / 'pynomaly'}",
+                f"--cov={self.project_root / 'src' / 'anomaly_detection'}",
                 "--cov-report=xml",
                 "--cov-report=html",
                 "--cov-report=term-missing",
@@ -361,7 +361,7 @@ class TestRunner:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Pynomaly Test Report</title>
+            <title>anomaly_detection Test Report</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; }}
                 .header {{ background-color: #f5f5f5; padding: 20px; border-radius: 5px; }}
@@ -377,7 +377,7 @@ class TestRunner:
         </head>
         <body>
             <div class="header">
-                <h1>🧪 Pynomaly Test Report</h1>
+                <h1>🧪 anomaly_detection Test Report</h1>
                 <p>Generated: {json_report['timestamp']}</p>
             </div>
 
@@ -433,7 +433,7 @@ class TestRunner:
 
     def _generate_markdown_report(self, json_report: dict) -> str:
         """Generate markdown test report."""
-        md = f"""# 🧪 Pynomaly Test Report
+        md = f"""# 🧪 anomaly_detection Test Report
 
 **Generated:** {json_report['timestamp']}
 
@@ -476,7 +476,7 @@ class TestRunner:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Pynomaly Test Runner")
+    parser = argparse.ArgumentParser(description="anomaly_detection Test Runner")
     parser.add_argument(
         "--suites",
         nargs="+",

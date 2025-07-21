@@ -1,9 +1,9 @@
-# Pynomaly Baseline Test Suite Summary
+# anomaly_detection Baseline Test Suite Summary
 
 ## Environment Setup
 
 - **Virtual Environment**: Created fresh virtual environment at `venv/`
-- **Installation**: Installed Pynomaly with all optional extras using `pip install -e '.[all]'`
+- **Installation**: Installed anomaly_detection with all optional extras using `pip install -e '.[all]'`
 - **Python Version**: 3.12.3
 - **Test Framework**: pytest 8.4.1 with pytest-cov 6.2.1
 
@@ -17,7 +17,7 @@
   3. Missing business entities and continuous learning classes
 
 ### Successful Baseline Run
-- **Command**: `pytest tests/domain/test_entities.py --cov=pynomaly --cov-report=term --cov-report=xml -q`
+- **Command**: `pytest tests/domain/test_entities.py --cov=anomaly_detection --cov-report=term --cov-report=xml -q`
 - **Result**: ✅ **11 tests passed**
 - **Exit Code**: 0
 - **Execution Time**: 46.51 seconds
@@ -38,9 +38,9 @@
 ### Known Issues in Codebase
 1. **Missing Dependencies**: email-validator, hypothesis
 2. **Import Errors**: Several classes referenced in tests but not implemented:
-   - `ContinuousLearning` from `pynomaly.domain.entities.continuous_learning`
-   - `CostOptimization` from `pynomaly.domain.entities.cost_optimization`
-   - `BusinessRuleViolation` from `pynomaly.domain.exceptions.base`
+   - `ContinuousLearning` from `anomaly_detection.domain.entities.continuous_learning`
+   - `CostOptimization` from `anomaly_detection.domain.entities.cost_optimization`
+   - `BusinessRuleViolation` from `anomaly_detection.domain.exceptions.base`
 3. **API Dependencies**: `get_container_simple` function not defined
 4. **Deprecation Warnings**: 37 warnings mostly related to:
    - Pydantic v2 migration issues

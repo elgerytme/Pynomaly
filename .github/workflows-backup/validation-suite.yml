@@ -132,7 +132,7 @@ jobs:
       run: |
         echo "::group::Testing Installation"
         pip install dist/*.whl
-        python -c "import pynomaly; print('✅ Package installation successful')"
+        python -c "import anomaly_detection; print('✅ Package installation successful')"
         echo "::endgroup::"
       continue-on-error: true
 
@@ -201,7 +201,7 @@ jobs:
       run: |
         echo "::group::Unit Tests"
         hatch run test:run tests/domain/ tests/application/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=term \
           --cov-report=html --cov-fail-under=${{ env.COVERAGE_THRESHOLD }}
         echo "::endgroup::"
       continue-on-error: true
@@ -212,7 +212,7 @@ jobs:
       run: |
         echo "::group::Integration Tests"
         hatch run test:run tests/infrastructure/ tests/presentation/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=term \
           --cov-append
         echo "::endgroup::"
       continue-on-error: true
@@ -448,7 +448,7 @@ jobs:
         export CI=true
         
         # Run validation with rich output and GitHub comment
-        hatch env run dev:python -m pynomaly.presentation.cli.app validate run \
+        hatch env run dev:python -m anomaly_detection.presentation.cli.app validate run \
           --github-comment \
           --format rich \
           --save enhanced-validation-report.json || echo "validation_failed=true" >> $GITHUB_OUTPUT
@@ -749,7 +749,7 @@ jobs:
       run: |
         echo "::group::Testing Installation"
         pip install dist/*.whl
-        python -c "import pynomaly; print('✅ Package installation successful')"
+        python -c "import anomaly_detection; print('✅ Package installation successful')"
         echo "::endgroup::"
       continue-on-error: true
 
@@ -818,7 +818,7 @@ jobs:
       run: |
         echo "::group::Unit Tests"
         hatch run test:run tests/domain/ tests/application/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=term \
           --cov-report=html --cov-fail-under=${{ env.COVERAGE_THRESHOLD }}
         echo "::endgroup::"
       continue-on-error: true
@@ -829,7 +829,7 @@ jobs:
       run: |
         echo "::group::Integration Tests"
         hatch run test:run tests/infrastructure/ tests/presentation/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov=src/anomaly_detection --cov-report=xml --cov-report=term \
           --cov-append
         echo "::endgroup::"
       continue-on-error: true

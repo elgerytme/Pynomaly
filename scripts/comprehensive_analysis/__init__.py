@@ -13,7 +13,7 @@ code quality assessment similar to advanced compilers like Rust, Haskell, etc.
 """
 
 __version__ = "0.1.0"
-__author__ = "Pynomaly Development Team"
+__author__ = "anomaly_detection Development Team"
 
 from .orchestrator import AnalysisOrchestrator
 from .config.manager import ConfigManager, AnalysisConfig

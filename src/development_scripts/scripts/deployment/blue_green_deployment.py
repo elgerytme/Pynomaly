@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Blue/Green Deployment Strategy for Pynomaly
+Blue/Green Deployment Strategy for anomaly_detection
 Implements zero-downtime production deployments with automatic rollback
 """
 
@@ -43,13 +43,13 @@ class DeploymentConfig:
     """Blue/Green deployment configuration"""
 
     # Environment settings
-    cluster_name: str = "pynomaly-production"
-    namespace: str = "pynomaly-prod"
-    app_name: str = "pynomaly-api"
+    cluster_name: str = "anomaly_detection-production"
+    namespace: str = "anomaly_detection-prod"
+    app_name: str = "anomaly_detection-api"
 
     # Image settings
-    image_registry: str = "pynomaly.azurecr.io"
-    image_name: str = "pynomaly"
+    image_registry: str = "anomaly_detection.azurecr.io"
+    image_name: str = "anomaly_detection"
     new_image_tag: str = "latest"
 
     # Deployment settings
@@ -684,10 +684,10 @@ async def main():
     parser.add_argument("--config", help="Path to deployment configuration file")
     parser.add_argument("--image-tag", required=True, help="Image tag to deploy")
     parser.add_argument(
-        "--cluster", default="pynomaly-production", help="Kubernetes cluster name"
+        "--cluster", default="anomaly_detection-production", help="Kubernetes cluster name"
     )
     parser.add_argument(
-        "--namespace", default="pynomaly-prod", help="Kubernetes namespace"
+        "--namespace", default="anomaly_detection-prod", help="Kubernetes namespace"
     )
     parser.add_argument("--dry-run", action="store_true", help="Perform dry run")
 

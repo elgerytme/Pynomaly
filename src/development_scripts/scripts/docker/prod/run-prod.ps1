@@ -4,7 +4,7 @@
 param(
     [string]$Port = "80",
     [int]$Replicas = 1,
-    [string]$Image = "pynomaly:latest",
+    [string]$Image = "anomaly_detection:latest",
     [switch]$SSL,
     [switch]$Monitoring,
     [switch]$Logging,
@@ -19,7 +19,7 @@ function Show-Usage {
     Write-Host "Options:"
     Write-Host "  -Port PORT         Host port to bind (default: 80)"
     Write-Host "  -Replicas NUM      Number of replicas (default: 1)"
-    Write-Host "  -Image IMAGE       Docker image name (default: pynomaly:latest)"
+    Write-Host "  -Image IMAGE       Docker image name (default: anomaly_detection:latest)"
     Write-Host "  -SSL               Enable SSL/TLS (requires certificates)"
     Write-Host "  -Monitoring        Include monitoring stack"
     Write-Host "  -Logging           Include centralized logging"
@@ -36,8 +36,8 @@ if ($Help) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ProjectRoot = Resolve-Path "$ScriptDir\..\..\..\"
-$NetworkName = "pynomaly-prod"
-$ContainerName = "pynomaly-prod"
+$NetworkName = "anomaly_detection-prod"
+$ContainerName = "anomaly_detection-prod"
 $EnvFile = Join-Path $ProjectRoot ".env.prod"
 
 function Stop-ProductionContainers {
@@ -45,12 +45,12 @@ function Stop-ProductionContainers {
     for ($i = 1; $i -le $Replicas; $i++) {
         docker rm -f "${ContainerName}-${i}" 2>$null
     }
-    docker rm -f "pynomaly-nginx-prod" 2>$null
-    docker rm -f "pynomaly-prometheus-prod" 2>$null
-    docker rm -f "pynomaly-grafana-prod" 2>$null
-    docker rm -f "pynomaly-elasticsearch-prod" 2>$null
-    docker rm -f "pynomaly-logstash-prod" 2>$null
-    docker rm -f "pynomaly-kibana-prod" 2>$null
+    docker rm -f "anomaly_detection-nginx-prod" 2>$null
+    docker rm -f "anomaly_detection-prometheus-prod" 2>$null
+    docker rm -f "anomaly_detection-grafana-prod" 2>$null
+    docker rm -f "anomaly_detection-elasticsearch-prod" 2>$null
+    docker rm -f "anomaly_detection-logstash-prod" 2>$null
+    docker rm -f "anomaly_detection-kibana-prod" 2>$null
     Write-Host "All production containers stopped."
     exit 0
 }
@@ -80,7 +80,7 @@ if ($Monitoring) {
 
     # Start Prometheus
     docker run -d `
-        --name "pynomaly-prometheus-prod" `
+        --name "anomaly_detection-prometheus-prod" `
         --network $NetworkName `
         --restart unless-stopped `
         -p 9090:9090 `
@@ -96,7 +96,7 @@ if ($Monitoring) {
 
     # Start Grafana
     docker run -d `
-        --name "pynomaly-grafana-prod" `
+        --name "anomaly_detection-grafana-prod" `
         --network $NetworkName `
         --restart unless-stopped `
         -p 3000:3000 `
@@ -112,7 +112,7 @@ if ($Logging) {
 
     # Start Elasticsearch
     docker run -d `
-        --name "pynomaly-elasticsearch-prod" `
+        --name "anomaly_detection-elasticsearch-prod" `
         --network $NetworkName `
         --restart unless-stopped `
         -p 9200:9200 `
@@ -123,7 +123,7 @@ if ($Logging) {
 
     # Start Logstash
     docker run -d `
-        --name "pynomaly-logstash-prod" `
+        --name "anomaly_detection-logstash-prod" `
         --network $NetworkName `
         --restart unless-stopped `
         -p 5044:5044 `
@@ -132,11 +132,11 @@ if ($Logging) {
 
     # Start Kibana
     docker run -d `
-        --name "pynomaly-kibana-prod" `
+        --name "anomaly_detection-kibana-prod" `
         --network $NetworkName `
         --restart unless-stopped `
         -p 5601:5601 `
-        -e ELASTICSEARCH_HOSTS=http://pynomaly-elasticsearch-prod:9200 `
+        -e ELASTICSEARCH_HOSTS=http://anomaly_detection-elasticsearch-prod:9200 `
         kibana:8.11.0
 }
 
@@ -149,7 +149,7 @@ if ($SSL) {
 
 $NginxArgs = @(
     "run", "-d",
-    "--name", "pynomaly-nginx-prod",
+    "--name", "anomaly_detection-nginx-prod",
     "--network", $NetworkName,
     "--restart", "unless-stopped",
     "-p", "${Port}:80",
@@ -202,7 +202,7 @@ for ($i = 1; $i -le $Replicas; $i++) {
         "--health-timeout", "10s",
         "--health-retries", "3",
         $Image,
-        "poetry", "run", "gunicorn", "pynomaly.presentation.api:app",
+        "poetry", "run", "gunicorn", "anomaly_detection.presentation.api:app",
         "--bind", "0.0.0.0:8000",
         "--workers", "4",
         "--worker-class", "uvicorn.workers.UvicornWorker",

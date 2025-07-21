@@ -89,11 +89,11 @@ jobs:
           echo "Running pre-release quality checks..."
           ruff check .
           black --check .
-          mypy src/packages/data/anomaly_detection/src/monorepo_detection
+          mypy src/packages/data/anomaly_detection/src/anomaly_detection
 
       - name: Run tests
         run: |
-          pytest tests/ -v --cov=monorepo_detection --cov-fail-under=80
+          pytest tests/ -v --cov=anomaly_detection --cov-fail-under=80
 
   build-artifacts:
     runs-on: ubuntu-latest
@@ -214,15 +214,15 @@ jobs:
           
           ## Documentation
           
-          - [API Documentation](https://pynomaly.github.io/pynomaly/api-docs/)
-          - [User Guide](https://pynomaly.github.io/pynomaly/)
-          - [Deployment Guide](https://pynomaly.github.io/pynomaly/deployment/)
+          - [API Documentation](https://anomaly_detection.github.io/anomaly_detection/api-docs/)
+          - [User Guide](https://anomaly_detection.github.io/anomaly_detection/)
+          - [Deployment Guide](https://anomaly_detection.github.io/anomaly_detection/deployment/)
           
           ## Support
           
           - [GitHub Issues](https://github.com/${{ github.repository }}/issues)
-          - [Documentation](https://docs.pynomaly.com)
-          - Email: support@pynomaly.com
+          - [Documentation](https://docs.anomaly_detection.com)
+          - Email: support@anomaly_detection.com
           EOF
 
       - name: Upload documentation artifacts
@@ -265,7 +265,7 @@ jobs:
             dist/*
             release-docs/docs/api/generated/openapi.json
             release-docs/docs/api/generated/openapi.yaml
-            release-docs/docs/api/generated/pynomaly_api.postman_collection.json
+            release-docs/docs/api/generated/anomaly_detection_api.postman_collection.json
 
   publish-pypi:
     runs-on: ubuntu-latest
@@ -337,7 +337,7 @@ jobs:
           - [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.validate-release.outputs.version }})
           - [PyPI Package](https://pypi.org/project/monorepo/)
           - [Docker Image](https://ghcr.io/${{ github.repository }}:${{ needs.validate-release.outputs.version }})
-          - [Documentation](https://pynomaly.github.io/pynomaly/)
+          - [Documentation](https://anomaly_detection.github.io/anomaly_detection/)
           EOF
           
           echo "Release report generated:"
@@ -369,7 +369,7 @@ jobs:
             echo "🎉 Release $VERSION completed successfully!"
             echo "📦 Package: https://pypi.org/project/monorepo/"
             echo "🐳 Docker: ghcr.io/${{ github.repository }}:$VERSION"
-            echo "📖 Docs: https://pynomaly.github.io/pynomaly/"
+            echo "📖 Docs: https://anomaly_detection.github.io/anomaly_detection/"
             echo "🔗 Release: https://github.com/${{ github.repository }}/releases/tag/$VERSION"
           else
             echo "❌ Release $VERSION failed!"

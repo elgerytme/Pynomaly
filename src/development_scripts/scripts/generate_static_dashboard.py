@@ -2,7 +2,7 @@
 """
 Generate static dashboard for GitHub Pages deployment.
 
-This script creates a static version of the Pynomaly dashboard that can be
+This script creates a static version of the anomaly_detection dashboard that can be
 deployed to GitHub Pages without requiring a backend server.
 """
 
@@ -132,7 +132,7 @@ def create_static_html() -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pynomaly - Real-time Anomaly Detection Dashboard</title>
+    <title>anomaly_detection - Real-time Anomaly Detection Dashboard</title>
     <meta name="description" content="Interactive dashboard for monitoring anomaly detection in real-time">
 
     <!-- Tailwind CSS -->
@@ -170,7 +170,7 @@ def create_static_html() -> str:
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-6">
                 <div class="flex items-center">
-                    <h1 class="text-3xl font-bold">🔍 Pynomaly</h1>
+                    <h1 class="text-3xl font-bold">🔍 anomaly_detection</h1>
                     <span class="ml-4 text-lg opacity-90">Anomaly Detection Dashboard</span>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -372,8 +372,8 @@ def create_static_html() -> str:
     <footer class="bg-white border-t mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center text-gray-500">
-                <p>Pynomaly - Advanced Anomaly Detection Platform</p>
-                <p class="mt-2">🔗 <a href="https://github.com/pynomaly/pynomaly" class="text-blue-600 hover:text-blue-800">GitHub</a> |
+                <p>anomaly_detection - Advanced Anomaly Detection Platform</p>
+                <p class="mt-2">🔗 <a href="https://github.com/anomaly_detection/anomaly_detection" class="text-blue-600 hover:text-blue-800">GitHub</a> |
                    📖 <a href="./docs/api/" class="text-blue-600 hover:text-blue-800">API Documentation</a> |
                    🚀 <a href="./examples/" class="text-blue-600 hover:text-blue-800">Examples</a></p>
             </div>
@@ -529,7 +529,7 @@ def create_github_pages_index() -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pynomaly - Advanced Anomaly Detection Platform</title>
+    <title>anomaly_detection - Advanced Anomaly Detection Platform</title>
     <meta name="description" content="Production-ready anomaly detection platform with real-time monitoring, ML governance, and advanced analytics">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -550,7 +550,7 @@ def create_github_pages_index() -> str:
     <header class="gradient-bg text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div class="text-center">
-                <h1 class="text-5xl font-bold mb-6">🔍 Pynomaly</h1>
+                <h1 class="text-5xl font-bold mb-6">🔍 anomaly_detection</h1>
                 <p class="text-xl mb-8 opacity-90">Advanced Anomaly Detection Platform</p>
                 <p class="text-lg mb-12 max-w-3xl mx-auto opacity-80">
                     Production-ready anomaly detection with real-time streaming, ML governance,
@@ -641,7 +641,7 @@ def create_github_pages_index() -> str:
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">Quick Start</h2>
-                <p class="text-lg text-gray-600">Get started with Pynomaly in minutes</p>
+                <p class="text-lg text-gray-600">Get started with anomaly_detection in minutes</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -649,10 +649,10 @@ def create_github_pages_index() -> str:
                 <div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">📦 Installation</h3>
                     <div class="bg-gray-900 rounded-lg p-4 text-green-400 font-mono text-sm">
-                        <div># Install Pynomaly</div>
-                        <div>pip install pynomaly</div>
+                        <div># Install anomaly_detection</div>
+                        <div>pip install anomaly_detection</div>
                         <div><br># Start the web UI</div>
-                        <div>pynomaly server start</div>
+                        <div>anomaly_detection server start</div>
                         <div><br># Open dashboard</div>
                         <div>open http://localhost:8000</div>
                     </div>
@@ -662,7 +662,7 @@ def create_github_pages_index() -> str:
                 <div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">🐍 Python API</h3>
                     <div class="bg-gray-900 rounded-lg p-4 text-green-400 font-mono text-sm">
-                        <div>from pynomaly import AnomalyDetector</div>
+                        <div>from anomaly_detection import AnomalyDetector</div>
                         <div><br># Create detector</div>
                         <div>detector = AnomalyDetector()</div>
                         <div><br># Detect anomalies</div>
@@ -714,15 +714,15 @@ def create_github_pages_index() -> str:
     <footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <h3 class="text-xl font-bold mb-4">🔍 Pynomaly</h3>
+                <h3 class="text-xl font-bold mb-4">🔍 anomaly_detection</h3>
                 <p class="text-gray-400 mb-6">Advanced Anomaly Detection Platform</p>
                 <div class="flex justify-center space-x-6">
-                    <a href="https://github.com/pynomaly/pynomaly" class="text-gray-400 hover:text-white transition-colors">GitHub</a>
+                    <a href="https://github.com/anomaly_detection/anomaly_detection" class="text-gray-400 hover:text-white transition-colors">GitHub</a>
                     <a href="./docs/api/" class="text-gray-400 hover:text-white transition-colors">Documentation</a>
                     <a href="./examples/" class="text-gray-400 hover:text-white transition-colors">Examples</a>
                 </div>
                 <div class="mt-8 text-sm text-gray-500">
-                    <p>&copy; 2024 Pynomaly. Built with ❤️ for production anomaly detection.</p>
+                    <p>&copy; 2024 anomaly_detection. Built with ❤️ for production anomaly detection.</p>
                 </div>
             </div>
         </div>
@@ -765,7 +765,7 @@ def main():
         f.write(index_html)
 
     # Copy static assets if they exist
-    static_src = Path("src/pynomaly/presentation/web/static")
+    static_src = Path("src/anomaly_detection/presentation/web/static")
     if static_src.exists():
         print("📁 Copying static assets...")
         static_dest = output_dir / "static"

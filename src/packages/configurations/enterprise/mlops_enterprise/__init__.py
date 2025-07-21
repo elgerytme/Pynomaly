@@ -209,7 +209,7 @@ def create_production_config(data_path: Path) -> EnterpriseMLOpsConfiguration:
             "enable_rbac": True,
             "enable_audit": True,
             "saml": {
-                "entity_id": "pynomaly-mlops",
+                "entity_id": "anomaly_detection-mlops",
                 "sso_url": "https://sso.company.com/saml",
             }
         },

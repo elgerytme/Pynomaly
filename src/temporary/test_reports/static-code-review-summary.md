@@ -6,7 +6,7 @@
 
 ## Summary
 
-Completed comprehensive static code and asset review of the Pynomaly web application including linting, formatting, bundle analysis, and PWA verification.
+Completed comprehensive static code and asset review of the anomaly_detection web application including linting, formatting, bundle analysis, and PWA verification.
 
 ---
 
@@ -161,7 +161,7 @@ Completed comprehensive static code and asset review of the Pynomaly web applica
 **Status:** COMPLETED - Full PWA audit
 
 ### Manifest.json Analysis
-- **File:** `src/pynomaly/presentation/web/static/manifest.json`
+- **File:** `src/anomaly_detection/presentation/web/static/manifest.json`
 - **Status:** ✅ Well-configured
 - **Features:**
   - Complete icon set (72x72 to 512x512)
@@ -172,7 +172,7 @@ Completed comprehensive static code and asset review of the Pynomaly web applica
   - Protocol handlers set up
 
 ### Service Worker Analysis
-- **File:** `src/pynomaly/presentation/web/static/sw.js`
+- **File:** `src/anomaly_detection/presentation/web/static/sw.js`
 - **Status:** ✅ Comprehensive implementation
 - **Features:**
   - Multi-layer caching strategy
@@ -183,7 +183,7 @@ Completed comprehensive static code and asset review of the Pynomaly web applica
   - Comprehensive message handling
 
 ### Icon Verification
-- **Location:** `src/pynomaly/presentation/web/static/img/`
+- **Location:** `src/anomaly_detection/presentation/web/static/img/`
 - **Status:** ✅ Complete icon set available
 - **Sizes:** 72, 96, 128, 144, 152, 192, 384, 512 pixels
 - **Formats:** PNG, SVG

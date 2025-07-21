@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Pynomaly Production Deployment Validation Script
+# anomaly_detection Production Deployment Validation Script
 # =============================================================================
 
 set -euo pipefail
@@ -12,7 +12,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # Default values
 ENVIRONMENT="${ENVIRONMENT:-production}"
-NAMESPACE="${NAMESPACE:-pynomaly-production}"
+NAMESPACE="${NAMESPACE:-anomaly_detection-production}"
 TIMEOUT="${TIMEOUT:-300}"
 VERBOSE="${VERBOSE:-false}"
 
@@ -88,17 +88,17 @@ validate_deployment_status() {
 
     # Check deployment exists and is ready
     local deployment_status
-    deployment_status=$(kubectl get deployment pynomaly-api -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Available")].status}' 2>/dev/null || echo "Unknown")
+    deployment_status=$(kubectl get deployment anomaly_detection-api -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Available")].status}' 2>/dev/null || echo "Unknown")
 
     if [[ "$deployment_status" != "True" ]]; then
-        error "Deployment pynomaly-api is not available. Status: $deployment_status"
+        error "Deployment anomaly_detection-api is not available. Status: $deployment_status"
     fi
 
     # Check replica count
     local desired_replicas
     local ready_replicas
-    desired_replicas=$(kubectl get deployment pynomaly-api -n "$NAMESPACE" -o jsonpath='{.spec.replicas}')
-    ready_replicas=$(kubectl get deployment pynomaly-api -n "$NAMESPACE" -o jsonpath='{.status.readyReplicas}')
+    desired_replicas=$(kubectl get deployment anomaly_detection-api -n "$NAMESPACE" -o jsonpath='{.spec.replicas}')
+    ready_replicas=$(kubectl get deployment anomaly_detection-api -n "$NAMESPACE" -o jsonpath='{.status.readyReplicas}')
 
     if [[ "$ready_replicas" != "$desired_replicas" ]]; then
         error "Not all replicas are ready. Desired: $desired_replicas, Ready: $ready_replicas"
@@ -123,18 +123,18 @@ validate_services() {
     log "Validating services..."
 
     # Check service exists
-    if ! kubectl get service pynomaly-api-service -n "$NAMESPACE" &> /dev/null; then
-        error "Service pynomaly-api-service does not exist"
+    if ! kubectl get service anomaly_detection-api-service -n "$NAMESPACE" &> /dev/null; then
+        error "Service anomaly_detection-api-service does not exist"
     fi
 
     # Check internal service
-    if ! kubectl get service pynomaly-api-internal -n "$NAMESPACE" &> /dev/null; then
-        error "Internal service pynomaly-api-internal does not exist"
+    if ! kubectl get service anomaly_detection-api-internal -n "$NAMESPACE" &> /dev/null; then
+        error "Internal service anomaly_detection-api-internal does not exist"
     fi
 
     # Check service endpoints
     local endpoints
-    endpoints=$(kubectl get endpoints pynomaly-api-service -n "$NAMESPACE" -o jsonpath='{.subsets[*].addresses[*].ip}' | wc -w)
+    endpoints=$(kubectl get endpoints anomaly_detection-api-service -n "$NAMESPACE" -o jsonpath='{.subsets[*].addresses[*].ip}' | wc -w)
 
     if [[ "$endpoints" -lt 1 ]]; then
         error "Service has no endpoints"
@@ -150,7 +150,7 @@ validate_health_endpoints() {
 
     # Port forward for testing
     local port_forward_pid
-    kubectl port-forward service/pynomaly-api-internal 8081:8000 -n "$NAMESPACE" &
+    kubectl port-forward service/anomaly_detection-api-internal 8081:8000 -n "$NAMESPACE" &
     port_forward_pid=$!
 
     # Wait for port forward to be ready
@@ -329,7 +329,7 @@ run_smoke_tests() {
 
     # Port forward for smoke tests
     local port_forward_pid
-    kubectl port-forward service/pynomaly-api-internal 8082:8000 -n "$NAMESPACE" &
+    kubectl port-forward service/anomaly_detection-api-internal 8082:8000 -n "$NAMESPACE" &
     port_forward_pid=$!
 
     # Wait for port forward
@@ -366,10 +366,10 @@ run_smoke_tests() {
 generate_validation_report() {
     log "Generating validation report..."
 
-    local report_file="/tmp/pynomaly_validation_report_$(date +%Y%m%d_%H%M%S).txt"
+    local report_file="/tmp/anomaly_detection_validation_report_$(date +%Y%m%d_%H%M%S).txt"
 
     {
-        echo "Pynomaly Production Deployment Validation Report"
+        echo "anomaly_detection Production Deployment Validation Report"
         echo "=============================================="
         echo "Date: $(date)"
         echo "Environment: $ENVIRONMENT"
@@ -377,7 +377,7 @@ generate_validation_report() {
         echo ""
 
         echo "Deployment Status:"
-        kubectl get deployment pynomaly-api -n "$NAMESPACE" -o wide
+        kubectl get deployment anomaly_detection-api -n "$NAMESPACE" -o wide
         echo ""
 
         echo "Pod Status:"
@@ -405,7 +405,7 @@ generate_validation_report() {
 # =============================================================================
 
 main() {
-    log "Starting Pynomaly deployment validation..."
+    log "Starting anomaly_detection deployment validation..."
     log "Environment: $ENVIRONMENT"
     log "Namespace: $NAMESPACE"
 
@@ -457,11 +457,11 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "Validate Pynomaly production deployment"
+            echo "Validate anomaly_detection production deployment"
             echo ""
             echo "OPTIONS:"
             echo "    -e, --environment ENV       Deployment environment (default: production)"
-            echo "    -n, --namespace NAMESPACE   Kubernetes namespace (default: pynomaly-production)"
+            echo "    -n, --namespace NAMESPACE   Kubernetes namespace (default: anomaly_detection-production)"
             echo "    -t, --timeout TIMEOUT       Timeout in seconds (default: 300)"
             echo "    -v, --verbose               Enable verbose output"
             echo "    -h, --help                  Show this help message"

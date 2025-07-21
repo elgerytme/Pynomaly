@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Script to run the Pynomaly web application with both API and Web UI.
+Script to run the anomaly_detection web application with both API and Web UI.
 
-This script sets up the proper Python path and starts the complete Pynomaly
+This script sets up the proper Python path and starts the complete anomaly_detection
 web application including both the REST API and the web-based user interface.
 """
 
@@ -20,13 +20,13 @@ os.environ["PYTHONPATH"] = str(src_path)
 
 
 def main():
-    """Start the Pynomaly web application."""
+    """Start the anomaly_detection web application."""
     import argparse
 
     import uvicorn
 
     parser = argparse.ArgumentParser(
-        description="Pynomaly Web Application Server",
+        description="anomaly_detection Web Application Server",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -64,12 +64,12 @@ Examples:
 
     args = parser.parse_args()
 
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
 
-    print("Creating Pynomaly web application...")
+    print("Creating anomaly_detection web application...")
     app = create_web_app()
 
-    print("Starting Pynomaly web application...")
+    print("Starting anomaly_detection web application...")
     print(f"Web UI available at: http://{args.host}:{args.port}/web/")
     print(f"API documentation at: http://{args.host}:{args.port}/api/docs")
     print(f"API health check at: http://{args.host}:{args.port}/api/health")

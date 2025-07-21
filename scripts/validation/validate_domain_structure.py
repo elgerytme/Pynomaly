@@ -6,7 +6,7 @@ from pathlib import Path
 
 def validate_repository_structure():
     """Validate the current repository structure."""
-    root = Path("/mnt/c/Users/andre/Pynomaly")
+    root = Path("/mnt/c/Users/andre/anomaly_detection")
     
     print("🔍 REPOSITORY STRUCTURE VALIDATION")
     print("=" * 50)

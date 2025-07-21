@@ -6,7 +6,7 @@
 
 ## 🎯 Executive Summary
 
-This catalog provides a complete inventory of domain bounded contexts within the Pynomaly anomaly detection platform, documenting the domain-driven design implementation across all business domains. The platform follows clean architecture principles with clear separation of concerns and well-defined domain boundaries.
+This catalog provides a complete inventory of domain bounded contexts within the anomaly_detection anomaly detection platform, documenting the domain-driven design implementation across all business domains. The platform follows clean architecture principles with clear separation of concerns and well-defined domain boundaries.
 
 ### 🏗️ Architecture Overview
 

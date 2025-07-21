@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Main entry point for Pynomaly FastAPI application."""
+"""Main entry point for anomaly_detection FastAPI application."""
 
 
 if __name__ == "__main__":

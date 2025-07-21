@@ -1,10 +1,10 @@
 #!/bin/bash
-# Stop Pynomaly Monitoring Stack
+# Stop anomaly_detection Monitoring Stack
 
-echo "🛑 Stopping Pynomaly monitoring stack..."
+echo "🛑 Stopping anomaly_detection monitoring stack..."
 
 # Stop Python services
-pkill -f "pynomaly.infrastructure.monitoring"
+pkill -f "anomaly_detection.infrastructure.monitoring"
 
 # Stop Docker services
 docker-compose -f docker-compose.monitoring.yml down

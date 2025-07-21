@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI runner for Pynomaly.
+CLI runner for anomaly_detection.
 
 This script provides a dedicated entry point for running the anomaly detection CLI
 with proper environment setup and error handling.
@@ -15,8 +15,8 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.infrastructure.config.settings import get_settings
-    from pynomaly.presentation.cli.app import app as cli_app
+    from anomaly_detection.infrastructure.config.settings import get_settings
+    from anomaly_detection.presentation.cli.app import app as cli_app
 except ImportError as e:
     print(f"Failed to import anomaly detection CLI modules: {e}")
     print("Please ensure the package is installed with: poetry install")
@@ -54,14 +54,14 @@ def run_cli(args: list[str] | None = None):
     # Set up sys.argv for the CLI
     if args is not None:
         original_argv = sys.argv.copy()
-        sys.argv = ["pynomaly"] + args
+        sys.argv = ["anomaly_detection"] + args
         try:
             cli_app()
         finally:
             sys.argv = original_argv
     else:
         # Use existing sys.argv, but replace script name
-        sys.argv[0] = "pynomaly"
+        sys.argv[0] = "anomaly_detection"
         cli_app()
 
 

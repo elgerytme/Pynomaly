@@ -163,9 +163,9 @@ class MLflowIntegration:
                 # Set tags
                 tags = dict(experiment.tags)
                 tags.update({
-                    "pynomaly.experiment_id": str(experiment.id),
-                    "pynomaly.tenant_id": str(experiment.tenant_id),
-                    "pynomaly.project": experiment.project_name
+                    "anomaly_detection.experiment_id": str(experiment.id),
+                    "anomaly_detection.tenant_id": str(experiment.tenant_id),
+                    "anomaly_detection.project": experiment.project_name
                 })
                 
                 mlflow.set_tags(tags)
@@ -290,8 +290,8 @@ class MLflowIntegration:
                 registered_model = self.client.create_registered_model(
                     name=model.name,
                     tags={
-                        "pynomaly.model_id": str(model.id),
-                        "pynomaly.tenant_id": str(model.tenant_id),
+                        "anomaly_detection.model_id": str(model.id),
+                        "anomaly_detection.tenant_id": str(model.tenant_id),
                         "framework": model.framework
                     },
                     description=model.description
@@ -303,8 +303,8 @@ class MLflowIntegration:
                 source=f"runs:/{run_id}/{artifact_path}",
                 run_id=run_id,
                 tags={
-                    "pynomaly.model_id": str(model.id),
-                    "pynomaly.version": model.version,
+                    "anomaly_detection.model_id": str(model.id),
+                    "anomaly_detection.version": model.version,
                     "algorithm": model.algorithm
                 },
                 description=f"Model version {model.version}"
@@ -345,9 +345,9 @@ class MLflowIntegration:
             
             # Create deployment tags
             deployment_tags = {
-                "pynomaly.deployment_id": str(deployment.id),
-                "pynomaly.model_id": str(deployment.model_id),
-                "pynomaly.tenant_id": str(deployment.tenant_id),
+                "anomaly_detection.deployment_id": str(deployment.id),
+                "anomaly_detection.model_id": str(deployment.model_id),
+                "anomaly_detection.tenant_id": str(deployment.tenant_id),
                 "environment": deployment.environment,
                 "platform": deployment.platform
             }
@@ -549,7 +549,7 @@ class MLflowIntegration:
             # Search for runs with matching tags
             runs = self.client.search_runs(
                 experiment_ids=[experiment.external_experiment_id],
-                filter_string=f"tags.pynomaly.experiment_id = '{experiment.id}'",
+                filter_string=f"tags.anomaly_detection.experiment_id = '{experiment.id}'",
                 max_results=1
             )
             

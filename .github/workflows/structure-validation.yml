@@ -55,7 +55,7 @@ jobs:
           echo ""
           echo "📖 See REPOSITORY_RULES.md for naming conventions."
           echo "📖 See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
-          echo "🔗 GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+          echo "🔗 GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830"
           exit 1
         fi
         
@@ -80,7 +80,7 @@ jobs:
           echo ""
           echo "📖 See REPOSITORY_RULES.md for naming conventions."
           echo "📖 See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
-          echo "🔗 GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+          echo "🔗 GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830"
           exit 1
         fi
         
@@ -96,7 +96,7 @@ jobs:
         echo "📖 For more information:"
         echo "   - REPOSITORY_RULES.md"
         echo "   - docs/REPLACEMENT_FOLDERS_ISSUE.md"
-        echo "   - GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+        echo "   - GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830"
         
     - name: Validation Failure
       if: failure()
@@ -112,4 +112,4 @@ jobs:
         echo "📖 For guidance:"
         echo "   - REPOSITORY_RULES.md"
         echo "   - docs/REPLACEMENT_FOLDERS_ISSUE.md"
-        echo "   - GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+        echo "   - GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830"

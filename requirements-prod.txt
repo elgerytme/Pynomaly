@@ -1,4 +1,4 @@
-# Production Requirements for Pynomaly Anomaly Detection Platform
+# Production Requirements for anomaly_detection Anomaly Detection Platform
 # Core framework and API dependencies
 fastapi==0.104.1
 uvicorn[standard]==0.24.0

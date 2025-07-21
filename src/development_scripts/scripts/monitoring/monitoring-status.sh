@@ -1,7 +1,7 @@
 #!/bin/bash
-# Check Pynomaly Monitoring Stack Status
+# Check anomaly_detection Monitoring Stack Status
 
-echo "📊 Pynomaly Monitoring Stack Status"
+echo "📊 anomaly_detection Monitoring Stack Status"
 echo "=================================="
 
 # Check Docker services

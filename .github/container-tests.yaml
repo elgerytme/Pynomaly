@@ -1,6 +1,6 @@
 schemaVersion: 2.0.0
 
-# Container Structure Tests for Pynomaly Docker Images
+# Container Structure Tests for anomaly_detection Docker Images
 # Validates security, configuration, and functionality
 
 commandTests:
@@ -58,7 +58,7 @@ fileExistenceTests:
     shouldExist: false
 
   - name: "Application entry point exists"
-    path: "/app/src/pynomaly"
+    path: "/app/src/anomaly_detection"
     shouldExist: true
     isDirectory: true
 
@@ -92,11 +92,11 @@ metadataTest:
       value: "1"
     - key: "PYTHONUNBUFFERED"
       value: "1"
-    - key: "PYNOMALY_ENVIRONMENT"
+    - key: "ANOMALY_DETECTION_ENVIRONMENT"
       value: "production"
     - key: "PYTHONOPTIMIZE"
       value: "2"
 
 licenseTests:
   - debian: false
-  - files: ["/app/src/pynomaly"]
+  - files: ["/app/src/anomaly_detection"]

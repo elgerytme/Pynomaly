@@ -63,7 +63,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: pynomaly/pynomaly
+        images: anomaly_detection/anomaly_detection
         tags: |
           type=ref,event=tag
           type=semver,pattern={{version}}

@@ -4,7 +4,7 @@
 Write-Host "=== anomaly detection API PowerShell Test ===" -ForegroundColor Green
 
 # Set environment variables
-$env:PYTHONPATH = "C:\Users\andre\Pynomaly\src"
+$env:PYTHONPATH = "C:\Users\andre\anomaly_detection\src"
 $apiPort = 8002
 $apiUrl = "http://127.0.0.1:$apiPort"
 
@@ -29,7 +29,7 @@ function Test-ApiEndpoint {
 # Start the API server
 Write-Host "Starting anomaly detection API server on port $apiPort..." -ForegroundColor Blue
 $serverProcess = Start-Process -FilePath "uvicorn" -ArgumentList @(
-    "pynomaly.presentation.api:app",
+    "anomaly_detection.presentation.api:app",
     "--host", "127.0.0.1",
     "--port", $apiPort,
     "--reload"

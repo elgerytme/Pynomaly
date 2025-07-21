@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Automated Disaster Recovery Testing Framework for Pynomaly v1.0.0
+Automated Disaster Recovery Testing Framework for anomaly_detection v1.0.0
 
 This script provides comprehensive disaster recovery testing capabilities including:
 - Database backup and restore validation

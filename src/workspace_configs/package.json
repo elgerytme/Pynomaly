@@ -1,15 +1,15 @@
 {
-  "name": "pynomaly-web-ui",
+  "name": "anomaly_detection-web-ui",
   "version": "0.8.0",
-  "description": "Pynomaly Web UI - Production-ready Progressive Web App for anomaly detection",
-  "main": "src/pynomaly/presentation/web/static/js/main.js",
+  "description": "anomaly_detection Web UI - Production-ready Progressive Web App for anomaly detection",
+  "main": "src/anomaly_detection/presentation/web/static/js/main.js",
   "scripts": {
     "dev": "concurrently \"npm run watch-css\" \"npm run watch-js\"",
     "dev:storybook": "concurrently \"npm run watch-css\" \"npm run storybook\"",
     "build": "npm run build-css && npm run build-js:optimized",
-    "build-css": "tailwindcss -i src/pynomaly/presentation/web/static/css/input.css -o src/pynomaly/presentation/web/static/css/output.css --minify",
-    "watch-css": "tailwindcss -i src/pynomaly/presentation/web/static/css/input.css -o src/pynomaly/presentation/web/static/css/output.css --watch",
-    "build-js": "esbuild src/pynomaly/presentation/web/static/js/src/**/*.js --bundle --minify --outdir=src/pynomaly/presentation/web/static/js/dist --target=es2020",
+    "build-css": "tailwindcss -i src/anomaly_detection/presentation/web/static/css/input.css -o src/anomaly_detection/presentation/web/static/css/output.css --minify",
+    "watch-css": "tailwindcss -i src/anomaly_detection/presentation/web/static/css/input.css -o src/anomaly_detection/presentation/web/static/css/output.css --watch",
+    "build-js": "esbuild src/anomaly_detection/presentation/web/static/js/src/**/*.js --bundle --minify --outdir=src/anomaly_detection/presentation/web/static/js/dist --target=es2020",
     "build-js:optimized": "node config/build/esbuild.config.js build",
     "build-js:analyze": "node config/build/esbuild.config.js analyze",
     "watch-js": "node config/build/esbuild.config.js watch",
@@ -22,9 +22,9 @@
     "test-ui": "playwright test",
     "test-ui-headed": "playwright test --headed",
     "test-ui-debug": "playwright test --debug",
-    "lint-js": "eslint src/pynomaly/presentation/web/static/js/src/**/*.js",
-    "lint-css": "stylelint src/pynomaly/presentation/web/static/css/**/*.css",
-    "format": "prettier --write \"src/pynomaly/presentation/web/**/*.{js,css,html}\"",
+    "lint-js": "eslint src/anomaly_detection/presentation/web/static/js/src/**/*.js",
+    "lint-css": "stylelint src/anomaly_detection/presentation/web/static/css/**/*.css",
+    "format": "prettier --write \"src/anomaly_detection/presentation/web/**/*.{js,css,html}\"",
     "lighthouse": "lhci autorun",
     "test:lighthouse": "lhci autorun",
     "test:performance": "node scripts/performance/web-performance-monitor.js",
@@ -51,7 +51,7 @@
     "analyze-bundle": "node scripts/analysis/bundle-analyzer.js",
     "analyze-bundle-webpack": "npx webpack-bundle-analyzer storybook-static/static/js/*.js",
     "accessibility-audit": "axe-crawler http://localhost:6006",
-    "serve-static": "http-server src/pynomaly/presentation/web/static -p 8080 -c-1"
+    "serve-static": "http-server src/anomaly_detection/presentation/web/static -p 8080 -c-1"
   },
   "keywords": [
     "anomaly-detection",

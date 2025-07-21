@@ -1,5 +1,5 @@
 # Comprehensive Test Coverage Analysis Report
-## Pynomaly Project
+## anomaly_detection Project
 
 **Report Date**: 2025-01-09  
 **Project Version**: v0.1.1  

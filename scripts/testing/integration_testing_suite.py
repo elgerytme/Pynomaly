@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Integration Testing Suite for Pynomaly
+Integration Testing Suite for anomaly_detection
 
 Creates comprehensive integration testing to validate cross-package workflows 
 and ensure package interactions work correctly.

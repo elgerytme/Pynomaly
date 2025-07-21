@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Interactive installer for Pynomaly optional features.
+Interactive installer for anomaly_detection optional features.
 
 This script helps users install only the features they need.
 """
@@ -29,7 +29,7 @@ def install_feature_group(group_name: str) -> bool:
 
 def main():
     """Interactive feature installer."""
-    print("🚀 Pynomaly Feature Installer")
+    print("🚀 anomaly_detection Feature Installer")
     print("=" * 50)
 
     # Feature definitions

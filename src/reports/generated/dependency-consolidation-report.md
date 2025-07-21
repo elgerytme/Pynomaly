@@ -38,19 +38,19 @@ Successfully consolidated dependency management from **5 separate requirements f
 ### 2. Improved Installation Flexibility
 ```bash
 # Core functionality
-pip install pynomaly[minimal]
+pip install anomaly_detection[minimal]
 
 # Production deployment
-pip install pynomaly[production]
+pip install anomaly_detection[production]
 
 # Analytics workbench
-pip install pynomaly[analytics,jupyter]
+pip install anomaly_detection[analytics,jupyter]
 
 # Full MLOps platform
-pip install pynomaly[mlops,production]
+pip install anomaly_detection[mlops,production]
 
 # Everything
-pip install pynomaly[all]
+pip install anomaly_detection[all]
 ```
 
 ### 3. Better Maintainability
@@ -102,16 +102,16 @@ pip install pynomaly[all]
 ### For Existing Installations
 ```bash
 # Replace old requirements-prod.txt
-pip install pynomaly[production]
+pip install anomaly_detection[production]
 
 # Replace old requirements-analytics.txt  
-pip install pynomaly[analytics]
+pip install anomaly_detection[analytics]
 
 # Replace old requirements-mlops.txt
-pip install pynomaly[mlops]
+pip install anomaly_detection[mlops]
 
 # Replace old requirements-enterprise.txt
-pip install pynomaly[enterprise]
+pip install anomaly_detection[enterprise]
 ```
 
 ### For CI/CD Pipelines
@@ -129,10 +129,10 @@ pip install pynomaly[enterprise]
 ### For Docker Builds
 ```dockerfile
 # Production image
-RUN pip install pynomaly[production]
+RUN pip install anomaly_detection[production]
 
 # Analytics image  
-RUN pip install pynomaly[analytics,jupyter]
+RUN pip install anomaly_detection[analytics,jupyter]
 ```
 
 ## Quality Assurance

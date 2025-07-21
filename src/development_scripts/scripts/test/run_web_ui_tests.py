@@ -84,10 +84,10 @@ class WebUITestRunner:
         self.check_test_files()
 
         # Set environment variables
-        os.environ['PYNOMALY_ENVIRONMENT'] = 'test'
-        os.environ['PYNOMALY_DEBUG'] = 'false'
-        os.environ['PYNOMALY_USE_DATABASE_REPOSITORIES'] = 'false'
-        os.environ['PYNOMALY_CACHE_BACKEND'] = 'memory'
+        os.environ['ANOMALY_DETECTION_ENVIRONMENT'] = 'test'
+        os.environ['ANOMALY_DETECTION_DEBUG'] = 'false'
+        os.environ['ANOMALY_DETECTION_USE_DATABASE_REPOSITORIES'] = 'false'
+        os.environ['ANOMALY_DETECTION_CACHE_BACKEND'] = 'memory'
 
         print("✅ Test environment ready")
 
@@ -138,7 +138,7 @@ class WebUITestRunner:
         # Start server in background
         try:
             env = os.environ.copy()
-            env['PYNOMALY_ENVIRONMENT'] = 'test'
+            env['ANOMALY_DETECTION_ENVIRONMENT'] = 'test'
 
             self.server_process = subprocess.Popen([
                 sys.executable, str(server_script),
@@ -172,7 +172,7 @@ class WebUITestRunner:
         ]
 
         if self.args.coverage:
-            cmd.extend(['--cov=src/pynomaly/presentation', '--cov-report=term'])
+            cmd.extend(['--cov=src/anomaly_detection/presentation', '--cov-report=term'])
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 

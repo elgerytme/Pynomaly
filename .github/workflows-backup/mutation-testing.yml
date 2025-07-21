@@ -67,8 +67,8 @@ jobs:
           "security")
             echo "🧬 Running security mutation testing..."
             poetry run mutmut run \
-              --paths-to-mutate src/pynomaly/infrastructure/auth/ \
-              --paths-to-mutate src/pynomaly/infrastructure/security/ \
+              --paths-to-mutate src/anomaly_detection/infrastructure/auth/ \
+              --paths-to-mutate src/anomaly_detection/infrastructure/security/ \
               --runner "python -m pytest tests/security/ -x --tb=no -q" \
               --timeout 150
             ;;

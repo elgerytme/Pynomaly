@@ -1,5 +1,5 @@
 """
-Performance Benchmarks for Pynomaly
+Performance Benchmarks for anomaly_detection
 
 This module contains comprehensive performance tests and benchmarks
 to ensure the system meets performance requirements and detect regressions.

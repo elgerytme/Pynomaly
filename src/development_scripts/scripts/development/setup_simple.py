@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple setup script to run Pynomaly without Poetry"""
+"""Simple setup script to run anomaly_detection without Poetry"""
 
 import os
 import shutil
@@ -27,7 +27,7 @@ def run_command(cmd, allow_failure=False):
 
 def main():
     print("=" * 60)
-    print("🔍 Pynomaly Simple Setup (without Poetry)")
+    print("🔍 anomaly_detection Simple Setup (without Poetry)")
     print("=" * 60)
 
     # Check for clean flag
@@ -136,7 +136,7 @@ def main():
             print("❌ System Python doesn't have pip or is externally managed")
             print("💡 Recommended solutions:")
             print("   1. Install python3-venv: sudo apt install python3-venv")
-            print("   2. Use pipx: pipx install pynomaly")
+            print("   2. Use pipx: pipx install anomaly_detection")
             print("   3. Use conda/mamba virtual environment")
             print("   4. Override with --break-system-packages (not recommended)")
             print("\n🛑 Cannot proceed without proper package management")
@@ -153,7 +153,7 @@ def main():
             print("💡 Solutions:")
             print("   1. Create virtual environment: python3 -m venv .venv")
             print("   2. Install python3-venv: sudo apt install python3-venv")
-            print("   3. Use pipx: pipx install pynomaly")
+            print("   3. Use pipx: pipx install anomaly_detection")
             print("   4. Override (risky): add --break-system-packages")
             return
 
@@ -193,7 +193,7 @@ def main():
             run_command([python_path, "-m", "pip", "install", dep])
 
     # Install package in development mode
-    print("\n📌 Installing Pynomaly in development mode...")
+    print("\n📌 Installing anomaly_detection in development mode...")
     run_command([python_path, "-m", "pip", "install", "-e", "."])
 
     # Verify installation
@@ -203,7 +203,7 @@ def main():
             [
                 python_path,
                 "-c",
-                "import pynomaly; from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')",
+                "import anomaly_detection; from anomaly_detection.domain.entities import Dataset; print('✅ Core imports successful')",
             ],
             allow_failure=True,
         )
@@ -216,7 +216,7 @@ def main():
     print("✅ Setup completed successfully!")
     print("=" * 60)
 
-    print("\n📝 How to run Pynomaly:\n")
+    print("\n📝 How to run anomaly_detection:\n")
 
     # Activation instructions
     if sys.platform == "win32":
@@ -228,20 +228,20 @@ def main():
 
     print("\n2. Test basic functionality:")
     print(
-        f"   {python_path} -c \"import pynomaly; print('Pynomaly imported successfully')\""
+        f"   {python_path} -c \"import anomaly_detection; print('anomaly_detection imported successfully')\""
     )
 
     print("\n3. Run the CLI (requires CLI extras):")
     print("   # Install CLI support first:")
     print(f'   {python_path} -m pip install -e ".[cli]"')
     print("   # Then run CLI:")
-    print("   python -m pynomaly.presentation.cli.app --help")
+    print("   python -m anomaly_detection.presentation.cli.app --help")
 
     print("\n4. Start the API server (requires API extras):")
     print("   # Install API support first:")
     print(f'   {python_path} -m pip install -e ".[api]"')
     print("   # Then start server:")
-    print("   python -m uvicorn pynomaly.presentation.api.app:app --reload")
+    print("   python -m uvicorn anomaly_detection.presentation.api.app:app --reload")
 
     print("\n5. Quick server setup (includes API + CLI):")
     print(f'   {python_path} -m pip install -e ".[server]"')
@@ -258,7 +258,7 @@ def main():
         f"   {python_path} -c \"import pandas as pd; print('Pandas version:', pd.__version__)\""
     )
     print(
-        f"   {python_path} -c \"from pynomaly.domain.entities import Dataset; print('Core entities loaded')\""
+        f"   {python_path} -c \"from anomaly_detection.domain.entities import Dataset; print('Core entities loaded')\""
     )
 
     print("\n🔧 For development extras:")

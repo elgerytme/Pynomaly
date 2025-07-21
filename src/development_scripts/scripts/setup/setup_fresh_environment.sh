@@ -4,11 +4,11 @@
 
 set -e  # Exit on any error
 
-echo "=== Pynomaly Fresh Environment Setup ==="
+echo "=== anomaly_detection Fresh Environment Setup ==="
 echo "Setting up anomaly detection API in a fresh environment..."
 
 # Configuration
-PROJECT_ROOT="/mnt/c/Users/andre/Pynomaly"
+PROJECT_ROOT="/mnt/c/Users/andre/anomaly_detection"
 SRC_PATH="$PROJECT_ROOT/src"
 REQUIREMENTS_FILE="$PROJECT_ROOT/requirements.txt"
 VENV_PATH="$PROJECT_ROOT/.fresh_venv"
@@ -89,11 +89,11 @@ fi
 print_success "Dependencies installed"
 
 # Step 4: Test import
-print_status "Testing Pynomaly import..."
+print_status "Testing anomaly_detection import..."
 export PYTHONPATH="$SRC_PATH"
 python3 -c "
 try:
-    from pynomaly.presentation.api import app
+    from anomaly_detection.presentation.api import app
     print('✓ anomaly detection API imported successfully')
 except ImportError as e:
     print('✗ Import failed:', e)
@@ -106,7 +106,7 @@ print_success "Import test passed"
 print_status "Starting API server for testing..."
 TEST_PORT=8003
 echo "Starting server on port $TEST_PORT..."
-PYTHONPATH="$SRC_PATH" uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port $TEST_PORT &
+PYTHONPATH="$SRC_PATH" uvicorn anomaly_detection.presentation.api:app --host 127.0.0.1 --port $TEST_PORT &
 SERVER_PID=$!
 
 # Wait for server to start
@@ -139,7 +139,7 @@ print_success "Fresh environment setup complete!"
 echo ""
 echo "To start the API server:"
 echo "  export PYTHONPATH=$SRC_PATH"
-echo "  uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000"
+echo "  uvicorn anomaly_detection.presentation.api:app --host 0.0.0.0 --port 8000"
 echo ""
 echo "API will be available at:"
 echo "  - Root: http://localhost:8000/"

@@ -104,7 +104,7 @@ mv src/packages/software/core/use_cases/quantify_uncertainty.py src/packages/mac
 #### Step 2.2: Content Replacement Rules
 - Replace "anomaly detection" with "data processing"
 - Replace "machine learning" with "computational analysis"
-- Replace "pynomaly" with "software"
+- Replace "anomaly_detection" with "software"
 - Replace domain-specific examples with generic ones
 
 ## Phase 3: Configuration Standardization (Day 6)

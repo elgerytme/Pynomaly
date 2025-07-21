@@ -4,7 +4,7 @@
  */
 
 import { addons } from '@storybook/manager-api';
-import pynomalyTheme from './theme';
+import anomaly_detectionTheme from './theme';
 
 addons.setConfig({
   theme: pynomalyTheme,

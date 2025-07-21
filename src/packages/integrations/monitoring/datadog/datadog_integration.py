@@ -142,7 +142,7 @@ class DatadogIntegration:
                 f"model_id:{model_id}",
                 f"deployment_id:{deployment_id}",
                 f"tenant_id:{tenant_id}",
-                "service:pynomaly",
+                "service:anomaly_detection",
                 "component:ml_model"
             ]
             
@@ -155,7 +155,7 @@ class DatadogIntegration:
             
             for metric_name, value in metrics.items():
                 datadog_metrics.append({
-                    "name": f"pynomaly.model.{metric_name}",
+                    "name": f"anomaly_detection.model.{metric_name}",
                     "value": value,
                     "timestamp": timestamp,
                     "type": "gauge",
@@ -184,7 +184,7 @@ class DatadogIntegration:
             base_tags = [
                 f"tenant_id:{tenant_id}",
                 f"data_source:{data_source}",
-                "service:pynomaly",
+                "service:anomaly_detection",
                 "component:anomaly_detection"
             ]
             
@@ -196,28 +196,28 @@ class DatadogIntegration:
             
             metrics = [
                 {
-                    "name": "pynomaly.anomaly.count",
+                    "name": "anomaly_detection.anomaly.count",
                     "value": anomaly_count,
                     "timestamp": timestamp,
                     "type": "count",
                     "tags": base_tags
                 },
                 {
-                    "name": "pynomaly.anomaly.rate",
+                    "name": "anomaly_detection.anomaly.rate",
                     "value": anomaly_rate,
                     "timestamp": timestamp,
                     "type": "gauge",
                     "tags": base_tags
                 },
                 {
-                    "name": "pynomaly.anomaly.score",
+                    "name": "anomaly_detection.anomaly.score",
                     "value": anomaly_score,
                     "timestamp": timestamp,
                     "type": "gauge",
                     "tags": base_tags
                 },
                 {
-                    "name": "pynomaly.records.processed",
+                    "name": "anomaly_detection.records.processed",
                     "value": total_records,
                     "timestamp": timestamp,
                     "type": "count",
@@ -251,7 +251,7 @@ class DatadogIntegration:
                 text=text,
                 alert_type=alert_type,
                 tags=tags or [],
-                source_type_name=source_type_name or "pynomaly"
+                source_type_name=source_type_name or "anomaly_detection"
             )
             
             response = self.events_api.create_event(body=event)
@@ -297,7 +297,7 @@ class DatadogIntegration:
                 f"deployment_id:{deployment_id}",
                 f"tenant_id:{tenant_id}",
                 f"status:{status}",
-                "service:pynomaly",
+                "service:anomaly_detection",
                 "component:model_deployment"
             ]
             
@@ -324,12 +324,12 @@ class DatadogIntegration:
             # Build dashboard configuration
             dashboard_config = {
                 "title": title,
-                "description": description or f"Pynomaly dashboard: {title}",
+                "description": description or f"anomaly_detection dashboard: {title}",
                 "widgets": widgets,
                 "layout_type": "ordered",
                 "is_read_only": False,
                 "notify_list": [],
-                "tags": tags or ["service:pynomaly"]
+                "tags": tags or ["service:anomaly_detection"]
             }
             
             dashboard = Dashboard(**dashboard_config)
@@ -362,7 +362,7 @@ class DatadogIntegration:
                         "type": "timeseries",
                         "requests": [
                             {
-                                "q": f"sum:pynomaly.model.request_count{{model_id:{model_id}}}.as_rate()",
+                                "q": f"sum:anomaly_detection.model.request_count{{model_id:{model_id}}}.as_rate()",
                                 "display_type": "line",
                                 "style": {"palette": "dog_classic"}
                             }
@@ -375,7 +375,7 @@ class DatadogIntegration:
                         "type": "timeseries",
                         "requests": [
                             {
-                                "q": f"sum:pynomaly.model.error_rate{{model_id:{model_id}}}",
+                                "q": f"sum:anomaly_detection.model.error_rate{{model_id:{model_id}}}",
                                 "display_type": "line",
                                 "style": {"palette": "warm"}
                             }
@@ -388,7 +388,7 @@ class DatadogIntegration:
                         "type": "timeseries",
                         "requests": [
                             {
-                                "q": f"avg:pynomaly.model.latency{{model_id:{model_id}}}",
+                                "q": f"avg:anomaly_detection.model.latency{{model_id:{model_id}}}",
                                 "display_type": "line",
                                 "style": {"palette": "cool"}
                             }
@@ -401,7 +401,7 @@ class DatadogIntegration:
                         "type": "timeseries",
                         "requests": [
                             {
-                                "q": f"avg:pynomaly.model.accuracy{{model_id:{model_id}}}",
+                                "q": f"avg:anomaly_detection.model.accuracy{{model_id:{model_id}}}",
                                 "display_type": "line",
                                 "style": {"palette": "green"}
                             }
@@ -416,7 +416,7 @@ class DatadogIntegration:
             tags = [
                 f"model_id:{model_id}",
                 f"tenant_id:{tenant_id}",
-                "service:pynomaly",
+                "service:anomaly_detection",
                 "component:ml_monitoring"
             ]
             
@@ -474,7 +474,7 @@ class DatadogIntegration:
         try:
             monitor_name = f"High Anomaly Rate - {data_source}"
             
-            query = f"avg(last_5m):avg:pynomaly.anomaly.rate{{tenant_id:{tenant_id},data_source:{data_source}}} > {anomaly_threshold}"
+            query = f"avg(last_5m):avg:anomaly_detection.anomaly.rate{{tenant_id:{tenant_id},data_source:{data_source}}} > {anomaly_threshold}"
             
             message = f"""
             **High anomaly rate detected in {data_source}**
@@ -486,13 +486,13 @@ class DatadogIntegration:
             
             Please investigate the data source for potential issues.
             
-            @pagerduty-pynomaly
+            @pagerduty-anomaly_detection
             """
             
             tags = [
                 f"tenant_id:{tenant_id}",
                 f"data_source:{data_source}",
-                "service:pynomaly",
+                "service:anomaly_detection",
                 "component:anomaly_detection",
                 "alert_type:anomaly_rate"
             ]
@@ -572,10 +572,10 @@ class DatadogIntegration:
             
             # Query various model metrics
             metrics_queries = {
-                "request_rate": f"avg:pynomaly.model.request_count{{model_id:{model_id}}}.as_rate()",
-                "error_rate": f"avg:pynomaly.model.error_rate{{model_id:{model_id}}}",
-                "latency_p95": f"p95:pynomaly.model.latency{{model_id:{model_id}}}",
-                "accuracy": f"avg:pynomaly.model.accuracy{{model_id:{model_id}}}"
+                "request_rate": f"avg:anomaly_detection.model.request_count{{model_id:{model_id}}}.as_rate()",
+                "error_rate": f"avg:anomaly_detection.model.error_rate{{model_id:{model_id}}}",
+                "latency_p95": f"p95:anomaly_detection.model.latency{{model_id:{model_id}}}",
+                "accuracy": f"avg:anomaly_detection.model.accuracy{{model_id:{model_id}}}"
             }
             
             summary = {}
@@ -607,11 +607,11 @@ class DatadogIntegration:
         try:
             # Send a test metric
             test_metric = [{
-                "name": "pynomaly.test.connection",
+                "name": "anomaly_detection.test.connection",
                 "value": 1.0,
                 "timestamp": datetime.utcnow().timestamp(),
                 "type": "gauge",
-                "tags": ["service:pynomaly", "test:connection"]
+                "tags": ["service:anomaly_detection", "test:connection"]
             }]
             
             success = await self.send_metrics(test_metric)

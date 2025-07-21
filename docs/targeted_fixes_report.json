@@ -5,7 +5,7 @@
   "files_modified": 243,
   "total_replacements": 10642,
   "replacements_by_type": {
-    "pynomaly": 570,
+    "anomaly_detection": 570,
     "dataset": 2850,
     "model": 3656,
     "detection": 1270,
@@ -64,7 +64,7 @@
     "src/packages/software/interfaces/api/api/auth_deps.py"
   ],
   "expected_impact": {
-    "pynomaly": "570 replacements",
+    "anomaly_detection": "570 replacements",
     "dataset": "2850 replacements",
     "model": "3656 replacements",
     "detection": "1270 replacements",

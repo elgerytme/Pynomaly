@@ -49,14 +49,14 @@ class ProductionSmokeTests:
         """Get base URLs for different environments."""
         urls = {
             "production": {
-                "api": "https://api.pynomaly.com",
-                "auth": "https://api.pynomaly.com/auth",
-                "health": "https://api.pynomaly.com/health",
+                "api": "https://api.anomaly_detection.com",
+                "auth": "https://api.anomaly_detection.com/auth",
+                "health": "https://api.anomaly_detection.com/health",
             },
             "staging": {
-                "api": "https://staging-api.pynomaly.com",
-                "auth": "https://staging-api.pynomaly.com/auth",
-                "health": "https://staging-api.pynomaly.com/health",
+                "api": "https://staging-api.anomaly_detection.com",
+                "auth": "https://staging-api.anomaly_detection.com/auth",
+                "health": "https://staging-api.anomaly_detection.com/health",
             },
             "testing": {
                 "api": "http://localhost:8000",

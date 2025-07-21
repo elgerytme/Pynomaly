@@ -153,7 +153,7 @@ class DomainBoundaryValidator:
                 domain_package="software",
                 prohibited_terms=[
                     # Core domain violations
-                    "pynomaly", "anomaly", "anomaly_detection", "outlier", "detection",
+                    "anomaly_detection", "anomaly", "anomaly_detection", "outlier", "detection",
                     "automl", "ensemble", "explainability", "explainable_ai",
                     "drift", "model", "training", "dataset", "preprocessing",
                     "contamination", "threshold", "severity", "confidence_interval",
@@ -217,7 +217,7 @@ class DomainBoundaryValidator:
             "domain_library": DomainRule(
                 domain_package="domain_library", 
                 prohibited_terms=[
-                    "pynomaly", "anomaly", "detection", "automl", "model",
+                    "anomaly_detection", "anomaly", "detection", "automl", "model",
                     "training", "dataset", "fraud", "intrusion", "cybersecurity"
                 ],
                 allowed_exceptions=[
@@ -230,7 +230,7 @@ class DomainBoundaryValidator:
             "enterprise": DomainRule(
                 domain_package="enterprise",
                 prohibited_terms=[
-                    "pynomaly", "anomaly", "detection", "automl", "model",
+                    "anomaly_detection", "anomaly", "detection", "automl", "model",
                     "training", "dataset", "fraud", "intrusion"
                 ],
                 allowed_exceptions=[

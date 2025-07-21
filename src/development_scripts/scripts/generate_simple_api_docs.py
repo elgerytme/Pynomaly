@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple API Documentation Generator for Pynomaly
+Simple API Documentation Generator for anomaly_detection
 """
 
 import json
@@ -36,7 +36,7 @@ def generate_openapi_spec():
             "version": "1.0.0",
         },
         "servers": [
-            {"url": "https://api.pynomaly.com", "description": "Production"},
+            {"url": "https://api.anomaly_detection.com", "description": "Production"},
             {"url": "http://localhost:8000", "description": "Development"},
         ],
         "paths": {
@@ -144,7 +144,7 @@ def generate_postman_collection():
     collection = {
         "info": {
             "name": "anomaly detection API",
-            "description": "API collection for Pynomaly",
+            "description": "API collection for anomaly_detection",
             "version": "1.0.0",
         },
         "item": [
@@ -174,12 +174,12 @@ def generate_postman_collection():
             },
         ],
         "variable": [
-            {"key": "base_url", "value": "https://api.pynomaly.com"},
+            {"key": "base_url", "value": "https://api.anomaly_detection.com"},
             {"key": "api_key", "value": "your-api-key-here"},
         ],
     }
 
-    postman_path = OUTPUT_DIR / "pynomaly_api.postman_collection.json"
+    postman_path = OUTPUT_DIR / "anomaly_detection_api.postman_collection.json"
     with open(postman_path, "w") as f:
         json.dump(collection, f, indent=2)
 
@@ -200,7 +200,7 @@ def generate_code_examples():
     python_example = """import requests
 
 API_KEY = "your-api-key-here"
-BASE_URL = "https://api.pynomaly.com"
+BASE_URL = "https://api.anomaly_detection.com"
 
 headers = {
     "X-API-Key": API_KEY,
@@ -224,11 +224,11 @@ print(response.json())
     curl_dir.mkdir(exist_ok=True)
 
     curl_example = """# Health check
-curl -X GET "https://api.pynomaly.com/health" \\
+curl -X GET "https://api.anomaly_detection.com/health" \\
   -H "X-API-Key: your-api-key-here"
 
 # List detectors
-curl -X GET "https://api.pynomaly.com/api/v1/detectors" \\
+curl -X GET "https://api.anomaly_detection.com/api/v1/detectors" \\
   -H "X-API-Key: your-api-key-here"
 """
 
@@ -250,7 +250,7 @@ Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 - `openapi.json` - OpenAPI 3.0 specification
 - `index.html` - Interactive Swagger UI documentation
-- `pynomaly_api.postman_collection.json` - Postman collection
+- `anomaly_detection_api.postman_collection.json` - Postman collection
 - `examples/` - Code examples in different languages
 
 ## Usage
@@ -304,7 +304,7 @@ def main():
         print(f"🌐 Interactive Docs: {OUTPUT_DIR / 'index.html'}")
         print(f"📄 OpenAPI Spec: {OUTPUT_DIR / 'openapi.json'}")
         print(
-            f"🔧 Postman Collection: {OUTPUT_DIR / 'pynomaly_api.postman_collection.json'}"
+            f"🔧 Postman Collection: {OUTPUT_DIR / 'anomaly_detection_api.postman_collection.json'}"
         )
         print(f"💻 Code Examples: {OUTPUT_DIR / 'examples'}")
         print("=" * 50)

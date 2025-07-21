@@ -2,7 +2,7 @@
 """
 Monitoring Infrastructure Setup Script
 
-This script sets up the complete monitoring infrastructure for Pynomaly,
+This script sets up the complete monitoring infrastructure for anomaly_detection,
 including Prometheus, Grafana, alerting, and dashboard components.
 """
 
@@ -21,8 +21,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Import monitoring components (optional)
 try:
-    from pynomaly.infrastructure.monitoring.alerts import AlertManager, HealthChecker
-    from pynomaly.infrastructure.monitoring.dashboard import (
+    from anomaly_detection.infrastructure.monitoring.alerts import AlertManager, HealthChecker
+    from anomaly_detection.infrastructure.monitoring.dashboard import (
         DashboardWebServer,
         create_dashboard_templates,
     )
@@ -80,7 +80,7 @@ class MonitoringSetup:
             },
             "scrape_configs": [
                 {
-                    "job_name": "pynomaly-api",
+                    "job_name": "anomaly_detection-api",
                     "static_configs": [
                         {
                             "targets": ["localhost:8000"]
@@ -90,7 +90,7 @@ class MonitoringSetup:
                     "scrape_interval": "15s"
                 },
                 {
-                    "job_name": "pynomaly-dashboard",
+                    "job_name": "anomaly_detection-dashboard",
                     "static_configs": [
                         {
                             "targets": ["localhost:8080"]
@@ -192,8 +192,8 @@ class MonitoringSetup:
         dashboard = {
             "dashboard": {
                 "id": None,
-                "title": "Pynomaly Monitoring Dashboard",
-                "tags": ["pynomaly", "monitoring"],
+                "title": "anomaly_detection Monitoring Dashboard",
+                "tags": ["anomaly_detection", "monitoring"],
                 "timezone": "browser",
                 "panels": [
                     {
@@ -202,7 +202,7 @@ class MonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "rate(http_requests_total{job=\"pynomaly-api\"}[5m])",
+                                "expr": "rate(http_requests_total{job=\"anomaly_detection-api\"}[5m])",
                                 "legendFormat": "Requests/sec"
                             }
                         ],
@@ -214,11 +214,11 @@ class MonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"pynomaly-api\"}[5m]))",
+                                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"anomaly_detection-api\"}[5m]))",
                                 "legendFormat": "95th percentile"
                             },
                             {
-                                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"pynomaly-api\"}[5m]))",
+                                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"anomaly_detection-api\"}[5m]))",
                                 "legendFormat": "50th percentile"
                             }
                         ],
@@ -230,11 +230,11 @@ class MonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "rate(http_requests_total{job=\"pynomaly-api\",status=~\"5..\"}[5m])",
+                                "expr": "rate(http_requests_total{job=\"anomaly_detection-api\",status=~\"5..\"}[5m])",
                                 "legendFormat": "5xx Errors/sec"
                             },
                             {
-                                "expr": "rate(http_requests_total{job=\"pynomaly-api\",status=~\"4..\"}[5m])",
+                                "expr": "rate(http_requests_total{job=\"anomaly_detection-api\",status=~\"4..\"}[5m])",
                                 "legendFormat": "4xx Errors/sec"
                             }
                         ],
@@ -246,11 +246,11 @@ class MonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "rate(process_cpu_seconds_total{job=\"pynomaly-api\"}[5m]) * 100",
+                                "expr": "rate(process_cpu_seconds_total{job=\"anomaly_detection-api\"}[5m]) * 100",
                                 "legendFormat": "CPU Usage %"
                             },
                             {
-                                "expr": "process_resident_memory_bytes{job=\"pynomaly-api\"} / 1024 / 1024",
+                                "expr": "process_resident_memory_bytes{job=\"anomaly_detection-api\"} / 1024 / 1024",
                                 "legendFormat": "Memory Usage MB"
                             }
                         ],
@@ -262,11 +262,11 @@ class MonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "rate(pynomaly_detections_total[5m])",
+                                "expr": "rate(anomaly_detections_total[5m])",
                                 "legendFormat": "Detections/sec"
                             },
                             {
-                                "expr": "rate(pynomaly_anomalies_detected_total[5m])",
+                                "expr": "rate(anomaly_detection_anomalies_detected_total[5m])",
                                 "legendFormat": "Anomalies/sec"
                             }
                         ],
@@ -285,7 +285,7 @@ class MonitoringSetup:
         }
 
         # Write dashboard
-        with open(self.config_dir / "grafana" / "provisioning" / "dashboards" / "pynomaly-dashboard.json", "w") as f:
+        with open(self.config_dir / "grafana" / "provisioning" / "dashboards" / "anomaly_detection-dashboard.json", "w") as f:
             json.dump(dashboard, f, indent=2)
 
     def setup_alertmanager(self):
@@ -295,7 +295,7 @@ class MonitoringSetup:
         alertmanager_config = {
             "global": {
                 "smtp_smarthost": "localhost:587",
-                "smtp_from": "alerts@pynomaly.com"
+                "smtp_from": "alerts@anomaly_detection.com"
             },
             "route": {
                 "group_by": ["alertname"],
@@ -309,8 +309,8 @@ class MonitoringSetup:
                     "name": "web.hook",
                     "email_configs": [
                         {
-                            "to": "admin@pynomaly.com",
-                            "subject": "Pynomaly Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}",
+                            "to": "admin@anomaly_detection.com",
+                            "subject": "anomaly_detection Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}",
                             "body": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
                         }
                     ],
@@ -318,7 +318,7 @@ class MonitoringSetup:
                         {
                             "api_url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
                             "channel": "#alerts",
-                            "title": "Pynomaly Alert",
+                            "title": "anomaly_detection Alert",
                             "text": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
                         }
                     ]
@@ -341,7 +341,7 @@ class MonitoringSetup:
             "services": {
                 "prometheus": {
                     "image": "prom/prometheus:latest",
-                    "container_name": "pynomaly-prometheus",
+                    "container_name": "anomaly_detection-prometheus",
                     "ports": ["9090:9090"],
                     "volumes": [
                         "./config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml",
@@ -359,7 +359,7 @@ class MonitoringSetup:
                 },
                 "grafana": {
                     "image": "grafana/grafana:latest",
-                    "container_name": "pynomaly-grafana",
+                    "container_name": "anomaly_detection-grafana",
                     "ports": ["3000:3000"],
                     "volumes": [
                         "./config/monitoring/grafana/provisioning:/etc/grafana/provisioning",
@@ -373,7 +373,7 @@ class MonitoringSetup:
                 },
                 "alertmanager": {
                     "image": "prom/alertmanager:latest",
-                    "container_name": "pynomaly-alertmanager",
+                    "container_name": "anomaly_detection-alertmanager",
                     "ports": ["9093:9093"],
                     "volumes": [
                         "./config/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml"
@@ -387,7 +387,7 @@ class MonitoringSetup:
                 },
                 "node-exporter": {
                     "image": "prom/node-exporter:latest",
-                    "container_name": "pynomaly-node-exporter",
+                    "container_name": "anomaly_detection-node-exporter",
                     "ports": ["9100:9100"],
                     "volumes": [
                         "/proc:/host/proc:ro",
@@ -403,7 +403,7 @@ class MonitoringSetup:
                 },
                 "redis-exporter": {
                     "image": "oliver006/redis_exporter:latest",
-                    "container_name": "pynomaly-redis-exporter",
+                    "container_name": "anomaly_detection-redis-exporter",
                     "ports": ["9121:9121"],
                     "environment": [
                         "REDIS_ADDR=redis://redis:6379"
@@ -416,7 +416,7 @@ class MonitoringSetup:
             },
             "networks": {
                 "default": {
-                    "name": "pynomaly-monitoring"
+                    "name": "anomaly_detection-monitoring"
                 }
             }
         }
@@ -433,9 +433,9 @@ class MonitoringSetup:
 
         # Start monitoring script
         start_script = """#!/bin/bash
-# Start Pynomaly Monitoring Stack
+# Start anomaly_detection Monitoring Stack
 
-echo "🔄 Starting Pynomaly monitoring stack..."
+echo "🔄 Starting anomaly_detection monitoring stack..."
 
 # Start Docker services
 docker-compose -f docker-compose.monitoring.yml up -d
@@ -452,8 +452,8 @@ echo "Alertmanager: $(curl -s http://localhost:9093/-/healthy || echo 'NOT READY
 
 # Start Python monitoring services
 echo "🐍 Starting Python monitoring services..."
-python3 -m pynomaly.infrastructure.monitoring.alerts &
-python3 -m pynomaly.infrastructure.monitoring.dashboard &
+python3 -m anomaly_detection.infrastructure.monitoring.alerts &
+python3 -m anomaly_detection.infrastructure.monitoring.dashboard &
 
 echo "✅ Monitoring stack started!"
 echo "📊 Access points:"
@@ -465,12 +465,12 @@ echo "  - Dashboard: http://localhost:8080"
 
         # Stop monitoring script
         stop_script = """#!/bin/bash
-# Stop Pynomaly Monitoring Stack
+# Stop anomaly_detection Monitoring Stack
 
-echo "🛑 Stopping Pynomaly monitoring stack..."
+echo "🛑 Stopping anomaly_detection monitoring stack..."
 
 # Stop Python services
-pkill -f "pynomaly.infrastructure.monitoring"
+pkill -f "anomaly_detection.infrastructure.monitoring"
 
 # Stop Docker services
 docker-compose -f docker-compose.monitoring.yml down
@@ -480,9 +480,9 @@ echo "✅ Monitoring stack stopped!"
 
         # Status script
         status_script = """#!/bin/bash
-# Check Pynomaly Monitoring Stack Status
+# Check anomaly_detection Monitoring Stack Status
 
-echo "📊 Pynomaly Monitoring Stack Status"
+echo "📊 anomaly_detection Monitoring Stack Status"
 echo "=================================="
 
 # Check Docker services
@@ -531,17 +531,17 @@ echo "  - Dashboard: $(curl -s http://localhost:8080/health 2>/dev/null | grep -
 
         # Alert manager service
         alert_service = f"""[Unit]
-Description=Pynomaly Alert Manager
+Description=anomaly_detection Alert Manager
 After=network.target
 Requires=network.target
 
 [Service]
 Type=simple
-User=pynomaly
-Group=pynomaly
+User=anomaly_detection
+Group=anomaly_detection
 WorkingDirectory={self.project_root}
 Environment=PYTHONPATH={self.project_root}/src
-ExecStart=/usr/bin/python3 -m pynomaly.infrastructure.monitoring.alerts
+ExecStart=/usr/bin/python3 -m anomaly_detection.infrastructure.monitoring.alerts
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -553,17 +553,17 @@ WantedBy=multi-user.target
 
         # Dashboard service
         dashboard_service = f"""[Unit]
-Description=Pynomaly Monitoring Dashboard
+Description=anomaly_detection Monitoring Dashboard
 After=network.target
 Requires=network.target
 
 [Service]
 Type=simple
-User=pynomaly
-Group=pynomaly
+User=anomaly_detection
+Group=anomaly_detection
 WorkingDirectory={self.project_root}
 Environment=PYTHONPATH={self.project_root}/src
-ExecStart=/usr/bin/python3 -m pynomaly.infrastructure.monitoring.dashboard
+ExecStart=/usr/bin/python3 -m anomaly_detection.infrastructure.monitoring.dashboard
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -578,17 +578,17 @@ WantedBy=multi-user.target
         systemd_dir.mkdir(parents=True, exist_ok=True)
 
         # Write service files
-        with open(systemd_dir / "pynomaly-alerts.service", "w") as f:
+        with open(systemd_dir / "anomaly_detection-alerts.service", "w") as f:
             f.write(alert_service)
 
-        with open(systemd_dir / "pynomaly-dashboard.service", "w") as f:
+        with open(systemd_dir / "anomaly_detection-dashboard.service", "w") as f:
             f.write(dashboard_service)
 
         self.logger.info("Systemd service files created")
 
     def run_setup(self):
         """Run the complete monitoring setup."""
-        self.logger.info("🔄 Starting Pynomaly monitoring setup...")
+        self.logger.info("🔄 Starting anomaly_detection monitoring setup...")
 
         try:
             # Setup configurations
@@ -623,7 +623,7 @@ WantedBy=multi-user.target
     def _print_next_steps(self):
         """Print next steps for user."""
         print("\n" + "="*60)
-        print("🎉 Pynomaly Monitoring Setup Complete!")
+        print("🎉 anomaly_detection Monitoring Setup Complete!")
         print("="*60)
         print("\n📋 Next Steps:")
         print("1. Start the monitoring stack:")
@@ -641,8 +641,8 @@ WantedBy=multi-user.target
         print("   - Add application-specific metrics")
         print("\n5. Install as system services (optional):")
         print("   sudo cp config/systemd/*.service /etc/systemd/system/")
-        print("   sudo systemctl enable pynomaly-alerts pynomaly-dashboard")
-        print("   sudo systemctl start pynomaly-alerts pynomaly-dashboard")
+        print("   sudo systemctl enable anomaly_detection-alerts anomaly_detection-dashboard")
+        print("   sudo systemctl start anomaly_detection-alerts anomaly_detection-dashboard")
         print("\n6. Check status:")
         print("   ./scripts/monitoring/monitoring-status.sh")
         print("\n🔧 Configuration files created:")
@@ -665,7 +665,7 @@ def main():
     )
 
     logger = logging.getLogger(__name__)
-    logger.info("Starting Pynomaly monitoring setup")
+    logger.info("Starting anomaly_detection monitoring setup")
 
     try:
         setup = MonitoringSetup()

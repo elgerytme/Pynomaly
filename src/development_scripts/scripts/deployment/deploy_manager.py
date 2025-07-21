@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Pynomaly Deployment Manager - Advanced Deployment Automation
+anomaly_detection Deployment Manager - Advanced Deployment Automation
 
-This script provides comprehensive deployment automation for Pynomaly including:
+This script provides comprehensive deployment automation for anomaly_detection including:
 - Multi-environment deployment (dev, staging, production)
 - Docker and Kubernetes deployment strategies
 - Health checks and rollback capabilities
@@ -36,7 +36,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("/tmp/pynomaly_deployment.log"),
+        logging.FileHandler("/tmp/anomaly_detection_deployment.log"),
     ],
 )
 logger = logging.getLogger(__name__)
@@ -78,8 +78,8 @@ class DeploymentStatus(Enum):
     ROLLED_BACK = "rolled_back"
 
 
-class PynomAlyDeploymentManager:
-    """Advanced deployment manager for Pynomaly."""
+class AnomalyDetectionDeploymentManager:
+    """Advanced deployment manager for anomaly_detection."""
 
     def __init__(
         self,
@@ -257,7 +257,7 @@ class PynomAlyDeploymentManager:
             # Check project structure
             required_files = [
                 "pyproject.toml",
-                "src/pynomaly/__init__.py",
+                "src/anomaly_detection/__init__.py",
                 "deploy/docker/Dockerfile.production",
             ]
 
@@ -329,12 +329,12 @@ class PynomAlyDeploymentManager:
                 backup_cmd = [
                     "docker",
                     "exec",
-                    "pynomaly-postgres",
+                    "anomaly_detection-postgres",
                     "pg_dump",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-d",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-f",
                     f"/backup/db_backup_{self.deployment_id}.sql",
                 ]
@@ -344,14 +344,14 @@ class PynomAlyDeploymentManager:
                     "kubectl",
                     "exec",
                     "-n",
-                    f"pynomaly-{self.environment.value}",
+                    f"anomaly_detection-{self.environment.value}",
                     "deployment/postgres",
                     "--",
                     "pg_dump",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-d",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-f",
                     f"/backup/db_backup_{self.deployment_id}.sql",
                 ]
@@ -401,7 +401,7 @@ class PynomAlyDeploymentManager:
                 self.project_root / "deploy" / "docker" / "Dockerfile.production"
             )
 
-            image_tag = f"pynomaly:{self.environment.value}-{build_args['VCS_REF'][:8]}"
+            image_tag = f"anomaly_detection:{self.environment.value}-{build_args['VCS_REF'][:8]}"
 
             # Build image
             self.docker_client.images.build(
@@ -499,7 +499,7 @@ class PynomAlyDeploymentManager:
         )
 
         try:
-            namespace = f"pynomaly-{self.environment.value}"
+            namespace = f"anomaly_detection-{self.environment.value}"
 
             # Create namespace if it doesn't exist
             await self._ensure_namespace(namespace)
@@ -523,9 +523,9 @@ class PynomAlyDeploymentManager:
         self._log_deployment_step("DEPLOY_HELM", "INFO", "Deploying with Helm")
 
         try:
-            chart_path = self.project_root / "deploy" / "helm" / "pynomaly"
-            release_name = f"pynomaly-{self.environment.value}"
-            namespace = f"pynomaly-{self.environment.value}"
+            chart_path = self.project_root / "deploy" / "helm" / "anomaly_detection"
+            release_name = f"anomaly_detection-{self.environment.value}"
+            namespace = f"anomaly_detection-{self.environment.value}"
 
             # Ensure namespace exists
             await self._ensure_namespace(namespace)
@@ -629,7 +629,7 @@ class PynomAlyDeploymentManager:
         """Check Docker container health."""
         try:
             containers = self.docker_client.containers.list(
-                filters={"label": "app=pynomaly"}
+                filters={"label": "app=anomaly_detection"}
             )
 
             for container in containers:
@@ -662,7 +662,7 @@ class PynomAlyDeploymentManager:
         try:
             apps_v1 = client.AppsV1Api(self.k8s_client)
             v1 = client.CoreV1Api(self.k8s_client)
-            namespace = f"pynomaly-{self.environment.value}"
+            namespace = f"anomaly_detection-{self.environment.value}"
 
             # Check deployments
             deployments = apps_v1.list_namespaced_deployment(namespace)
@@ -676,7 +676,7 @@ class PynomAlyDeploymentManager:
 
             # Check pods
             pods = v1.list_namespaced_pod(
-                namespace, label_selector="app.kubernetes.io/name=pynomaly"
+                namespace, label_selector="app.kubernetes.io/name=anomaly_detection"
             )
 
             for pod in pods.items:
@@ -723,9 +723,9 @@ class PynomAlyDeploymentManager:
     def _create_env_file(self, env_file: Path):
         """Create environment file for deployment."""
         env_vars = {
-            "PYNOMALY_ENVIRONMENT": self.environment.value,
+            "ANOMALY_DETECTION_ENVIRONMENT": self.environment.value,
             "VERSION": os.getenv("VERSION", "latest"),
-            "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD", "pynomaly_secret"),
+            "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD", "anomaly_detection_secret"),
             "REDIS_PASSWORD": os.getenv("REDIS_PASSWORD", "redis_secret"),
             "JWT_SECRET_KEY": os.getenv("JWT_SECRET_KEY", "jwt_secret"),
             "API_SECRET_KEY": os.getenv("API_SECRET_KEY", "api_secret"),
@@ -786,7 +786,7 @@ class PynomAlyDeploymentManager:
 
 @click.group()
 def cli():
-    """Pynomaly Deployment Manager CLI."""
+    """anomaly_detection Deployment Manager CLI."""
     pass
 
 
@@ -813,7 +813,7 @@ def cli():
 )
 @click.option("--project-root", default=".", help="Project root directory")
 def deploy(environment: str, platform: str, strategy: str | None, project_root: str):
-    """Deploy Pynomaly to specified environment."""
+    """Deploy anomaly_detection to specified environment."""
 
     project_path = Path(project_root).resolve()
     env = DeploymentEnvironment(environment)
@@ -821,7 +821,7 @@ def deploy(environment: str, platform: str, strategy: str | None, project_root: 
     strat = DeploymentStrategy(strategy) if strategy else None
 
     # Create deployment manager
-    manager = PynomAlyDeploymentManager(project_path, env, plat)
+    manager = AnomalyDetectionDeploymentManager(project_path, env, plat)
 
     # Run deployment
     success = asyncio.run(manager.deploy(strat))
@@ -861,7 +861,7 @@ def status(environment: str, platform: str, project_root: str):
     env = DeploymentEnvironment(environment)
     plat = DeploymentPlatform(platform)
 
-    manager = PynomAlyDeploymentManager(project_path, env, plat)
+    manager = AnomalyDetectionDeploymentManager(project_path, env, plat)
 
     # Check service health
     is_healthy = asyncio.run(manager._check_service_health())

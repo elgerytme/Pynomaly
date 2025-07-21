@@ -1,7 +1,7 @@
 #!/bin/bash
-# Start Pynomaly Monitoring Stack
+# Start anomaly_detection Monitoring Stack
 
-echo "🔄 Starting Pynomaly monitoring stack..."
+echo "🔄 Starting anomaly_detection monitoring stack..."
 
 # Start Docker services
 docker-compose -f docker-compose.monitoring.yml up -d
@@ -18,8 +18,8 @@ echo "Alertmanager: $(curl -s http://localhost:9093/-/healthy || echo 'NOT READY
 
 # Start Python monitoring services
 echo "🐍 Starting Python monitoring services..."
-python3 -m pynomaly.infrastructure.monitoring.alerts &
-python3 -m pynomaly.infrastructure.monitoring.dashboard &
+python3 -m anomaly_detection.infrastructure.monitoring.alerts &
+python3 -m anomaly_detection.infrastructure.monitoring.dashboard &
 
 echo "✅ Monitoring stack started!"
 echo "📊 Access points:"

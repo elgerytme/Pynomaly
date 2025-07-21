@@ -407,7 +407,7 @@ class RemediationSuggestion:
 
 ## 7. Integration Requirements
 
-### 7.1 Pynomaly Ecosystem Integration
+### 7.1 anomaly_detection Ecosystem Integration
 - Data profiling integration with data_profiling package
 - Statistical validation integration with data_science package
 - Anomaly detection integration with core algorithms

@@ -220,7 +220,7 @@ def main():
     print("📋 CHANGELOG.MD UPDATE HELPER")
     print("=" * 50)
     print("This script helps you create properly formatted changelog entries")
-    print("following Pynomaly's changelog management rules.")
+    print("following anomaly_detection's changelog management rules.")
 
     # Get current version
     major, minor, patch = get_current_version()

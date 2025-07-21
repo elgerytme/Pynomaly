@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Performance Regression Detector for Pynomaly Web UI
+ * Performance Regression Detector for anomaly_detection Web UI
  * Compares current performance metrics against historical baselines
  * and detects performance regressions
  */
@@ -42,7 +42,7 @@ class PerformanceRegressionDetector {
       // Load baseline data
       const baseline = await this.loadBaseline();
       if (!baseline) {
-        console.log('=Ê No baseline found. Current results will be saved as new baseline.');
+        console.log('= No baseline found. Current results will be saved as new baseline.');
         await this.saveAsBaseline();
         return this.analysis;
       }
@@ -99,7 +99,7 @@ class PerformanceRegressionDetector {
   }
 
   async comparePerformanceScores(baseline, current) {
-    console.log('=Ê Comparing Lighthouse performance scores...');
+    console.log('= Comparing Lighthouse performance scores...');
 
     // Compare overall performance scores
     for (const currentPage of current.testPages) {
@@ -144,7 +144,7 @@ class PerformanceRegressionDetector {
   }
 
   async compareCoreWebVitals(baseline, current) {
-    console.log('¡ Comparing Core Web Vitals...');
+    console.log(' Comparing Core Web Vitals...');
 
     const metrics = ['lcp', 'fid', 'cls'];
 
@@ -188,7 +188,7 @@ class PerformanceRegressionDetector {
   }
 
   async compareBundleSizes(baseline, current) {
-    console.log('=æ Comparing bundle sizes...');
+    console.log('= Comparing bundle sizes...');
 
     if (!baseline.bundleAnalysis || !current.bundleAnalysis) {
       console.warn('Bundle analysis data not available for comparison');
@@ -298,7 +298,7 @@ class PerformanceRegressionDetector {
     // Generate CI-friendly summary
     await this.generateCISummary();
 
-    console.log('=Ä Regression analysis reports generated:');
+    console.log('= Regression analysis reports generated:');
     console.log(`  - JSON: ${analysisPath}`);
     console.log(`  - HTML: ${path.join(this.outputDir, 'regression-report.html')}`);
     console.log(`  - CI Summary: ${path.join(this.outputDir, 'ci-summary.txt')}`);
@@ -311,7 +311,7 @@ class PerformanceRegressionDetector {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance Regression Report - Pynomaly</title>
+    <title>Performance Regression Report - anomaly_detection</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; background: #f8fafc; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -383,7 +383,7 @@ class PerformanceRegressionDetector {
 
   generateRegressionsTableHTML() {
     if (this.analysis.regressions.length === 0) {
-      return '<div class="section"><div class="card"><h2>Regressions</h2><p>No performance regressions detected! <‰</p></div></div>';
+      return '<div class="section"><div class="card"><h2>Regressions</h2><p>No performance regressions detected! <</p></div></div>';
     }
 
     return `
@@ -496,7 +496,7 @@ Generated: ${new Date().toISOString()}
       await fs.mkdir(this.baselineDir, { recursive: true });
       const baselinePath = path.join(this.baselineDir, 'performance-baseline.json');
       await fs.writeFile(baselinePath, JSON.stringify(currentResults, null, 2));
-      console.log('=Ê Current results saved as new baseline');
+      console.log('= Current results saved as new baseline');
     }
   }
 
@@ -504,7 +504,7 @@ Generated: ${new Date().toISOString()}
     await fs.mkdir(this.baselineDir, { recursive: true });
     const baselinePath = path.join(this.baselineDir, 'performance-baseline.json');
     await fs.writeFile(baselinePath, JSON.stringify(currentResults, null, 2));
-    console.log('=Ê Baseline updated with current results');
+    console.log('= Baseline updated with current results');
   }
 
   shouldUpdateBaseline() {
@@ -587,7 +587,7 @@ if (require.main === module) {
 
   detector.detect()
     .then(results => {
-      console.log(`\n=Ê Regression analysis completed with ${results.summary.overallStatus} status`);
+      console.log(`\n= Regression analysis completed with ${results.summary.overallStatus} status`);
       const exitCode = results.summary.severityDistribution.critical > 0 ? 2 :
                        results.summary.severityDistribution.major > 2 ? 1 : 0;
       process.exit(exitCode);

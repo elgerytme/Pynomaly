@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
       - 'playwright.config.ts'
       - '.percyrc.yml'
@@ -12,7 +12,7 @@ on:
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
       - 'playwright.config.ts'
       - '.percyrc.yml'
@@ -32,11 +32,11 @@ on:
           - performance
 
 env:
-  PYNOMALY_ENVIRONMENT: testing
-  PYNOMALY_LOG_LEVEL: WARNING
-  PYNOMALY_AUTH_ENABLED: false
-  PYNOMALY_DOCS_ENABLED: true
-  PYNOMALY_CORS_ENABLED: true
+  ANOMALY_DETECTION_ENVIRONMENT: testing
+  ANOMALY_DETECTION_LOG_LEVEL: WARNING
+  ANOMALY_DETECTION_AUTH_ENABLED: false
+  ANOMALY_DETECTION_DOCS_ENABLED: true
+  ANOMALY_DETECTION_CORS_ENABLED: true
 
 jobs:
   # Build and prepare assets
@@ -64,8 +64,8 @@ jobs:
         with:
           name: web-assets
           path: |
-            src/pynomaly/presentation/web/static/css/
-            src/pynomaly/presentation/web/static/js/
+            src/anomaly_detection/presentation/web/static/css/
+            src/anomaly_detection/presentation/web/static/js/
           retention-days: 1
 
   # Cross-browser testing matrix
@@ -108,7 +108,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-assets
-          path: src/pynomaly/presentation/web/static/
+          path: src/anomaly_detection/presentation/web/static/
 
       - name: Install Python dependencies
         run: |
@@ -170,7 +170,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-assets
-          path: src/pynomaly/presentation/web/static/
+          path: src/anomaly_detection/presentation/web/static/
 
       - name: Install Python dependencies
         run: |
@@ -224,7 +224,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-assets
-          path: src/pynomaly/presentation/web/static/
+          path: src/anomaly_detection/presentation/web/static/
 
       - name: Install Python dependencies
         run: |
@@ -277,7 +277,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-assets
-          path: src/pynomaly/presentation/web/static/
+          path: src/anomaly_detection/presentation/web/static/
 
       - name: Install Python dependencies
         run: |

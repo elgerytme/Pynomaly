@@ -30,9 +30,9 @@ if ($Help) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ProjectRoot = Resolve-Path "$ScriptDir\..\..\..\"
-$NetworkName = "pynomaly-benchmark"
-$ContainerName = "pynomaly-benchmark"
-$ImageName = "pynomaly:benchmark"
+$NetworkName = "anomaly_detection-benchmark"
+$ContainerName = "anomaly_detection-benchmark"
+$ImageName = "anomaly_detection:benchmark"
 
 # Create network
 docker network create $NetworkName 2>$null
@@ -41,8 +41,8 @@ docker network create $NetworkName 2>$null
 if ($Clean) {
     Write-Host "Cleaning up existing benchmark containers..."
     docker rm -f $ContainerName 2>$null
-    docker rm -f "pynomaly-prometheus" 2>$null
-    docker rm -f "pynomaly-grafana" 2>$null
+    docker rm -f "anomaly_detection-prometheus" 2>$null
+    docker rm -f "anomaly_detection-grafana" 2>$null
 }
 
 # Start monitoring stack if requested
@@ -51,7 +51,7 @@ if ($Monitoring) {
 
     # Start Prometheus
     docker run -d `
-        --name "pynomaly-prometheus" `
+        --name "anomaly_detection-prometheus" `
         --network $NetworkName `
         -p 9090:9090 `
         -v "${ProjectRoot}\docker\monitoring\prometheus.yml:/etc/prometheus/prometheus.yml" `
@@ -59,7 +59,7 @@ if ($Monitoring) {
 
     # Start Grafana
     docker run -d `
-        --name "pynomaly-grafana" `
+        --name "anomaly_detection-grafana" `
         --network $NetworkName `
         -p 3000:3000 `
         -e GF_SECURITY_ADMIN_PASSWORD=admin `

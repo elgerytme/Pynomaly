@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test script for current bash environment
 
-echo "=== Testing Pynomaly Web App in Current Bash Environment ==="
+echo "=== Testing anomaly_detection Web App in Current Bash Environment ==="
 echo "Date: $(date)"
 echo "Current directory: $(pwd)"
 echo "Python version: $(python3 --version)"
@@ -18,7 +18,7 @@ echo
 echo "Test 1: Testing Python imports..."
 PYTHONPATH="$(pwd)/src" python3 -c "
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     print('✓ Import successful')
 except Exception as e:
     print('✗ Import failed:', e)
@@ -34,7 +34,7 @@ echo
 echo "Test 2: Testing app creation..."
 PYTHONPATH="$(pwd)/src" python3 -c "
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     app = create_web_app()
     print('✓ App creation successful')
     print('✓ Routes count:', len(app.routes))
@@ -72,7 +72,7 @@ fi
 # Test Web UI endpoint
 echo "Testing Web UI endpoint..."
 WEB_RESPONSE=$(curl -s http://localhost:8000/web/ 2>/dev/null)
-if echo "$WEB_RESPONSE" | grep -q "Dashboard - Pynomaly"; then
+if echo "$WEB_RESPONSE" | grep -q "Dashboard - anomaly_detection"; then
     echo "✓ Web UI endpoint working"
 else
     echo "✗ Web UI endpoint failed"
@@ -87,7 +87,7 @@ sleep 2
 echo "✓ Server stopped"
 
 echo
-echo "🎉 All tests passed! Pynomaly web app works correctly in current bash environment."
+echo "🎉 All tests passed! anomaly_detection web app works correctly in current bash environment."
 echo "✓ Python imports working"
 echo "✓ App creation working"
 echo "✓ Server startup working"

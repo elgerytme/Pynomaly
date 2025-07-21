@@ -1,6 +1,6 @@
 # Test script for current PowerShell environment
 
-Write-Host "=== Testing Pynomaly Web App in Current PowerShell Environment ===" -ForegroundColor Cyan
+Write-Host "=== Testing anomaly_detection Web App in Current PowerShell Environment ===" -ForegroundColor Cyan
 Write-Host "Date: $(Get-Date)"
 Write-Host "Current directory: $(Get-Location)"
 Write-Host "Python version: $(python3 --version 2>$null)"
@@ -20,7 +20,7 @@ Write-Host "Test 1: Testing Python imports..." -ForegroundColor Yellow
 $env:PYTHONPATH = "$(Get-Location)\src"
 $importResult = python3 -c @"
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     print('✓ Import successful')
 except Exception as e:
     print('✗ Import failed:', e)
@@ -37,7 +37,7 @@ Write-Host ""
 Write-Host "Test 2: Testing app creation..." -ForegroundColor Yellow
 $appResult = python3 -c @"
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     app = create_web_app()
     print('✓ App creation successful')
     print('✓ Routes count:', len(app.routes))
@@ -89,7 +89,7 @@ try {
 Write-Host "Testing Web UI endpoint..."
 try {
     $webResponse = Invoke-WebRequest -Uri "http://localhost:8000/web/" -TimeoutSec 10
-    if ($webResponse.Content -like "*Dashboard - Pynomaly*") {
+    if ($webResponse.Content -like "*Dashboard - anomaly_detection*") {
         Write-Host "✓ Web UI endpoint working" -ForegroundColor Green
     } else {
         Write-Host "✗ Web UI endpoint failed - unexpected content" -ForegroundColor Red
@@ -112,7 +112,7 @@ Start-Sleep -Seconds 2
 Write-Host "✓ Server stopped" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "🎉 All tests passed! Pynomaly web app works correctly in current PowerShell environment." -ForegroundColor Green
+Write-Host "🎉 All tests passed! anomaly_detection web app works correctly in current PowerShell environment." -ForegroundColor Green
 Write-Host "✓ Python imports working" -ForegroundColor Green
 Write-Host "✓ App creation working" -ForegroundColor Green
 Write-Host "✓ Server startup working" -ForegroundColor Green

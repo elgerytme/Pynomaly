@@ -1,12 +1,12 @@
-# Pynomaly TypeScript SDK
+# anomaly_detection TypeScript SDK
 
-![Version](https://img.shields.io/npm/v/@pynomaly/client)
-![License](https://img.shields.io/npm/l/@pynomaly/client)
+![Version](https://img.shields.io/npm/v/@anomaly_detection/client)
+![License](https://img.shields.io/npm/l/@anomaly_detection/client)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.1+-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-16+-green)
 ![Browser](https://img.shields.io/badge/Browser-Modern-orange)
 
-Official TypeScript/JavaScript client library for the Pynomaly anomaly detection API. This SDK provides comprehensive functionality with TypeScript type safety, modern Promise-based async/await API, WebSocket support for real-time updates, and framework integration examples.
+Official TypeScript/JavaScript client library for the anomaly_detection anomaly detection API. This SDK provides comprehensive functionality with TypeScript type safety, modern Promise-based async/await API, WebSocket support for real-time updates, and framework integration examples.
 
 ## Features
 
@@ -24,21 +24,21 @@ Official TypeScript/JavaScript client library for the Pynomaly anomaly detection
 ## Installation
 
 ```bash
-npm install @pynomaly/client
+npm install @anomaly_detection/client
 ```
 
 ### For Node.js environments:
 ```bash
-npm install @pynomaly/client node-fetch
+npm install @anomaly_detection/client node-fetch
 ```
 
 ## Quick Start
 
 ```typescript
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
-const client = new PynomaliClient({
-  baseUrl: 'https://api.pynomaly.com',
+const client = new AnomalyDetectionClient({
+  baseUrl: 'https://api.anomaly_detection.com',
   apiKey: 'your-api-key',
   debug: true,
   websocket: {
@@ -71,8 +71,8 @@ console.log(`Anomaly rate: ${result.anomalyRate * 100}%`);
 ### Client Options
 
 ```typescript
-const client = new PynomaliClient({
-  baseUrl: 'https://api.pynomaly.com',     // API base URL
+const client = new AnomalyDetectionClient({
+  baseUrl: 'https://api.anomaly_detection.com',     // API base URL
   apiKey: 'your-api-key',                  // API key for authentication
   timeout: 30000,                          // Request timeout in milliseconds
   maxRetries: 3,                           // Maximum retry attempts
@@ -173,15 +173,15 @@ const metrics = await client.health.getMetrics();
 
 ```jsx
 import React, { useState, useEffect } from 'react';
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
-export const usePynomaliClient = (config) => {
-  const [client] = useState(() => new PynomaliClient(config));
+export const useAnomalyDetectionClient = (config) => {
+  const [client] = useState(() => new AnomalyDetectionClient(config));
   return client;
 };
 
 export const AnomalyDetectionComponent = () => {
-  const client = usePynomaliClient({ baseUrl: 'https://api.pynomaly.com' });
+  const client = useAnomalyDetectionClient({ baseUrl: 'https://api.anomaly_detection.com' });
   const [result, setResult] = useState(null);
   
   const detectAnomalies = async (data) => {
@@ -221,9 +221,9 @@ export const AnomalyDetectionComponent = () => {
 
 <script setup>
 import { ref } from 'vue';
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
-const client = new PynomaliClient({ baseUrl: 'https://api.pynomaly.com' });
+const client = new AnomalyDetectionClient({ baseUrl: 'https://api.anomaly_detection.com' });
 const result = ref(null);
 
 const detectAnomalies = async (data) => {
@@ -240,11 +240,11 @@ const detectAnomalies = async (data) => {
 
 ```typescript
 import { Injectable } from '@angular/core';
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
 @Injectable({ providedIn: 'root' })
-export class PynomaliService {
-  private client = new PynomaliClient({ baseUrl: 'https://api.pynomaly.com' });
+export class anomaly-detectionService {
+  private client = new AnomalyDetectionClient({ baseUrl: 'https://api.anomaly_detection.com' });
   
   async detectAnomalies(data: number[]) {
     return await this.client.detection.detect({
@@ -259,11 +259,11 @@ export class PynomaliService {
 
 ```typescript
 import { 
-  PynomaliError, 
+  anomaly-detectionError, 
   AuthenticationError, 
   ValidationError, 
   NetworkError 
-} from '@pynomaly/client';
+} from '@anomaly_detection/client';
 
 try {
   await client.detection.detect({ data: [1, 2, 3] });
@@ -274,8 +274,8 @@ try {
     console.log('Validation error:', error.details);
   } else if (error instanceof NetworkError) {
     console.log('Network error:', error.message);
-  } else if (error instanceof PynomaliError) {
-    console.log('Pynomaly error:', error.message);
+  } else if (error instanceof anomaly-detectionError) {
+    console.log('anomaly_detection error:', error.message);
   }
 }
 ```
@@ -304,15 +304,15 @@ The SDK includes comprehensive TypeScript definitions:
 
 ```typescript
 import { 
-  PynomaliClient,
+  AnomalyDetectionClient,
   DetectionRequest,
   DetectionResponse,
   ClientConfig,
   HealthStatus,
   StreamAlert,
-} from '@pynomaly/client';
+} from '@anomaly_detection/client';
 
-const client: PynomaliClient = new PynomaliClient(config);
+const client: AnomalyDetectionClient = new AnomalyDetectionClient(config);
 
 const request: DetectionRequest = {
   data: [1, 2, 3, 4, 5],
@@ -330,8 +330,8 @@ const response: DetectionResponse = await client.detection.detect(request);
 ### Custom Error Handling
 
 ```typescript
-const client = new PynomaliClient({
-  baseUrl: 'https://api.pynomaly.com',
+const client = new AnomalyDetectionClient({
+  baseUrl: 'https://api.anomaly_detection.com',
   debug: true,
 });
 
@@ -355,7 +355,7 @@ const response = await client.request('GET', '/custom-endpoint', {
 ### Rate Limiting
 
 ```typescript
-const client = new PynomaliClient({
+const client = new AnomalyDetectionClient({
   rateLimitRequests: 50,      // 50 requests
   rateLimitPeriod: 60000,     // per minute
 });
@@ -421,9 +421,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- Documentation: [https://docs.pynomaly.com](https://docs.pynomaly.com)
-- Issues: [GitHub Issues](https://github.com/pynomaly/pynomaly-typescript-sdk/issues)
-- Email: support@pynomaly.com
+- Documentation: [https://docs.anomaly_detection.com](https://docs.anomaly_detection.com)
+- Issues: [GitHub Issues](https://github.com/anomaly_detection/anomaly_detection-typescript-sdk/issues)
+- Email: support@anomaly_detection.com
 
 ## Changelog
 

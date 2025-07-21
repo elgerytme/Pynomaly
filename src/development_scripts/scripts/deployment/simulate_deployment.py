@@ -55,7 +55,7 @@ class DeploymentSimulator:
                 # Import after setting path
                 import uvicorn
 
-                from pynomaly.presentation.web.app import create_web_app
+                from anomaly_detection.presentation.web.app import create_web_app
 
                 print("Creating web application...")
                 app = create_web_app()
@@ -248,7 +248,7 @@ class DeploymentSimulator:
     def run_deployment_simulation(self):
         """Run complete deployment simulation."""
         print("=" * 60)
-        print("PYNOMALY DEPLOYMENT SIMULATION")
+        print("anomaly_detection DEPLOYMENT SIMULATION")
         print("Testing URL refactoring: /web -> /")
         print("=" * 60)
 

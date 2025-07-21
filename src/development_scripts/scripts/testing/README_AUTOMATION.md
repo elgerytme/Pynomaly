@@ -1,5 +1,5 @@
 # Automated Test Coverage Analysis System
-## Pynomaly Project
+## anomaly_detection Project
 
 This directory contains a comprehensive automated system for analyzing test coverage, identifying gaps, and creating improvement plans with GitHub issues.
 
@@ -10,7 +10,7 @@ This directory contains a comprehensive automated system for analyzing test cove
 ### Run Complete Analysis
 ```bash
 # Make sure you're in the project root
-cd /path/to/pynomaly
+cd /path/to/anomaly_detection
 
 # Run the complete automated workflow
 ./scripts/testing/run_automated_analysis.sh

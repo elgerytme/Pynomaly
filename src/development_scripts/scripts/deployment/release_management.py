@@ -60,7 +60,7 @@ class ReleaseConfig:
     """Release configuration"""
 
     # Version management
-    version_file: str = "src/pynomaly/_version.py"
+    version_file: str = "src/anomaly_detection/_version.py"
     changelog_file: str = "CHANGELOG.md"
 
     # Git settings
@@ -511,7 +511,7 @@ class ReleaseManager:
                     "./environments/.venv/bin/python",
                     "scripts/deployment/run_smoke_tests.py",
                     "--url",
-                    "https://staging-api.pynomaly.io",
+                    "https://staging-api.anomaly_detection.io",
                 ]
             )
 
@@ -725,7 +725,7 @@ class ReleaseManager:
                     "./environments/.venv/bin/python",
                     "scripts/deployment/validate_health.py",
                     "--url",
-                    "https://api.pynomaly.io",
+                    "https://api.anomaly_detection.io",
                 ]
             )
 

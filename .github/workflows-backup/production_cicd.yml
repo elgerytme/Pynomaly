@@ -184,7 +184,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -216,7 +216,7 @@ jobs:
         
     - name: Run integration tests
       env:
-        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/pynomaly_test
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/anomaly_detection_test
         REDIS_URL: redis://localhost:6379/0
         ENVIRONMENT: testing
       run: |
@@ -225,7 +225,7 @@ jobs:
         
     - name: Run end-to-end tests
       env:
-        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/pynomaly_test
+        DATABASE_URL: postgresql://postgres:test_password@localhost:5432/anomaly_detection_test
         REDIS_URL: redis://localhost:6379/0
         ENVIRONMENT: testing
       run: |
@@ -263,8 +263,8 @@ jobs:
         envsubst < deploy/staging/deployment.yaml | kubectl apply -f -
         
         # Wait for deployment to be ready
-        kubectl rollout status deployment/pynomaly-api -n staging --timeout=300s
-        kubectl rollout status deployment/pynomaly-worker -n staging --timeout=300s
+        kubectl rollout status deployment/anomaly_detection-api -n staging --timeout=300s
+        kubectl rollout status deployment/anomaly_detection-worker -n staging --timeout=300s
         
     - name: Run staging health checks
       run: |

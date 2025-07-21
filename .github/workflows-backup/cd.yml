@@ -123,7 +123,7 @@ jobs:
     if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
     environment:
       name: staging
-      url: https://staging.pynomaly.io
+      url: https://staging.anomaly_detection.io
 
     steps:
     - name: Checkout code
@@ -142,13 +142,13 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region us-west-2 --name pynomaly-staging
+        aws eks update-kubeconfig --region us-west-2 --name anomaly_detection-staging
 
     - name: Deploy to Kubernetes (Staging)
       run: |
         kubectl apply -f deploy/kubernetes/staging/
-        kubectl rollout status deployment/pynomaly-api -n pynomaly-staging
-        kubectl rollout status deployment/pynomaly-web -n pynomaly-staging
+        kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-staging
+        kubectl rollout status deployment/anomaly_detection-web -n anomaly_detection-staging
 
     - name: Run smoke tests
       run: |
@@ -156,7 +156,7 @@ jobs:
         sleep 30
 
         # Get staging URL
-        STAGING_URL=$(kubectl get ingress pynomaly-ingress -n pynomaly-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        STAGING_URL=$(kubectl get ingress anomaly_detection-ingress -n anomaly_detection-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
         # Run basic health checks
         curl -f "https://${STAGING_URL}/api/health" || exit 1
@@ -169,7 +169,7 @@ jobs:
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     environment:
       name: production
-      url: https://pynomaly.io
+      url: https://anomaly_detection.io
 
     steps:
     - name: Checkout code
@@ -188,13 +188,13 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region us-west-2 --name pynomaly-production
+        aws eks update-kubeconfig --region us-west-2 --name anomaly_detection-production
 
     - name: Deploy to Kubernetes (Production)
       run: |
         kubectl apply -f deploy/kubernetes/production/
-        kubectl rollout status deployment/pynomaly-api -n pynomaly-production
-        kubectl rollout status deployment/pynomaly-web -n pynomaly-production
+        kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-production
+        kubectl rollout status deployment/anomaly_detection-web -n anomaly_detection-production
 
     - name: Run production smoke tests
       run: |
@@ -202,7 +202,7 @@ jobs:
         sleep 60
 
         # Get production URL
-        PROD_URL=$(kubectl get ingress pynomaly-ingress -n pynomaly-production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        PROD_URL=$(kubectl get ingress anomaly_detection-ingress -n anomaly_detection-production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
         # Run comprehensive health checks
         curl -f "https://${PROD_URL}/api/health" || exit 1
@@ -216,7 +216,7 @@ jobs:
     if: github.event_name == 'release'
     environment:
       name: pypi
-      url: https://pypi.org/project/pynomaly/
+      url: https://pypi.org/project/anomaly_detection/
 
     steps:
     - name: Checkout code

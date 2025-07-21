@@ -28,7 +28,7 @@ Successfully identified and resolved critical issues found during comprehensive 
 - Moved `DOCUMENTATION_CROSS_LINKING_ANALYSIS_REPORT.md` → `docs/`
 - Moved `DOCUMENTATION_CROSS_LINKING_EXECUTIVE_SUMMARY.md` → `docs/`
 - Moved `CROSS_LINKING_IMPLEMENTATION_STRATEGY.md` → `docs/`
-- Moved `PYNOMALY_FEATURE_GAP_ANALYSIS.md` → `reports/`
+- Moved `ANOMALY_DETECTION_FEATURE_GAP_ANALYSIS.md` → `reports/`
 - Moved `docs_cross_linking_analysis.json` → `reports/`
 - Moved `PROJECT_STRUCTURE.md` → `docs/project/`
 - Moved `ui_quality_metrics.db` → `reports/` (if exists)
@@ -56,7 +56,7 @@ Successfully identified and resolved critical issues found during comprehensive 
 ### ✅ 5. Domain Layer Architecture Violations (MEDIUM PRIORITY)
 **Issue**: Domain layer importing external dependencies (Pydantic, NumPy, etc.)
 **Solution Applied**:
-- Converted `src/pynomaly/domain/entities/ab_test.py` from Pydantic to pure Python
+- Converted `src/anomaly_detection/domain/entities/ab_test.py` from Pydantic to pure Python
 - Replaced `BaseModel` with `@dataclass` decorators
 - Removed `Field` dependencies and used native Python validation
 - Maintained all functionality while removing external dependencies
@@ -96,7 +96,7 @@ mv PROJECT_STRUCTURE.md docs/project/
 
 # Reports organization
 mv BROKEN_LINKS_DETAILED_ANALYSIS.md reports/
-mv PYNOMALY_FEATURE_GAP_ANALYSIS.md reports/
+mv ANOMALY_DETECTION_FEATURE_GAP_ANALYSIS.md reports/
 mv docs_cross_linking_analysis.json reports/
 mv ui_quality_metrics.db reports/ # if exists
 ```

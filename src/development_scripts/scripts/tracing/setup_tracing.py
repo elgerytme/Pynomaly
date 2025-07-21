@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Distributed Tracing Setup Script for Pynomaly
+Distributed Tracing Setup Script for anomaly_detection
 
 This script sets up and configures the distributed tracing infrastructure
 including Jaeger, OTLP collectors, and OpenTelemetry instrumentation.
@@ -19,7 +19,7 @@ version: '3.8'
 services:
   jaeger-all-in-one:
     image: jaegertracing/all-in-one:latest
-    container_name: pynomaly-jaeger
+    container_name: anomaly_detection-jaeger
     ports:
       - "16686:16686"  # Jaeger UI
       - "14268:14268"  # Jaeger collector HTTP
@@ -31,7 +31,7 @@ services:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
       - COLLECTOR_OTLP_ENABLED=true
     networks:
-      - pynomaly-tracing
+      - anomaly_detection-tracing
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -40,7 +40,7 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: pynomaly-otel-collector
+    container_name: anomaly_detection-otel-collector
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
@@ -52,16 +52,16 @@ services:
     depends_on:
       - jaeger-all-in-one
     networks:
-      - pynomaly-tracing
+      - anomaly_detection-tracing
     restart: unless-stopped
 
   zipkin:
     image: openzipkin/zipkin:latest
-    container_name: pynomaly-zipkin
+    container_name: anomaly_detection-zipkin
     ports:
       - "9411:9411"   # Zipkin UI and API
     networks:
-      - pynomaly-tracing
+      - anomaly_detection-tracing
     restart: unless-stopped
     environment:
       - STORAGE_TYPE=mem
@@ -69,7 +69,7 @@ services:
   # Prometheus for metrics collection
   prometheus:
     image: prom/prometheus:latest
-    container_name: pynomaly-prometheus
+    container_name: anomaly_detection-prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -82,13 +82,13 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
     networks:
-      - pynomaly-tracing
+      - anomaly_detection-tracing
     restart: unless-stopped
 
   # Grafana for visualization
   grafana:
     image: grafana/grafana:latest
-    container_name: pynomaly-grafana
+    container_name: anomaly_detection-grafana
     ports:
       - "3000:3000"
     volumes:
@@ -99,11 +99,11 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_USERS_ALLOW_SIGN_UP=false
     networks:
-      - pynomaly-tracing
+      - anomaly_detection-tracing
     restart: unless-stopped
 
 networks:
-  pynomaly-tracing:
+  anomaly_detection-tracing:
     driver: bridge
 
 volumes:
@@ -111,7 +111,7 @@ volumes:
   grafana_data:
 """
 
-    compose_dir = Path("/opt/pynomaly/docker/tracing")
+    compose_dir = Path("/opt/anomaly_detection/docker/tracing")
     compose_dir.mkdir(parents=True, exist_ok=True)
 
     compose_file = compose_dir / "docker-compose.yml"
@@ -168,7 +168,7 @@ processors:
         value: production
         action: upsert
       - key: service.namespace
-        value: pynomaly
+        value: anomaly_detection
         action: upsert
 
   filter:
@@ -203,7 +203,7 @@ exporters:
 
   prometheus:
     endpoint: "0.0.0.0:8889"
-    namespace: "pynomaly"
+    namespace: "anomaly_detection"
     const_labels:
       environment: "production"
 
@@ -244,7 +244,7 @@ service:
       address: 0.0.0.0:8888
 """
 
-    config_dir = Path("/opt/pynomaly/docker/tracing")
+    config_dir = Path("/opt/anomaly_detection/docker/tracing")
     config_dir.mkdir(parents=True, exist_ok=True)
 
     config_file = config_dir / "otel-collector-config.yaml"
@@ -278,7 +278,7 @@ scrape_configs:
     scrape_interval: 10s
     metrics_path: /metrics
 
-  - job_name: 'pynomaly-app'
+  - job_name: 'anomaly_detection-app'
     static_configs:
       - targets: ['host.docker.internal:8000']
     scrape_interval: 15s
@@ -291,7 +291,7 @@ scrape_configs:
     metrics_path: /metrics
 """
 
-    config_dir = Path("/opt/pynomaly/docker/tracing")
+    config_dir = Path("/opt/anomaly_detection/docker/tracing")
     config_file = config_dir / "prometheus.yml"
 
     print("Creating Prometheus configuration...")
@@ -305,7 +305,7 @@ scrape_configs:
 def create_grafana_config():
     """Create Grafana configuration and dashboards."""
     # Grafana provisioning configuration
-    grafana_dir = Path("/opt/pynomaly/docker/tracing/grafana")
+    grafana_dir = Path("/opt/anomaly_detection/docker/tracing/grafana")
 
     # Datasources
     datasources_dir = grafana_dir / "provisioning" / "datasources"
@@ -340,9 +340,9 @@ datasources:
 apiVersion: 1
 
 providers:
-  - name: 'pynomaly-dashboards'
+  - name: 'anomaly_detection-dashboards'
     orgId: 1
-    folder: 'Pynomaly'
+    folder: 'anomaly_detection'
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10
@@ -362,8 +362,8 @@ providers:
     tracing_dashboard = {
         "dashboard": {
             "id": None,
-            "title": "Pynomaly Distributed Tracing",
-            "tags": ["pynomaly", "tracing"],
+            "title": "anomaly_detection Distributed Tracing",
+            "tags": ["anomaly_detection", "tracing"],
             "timezone": "browser",
             "panels": [
                 {
@@ -406,17 +406,17 @@ providers:
 
 def create_tracing_scripts():
     """Create utility scripts for tracing management."""
-    scripts_dir = Path("/opt/pynomaly/scripts/tracing")
+    scripts_dir = Path("/opt/anomaly_detection/scripts/tracing")
     scripts_dir.mkdir(parents=True, exist_ok=True)
 
     # Start tracing infrastructure script
     start_script = """#!/bin/bash
-# Start Pynomaly distributed tracing infrastructure
+# Start anomaly_detection distributed tracing infrastructure
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCKER_DIR="$SCRIPT_DIR/../../docker/tracing"
 
-echo "Starting Pynomaly distributed tracing infrastructure..."
+echo "Starting anomaly_detection distributed tracing infrastructure..."
 
 cd "$DOCKER_DIR"
 
@@ -487,12 +487,12 @@ echo "  - Zipkin: http://localhost:9411"
 
     # Stop tracing infrastructure script
     stop_script = """#!/bin/bash
-# Stop Pynomaly distributed tracing infrastructure
+# Stop anomaly_detection distributed tracing infrastructure
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCKER_DIR="$SCRIPT_DIR/../../docker/tracing"
 
-echo "Stopping Pynomaly distributed tracing infrastructure..."
+echo "Stopping anomaly_detection distributed tracing infrastructure..."
 
 cd "$DOCKER_DIR"
 
@@ -617,7 +617,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 try:
-    from src.pynomaly.infrastructure.tracing.distributed_tracer import (
+    from src.anomaly_detection.infrastructure.tracing.distributed_tracer import (
         initialize_distributed_tracing,
         trace_function,
         trace_async_function,
@@ -630,7 +630,7 @@ except ImportError:
 
 # Initialize tracing
 config = {
-    "service_name": "pynomaly-test",
+    "service_name": "anomaly_detection-test",
     "service_version": "1.0.0",
     "environment": "test",
     "backends": ["console", "jaeger"],
@@ -795,7 +795,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 """
 
-    test_dir = Path("/opt/pynomaly/scripts/tracing")
+    test_dir = Path("/opt/anomaly_detection/scripts/tracing")
     test_file = test_dir / "test_tracing.py"
 
     with open(test_file, "w") as f:
@@ -807,7 +807,7 @@ if __name__ == "__main__":
 
 def main():
     """Main setup function."""
-    print("Setting up Pynomaly distributed tracing infrastructure...")
+    print("Setting up anomaly_detection distributed tracing infrastructure...")
     print("=" * 60)
 
     try:
@@ -841,7 +841,7 @@ def main():
         print("   - Grafana: http://localhost:3000 (admin/admin123)")
         print("   - Prometheus: http://localhost:9090")
         print("\n4. Query traces:")
-        print("   ./scripts/tracing/query_traces.py --service pynomaly --hours 1")
+        print("   ./scripts/tracing/query_traces.py --service anomaly_detection --hours 1")
         print("\n5. Stop the infrastructure:")
         print("   ./scripts/tracing/stop_tracing.sh")
 
@@ -849,8 +849,8 @@ def main():
         print(f"- Docker Compose: {compose_file}")
         print(f"- OTEL Collector config: {otel_config}")
         print(f"- Prometheus config: {prometheus_config}")
-        print("- Grafana configs: /opt/pynomaly/docker/tracing/grafana/")
-        print("- Management scripts: /opt/pynomaly/scripts/tracing/")
+        print("- Grafana configs: /opt/anomaly_detection/docker/tracing/grafana/")
+        print("- Management scripts: /opt/anomaly_detection/scripts/tracing/")
 
     except Exception as e:
         print(f"\n❌ Error during setup: {e}")

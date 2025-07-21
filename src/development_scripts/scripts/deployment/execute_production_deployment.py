@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Deployment Executor for Pynomaly v1.0.0
+Production Deployment Executor for anomaly_detection v1.0.0
 
 This script executes the actual production deployment using blue-green strategy
 with comprehensive monitoring and rollback capabilities.
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProductionDeploymentExecutor:
-    """Executes production deployment for Pynomaly v1.0.0."""
+    """Executes production deployment for anomaly_detection v1.0.0."""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
@@ -102,7 +102,7 @@ class ProductionDeploymentExecutor:
                 "backup_id": f"backup_{self.deployment_id}",
                 "size": "2.5GB",
                 "duration": "4m 30s",
-                "location": "s3://pynomaly-backups/production/",
+                "location": "s3://anomaly_detection-backups/production/",
             }
 
             self.log_deployment_step(
@@ -133,7 +133,7 @@ class ProductionDeploymentExecutor:
                 self.log_deployment_step("Build", "PROGRESS", step)
 
             image_info = {
-                "image_tag": f"pynomaly:production-{self.version}",
+                "image_tag": f"anomaly_detection:production-{self.version}",
                 "size": "1.2GB",
                 "scan_results": "0 critical, 0 high vulnerabilities",
                 "build_duration": "8m 15s",
@@ -160,7 +160,7 @@ class ProductionDeploymentExecutor:
             time.sleep(3)
 
             green_deployment_status = {
-                "namespace": "pynomaly-production-green",
+                "namespace": "anomaly_detection-production-green",
                 "replicas": 5,
                 "ready_replicas": 5,
                 "deployment_time": "2m 45s",
@@ -356,8 +356,8 @@ class ProductionDeploymentExecutor:
                 )
 
             monitoring_info = {
-                "prometheus_url": "https://prometheus.pynomaly.io",
-                "grafana_url": "https://grafana.pynomaly.io",
+                "prometheus_url": "https://prometheus.anomaly_detection.io",
+                "grafana_url": "https://grafana.anomaly_detection.io",
                 "alert_channels": ["email", "slack", "pagerduty"],
                 "retention_period": "30 days",
             }
@@ -397,10 +397,10 @@ class ProductionDeploymentExecutor:
                 self.log_deployment_step("Finalization", "SUCCESS", f"{task} completed")
 
             production_info = {
-                "production_url": "https://api.pynomaly.io",
-                "dashboard_url": "https://app.pynomaly.io",
-                "documentation_url": "https://docs.pynomaly.io",
-                "status_page": "https://status.pynomaly.io",
+                "production_url": "https://api.anomaly_detection.io",
+                "dashboard_url": "https://app.anomaly_detection.io",
+                "documentation_url": "https://docs.anomaly_detection.io",
+                "status_page": "https://status.anomaly_detection.io",
             }
 
             self.log_deployment_step(
@@ -449,10 +449,10 @@ class ProductionDeploymentExecutor:
                 else "0%",
             },
             "production_urls": {
-                "api": "https://api.pynomaly.io",
-                "dashboard": "https://app.pynomaly.io",
-                "docs": "https://docs.pynomaly.io",
-                "monitoring": "https://grafana.pynomaly.io",
+                "api": "https://api.anomaly_detection.io",
+                "dashboard": "https://app.anomaly_detection.io",
+                "docs": "https://docs.anomaly_detection.io",
+                "monitoring": "https://grafana.anomaly_detection.io",
             },
             "deployment_log": self.deployment_log,
         }
@@ -461,7 +461,7 @@ class ProductionDeploymentExecutor:
 
     def execute_deployment(self) -> tuple[bool, dict[str, Any]]:
         """Execute complete production deployment."""
-        logger.info("🚀 Starting Pynomaly v1.0.0 Production Deployment")
+        logger.info("🚀 Starting anomaly_detection v1.0.0 Production Deployment")
         logger.info("=" * 70)
         logger.info(f"📋 Deployment ID: {self.deployment_id}")
         logger.info(f"🎯 Version: {self.version}")

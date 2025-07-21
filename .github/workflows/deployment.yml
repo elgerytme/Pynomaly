@@ -134,7 +134,7 @@ jobs:
     if: needs.deployment-strategy.outputs.deploy-staging == 'true'
     environment: 
       name: staging
-      url: https://staging.pynomaly.io
+      url: https://staging.anomaly_detection.io
     
     steps:
     - name: Checkout code
@@ -157,18 +157,18 @@ jobs:
     - name: Create deployment backup
       run: |
         echo "Creating staging deployment backup..."
-        # kubectl get deployment pynomaly-staging -o yaml > staging-backup-$(date +%Y%m%d-%H%M%S).yaml
+        # kubectl get deployment anomaly_detection-staging -o yaml > staging-backup-$(date +%Y%m%d-%H%M%S).yaml
 
     - name: Deploy to staging
       run: |
         echo "Deploying to staging environment..."
         
         # Update deployment with new image
-        # kubectl set image deployment/pynomaly-staging \
-        #   pynomaly=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }}
+        # kubectl set image deployment/anomaly_detection-staging \
+        #   anomaly_detection=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }}
         
         # Wait for rollout to complete
-        # kubectl rollout status deployment/pynomaly-staging --timeout=600s
+        # kubectl rollout status deployment/anomaly_detection-staging --timeout=600s
         
         # For now, simulate deployment
         echo "Simulated staging deployment completed"
@@ -181,8 +181,8 @@ jobs:
         
         # Health check endpoints (simulated for now)
         echo "Checking application health..."
-        # curl -f https://staging.pynomaly.io/api/health/ready || exit 1
-        # curl -f https://staging.pynomaly.io/api/health/live || exit 1
+        # curl -f https://staging.anomaly_detection.io/api/health/ready || exit 1
+        # curl -f https://staging.anomaly_detection.io/api/health/live || exit 1
         
         echo "Staging health checks passed"
 
@@ -196,7 +196,7 @@ jobs:
 
         # Run smoke tests against staging
         # pytest tests/smoke/ -v \
-        #   --base-url=https://staging.pynomaly.io \
+        #   --base-url=https://staging.anomaly_detection.io \
         #   --junitxml=staging-smoke-results.xml
         
         echo "Staging smoke tests completed"
@@ -221,7 +221,7 @@ jobs:
     if: needs.deployment-strategy.outputs.deploy-production == 'true' && (success() || needs.deploy-staging.result == 'skipped')
     environment: 
       name: production
-      url: https://pynomaly.io
+      url: https://anomaly_detection.io
     
     steps:
     - name: Checkout code
@@ -246,10 +246,10 @@ jobs:
         echo "Creating production backup..."
         
         # Database backup
-        # kubectl exec deployment/pynomaly-postgres -- pg_dump pynomaly > prod-db-backup-$(date +%Y%m%d-%H%M%S).sql
+        # kubectl exec deployment/anomaly_detection-postgres -- pg_dump anomaly_detection > prod-db-backup-$(date +%Y%m%d-%H%M%S).sql
         
         # Deployment backup
-        # kubectl get deployment pynomaly-production -o yaml > prod-deployment-backup-$(date +%Y%m%d-%H%M%S).yaml
+        # kubectl get deployment anomaly_detection-production -o yaml > prod-deployment-backup-$(date +%Y%m%d-%H%M%S).yaml
         
         echo "Production backup completed"
 
@@ -271,14 +271,14 @@ jobs:
         echo "Deploying to production environment..."
         
         # Rolling update with zero downtime
-        # kubectl set image deployment/pynomaly-production \
-        #   pynomaly=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }}
+        # kubectl set image deployment/anomaly_detection-production \
+        #   anomaly_detection=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }}
         
         # Wait for rollout with extended timeout for production
-        # kubectl rollout status deployment/pynomaly-production --timeout=900s
+        # kubectl rollout status deployment/anomaly_detection-production --timeout=900s
         
         # Verify deployment
-        # kubectl get pods -l app=pynomaly-production
+        # kubectl get pods -l app=anomaly_detection-production
         
         echo "Production deployment completed"
 
@@ -289,12 +289,12 @@ jobs:
         sleep 120
         
         # Comprehensive health checks
-        # curl -f https://pynomaly.io/api/health/ready || exit 1
-        # curl -f https://pynomaly.io/api/health/live || exit 1
-        # curl -f https://pynomaly.io/api/v1/health/ || exit 1
+        # curl -f https://anomaly_detection.io/api/health/ready || exit 1
+        # curl -f https://anomaly_detection.io/api/health/live || exit 1
+        # curl -f https://anomaly_detection.io/api/v1/health/ || exit 1
         
         # Database connectivity check
-        # kubectl exec deployment/pynomaly-production -- python -c "from pynomaly.infrastructure.database import get_session; get_session()"
+        # kubectl exec deployment/anomaly_detection-production -- python -c "from anomaly_detection.infrastructure.database import get_session; get_session()"
         
         echo "Production health checks passed"
 
@@ -308,7 +308,7 @@ jobs:
 
         # Run critical path smoke tests
         # pytest tests/smoke/critical/ -v \
-        #   --base-url=https://pynomaly.io \
+        #   --base-url=https://anomaly_detection.io \
         #   --junitxml=production-smoke-results.xml
         
         echo "Production smoke tests completed"
@@ -352,13 +352,13 @@ jobs:
         echo "|-------------|--------|-----|" >> deployment-reports/summary.md
         
         if [[ "${{ needs.deploy-staging.result }}" == "success" ]]; then
-          echo "| Staging | ✅ Deployed | https://staging.pynomaly.io |" >> deployment-reports/summary.md
+          echo "| Staging | ✅ Deployed | https://staging.anomaly_detection.io |" >> deployment-reports/summary.md
         elif [[ "${{ needs.deployment-strategy.outputs.deploy-staging }}" == "true" ]]; then
           echo "| Staging | ❌ Failed | - |" >> deployment-reports/summary.md
         fi
         
         if [[ "${{ needs.deploy-production.result }}" == "success" ]]; then
-          echo "| Production | ✅ Deployed | https://pynomaly.io |" >> deployment-reports/summary.md
+          echo "| Production | ✅ Deployed | https://anomaly_detection.io |" >> deployment-reports/summary.md
         elif [[ "${{ needs.deployment-strategy.outputs.deploy-production }}" == "true" ]]; then
           echo "| Production | ❌ Failed | - |" >> deployment-reports/summary.md
         fi

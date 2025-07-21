@@ -52,7 +52,7 @@ Successfully completed major domain boundary fix by redistributing content from 
   - Health monitoring, value objects
   - Application and domain abstractions
 
-### 3.2 ai/mlops/pynomaly_mlops → data/anomaly_detection/mlops ✅
+### 3.2 ai/mlops/anomaly_detection_mlops → data/anomaly_detection/mlops ✅
 - **MLOps components** → Moved to `data/anomaly_detection/mlops/`
   - Model entities and core MLOps functionality
 

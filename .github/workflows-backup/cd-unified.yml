@@ -178,10 +178,10 @@ jobs:
         cat > staging-deployment.yml << EOF
         version: '3.8'
         services:
-          pynomaly-api:
+          anomaly_detection-api:
             image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare-deployment.outputs.image-tag }}
             environment:
-              - PYNOMALY_ENVIRONMENT=staging
+              - ANOMALY_DETECTION_ENVIRONMENT=staging
               - DATABASE_URL=\${STAGING_DATABASE_URL}
               - REDIS_URL=\${STAGING_REDIS_URL}
             ports:
@@ -205,7 +205,7 @@ jobs:
         sleep 60
         
         # In a real scenario, you would check actual staging endpoints
-        # For example: curl -f https://staging-api.pynomaly.io/health
+        # For example: curl -f https://staging-api.anomaly_detection.io/health
         echo "✅ Staging deployment ready"
 
     - name: Run smoke tests
@@ -221,7 +221,7 @@ jobs:
             """Test the health endpoint"""
             try:
                 # In real scenario, this would be your staging URL
-                response = requests.get("https://staging-api.pynomaly.io/health", timeout=10)
+                response = requests.get("https://staging-api.anomaly_detection.io/health", timeout=10)
                 return response.status_code == 200
             except:
                 return False
@@ -229,7 +229,7 @@ jobs:
         def test_api_ready():
             """Test the API ready endpoint"""
             try:
-                response = requests.get("https://staging-api.pynomaly.io/api/health/ready", timeout=10)
+                response = requests.get("https://staging-api.anomaly_detection.io/api/health/ready", timeout=10)
                 return response.status_code == 200
             except:
                 return False
@@ -276,7 +276,7 @@ jobs:
               deployment_id: deployments.data[0].id,
               state: 'success',
               description: 'Staging deployment successful',
-              environment_url: 'https://staging.pynomaly.io'
+              environment_url: 'https://staging.anomaly_detection.io'
             });
           }
 
@@ -301,14 +301,14 @@ jobs:
         # Create backup script
         cat > backup-production.sh << 'EOF'
         #!/bin/bash
-        BACKUP_DIR="/opt/pynomaly/backups/$(date +%Y%m%d_%H%M%S)"
+        BACKUP_DIR="/opt/anomaly_detection/backups/$(date +%Y%m%d_%H%M%S)"
         mkdir -p "$BACKUP_DIR"
         
         # Backup database
-        docker exec pynomaly-postgres pg_dump -U pynomaly pynomaly_prod > "$BACKUP_DIR/database_backup.sql"
+        docker exec anomaly_detection-postgres pg_dump -U anomaly_detection anomaly_detection_prod > "$BACKUP_DIR/database_backup.sql"
         
         # Backup volumes
-        tar -czf "$BACKUP_DIR/volumes_backup.tar.gz" -C /opt/pynomaly/data .
+        tar -czf "$BACKUP_DIR/volumes_backup.tar.gz" -C /opt/anomaly_detection/data .
         
         echo "✅ Backup created at $BACKUP_DIR"
         EOF
@@ -335,7 +335,7 @@ jobs:
         echo "📦 Image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
         
         # Update docker-compose to use new image
-        sed -i "s|image: pynomaly:production-.*|image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}|g" docker-compose.production.yml
+        sed -i "s|image: anomaly_detection:production-.*|image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}|g" docker-compose.production.yml
         
         # Deploy using our production deployment script
         ./deploy/docker/scripts/deploy.sh
@@ -373,7 +373,7 @@ jobs:
               deployment_id: deployments.data[0].id,
               state: 'success',
               description: 'Production deployment successful',
-              environment_url: 'https://pynomaly.io'
+              environment_url: 'https://anomaly_detection.io'
             });
           }
 

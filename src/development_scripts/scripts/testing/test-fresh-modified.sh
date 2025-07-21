@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test script for fresh bash environment (modified for externally managed Python)
 
-echo "=== Testing Pynomaly Web App in Fresh Bash Environment (Modified) ==="
+echo "=== Testing anomaly_detection Web App in Fresh Bash Environment (Modified) ==="
 echo "Date: $(date)"
 echo "Current directory: $(pwd)"
 echo "Python version: $(python3 --version)"
@@ -60,9 +60,9 @@ try:
         print(f'⚠️  Missing packages: {missing_packages}')
         print('⚠️  Cannot test full functionality, but testing core imports...')
 
-    # Test pynomaly imports
-    from pynomaly.presentation.web.app import create_web_app
-    print('✓ Pynomaly import successful in fresh environment')
+    # Test anomaly_detection imports
+    from anomaly_detection.presentation.web.app import create_web_app
+    print('✓ anomaly_detection import successful in fresh environment')
 
 except Exception as e:
     print('✗ Import failed in fresh environment:', e)
@@ -82,7 +82,7 @@ echo
 echo "Test 3: Testing app creation in fresh environment..."
 PYTHONPATH="$(pwd)/src" python3 -c "
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     app = create_web_app()
     print('✓ App creation successful in fresh environment')
     print('✓ Routes count:', len(app.routes))
@@ -117,10 +117,10 @@ echo
 # Test 4: Check that required files are present
 echo "Test 4: Verifying file structure in fresh environment..."
 REQUIRED_FILES=(
-    "src/pynomaly/__init__.py"
-    "src/pynomaly/presentation/api/app.py"
-    "src/pynomaly/presentation/web/app.py"
-    "src/pynomaly/infrastructure/config/container.py"
+    "src/anomaly_detection/__init__.py"
+    "src/anomaly_detection/presentation/api/app.py"
+    "src/anomaly_detection/presentation/web/app.py"
+    "src/anomaly_detection/infrastructure/config/container.py"
     "scripts/run_web_app.py"
 )
 
@@ -170,7 +170,7 @@ fi
 # Test Web UI endpoint
 echo "Testing Web UI endpoint in fresh environment..."
 WEB_RESPONSE=$(curl -s http://localhost:8000/web/ 2>/dev/null)
-if echo "$WEB_RESPONSE" | grep -q "Dashboard - Pynomaly"; then
+if echo "$WEB_RESPONSE" | grep -q "Dashboard - anomaly_detection"; then
     echo "✓ Web UI endpoint working in fresh environment"
 else
     echo "✗ Web UI endpoint failed in fresh environment"
@@ -197,7 +197,7 @@ rm -rf "$TEST_ENV_DIR"
 echo "✓ Test environment cleaned up"
 
 echo
-echo "🎉 All fresh environment tests passed! Pynomaly web app works correctly in fresh bash environment."
+echo "🎉 All fresh environment tests passed! anomaly_detection web app works correctly in fresh bash environment."
 echo "✓ Source code setup in fresh location"
 echo "✓ File structure verification"
 echo "✓ Python imports working"

@@ -1,34 +1,34 @@
-# Docker Compose Template for Pynomaly Isolation Environment
+# Docker Compose Template for anomaly_detection Isolation Environment
 # Provides complete isolated development environment with supporting services
 
 version: '3.8'
 
 services:
   # Main isolation environment
-  pynomaly-isolated:
+  anomaly_detection-isolated:
     build:
       context: ../..
       dockerfile: .project-rules/templates/Dockerfile.isolation
       args:
         PYTHON_VERSION: ${PYTHON_VERSION:-3.11}
-    container_name: pynomaly-isolated-${ISOLATION_ID:-default}
-    hostname: pynomaly-isolated
+    container_name: anomaly_detection-isolated-${ISOLATION_ID:-default}
+    hostname: anomaly_detection-isolated
     networks:
       - isolation-network
     volumes:
       # Mount source code (read-write for development)
       - ../..:/workspace:rw
       # Mount isolated Python packages
-      - isolation-python-packages:/home/pynomaly/.venv
+      - isolation-python-packages:/home/anomaly_detection/.venv
       # Mount isolated Git configuration
-      - isolation-git-config:/home/pynomaly/.gitconfig
+      - isolation-git-config:/home/anomaly_detection/.gitconfig
       # Mount Docker socket for nested containers (if needed)
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - ISOLATION_ID=${ISOLATION_ID:-default}
-      - PYNOMALY_ENV=isolated
+      - ANOMALY_DETECTION_ENV=isolated
       - PYTHONPATH=/workspace/src
-      - DATABASE_URL=postgresql://pynomaly:isolated@postgres-isolated:5432/pynomaly_isolated
+      - DATABASE_URL=postgresql://anomaly_detection:isolated@postgres-isolated:5432/anomaly_detection_isolated
       - REDIS_URL=redis://redis-isolated:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
       - DEVELOPMENT_MODE=true
@@ -51,8 +51,8 @@ services:
     networks:
       - isolation-network
     environment:
-      POSTGRES_DB: pynomaly_isolated
-      POSTGRES_USER: pynomaly
+      POSTGRES_DB: anomaly_detection_isolated
+      POSTGRES_USER: anomaly_detection
       POSTGRES_PASSWORD: isolated
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     volumes:
@@ -62,7 +62,7 @@ services:
       - "${HOST_DB_PORT:-5432}:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pynomaly -d pynomaly_isolated"]
+      test: ["CMD-SHELL", "pg_isready -U anomaly_detection -d anomaly_detection_isolated"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -100,9 +100,9 @@ services:
       - isolation-test-results:/workspace/test-results
     environment:
       - ISOLATION_ID=${ISOLATION_ID:-default}
-      - PYNOMALY_ENV=test
+      - ANOMALY_DETECTION_ENV=test
       - PYTHONPATH=/workspace/src
-      - DATABASE_URL=postgresql://pynomaly:isolated@postgres-isolated:5432/pynomaly_test
+      - DATABASE_URL=postgresql://anomaly_detection:isolated@postgres-isolated:5432/anomaly_detection_test
       - REDIS_URL=redis://redis-isolated:6379/1
     depends_on:
       - postgres-isolated
@@ -135,7 +135,7 @@ services:
 
 networks:
   isolation-network:
-    name: pynomaly-isolation-${ISOLATION_ID:-default}
+    name: anomaly_detection-isolation-${ISOLATION_ID:-default}
     driver: bridge
     ipam:
       config:
@@ -145,23 +145,23 @@ networks:
 volumes:
   # Persistent volumes for isolation environment
   isolation-python-packages:
-    name: pynomaly-isolation-python-${ISOLATION_ID:-default}
+    name: anomaly_detection-isolation-python-${ISOLATION_ID:-default}
     driver: local
     
   isolation-postgres-data:
-    name: pynomaly-isolation-postgres-${ISOLATION_ID:-default}
+    name: anomaly_detection-isolation-postgres-${ISOLATION_ID:-default}
     driver: local
     
   isolation-redis-data:
-    name: pynomaly-isolation-redis-${ISOLATION_ID:-default}
+    name: anomaly_detection-isolation-redis-${ISOLATION_ID:-default}
     driver: local
     
   isolation-git-config:
-    name: pynomaly-isolation-git-${ISOLATION_ID:-default}
+    name: anomaly_detection-isolation-git-${ISOLATION_ID:-default}
     driver: local
     
   isolation-test-results:
-    name: pynomaly-isolation-test-results-${ISOLATION_ID:-default}
+    name: anomaly_detection-isolation-test-results-${ISOLATION_ID:-default}
     driver: local
 
 # Additional services that can be enabled with profiles
@@ -177,7 +177,7 @@ x-optional-services:
       - isolation-network
     volumes:
       - ../..:/workspace:rw
-      - isolation-jupyter-data:/home/pynomaly/.jupyter
+      - isolation-jupyter-data:/home/anomaly_detection/.jupyter
     environment:
       - ISOLATION_ID=${ISOLATION_ID:-default}
       - JUPYTER_ENABLE_LAB=yes

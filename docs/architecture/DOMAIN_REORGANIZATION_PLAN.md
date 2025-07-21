@@ -6,7 +6,7 @@ This document outlines the comprehensive reorganization of the repository into l
 
 ## Current Issues Addressed
 
-1. **Scattered anomaly detection logic**: `pynomaly-detection/` package moved to standard `src/packages/data/anomaly_detection/` structure
+1. **Scattered anomaly detection logic**: `anomaly_detection-detection/` package moved to standard `src/packages/data/anomaly_detection/` structure
 2. **Overlapping responsibilities**: Multiple packages handling similar functionality (algorithms, core detection, mlops)
 3. **Inconsistent package structure**: Some packages follow standards, others don't
 4. **Mixed concerns**: Packages containing multiple unrelated domains
@@ -20,7 +20,7 @@ This document outlines the comprehensive reorganization of the repository into l
 **Status**: ✅ Implemented
 
 **Sources Consolidated**:
-- `pynomaly-detection/src/pynomaly_detection/` → `src/packages/data/anomaly_detection/`
+- `anomaly_detection-detection/src/anomaly_detection/` → `src/packages/data/anomaly_detection/`
 - `src/packages/algorithms/adapters/` → `src/packages/anomaly_detection/adapters/`
 - Core detection logic from `src/packages/core/`
 
@@ -145,7 +145,7 @@ pkg/
 
 ### Phase 1: Core Domain Creation ✅ Complete
 - [x] Create `anomaly_detection/` package
-- [x] Move `pynomaly-detection/` content to `data/anomaly_detection/`
+- [x] Move `anomaly_detection-detection/` content to `data/anomaly_detection/`
 - [x] Consolidate algorithm adapters
 - [x] Create `machine_learning/` package
 - [x] Create `people_ops/` package

@@ -28,15 +28,15 @@ if ($Help) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ProjectRoot = Resolve-Path "$ScriptDir\..\..\..\"
-$NetworkName = "pynomaly-dev"
-$ContainerName = "pynomaly-dev"
-$ImageName = "pynomaly:dev"
+$NetworkName = "anomaly_detection-dev"
+$ContainerName = "anomaly_detection-dev"
+$ImageName = "anomaly_detection:dev"
 $EnvFile = Join-Path $ProjectRoot ".env.dev"
 
 # Storage containers
-$PostgresContainer = "pynomaly-postgres-dev"
-$RedisContainer = "pynomaly-redis-dev"
-$MinioContainer = "pynomaly-minio-dev"
+$PostgresContainer = "anomaly_detection-postgres-dev"
+$RedisContainer = "anomaly_detection-redis-dev"
+$MinioContainer = "anomaly_detection-minio-dev"
 
 function Stop-Containers {
     Write-Host "Stopping all containers..."
@@ -70,11 +70,11 @@ if ($Storage -eq "postgres" -or $Storage -eq "all") {
     docker run -d `
         --name $PostgresContainer `
         --network $NetworkName `
-        -e POSTGRES_DB=pynomaly_dev `
-        -e POSTGRES_USER=pynomaly `
+        -e POSTGRES_DB=anomaly_detection_dev `
+        -e POSTGRES_USER=anomaly_detection `
         -e POSTGRES_PASSWORD=dev_password `
         -p 5432:5432 `
-        -v pynomaly-postgres-dev:/var/lib/postgresql/data `
+        -v anomaly_detection-postgres-dev:/var/lib/postgresql/data `
         postgres:15-alpine
 }
 
@@ -85,7 +85,7 @@ if ($Storage -eq "redis" -or $Storage -eq "all") {
         --name $RedisContainer `
         --network $NetworkName `
         -p 6379:6379 `
-        -v pynomaly-redis-dev:/data `
+        -v anomaly_detection-redis-dev:/data `
         redis:7-alpine redis-server --appendonly yes
 }
 
@@ -99,7 +99,7 @@ if ($Storage -eq "minio" -or $Storage -eq "all") {
         -e MINIO_ROOT_PASSWORD=minioadmin123 `
         -p 9000:9000 `
         -p 9001:9001 `
-        -v pynomaly-minio-dev:/data `
+        -v anomaly_detection-minio-dev:/data `
         minio/minio server /data --console-address ":9001"
 }
 
@@ -113,7 +113,7 @@ if ($Build) {
     docker build -t $ImageName -f "$ProjectRoot\Dockerfile" $ProjectRoot
 }
 
-Write-Host "Starting Pynomaly development environment with storage..."
+Write-Host "Starting anomaly_detection development environment with storage..."
 Write-Host "Container: $ContainerName"
 Write-Host "Port: $Port"
 Write-Host "Storage: $Storage"
@@ -121,7 +121,7 @@ Write-Host "Storage: $Storage"
 # Prepare environment variables
 $EnvVars = @()
 if ($Storage -eq "postgres" -or $Storage -eq "all") {
-    $EnvVars += "-e", "DATABASE_URL=postgresql://pynomaly:dev_password@${PostgresContainer}:5432/pynomaly_dev"
+    $EnvVars += "-e", "DATABASE_URL=postgresql://anomaly_detection:dev_password@${PostgresContainer}:5432/anomaly_detection_dev"
 }
 if ($Storage -eq "redis" -or $Storage -eq "all") {
     $EnvVars += "-e", "REDIS_URL=redis://${RedisContainer}:6379/0"
@@ -149,7 +149,7 @@ $Args = @(
     "-e", "RELOAD=true"
 ) + $EnvVars + @(
     $ImageName,
-    "poetry", "run", "uvicorn", "pynomaly.presentation.api:app",
+    "poetry", "run", "uvicorn", "anomaly_detection.presentation.api:app",
     "--host", "0.0.0.0",
     "--port", "8000",
     "--reload",

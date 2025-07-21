@@ -1,27 +1,27 @@
 #!/bin/bash
 
-# Start Pynomaly Development Server in Isolation
+# Start anomaly_detection Development Server in Isolation
 # Configures and starts the FastAPI development server
 
 set -euo pipefail
 
-echo "🚀 Starting Pynomaly Development Server in Isolation..."
+echo "🚀 Starting anomaly_detection Development Server in Isolation..."
 
 # Check if we're in the right directory
-if [ ! -f "/workspace/src/pynomaly/main.py" ] && [ ! -f "/workspace/pyproject.toml" ]; then
-    echo "❌ Error: Not in a Pynomaly workspace directory"
-    echo "Expected files not found: src/pynomaly/main.py or pyproject.toml"
+if [ ! -f "/workspace/src/anomaly_detection/main.py" ] && [ ! -f "/workspace/pyproject.toml" ]; then
+    echo "❌ Error: Not in a anomaly_detection workspace directory"
+    echo "Expected files not found: src/anomaly_detection/main.py or pyproject.toml"
     exit 1
 fi
 
 # Set environment variables for development
 export PYTHONPATH="/workspace/src"
-export PYNOMALY_ENV="isolated"
+export ANOMALY_DETECTION_ENV="isolated"
 export LOG_LEVEL="DEBUG"
 export DEVELOPMENT_MODE="true"
 
 # Database connection (use isolated database)
-export DATABASE_URL="${DATABASE_URL:-postgresql://pynomaly:isolated@postgres-isolated:5432/pynomaly_isolated}"
+export DATABASE_URL="${DATABASE_URL:-postgresql://anomaly_detection:isolated@postgres-isolated:5432/anomaly_detection_isolated}"
 export REDIS_URL="${REDIS_URL:-redis://redis-isolated:6379/0}"
 
 # API configuration
@@ -30,7 +30,7 @@ export API_PORT="${API_PORT:-8000}"
 export API_RELOAD="${API_RELOAD:-true}"
 
 echo "📋 Development Configuration:"
-echo "  - Environment: $PYNOMALY_ENV"
+echo "  - Environment: $ANOMALY_DETECTION_ENV"
 echo "  - Python Path: $PYTHONPATH"
 echo "  - Database: $DATABASE_URL"
 echo "  - Redis: $REDIS_URL"
@@ -95,9 +95,9 @@ echo "================================"
 cd /workspace
 
 # Start the server with uvicorn
-if [ -f "src/pynomaly/main.py" ]; then
+if [ -f "src/anomaly_detection/main.py" ]; then
     # Standard project structure
-    exec uvicorn pynomaly.main:app \
+    exec uvicorn anomaly_detection.main:app \
         --host "$API_HOST" \
         --port "$API_PORT" \
         --reload \
@@ -112,7 +112,7 @@ elif [ -f "main.py" ]; then
 else
     echo "❌ Could not find main.py file"
     echo "Looked in:"
-    echo "  - /workspace/src/pynomaly/main.py"
+    echo "  - /workspace/src/anomaly_detection/main.py"
     echo "  - /workspace/main.py"
     exit 1
 fi

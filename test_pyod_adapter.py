@@ -9,7 +9,7 @@ import numpy as np
 package_root = Path(__file__).parent / "src/packages/data/anomaly_detection/src"
 sys.path.insert(0, str(package_root))
 
-from pynomaly_detection.algorithms.pyod_adapter import PyODAdapter
+from anomaly_detection.algorithms.pyod_adapter import PyODAdapter
 
 def test_pyod_adapter():
     """Test PyOD adapter functionality."""

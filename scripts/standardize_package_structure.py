@@ -44,20 +44,20 @@ def standardize_package_structure():
     
     # Process each package
     for package_path in packages_dir.rglob("*"):
-        if package_path.is_dir() and package_path.name in ["src", "pynomaly_detection"]:
+        if package_path.is_dir() and package_path.name in ["src", "anomaly_detection"]:
             # Handle packages with extra src/ layer
             parent = package_path.parent
             
             # Check if this is a problematic src directory
             if (package_path.name == "src" and 
                 len(list(package_path.iterdir())) == 1 and
-                (package_path / "pynomaly_detection").exists()):
+                (package_path / "anomaly_detection").exists()):
                 
-                # Move contents of src/pynomaly_detection up one level
-                src_content = package_path / "pynomaly_detection"
+                # Move contents of src/anomaly_detection up one level
+                src_content = package_path / "anomaly_detection"
                 
                 # Create a backup note
-                backup_note = f"# Moved from {package_path}/pynomaly_detection to {parent}\n"
+                backup_note = f"# Moved from {package_path}/anomaly_detection to {parent}\n"
                 
                 try:
                     # Move all contents

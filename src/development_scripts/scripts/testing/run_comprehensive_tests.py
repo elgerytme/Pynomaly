@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comprehensive test runner for Pynomaly with coverage analysis."""
+"""Comprehensive test runner for anomaly_detection with coverage analysis."""
 
 import argparse
 import os
@@ -45,7 +45,7 @@ class TestRunner:
             "tests/",
             "-m",
             "unit or not (integration or performance or security or slow)",
-            "--cov=src/pynomaly",
+            "--cov=src/anomaly_detection",
             "--cov-report=term-missing",
             "--cov-report=html:reports/coverage/unit",
             "--cov-report=xml:reports/coverage_unit.xml",
@@ -90,7 +90,7 @@ class TestRunner:
             "-m",
             "integration",
             "--integration",
-            "--cov=src/pynomaly",
+            "--cov=src/anomaly_detection",
             "--cov-append",
             "--cov-report=html:reports/coverage/integration",
             "--junitxml=reports/junit_integration.xml",
@@ -134,7 +134,7 @@ class TestRunner:
             "-m",
             "security",
             "--security",
-            "--cov=src/pynomaly",
+            "--cov=src/anomaly_detection",
             "--cov-append",
             "--cov-report=html:reports/coverage/security",
             "--junitxml=reports/junit_security.xml",
@@ -179,7 +179,7 @@ class TestRunner:
             "performance",
             "--performance",
             "--runslow",
-            "--cov=src/pynomaly",
+            "--cov=src/anomaly_detection",
             "--cov-append",
             "--cov-report=html:reports/coverage/performance",
             "--junitxml=reports/junit_performance.xml",
@@ -225,7 +225,7 @@ class TestRunner:
             "--security",
             "--performance",
             "--runslow",
-            "--cov=src/pynomaly",
+            "--cov=src/anomaly_detection",
             "--cov-report=term-missing",
             "--cov-report=html:reports/coverage",
             "--cov-report=xml:reports/coverage.xml",
@@ -272,7 +272,7 @@ class TestRunner:
             "tests/",
             "-m",
             "not (slow or performance)",
-            "--cov=src/pynomaly",
+            "--cov=src/anomaly_detection",
             "--cov-report=term",
             "--tb=short",
             "--maxfail=10",  # Stop after 10 failures for quick feedback
@@ -343,7 +343,7 @@ class TestRunner:
 
         # MyPy type checking
         print("Running MyPy type checking...")
-        mypy_cmd = ["python3", "-m", "mypy", "src/pynomaly", "--ignore-missing-imports"]
+        mypy_cmd = ["python3", "-m", "mypy", "src/anomaly_detection", "--ignore-missing-imports"]
         mypy_result = subprocess.run(
             mypy_cmd, cwd=self.project_root, capture_output=True, text=True
         )
@@ -355,7 +355,7 @@ class TestRunner:
 
         # Flake8 linting
         print("Running Flake8 linting...")
-        flake8_cmd = ["python3", "-m", "flake8", "src/pynomaly", "tests/"]
+        flake8_cmd = ["python3", "-m", "flake8", "src/anomaly_detection", "tests/"]
         flake8_result = subprocess.run(
             flake8_cmd, cwd=self.project_root, capture_output=True, text=True
         )
@@ -373,7 +373,7 @@ class TestRunner:
             "black",
             "--check",
             "--diff",
-            "src/pynomaly",
+            "src/anomaly_detection",
             "tests/",
         ]
         black_result = subprocess.run(
@@ -439,7 +439,7 @@ class TestRunner:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Comprehensive test runner for Pynomaly"
+        description="Comprehensive test runner for anomaly_detection"
     )
     parser.add_argument(
         "--type",
@@ -469,7 +469,7 @@ def main():
     runner = TestRunner(project_root)
     results = []
 
-    print("🚀 Starting Pynomaly Test Suite")
+    print("🚀 Starting anomaly_detection Test Suite")
     print(f"📁 Project Root: {project_root}")
     print(f"🧪 Test Type: {args.type}")
 

@@ -120,8 +120,8 @@ Secure configuration management with validation
 
 ## Production Deployment Checklist
 
-- [ ] Set PYNOMALY_SECRET_KEY environment variable
-- [ ] Configure PYNOMALY_MASTER_KEY for encryption
+- [ ] Set ANOMALY_DETECTION_SECRET_KEY environment variable
+- [ ] Configure ANOMALY_DETECTION_MASTER_KEY for encryption
 - [ ] Enable HTTPS-only mode
 - [ ] Set secure database credentials
 - [ ] Configure WAF protection

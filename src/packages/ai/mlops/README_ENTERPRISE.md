@@ -1,6 +1,6 @@
-# Pynomaly MLOps
+# anomaly_detection MLOps
 
-Comprehensive MLOps package for Pynomaly with enterprise integrations.
+Comprehensive MLOps package for anomaly_detection with enterprise integrations.
 
 ## Features
 
@@ -22,29 +22,29 @@ Comprehensive MLOps package for Pynomaly with enterprise integrations.
 
 ### Basic Installation
 ```bash
-pip install pynomaly-mlops
+pip install anomaly_detection-mlops
 ```
 
 ### With Enterprise Features
 ```bash
 # MLflow integration
-pip install pynomaly-mlops[mlflow]
+pip install anomaly_detection-mlops[mlflow]
 
 # Kubeflow integration  
-pip install pynomaly-mlops[kubeflow]
+pip install anomaly_detection-mlops[kubeflow]
 
 # Monitoring integrations
-pip install pynomaly-mlops[datadog,newrelic]
+pip install anomaly_detection-mlops[datadog,newrelic]
 
 # All enterprise features
-pip install pynomaly-mlops[enterprise]
+pip install anomaly_detection-mlops[enterprise]
 ```
 
 ## Quick Start
 
 ### Basic Usage
 ```python
-from pynomaly_mlops import (
+from anomaly_detection_mlops import (
     ExperimentTrackingService, 
     ModelRegistryService,
     Model, ModelType
@@ -69,7 +69,7 @@ model = await registry.register_model(
 
 ### Enterprise Usage
 ```python
-from pynomaly_mlops import (
+from anomaly_detection_mlops import (
     EnterpriseMlopsService,
     MLflowIntegration,
     DatadogIntegration
@@ -133,8 +133,8 @@ NEW_RELIC_LICENSE_KEY=your-license-key
 
 ### Programmatic Configuration
 ```python
-from pynomaly_mlops import EnterpriseMlopsService
-from pynomaly_mlops.infrastructure.enterprise import (
+from anomaly_detection_mlops import EnterpriseMlopsService
+from anomaly_detection_mlops.infrastructure.enterprise import (
     MLflowIntegration,
     KubeflowIntegration
 )
@@ -162,8 +162,8 @@ service = EnterpriseMlopsService(
 
 ### Setup
 ```bash
-git clone https://github.com/your-org/pynomaly
-cd pynomaly/src/packages/ai/machine_learning/mlops
+git clone https://github.com/your-org/anomaly_detection
+cd anomaly_detection/src/packages/ai/machine_learning/mlops
 
 # Install with dev dependencies
 pip install -e .[dev,enterprise]

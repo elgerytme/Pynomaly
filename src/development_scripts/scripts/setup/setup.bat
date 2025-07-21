@@ -1,8 +1,8 @@
 @echo off
-REM Pynomaly Windows Setup - Batch File Launcher
+REM anomaly_detection Windows Setup - Batch File Launcher
 REM This launches the PowerShell setup script
 
-echo Pynomaly Windows Setup
+echo anomaly_detection Windows Setup
 echo ======================
 echo.
 

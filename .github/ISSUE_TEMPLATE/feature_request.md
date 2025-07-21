@@ -22,7 +22,7 @@ assignees: ''
 **API Design (if applicable)**
 ```python
 # Example of how the feature would be used
-from pynomaly import NewFeature
+from anomaly_detection import NewFeature
 
 feature = NewFeature(param1="value1")
 result = feature.do_something()

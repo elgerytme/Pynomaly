@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "============================================"
-echo "PYNOMALY CLI TESTING PLAN EXECUTION"
+echo "anomaly_detection CLI TESTING PLAN EXECUTION"
 echo "Comprehensive CLI Testing Based on CLI_TESTING_PLAN.md"
 echo "============================================"
 echo "Environment: $(uname -a)"
@@ -99,7 +99,7 @@ echo ""
 
 # Test 1: CLI Registration and Availability
 ((total_tests++))
-if run_test_step "CLI Command Availability" "which python3 && python3 -m pynomaly --help" 0; then
+if run_test_step "CLI Command Availability" "which python3 && python3 -m anomaly_detection --help" 0; then
     ((passed_tests++))
     record_test "CLI Registration" "PASSED"
 else
@@ -109,7 +109,7 @@ fi
 
 # Test 2: Version Information
 ((total_tests++))
-if run_test_step "Version Information" "python3 -m pynomaly --version" 0; then
+if run_test_step "Version Information" "python3 -m anomaly_detection --version" 0; then
     ((passed_tests++))
     record_test "Version Info" "PASSED"
 else
@@ -119,7 +119,7 @@ fi
 
 # Test 3: Help System
 ((total_tests++))
-if run_test_step "Help System" "python3 -m pynomaly --help | head -20" 0; then
+if run_test_step "Help System" "python3 -m anomaly_detection --help | head -20" 0; then
     ((passed_tests++))
     record_test "Help System" "PASSED"
 else
@@ -134,8 +134,8 @@ echo ""
 # Test 4: Status Check
 ((total_tests++))
 if run_test_step "System Status Check" "python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.infrastructure.config.settings import get_settings
 
 print('Testing system status...')
 settings = get_settings()
@@ -169,7 +169,7 @@ fi
 # Test 5: Configuration Display
 ((total_tests++))
 if run_test_step "Configuration Display" "python3 -c \"
-from pynomaly.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config.settings import get_settings
 settings = get_settings()
 print('Configuration check:')
 print(f'App name: {settings.app.name}')
@@ -227,14 +227,14 @@ print('Test datasets created successfully')
 ((total_tests++))
 if run_test_step "Small Dataset Loading" "python3 -c \"
 import pandas as pd
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.domain.entities import Dataset
 
 print('Loading small test dataset...')
 data = pd.read_csv('test_small.csv')
 print(f'Data shape: {data.shape}')
 print(f'Data types: {data.dtypes.tolist()}')
 
-# Create Pynomaly dataset
+# Create anomaly_detection dataset
 dataset = Dataset(name='Test Small Dataset', data=data)
 print(f'Dataset created: {dataset.name}')
 print(f'Dataset ID: {dataset.id}')
@@ -253,7 +253,7 @@ fi
 if run_test_step "Data Validation" "python3 -c \"
 import pandas as pd
 import numpy as np
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.domain.entities import Dataset
 
 print('Testing data validation...')
 data = pd.read_csv('test_small.csv')
@@ -290,8 +290,8 @@ echo ""
 ((total_tests++))
 if run_test_step "Basic Anomaly Detection" "python3 -c \"
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -332,9 +332,9 @@ fi
 ((total_tests++))
 if run_test_step "Multiple Algorithm Testing" "python3 -c \"
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
+from anomaly_detection.domain.entities import Dataset
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -387,8 +387,8 @@ echo ""
 # Test 10: API Integration
 ((total_tests++))
 if run_test_step "API Integration Testing" "python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.presentation.api.app import create_app
 from fastapi.testclient import TestClient
 
 print('Testing API integration...')
@@ -444,9 +444,9 @@ fi
 ((total_tests++))
 if run_test_step "End-to-End Workflow" "python3 -c \"
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.persistence.repositories import InMemoryDetectorRepository, InMemoryDatasetRepository, InMemoryResultRepository
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
+from anomaly_detection.infrastructure.persistence.repositories import InMemoryDetectorRepository, InMemoryDatasetRepository, InMemoryResultRepository
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -514,8 +514,8 @@ import pandas as pd
 import time
 import psutil
 import os
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -581,9 +581,9 @@ echo ""
 ((total_tests++))
 if run_test_step "Error Handling Testing" "python3 -c \"
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DetectorNotFittedError, InvalidAlgorithmError
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
+from anomaly_detection.domain.exceptions import DetectorNotFittedError, InvalidAlgorithmError
 
 print('Testing error handling...')
 

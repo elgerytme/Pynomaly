@@ -4,13 +4,13 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
       - '.github/workflows/ui-testing-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
 
 env:
@@ -101,7 +101,7 @@ jobs:
 
     - name: Start web server
       run: |
-        hatch env run -e ui-test -- uvicorn pynomaly.presentation.web.app:app \
+        hatch env run -e ui-test -- uvicorn anomaly_detection.presentation.web.app:app \
           --host 0.0.0.0 --port 8000 &
         sleep 10
         curl -f http://localhost:8000 || exit 1
@@ -315,7 +315,7 @@ jobs:
 
     - name: Start server
       run: |
-        hatch env run -e ui-test -- uvicorn pynomaly.presentation.web.app:app \
+        hatch env run -e ui-test -- uvicorn anomaly_detection.presentation.web.app:app \
           --host 0.0.0.0 --port 8000 &
         sleep 10
 
@@ -348,7 +348,7 @@ jobs:
     - name: Scan for secrets in web assets
       uses: trufflesecurity/trufflehog@main
       with:
-        path: ./src/pynomaly/presentation/web/
+        path: ./src/anomaly_detection/presentation/web/
         base: main
         head: HEAD
 
@@ -380,7 +380,7 @@ jobs:
     - name: Deploy to preview environment
       run: |
         echo "Deploying to preview environment..."
-        echo "Preview URL: https://preview-pr-${{ github.event.number }}.pynomaly.dev"
+        echo "Preview URL: https://preview-pr-${{ github.event.number }}.anomaly_detection.dev"
         # Add actual deployment commands here
 
     - name: Comment preview URL
@@ -391,5 +391,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `## 🚀 Preview Deployment\n\nYour changes have been deployed to a preview environment:\n\n**Preview URL**: https://preview-pr-${{ github.event.number }}.pynomaly.dev\n\nThe preview will be available for testing until the PR is merged or closed.`
+            body: `## 🚀 Preview Deployment\n\nYour changes have been deployed to a preview environment:\n\n**Preview URL**: https://preview-pr-${{ github.event.number }}.anomaly_detection.dev\n\nThe preview will be available for testing until the PR is merged or closed.`
           });

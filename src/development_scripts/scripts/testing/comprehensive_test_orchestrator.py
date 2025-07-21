@@ -117,7 +117,7 @@ class TestOrchestrator:
                 "run",
                 "--check-gates",
                 "--test-command",
-                "python -m pytest tests/ --cov=src/pynomaly --cov-report=xml --cov-report=html --cov-report=json --cov-branch",
+                "python -m pytest tests/ --cov=src/anomaly_detection --cov-report=xml --cov-report=html --cov-report=json --cov-branch",
             ]
 
             if fail_on_regression:

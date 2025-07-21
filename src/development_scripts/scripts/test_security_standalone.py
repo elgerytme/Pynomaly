@@ -11,9 +11,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set test environment
-os.environ["PYNOMALY_ENV"] = "testing"
-os.environ["PYNOMALY_JWT_SECRET"] = "test-secret-key-for-testing-only"
-os.environ["PYNOMALY_MASTER_KEY"] = "test-master-key-for-testing"
+os.environ["ANOMALY_DETECTION_ENV"] = "testing"
+os.environ["ANOMALY_DETECTION_JWT_SECRET"] = "test-secret-key-for-testing-only"
+os.environ["ANOMALY_DETECTION_MASTER_KEY"] = "test-master-key-for-testing"
 
 
 def test_jwt_standalone():

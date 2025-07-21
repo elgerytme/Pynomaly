@@ -45,8 +45,8 @@ from .application.dto.scalability_dto import (
 )
 
 __version__ = "0.1.0"
-__author__ = "Pynomaly Enterprise Team"
-__email__ = "enterprise@pynomaly.org"
+__author__ = "anomaly_detection Enterprise Team"
+__email__ = "enterprise@anomaly_detection.org"
 
 __all__ = [
     # Domain entities
@@ -79,9 +79,9 @@ __all__ = [
 
 # Package metadata
 PACKAGE_INFO = {
-    "name": "pynomaly-enterprise-scalability",
+    "name": "anomaly_detection-enterprise-scalability",
     "version": __version__,
-    "description": "Enterprise scalability with distributed computing and streaming for Pynomaly",
+    "description": "Enterprise scalability with distributed computing and streaming for anomaly_detection",
     "author": __author__,
     "email": __email__,
     "features": [

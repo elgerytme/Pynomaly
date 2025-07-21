@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "========================================"
-echo "PYNOMALY FRESH INSTALLATION TEST SUITE"
+echo "anomaly_detection FRESH INSTALLATION TEST SUITE"
 echo "========================================"
-echo "Testing Pynomaly installation and functionality"
+echo "Testing anomaly_detection installation and functionality"
 echo "Environment: $(uname -a)"
 echo "Python: $(python3 --version)"
 echo "Current directory: $(pwd)"
@@ -85,22 +85,22 @@ print('Python path (first 3):', sys.path[:3])
 
 # Test imports
 try:
-    import pynomaly
+    import anomaly_detection
     print('✓ anomaly_detection package imported successfully')
-    print('  Package location:', pynomaly.__file__ if hasattr(pynomaly, '__file__') else 'Not available')
+    print('  Package location:', anomaly_detection.__file__ if hasattr(anomaly_detection, '__file__') else 'Not available')
 except Exception as e:
     print('✗ anomaly_detection package import failed:', str(e))
     raise
 
 try:
-    from pynomaly.domain.entities import Dataset, Detector, Anomaly
+    from anomaly_detection.domain.entities import Dataset, Detector, Anomaly
     print('✓ Domain entities imported successfully')
 except Exception as e:
     print('✗ Domain entities import failed:', str(e))
     raise
 
 try:
-    from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+    from anomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
     print('✓ Value objects imported successfully')
 except Exception as e:
     print('✗ Value objects import failed:', str(e))
@@ -118,7 +118,7 @@ fi
 if run_test_step "Test Infrastructure After Fresh Install" "python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.domain.entities import Dataset
 
 print('Testing infrastructure components...')
 
@@ -134,7 +134,7 @@ print(f'Test dataset: {dataset.name}, shape: {dataset.data.shape}')
 adapters_working = []
 
 try:
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
     sklearn_adapter = SklearnAdapter('IsolationForest')
     print(f'✓ SklearnAdapter: {sklearn_adapter.algorithm_name}')
     adapters_working.append('sklearn')
@@ -142,7 +142,7 @@ except Exception as e:
     print(f'✗ SklearnAdapter failed: {str(e)}')
 
 try:
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+    from anomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
     pyod_adapter = PyODAdapter('IsolationForest')
     print(f'✓ PyODAdapter: {pyod_adapter.algorithm_name}')
     adapters_working.append('pyod')
@@ -159,8 +159,8 @@ fi
 # Step 4: Test configuration system in fresh install
 ((total_steps++))
 if run_test_step "Test Configuration in Fresh Install" "python3 -c \"
-from pynomaly.infrastructure.config.settings import get_settings
-from pynomaly.infrastructure.config import create_container
+from anomaly_detection.infrastructure.config.settings import get_settings
+from anomaly_detection.infrastructure.config import create_container
 
 print('Testing configuration system...')
 
@@ -207,8 +207,8 @@ fi
 # Step 5: Test API creation in fresh install
 ((total_steps++))
 if run_test_step "Test API Creation in Fresh Install" "python3 -c \"
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from anomaly_detection.infrastructure.config import create_container
+from anomaly_detection.presentation.api.app import create_app
 from fastapi.testclient import TestClient
 
 print('Testing API creation in fresh install...')
@@ -256,8 +256,8 @@ fi
 if run_test_step "Test Complete ML Workflow" "python3 -c \"
 import numpy as np
 import pandas as pd
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -309,9 +309,9 @@ fi
 # Step 7: Test error handling in fresh install
 ((total_steps++))
 if run_test_step "Test Error Handling" "python3 -c \"
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DetectorNotFittedError
+from anomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.domain.entities import Dataset
+from anomaly_detection.domain.exceptions import DetectorNotFittedError
 import pandas as pd
 import numpy as np
 
@@ -349,8 +349,8 @@ fi
 # Step 8: Test domain logic integrity
 ((total_steps++))
 if run_test_step "Test Domain Logic Integrity" "python3 -c \"
-from pynomaly.domain.entities import Dataset, Detector, Anomaly
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate, ConfidenceInterval
+from anomaly_detection.domain.entities import Dataset, Detector, Anomaly
+from anomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate, ConfidenceInterval
 import pandas as pd
 import numpy as np
 
@@ -408,16 +408,16 @@ echo "Success rate: $success_rate%"
 if [ $failed_steps -eq 0 ]; then
     echo ""
     print_status "SUCCESS" "🎉 ALL FRESH INSTALLATION TESTS PASSED!"
-    print_status "SUCCESS" "Pynomaly installs and runs correctly in fresh environments!"
+    print_status "SUCCESS" "anomaly_detection installs and runs correctly in fresh environments!"
     exit 0
 elif [ $successful_steps -ge $((total_steps * 80 / 100)) ]; then
     echo ""
     print_status "WARNING" "⚠️ Most tests passed with some minor issues."
-    print_status "WARNING" "Pynomaly should work reliably in fresh installations."
+    print_status "WARNING" "anomaly_detection should work reliably in fresh installations."
     exit 0
 else
     echo ""
     print_status "ERROR" "❌ Too many installation tests failed."
-    print_status "ERROR" "Pynomaly may have installation issues."
+    print_status "ERROR" "anomaly_detection may have installation issues."
     exit 1
 fi

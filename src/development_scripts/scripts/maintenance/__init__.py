@@ -1,4 +1,4 @@
-"""Maintenance scripts for Pynomaly.
+"""Maintenance scripts for anomaly_detection.
 
 This package contains scripts used for maintenance tasks such as:
 - Code quality analysis and fixes

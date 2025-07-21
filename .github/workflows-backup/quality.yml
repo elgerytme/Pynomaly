@@ -33,7 +33,7 @@ jobs:
 
     - name: Run mypy type checking
       run: |
-        hatch run lint:mypy src/pynomaly/ --strict --no-error-summary
+        hatch run lint:mypy src/anomaly_detection/ --strict --no-error-summary
 
     - name: Run isort import sorting check
       run: |
@@ -89,7 +89,7 @@ jobs:
 
     - name: Run mutation testing (domain layer)
       run: |
-        mutmut run --paths-to-mutate=src/pynomaly/domain/ \
+        mutmut run --paths-to-mutate=src/anomaly_detection/domain/ \
           --runner="hatch run test:pytest -x" \
           --use-coverage \
           --coverage-data=.coverage \

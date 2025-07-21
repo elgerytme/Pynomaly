@@ -181,8 +181,8 @@ class ProductionDeploymentOrchestrator:
         self.logger.info("Building production containers...")
 
         build_commands = [
-            f"docker build -f deploy/production/Dockerfile.api -t {self.config.docker_registry}/pynomaly-api:{self.config.version} .",
-            f"docker build -f deploy/production/Dockerfile.worker -t {self.config.docker_registry}/pynomaly-worker:{self.config.version} .",
+            f"docker build -f deploy/production/Dockerfile.api -t {self.config.docker_registry}/anomaly_detection-api:{self.config.version} .",
+            f"docker build -f deploy/production/Dockerfile.worker -t {self.config.docker_registry}/anomaly_detection-worker:{self.config.version} .",
         ]
 
         for cmd in build_commands:
@@ -194,8 +194,8 @@ class ProductionDeploymentOrchestrator:
 
         # Push to registry
         push_commands = [
-            f"docker push {self.config.docker_registry}/pynomaly-api:{self.config.version}",
-            f"docker push {self.config.docker_registry}/pynomaly-worker:{self.config.version}",
+            f"docker push {self.config.docker_registry}/anomaly_detection-api:{self.config.version}",
+            f"docker push {self.config.docker_registry}/anomaly_detection-worker:{self.config.version}",
         ]
 
         for cmd in push_commands:

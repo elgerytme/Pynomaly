@@ -8,7 +8,7 @@
 
 ### 1. Core Components Created
 
-#### Enhanced Resilience Wrapper (`src/pynomaly/infrastructure/resilience/enhanced_wrapper.py`)
+#### Enhanced Resilience Wrapper (`src/anomaly_detection/infrastructure/resilience/enhanced_wrapper.py`)
 - **ResilienceConfig**: Configuration class with operation-specific defaults
 - **EnhancedResilienceWrapper**: Main wrapper combining all resilience patterns
 - **Operation-specific decorators**: `database_resilient`, `api_resilient`, `cache_resilient`, `file_resilient`, `ml_resilient`
@@ -24,7 +24,7 @@
 
 ### 2. Settings Integration
 
-Added comprehensive resilience settings to `src/pynomaly/infrastructure/config/settings.py`:
+Added comprehensive resilience settings to `src/anomaly_detection/infrastructure/config/settings.py`:
 
 ```python
 # Resilience settings
@@ -93,7 +93,7 @@ ml_failure_threshold: int = 2
 ### Basic Usage
 
 ```python
-from pynomaly.infrastructure.resilience import database_resilient, api_resilient
+from anomaly_detection.infrastructure.resilience import database_resilient, api_resilient
 
 @database_resilient(operation_name="get_user")
 def get_user(user_id: int):
@@ -107,7 +107,7 @@ async def process_payment(payment_data: dict):
 ### Custom Configuration
 
 ```python
-from pynomaly.infrastructure.resilience import resilient
+from anomaly_detection.infrastructure.resilience import resilient
 
 @resilient(
     operation_type="custom",
@@ -124,7 +124,7 @@ def critical_operation(data: dict):
 ### Client Usage
 
 ```python
-from pynomaly.infrastructure.resilience import (
+from anomaly_detection.infrastructure.resilience import (
     get_database_client,
     get_redis_client,
     get_http_client,
@@ -182,15 +182,15 @@ await s3_client.async_upload_file("local_file.txt", "bucket", "key")
 ## Files Created
 
 1. **Core Implementation**:
-   - `src/pynomaly/infrastructure/resilience/enhanced_wrapper.py`
-   - `src/pynomaly/infrastructure/resilience/database_client.py`
-   - `src/pynomaly/infrastructure/resilience/redis_client.py`
-   - `src/pynomaly/infrastructure/resilience/http_client.py`
-   - `src/pynomaly/infrastructure/resilience/s3_client.py`
+   - `src/anomaly_detection/infrastructure/resilience/enhanced_wrapper.py`
+   - `src/anomaly_detection/infrastructure/resilience/database_client.py`
+   - `src/anomaly_detection/infrastructure/resilience/redis_client.py`
+   - `src/anomaly_detection/infrastructure/resilience/http_client.py`
+   - `src/anomaly_detection/infrastructure/resilience/s3_client.py`
 
 2. **Configuration**:
-   - Updated `src/pynomaly/infrastructure/config/settings.py`
-   - Updated `src/pynomaly/infrastructure/resilience/__init__.py`
+   - Updated `src/anomaly_detection/infrastructure/config/settings.py`
+   - Updated `src/anomaly_detection/infrastructure/resilience/__init__.py`
 
 3. **Documentation & Examples**:
    - `examples/resilience_patterns_example.py`
@@ -213,12 +213,12 @@ The implementation leverages existing dependencies already in the project:
 All resilience settings can be configured via environment variables:
 
 ```bash
-PYNOMALY_RESILIENCE_ENABLED=true
-PYNOMALY_DATABASE_TIMEOUT=30.0
-PYNOMALY_API_TIMEOUT=60.0
-PYNOMALY_CACHE_TIMEOUT=5.0
-PYNOMALY_FILE_TIMEOUT=10.0
-PYNOMALY_ML_TIMEOUT=300.0
+ANOMALY_DETECTION_RESILIENCE_ENABLED=true
+ANOMALY_DETECTION_DATABASE_TIMEOUT=30.0
+ANOMALY_DETECTION_API_TIMEOUT=60.0
+ANOMALY_DETECTION_CACHE_TIMEOUT=5.0
+ANOMALY_DETECTION_FILE_TIMEOUT=10.0
+ANOMALY_DETECTION_ML_TIMEOUT=300.0
 # ... and many more
 ```
 

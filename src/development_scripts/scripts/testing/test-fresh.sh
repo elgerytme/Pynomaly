@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test script for fresh bash environment
 
-echo "=== Testing Pynomaly Web App in Fresh Bash Environment ==="
+echo "=== Testing anomaly_detection Web App in Fresh Bash Environment ==="
 echo "Date: $(date)"
 echo "Current directory: $(pwd)"
 echo "Python version: $(python3 --version)"
@@ -67,7 +67,7 @@ echo
 echo "Test 4: Testing imports in fresh environment..."
 PYTHONPATH="$(pwd)/src" python3 -c "
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     print('✓ Import successful in fresh environment')
 except Exception as e:
     print('✗ Import failed in fresh environment:', e)
@@ -83,7 +83,7 @@ echo
 echo "Test 5: Testing app creation in fresh environment..."
 PYTHONPATH="$(pwd)/src" python3 -c "
 try:
-    from pynomaly.presentation.web.app import create_web_app
+    from anomaly_detection.presentation.web.app import create_web_app
     app = create_web_app()
     print('✓ App creation successful in fresh environment')
     print('✓ Routes count:', len(app.routes))
@@ -121,7 +121,7 @@ fi
 # Test Web UI endpoint
 echo "Testing Web UI endpoint in fresh environment..."
 WEB_RESPONSE=$(curl -s http://localhost:8000/web/ 2>/dev/null)
-if echo "$WEB_RESPONSE" | grep -q "Dashboard - Pynomaly"; then
+if echo "$WEB_RESPONSE" | grep -q "Dashboard - anomaly_detection"; then
     echo "✓ Web UI endpoint working in fresh environment"
 else
     echo "✗ Web UI endpoint failed in fresh environment"
@@ -151,7 +151,7 @@ rm -rf "$TEST_ENV_DIR"
 echo "✓ Test environment cleaned up"
 
 echo
-echo "🎉 All fresh environment tests passed! Pynomaly web app works correctly in fresh bash environment."
+echo "🎉 All fresh environment tests passed! anomaly_detection web app works correctly in fresh bash environment."
 echo "✓ Virtual environment creation (or graceful fallback)"
 echo "✓ Dependency installation"
 echo "✓ Source code setup"

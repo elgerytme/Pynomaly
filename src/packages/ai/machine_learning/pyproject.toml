@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-machine-learning"
+name = "anomaly_detection-machine-learning"
 version = "0.1.0"
-description = "Machine learning operations, training, and lifecycle management for Pynomaly"
-authors = [{name = "Anomaly Detection Team", email = "team@pynomaly.io"}]
+description = "Machine learning operations, training, and lifecycle management for anomaly_detection"
+authors = [{name = "Anomaly Detection Team", email = "team@anomaly_detection.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"

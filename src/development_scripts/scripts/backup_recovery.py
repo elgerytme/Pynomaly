@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Backup and recovery testing script for Pynomaly production deployment.
+Backup and recovery testing script for anomaly_detection production deployment.
 This script creates comprehensive backup strategies and tests recovery procedures.
 """
 
@@ -80,7 +80,7 @@ class BackupRecovery:
 
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_filename = f"pynomaly_db_backup_{timestamp}.sql"
+            backup_filename = f"anomaly_detection_db_backup_{timestamp}.sql"
             backup_path = self.database_backup_path / backup_filename
 
             # Create database dump
@@ -93,9 +93,9 @@ class BackupRecovery:
                 "postgres",
                 "pg_dump",
                 "-U",
-                "pynomaly",
+                "anomaly_detection",
                 "-d",
-                "pynomaly_prod",
+                "anomaly_detection_prod",
                 "--verbose",
                 "--no-password",
                 "--format=custom",
@@ -213,7 +213,7 @@ class BackupRecovery:
 
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_filename = f"pynomaly_models_backup_{timestamp}.tar.gz"
+            backup_filename = f"anomaly_detection_models_backup_{timestamp}.tar.gz"
             backup_path = self.models_backup_path / backup_filename
 
             # Create models directory if it doesn't exist
@@ -316,7 +316,7 @@ class BackupRecovery:
 
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_filename = f"pynomaly_config_backup_{timestamp}.tar.gz"
+            backup_filename = f"anomaly_detection_config_backup_{timestamp}.tar.gz"
             backup_path = self.config_backup_path / backup_filename
 
             # List of configuration files and directories to backup
@@ -398,7 +398,7 @@ class BackupRecovery:
 
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_filename = f"pynomaly_logs_backup_{timestamp}.tar.gz"
+            backup_filename = f"anomaly_detection_logs_backup_{timestamp}.tar.gz"
             backup_path = self.logs_backup_path / backup_filename
 
             # Create logs directory if it doesn't exist
@@ -479,7 +479,7 @@ class BackupRecovery:
         try:
             # Find the latest database backup
             backup_files = list(
-                self.database_backup_path.glob("pynomaly_db_backup_*.sql*")
+                self.database_backup_path.glob("anomaly_detection_db_backup_*.sql*")
             )
             if not backup_files:
                 logger.error("No database backup files found for recovery test")
@@ -489,7 +489,7 @@ class BackupRecovery:
             logger.info(f"Using backup file: {latest_backup}")
 
             # Create test database for recovery
-            test_db_name = "pynomaly_test_recovery"
+            test_db_name = "anomaly_detection_test_recovery"
 
             # Create test database
             create_db_cmd = [
@@ -501,7 +501,7 @@ class BackupRecovery:
                 "postgres",
                 "createdb",
                 "-U",
-                "pynomaly",
+                "anomaly_detection",
                 test_db_name,
             ]
 
@@ -525,7 +525,7 @@ class BackupRecovery:
                     "postgres",
                     "psql",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-d",
                     test_db_name,
                 ]
@@ -558,7 +558,7 @@ class BackupRecovery:
                     "postgres",
                     "pg_restore",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     "-d",
                     test_db_name,
                     "--verbose",
@@ -584,7 +584,7 @@ class BackupRecovery:
                 "postgres",
                 "psql",
                 "-U",
-                "pynomaly",
+                "anomaly_detection",
                 "-d",
                 test_db_name,
                 "-c",
@@ -616,7 +616,7 @@ class BackupRecovery:
                     "postgres",
                     "dropdb",
                     "-U",
-                    "pynomaly",
+                    "anomaly_detection",
                     test_db_name,
                 ]
                 subprocess.run(drop_db_cmd, capture_output=True)
@@ -650,7 +650,7 @@ class BackupRecovery:
         try:
             # Find the latest models backup
             backup_files = list(
-                self.models_backup_path.glob("pynomaly_models_backup_*.tar.gz")
+                self.models_backup_path.glob("anomaly_detection_models_backup_*.tar.gz")
             )
             if not backup_files:
                 logger.error("No models backup files found for recovery test")
@@ -837,7 +837,7 @@ class BackupRecovery:
         summary = report["backup_summary"]
 
         print("\n" + "=" * 60)
-        print("💾 PYNOMALY BACKUP & RECOVERY TEST SUMMARY")
+        print("💾 anomaly_detection BACKUP & RECOVERY TEST SUMMARY")
         print("=" * 60)
         print(f"Test Time: {test_info['timestamp']}")
         print(f"Backup Path: {test_info['backup_base_path']}")

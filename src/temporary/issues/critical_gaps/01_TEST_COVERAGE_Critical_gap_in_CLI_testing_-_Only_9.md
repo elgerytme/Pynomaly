@@ -14,7 +14,7 @@
 - **Priority**: Critical
 
 ### Description
-The CLI is a major user interface for Pynomaly with severely inadequate test coverage. Only 4 test files exist for 44 source files, creating significant risk for user-facing functionality.
+The CLI is a major user interface for anomaly_detection with severely inadequate test coverage. Only 4 test files exist for 44 source files, creating significant risk for user-facing functionality.
 
 ### Impact Assessment
 - **Business Impact**: CLI failures could block user workflows and adoption

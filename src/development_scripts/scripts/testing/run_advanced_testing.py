@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Advanced Testing Runner for Pynomaly
+Advanced Testing Runner for anomaly_detection
 Convenient CLI interface for running mutation testing, property-based testing, and comprehensive analysis.
 """
 
@@ -144,7 +144,7 @@ def run_comprehensive_testing(args):
 def generate_config_template(output_file: Path):
     """Generate a configuration template file."""
     config = {
-        "source_dir": "src/pynomaly",
+        "source_dir": "src/anomaly_detection",
         "test_dir": "tests",
         "output_dir": "reports",
         "mutation_config": {"max_mutations": 100, "timeout": 60, "parallel": True},
@@ -210,7 +210,7 @@ def validate_environment():
         issues.append("Python 3.8+ is required")
 
     # Check required directories
-    required_dirs = ["src/pynomaly", "tests"]
+    required_dirs = ["src/anomaly_detection", "tests"]
     for dir_path in required_dirs:
         if not Path(dir_path).exists():
             issues.append(f"Required directory missing: {dir_path}")
@@ -248,7 +248,7 @@ def clean_reports(output_dir: str):
 
 def main():
     """Main entry point for advanced testing runner."""
-    parser = argparse.ArgumentParser(description="Advanced Testing Runner for Pynomaly")
+    parser = argparse.ArgumentParser(description="Advanced Testing Runner for anomaly_detection")
 
     # Add subcommands
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -282,7 +282,7 @@ def main():
         "mutation", help="Run mutation testing only"
     )
     mutation_parser.add_argument(
-        "--source-dir", default="src/pynomaly", help="Source directory"
+        "--source-dir", default="src/anomaly_detection", help="Source directory"
     )
     mutation_parser.add_argument("--test-dir", default="tests", help="Test directory")
     mutation_parser.add_argument(
@@ -323,7 +323,7 @@ def main():
         "comprehensive", help="Run comprehensive advanced testing"
     )
     comprehensive_parser.add_argument(
-        "--source-dir", default="src/pynomaly", help="Source directory"
+        "--source-dir", default="src/anomaly_detection", help="Source directory"
     )
     comprehensive_parser.add_argument(
         "--test-dir", default="tests", help="Test directory"
@@ -353,7 +353,7 @@ def main():
         "all", help="Run all advanced testing (alias for comprehensive)"
     )
     all_parser.add_argument(
-        "--source-dir", default="src/pynomaly", help="Source directory"
+        "--source-dir", default="src/anomaly_detection", help="Source directory"
     )
     all_parser.add_argument("--test-dir", default="tests", help="Test directory")
     all_parser.add_argument("--target-files", nargs="+", help="Specific files to test")

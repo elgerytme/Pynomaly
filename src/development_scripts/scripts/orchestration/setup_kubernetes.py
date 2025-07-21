@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Container Orchestration Setup Script for Pynomaly
+Container Orchestration Setup Script for anomaly_detection
 This script sets up Kubernetes cluster configuration and deployment automation
 """
 
@@ -49,7 +49,7 @@ def check_prerequisites():
     return True
 
 
-def create_kind_cluster(cluster_name: str = "pynomaly-local"):
+def create_kind_cluster(cluster_name: str = "anomaly_detection-local"):
     """Create a local Kind cluster for development."""
     kind_config = f"""
 kind: Cluster
@@ -91,7 +91,7 @@ nodes:
     readOnly: true
 """
 
-    config_dir = Path("/tmp/pynomaly-kind")
+    config_dir = Path("/tmp/anomaly_detection-kind")
     config_dir.mkdir(exist_ok=True)
     config_file = config_dir / "kind-config.yaml"
 
@@ -237,7 +237,7 @@ metadata:
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: admin@pynomaly.local
+    email: admin@anomaly_detection.local
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
@@ -252,7 +252,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: admin@pynomaly.local
+    email: admin@anomaly_detection.local
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
@@ -261,7 +261,7 @@ spec:
           class: nginx
 """
 
-    config_dir = Path("/tmp/pynomaly-k8s")
+    config_dir = Path("/tmp/anomaly_detection-k8s")
     config_dir.mkdir(exist_ok=True)
     issuer_file = config_dir / "cluster-issuer.yaml"
 
@@ -297,7 +297,7 @@ volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 """
 
-    config_dir = Path("/tmp/pynomaly-k8s")
+    config_dir = Path("/tmp/anomaly_detection-k8s")
     config_dir.mkdir(exist_ok=True)
     storage_file = config_dir / "storage-class.yaml"
 
@@ -397,20 +397,20 @@ def add_helm_repositories():
 
 
 def create_namespace():
-    """Create the pynomaly-production namespace."""
+    """Create the anomaly_detection-production namespace."""
     namespace_yaml = """
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: pynomaly-production
+  name: anomaly_detection-production
   labels:
-    name: pynomaly-production
+    name: anomaly_detection-production
     environment: production
-    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/name: anomaly_detection
     app.kubernetes.io/instance: production
 """
 
-    config_dir = Path("/tmp/pynomaly-k8s")
+    config_dir = Path("/tmp/anomaly_detection-k8s")
     config_dir.mkdir(exist_ok=True)
     namespace_file = config_dir / "namespace.yaml"
 
@@ -420,7 +420,7 @@ metadata:
     try:
         subprocess.run(["kubectl", "apply", "-f", str(namespace_file)], check=True)
 
-        print("✅ Namespace 'pynomaly-production' created")
+        print("✅ Namespace 'anomaly_detection-production' created")
         return True
 
     except subprocess.CalledProcessError as e:
@@ -430,21 +430,21 @@ metadata:
 
 def create_deployment_scripts():
     """Create deployment automation scripts."""
-    scripts_dir = Path("/opt/pynomaly/scripts/orchestration")
+    scripts_dir = Path("/opt/anomaly_detection/scripts/orchestration")
     scripts_dir.mkdir(parents=True, exist_ok=True)
 
     # Deployment script
     deploy_script = """#!/bin/bash
-# Pynomaly Kubernetes Deployment Script
+# anomaly_detection Kubernetes Deployment Script
 
 set -e
 
-NAMESPACE="${NAMESPACE:-pynomaly-production}"
-HELM_RELEASE="${HELM_RELEASE:-pynomaly}"
+NAMESPACE="${NAMESPACE:-anomaly_detection-production}"
+HELM_RELEASE="${HELM_RELEASE:-anomaly_detection}"
 VALUES_FILE="${VALUES_FILE:-values.production.yaml}"
-CHART_PATH="${CHART_PATH:-./deploy/helm/pynomaly-complete}"
+CHART_PATH="${CHART_PATH:-./deploy/helm/anomaly_detection-complete}"
 
-echo "🚀 Deploying Pynomaly to Kubernetes..."
+echo "🚀 Deploying anomaly_detection to Kubernetes..."
 echo "Namespace: $NAMESPACE"
 echo "Release: $HELM_RELEASE"
 echo "Values: $VALUES_FILE"
@@ -505,11 +505,11 @@ fi
 
     # Monitoring script
     monitor_script = """#!/bin/bash
-# Pynomaly Kubernetes Monitoring Script
+# anomaly_detection Kubernetes Monitoring Script
 
-NAMESPACE="${NAMESPACE:-pynomaly-production}"
+NAMESPACE="${NAMESPACE:-anomaly_detection-production}"
 
-echo "📊 Pynomaly Cluster Monitoring"
+echo "📊 anomaly_detection Cluster Monitoring"
 echo "Namespace: $NAMESPACE"
 echo "=" * 50
 
@@ -557,7 +557,7 @@ kubectl get events -n "$NAMESPACE" --sort-by='.lastTimestamp' | tail -10
 # Check application logs (sample)
 echo ""
 echo "📋 Sample Application Logs:"
-POD_NAME=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=pynomaly-api -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+POD_NAME=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=anomaly_detection-api -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
 if [ -n "$POD_NAME" ]; then
     echo "Logs from $POD_NAME:"
     kubectl logs -n "$NAMESPACE" "$POD_NAME" --tail=10
@@ -573,12 +573,12 @@ fi
 
     # Cleanup script
     cleanup_script = """#!/bin/bash
-# Pynomaly Kubernetes Cleanup Script
+# anomaly_detection Kubernetes Cleanup Script
 
-NAMESPACE="${NAMESPACE:-pynomaly-production}"
-HELM_RELEASE="${HELM_RELEASE:-pynomaly}"
+NAMESPACE="${NAMESPACE:-anomaly_detection-production}"
+HELM_RELEASE="${HELM_RELEASE:-anomaly_detection}"
 
-echo "🧹 Cleaning up Pynomaly deployment..."
+echo "🧹 Cleaning up anomaly_detection deployment..."
 echo "Namespace: $NAMESPACE"
 echo "Release: $HELM_RELEASE"
 
@@ -623,9 +623,9 @@ echo "✅ Cleanup completed!"
 
     # Scaling script
     scaling_script = """#!/bin/bash
-# Pynomaly Kubernetes Scaling Script
+# anomaly_detection Kubernetes Scaling Script
 
-NAMESPACE="${NAMESPACE:-pynomaly-production}"
+NAMESPACE="${NAMESPACE:-anomaly_detection-production}"
 
 usage() {
     echo "Usage: $0 <component> <replicas>"
@@ -643,13 +643,13 @@ REPLICAS="$2"
 
 case $COMPONENT in
     "api")
-        DEPLOYMENT="pynomaly-api"
+        DEPLOYMENT="anomaly_detection-api"
         ;;
     "worker-training")
-        DEPLOYMENT="pynomaly-worker-training"
+        DEPLOYMENT="anomaly_detection-worker-training"
         ;;
     "worker-drift")
-        DEPLOYMENT="pynomaly-worker-drift"
+        DEPLOYMENT="anomaly_detection-worker-drift"
         ;;
     *)
         echo "Unknown component: $COMPONENT"
@@ -682,7 +682,7 @@ kubectl get deployment "$DEPLOYMENT" -n "$NAMESPACE" -o wide
 def create_development_values():
     """Create development values file for Helm."""
     dev_values = """
-# Development values for Pynomaly Helm chart
+# Development values for anomaly_detection Helm chart
 # Optimized for local development with reduced resources
 
 global:
@@ -724,7 +724,7 @@ autoscaling:
 postgresql:
   auth:
     postgresPassword: "postgres_dev"
-    password: "pynomaly_dev"
+    password: "anomaly_detection_dev"
   primary:
     persistence:
       size: 5Gi
@@ -798,21 +798,21 @@ logging:
 
 ingress:
   hosts:
-    - host: api.pynomaly.localhost
+    - host: api.anomaly_detection.localhost
       paths:
         - path: /
           pathType: Prefix
           service:
-            name: pynomaly-api
+            name: anomaly_detection-api
             port: 8000
-    - host: grafana.pynomaly.localhost
+    - host: grafana.anomaly_detection.localhost
       paths:
         - path: /
           pathType: Prefix
           service:
             name: grafana
             port: 3000
-    - host: jaeger.pynomaly.localhost
+    - host: jaeger.anomaly_detection.localhost
       paths:
         - path: /
           pathType: Prefix
@@ -821,7 +821,7 @@ ingress:
             port: 16686
 """
 
-    values_dir = Path("/mnt/c/Users/andre/Pynomaly/deploy/helm/pynomaly-complete")
+    values_dir = Path("/mnt/c/Users/andre/anomaly_detection/deploy/helm/anomaly_detection-complete")
     values_file = values_dir / "values.development.yaml"
 
     with open(values_file, "w") as f:
@@ -833,7 +833,7 @@ ingress:
 
 def main():
     """Main orchestration setup function."""
-    print("Setting up Pynomaly Container Orchestration...")
+    print("Setting up anomaly_detection Container Orchestration...")
     print("=" * 60)
 
     # Check prerequisites
@@ -883,12 +883,12 @@ def main():
         print("✅ Container orchestration setup completed successfully!")
         print("\nNext steps:")
         print("1. Review and customize Helm values files:")
-        print("   - deploy/helm/pynomaly-complete/values.yaml (production)")
+        print("   - deploy/helm/anomaly_detection-complete/values.yaml (production)")
         print(
-            "   - deploy/helm/pynomaly-complete/values.development.yaml (development)"
+            "   - deploy/helm/anomaly_detection-complete/values.development.yaml (development)"
         )
-        print("\n2. Deploy Pynomaly:")
-        print("   cd /mnt/c/Users/andre/Pynomaly")
+        print("\n2. Deploy anomaly_detection:")
+        print("   cd /mnt/c/Users/andre/anomaly_detection")
         print("   ./scripts/orchestration/deploy.sh")
         print("\n3. Monitor deployment:")
         print("   ./scripts/orchestration/monitor.sh")
@@ -896,16 +896,16 @@ def main():
         print("   ./scripts/orchestration/scale.sh api 5")
         print("\n5. Access services:")
         if setup_local:
-            print("   - API: http://api.pynomaly.localhost")
-            print("   - Grafana: http://grafana.pynomaly.localhost")
-            print("   - Jaeger: http://jaeger.pynomaly.localhost")
+            print("   - API: http://api.anomaly_detection.localhost")
+            print("   - Grafana: http://grafana.anomaly_detection.localhost")
+            print("   - Jaeger: http://jaeger.anomaly_detection.localhost")
         else:
             print("   - Configure DNS to point to your cluster ingress")
 
         print("\nKey files created:")
         print("- Kubernetes manifests: deploy/kubernetes/production-complete.yaml")
-        print("- Helm chart: deploy/helm/pynomaly-complete/")
-        print("- Deployment scripts: /opt/pynomaly/scripts/orchestration/")
+        print("- Helm chart: deploy/helm/anomaly_detection-complete/")
+        print("- Deployment scripts: /opt/anomaly_detection/scripts/orchestration/")
 
     except Exception as e:
         print(f"\n❌ Setup failed: {e}")

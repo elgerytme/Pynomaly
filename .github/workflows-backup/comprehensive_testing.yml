@@ -202,7 +202,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           pytest tests/unit/ \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml \
             --cov-report=html \
             --cov-report=term-missing \
@@ -238,7 +238,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pynomaly_test
+          POSTGRES_DB: anomaly_detection_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -280,11 +280,11 @@ jobs:
       
       - name: Run Integration Tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
           REDIS_URL: redis://localhost:6379
         run: |
           pytest tests/integration/ \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml \
             --cov-append \
             --timeout=${{ env.PYTEST_TIMEOUT }} \
@@ -322,7 +322,7 @@ jobs:
       
       - name: Start API Server
         run: |
-          python -m pynomaly.presentation.api.main &
+          python -m anomaly_detection.presentation.api.main &
           sleep 10
         env:
           ENVIRONMENT: test
@@ -400,7 +400,7 @@ jobs:
       
       - name: Start API Server
         run: |
-          python -m pynomaly.presentation.api.main &
+          python -m anomaly_detection.presentation.api.main &
           sleep 10
         env:
           ENVIRONMENT: test
@@ -438,22 +438,22 @@ jobs:
       
       - name: Build Docker Image
         run: |
-          docker build -t pynomaly:test .
+          docker build -t anomaly_detection:test .
       
       - name: Run Docker Security Scan
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
             -v $(pwd):/app \
-            aquasec/trivy:latest image pynomaly:test \
+            aquasec/trivy:latest image anomaly_detection:test \
             --format json \
             --output docker_security_scan.json || true
       
       - name: Test Docker Container
         run: |
-          docker run --rm -d --name pynomaly-test -p 8000:8000 pynomaly:test
+          docker run --rm -d --name anomaly_detection-test -p 8000:8000 anomaly_detection:test
           sleep 10
           curl -f http://localhost:8000/health || exit 1
-          docker stop pynomaly-test
+          docker stop anomaly_detection-test
       
       - name: Upload Docker Test Results
         uses: actions/upload-artifact@v3
@@ -492,7 +492,7 @@ jobs:
       
       - name: Start Application
         run: |
-          python -m pynomaly.presentation.api.main &
+          python -m anomaly_detection.presentation.api.main &
           sleep 10
         env:
           ENVIRONMENT: test
@@ -617,7 +617,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
-          channel: '#pynomaly-ci'
+          channel: '#anomaly_detection-ci'
           text: |
             Testing Pipeline Results:
             - Security Scan: ${{ needs.security-scan.result }}

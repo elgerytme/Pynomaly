@@ -2,7 +2,7 @@
 """
 SDK Generator Demo Script
 
-This script demonstrates the capabilities of the Pynomaly SDK Generator
+This script demonstrates the capabilities of the anomaly_detection SDK Generator
 by generating a sample client library and showcasing its features.
 """
 
@@ -43,10 +43,10 @@ class SDKGeneratorDemo:
 
     def demo_overview(self):
         """Show overview of SDK Generator capabilities."""
-        self.print_header("Pynomaly SDK Generator Demo")
+        self.print_header("anomaly_detection SDK Generator Demo")
 
         self.console.print("""
-[bold]Welcome to the Pynomaly SDK Generator Demo![/bold]
+[bold]Welcome to the anomaly_detection SDK Generator Demo![/bold]
 
 This demo will showcase the key capabilities of our multi-language SDK generator:
 
@@ -126,7 +126,7 @@ This demo will showcase the key capabilities of our multi-language SDK generator
             "languages": {
                 "python": {
                     "enabled": True,
-                    "package": {"name": "pynomaly_client"},
+                    "package": {"name": "anomaly_detection_client"},
                     "features": {
                         "async_support": True,
                         "retry_logic": True,
@@ -248,12 +248,12 @@ This demo will showcase the key capabilities of our multi-language SDK generator
 
         # Python example
         python_example = """# Python SDK Example
-from pynomaly_client import PynomaliClient
-from pynomaly_client.exceptions import ApiException
+from anomaly_detection_client import AnomalyDetectionClient
+from anomaly_detection_client.exceptions import ApiException
 
 async def main():
     # Initialize client
-    client = PynomaliClient(base_url="https://api.pynomaly.com")
+    client = AnomalyDetectionClient(base_url="https://api.anomaly_detection.com")
 
     try:
         # Authenticate
@@ -276,10 +276,10 @@ async def main():
 
         # TypeScript example
         typescript_example = """// TypeScript SDK Example
-import { PynomaliClient } from '@pynomaly/client';
+import { AnomalyDetectionClient } from '@anomaly_detection/client';
 
-const client = new PynomaliClient({
-    basePath: 'https://api.pynomaly.com'
+const client = new AnomalyDetectionClient({
+    basePath: 'https://api.anomaly_detection.com'
 });
 
 async function detectAnomalies() {
@@ -359,14 +359,14 @@ async function detectAnomalies() {
 
 [bold]Supported Registries:[/bold]
 
-• [green]Python[/green] → PyPI (pip install pynomaly-client)
-• [green]TypeScript[/green] → npm (npm install @pynomaly/client)
+• [green]Python[/green] → PyPI (pip install anomaly_detection-client)
+• [green]TypeScript[/green] → npm (npm install @anomaly_detection/client)
 • [green]Java[/green] → Maven Central (Maven/Gradle dependency)
-• [green]Go[/green] → Go modules (go get github.com/pynomaly/go-client)
+• [green]Go[/green] → Go modules (go get github.com/anomaly_detection/go-client)
 • [green]C#[/green] → NuGet (NuGet package)
 • [green]PHP[/green] → Packagist (Composer package)
-• [green]Ruby[/green] → RubyGems (gem install pynomaly_client)
-• [green]Rust[/green] → crates.io (cargo add pynomaly_client)
+• [green]Ruby[/green] → RubyGems (gem install anomaly_detection_client)
+• [green]Rust[/green] → crates.io (cargo add anomaly_detection_client)
         """)
 
     def demo_summary(self):
@@ -502,7 +502,7 @@ async def main():
     """Main demo function."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Pynomaly SDK Generator Demo")
+    parser = argparse.ArgumentParser(description="anomaly_detection SDK Generator Demo")
     parser.add_argument(
         "--mode",
         choices=["interactive", "complete", "overview"],

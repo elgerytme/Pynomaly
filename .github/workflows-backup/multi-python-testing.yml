@@ -160,7 +160,7 @@ jobs:
       - name: Verify installation
         run: |
           python -c "import sys; print('Python executable:', sys.executable)"
-          python -c "import pynomaly; print('Pynomaly version:', getattr(pynomaly, '__version__', 'dev'))" || echo "Pynomaly not yet installable"
+          python -c "import anomaly_detection; print('anomaly_detection version:', getattr(anomaly_detection, '__version__', 'dev'))" || echo "anomaly_detection not yet installable"
           pip list
 
       - name: Run linting (Python 3.11+ only)
@@ -201,7 +201,7 @@ jobs:
             --maxfail=10 \
             --timeout=300 \
             --durations=10 \
-            --cov=src/pynomaly \
+            --cov=src/anomaly_detection \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=75
@@ -290,7 +290,7 @@ jobs:
           # Run limited mutation testing
           if [ -f "tests/advanced/mutation_testing_framework.py" ]; then
             python tests/advanced/mutation_testing_framework.py \
-              --source-dir src/pynomaly \
+              --source-dir src/anomaly_detection \
               --test-dir tests \
               --max-mutations 10 \
               --test-command "python -m pytest" || echo "Mutation testing completed with issues"
@@ -308,10 +308,10 @@ jobs:
 
           # Check if we can import all modules for documentation
           modules_to_check = [
-              'pynomaly.domain',
-              'pynomaly.application',
-              'pynomaly.infrastructure',
-              'pynomaly.presentation'
+              'anomaly_detection.domain',
+              'anomaly_detection.application',
+              'anomaly_detection.infrastructure',
+              'anomaly_detection.presentation'
           ]
 
           for module_name in modules_to_check:

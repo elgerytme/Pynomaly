@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Bundle Analyzer for Pynomaly Web UI
+ * Bundle Analyzer for anomaly_detection Web UI
  * Analyzes JavaScript and CSS bundles for optimization opportunities
  */
 
@@ -10,7 +10,7 @@ const { execSync } = require('child_process');
 
 class BundleAnalyzer {
   constructor(options = {}) {
-    this.staticDir = options.staticDir || './src/pynomaly/presentation/web/static';
+    this.staticDir = options.staticDir || './src/anomaly_detection/presentation/web/static';
     this.outputDir = options.outputDir || './test_reports/bundle-analysis';
     this.budgets = {
       javascript: 200 * 1024,  // 200KB
@@ -374,7 +374,7 @@ class BundleAnalyzer {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bundle Analysis Report - Pynomaly</title>
+    <title>Bundle Analysis Report - anomaly_detection</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; background: #f8fafc; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -563,7 +563,7 @@ class BundleAnalyzer {
 // CLI execution
 if (require.main === module) {
   const analyzer = new BundleAnalyzer({
-    staticDir: process.argv[2] || './src/pynomaly/presentation/web/static',
+    staticDir: process.argv[2] || './src/anomaly_detection/presentation/web/static',
     outputDir: process.argv[3] || './test_reports/bundle-analysis'
   });
 

@@ -72,16 +72,16 @@ def generate_openapi_spec() -> dict[str, Any]:
             ),
             "version": "1.0.0",
             "contact": {
-                "name": "Pynomaly Support",
-                "email": "support@pynomaly.com",
-                "url": "https://docs.pynomaly.com",
+                "name": "anomaly_detection Support",
+                "email": "support@anomaly_detection.com",
+                "url": "https://docs.anomaly_detection.com",
             },
             "license": {"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
         },
         "servers": [
-            {"url": "https://api.pynomaly.com", "description": "Production server"},
+            {"url": "https://api.anomaly_detection.com", "description": "Production server"},
             {
-                "url": "https://staging-api.pynomaly.com",
+                "url": "https://staging-api.anomaly_detection.com",
                 "description": "Staging server",
             },
             {"url": "http://localhost:8000", "description": "Development server"},
@@ -774,7 +774,7 @@ def generate_swagger_ui():
                 tryItOutEnabled: true,
                 requestInterceptor: function(request) {
                     // Add API key if available
-                    const apiKey = localStorage.getItem('pynomaly_api_key');
+                    const apiKey = localStorage.getItem('anomaly_detection_api_key');
                     if (apiKey) {
                         request.headers['X-API-Key'] = apiKey;
                     }
@@ -794,13 +794,13 @@ def generate_swagger_ui():
                     apiKeyInput.style.borderRadius = '3px';
                     apiKeyInput.style.border = '1px solid #ccc';
 
-                    const savedKey = localStorage.getItem('pynomaly_api_key');
+                    const savedKey = localStorage.getItem('anomaly_detection_api_key');
                     if (savedKey) {
                         apiKeyInput.value = savedKey;
                     }
 
                     apiKeyInput.addEventListener('change', function() {
-                        localStorage.setItem('pynomaly_api_key', this.value);
+                        localStorage.setItem('anomaly_detection_api_key', this.value);
                     });
 
                     topbar.appendChild(apiKeyInput);
@@ -831,7 +831,7 @@ import requests
 
 # Configuration
 API_KEY = "your-api-key-here"
-BASE_URL = "https://api.pynomaly.com"
+BASE_URL = "https://api.anomaly_detection.com"
 
 headers = {
     "X-API-Key": API_KEY,
@@ -888,11 +888,11 @@ results = response.json()
 print(f"Detection results: {results['data']['summary']}")
 """,
             "sdk_usage": """
-# Using the Pynomaly Python SDK
-from pynomaly_client import PynomalyClient
+# Using the anomaly_detection Python SDK
+from anomaly_detection_client import AnomalyDetectionClient
 
 # Initialize client
-client = PynomalyClient(api_key="your-api-key-here")
+client = AnomalyDetectionClient(api_key="your-api-key-here")
 
 # Create detector
 detector = client.detectors.create(
@@ -921,7 +921,7 @@ const axios = require('axios');
 
 // Configuration
 const API_KEY = 'your-api-key-here';
-const BASE_URL = 'https://api.pynomaly.com';
+const BASE_URL = 'https://api.anomaly_detection.com';
 
 const headers = {
     'X-API-Key': API_KEY,
@@ -1020,11 +1020,11 @@ async function runDetection(detectorId) {
 })();
 """,
             "sdk_usage": """
-// Using the Pynomaly JavaScript SDK
-import { PynomalyClient } from 'pynomaly-js';
+// Using the anomaly_detection JavaScript SDK
+import { AnomalyDetectionClient } from 'anomaly_detection-js';
 
 // Initialize client
-const client = new PynomalyClient('your-api-key-here');
+const client = new AnomalyDetectionClient('your-api-key-here');
 
 // Create detector
 const detector = await client.detectors.create({
@@ -1049,18 +1049,18 @@ console.log(`Anomalies detected: ${results.summary.anomaliesDetected}`);
         "curl": {
             "health_check": """
 # Health check
-curl -X GET "https://api.pynomaly.com/health" \\
+curl -X GET "https://api.anomaly_detection.com/health" \\
   -H "X-API-Key: your-api-key-here"
 """,
             "list_detectors": """
 # List detectors
-curl -X GET "https://api.pynomaly.com/api/v1/detectors?limit=10" \\
+curl -X GET "https://api.anomaly_detection.com/api/v1/detectors?limit=10" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json"
 """,
             "create_detector": """
 # Create detector
-curl -X POST "https://api.pynomaly.com/api/v1/detectors" \\
+curl -X POST "https://api.anomaly_detection.com/api/v1/detectors" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1076,7 +1076,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/detectors" \\
 """,
             "run_detection": """
 # Run detection
-curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" \\
+curl -X POST "https://api.anomaly_detection.com/api/v1/detectors/detector_abc123/detect" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1091,7 +1091,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" 
 """,
             "automl_optimization": """
 # Start AutoML optimization
-curl -X POST "https://api.pynomaly.com/api/v1/automl/optimize" \\
+curl -X POST "https://api.anomaly_detection.com/api/v1/automl/optimize" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1132,7 +1132,7 @@ def generate_postman_collection():
         "info": {
             "name": "anomaly detection API",
             "description": (
-                "Comprehensive API collection for Pynomaly anomaly detection platform"
+                "Comprehensive API collection for anomaly_detection anomaly detection platform"
             ),
             "version": "1.0.0",
             "schema": (
@@ -1147,7 +1147,7 @@ def generate_postman_collection():
             ],
         },
         "variable": [
-            {"key": "base_url", "value": "https://api.pynomaly.com", "type": "string"},
+            {"key": "base_url", "value": "https://api.anomaly_detection.com", "type": "string"},
             {"key": "api_key", "value": "your-api-key-here", "type": "string"},
         ],
         "item": [
@@ -1377,7 +1377,7 @@ def generate_postman_collection():
         ],
     }
 
-    postman_path = OUTPUT_DIR / "pynomaly_api.postman_collection.json"
+    postman_path = OUTPUT_DIR / "anomaly_detection_api.postman_collection.json"
     with open(postman_path, "w") as f:
         json.dump(collection, f, indent=2)
 
@@ -1392,7 +1392,7 @@ def generate_readme():
     readme_content = f"""# anomaly detection API Documentation
 
 Welcome to the anomaly detection API documentation! This directory contains comprehensive
-documentation for the Pynomaly anomaly detection platform.
+documentation for the anomaly_detection anomaly detection platform.
 
 ## 📁 Documentation Structure
 
@@ -1407,7 +1407,7 @@ docs/api/
 │   │   ├── python/            # Python examples
 │   │   ├── javascript/        # JavaScript examples
 │   │   └── curl/              # cURL examples
-│   └── pynomaly_api.postman_collection.json  # Postman collection
+│   └── anomaly_detection_api.postman_collection.json  # Postman collection
 └── README.md                   # This file
 ```
 
@@ -1433,7 +1433,7 @@ Choose your preferred language:
 
 ### 4. Postman Collection
 
-Import `generated/pynomaly_api.postman_collection.json` into Postman for easy
+Import `generated/anomaly_detection_api.postman_collection.json` into Postman for easy
 API testing.
 
 ## 📖 API Overview
@@ -1454,10 +1454,10 @@ All API endpoints require authentication via API key:
 
 ```bash
 # Header authentication (recommended)
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/api/v1/detectors
+curl -H "X-API-Key: your-api-key" https://api.anomaly_detection.com/api/v1/detectors
 
 # Query parameter authentication
-curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
+curl "https://api.anomaly_detection.com/api/v1/detectors?api_key=your-api-key"
 ```
 
 ## 📚 Quick Examples
@@ -1468,14 +1468,14 @@ curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
 import requests
 
 headers = {{"X-API-Key": "your-api-key"}}
-response = requests.get("https://api.pynomaly.com/health", headers=headers)
+response = requests.get("https://api.anomaly_detection.com/health", headers=headers)
 print(response.json())
 ```
 
 ### JavaScript
 
 ```javascript
-const response = await fetch('https://api.pynomaly.com/health', {{
+const response = await fetch('https://api.anomaly_detection.com/health', {{
     headers: {{ 'X-API-Key': 'your-api-key' }}
 }});
 const data = await response.json();
@@ -1485,13 +1485,13 @@ console.log(data);
 ### cURL
 
 ```bash
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/health
+curl -H "X-API-Key: your-api-key" https://api.anomaly_detection.com/health
 ```
 
 ## 🌐 Base URLs
 
-- **Production**: `https://api.pynomaly.com`
-- **Staging**: `https://staging-api.pynomaly.com`
+- **Production**: `https://api.anomaly_detection.com`
+- **Staging**: `https://staging-api.anomaly_detection.com`
 - **Development**: `http://localhost:8000`
 
 ## 📊 Rate Limits
@@ -1503,17 +1503,17 @@ curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/health
 
 ## 📧 Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **API Status**: https://status.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Community**: https://github.com/pynomaly/pynomaly
+- **Documentation**: https://docs.anomaly_detection.com
+- **API Status**: https://status.anomaly_detection.com
+- **Support**: support@anomaly_detection.com
+- **Community**: https://github.com/anomaly_detection/anomaly_detection
 
 ## 🔄 Regenerating Documentation
 
 To regenerate this documentation:
 
 ```bash
-cd /path/to/pynomaly
+cd /path/to/anomaly_detection
 python scripts/generate_api_docs.py
 ```
 
@@ -1561,7 +1561,7 @@ def main():
         print(f"📄 OpenAPI Spec: {OUTPUT_DIR / 'openapi.json'}")
         print(
             f"🔧 Postman Collection: "
-            f"{OUTPUT_DIR / 'pynomaly_api.postman_collection.json'}"
+            f"{OUTPUT_DIR / 'anomaly_detection_api.postman_collection.json'}"
         )
         print(f"💻 Code Examples: {OUTPUT_DIR / 'examples'}")
         print("=" * 60)

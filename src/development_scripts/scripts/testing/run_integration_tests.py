@@ -22,20 +22,20 @@ class IntegrationTestRunner:
     def setup_environment(self, config: dict[str, Any]) -> None:
         """Setup test environment variables."""
         env_vars = {
-            "PYNOMALY_ENVIRONMENT": "testing",
-            "PYNOMALY_LOG_LEVEL": config.get("log_level", "INFO"),
-            "PYNOMALY_CACHE_ENABLED": "false",
-            "PYNOMALY_AUTH_ENABLED": str(config.get("auth_enabled", False)).lower(),
-            "PYNOMALY_DOCS_ENABLED": "true",
-            "PYNOMALY_CORS_ENABLED": "true",
-            "PYNOMALY_MONITORING_METRICS_ENABLED": "false",
-            "PYNOMALY_MONITORING_TRACING_ENABLED": "false",
-            "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
+            "ANOMALY_DETECTION_ENVIRONMENT": "testing",
+            "ANOMALY_DETECTION_LOG_LEVEL": config.get("log_level", "INFO"),
+            "ANOMALY_DETECTION_CACHE_ENABLED": "false",
+            "ANOMALY_DETECTION_AUTH_ENABLED": str(config.get("auth_enabled", False)).lower(),
+            "ANOMALY_DETECTION_DOCS_ENABLED": "true",
+            "ANOMALY_DETECTION_CORS_ENABLED": "true",
+            "ANOMALY_DETECTION_MONITORING_METRICS_ENABLED": "false",
+            "ANOMALY_DETECTION_MONITORING_TRACING_ENABLED": "false",
+            "ANOMALY_DETECTION_MONITORING_PROMETHEUS_ENABLED": "false",
         }
 
         # Set database URL for testing
         if config.get("database_url"):
-            env_vars["PYNOMALY_DATABASE_URL"] = config["database_url"]
+            env_vars["ANOMALY_DETECTION_DATABASE_URL"] = config["database_url"]
 
         # Apply environment variables
         for key, value in env_vars.items():
@@ -71,7 +71,7 @@ class IntegrationTestRunner:
             coverage_dir.mkdir(exist_ok=True)
             cmd.extend(
                 [
-                    "--cov=src/pynomaly",
+                    "--cov=src/anomaly_detection",
                     f"--cov-report=html:{coverage_dir}",
                     f"--cov-report=xml:{coverage_dir}/coverage.xml",
                     "--cov-report=term-missing",
@@ -190,7 +190,7 @@ class IntegrationTestRunner:
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pynomaly Integration Test Report</title>
+    <title>anomaly_detection Integration Test Report</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 20px; }}
         .summary {{ background: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }}
@@ -203,7 +203,7 @@ class IntegrationTestRunner:
     </style>
 </head>
 <body>
-    <h1>Pynomaly Integration Test Report</h1>
+    <h1>anomaly_detection Integration Test Report</h1>
 
     <div class="summary">
         <h2>Summary</h2>
@@ -257,7 +257,7 @@ class IntegrationTestRunner:
         text_report = self.reports_dir / "integration_test_summary.txt"
 
         with open(text_report, "w") as f:
-            f.write("PYNOMALY INTEGRATION TEST SUMMARY\n")
+            f.write("anomaly_detection INTEGRATION TEST SUMMARY\n")
             f.write("=" * 50 + "\n\n")
             f.write(f"Total Suites: {total_suites}\n")
             f.write(f"Passed: {passed_suites}\n")
@@ -297,7 +297,7 @@ class IntegrationTestRunner:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Run Pynomaly integration tests")
+    parser = argparse.ArgumentParser(description="Run anomaly_detection integration tests")
 
     parser.add_argument(
         "--suite",

@@ -3,7 +3,7 @@
  * Tests compatibility across different environments and runtime conditions
  */
 
-import { PynomaliClient } from '../src/index';
+import { AnomalyDetectionClient } from '../src/index';
 
 describe('Browser and Node.js Compatibility', () => {
   describe('Environment Detection', () => {
@@ -22,13 +22,13 @@ describe('Browser and Node.js Compatibility', () => {
         writable: true,
       });
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
       expect(client).toBeDefined();
-      expect(client.getClientInfo().baseUrl).toBe('https://api.pynomaly.com');
+      expect(client.getClientInfo().baseUrl).toBe('https://api.anomaly_detection.com');
     });
 
     test('should detect Node.js environment', () => {
@@ -41,13 +41,13 @@ describe('Browser and Node.js Compatibility', () => {
         writable: true,
       });
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
       expect(client).toBeDefined();
-      expect(client.getClientInfo().baseUrl).toBe('https://api.pynomaly.com');
+      expect(client.getClientInfo().baseUrl).toBe('https://api.anomaly_detection.com');
     });
   });
 
@@ -72,8 +72,8 @@ describe('Browser and Node.js Compatibility', () => {
 
       global.fetch = mockFetch;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -90,8 +90,8 @@ describe('Browser and Node.js Compatibility', () => {
       // Remove fetch to simulate Node.js environment
       delete (global as any).fetch;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -109,8 +109,8 @@ describe('Browser and Node.js Compatibility', () => {
         writable: true,
       });
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         websocket: { enabled: true },
         debug: false,
       });
@@ -122,8 +122,8 @@ describe('Browser and Node.js Compatibility', () => {
       // Remove WebSocket to simulate Node.js environment without ws library
       delete (global as any).WebSocket;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         websocket: { enabled: true },
         debug: false,
       });
@@ -146,8 +146,8 @@ describe('Browser and Node.js Compatibility', () => {
         writable: true,
       });
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         timeout: 5000,
         debug: false,
       });
@@ -159,8 +159,8 @@ describe('Browser and Node.js Compatibility', () => {
       // Remove AbortController to simulate older environment
       delete (global as any).AbortController;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         timeout: 5000,
         debug: false,
       });
@@ -172,19 +172,19 @@ describe('Browser and Node.js Compatibility', () => {
 
   describe('URL and URLSearchParams Compatibility', () => {
     test('should handle URL construction in all environments', () => {
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
       // Test URL construction with parameters
       const clientInfo = client.getClientInfo();
-      expect(clientInfo.baseUrl).toBe('https://api.pynomaly.com');
+      expect(clientInfo.baseUrl).toBe('https://api.anomaly_detection.com');
     });
 
     test('should handle URLSearchParams for query parameters', () => {
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -208,8 +208,8 @@ describe('Browser and Node.js Compatibility', () => {
         writable: true,
       });
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -220,8 +220,8 @@ describe('Browser and Node.js Compatibility', () => {
       // Remove localStorage to simulate Node.js environment
       delete (global as any).localStorage;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -244,8 +244,8 @@ describe('Browser and Node.js Compatibility', () => {
         writable: true,
       });
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         websocket: { enabled: true },
         debug: false,
       });
@@ -259,8 +259,8 @@ describe('Browser and Node.js Compatibility', () => {
       const mockFetch = jest.fn().mockRejectedValue(new Error('Network error'));
       global.fetch = mockFetch;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -278,8 +278,8 @@ describe('Browser and Node.js Compatibility', () => {
 
       global.fetch = mockFetch;
 
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         timeout: 50,
         debug: false,
       });
@@ -290,8 +290,8 @@ describe('Browser and Node.js Compatibility', () => {
 
   describe('Authentication Compatibility', () => {
     test('should handle authentication tokens across environments', () => {
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         apiKey: 'test-key',
         debug: false,
       });
@@ -303,8 +303,8 @@ describe('Browser and Node.js Compatibility', () => {
     });
 
     test('should handle token clearing', () => {
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         apiKey: 'test-key',
         debug: false,
       });
@@ -319,8 +319,8 @@ describe('Browser and Node.js Compatibility', () => {
 
   describe('Configuration Compatibility', () => {
     test('should handle various configuration options', () => {
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         apiKey: 'test-key',
         timeout: 10000,
         maxRetries: 5,
@@ -336,37 +336,37 @@ describe('Browser and Node.js Compatibility', () => {
       });
 
       const clientInfo = client.getClientInfo();
-      expect(clientInfo.baseUrl).toBe('https://api.pynomaly.com');
+      expect(clientInfo.baseUrl).toBe('https://api.anomaly_detection.com');
       expect(clientInfo.userAgent).toBe('test-agent');
     });
 
     test('should handle minimal configuration', () => {
-      const client = new PynomaliClient();
+      const client = new AnomalyDetectionClient();
 
       const clientInfo = client.getClientInfo();
-      expect(clientInfo.baseUrl).toBe('https://api.pynomaly.com');
+      expect(clientInfo.baseUrl).toBe('https://api.anomaly_detection.com');
     });
   });
 
   describe('Module System Compatibility', () => {
     test('should support CommonJS imports', () => {
       // Test that the module can be imported in CommonJS style
-      const { PynomaliClient: CommonJSClient } = require('../src/index');
+      const { AnomalyDetectionClient: CommonJSClient } = require('../src/index');
       expect(CommonJSClient).toBeDefined();
       expect(typeof CommonJSClient).toBe('function');
     });
 
     test('should support ES module imports', () => {
       // Test that the module can be imported in ES module style
-      expect(PynomaliClient).toBeDefined();
-      expect(typeof PynomaliClient).toBe('function');
+      expect(AnomalyDetectionClient).toBeDefined();
+      expect(typeof AnomalyDetectionClient).toBe('function');
     });
   });
 
   describe('TypeScript Compatibility', () => {
     test('should provide proper TypeScript definitions', () => {
-      const client = new PynomaliClient({
-        baseUrl: 'https://api.pynomaly.com',
+      const client = new AnomalyDetectionClient({
+        baseUrl: 'https://api.anomaly_detection.com',
         debug: false,
       });
 
@@ -378,7 +378,7 @@ describe('Browser and Node.js Compatibility', () => {
     });
 
     test('should handle generic types correctly', () => {
-      const client = new PynomaliClient();
+      const client = new AnomalyDetectionClient();
 
       // Test that generic types work as expected
       expect(client).toBeDefined();

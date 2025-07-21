@@ -1,5 +1,5 @@
 # Test Coverage Gaps and Recommendations
-## Pynomaly Project - Action Plan
+## anomaly_detection Project - Action Plan
 
 **Report Date**: 2025-01-09  
 **Priority Classification**: Critical → High → Medium → Low  

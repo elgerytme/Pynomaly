@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Main application runner for Pynomaly.
+Main application runner for anomaly_detection.
 
 This script provides a unified entry point to run the complete anomaly detection application
 with all components (CLI, API, and Web UI) or specific components based on configuration.
@@ -20,9 +20,9 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.infrastructure.config.settings import get_settings
-    from pynomaly.presentation.api.app import create_app
-    from pynomaly.presentation.cli.app import app as cli_app
+    from anomaly_detection.infrastructure.config.settings import get_settings
+    from anomaly_detection.presentation.api.app import create_app
+    from anomaly_detection.presentation.cli.app import app as cli_app
 except ImportError as e:
     print(f"Failed to import anomaly_detection modules: {e}")
     print("Please ensure the package is installed with: poetry install")
@@ -73,7 +73,7 @@ class ApplicationRunner:
 
     async def run_all_components(self, api_port: int = 8000, ui_port: int = 8080):
         """Run all application components concurrently."""
-        logger.info("Starting all Pynomaly components...")
+        logger.info("Starting all anomaly_detection components...")
 
         # Create tasks for different components
         api_task = asyncio.create_task(
@@ -110,7 +110,7 @@ def run_cli_mode(args: list[str]):
     logger.info("Starting anomaly detection CLI")
     original_argv = sys.argv.copy()
     try:
-        sys.argv = ["pynomaly"] + args
+        sys.argv = ["anomaly_detection"] + args
         cli_app()
     finally:
         sys.argv = original_argv
@@ -119,7 +119,7 @@ def run_cli_mode(args: list[str]):
 async def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Pynomaly Application Runner",
+        description="anomaly_detection Application Runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

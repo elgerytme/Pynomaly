@@ -13,7 +13,7 @@ sys.path.insert(0, str(project_root / "src"))
 async def demo_ui_testing_features():
     """Demonstrate the key features of our UI testing infrastructure."""
 
-    print("🎯 Pynomaly UI Testing Infrastructure Demo")
+    print("🎯 anomaly_detection UI Testing Infrastructure Demo")
     print("=" * 50)
 
     print("\n✨ Key Features Implemented:")

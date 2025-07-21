@@ -75,10 +75,10 @@ class FailoverOrchestrator:
             "notification_enabled": True,
         }
         self.services = [
-            "pynomaly-api",
-            "pynomaly-web",
-            "pynomaly-worker",
-            "pynomaly-scheduler",
+            "anomaly_detection-api",
+            "anomaly_detection-web",
+            "anomaly_detection-worker",
+            "anomaly_detection-scheduler",
             "database",
             "cache",
             "monitoring",

@@ -1,4 +1,4 @@
-# Pynomaly Production Readiness Report
+# anomaly_detection Production Readiness Report
 
 **Document Version:** 1.0  
 **Date:** January 2025  
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-The Pynomaly anomaly detection platform has undergone a comprehensive production readiness assessment covering architecture, security, performance, monitoring, and operational concerns. This report presents findings, risk assessments, and recommendations for production deployment.
+The anomaly_detection anomaly detection platform has undergone a comprehensive production readiness assessment covering architecture, security, performance, monitoring, and operational concerns. This report presents findings, risk assessments, and recommendations for production deployment.
 
 ### Key Findings
 

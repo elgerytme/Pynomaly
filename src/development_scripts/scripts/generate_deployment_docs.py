@@ -66,12 +66,12 @@ This document provides a summary of the deployment to the {self.environment} env
 
 ### Application Version
 - **Image Tag:** {self.image_tag}
-- **Registry:** ghcr.io/pynomaly/pynomaly:{self.image_tag}
+- **Registry:** ghcr.io/anomaly_detection/anomaly_detection:{self.image_tag}
 - **Build Date:** {self.timestamp.strftime('%Y-%m-%d')}
 
 ### Environment Configuration
 - **Environment:** {self.environment}
-- **Namespace:** pynomaly-{self.environment}
+- **Namespace:** anomaly_detection-{self.environment}
 - **Deployment Strategy:** Rolling Update
 
 ### Services Updated
@@ -112,17 +112,17 @@ This document provides a summary of the deployment to the {self.environment} env
 In case of issues, this deployment can be rolled back using:
 
 ```bash
-kubectl rollout undo deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout undo deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 ```
 
 ## Contact Information
 
 **Deployment Team:** DevOps Team
 **On-Call Engineer:** See PagerDuty rotation
-**Incident Response:** Slack #pynomaly-incidents
+**Incident Response:** Slack #anomaly_detection-incidents
 
 ---
-*Generated automatically by Pynomaly deployment pipeline*
+*Generated automatically by anomaly_detection deployment pipeline*
 """
 
         summary_file = self.docs_dir / f"deployment_summary_{self.deployment_id}.md"
@@ -143,7 +143,7 @@ kubectl rollout undo deployment/pynomaly-api -n pynomaly-{self.environment}
 
 ### Application Configuration
 ```bash
-PYNOMALY_ENVIRONMENT={self.environment}
+ANOMALY_DETECTION_ENVIRONMENT={self.environment}
 API_HOST=0.0.0.0
 API_PORT=8000
 LOG_LEVEL=INFO
@@ -151,7 +151,7 @@ LOG_LEVEL=INFO
 
 ### Database Configuration
 ```bash
-DATABASE_URL=postgresql://username:password@postgres:5432/pynomaly_{self.environment}
+DATABASE_URL=postgresql://username:password@postgres:5432/anomaly_detection_{self.environment}
 DATABASE_POOL_SIZE=20
 DATABASE_MAX_OVERFLOW=0
 ```
@@ -167,7 +167,7 @@ REDIS_MAX_CONNECTIONS=50
 SECRET_KEY=[REDACTED]
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_MINUTES=60
-CORS_ORIGINS=https://{self.environment}.pynomaly.ai
+CORS_ORIGINS=https://{self.environment}.anomaly_detection.ai
 ```
 
 ### Monitoring Configuration
@@ -182,7 +182,7 @@ LOG_FORMAT=json
 
 ### Deployment
 - **Replicas:** 3
-- **Image:** ghcr.io/pynomaly/pynomaly:{self.image_tag}
+- **Image:** ghcr.io/anomaly_detection/anomaly_detection:{self.image_tag}
 - **CPU Request:** 500m
 - **CPU Limit:** 2000m
 - **Memory Request:** 1Gi
@@ -194,7 +194,7 @@ LOG_FORMAT=json
 - **Target Port:** 8000
 
 ### Ingress
-- **Host:** {self.environment}.pynomaly.ai
+- **Host:** {self.environment}.anomaly_detection.ai
 - **TLS:** Enabled
 - **Certificate:** Let's Encrypt
 
@@ -202,18 +202,18 @@ LOG_FORMAT=json
 
 ### Nginx Configuration
 ```nginx
-upstream pynomaly_backend {{
-    server pynomaly-api-1:8000;
-    server pynomaly-api-2:8000;
-    server pynomaly-api-3:8000;
+upstream anomaly_detection_backend {{
+    server anomaly_detection-api-1:8000;
+    server anomaly_detection-api-2:8000;
+    server anomaly_detection-api-3:8000;
 }}
 
 server {{
     listen 443 ssl http2;
-    server_name {self.environment}.pynomaly.ai;
+    server_name {self.environment}.anomaly_detection.ai;
 
     location / {{
-        proxy_pass http://pynomaly_backend;
+        proxy_pass http://anomaly_detection_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -264,13 +264,13 @@ server {{
 **Diagnosis:**
 ```bash
 # Check pod status
-kubectl get pods -n pynomaly-{self.environment}
+kubectl get pods -n anomaly_detection-{self.environment}
 
 # Check pod logs
-kubectl logs -f deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl logs -f deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 
 # Check events
-kubectl get events -n pynomaly-{self.environment} --sort-by='.lastTimestamp'
+kubectl get events -n anomaly_detection-{self.environment} --sort-by='.lastTimestamp'
 ```
 
 **Solutions:**
@@ -288,10 +288,10 @@ kubectl get events -n pynomaly-{self.environment} --sort-by='.lastTimestamp'
 **Diagnosis:**
 ```bash
 # Test database connectivity
-kubectl exec -it postgres-0 -n pynomaly-{self.environment} -- psql -U pynomaly -d pynomaly_{self.environment} -c "SELECT 1;"
+kubectl exec -it postgres-0 -n anomaly_detection-{self.environment} -- psql -U anomaly_detection -d anomaly_detection_{self.environment} -c "SELECT 1;"
 
 # Check database pod status
-kubectl get pods -l app=postgres -n pynomaly-{self.environment}
+kubectl get pods -l app=postgres -n anomaly_detection-{self.environment}
 ```
 
 **Solutions:**
@@ -309,10 +309,10 @@ kubectl get pods -l app=postgres -n pynomaly-{self.environment}
 **Diagnosis:**
 ```bash
 # Check resource usage
-kubectl top pods -n pynomaly-{self.environment}
+kubectl top pods -n anomaly_detection-{self.environment}
 
 # Check memory limits
-kubectl describe pod [POD_NAME] -n pynomaly-{self.environment}
+kubectl describe pod [POD_NAME] -n anomaly_detection-{self.environment}
 ```
 
 **Solutions:**
@@ -330,7 +330,7 @@ kubectl describe pod [POD_NAME] -n pynomaly-{self.environment}
 **Diagnosis:**
 ```bash
 # Check response times
-curl -w "@curl-format.txt" -o /dev/null -s https://{self.environment}.pynomaly.ai/api/v1/health
+curl -w "@curl-format.txt" -o /dev/null -s https://{self.environment}.anomaly_detection.ai/api/v1/health
 
 # Check load
 kubectl top nodes
@@ -347,19 +347,19 @@ kubectl top nodes
 ### Quick Rollback
 ```bash
 # Rollback to previous version
-kubectl rollout undo deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout undo deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 
 # Check rollback status
-kubectl rollout status deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 ```
 
 ### Specific Version Rollback
 ```bash
 # List rollout history
-kubectl rollout history deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout history deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 
 # Rollback to specific revision
-kubectl rollout undo deployment/pynomaly-api --to-revision=2 -n pynomaly-{self.environment}
+kubectl rollout undo deployment/anomaly_detection-api --to-revision=2 -n anomaly_detection-{self.environment}
 ```
 
 ## Health Check Commands
@@ -367,13 +367,13 @@ kubectl rollout undo deployment/pynomaly-api --to-revision=2 -n pynomaly-{self.e
 ### Application Health
 ```bash
 # API health check
-curl https://{self.environment}.pynomaly.ai/api/v1/health
+curl https://{self.environment}.anomaly_detection.ai/api/v1/health
 
 # Database health check
-kubectl exec -it postgres-0 -n pynomaly-{self.environment} -- pg_isready -U pynomaly
+kubectl exec -it postgres-0 -n anomaly_detection-{self.environment} -- pg_isready -U anomaly_detection
 
 # Redis health check
-kubectl exec -it redis-0 -n pynomaly-{self.environment} -- redis-cli ping
+kubectl exec -it redis-0 -n anomaly_detection-{self.environment} -- redis-cli ping
 ```
 
 ### System Health
@@ -396,9 +396,9 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
 3. **SRE Manager:** [Contact Info]
 
 ### Communication Channels
-- **Slack:** #pynomaly-incidents
-- **PagerDuty:** Pynomaly Service
-- **Email:** devops@pynomaly.ai
+- **Slack:** #anomaly_detection-incidents
+- **PagerDuty:** anomaly_detection Service
+- **Email:** devops@anomaly_detection.ai
 
 ---
 *Generated for deployment {self.deployment_id} on {self.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}*
@@ -426,14 +426,14 @@ If immediate rollback is needed:
 
 ```bash
 # Perform rollback
-kubectl rollout undo deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout undo deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 
 # Wait for rollback to complete
-kubectl rollout status deployment/pynomaly-api -n pynomaly-{self.environment} --timeout=600s
+kubectl rollout status deployment/anomaly_detection-api -n anomaly_detection-{self.environment} --timeout=600s
 
 # Verify rollback
-kubectl get pods -n pynomaly-{self.environment}
-curl https://{self.environment}.pynomaly.ai/api/v1/health
+kubectl get pods -n anomaly_detection-{self.environment}
+curl https://{self.environment}.anomaly_detection.ai/api/v1/health
 ```
 
 ## Detailed Rollback Procedure
@@ -446,25 +446,25 @@ curl https://{self.environment}.pynomaly.ai/api/v1/health
 ### 2. Notify Stakeholders
 ```bash
 # Post to Slack
-echo "🚨 ROLLBACK INITIATED - {self.environment} environment" | slack-cli post -c "#pynomaly-incidents"
+echo "🚨 ROLLBACK INITIATED - {self.environment} environment" | slack-cli post -c "#anomaly_detection-incidents"
 ```
 
 ### 3. Perform Application Rollback
 ```bash
 # Check current revision
-kubectl rollout history deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout history deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 
 # Rollback application
-kubectl rollout undo deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl rollout undo deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 
 # Monitor rollback progress
-watch kubectl get pods -n pynomaly-{self.environment}
+watch kubectl get pods -n anomaly_detection-{self.environment}
 ```
 
 ### 4. Database Rollback (if needed)
 ```bash
 # Connect to database
-kubectl exec -it postgres-0 -n pynomaly-{self.environment} -- psql -U pynomaly -d pynomaly_{self.environment}
+kubectl exec -it postgres-0 -n anomaly_detection-{self.environment} -- psql -U anomaly_detection -d anomaly_detection_{self.environment}
 
 # Check migration status
 SELECT version_num FROM alembic_version;
@@ -476,13 +476,13 @@ SELECT version_num FROM alembic_version;
 ### 5. Verify Rollback
 ```bash
 # Check application health
-curl https://{self.environment}.pynomaly.ai/api/v1/health
+curl https://{self.environment}.anomaly_detection.ai/api/v1/health
 
 # Check key functionality
-curl https://{self.environment}.pynomaly.ai/api/v1/algorithms
+curl https://{self.environment}.anomaly_detection.ai/api/v1/algorithms
 
 # Monitor logs
-kubectl logs -f deployment/pynomaly-api -n pynomaly-{self.environment}
+kubectl logs -f deployment/anomaly_detection-api -n anomaly_detection-{self.environment}
 ```
 
 ### 6. Update Monitoring

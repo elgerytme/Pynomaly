@@ -26,7 +26,7 @@ def generate_sarif(violations):
     tool = {
         "driver": {
             "name": "validate_structure",
-            "informationUri": "https://github.com/pynomaly/pynomaly",
+            "informationUri": "https://github.com/anomaly_detection/anomaly_detection",
             "rules": [],
         }
     }

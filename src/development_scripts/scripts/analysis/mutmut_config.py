@@ -13,15 +13,15 @@ def post_mutation(context, mutation_outcome):
 
 # Mutmut configuration
 paths_to_mutate = [
-    "src/pynomaly/domain/",
-    "src/pynomaly/application/",
+    "src/anomaly_detection/domain/",
+    "src/anomaly_detection/application/",
 ]
 
 # Exclude test files and external libraries
 paths_to_exclude = [
     "tests/",
-    "src/pynomaly/infrastructure/adapters/",  # External library wrappers
-    "src/pynomaly/presentation/",  # UI layer mutations less critical
+    "src/anomaly_detection/infrastructure/adapters/",  # External library wrappers
+    "src/anomaly_detection/presentation/",  # UI layer mutations less critical
 ]
 
 # Test command to run after each mutation
@@ -32,9 +32,9 @@ minimum_mutation_score = 70
 
 # Focus on critical business logic
 focus_modules = [
-    "src/pynomaly/domain/value_objects/",
-    "src/pynomaly/domain/entities/",
-    "src/pynomaly/domain/services/",
-    "src/pynomaly/application/use_cases/",
-    "src/pynomaly/application/services/",
+    "src/anomaly_detection/domain/value_objects/",
+    "src/anomaly_detection/domain/entities/",
+    "src/anomaly_detection/domain/services/",
+    "src/anomaly_detection/application/use_cases/",
+    "src/anomaly_detection/application/services/",
 ]

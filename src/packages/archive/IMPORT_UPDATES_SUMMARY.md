@@ -16,16 +16,16 @@ This document summarizes the systematic update of import statements across the c
 - **Pattern**: `from infrastructure.*` → `from ops.infrastructure.*`
 - **Files Updated**: 3 files
 - **Key Files**:
-  - `/mnt/c/Users/andre/Pynomaly/src/packages/check_domain_boundaries.py`
-  - `/mnt/c/Users/andre/Pynomaly/src/packages/integration_test.py`
-  - `/mnt/c/Users/andre/Pynomaly/src/packages/ops/testing/tests/tests/infrastructure/quality/test_quality_gates.py`
+  - `/mnt/c/Users/andre/anomaly_detection/src/packages/check_domain_boundaries.py`
+  - `/mnt/c/Users/andre/anomaly_detection/src/packages/integration_test.py`
+  - `/mnt/c/Users/andre/anomaly_detection/src/packages/ops/testing/tests/tests/infrastructure/quality/test_quality_gates.py`
 
 #### 3. Interfaces Imports → Software.Interfaces
 - **Pattern**: `from interfaces.*` → `from software.interfaces.*`
 - **Files Updated**: 26 files
 - **Key Directories**:
-  - `/mnt/c/Users/andre/Pynomaly/src/packages/data/data_platform/integration/`
-  - `/mnt/c/Users/andre/Pynomaly/src/packages/data/data_platform/quality/`
+  - `/mnt/c/Users/andre/anomaly_detection/src/packages/data/data_platform/integration/`
+  - `/mnt/c/Users/andre/anomaly_detection/src/packages/data/data_platform/quality/`
 - **Common Import**: `from interfaces.shared.error_handling import handle_exceptions` → `from software.interfaces.shared.error_handling import handle_exceptions`
 
 ### Medium Priority Updates (Completed)
@@ -67,9 +67,9 @@ This document summarizes the systematic update of import statements across the c
 
 ### Syntax Validation
 All updated files passed Python syntax validation:
-- ✅ `/mnt/c/Users/andre/Pynomaly/src/packages/check_domain_boundaries.py`
-- ✅ `/mnt/c/Users/andre/Pynomaly/src/packages/integration_test.py`
-- ✅ `/mnt/c/Users/andre/Pynomaly/src/packages/data/data_platform/integration/application/services/monitoring_service.py`
+- ✅ `/mnt/c/Users/andre/anomaly_detection/src/packages/check_domain_boundaries.py`
+- ✅ `/mnt/c/Users/andre/anomaly_detection/src/packages/integration_test.py`
+- ✅ `/mnt/c/Users/andre/anomaly_detection/src/packages/data/data_platform/integration/application/services/monitoring_service.py`
 
 ### Import Structure
 - All relative imports (`.infrastructure`, `.interfaces`, `.services`) were preserved as they are correct internal imports
@@ -80,7 +80,7 @@ All updated files passed Python syntax validation:
 ### Direct Updates
 1. **check_domain_boundaries.py**: Updated infrastructure import
 2. **integration_test.py**: Updated infrastructure import
-3. **test_quality_gates.py**: Updated pynomaly infrastructure import
+3. **test_quality_gates.py**: Updated anomaly_detection infrastructure import
 4. **26 data platform files**: Updated interfaces imports
 
 ### Backup Files

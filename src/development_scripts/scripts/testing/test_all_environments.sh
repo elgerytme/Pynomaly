@@ -4,7 +4,7 @@
 
 set -e
 
-PROJECT_ROOT="/mnt/c/Users/andre/Pynomaly"
+PROJECT_ROOT="/mnt/c/Users/andre/anomaly_detection"
 SRC_PATH="$PROJECT_ROOT/src"
 
 echo "=== anomaly detection API Multi-Environment Test Suite ==="
@@ -39,9 +39,9 @@ test_server() {
     # Start server in background
     echo "Starting server..."
     if [ -n "$pythonpath" ]; then
-        PYTHONPATH="$pythonpath" uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port $port > /tmp/test_$port.log 2>&1 &
+        PYTHONPATH="$pythonpath" uvicorn anomaly_detection.presentation.api:app --host 127.0.0.1 --port $port > /tmp/test_$port.log 2>&1 &
     else
-        uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port $port > /tmp/test_$port.log 2>&1 &
+        uvicorn anomaly_detection.presentation.api:app --host 127.0.0.1 --port $port > /tmp/test_$port.log 2>&1 &
     fi
 
     local server_pid=$!
@@ -123,9 +123,9 @@ export PYTHONPATH="$SRC_PATH"
 
 # Start servers on different ports
 echo "Starting multiple servers..."
-uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8013 > /tmp/test_8013.log 2>&1 &
+uvicorn anomaly_detection.presentation.api:app --host 127.0.0.1 --port 8013 > /tmp/test_8013.log 2>&1 &
 PID1=$!
-uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8014 > /tmp/test_8014.log 2>&1 &
+uvicorn anomaly_detection.presentation.api:app --host 127.0.0.1 --port 8014 > /tmp/test_8014.log 2>&1 &
 PID2=$!
 
 sleep 5
@@ -154,11 +154,11 @@ echo "📋 Usage Instructions:"
 echo ""
 echo "🔧 Bash Environment:"
 echo "  export PYTHONPATH=$SRC_PATH"
-echo "  uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000"
+echo "  uvicorn anomaly_detection.presentation.api:app --host 0.0.0.0 --port 8000"
 echo ""
 echo "🎛️  PowerShell Environment:"
-echo "  \$env:PYTHONPATH = 'C:\\Users\\andre\\Pynomaly\\src'"
-echo "  uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000"
+echo "  \$env:PYTHONPATH = 'C:\\Users\\andre\\anomaly_detection\\src'"
+echo "  uvicorn anomaly_detection.presentation.api:app --host 0.0.0.0 --port 8000"
 echo ""
 echo "🚀 Quick Start Scripts:"
 echo "  Bash: ./scripts/start_api_bash.sh"

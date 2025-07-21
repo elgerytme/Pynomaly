@@ -1,4 +1,4 @@
-# Pynomaly Web Application Test Validation Report
+# anomaly_detection Web Application Test Validation Report
 
 **Generated:** June 25, 2025  
 **Environment:** WSL2 Ubuntu 22.04, Python 3.12.3  
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-✅ **ALL TESTS PASSED** - The Pynomaly web application has been successfully validated across multiple environments and shells. The application demonstrates robust cross-platform compatibility and works correctly in both current and fresh environments.
+✅ **ALL TESTS PASSED** - The anomaly_detection web application has been successfully validated across multiple environments and shells. The application demonstrates robust cross-platform compatibility and works correctly in both current and fresh environments.
 
 ## Test Matrix Results
 
@@ -30,7 +30,7 @@
 - ✅ App creation: SUCCESS (106 routes)
 - ✅ Server startup: SUCCESS
 - ✅ API endpoints: WORKING (`{"message":"anomaly detection API","version":"0.1.0"}`)
-- ✅ Web UI: WORKING (`<title>Dashboard - Pynomaly</title>`)
+- ✅ Web UI: WORKING (`<title>Dashboard - anomaly_detection</title>`)
 - ✅ Graceful shutdown: SUCCESS
 
 **Dependencies verified:**
@@ -131,8 +131,8 @@
 ### Verified Compatibility ✅
 
 1. **Path Handling**
-   - ✅ UNIX paths (bash): `/mnt/c/Users/andre/Pynomaly/src`
-   - ✅ Windows paths (PowerShell): `C:\Users\andre\Pynomaly\src`
+   - ✅ UNIX paths (bash): `/mnt/c/Users/andre/anomaly_detection/src`
+   - ✅ Windows paths (PowerShell): `C:\Users\andre\anomaly_detection\src`
    - ✅ PYTHONPATH configuration working in both
 
 2. **Process Management**
@@ -250,7 +250,7 @@ python3 scripts/run_web_app.py
 
 ## Conclusion
 
-🎉 **The Pynomaly web application has passed all validation tests and is ready for production use.**
+🎉 **The anomaly_detection web application has passed all validation tests and is ready for production use.**
 
 The application demonstrates:
 - ✅ **Robust cross-platform compatibility**

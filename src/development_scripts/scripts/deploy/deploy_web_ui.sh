@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# Pynomaly Web UI Deployment Script
+# anomaly_detection Web UI Deployment Script
 # This script deploys the web UI infrastructure to production
 
 set -e
 
 # Configuration
-PROJECT_NAME="pynomaly"
-DEPLOY_USER="pynomaly"
+PROJECT_NAME="anomaly_detection"
+DEPLOY_USER="anomaly_detection"
 DEPLOY_HOST="your-server.com"
-DEPLOY_DIR="/opt/pynomaly"
-BACKUP_DIR="/opt/pynomaly/backups"
-LOG_DIR="/var/log/pynomaly"
-SERVICE_NAME="pynomaly-web"
+DEPLOY_DIR="/opt/anomaly_detection"
+BACKUP_DIR="/opt/anomaly_detection/backups"
+LOG_DIR="/var/log/anomaly_detection"
+SERVICE_NAME="anomaly_detection-web"
 
 # Colors for output
 RED='\033[0;31m'
@@ -46,7 +46,7 @@ create_backup() {
     log_info "Creating backup of current deployment..."
 
     if [ -d "$DEPLOY_DIR" ]; then
-        BACKUP_NAME="pynomaly-backup-$(date +%Y%m%d_%H%M%S)"
+        BACKUP_NAME="anomaly_detection-backup-$(date +%Y%m%d_%H%M%S)"
         mkdir -p "$BACKUP_DIR"
         tar -czf "$BACKUP_DIR/$BACKUP_NAME.tar.gz" -C "$DEPLOY_DIR" .
         log_info "Backup created: $BACKUP_DIR/$BACKUP_NAME.tar.gz"
@@ -118,7 +118,7 @@ configure_systemd() {
 
     cat > "/etc/systemd/system/$SERVICE_NAME.service" << EOF
 [Unit]
-Description=Pynomaly Web UI
+Description=anomaly_detection Web UI
 After=network.target postgresql.service redis.service
 
 [Service]
@@ -172,8 +172,8 @@ server {
     server_name your-domain.com;
 
     # SSL configuration
-    ssl_certificate /etc/ssl/certs/pynomaly.crt;
-    ssl_certificate_key /etc/ssl/private/pynomaly.key;
+    ssl_certificate /etc/ssl/certs/anomaly_detection.crt;
+    ssl_certificate_key /etc/ssl/private/anomaly_detection.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -192,7 +192,7 @@ server {
 
     # Static files
     location /static/ {
-        alias $DEPLOY_DIR/src/pynomaly/presentation/web/static/;
+        alias $DEPLOY_DIR/src/anomaly_detection/presentation/web/static/;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
@@ -316,9 +316,9 @@ start_services() {
 
     # Check service status
     if systemctl is-active --quiet "$SERVICE_NAME"; then
-        log_info "Pynomaly web service started successfully"
+        log_info "anomaly_detection web service started successfully"
     else
-        log_error "Failed to start Pynomaly web service"
+        log_error "Failed to start anomaly_detection web service"
         exit 1
     fi
 
@@ -357,7 +357,7 @@ run_health_checks() {
 
 # Main deployment function
 main() {
-    log_info "Starting Pynomaly Web UI deployment..."
+    log_info "Starting anomaly_detection Web UI deployment..."
 
     check_root
     create_backup

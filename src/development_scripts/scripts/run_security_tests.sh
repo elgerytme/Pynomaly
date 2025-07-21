@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive Security Testing Script for Pynomaly
+# Comprehensive Security Testing Script for anomaly_detection
 # This script runs various security tests and generates detailed reports
 
 set -euo pipefail
@@ -11,7 +11,7 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SECURITY_TEST_DIR="${PROJECT_ROOT}/tests/security"
 REPORTS_DIR="${PROJECT_ROOT}/reports/security"
 STAGING_HOST="http://localhost:8000"
-PRODUCTION_HOST="https://api.pynomaly.com"
+PRODUCTION_HOST="https://api.anomaly_detection.com"
 DEFAULT_TARGET="staging"
 DEFAULT_SEVERITY="medium"
 
@@ -44,7 +44,7 @@ show_help() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Run comprehensive security tests for Pynomaly
+Run comprehensive security tests for anomaly_detection
 
 OPTIONS:
     -h, --help              Show this help message
@@ -99,7 +99,7 @@ AUTH_CREDS=""
 TIMEOUT=30
 THREADS=10
 RATE_LIMIT=50
-USER_AGENT="PynomaliSecurityTest/1.0"
+USER_AGENT="anomaly-detectionSecurityTest/1.0"
 PROXY=""
 SSL_VERIFY=false
 INCLUDE_SLOW=false
@@ -594,7 +594,7 @@ $(find "$REPORTS_DIR" -name "ssl_report_*.txt" -newest | head -1 | xargs cat 2>/
 $(ls -la "$REPORTS_DIR" | grep "$(date +%Y%m%d)")
 
 ---
-*Report generated on $(date) by Pynomaly Security Testing Suite*
+*Report generated on $(date) by anomaly_detection Security Testing Suite*
 EOF
 }
 
@@ -694,7 +694,7 @@ generate_html_report() {
     </div>
 
     <footer>
-        <p><em>Report generated on $(date) by Pynomaly Security Testing Suite</em></p>
+        <p><em>Report generated on $(date) by anomaly_detection Security Testing Suite</em></p>
     </footer>
 </body>
 </html>
@@ -774,7 +774,7 @@ run_continuous_monitoring() {
 
 # Main function
 main() {
-    log_info "Starting Pynomaly security testing..."
+    log_info "Starting anomaly_detection security testing..."
 
     # Set up error handling
     trap cleanup EXIT

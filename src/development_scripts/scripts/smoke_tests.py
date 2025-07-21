@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Smoke Tests for Pynomaly Production Deployment
+Smoke Tests for anomaly_detection Production Deployment
 ==============================================
 
 Comprehensive smoke testing suite to validate production deployment health.
@@ -185,7 +185,7 @@ class SmokeTestSuite:
         """Test API metrics endpoint."""
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             response = await client.get(f"{self.base_url}/metrics")
-            success = response.status_code == 200 and "pynomaly_" in response.text
+            success = response.status_code == 200 and "anomaly_detection_" in response.text
 
             return TestResult(
                 name="API Metrics",
@@ -308,8 +308,8 @@ class SmokeTestSuite:
             conn = psycopg2.connect(
                 host="localhost",
                 port=5432,
-                database="pynomaly_prod",
-                user="pynomaly_user",
+                database="anomaly_detection_prod",
+                user="anomaly_detection_user",
                 password="test_password",  # This will fail in production
                 connect_timeout=5,
             )
@@ -518,7 +518,7 @@ async def main():
     """Main entry point for smoke tests."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Pynomaly Production Smoke Tests")
+    parser = argparse.ArgumentParser(description="anomaly_detection Production Smoke Tests")
     parser.add_argument(
         "--url", default="http://localhost:8000", help="Base URL for API"
     )

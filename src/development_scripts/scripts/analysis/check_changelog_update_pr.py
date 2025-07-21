@@ -48,7 +48,7 @@ def is_significant_change_pr(changed_files, diff_stats):
     # Files that always require changelog updates
     critical_paths = [
         "src/",
-        "pynomaly/",
+        "anomaly_detection/",
         "examples/",
         "docs/",
         "scripts/",
@@ -117,7 +117,7 @@ def analyze_changes(significant_files):
     change_types = []
 
     categories = {
-        "Core functionality": ["src/", "pynomaly/"],
+        "Core functionality": ["src/", "anomaly_detection/"],
         "Examples": ["examples/"],
         "Documentation": ["docs/", "README.md"],
         "Testing": ["tests/"],

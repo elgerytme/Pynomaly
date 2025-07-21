@@ -27,7 +27,7 @@ class ProductionVerificationSuite:
     """Comprehensive production verification suite"""
 
     def __init__(self):
-        self.base_url = os.getenv("PRODUCTION_BASE_URL", "https://pynomaly.ai")
+        self.base_url = os.getenv("PRODUCTION_BASE_URL", "https://anomaly_detection.ai")
         self.api_key = os.getenv("PRODUCTION_API_KEY")
         self.timeout = 30
         self.results: list[dict[str, Any]] = []

@@ -34,7 +34,7 @@ class MutationTestRunner:
         Returns:
             Mutation testing results
         """
-        target_paths = target_paths or ["src/pynomaly"]
+        target_paths = target_paths or ["src/anomaly_detection"]
 
         logger.info("Starting mutation testing analysis", targets=target_paths)
 
@@ -281,7 +281,7 @@ class MutationTestRunner:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Pynomaly Mutation Testing Report</title>
+            <title>anomaly_detection Mutation Testing Report</title>
             <style>
                 body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f6f8fa; }}
                 .container {{ max-width: 1000px; margin: 0 auto; padding: 20px; }}

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive Dataset Generator for Pynomaly
+Comprehensive Dataset Generator for anomaly_detection
 
 Generates a wide variety of tabular datasets covering different scenarios,
 data distributions, anomaly types, and outlier patterns for testing
@@ -710,7 +710,7 @@ def create_metadata(
 
 def main():
     """Generate all datasets"""
-    print("🔄 Generating comprehensive tabular datasets for Pynomaly...")
+    print("🔄 Generating comprehensive tabular datasets for anomaly_detection...")
 
     # Create output directories
     base_dir = Path("examples/sample_datasets")
@@ -863,9 +863,9 @@ def main():
         json.dump(master_metadata, f, indent=2)
 
     # Create summary README
-    readme_content = f"""# Pynomaly Sample Datasets
+    readme_content = f"""# anomaly_detection Sample Datasets
 
-This directory contains a comprehensive collection of tabular datasets for testing and demonstrating Pynomaly's anomaly detection capabilities.
+This directory contains a comprehensive collection of tabular datasets for testing and demonstrating anomaly_detection's anomaly detection capabilities.
 
 ## Dataset Overview
 

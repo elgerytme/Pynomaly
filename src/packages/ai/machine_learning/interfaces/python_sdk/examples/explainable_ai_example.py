@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pynomaly Explainable AI Example
+anomaly_detection Explainable AI Example
 ===============================
 
 This example demonstrates explainable AI functionality for anomaly detection
@@ -251,7 +251,7 @@ def create_explainable_dataset():
 
 def run_explainable_ai_example():
     """Run the explainable AI example."""
-    print("🔍 Pynomaly Explainable AI Example")
+    print("🔍 anomaly_detection Explainable AI Example")
     print("=" * 50)
 
     # Create test dataset

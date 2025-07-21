@@ -673,7 +673,7 @@ class PerformanceTrendAnalyzer:
 
 def main():
     """Main entry point for performance trend analysis."""
-    parser = argparse.ArgumentParser(description="Analyze Pynomaly Performance Trends")
+    parser = argparse.ArgumentParser(description="Analyze anomaly_detection Performance Trends")
     parser.add_argument(
         "--results-dir",
         required=True,

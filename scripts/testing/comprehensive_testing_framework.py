@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive Automated Testing Framework for Pynomaly
+Comprehensive Automated Testing Framework for anomaly_detection
 
 This framework expands the existing testing infrastructure to cover all scenarios:
 1. Unit testing expansion
@@ -1222,7 +1222,7 @@ class APIUser(HttpUser):
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Comprehensive Test Report - Pynomaly</title>
+            <title>Comprehensive Test Report - anomaly_detection</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; }}
                 .header {{ background: #f0f0f0; padding: 20px; border-radius: 5px; margin-bottom: 20px; }}
@@ -1244,7 +1244,7 @@ class APIUser(HttpUser):
         </head>
         <body>
             <div class="header">
-                <h1>Comprehensive Test Report - Pynomaly</h1>
+                <h1>Comprehensive Test Report - anomaly_detection</h1>
                 <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p><strong>Duration:</strong> {(self.end_time - self.start_time).total_seconds():.1f}s</p>
             </div>
@@ -1325,7 +1325,7 @@ class APIUser(HttpUser):
         """Generate summary report in markdown"""
         summary = self._calculate_summary()
         
-        markdown_content = f'''# Comprehensive Test Report - Pynomaly
+        markdown_content = f'''# Comprehensive Test Report - anomaly_detection
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
 **Duration:** {(self.end_time - self.start_time).total_seconds():.1f} seconds
@@ -1459,7 +1459,7 @@ def main():
     """Main entry point for comprehensive testing framework"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Comprehensive Testing Framework for Pynomaly")
+    parser = argparse.ArgumentParser(description="Comprehensive Testing Framework for anomaly_detection")
     parser.add_argument("--suites", nargs="+", 
                        choices=["unit", "integration", "e2e", "performance", "security", 
                                "api", "ui", "platform", "load", "regression"],

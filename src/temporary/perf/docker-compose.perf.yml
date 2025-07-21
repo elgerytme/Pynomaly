@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # Performance testing service with fixed CPU/RAM limits
-  pynomaly-perf:
+  anomaly_detection-perf:
     build:
       context: ..
       dockerfile: perf/Dockerfile.perf
@@ -39,7 +39,7 @@ services:
     mem_limit: 4G
     mem_reservation: 2G
     networks:
-      - pynomaly-perf-network
+      - anomaly_detection-perf-network
     command: >
       sh -c "
         echo 'Performance Testing Environment Setup' &&
@@ -76,9 +76,9 @@ services:
       - PERF_TESTING=true
       - MONITORING_MODE=true
     depends_on:
-      - pynomaly-perf
+      - anomaly_detection-perf
     networks:
-      - pynomaly-perf-network
+      - anomaly_detection-perf-network
     command: >
       sh -c "
         echo 'Performance Monitoring Service' &&
@@ -101,9 +101,9 @@ services:
       - PERF_TESTING=true
       - BASELINE_MODE=true
     depends_on:
-      - pynomaly-perf
+      - anomaly_detection-perf
     networks:
-      - pynomaly-perf-network
+      - anomaly_detection-perf-network
     command: >
       sh -c "
         echo 'Baseline Comparison Service' &&
@@ -125,8 +125,8 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - pynomaly-perf-network
+      - anomaly_detection-perf-network
 
 networks:
-  pynomaly-perf-network:
+  anomaly_detection-perf-network:
     driver: bridge

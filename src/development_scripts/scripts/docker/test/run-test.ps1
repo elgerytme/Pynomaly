@@ -30,9 +30,9 @@ if ($Help) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ProjectRoot = Resolve-Path "$ScriptDir\..\..\..\"
-$NetworkName = "pynomaly-test"
-$ContainerName = "pynomaly-test"
-$ImageName = "pynomaly:test"
+$NetworkName = "anomaly_detection-test"
+$ContainerName = "anomaly_detection-test"
+$ImageName = "anomaly_detection:test"
 $EnvFile = Join-Path $ProjectRoot ".env.test"
 
 # Create network
@@ -42,8 +42,8 @@ docker network create $NetworkName 2>$null
 if ($Clean) {
     Write-Host "Cleaning up existing test containers..."
     docker rm -f $ContainerName 2>$null
-    docker rm -f "pynomaly-postgres-test" 2>$null
-    docker rm -f "pynomaly-redis-test" 2>$null
+    docker rm -f "anomaly_detection-postgres-test" 2>$null
+    docker rm -f "anomaly_detection-redis-test" 2>$null
 }
 
 # Start test storage services if needed
@@ -51,9 +51,9 @@ if ($Storage) {
     if ($Storage -eq "postgres" -or $Storage -eq "all") {
         Write-Host "Starting test PostgreSQL..."
         docker run -d `
-            --name "pynomaly-postgres-test" `
+            --name "anomaly_detection-postgres-test" `
             --network $NetworkName `
-            -e POSTGRES_DB=pynomaly_test `
+            -e POSTGRES_DB=anomaly_detection_test `
             -e POSTGRES_USER=test_user `
             -e POSTGRES_PASSWORD=test_password `
             -p 5433:5432 `
@@ -63,7 +63,7 @@ if ($Storage) {
     if ($Storage -eq "redis" -or $Storage -eq "all") {
         Write-Host "Starting test Redis..."
         docker run -d `
-            --name "pynomaly-redis-test" `
+            --name "anomaly_detection-redis-test" `
             --network $NetworkName `
             -p 6380:6379 `
             redis:7-alpine
@@ -95,7 +95,7 @@ switch ($Type) {
 
 # Add coverage if requested
 if ($Coverage) {
-    $TestCmd += " --cov=pynomaly --cov-report=html --cov-report=xml --cov-report=term"
+    $TestCmd += " --cov=anomaly_detection --cov-report=html --cov-report=xml --cov-report=term"
 }
 
 # Add parallel execution if requested
@@ -112,10 +112,10 @@ Write-Host "Command: $TestCmd"
 # Prepare environment variables
 $EnvVars = @()
 if ($Storage -eq "postgres" -or $Storage -eq "all") {
-    $EnvVars += "-e", "DATABASE_URL=postgresql://test_user:test_password@pynomaly-postgres-test:5432/pynomaly_test"
+    $EnvVars += "-e", "DATABASE_URL=postgresql://test_user:test_password@anomaly_detection-postgres-test:5432/anomaly_detection_test"
 }
 if ($Storage -eq "redis" -or $Storage -eq "all") {
-    $EnvVars += "-e", "REDIS_URL=redis://pynomaly-redis-test:6379/0"
+    $EnvVars += "-e", "REDIS_URL=redis://anomaly_detection-redis-test:6379/0"
 }
 
 # Run tests in container
@@ -143,6 +143,6 @@ Write-Host "Tests completed."
 # Clean up test storage services
 if ($Storage) {
     Write-Host "Cleaning up test services..."
-    docker rm -f "pynomaly-postgres-test" 2>$null
-    docker rm -f "pynomaly-redis-test" 2>$null
+    docker rm -f "anomaly_detection-postgres-test" 2>$null
+    docker rm -f "anomaly_detection-redis-test" 2>$null
 }

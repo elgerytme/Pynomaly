@@ -300,9 +300,9 @@ class DocumentationAnalyzer:
 
 
 def main():
-    docs_path = "/mnt/c/Users/andre/Pynomaly/docs"
+    docs_path = "/mnt/c/Users/andre/anomaly_detection/docs"
 
-    print("🔍 Pynomaly Documentation Cross-Linking Analysis")
+    print("🔍 anomaly_detection Documentation Cross-Linking Analysis")
     print("=" * 50)
 
     analyzer = DocumentationAnalyzer(docs_path)
@@ -317,7 +317,7 @@ def main():
     report = analyzer.generate_report()
 
     # Save detailed report
-    with open("/mnt/c/Users/andre/Pynomaly/docs_cross_linking_analysis.json", "w") as f:
+    with open("/mnt/c/Users/andre/anomaly_detection/docs_cross_linking_analysis.json", "w") as f:
         json.dump(report, f, indent=2)
 
     # Print summary

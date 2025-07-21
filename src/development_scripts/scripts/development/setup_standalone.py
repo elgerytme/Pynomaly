@@ -15,17 +15,17 @@ except FileNotFoundError:
     )
 
 setup(
-    name="pynomaly",
+    name="anomaly_detection",
     version=version,
     author="Anomaly Detection Team",
-    author_email="team@pynomaly.io",
+    author_email="team@anomaly_detection.io",
     description="State-of-the-art Python anomaly detection package with clean architecture",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pynomaly/pynomaly",
+    url="https://github.com/anomaly_detection/anomaly_detection",
     project_urls={
-        "Bug Tracker": "https://github.com/pynomaly/pynomaly/issues",
-        "Documentation": "https://pynomaly.readthedocs.io",
+        "Bug Tracker": "https://github.com/anomaly_detection/anomaly_detection/issues",
+        "Documentation": "https://anomaly_detection.readthedocs.io",
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -131,12 +131,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "pynomaly=pynomaly.presentation.cli.app:app",
+            "anomaly_detection=anomaly_detection.presentation.cli.app:app",
         ],
     },
     include_package_data=True,
     package_data={
-        "pynomaly": [
+        "anomaly_detection": [
             "presentation/web/templates/**/*",
             "presentation/web/static/**/*",
             "presentation/web/static/css/*",

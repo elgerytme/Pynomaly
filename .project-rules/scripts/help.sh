@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Pynomaly Isolation Help Script
+# anomaly_detection Isolation Help Script
 # Provides context-aware help for isolation environment
 
 cat << 'EOF'
-🔒 Pynomaly Isolation Environment Help
+🔒 anomaly_detection Isolation Environment Help
 ====================================
 
 📁 Current Environment Information:
@@ -12,7 +12,7 @@ cat << 'EOF'
   - Python: $(python --version 2>/dev/null || echo "Not available")
   - Git Branch: $(git branch --show-current 2>/dev/null || echo "No Git repository")
   - Isolation Mode: ${ISOLATION_MODE:-Unknown}
-  - Environment: ${PYNOMALY_ENV:-Unknown}
+  - Environment: ${ANOMALY_DETECTION_ENV:-Unknown}
 
 🛠️  Available Commands:
 ===================
@@ -68,7 +68,7 @@ Python/Pip Commands:
 📋 Environment Variables:
 =======================
   PYTHONPATH=/workspace/src
-  PYNOMALY_ENV=isolated
+  ANOMALY_DETECTION_ENV=isolated
   ISOLATION_MODE=true
   DATABASE_URL=postgresql://...
   REDIS_URL=redis://...

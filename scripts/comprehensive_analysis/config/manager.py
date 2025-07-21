@@ -22,7 +22,7 @@ class AnalysisConfig:
     python_version: str = "3.11"
     max_workers: int = 4
     enable_caching: bool = True
-    cache_dir: Path = field(default_factory=lambda: Path(".pynomaly_cache"))
+    cache_dir: Path = field(default_factory=lambda: Path(".anomaly_detection_cache"))
     
     # File discovery
     include_patterns: List[str] = field(default_factory=lambda: ["**/*.py"])
@@ -111,7 +111,7 @@ class ConfigManager:
         """Load configuration from project files."""
         project_files = [
             Path("pyproject.toml"),
-            Path(".pynomaly.toml"),
+            Path(".anomaly_detection.toml"),
         ]
         
         for config_file in project_files:
@@ -119,8 +119,8 @@ class ConfigManager:
                 try:
                     if config_file.suffix == ".toml":
                         data = toml.load(config_file)
-                        if "tool" in data and "pynomaly" in data["tool"] and "analysis" in data["tool"]["pynomaly"]:
-                            analysis_config = data["tool"]["pynomaly"]["analysis"]
+                        if "tool" in data and "anomaly_detection" in data["tool"] and "analysis" in data["tool"]["anomaly_detection"]:
+                            analysis_config = data["tool"]["anomaly_detection"]["analysis"]
                             config = self._merge_config(config, analysis_config)
                             logger.info(f"Loaded configuration from {config_file}")
                             break
@@ -131,7 +131,7 @@ class ConfigManager:
     
     def _load_user_config(self, config: AnalysisConfig) -> AnalysisConfig:
         """Load configuration from user config file."""
-        user_config_path = Path.home() / ".pynomaly" / "config.toml"
+        user_config_path = Path.home() / ".anomaly_detection" / "config.toml"
         
         if user_config_path.exists():
             try:
@@ -166,14 +166,14 @@ class ConfigManager:
     def _apply_env_vars(self, config: AnalysisConfig) -> AnalysisConfig:
         """Apply environment variable overrides."""
         env_mappings = {
-            "PYNOMALY_ANALYSIS_PROFILE": ("profile", str),
-            "PYNOMALY_ANALYSIS_PYTHON_VERSION": ("python_version", str),
-            "PYNOMALY_ANALYSIS_MAX_WORKERS": ("max_workers", int),
-            "PYNOMALY_ANALYSIS_ENABLE_CACHING": ("enable_caching", bool),
-            "PYNOMALY_ANALYSIS_CACHE_DIR": ("cache_dir", Path),
-            "PYNOMALY_ANALYSIS_OUTPUT_FORMAT": ("output_format", str),
-            "PYNOMALY_ANALYSIS_SHOW_PROGRESS": ("show_progress", bool),
-            "PYNOMALY_ANALYSIS_COLORED_OUTPUT": ("colored_output", bool),
+            "ANOMALY_DETECTION_ANALYSIS_PROFILE": ("profile", str),
+            "ANOMALY_DETECTION_ANALYSIS_PYTHON_VERSION": ("python_version", str),
+            "ANOMALY_DETECTION_ANALYSIS_MAX_WORKERS": ("max_workers", int),
+            "ANOMALY_DETECTION_ANALYSIS_ENABLE_CACHING": ("enable_caching", bool),
+            "ANOMALY_DETECTION_ANALYSIS_CACHE_DIR": ("cache_dir", Path),
+            "ANOMALY_DETECTION_ANALYSIS_OUTPUT_FORMAT": ("output_format", str),
+            "ANOMALY_DETECTION_ANALYSIS_SHOW_PROGRESS": ("show_progress", bool),
+            "ANOMALY_DETECTION_ANALYSIS_COLORED_OUTPUT": ("colored_output", bool),
         }
         
         for env_var, (config_key, config_type) in env_mappings.items():

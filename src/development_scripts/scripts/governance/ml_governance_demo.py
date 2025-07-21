@@ -36,10 +36,10 @@ class Model:
         self.parameters = parameters or {}
 
 
-from src.pynomaly.application.services.ml_governance_service import (
+from src.anomaly_detection.application.services.ml_governance_service import (
     MLGovernanceApplicationService,
 )
-from src.pynomaly.infrastructure.ml_governance import (
+from src.anomaly_detection.infrastructure.ml_governance import (
     DeploymentStrategy,
     MLGovernanceFramework,
     ModelStage,

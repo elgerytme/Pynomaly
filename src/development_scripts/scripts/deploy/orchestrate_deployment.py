@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Deployment Orchestration Script for Pynomaly
+Deployment Orchestration Script for anomaly_detection
 This script orchestrates the complete deployment process including infrastructure and application deployment
 """
 
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class DeploymentOrchestrator:
-    """Orchestrates the complete deployment process for Pynomaly"""
+    """Orchestrates the complete deployment process for anomaly_detection"""
 
     def __init__(self, config_file: Path, environment: str):
         self.config_file = config_file
@@ -362,10 +362,10 @@ class DeploymentOrchestrator:
         # Map configuration to Terraform variables
         tf_vars = {
             "aws_region": self.config.get("environment", {}).get("region", "us-east-1"),
-            "cluster_name": f"pynomaly-{self.environment}",
+            "cluster_name": f"anomaly_detection-{self.environment}",
             "environment": self.environment,
             "domain_name": self.config.get("environment", {}).get(
-                "domain", "pynomaly.ai"
+                "domain", "anomaly_detection.ai"
             ),
             "node_desired_capacity": self.config.get("resources", {})
             .get("api", {})
@@ -426,7 +426,7 @@ class DeploymentOrchestrator:
 
         try:
             # Update kubeconfig
-            cluster_name = f"pynomaly-{self.environment}"
+            cluster_name = f"anomaly_detection-{self.environment}"
             region = self.config.get("environment", {}).get("region", "us-east-1")
 
             return_code, _, stderr = await self.execute_command(
@@ -488,7 +488,7 @@ class DeploymentOrchestrator:
             await self.execute_command("helm repo update")
 
             # Install AWS Load Balancer Controller
-            cluster_name = f"pynomaly-{self.environment}"
+            cluster_name = f"anomaly_detection-{self.environment}"
             region = self.config.get("environment", {}).get("region", "us-east-1")
 
             install_command = f"""
@@ -513,7 +513,7 @@ class DeploymentOrchestrator:
         """Install EBS CSI Driver"""
         try:
             # Install EBS CSI Driver addon
-            cluster_name = f"pynomaly-{self.environment}"
+            cluster_name = f"anomaly_detection-{self.environment}"
 
             install_command = f"""
             aws eks create-addon \
@@ -615,7 +615,7 @@ class DeploymentOrchestrator:
             # Use the automated deployment pipeline
             deployment_config = {
                 "environment": self.environment,
-                "namespace": f"pynomaly-{self.environment}",
+                "namespace": f"anomaly_detection-{self.environment}",
                 "image_tag": self.config.get("container", {}).get(
                     "image_tag", "latest"
                 ),
@@ -814,11 +814,11 @@ class DeploymentOrchestrator:
     async def _test_application_health(self) -> bool:
         """Test application health endpoints"""
         try:
-            namespace = f"pynomaly-{self.environment}"
+            namespace = f"anomaly_detection-{self.environment}"
 
             # Port forward to test health endpoint
             port_forward_process = await asyncio.create_subprocess_shell(
-                f"kubectl port-forward service/pynomaly-api-internal 8080:8000 -n {namespace}",
+                f"kubectl port-forward service/anomaly_detection-api-internal 8080:8000 -n {namespace}",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -877,7 +877,7 @@ class DeploymentOrchestrator:
         try:
             # Check if network policies are applied
             return_code, _, _ = await self.execute_command(
-                f"kubectl get networkpolicies -n pynomaly-{self.environment}",
+                f"kubectl get networkpolicies -n anomaly_detection-{self.environment}",
                 timeout=30,
             )
 
@@ -978,7 +978,7 @@ class DeploymentOrchestrator:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description="Pynomaly Deployment Orchestrator")
+    parser = argparse.ArgumentParser(description="anomaly_detection Deployment Orchestrator")
     parser.add_argument(
         "--config", type=Path, required=True, help="Deployment configuration file"
     )

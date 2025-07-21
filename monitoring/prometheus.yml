@@ -1,10 +1,10 @@
-# Prometheus Configuration for Pynomaly Production Monitoring
+# Prometheus Configuration for anomaly_detection Production Monitoring
 
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    cluster: 'pynomaly-production'
+    cluster: 'anomaly_detection-production'
     environment: 'production'
 
 rule_files:
@@ -18,14 +18,14 @@ alerting:
 
 scrape_configs:
   # anomaly detection API Service
-  - job_name: 'pynomaly-api'
+  - job_name: 'anomaly_detection-api'
     static_configs:
-      - targets: ['pynomaly-api:8000']
+      - targets: ['anomaly_detection-api:8000']
     metrics_path: '/metrics'
     scrape_interval: 30s
     scrape_timeout: 10s
     labels:
-      service: 'pynomaly-api'
+      service: 'anomaly_detection-api'
       environment: 'production'
 
   # PostgreSQL Database
@@ -91,8 +91,8 @@ scrape_configs:
       module: [http_2xx]
     static_configs:
       - targets:
-        - http://pynomaly-api:8000/health
-        - http://pynomaly-api:8000/metrics
+        - http://anomaly_detection-api:8000/health
+        - http://anomaly_detection-api:8000/metrics
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

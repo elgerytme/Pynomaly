@@ -65,7 +65,7 @@ def run_command(cmd, description, use_venv=True):
 
 
 def main():
-    print("🔧 Fixing Pynomaly Package Issues")
+    print("🔧 Fixing anomaly_detection Package Issues")
     print("=" * 50)
 
     # Check environment
@@ -77,7 +77,7 @@ def main():
     # Step 1: Uninstall the wrong anomaly_detection package
     print("\n📌 Step 1: Remove conflicting anomaly_detection package")
     success = run_command(
-        [sys.executable, "-m", "pip", "uninstall", "pynomaly", "-y"],
+        [sys.executable, "-m", "pip", "uninstall", "anomaly_detection", "-y"],
         "Uninstalling existing anomaly_detection package",
     )
 
@@ -111,13 +111,13 @@ def main():
 
     # Test imports
     try:
-        import pynomaly
+        import anomaly_detection
 
         print("✅ anomaly_detection package imports successfully")
-        print(f"   Version: {getattr(pynomaly, '__version__', 'development')}")
-        print(f"   Location: {pynomaly.__file__}")
+        print(f"   Version: {getattr(anomaly_detection, '__version__', 'development')}")
+        print(f"   Location: {anomaly_detection.__file__}")
     except ImportError as e:
-        print(f"❌ Failed to import pynomaly: {e}")
+        print(f"❌ Failed to import anomaly_detection: {e}")
 
     # Test CLI availability
     try:
@@ -125,7 +125,7 @@ def main():
             [
                 sys.executable,
                 "-c",
-                "from pynomaly.presentation.cli.app import app; print('CLI available')",
+                "from anomaly_detection.presentation.cli.app import app; print('CLI available')",
             ],
             capture_output=True,
             text=True,
@@ -141,7 +141,7 @@ def main():
 
     # Step 5: Show next steps
     print("\n📌 Next Steps:")
-    print("1. Try running: python -m pynomaly.presentation.cli.app --help")
+    print("1. Try running: python -m anomaly_detection.presentation.cli.app --help")
     print("2. Or use PowerShell script: ./fix_windows_setup.ps1")
     print("3. For API server: python scripts/run_api.py")
     print("4. For full setup: python -m pip install -e .[production] --user")

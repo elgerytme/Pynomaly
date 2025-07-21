@@ -18,12 +18,12 @@ from scipy import stats
 
 # Import anomaly_detection modules for testing
 try:
-    from pynomaly.application.services.autonomous_service import AutonomousService
-    from pynomaly.application.services.detection_service import DetectionService
-    from pynomaly.application.services.training_service import TrainingService
-    from pynomaly.domain.entities.dataset import Dataset
-    from pynomaly.domain.entities.detector import Detector
-    from pynomaly.infrastructure.adapters.data_loader import DataLoader
+    from anomaly_detection.application.services.autonomous_service import AutonomousService
+    from anomaly_detection.application.services.detection_service import DetectionService
+    from anomaly_detection.application.services.training_service import TrainingService
+    from anomaly_detection.domain.entities.dataset import Dataset
+    from anomaly_detection.domain.entities.detector import Detector
+    from anomaly_detection.infrastructure.adapters.data_loader import DataLoader
 except ImportError:
     # Fallback for testing environment
     pytest.skip("anomaly_detection modules not available", allow_module_level=True)

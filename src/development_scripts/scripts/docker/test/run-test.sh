@@ -10,9 +10,9 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Default configuration
 ENV_FILE="${PROJECT_ROOT}/.env.test"
-NETWORK_NAME="pynomaly-test"
-CONTAINER_NAME="pynomaly-test"
-IMAGE_NAME="pynomaly:test"
+NETWORK_NAME="anomaly_detection-test"
+CONTAINER_NAME="anomaly_detection-test"
+IMAGE_NAME="anomaly_detection:test"
 TEST_TYPE="unit"
 
 # Function to display usage
@@ -73,8 +73,8 @@ docker network create "$NETWORK_NAME" 2>/dev/null || true
 if [[ "$CLEAN_CONTAINERS" == "true" ]]; then
     echo "Cleaning up existing test containers..."
     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
-    docker rm -f "pynomaly-postgres-test" 2>/dev/null || true
-    docker rm -f "pynomaly-redis-test" 2>/dev/null || true
+    docker rm -f "anomaly_detection-postgres-test" 2>/dev/null || true
+    docker rm -f "anomaly_detection-redis-test" 2>/dev/null || true
 fi
 
 # Start test storage services if needed
@@ -82,9 +82,9 @@ if [[ -n "$STORAGE_TYPE" ]]; then
     if [[ "$STORAGE_TYPE" == "postgres" || "$STORAGE_TYPE" == "all" ]]; then
         echo "Starting test PostgreSQL..."
         docker run -d \
-            --name "pynomaly-postgres-test" \
+            --name "anomaly_detection-postgres-test" \
             --network "$NETWORK_NAME" \
-            -e POSTGRES_DB=pynomaly_test \
+            -e POSTGRES_DB=anomaly_detection_test \
             -e POSTGRES_USER=test_user \
             -e POSTGRES_PASSWORD=test_password \
             -p 5433:5432 \
@@ -94,7 +94,7 @@ if [[ -n "$STORAGE_TYPE" ]]; then
     if [[ "$STORAGE_TYPE" == "redis" || "$STORAGE_TYPE" == "all" ]]; then
         echo "Starting test Redis..."
         docker run -d \
-            --name "pynomaly-redis-test" \
+            --name "anomaly_detection-redis-test" \
             --network "$NETWORK_NAME" \
             -p 6380:6379 \
             redis:7-alpine
@@ -135,7 +135,7 @@ esac
 
 # Add coverage if requested
 if [[ "$COVERAGE" == "true" ]]; then
-    TEST_CMD="$TEST_CMD --cov=pynomaly --cov-report=html --cov-report=xml --cov-report=term"
+    TEST_CMD="$TEST_CMD --cov=anomaly_detection --cov-report=html --cov-report=xml --cov-report=term"
 fi
 
 # Add parallel execution if requested
@@ -152,10 +152,10 @@ echo "Command: $TEST_CMD"
 # Prepare environment variables
 ENV_VARS=""
 if [[ "$STORAGE_TYPE" == "postgres" || "$STORAGE_TYPE" == "all" ]]; then
-    ENV_VARS="$ENV_VARS -e DATABASE_URL=postgresql://test_user:test_password@pynomaly-postgres-test:5432/pynomaly_test"
+    ENV_VARS="$ENV_VARS -e DATABASE_URL=postgresql://test_user:test_password@anomaly_detection-postgres-test:5432/anomaly_detection_test"
 fi
 if [[ "$STORAGE_TYPE" == "redis" || "$STORAGE_TYPE" == "all" ]]; then
-    ENV_VARS="$ENV_VARS -e REDIS_URL=redis://pynomaly-redis-test:6379/0"
+    ENV_VARS="$ENV_VARS -e REDIS_URL=redis://anomaly_detection-redis-test:6379/0"
 fi
 
 # Run tests in container
@@ -179,6 +179,6 @@ echo "Tests completed."
 # Clean up test storage services
 if [[ -n "$STORAGE_TYPE" ]]; then
     echo "Cleaning up test services..."
-    docker rm -f "pynomaly-postgres-test" 2>/dev/null || true
-    docker rm -f "pynomaly-redis-test" 2>/dev/null || true
+    docker rm -f "anomaly_detection-postgres-test" 2>/dev/null || true
+    docker rm -f "anomaly_detection-redis-test" 2>/dev/null || true
 fi

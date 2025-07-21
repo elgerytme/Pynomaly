@@ -47,7 +47,7 @@ def is_significant_change(changed_files, diff_stats):
     # Files that always require changelog updates
     critical_paths = [
         "src/",
-        "pynomaly/",
+        "anomaly_detection/",
         "examples/",
         "docs/",
         "scripts/",

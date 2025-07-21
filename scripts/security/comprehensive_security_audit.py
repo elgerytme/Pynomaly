@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive Security Audit Framework for Pynomaly
+Comprehensive Security Audit Framework for anomaly_detection
 
 This script provides a complete security audit framework covering:
 - Static Application Security Testing (SAST)
@@ -1015,9 +1015,9 @@ class SecurityAuditor:
             "runs": [{
                 "tool": {
                     "driver": {
-                        "name": "Pynomaly Security Auditor",
+                        "name": "anomaly_detection Security Auditor",
                         "version": "1.0.0",
-                        "informationUri": "https://github.com/yourusername/pynomaly"
+                        "informationUri": "https://github.com/yourusername/anomaly_detection"
                     }
                 },
                 "results": []

@@ -7,14 +7,14 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
       - 'package.json'
       - 'playwright.config.ts'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'src/pynomaly/presentation/web/**'
+      - 'src/anomaly_detection/presentation/web/**'
       - 'tests/ui/**'
       - 'package.json'
       - 'playwright.config.ts'
@@ -128,7 +128,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
           curl -f http://localhost:8000/health || exit 1
 
@@ -181,7 +181,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
 
       - name: Run memory leak tests
@@ -240,7 +240,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
 
       - name: Run Lighthouse CI
@@ -319,7 +319,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
 
       - name: Run load tests
@@ -381,7 +381,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
 
       - name: Run user journey tests
@@ -426,7 +426,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
 
       - name: Run PWA tests
@@ -471,7 +471,7 @@ jobs:
 
       - name: Start application
         run: |
-          python -m pynomaly.presentation.web.app &
+          python -m anomaly_detection.presentation.web.app &
           sleep 10
 
       - name: Run error boundary tests
@@ -570,7 +570,7 @@ jobs:
           # Dashboard link
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "## 📊 Test Dashboard" >> $GITHUB_STEP_SUMMARY
-            echo "[View Comprehensive Test Dashboard](https://YOUR_USERNAME.github.io/pynomaly/ui-testing-dashboard/)" >> $GITHUB_STEP_SUMMARY
+            echo "[View Comprehensive Test Dashboard](https://YOUR_USERNAME.github.io/anomaly_detection/ui-testing-dashboard/)" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Comment on PR

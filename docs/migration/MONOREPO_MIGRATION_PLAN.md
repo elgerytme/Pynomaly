@@ -1,4 +1,4 @@
-# Pynomaly Buck2-First Monorepo Migration Plan
+# anomaly_detection Buck2-First Monorepo Migration Plan
 
 ## Overview
 
@@ -7,7 +7,7 @@ This document outlines the migration from the current hybrid structure to a Buck
 ## Current State Assessment
 
 ### Existing Structure
-- **Dual package system**: `src/pynomaly/` (monolithic) + `src/packages/` (monorepo)
+- **Dual package system**: `src/anomaly_detection/` (monolithic) + `src/packages/` (monorepo)
 - **17 packages** in the current workspace
 - **Mixed build systems**: Hatch + Buck2 + Nx configurations
 - **Complex dependencies** with some circular references
@@ -36,11 +36,11 @@ This document outlines the migration from the current hybrid structure to a Buck
 
 #### 3.1 Eliminate Dual Structure
 ```bash
-# Migrate src/pynomaly/ content to appropriate packages
-src/pynomaly/domain/         → src/packages/core/domain/
-src/pynomaly/application/    → src/packages/core/application/
-src/pynomaly/infrastructure/ → src/packages/infrastructure/
-src/pynomaly/presentation/   → src/packages/api/, src/packages/cli/, src/packages/web/
+# Migrate src/anomaly_detection/ content to appropriate packages
+src/anomaly_detection/domain/         → src/packages/core/domain/
+src/anomaly_detection/application/    → src/packages/core/application/
+src/anomaly_detection/infrastructure/ → src/packages/infrastructure/
+src/anomaly_detection/presentation/   → src/packages/api/, src/packages/cli/, src/packages/web/
 ```
 
 #### 3.2 Consolidate Data Packages

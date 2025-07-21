@@ -101,17 +101,17 @@ cd src/packages/ai/mlops
 pip install -e .
 
 # Install with all MLOps tools
-pip install pynomaly-mlops[all]
+pip install anomaly_detection-mlops[all]
 
 # Install specific components
-pip install pynomaly-mlops[mlflow,kubeflow,monitoring]
+pip install anomaly_detection-mlops[mlflow,kubeflow,monitoring]
 ```
 
-### Pynomaly Installation
+### anomaly_detection Installation
 
 ```bash
 # Install entire anomaly detection platform with this package
-cd /path/to/pynomaly
+cd /path/to/anomaly_detection
 pip install -e ".[mlops]"
 ```
 
@@ -120,10 +120,10 @@ pip install -e ".[mlops]"
 ### Quick Start
 
 ```python
-from pynomaly.mlops.experiments import ExperimentTracker
-from pynomaly.mlops.models import ModelRegistry
-from pynomaly.mlops.monitoring import ModelMonitor
-from pynomaly.core.domain.entities import Dataset, Detector
+from anomaly_detection.mlops.experiments import ExperimentTracker
+from anomaly_detection.mlops.models import ModelRegistry
+from anomaly_detection.mlops.monitoring import ModelMonitor
+from anomaly_detection.core.domain.entities import Dataset, Detector
 
 # Experiment tracking
 tracker = ExperimentTracker(backend="mlflow")
@@ -162,8 +162,8 @@ monitor.start_monitoring()
 
 #### Example 1: Model Deployment Pipeline
 ```python
-from pynomaly.mlops.pipelines import TrainingPipeline, DeploymentPipeline
-from pynomaly.mlops.models.deployment import KubernetesDeployment
+from anomaly_detection.mlops.pipelines import TrainingPipeline, DeploymentPipeline
+from anomaly_detection.mlops.models.deployment import KubernetesDeployment
 
 # Create training pipeline
 training_pipeline = TrainingPipeline(
@@ -194,8 +194,8 @@ if training_result.best_model.score > 0.85:
 
 #### Example 2: A/B Testing Framework
 ```python
-from pynomaly.mlops.experiments import ABTestFramework
-from pynomaly.mlops.models.serving import ModelEnsemble
+from anomaly_detection.mlops.experiments import ABTestFramework
+from anomaly_detection.mlops.models.serving import ModelEnsemble
 
 # Setup A/B test
 ab_test = ABTestFramework(
@@ -232,9 +232,9 @@ if test_results.model_b.performance > test_results.model_a.performance:
 Complete MLOps workflow with monitoring and governance:
 
 ```python
-from pynomaly.mlops.governance import MLGovernance
-from pynomaly.mlops.monitoring import DriftDetector, PerformanceMonitor
-from pynomaly.mlops.features import FeatureStore
+from anomaly_detection.mlops.governance import MLGovernance
+from anomaly_detection.mlops.monitoring import DriftDetector, PerformanceMonitor
+from anomaly_detection.mlops.features import FeatureStore
 import asyncio
 
 async def production_ml_workflow():
@@ -308,8 +308,8 @@ asyncio.run(production_ml_workflow())
 Configure MLOps components with comprehensive settings:
 
 ```python
-from pynomaly.mlops.config import MLOpsConfig
-from pynomaly.mlops.factory import create_mlops_stack
+from anomaly_detection.mlops.config import MLOpsConfig
+from anomaly_detection.mlops.factory import create_mlops_stack
 
 # MLOps configuration
 config = MLOpsConfig(
@@ -374,7 +374,7 @@ await mlops_stack.initialize()
 
 ```python
 # Experiment management
-from pynomaly.mlops.experiments import (
+from anomaly_detection.mlops.experiments import (
     start_experiment,
     log_metrics,
     compare_experiments,
@@ -382,7 +382,7 @@ from pynomaly.mlops.experiments import (
 )
 
 # Model lifecycle
-from pynomaly.mlops.models import (
+from anomaly_detection.mlops.models import (
     register_model,
     deploy_model,
     promote_model,
@@ -390,7 +390,7 @@ from pynomaly.mlops.models import (
 )
 
 # Monitoring operations
-from pynomaly.mlops.monitoring import (
+from anomaly_detection.mlops.monitoring import (
     detect_drift,
     monitor_performance,
     create_alert,
@@ -447,7 +447,7 @@ Optimized for production ML operations at scale:
 ### Debug Mode
 
 ```python
-from pynomaly.mlops.config import enable_debug_mode
+from anomaly_detection.mlops.config import enable_debug_mode
 
 # Enable debug mode for MLOps
 enable_debug_mode(
@@ -481,7 +481,7 @@ enable_debug_mode(
 Follow the MLOps pattern for consistency:
 
 ```python
-from pynomaly.mlops.base import BaseMLOpsComponent
+from anomaly_detection.mlops.base import BaseMLOpsComponent
 
 class NewMLOpsComponent(BaseMLOpsComponent):
     def __init__(self, config: ComponentConfig):
@@ -512,4 +512,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [Pynomaly](../../../) monorepo** - Advanced ML platform
+**Part of the [anomaly_detection](../../../) monorepo** - Advanced ML platform

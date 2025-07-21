@@ -1,11 +1,11 @@
 version: '3.8'
 services:
-  pynomaly-api:
+  anomaly_detection-api:
     build: .
     ports:
     - 8000:8000
     environment:
-    - PYNOMALY_ENV=production
+    - ANOMALY_DETECTION_ENV=production
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - SECRET_KEY=${SECRET_KEY}
@@ -27,9 +27,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-  pynomaly-worker:
+  anomaly_detection-worker:
     build: .
-    command: celery -A pynomaly.infrastructure.celery worker --loglevel=info
+    command: celery -A anomaly_detection.infrastructure.celery worker --loglevel=info
     depends_on:
     - postgres
     - redis
@@ -38,14 +38,14 @@ services:
     - ./logs:/app/logs
     restart: unless-stopped
     environment:
-    - PYNOMALY_ENV=production
+    - ANOMALY_DETECTION_ENV=production
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
   postgres:
     image: postgres:13
     environment:
-    - POSTGRES_DB=pynomaly_prod
-    - POSTGRES_USER=pynomaly_user
+    - POSTGRES_DB=anomaly_detection_prod
+    - POSTGRES_USER=anomaly_detection_user
     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
     - postgres_data:/var/lib/postgresql/data
@@ -55,7 +55,7 @@ services:
     healthcheck:
       test:
       - CMD-SHELL
-      - pg_isready -U pynomaly_user -d pynomaly_prod
+      - pg_isready -U anomaly_detection_user -d anomaly_detection_prod
       interval: 30s
       timeout: 10s
       retries: 5
@@ -108,4 +108,4 @@ volumes:
   grafana_data: {}
 networks:
   default:
-    name: pynomaly-network
+    name: anomaly_detection-network

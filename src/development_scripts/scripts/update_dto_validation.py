@@ -7,7 +7,7 @@ from pathlib import Path
 def update_dto_files():
     """Update all DTO files to enable strict validation."""
     # Find all DTO files
-    dto_dir = Path("src/pynomaly/application/dto")
+    dto_dir = Path("src/anomaly_detection/application/dto")
     dto_files = list(dto_dir.glob("*.py"))
 
     updated_files = []

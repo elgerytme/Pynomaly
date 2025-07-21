@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Security testing script for Pynomaly.
+Security testing script for anomaly_detection.
 
 This script tests all security components to ensure they're working correctly.
 """
@@ -15,26 +15,26 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pynomaly.presentation.api.security.authentication import (
+from anomaly_detection.presentation.api.security.authentication import (
     AuthenticationManager,
     JWTManager,
 )
-from pynomaly.presentation.api.security.authorization import (
+from anomaly_detection.presentation.api.security.authorization import (
     AuthorizationManager,
     Permission,
     Role,
 )
-from pynomaly.presentation.api.security.encryption import EncryptionManager
-from pynomaly.presentation.api.security.input_validation import SecurityValidator
-from pynomaly.presentation.api.security.rate_limiting import RateLimiter, RateLimitType
-from pynomaly.presentation.api.security.security_manager import SecurityManager
-from pynomaly.presentation.api.security.security_monitoring import (
+from anomaly_detection.presentation.api.security.encryption import EncryptionManager
+from anomaly_detection.presentation.api.security.input_validation import SecurityValidator
+from anomaly_detection.presentation.api.security.rate_limiting import RateLimiter, RateLimitType
+from anomaly_detection.presentation.api.security.security_manager import SecurityManager
+from anomaly_detection.presentation.api.security.security_monitoring import (
     SecurityEvent,
     SecurityEventType,
     SecurityMonitor,
     SecuritySeverity,
 )
-from pynomaly.presentation.api.security.vulnerability_scanner import (
+from anomaly_detection.presentation.api.security.vulnerability_scanner import (
     VulnerabilityScanner,
 )
 
@@ -51,9 +51,9 @@ class SecurityTester:
 
     def setup_test_environment(self):
         """Setup test environment variables."""
-        os.environ["PYNOMALY_ENV"] = "testing"
-        os.environ["PYNOMALY_JWT_SECRET"] = "test-secret-key-for-testing-only"
-        os.environ["PYNOMALY_MASTER_KEY"] = "test-master-key-for-testing"
+        os.environ["ANOMALY_DETECTION_ENV"] = "testing"
+        os.environ["ANOMALY_DETECTION_JWT_SECRET"] = "test-secret-key-for-testing-only"
+        os.environ["ANOMALY_DETECTION_MASTER_KEY"] = "test-master-key-for-testing"
 
     def run_all_tests(self):
         """Run all security tests."""
@@ -212,7 +212,7 @@ class SecurityTester:
         assert decrypted == test_data
 
         # Test field-level encryption
-        from pynomaly.presentation.api.security.encryption import FieldLevelEncryption
+        from anomaly_detection.presentation.api.security.encryption import FieldLevelEncryption
 
         field_encryption = FieldLevelEncryption(encryption_manager)
 
@@ -404,7 +404,7 @@ async def run_async_tests():
 
 def main():
     """Main test execution."""
-    logger.info("🔒 Starting Pynomaly Security Test Suite")
+    logger.info("🔒 Starting anomaly_detection Security Test Suite")
     logger.info("=" * 50)
 
     try:

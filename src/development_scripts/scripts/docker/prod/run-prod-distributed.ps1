@@ -34,33 +34,33 @@ if ($Help) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ProjectRoot = Resolve-Path "$ScriptDir\..\..\..\"
-$NetworkName = "pynomaly-distributed"
-$ImageName = "pynomaly:latest"
+$NetworkName = "anomaly_detection-distributed"
+$ImageName = "anomaly_detection:latest"
 $EnvFile = Join-Path $ProjectRoot ".env.prod"
 
 function Stop-DistributedContainers {
     Write-Host "Stopping all distributed containers..."
-    docker rm -f pynomaly-haproxy 2>$null
-    docker rm -f pynomaly-consul 2>$null
-    docker rm -f pynomaly-vault 2>$null
+    docker rm -f anomaly_detection-haproxy 2>$null
+    docker rm -f anomaly_detection-consul 2>$null
+    docker rm -f anomaly_detection-vault 2>$null
 
     for ($i = 1; $i -le $ApiReplicas; $i++) {
-        docker rm -f "pynomaly-api-${i}" 2>$null
+        docker rm -f "anomaly_detection-api-${i}" 2>$null
     }
 
     for ($i = 1; $i -le $Workers; $i++) {
-        docker rm -f "pynomaly-worker-${i}" 2>$null
+        docker rm -f "anomaly_detection-worker-${i}" 2>$null
     }
 
     # Storage containers
-    docker rm -f pynomaly-postgres-master 2>$null
-    docker rm -f pynomaly-postgres-replica 2>$null
-    docker rm -f pynomaly-mongodb-primary 2>$null
-    docker rm -f pynomaly-mongodb-secondary1 2>$null
-    docker rm -f pynomaly-mongodb-secondary2 2>$null
-    docker rm -f pynomaly-redis-master 2>$null
-    docker rm -f pynomaly-redis-replica1 2>$null
-    docker rm -f pynomaly-redis-replica2 2>$null
+    docker rm -f anomaly_detection-postgres-master 2>$null
+    docker rm -f anomaly_detection-postgres-replica 2>$null
+    docker rm -f anomaly_detection-mongodb-primary 2>$null
+    docker rm -f anomaly_detection-mongodb-secondary1 2>$null
+    docker rm -f anomaly_detection-mongodb-secondary2 2>$null
+    docker rm -f anomaly_detection-redis-master 2>$null
+    docker rm -f anomaly_detection-redis-replica1 2>$null
+    docker rm -f anomaly_detection-redis-replica2 2>$null
 
     Write-Host "All distributed containers stopped."
     exit 0
@@ -89,7 +89,7 @@ if ($Build) {
 if ($Consul) {
     Write-Host "Starting Consul for service discovery..."
     docker run -d `
-        --name pynomaly-consul `
+        --name anomaly_detection-consul `
         --network $NetworkName `
         -p 8500:8500 `
         -v consul-data:/consul/data `
@@ -100,7 +100,7 @@ if ($Consul) {
 if ($Vault) {
     Write-Host "Starting Vault for secrets management..."
     docker run -d `
-        --name pynomaly-vault `
+        --name anomaly_detection-vault `
         --network $NetworkName `
         -p 8200:8200 `
         --cap-add=IPC_LOCK `
@@ -115,10 +115,10 @@ switch ($Storage) {
         Write-Host "Starting PostgreSQL cluster..."
         # Master
         docker run -d `
-            --name pynomaly-postgres-master `
+            --name anomaly_detection-postgres-master `
             --network $NetworkName `
-            -e POSTGRES_DB=pynomaly `
-            -e POSTGRES_USER=pynomaly `
+            -e POSTGRES_DB=anomaly_detection `
+            -e POSTGRES_USER=anomaly_detection `
             -e POSTGRES_PASSWORD=prod_password `
             -e POSTGRES_REPLICATION_MODE=master `
             -e POSTGRES_REPLICATION_USER=replicator `
@@ -129,12 +129,12 @@ switch ($Storage) {
 
         # Replica
         docker run -d `
-            --name pynomaly-postgres-replica `
+            --name anomaly_detection-postgres-replica `
             --network $NetworkName `
             -e POSTGRES_REPLICATION_MODE=slave `
             -e POSTGRES_REPLICATION_USER=replicator `
             -e POSTGRES_REPLICATION_PASSWORD=replicator_password `
-            -e POSTGRES_MASTER_HOST=pynomaly-postgres-master `
+            -e POSTGRES_MASTER_HOST=anomaly_detection-postgres-master `
             -e POSTGRES_MASTER_PORT_NUMBER=5432 `
             -p 5433:5432 `
             -v postgres-replica-data:/var/lib/postgresql/data `
@@ -145,7 +145,7 @@ switch ($Storage) {
         Write-Host "Starting MongoDB replica set..."
         # Primary
         docker run -d `
-            --name pynomaly-mongodb-primary `
+            --name anomaly_detection-mongodb-primary `
             --network $NetworkName `
             -e MONGODB_REPLICA_SET_MODE=primary `
             -e MONGODB_REPLICA_SET_NAME=rs0 `
@@ -157,11 +157,11 @@ switch ($Storage) {
         # Secondary nodes
         for ($i = 1; $i -le 2; $i++) {
             docker run -d `
-                --name "pynomaly-mongodb-secondary${i}" `
+                --name "anomaly_detection-mongodb-secondary${i}" `
                 --network $NetworkName `
                 -e MONGODB_REPLICA_SET_MODE=secondary `
                 -e MONGODB_REPLICA_SET_NAME=rs0 `
-                -e MONGODB_PRIMARY_HOST=pynomaly-mongodb-primary `
+                -e MONGODB_PRIMARY_HOST=anomaly_detection-mongodb-primary `
                 -e MONGODB_PRIMARY_ROOT_PASSWORD=prod_password `
                 -p "$(27017 + $i):27017" `
                 -v "mongodb-secondary${i}-data:/bitnami/mongodb" `
@@ -173,7 +173,7 @@ switch ($Storage) {
         Write-Host "Starting Redis cluster..."
         # Master
         docker run -d `
-            --name pynomaly-redis-master `
+            --name anomaly_detection-redis-master `
             --network $NetworkName `
             -p 6379:6379 `
             -v redis-master-data:/data `
@@ -182,11 +182,11 @@ switch ($Storage) {
         # Replicas
         for ($i = 1; $i -le 2; $i++) {
             docker run -d `
-                --name "pynomaly-redis-replica${i}" `
+                --name "anomaly_detection-redis-replica${i}" `
                 --network $NetworkName `
                 -p "$(6379 + $i):6379" `
                 -v "redis-replica${i}-data:/data" `
-                redis:7-alpine redis-server --appendonly yes --replicaof pynomaly-redis-master 6379
+                redis:7-alpine redis-server --appendonly yes --replicaof anomaly_detection-redis-master 6379
         }
     }
 }
@@ -202,7 +202,7 @@ for ($i = 1; $i -le $ApiReplicas; $i++) {
     Write-Host "Starting API replica $i on port $ApiPort..."
 
     docker run -d `
-        --name "pynomaly-api-${i}" `
+        --name "anomaly_detection-api-${i}" `
         --network $NetworkName `
         --restart unless-stopped `
         --env-file $EnvFile `
@@ -220,7 +220,7 @@ for ($i = 1; $i -le $ApiReplicas; $i++) {
         --health-timeout 10s `
         --health-retries 3 `
         $ImageName `
-        poetry run gunicorn pynomaly.presentation.api:app `
+        poetry run gunicorn anomaly_detection.presentation.api:app `
         --bind 0.0.0.0:8000 `
         --workers 2 `
         --worker-class uvicorn.workers.UvicornWorker `
@@ -235,7 +235,7 @@ for ($i = 1; $i -le $Workers; $i++) {
     Write-Host "Starting worker node $i..."
 
     docker run -d `
-        --name "pynomaly-worker-${i}" `
+        --name "anomaly_detection-worker-${i}" `
         --network $NetworkName `
         --restart unless-stopped `
         --env-file $EnvFile `
@@ -250,7 +250,7 @@ for ($i = 1; $i -le $Workers; $i++) {
         --memory 4g `
         --cpus 2.0 `
         $ImageName `
-        poetry run python -m pynomaly.infrastructure.distributed.worker `
+        poetry run python -m anomaly_detection.infrastructure.distributed.worker `
         --worker-id $i `
         --concurrency 4
 }
@@ -279,13 +279,13 @@ backend api_servers
 "@
 
 for ($i = 1; $i -le $ApiReplicas; $i++) {
-    $HaproxyConfig += "`n    server api${i} pynomaly-api-${i}:8000 check"
+    $HaproxyConfig += "`n    server api${i} anomaly_detection-api-${i}:8000 check"
 }
 
 $HaproxyConfig | Out-File -FilePath "$env:TEMP\haproxy.cfg" -Encoding ascii
 
 docker run -d `
-    --name pynomaly-haproxy `
+    --name anomaly_detection-haproxy `
     --network $NetworkName `
     -p 80:80 `
     -v "${env:TEMP}\haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg" `

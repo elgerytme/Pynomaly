@@ -125,7 +125,7 @@ def validate_pygod_adapter():
     logger.info("🔧 Validating PyGOD adapter...")
 
     try:
-        from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+        from anomaly_detection.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
         logger.info("✅ PyGOD adapter import successful")
 
@@ -190,9 +190,9 @@ def validate_with_sample_data():
         import numpy as np
         import pandas as pd
 
-        from pynomaly.domain.entities import Dataset
-        from pynomaly.domain.value_objects import ContaminationRate
-        from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+        from anomaly_detection.domain.entities import Dataset
+        from anomaly_detection.domain.value_objects import ContaminationRate
+        from anomaly_detection.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
         # Create simple test graph
         np.random.seed(42)
@@ -326,7 +326,7 @@ def print_summary(report):
     else:
         logger.info("❌ PyGOD integration is NOT READY")
         logger.info(
-            "💡 Install missing dependencies with: pip install 'pynomaly[graph]'"
+            "💡 Install missing dependencies with: pip install 'anomaly_detection[graph]'"
         )
 
     if report["gpu_support"]:

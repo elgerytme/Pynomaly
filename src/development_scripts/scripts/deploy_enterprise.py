@@ -64,7 +64,7 @@ class EnterpriseDeployer:
         logger.info("🏢 Testing multi-tenancy...")
 
         try:
-            from pynomaly.enterprise.multi_tenancy import (
+            from anomaly_detection.enterprise.multi_tenancy import (
                 LoginRequest,
                 TenantCreateRequest,
                 UserCreateRequest,
@@ -140,7 +140,7 @@ class EnterpriseDeployer:
         logger.info("📋 Testing audit logging...")
 
         try:
-            from pynomaly.enterprise.audit_logging import (
+            from anomaly_detection.enterprise.audit_logging import (
                 AuditAction,
                 AuditEventCreate,
                 AuditQuery,
@@ -210,12 +210,12 @@ class EnterpriseDeployer:
         logger.info("🏢 Testing enterprise service...")
 
         try:
-            from pynomaly.enterprise.enterprise_service import (
+            from anomaly_detection.enterprise.enterprise_service import (
                 ComplianceLevel,
                 ComplianceReportRequest,
                 EnterpriseService,
             )
-            from pynomaly.enterprise.multi_tenancy import (
+            from anomaly_detection.enterprise.multi_tenancy import (
                 TenantInfo,
                 TenantStatus,
                 TenantUserInfo,
@@ -301,11 +301,11 @@ class EnterpriseDeployer:
         logger.info("⚖️ Testing compliance features...")
 
         try:
-            from pynomaly.enterprise.audit_logging import (
+            from anomaly_detection.enterprise.audit_logging import (
                 ComplianceLevel,
                 SensitivityLevel,
             )
-            from pynomaly.enterprise.enterprise_service import EnterpriseService
+            from anomaly_detection.enterprise.enterprise_service import EnterpriseService
 
             # Test compliance levels
             gdpr_level = ComplianceLevel.GDPR
@@ -370,8 +370,8 @@ class EnterpriseDeployer:
         logger.info("🔐 Testing security features...")
 
         try:
-            from pynomaly.enterprise.audit_logging import get_audit_logger
-            from pynomaly.enterprise.multi_tenancy import get_multi_tenant_manager
+            from anomaly_detection.enterprise.audit_logging import get_audit_logger
+            from anomaly_detection.enterprise.multi_tenancy import get_multi_tenant_manager
 
             # Test password hashing
             manager = get_multi_tenant_manager()
@@ -434,7 +434,7 @@ class EnterpriseDeployer:
         try:
             from fastapi import FastAPI
 
-            from pynomaly.enterprise.enterprise_service import router
+            from anomaly_detection.enterprise.enterprise_service import router
 
             # Test router creation
             app = FastAPI()

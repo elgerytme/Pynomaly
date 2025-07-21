@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive Security Scanner for Pynomaly
+Comprehensive Security Scanner for anomaly_detection
 
 This script provides:
 - Automated vulnerability scanning using existing infrastructure
@@ -143,7 +143,7 @@ class ComprehensiveSecurityScanner:
         tasks.append(self._run_secret_scan())
         
         # Custom vulnerability scanning using existing infrastructure
-        tasks.append(self._run_pynomaly_vulnerability_scan())
+        tasks.append(self._run_anomaly_detection_vulnerability_scan())
         
         # Run all scans concurrently
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -566,15 +566,15 @@ class ComprehensiveSecurityScanner:
                 "error": str(e)
             }
     
-    async def _run_pynomaly_vulnerability_scan(self) -> None:
-        """Run Pynomaly-specific vulnerability scan using existing infrastructure."""
-        logger.info("Running Pynomaly vulnerability scan...")
+    async def _run_anomaly_detection_vulnerability_scan(self) -> None:
+        """Run anomaly_detection-specific vulnerability scan using existing infrastructure."""
+        logger.info("Running anomaly_detection vulnerability scan...")
         
         try:
             # Import and use existing vulnerability scanner
             sys.path.append(str(self.project_root / "src"))
             
-            from pynomaly.presentation.api.security.vulnerability_scanner import VulnerabilityScanner
+            from anomaly_detection.presentation.api.security.vulnerability_scanner import VulnerabilityScanner
             
             scanner = VulnerabilityScanner()
             
@@ -589,7 +589,7 @@ class ComprehensiveSecurityScanner:
             
             # Code paths to scan
             code_paths = [
-                str(self.project_root / "src" / "pynomaly"),
+                str(self.project_root / "src" / "anomaly_detection"),
                 str(self.project_root / "src" / "packages"),
             ]
             
@@ -597,22 +597,22 @@ class ComprehensiveSecurityScanner:
             requirements_file = str(self.project_root / "requirements.txt")
             
             # Run scan
-            pynomaly_results = scanner.scan_all(config, code_paths, requirements_file)
+            anomaly_detection_results = scanner.scan_all(config, code_paths, requirements_file)
             
-            self.scan_results["scans"]["pynomaly_vulnerability"] = {
-                "tool": "pynomaly_vulnerability_scanner",
+            self.scan_results["scans"]["anomaly_detection_vulnerability"] = {
+                "tool": "anomaly_detection_vulnerability_scanner",
                 "status": "completed",
-                "results": pynomaly_results,
-                "issues_found": len(pynomaly_results.get("vulnerabilities", []))
+                "results": anomaly_detection_results,
+                "issues_found": len(anomaly_detection_results.get("vulnerabilities", []))
             }
-            self.scan_results["tools_used"].append("pynomaly_vulnerability_scanner")
+            self.scan_results["tools_used"].append("anomaly_detection_vulnerability_scanner")
             
-            logger.info(f"Pynomaly vulnerability scan completed: {len(pynomaly_results.get('vulnerabilities', []))} issues found")
+            logger.info(f"anomaly_detection vulnerability scan completed: {len(anomaly_detection_results.get('vulnerabilities', []))} issues found")
             
         except Exception as e:
-            logger.error(f"Pynomaly vulnerability scan failed: {e}")
-            self.scan_results["scans"]["pynomaly_vulnerability"] = {
-                "tool": "pynomaly_vulnerability_scanner",
+            logger.error(f"anomaly_detection vulnerability scan failed: {e}")
+            self.scan_results["scans"]["anomaly_detection_vulnerability"] = {
+                "tool": "anomaly_detection_vulnerability_scanner",
                 "status": "failed",
                 "error": str(e)
             }
@@ -767,7 +767,7 @@ class ComprehensiveSecurityScanner:
     def _generate_text_report(self) -> str:
         """Generate human-readable text report."""
         report = f"""
-PYNOMALY SECURITY SCAN REPORT
+anomaly_detection SECURITY SCAN REPORT
 ============================
 
 Scan ID: {self.scan_id}
@@ -827,7 +827,7 @@ async def main():
     """Main function to run comprehensive security scan."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Comprehensive Security Scanner for Pynomaly")
+    parser = argparse.ArgumentParser(description="Comprehensive Security Scanner for anomaly_detection")
     parser.add_argument("--project-root", help="Project root directory", default=None)
     parser.add_argument("--install-tools", action="store_true", help="Install security tools")
     parser.add_argument("--output-format", choices=["json", "text", "both"], default="both")

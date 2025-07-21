@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Beta User Check-in and Engagement System for Pynomaly
+Beta User Check-in and Engagement System for anomaly_detection
 
 Automated system for conducting weekly check-ins with beta users,
 tracking engagement, and providing personalized support.
@@ -368,13 +368,13 @@ class BetaUserCheckinSystem:
         # Base email templates by check-in type
         templates = {
             CheckinType.AUTOMATED: {
-                "subject": f"📊 Weekly Check-in: How's your Pynomaly experience, {user.name}?",
+                "subject": f"📊 Weekly Check-in: How's your anomaly_detection experience, {user.name}?",
                 "greeting": f"Hi {user.name},",
                 "main_content": """
-Hope you're having a great week! As part of our beta program, we'd love to check in and see how Pynomaly is working for your {industry} use cases.
+Hope you're having a great week! As part of our beta program, we'd love to check in and see how anomaly_detection is working for your {industry} use cases.
 
 **Quick Check-in Questions:**
-1. How satisfied are you with Pynomaly this week? (1-5 scale)
+1. How satisfied are you with anomaly_detection this week? (1-5 scale)
 2. Any blockers or issues we can help with?
 3. What feature would be most valuable for your next project?
 
@@ -388,10 +388,10 @@ Reply to this email with your thoughts, or schedule a quick 15-minute call if yo
                 "cta": "💬 Reply with feedback or 📞 Schedule a call",
             },
             CheckinType.ONBOARDING: {
-                "subject": f"🚀 Welcome to Pynomaly Beta! How's your first week, {user.name}?",
+                "subject": f"🚀 Welcome to anomaly_detection Beta! How's your first week, {user.name}?",
                 "greeting": f"Welcome {user.name}!",
                 "main_content": """
-Welcome to the Pynomaly beta program! We're excited to have {company} as part of our beta community.
+Welcome to the anomaly_detection beta program! We're excited to have {company} as part of our beta community.
 
 **Getting Started Check:**
 - Have you uploaded your first dataset?
@@ -408,29 +408,29 @@ Don't hesitate to reach out with any questions - we're here to help you succeed!
                 "cta": "📚 Access resources or 🤝 Schedule onboarding call",
             },
             CheckinType.PERSONAL: {
-                "subject": "👋 Personal Check-in: Let's get you back on track with Pynomaly",
+                "subject": "👋 Personal Check-in: Let's get you back on track with anomaly_detection",
                 "greeting": f"Hi {user.name},",
                 "main_content": """
-I noticed you haven't been as active on Pynomaly lately, and I wanted to personally reach out to see how we can better support you.
+I noticed you haven't been as active on anomaly_detection lately, and I wanted to personally reach out to see how we can better support you.
 
 **Let's troubleshoot together:**
-- Are there any blockers preventing you from using Pynomaly?
+- Are there any blockers preventing you from using anomaly_detection?
 - Would a personalized demo for {industry} use cases be helpful?
 - Any specific features missing for your workflow?
 
 **I'm here to help:**
-As a beta user, you have direct access to our product team. Let's schedule a quick call to understand your needs better and ensure Pynomaly delivers value for {company}.
+As a beta user, you have direct access to our product team. Let's schedule a quick call to understand your needs better and ensure anomaly_detection delivers value for {company}.
                 """,
                 "cta": "📞 Schedule a personal consultation",
             },
             CheckinType.FEEDBACK: {
-                "subject": f"💭 Your Feedback Shapes Pynomaly's Future - Quick Survey for {user.name}",
+                "subject": f"💭 Your Feedback Shapes anomaly_detection's Future - Quick Survey for {user.name}",
                 "greeting": f"Hi {user.name},",
                 "main_content": """
 Your expertise in {industry} is invaluable to us! We'd love to gather your feedback to prioritize our development roadmap.
 
 **Quick 2-Minute Survey:**
-- Overall satisfaction with Pynomaly
+- Overall satisfaction with anomaly_detection
 - Most valuable features for {industry}
 - Feature requests and priorities
 - Integration challenges or needs
@@ -446,10 +446,10 @@ As a thank you, we'll send you early access to new features and a case study tem
                 "cta": "📝 Complete 2-minute survey",
             },
             CheckinType.SUPPORT: {
-                "subject": "🔧 Support Follow-up: Resolving your Pynomaly issues",
+                "subject": "🔧 Support Follow-up: Resolving your anomaly_detection issues",
                 "greeting": f"Hi {user.name},",
                 "main_content": """
-Following up on your recent support request. I want to ensure we've fully resolved your issues and that Pynomaly is working smoothly for {company}.
+Following up on your recent support request. I want to ensure we've fully resolved your issues and that anomaly_detection is working smoothly for {company}.
 
 **Support Summary:**
 - Issues raised: {support_count} tickets
@@ -461,7 +461,7 @@ Following up on your recent support request. I want to ensure we've fully resolv
 - Prevent similar issues in the future
 - Improve your overall experience
 
-Let's schedule a quick call to review everything and ensure you're getting maximum value from Pynomaly.
+Let's schedule a quick call to review everything and ensure you're getting maximum value from anomaly_detection.
                 """,
                 "cta": "✅ Confirm resolution or 📞 Schedule follow-up",
             },
@@ -490,7 +490,7 @@ Let's schedule a quick call to review everything and ensure you're getting maxim
 Best regards,
 The Anomaly Detection Team
 
-P.S. As a beta user, you have our direct email for any urgent questions: beta-support@pynomaly.io
+P.S. As a beta user, you have our direct email for any urgent questions: beta-support@anomaly_detection.io
             """,
         }
 

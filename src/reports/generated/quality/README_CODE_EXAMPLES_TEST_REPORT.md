@@ -9,7 +9,7 @@ This report documents the testing of all code examples and instructions in the R
 - **Platform**: Linux (WSL2)
 - **Python Version**: Python 3.12.3
 - **Test Date**: July 7, 2025
-- **Project Root**: `/mnt/c/Users/andre/Pynomaly`
+- **Project Root**: `/mnt/c/Users/andre/anomaly_detection`
 - **Testing Method**: Direct execution without virtual environment due to environment issues
 
 ## Test Results Summary
@@ -42,21 +42,21 @@ This report documents the testing of all code examples and instructions in the R
 #### 2. CLI Interface Commands
 - **Status**: ✅ **ALL WORKING**
 - **Tested Commands**:
-  - `python3 -m pynomaly --help` ✅
-  - `python3 -m pynomaly version` ✅
-  - `python3 -m pynomaly status` ✅
-  - `python3 -m pynomaly dataset --help` ✅
-  - `python3 -m pynomaly detector --help` ✅
-  - `python3 -m pynomaly detect --help` ✅
-  - `python3 -m pynomaly export --help` ✅
-  - `python3 -m pynomaly export list-formats` ✅
-  - `python3 -m pynomaly server --help` ✅
+  - `python3 -m anomaly_detection --help` ✅
+  - `python3 -m anomaly_detection version` ✅
+  - `python3 -m anomaly_detection status` ✅
+  - `python3 -m anomaly_detection dataset --help` ✅
+  - `python3 -m anomaly_detection detector --help` ✅
+  - `python3 -m anomaly_detection detect --help` ✅
+  - `python3 -m anomaly_detection export --help` ✅
+  - `python3 -m anomaly_detection export list-formats` ✅
+  - `python3 -m anomaly_detection server --help` ✅
 
 #### 3. Installation Verification
 - **Status**: ✅ **WORKING**
 - **Commands Tested**:
   - `python3 --version` ✅ (Python 3.12.3)
-  - `python3 -c "import pynomaly; print('Installation successful')"` ✅
+  - `python3 -c "import anomaly_detection; print('Installation successful')"` ✅
   - Basic import verification ✅
 
 #### 4. Run Scripts (from scripts/run/)
@@ -67,7 +67,7 @@ This report documents the testing of all code examples and instructions in the R
   - `scripts/run/run_app.py --help` ✅
   - `scripts/run/run_web_app.py --help` ✅
   - `scripts/run/run_web_ui.py --help` ✅
-  - `scripts/run/pynomaly_cli.py` ✅ (exists)
+  - `scripts/run/anomaly_detection_cli.py` ✅ (exists)
 
 #### 5. Core Features Test
 - **Status**: ✅ **80% WORKING**
@@ -82,7 +82,7 @@ This report documents the testing of all code examples and instructions in the R
 - **Status**: ✅ **MOSTLY WORKING**
 - **Results**:
   - `examples/quick_start_example.py` ✅ WORKING
-  - `examples/pynomaly_sklearn_example.py` ✅ WORKING
+  - `examples/anomaly_detection_sklearn_example.py` ✅ WORKING
   - API server import test ✅ WORKING (195 routes configured)
 
 ### ❌ Issues Found
@@ -98,13 +98,13 @@ This report documents the testing of all code examples and instructions in the R
 - **Files**: `examples/cli_basic_workflow.sh`, `examples/cli_batch_detection.sh`
 - **Status**: ❌ **BROKEN**
 - **Issue**: Scripts use incorrect command `python cli.py` instead of proper module paths
-- **Fix Needed**: Update to use `python3 -m pynomaly` or correct script paths
+- **Fix Needed**: Update to use `python3 -m anomaly_detection` or correct script paths
 
 #### 3. Quickstart Example References
 - **File**: `examples/quickstart_example.py`
 - **Status**: ❌ **BROKEN**
-- **Issue**: References non-existent file `pynomaly_cli.py` in wrong location
-- **Fix Needed**: Update paths to `scripts/run/pynomaly_cli.py`
+- **Issue**: References non-existent file `anomaly_detection_cli.py` in wrong location
+- **Fix Needed**: Update paths to `scripts/run/anomaly_detection_cli.py`
 
 #### 4. Virtual Environment Setup
 - **Issue**: README instructions for virtual environment don't work in current environment
@@ -112,7 +112,7 @@ This report documents the testing of all code examples and instructions in the R
 - **Impact**: Cannot test installation instructions as documented
 
 #### 5. CLI Dataset Loading
-- **Command**: `python3 -m pynomaly dataset load`
+- **Command**: `python3 -m anomaly_detection dataset load`
 - **Status**: ❌ **BROKEN**
 - **Error**: Missing required argument 'source' in CSVLoader
 - **Impact**: Cannot test basic dataset loading workflow

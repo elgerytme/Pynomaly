@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Automated Deployment Pipeline for Pynomaly
+Automated Deployment Pipeline for anomaly_detection
 This script provides a comprehensive automated deployment system with CI/CD integration
 """
 
@@ -76,7 +76,7 @@ class AutomatedDeploymentPipeline:
         # CI/CD integration
         self.github_token = os.getenv("GITHUB_TOKEN")
         self.docker_registry = config.get(
-            "docker_registry", "ghcr.io/pynomaly/pynomaly"
+            "docker_registry", "ghcr.io/anomaly_detection/anomaly_detection"
         )
 
         # Health check configurations
@@ -265,7 +265,7 @@ class AutomatedDeploymentPipeline:
                 return False
 
             # Check namespace access
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
             return_code, _, _ = await self.execute_command(
                 f"kubectl get namespace {namespace}"
             )
@@ -310,10 +310,10 @@ class AutomatedDeploymentPipeline:
     async def _validate_secrets(self) -> bool:
         """Validate required secrets"""
         try:
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Check for required Kubernetes secrets
-            required_secrets = ["pynomaly-secrets", "registry-credentials"]
+            required_secrets = ["anomaly_detection-secrets", "registry-credentials"]
 
             for secret_name in required_secrets:
                 return_code, _, _ = await self.execute_command(
@@ -477,12 +477,12 @@ class AutomatedDeploymentPipeline:
     async def _rolling_deployment(self) -> bool:
         """Execute rolling deployment"""
         try:
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
             image_tag = self.config.get("image_tag", "latest")
             image_name = f"{self.docker_registry}:{image_tag}"
 
             # Update deployment with new image
-            update_command = f"kubectl set image deployment/pynomaly-api pynomaly-api={image_name} -n {namespace}"
+            update_command = f"kubectl set image deployment/anomaly_detection-api anomaly_detection-api={image_name} -n {namespace}"
             return_code, _, stderr = await self.execute_command(update_command)
 
             if return_code != 0:
@@ -490,7 +490,7 @@ class AutomatedDeploymentPipeline:
                 return False
 
             # Wait for rollout to complete
-            rollout_command = f"kubectl rollout status deployment/pynomaly-api -n {namespace} --timeout=600s"
+            rollout_command = f"kubectl rollout status deployment/anomaly_detection-api -n {namespace} --timeout=600s"
             return_code, _, stderr = await self.execute_command(
                 rollout_command, timeout=700
             )
@@ -535,7 +535,7 @@ class AutomatedDeploymentPipeline:
             # This is a simplified version - in production, you'd have more sophisticated traffic switching
             self.log("Executing blue-green deployment...")
 
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Create green deployment
             green_deployment_yaml = self._generate_green_deployment_manifest()
@@ -554,7 +554,7 @@ class AutomatedDeploymentPipeline:
 
             # Wait for green deployment to be ready
             return_code, _, stderr = await self.execute_command(
-                f"kubectl rollout status deployment/pynomaly-api-green -n {namespace} --timeout=600s",
+                f"kubectl rollout status deployment/anomaly_detection-api-green -n {namespace} --timeout=600s",
                 timeout=700,
             )
 
@@ -614,11 +614,11 @@ class AutomatedDeploymentPipeline:
         try:
             self.log("Executing recreate deployment...")
 
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Scale down to 0
             return_code, _, stderr = await self.execute_command(
-                f"kubectl scale deployment pynomaly-api --replicas=0 -n {namespace}"
+                f"kubectl scale deployment anomaly_detection-api --replicas=0 -n {namespace}"
             )
 
             if return_code != 0:
@@ -633,7 +633,7 @@ class AutomatedDeploymentPipeline:
             image_name = f"{self.docker_registry}:{image_tag}"
 
             return_code, _, stderr = await self.execute_command(
-                f"kubectl set image deployment/pynomaly-api pynomaly-api={image_name} -n {namespace}"
+                f"kubectl set image deployment/anomaly_detection-api anomaly_detection-api={image_name} -n {namespace}"
             )
 
             if return_code != 0:
@@ -643,7 +643,7 @@ class AutomatedDeploymentPipeline:
             # Scale up
             replicas = self.config.get("replicas", 3)
             return_code, _, stderr = await self.execute_command(
-                f"kubectl scale deployment pynomaly-api --replicas={replicas} -n {namespace}"
+                f"kubectl scale deployment anomaly_detection-api --replicas={replicas} -n {namespace}"
             )
 
             if return_code != 0:
@@ -652,7 +652,7 @@ class AutomatedDeploymentPipeline:
 
             # Wait for deployment to be ready
             return_code, _, stderr = await self.execute_command(
-                f"kubectl rollout status deployment/pynomaly-api -n {namespace} --timeout=600s",
+                f"kubectl rollout status deployment/anomaly_detection-api -n {namespace} --timeout=600s",
                 timeout=700,
             )
 
@@ -701,7 +701,7 @@ class AutomatedDeploymentPipeline:
     async def _verify_pod_health(self) -> bool:
         """Verify pod health status"""
         try:
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Check pod status
             return_code, stdout, _ = await self.execute_command(
@@ -744,11 +744,11 @@ class AutomatedDeploymentPipeline:
     async def _verify_service_connectivity(self) -> bool:
         """Verify service connectivity"""
         try:
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Port forward for testing
             port_forward_process = await asyncio.create_subprocess_shell(
-                f"kubectl port-forward service/pynomaly-api-internal 8080:8000 -n {namespace}",
+                f"kubectl port-forward service/anomaly_detection-api-internal 8080:8000 -n {namespace}",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -803,11 +803,11 @@ class AutomatedDeploymentPipeline:
     async def _verify_database_connectivity(self) -> bool:
         """Verify database connectivity"""
         try:
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Check PostgreSQL
             return_code, _, _ = await self.execute_command(
-                f"kubectl exec -n {namespace} postgres-0 -- pg_isready -U pynomaly"
+                f"kubectl exec -n {namespace} postgres-0 -- pg_isready -U anomaly_detection"
             )
 
             if return_code != 0:
@@ -854,11 +854,11 @@ class AutomatedDeploymentPipeline:
         self.log("Initiating deployment rollback...")
 
         try:
-            namespace = self.config.get("namespace", "pynomaly-prod")
+            namespace = self.config.get("namespace", "anomaly_detection-prod")
 
             # Rollback to previous revision
             return_code, _, stderr = await self.execute_command(
-                f"kubectl rollout undo deployment/pynomaly-api -n {namespace}"
+                f"kubectl rollout undo deployment/anomaly_detection-api -n {namespace}"
             )
 
             if return_code != 0:
@@ -867,7 +867,7 @@ class AutomatedDeploymentPipeline:
 
             # Wait for rollback to complete
             return_code, _, stderr = await self.execute_command(
-                f"kubectl rollout status deployment/pynomaly-api -n {namespace} --timeout=600s",
+                f"kubectl rollout status deployment/anomaly_detection-api -n {namespace} --timeout=600s",
                 timeout=700,
             )
 
@@ -927,7 +927,7 @@ class AutomatedDeploymentPipeline:
                 "attachments": [
                     {
                         "color": color,
-                        "title": f"Pynomaly Deployment {message['status'].title()}",
+                        "title": f"anomaly_detection Deployment {message['status'].title()}",
                         "fields": [
                             {
                                 "title": "Environment",
@@ -950,7 +950,7 @@ class AutomatedDeploymentPipeline:
                                 "short": True,
                             },
                         ],
-                        "footer": "Pynomaly Deployment Pipeline",
+                        "footer": "anomaly_detection Deployment Pipeline",
                         "ts": int(datetime.now().timestamp()),
                     }
                 ]
@@ -978,10 +978,10 @@ class AutomatedDeploymentPipeline:
                 "@type": "MessageCard",
                 "@context": "http://schema.org/extensions",
                 "themeColor": color,
-                "summary": f"Pynomaly Deployment {message['status'].title()}",
+                "summary": f"anomaly_detection Deployment {message['status'].title()}",
                 "sections": [
                     {
-                        "activityTitle": f"Pynomaly Deployment {message['status'].title()}",
+                        "activityTitle": f"anomaly_detection Deployment {message['status'].title()}",
                         "facts": [
                             {"name": "Environment", "value": message["environment"]},
                             {"name": "Image Tag", "value": message["image_tag"]},
@@ -1118,20 +1118,20 @@ class AutomatedDeploymentPipeline:
             "apiVersion": "apps/v1",
             "kind": "Deployment",
             "metadata": {
-                "name": "pynomaly-api-green",
-                "namespace": self.config.get("namespace", "pynomaly-prod"),
+                "name": "anomaly_detection-api-green",
+                "namespace": self.config.get("namespace", "anomaly_detection-prod"),
             },
             "spec": {
                 "replicas": self.config.get("replicas", 3),
                 "selector": {
-                    "matchLabels": {"app": "pynomaly-api", "version": "green"}
+                    "matchLabels": {"app": "anomaly_detection-api", "version": "green"}
                 },
                 "template": {
-                    "metadata": {"labels": {"app": "pynomaly-api", "version": "green"}},
+                    "metadata": {"labels": {"app": "anomaly_detection-api", "version": "green"}},
                     "spec": {
                         "containers": [
                             {
-                                "name": "pynomaly-api",
+                                "name": "anomaly_detection-api",
                                 "image": f"{self.docker_registry}:{self.config.get('image_tag', 'latest')}",
                                 "ports": [{"containerPort": 8000}],
                             }
@@ -1192,7 +1192,7 @@ def load_config(config_file: Path) -> dict[str, Any]:
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(
-        description="Automated Deployment Pipeline for Pynomaly"
+        description="Automated Deployment Pipeline for anomaly_detection"
     )
     parser.add_argument("--config", type=Path, help="Configuration file path")
     parser.add_argument(
@@ -1209,7 +1209,7 @@ def main():
         help="Deployment strategy",
     )
     parser.add_argument(
-        "--namespace", default="pynomaly-prod", help="Kubernetes namespace"
+        "--namespace", default="anomaly_detection-prod", help="Kubernetes namespace"
     )
     parser.add_argument("--skip-tests", action="store_true", help="Skip test phase")
     parser.add_argument("--skip-build", action="store_true", help="Skip build phase")

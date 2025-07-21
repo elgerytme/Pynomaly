@@ -240,7 +240,7 @@ class TestReportGenerator:
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pynomaly Test Report</title>
+    <title>anomaly_detection Test Report</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .header { background: #f0f0f0; padding: 20px; border-radius: 5px; }
@@ -256,7 +256,7 @@ class TestReportGenerator:
 </head>
 <body>
     <div class="header">
-        <h1>🔄 Pynomaly Comprehensive Test Report</h1>
+        <h1>🔄 anomaly_detection Comprehensive Test Report</h1>
         <p>Generated: {{ timestamp }}</p>
         <p>Overall Status:
             <span class="status-{{ 'pass' if summary.overall_status == 'PASS' else 'fail' }}">

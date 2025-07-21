@@ -1,7 +1,7 @@
 /**
- * Pynomaly TypeScript Client Implementation
+ * anomaly_detection TypeScript Client Implementation
  *
- * This module provides the main client class for interacting with the Pynomaly API.
+ * This module provides the main client class for interacting with the anomaly_detection API.
  * Includes comprehensive functionality with TypeScript type safety, WebSocket support,
  * and modern Promise-based async/await API.
  */
@@ -10,7 +10,7 @@ import { AuthManager, SessionManager } from './auth';
 import { RateLimiter } from './rate-limiter';
 import { WebSocketClient, StreamingManager } from './websocket';
 import {
-    PynomaliError,
+    anomaly-detectionError,
     AuthenticationError,
     AuthorizationError,
     ValidationError,
@@ -44,11 +44,11 @@ import {
 } from './types';
 
 /**
- * Main Pynomali client for TypeScript/JavaScript applications.
+ * Main anomaly-detection client for TypeScript/JavaScript applications.
  * Provides comprehensive API access with modern async/await support,
  * WebSocket streaming, and enhanced error handling.
  */
-export class PynomaliClient {
+export class AnomalyDetectionClient {
     private readonly baseUrl: string;
     private readonly timeout: number;
     private readonly maxRetries: number;
@@ -71,10 +71,10 @@ export class PynomaliClient {
     public readonly health: HealthAPI;
 
     constructor(config: ClientConfig = {}) {
-        this.baseUrl = (config.baseUrl || 'https://api.pynomaly.com').replace(/\/$/, '');
+        this.baseUrl = (config.baseUrl || 'https://api.anomaly_detection.com').replace(/\/$/, '');
         this.timeout = config.timeout || 30000;
         this.maxRetries = config.maxRetries || 3;
-        this.userAgent = config.userAgent || `pynomaly-typescript-sdk/1.0.0`;
+        this.userAgent = config.userAgent || `anomaly_detection-typescript-sdk/1.0.0`;
         this.debug = config.debug || false;
 
         // Initialize auth and session managers
@@ -149,7 +149,7 @@ export class PynomaliClient {
         const requestTimeout = options.timeout || this.timeout;
 
         if (this.debug) {
-            console.debug(`[Pynomaly SDK] ${method} ${url}`, {
+            console.debug(`[anomaly_detection SDK] ${method} ${url}`, {
                 headers,
                 data: options.data,
             });
@@ -170,13 +170,13 @@ export class PynomaliClient {
             const result = await this.handleResponse<T>(response);
             
             if (this.debug) {
-                console.debug(`[Pynomaly SDK] Response:`, result);
+                console.debug(`[anomaly_detection SDK] Response:`, result);
             }
             
             return result;
         } catch (error) {
             if (this.debug) {
-                console.error(`[Pynomaly SDK] Error:`, error);
+                console.error(`[anomaly_detection SDK] Error:`, error);
             }
             
             if (error instanceof DOMException && error.name === 'TimeoutError') {
@@ -256,7 +256,7 @@ export class PynomaliClient {
         }
 
         if (status < 200 || status >= 300) {
-            throw new PynomaliError(`Unexpected status code: ${status}`, 'HTTP_ERROR', status, responseData, requestId);
+            throw new anomaly-detectionError(`Unexpected status code: ${status}`, 'HTTP_ERROR', status, responseData, requestId);
         }
 
         // Return parsed JSON or empty response
@@ -372,7 +372,7 @@ export class PynomaliClient {
      */
     public async connectWebSocket(eventHandlers?: Partial<StreamEventHandlers>): Promise<void> {
         if (!this.wsClient) {
-            throw new PynomaliError('WebSocket not enabled. Enable in client config.');
+            throw new anomaly-detectionError('WebSocket not enabled. Enable in client config.');
         }
 
         if (eventHandlers) {
@@ -451,7 +451,7 @@ export class PynomaliClient {
  * Authentication API methods with enhanced session management.
  */
 export class AuthAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     /**
      * Login with username and password.
@@ -589,7 +589,7 @@ export class AuthAPI {
  * Anomaly detection API methods.
  */
 export class DetectionAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async detect(request: DetectionRequest): Promise<DetectionResponse> {
         return await this.client.request<DetectionResponse>('POST', '/detection/detect', {
@@ -610,7 +610,7 @@ export class DetectionAPI {
  * Model training API methods.
  */
 export class TrainingAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async trainModel(request: TrainingRequest): Promise<TrainingResponse> {
         return await this.client.request<TrainingResponse>('POST', '/training/train', {
@@ -627,7 +627,7 @@ export class TrainingAPI {
  * Datasets API methods.
  */
 export class DatasetsAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async listDatasets(): Promise<DatasetInfo[]> {
         return await this.client.request<DatasetInfo[]>('GET', '/datasets');
@@ -652,7 +652,7 @@ export class DatasetsAPI {
  * Models API methods.
  */
 export class ModelsAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async listModels(): Promise<ModelInfo[]> {
         return await this.client.request<ModelInfo[]>('GET', '/models');
@@ -671,7 +671,7 @@ export class ModelsAPI {
  * Streaming API methods.
  */
 export class StreamingAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async createStream(config: { bufferSize?: number; windowSize?: number }): Promise<{ streamId: string }> {
         return await this.client.request('POST', '/streaming/create', { data: config });
@@ -692,7 +692,7 @@ export class StreamingAPI {
  * Explainability API methods.
  */
 export class ExplainabilityAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async explainDetection(data: number[], modelId?: string): Promise<{ explanations: any[] }> {
         return await this.client.request('POST', '/explainability/explain', {
@@ -709,7 +709,7 @@ export class ExplainabilityAPI {
  * Health API methods.
  */
 export class HealthAPI {
-    constructor(private client: PynomaliClient) {}
+    constructor(private client: AnomalyDetectionClient) {}
 
     async getHealth(): Promise<HealthStatus> {
         return await this.client.request<HealthStatus>('GET', '/health');

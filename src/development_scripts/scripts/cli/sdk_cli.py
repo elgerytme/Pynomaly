@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pynomaly SDK Generator CLI
+anomaly_detection SDK Generator CLI
 
 A comprehensive command-line interface for generating client SDKs for the anomaly detection API.
 This tool provides easy-to-use commands for generating, managing, and publishing SDKs
@@ -321,11 +321,11 @@ class SDKCLIManager:
         if successful:
             self.console.print("\n[blue]📋 Next Steps:[/blue]")
             self.console.print("1. Review generated SDKs in the 'sdks/' directory")
-            self.console.print("2. Run tests: pynomaly sdk test --language <language>")
+            self.console.print("2. Run tests: anomaly_detection sdk test --language <language>")
             self.console.print(
-                "3. Validate: pynomaly sdk validate --language <language>"
+                "3. Validate: anomaly_detection sdk validate --language <language>"
             )
-            self.console.print("4. Publish: pynomaly sdk publish --language <language>")
+            self.console.print("4. Publish: anomaly_detection sdk publish --language <language>")
 
     def test_sdk(self, language: str) -> bool:
         """Run tests for a specific SDK."""
@@ -748,7 +748,7 @@ class SDKCLIManager:
 @click.group()
 @click.version_option()
 def cli():
-    """Pynomaly SDK Generator CLI - Generate client SDKs for multiple languages."""
+    """anomaly_detection SDK Generator CLI - Generate client SDKs for multiple languages."""
     pass
 
 

@@ -32,8 +32,8 @@ def create_optimization_report():
                 "name": "Lazy Loading CLI Architecture",
                 "description": "Implemented lazy loading for CLI subcommands to defer imports until needed",
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/lazy_app.py",
-                    "src/pynomaly/presentation/cli/app.py",
+                    "src/anomaly_detection/presentation/cli/lazy_app.py",
+                    "src/anomaly_detection/presentation/cli/app.py",
                 ],
                 "technique": "Lazy import pattern with deferred module loading",
             },
@@ -41,8 +41,8 @@ def create_optimization_report():
                 "name": "Fast CLI Container",
                 "description": "Lightweight container for CLI operations using in-memory repositories",
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/fast_container.py",
-                    "src/pynomaly/presentation/cli/container.py",
+                    "src/anomaly_detection/presentation/cli/fast_container.py",
+                    "src/anomaly_detection/presentation/cli/container.py",
                 ],
                 "technique": "Container factory pattern with optimized dependencies",
             },
@@ -50,8 +50,8 @@ def create_optimization_report():
                 "name": "Environment-based Configuration",
                 "description": "Added environment variables to control performance optimizations",
                 "files_modified": [
-                    "src/pynomaly/presentation/cli/app.py",
-                    "src/pynomaly/presentation/cli/container.py",
+                    "src/anomaly_detection/presentation/cli/app.py",
+                    "src/anomaly_detection/presentation/cli/container.py",
                 ],
                 "technique": "Feature flags for runtime optimization control",
             },
@@ -73,8 +73,8 @@ def create_optimization_report():
             },
         },
         "environment_variables": {
-            "PYNOMALY_USE_LAZY_CLI": "true (default) - enables lazy loading",
-            "PYNOMALY_USE_FAST_CLI": "true (default) - enables fast container",
+            "ANOMALY_DETECTION_USE_LAZY_CLI": "true (default) - enables lazy loading",
+            "ANOMALY_DETECTION_USE_FAST_CLI": "true (default) - enables fast container",
         },
         "next_steps": [
             "Continue with UX improvements",

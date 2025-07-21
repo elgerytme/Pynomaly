@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Automated Deployment Script for Pynomaly
+Automated Deployment Script for anomaly_detection
 
 This script provides fully automated deployment capabilities including:
 - Environment-specific deployments
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class AutomatedDeployer:
-    """Automated deployment orchestrator for Pynomaly."""
+    """Automated deployment orchestrator for anomaly_detection."""
 
     def __init__(self, config_path: Path | None = None):
         self.config = self._load_config(config_path)
@@ -82,7 +82,7 @@ class AutomatedDeployer:
                     "smtp_port": int(os.getenv("SMTP_PORT", "587")),
                     "username": os.getenv("SMTP_USERNAME"),
                     "password": os.getenv("SMTP_PASSWORD"),
-                    "recipients": ["team@pynomaly.io"],
+                    "recipients": ["team@anomaly_detection.io"],
                 },
                 "slack": {
                     "webhook_url": os.getenv("SLACK_WEBHOOK_URL"),
@@ -265,7 +265,7 @@ class AutomatedDeployer:
 
         try:
             # Set environment variables
-            env_vars = {"VERSION": version, "PYNOMALY_ENVIRONMENT": environment}
+            env_vars = {"VERSION": version, "ANOMALY_DETECTION_ENVIRONMENT": environment}
 
             # Update environment
             env = os.environ.copy()
@@ -301,7 +301,7 @@ class AutomatedDeployer:
         logger.info(f"Deploying to Kubernetes with {strategy} strategy...")
 
         try:
-            namespace = f"pynomaly-{environment}"
+            namespace = f"anomaly_detection-{environment}"
 
             if strategy == "blue_green":
                 return await self._blue_green_deployment(namespace, version)
@@ -319,9 +319,9 @@ class AutomatedDeployer:
         logger.info("Deploying with Helm...")
 
         try:
-            release_name = f"pynomaly-{environment}"
-            namespace = f"pynomaly-{environment}"
-            chart_path = "deploy/helm/pynomaly"
+            release_name = f"anomaly_detection-{environment}"
+            namespace = f"anomaly_detection-{environment}"
+            chart_path = "deploy/helm/anomaly_detection"
 
             cmd = [
                 "helm",
@@ -365,7 +365,7 @@ class AutomatedDeployer:
 
         try:
             # Deploy to green environment
-            green_deployment = f"pynomaly-green-{int(time.time())}"
+            green_deployment = f"anomaly_detection-green-{int(time.time())}"
 
             # Apply green deployment
             cmd = ["kubectl", "apply", "-f", "-", "--namespace", namespace]
@@ -456,8 +456,8 @@ class AutomatedDeployer:
                 "kubectl",
                 "set",
                 "image",
-                "deployment/pynomaly-api",
-                f"pynomaly=pynomaly:production-{version}",
+                "deployment/anomaly_detection-api",
+                f"anomaly_detection=anomaly_detection:production-{version}",
                 "--namespace",
                 namespace,
             ]
@@ -473,7 +473,7 @@ class AutomatedDeployer:
                 "kubectl",
                 "rollout",
                 "status",
-                "deployment/pynomaly-api",
+                "deployment/anomaly_detection-api",
                 "--namespace",
                 namespace,
                 "--timeout",
@@ -578,7 +578,7 @@ class AutomatedDeployer:
         try:
             email_config = self.notification_channels["email"]
 
-            subject = f"Pynomaly Deployment {event_type.replace('_', ' ').title()}"
+            subject = f"anomaly_detection Deployment {event_type.replace('_', ' ').title()}"
             body = f"""
             Deployment Event: {event_type}
             Environment: {data.get('environment', 'unknown')}
@@ -621,7 +621,7 @@ class AutomatedDeployer:
 
             payload = {
                 "channel": slack_config.get("channel", "#deployments"),
-                "username": "Pynomaly Deployer",
+                "username": "anomaly_detection Deployer",
                 "icon_emoji": ":rocket:",
                 "attachments": [
                     {
@@ -665,9 +665,9 @@ class AutomatedDeployer:
     def _get_base_url(self, environment: str) -> str:
         """Get base URL for environment."""
         if environment == "production":
-            return "https://api.pynomaly.io"
+            return "https://api.anomaly_detection.io"
         elif environment == "staging":
-            return "https://staging-api.pynomaly.io"
+            return "https://staging-api.anomaly_detection.io"
         else:
             return "http://localhost:8000"
 
@@ -736,7 +736,7 @@ class AutomatedDeployer:
 def main(
     environment: str, version: str, config: str | None, force: bool, dry_run: bool
 ):
-    """Automated deployment script for Pynomaly."""
+    """Automated deployment script for anomaly_detection."""
 
     config_path = Path(config) if config else None
     deployer = AutomatedDeployer(config_path)

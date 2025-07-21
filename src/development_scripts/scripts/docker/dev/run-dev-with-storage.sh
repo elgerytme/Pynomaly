@@ -10,15 +10,15 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Default configuration
 ENV_FILE="${PROJECT_ROOT}/.env.dev"
-NETWORK_NAME="pynomaly-dev"
-CONTAINER_NAME="pynomaly-dev"
-IMAGE_NAME="pynomaly:dev"
+NETWORK_NAME="anomaly_detection-dev"
+CONTAINER_NAME="anomaly_detection-dev"
+IMAGE_NAME="anomaly_detection:dev"
 HOST_PORT=8000
 
 # Storage configuration
-POSTGRES_CONTAINER="pynomaly-postgres-dev"
-REDIS_CONTAINER="pynomaly-redis-dev"
-MINIO_CONTAINER="pynomaly-minio-dev"
+POSTGRES_CONTAINER="anomaly_detection-postgres-dev"
+REDIS_CONTAINER="anomaly_detection-redis-dev"
+MINIO_CONTAINER="anomaly_detection-minio-dev"
 
 # Function to display usage
 usage() {
@@ -100,11 +100,11 @@ if [[ "$STORAGE_TYPE" == "postgres" || "$STORAGE_TYPE" == "all" ]]; then
     docker run -d \
         --name "$POSTGRES_CONTAINER" \
         --network "$NETWORK_NAME" \
-        -e POSTGRES_DB=pynomaly_dev \
-        -e POSTGRES_USER=pynomaly \
+        -e POSTGRES_DB=anomaly_detection_dev \
+        -e POSTGRES_USER=anomaly_detection \
         -e POSTGRES_PASSWORD=dev_password \
         -p 5432:5432 \
-        -v pynomaly-postgres-dev:/var/lib/postgresql/data \
+        -v anomaly_detection-postgres-dev:/var/lib/postgresql/data \
         postgres:15-alpine
 fi
 
@@ -115,7 +115,7 @@ if [[ "$STORAGE_TYPE" == "redis" || "$STORAGE_TYPE" == "all" ]]; then
         --name "$REDIS_CONTAINER" \
         --network "$NETWORK_NAME" \
         -p 6379:6379 \
-        -v pynomaly-redis-dev:/data \
+        -v anomaly_detection-redis-dev:/data \
         redis:7-alpine redis-server --appendonly yes
 fi
 
@@ -129,7 +129,7 @@ if [[ "$STORAGE_TYPE" == "minio" || "$STORAGE_TYPE" == "all" ]]; then
         -e MINIO_ROOT_PASSWORD=minioadmin123 \
         -p 9000:9000 \
         -p 9001:9001 \
-        -v pynomaly-minio-dev:/data \
+        -v anomaly_detection-minio-dev:/data \
         minio/minio server /data --console-address ":9001"
 fi
 
@@ -143,7 +143,7 @@ if [[ "$BUILD_IMAGE" == "true" ]]; then
     docker build -t "$IMAGE_NAME" -f "$PROJECT_ROOT/Dockerfile" "$PROJECT_ROOT"
 fi
 
-echo "Starting Pynomaly development environment with storage..."
+echo "Starting anomaly_detection development environment with storage..."
 echo "Container: $CONTAINER_NAME"
 echo "Port: $HOST_PORT"
 echo "Storage: $STORAGE_TYPE"
@@ -151,7 +151,7 @@ echo "Storage: $STORAGE_TYPE"
 # Prepare environment variables
 ENV_VARS=""
 if [[ "$STORAGE_TYPE" == "postgres" || "$STORAGE_TYPE" == "all" ]]; then
-    ENV_VARS="$ENV_VARS -e DATABASE_URL=postgresql://pynomaly:dev_password@$POSTGRES_CONTAINER:5432/pynomaly_dev"
+    ENV_VARS="$ENV_VARS -e DATABASE_URL=postgresql://anomaly_detection:dev_password@$POSTGRES_CONTAINER:5432/anomaly_detection_dev"
 fi
 if [[ "$STORAGE_TYPE" == "redis" || "$STORAGE_TYPE" == "all" ]]; then
     ENV_VARS="$ENV_VARS -e REDIS_URL=redis://$REDIS_CONTAINER:6379/0"
@@ -178,7 +178,7 @@ docker run -it --rm \
     -e LOG_LEVEL=DEBUG \
     -e RELOAD=true \
     "$IMAGE_NAME" \
-    poetry run uvicorn pynomaly.presentation.api:app \
+    poetry run uvicorn anomaly_detection.presentation.api:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload \

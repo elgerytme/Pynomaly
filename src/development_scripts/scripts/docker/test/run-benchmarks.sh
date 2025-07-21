@@ -9,9 +9,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Default configuration
-NETWORK_NAME="pynomaly-benchmark"
-CONTAINER_NAME="pynomaly-benchmark"
-IMAGE_NAME="pynomaly:benchmark"
+NETWORK_NAME="anomaly_detection-benchmark"
+CONTAINER_NAME="anomaly_detection-benchmark"
+IMAGE_NAME="anomaly_detection:benchmark"
 BENCHMARK_TYPE="performance"
 
 # Function to display usage
@@ -72,8 +72,8 @@ docker network create "$NETWORK_NAME" 2>/dev/null || true
 if [[ "$CLEAN_CONTAINERS" == "true" ]]; then
     echo "Cleaning up existing benchmark containers..."
     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
-    docker rm -f "pynomaly-prometheus" 2>/dev/null || true
-    docker rm -f "pynomaly-grafana" 2>/dev/null || true
+    docker rm -f "anomaly_detection-prometheus" 2>/dev/null || true
+    docker rm -f "anomaly_detection-grafana" 2>/dev/null || true
 fi
 
 # Start monitoring stack if requested
@@ -82,7 +82,7 @@ if [[ "$MONITORING" == "true" ]]; then
 
     # Start Prometheus
     docker run -d \
-        --name "pynomaly-prometheus" \
+        --name "anomaly_detection-prometheus" \
         --network "$NETWORK_NAME" \
         -p 9090:9090 \
         -v "${PROJECT_ROOT}/docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml" \
@@ -90,7 +90,7 @@ if [[ "$MONITORING" == "true" ]]; then
 
     # Start Grafana
     docker run -d \
-        --name "pynomaly-grafana" \
+        --name "anomaly_detection-grafana" \
         --network "$NETWORK_NAME" \
         -p 3000:3000 \
         -e GF_SECURITY_ADMIN_PASSWORD=admin \
