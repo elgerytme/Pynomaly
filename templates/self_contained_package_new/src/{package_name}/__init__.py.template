@@ -1,0 +1,14 @@
+"""
+{package_name} - {package_description}
+
+A self-contained Python package following Domain-Driven Design principles.
+"""
+
+__version__ = "0.1.0"
+__author__ = "{author_name}"
+__email__ = "{author_email}"
+
+from .application import *
+from .domain import *
+from .infrastructure import *
+from .presentation import *

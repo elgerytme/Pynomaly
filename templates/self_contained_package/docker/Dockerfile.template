@@ -1,0 +1,199 @@
+# {package_name} - Self-Contained Package Container
+# ================================================
+# Multi-stage production-ready container build
+
+# Build stage
+FROM python:3.11-slim as builder
+
+# Set build arguments
+ARG PACKAGE_NAME={package_name}
+ARG PACKAGE_VERSION=0.1.0
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Set labels for metadata
+LABEL maintainer="{author_email}" \
+      org.label-schema.name="${PACKAGE_NAME}" \
+      org.label-schema.version="${PACKAGE_VERSION}" \
+      org.label-schema.build-date="${BUILD_DATE}" \
+      org.label-schema.vcs-ref="${VCS_REF}" \
+      org.label-schema.schema-version="1.0"
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create build user
+RUN useradd --create-home --shell /bin/bash builder
+USER builder
+WORKDIR /home/builder
+
+# Set up Python environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install Python build tools
+RUN pip install --user --upgrade pip setuptools wheel build
+
+# Copy package files
+COPY --chown=builder:builder pyproject.toml README.md LICENSE ./
+COPY --chown=builder:builder src/ ./src/
+
+# Build the package
+RUN python -m build --wheel
+
+# Production stage
+FROM python:3.11-slim as production
+
+# Set build arguments (repeated for this stage)
+ARG PACKAGE_NAME={package_name}
+ARG PACKAGE_VERSION=0.1.0
+
+# Install system dependencies for production
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create application user with specific UID/GID
+RUN groupadd -r -g 1000 appuser && \
+    useradd -r -u 1000 -g appuser -m -d /app -s /bin/bash appuser
+
+# Set working directory
+WORKDIR /app
+
+# Set production environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PATH="/app/.local/bin:$PATH" \
+    PACKAGE_NAME="${PACKAGE_NAME}" \
+    PACKAGE_VERSION="${PACKAGE_VERSION}"
+
+# Copy built wheel from builder stage
+COPY --from=builder --chown=appuser:appuser /home/builder/dist/*.whl ./
+
+# Switch to application user
+USER appuser
+
+# Install the package
+RUN pip install --user *.whl && rm -f *.whl
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/config
+
+# Copy configuration files
+COPY --chown=appuser:appuser config/ ./config/
+COPY --chown=appuser:appuser scripts/health-check.sh ./scripts/
+
+# Make scripts executable
+USER root
+RUN chmod +x ./scripts/health-check.sh
+USER appuser
+
+# Expose ports
+EXPOSE 8000 8080 8443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD ./scripts/health-check.sh || exit 1
+
+# Set default command
+ENTRYPOINT ["tini", "--"]
+CMD ["python", "-m", "{package_name}", "serve"]
+
+# Development stage
+FROM production as development
+
+# Switch back to root for development installations
+USER root
+
+# Install development dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    vim \
+    htop \
+    strace \
+    tcpdump \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to application user
+USER appuser
+
+# Install development Python packages
+RUN pip install --user \
+    ipython \
+    pytest \
+    pytest-cov \
+    black \
+    ruff \
+    mypy \
+    debugpy
+
+# Override default command for development
+CMD ["python", "-m", "{package_name}", "serve", "--reload", "--debug"]
+
+# Testing stage
+FROM development as testing
+
+# Copy test files
+COPY --chown=appuser:appuser tests/ ./tests/
+COPY --chown=appuser:appuser examples/ ./examples/
+
+# Install test dependencies
+COPY --chown=appuser:appuser requirements-test.txt ./
+RUN pip install --user -r requirements-test.txt
+
+# Run tests by default in this stage
+CMD ["python", "-m", "pytest", "tests/", "-v", "--cov"]
+
+# Security scanning stage
+FROM production as security
+
+USER root
+
+# Install security scanning tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+USER appuser
+
+# Install security tools
+RUN pip install --user \
+    bandit \
+    safety \
+    pip-audit \
+    semgrep
+
+# Copy source for scanning
+COPY --chown=appuser:appuser src/ ./src/
+
+# Default command runs security scans
+CMD ["sh", "-c", "bandit -r src/ && safety check && pip-audit"]
+
+# Performance testing stage
+FROM production as performance
+
+# Install performance testing tools
+USER appuser
+RUN pip install --user \
+    locust \
+    memory-profiler \
+    py-spy \
+    psutil
+
+# Copy performance tests
+COPY --chown=appuser:appuser tests/performance/ ./tests/performance/
+
+# Default command runs performance tests
+CMD ["locust", "--host=http://localhost:8000", "--web-port=8089"]

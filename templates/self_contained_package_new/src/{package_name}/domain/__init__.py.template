@@ -1,0 +1,10 @@
+"""
+Domain layer - Core business logic and entities.
+
+This is the center of the architecture containing:
+- Entities: Core business objects
+- Value Objects: Immutable objects with intrinsic value
+- Domain Events: Events that represent business occurrences
+- Domain Services: Business logic that doesn't naturally fit in entities
+- Repository Interfaces: Abstract data access contracts
+"""
