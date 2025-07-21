@@ -70,8 +70,16 @@ class ArchitectureValidator:
         violations_found = False
         
         for pattern in forbidden_patterns:
-            # Convert pattern to glob pattern
-            glob_pattern = pattern.replace("*", "**")
+            # Handle different pattern types
+            if pattern.endswith("/**"):
+                # Pattern like "src/packages/core/**" 
+                glob_pattern = pattern
+            elif pattern.endswith("/"):
+                # Pattern like "src/packages/core/"
+                glob_pattern = pattern + "**"  
+            else:
+                # Exact path pattern
+                glob_pattern = pattern
             matching_paths = list(Path(".").glob(glob_pattern))
             
             for path in matching_paths:

@@ -1,1 +1,0 @@
-"""Data domain layer containing core business entities and logic."""

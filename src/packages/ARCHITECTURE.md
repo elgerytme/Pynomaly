@@ -1,25 +1,33 @@
-# Configuration-Based Architecture
+# Domain-Based Architecture
 
 ## Overview
 
-The Pynomaly package architecture separates concerns into four distinct layers:
+The Pynomaly package architecture is organized by business domains with clear boundaries:
 
-1. **Core Domain Packages** - Pure business logic
+1. **Domain Packages** - Business logic organized by domain (ai/, data/)
 2. **Enterprise Services** - Cross-cutting enterprise concerns  
 3. **Platform Integrations** - External tool connectors
 4. **Configurations** - Application composition
+
+## Critical Rule: NO "CORE" PACKAGES
+
+**FORBIDDEN:** `src/packages/core/` - There is no universal "core" across domains. Each domain contains its own business logic.
 
 ## Directory Structure
 
 ```
 src/packages/
-├── core/                           # Domain logic only
-│   ├── ai/
-│   │   ├── anomaly_detection/      # Anomaly detection domain
-│   │   └── machine_learning/
-│   │       └── mlops/              # MLOps domain logic
-│   └── data/
-│       └── processing/             # Data processing domain
+├── ai/                             # AI/ML business domain
+│   ├── anomaly_detection/          # Anomaly detection domain logic
+│   ├── machine_learning/           # General ML domain logic  
+│   ├── mlops/                      # MLOps domain logic
+│   └── data_science/               # Data science domain logic
+├── data/                           # Data business domain
+│   ├── quality/                    # Data quality domain logic
+│   ├── observability/              # Data observability domain logic
+│   ├── profiling/                  # Data profiling domain logic
+│   ├── transformation/             # Data transformation domain logic
+│   └── lineage/                    # Data lineage domain logic
 │
 ├── enterprise/                     # Cross-cutting enterprise services
 │   ├── auth/                      # Authentication & authorization
@@ -56,14 +64,14 @@ src/packages/
 
 ## Architecture Principles
 
-### 1. Separation of Concerns
+### 1. Domain Boundaries
 
-**Core Packages** contain only domain logic:
-- Business entities and rules
-- Domain services and operations
-- No external dependencies
+**Domain Packages** (ai/, data/) contain only business logic for that domain:
+- Business entities and rules specific to the domain
+- Domain services and operations  
 - No enterprise features
 - No platform integrations
+- No cross-domain dependencies
 
 **Enterprise Services** handle cross-cutting concerns:
 - Authentication & authorization
@@ -93,22 +101,23 @@ Dependencies flow in one direction:
 ```
 Configurations → Enterprise Services
 Configurations → Integrations  
-Configurations → Core Domains
+Configurations → Domain Packages
 ```
 
 **Never:**
-- Core packages depend on enterprise services
-- Core packages depend on integrations
+- Domain packages depend on enterprise services
+- Domain packages depend on integrations
 - Enterprise services depend on integrations
 - Integrations depend on each other
+- Cross-domain dependencies (ai/ ↔ data/)
 
 ### 3. Optional Dependencies
 
-All non-core dependencies are optional:
+All non-domain dependencies are optional:
 - Enterprise features are optional
 - Platform integrations are optional
 - Missing dependencies are handled gracefully
-- Basic functionality always works
+- Basic domain functionality always works
 
 ## Usage Examples
 
