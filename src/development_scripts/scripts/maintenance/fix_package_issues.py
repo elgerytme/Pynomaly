@@ -74,11 +74,11 @@ def main():
     print(f"Platform: {sys.platform}")
     print(f"Virtual env exists: {os.path.exists('.venv')}")
 
-    # Step 1: Uninstall the wrong pynomaly package
-    print("\n📌 Step 1: Remove conflicting pynomaly package")
+    # Step 1: Uninstall the wrong anomaly_detection package
+    print("\n📌 Step 1: Remove conflicting anomaly_detection package")
     success = run_command(
         [sys.executable, "-m", "pip", "uninstall", "pynomaly", "-y"],
-        "Uninstalling existing pynomaly package",
+        "Uninstalling existing anomaly_detection package",
     )
 
     # Step 2: Install in development mode with server extras
@@ -113,7 +113,7 @@ def main():
     try:
         import pynomaly
 
-        print("✅ pynomaly package imports successfully")
+        print("✅ anomaly_detection package imports successfully")
         print(f"   Version: {getattr(pynomaly, '__version__', 'development')}")
         print(f"   Location: {pynomaly.__file__}")
     except ImportError as e:

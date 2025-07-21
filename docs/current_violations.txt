@@ -639,7 +639,7 @@ Severity: warning
 ----------------------------------------
 Package: formal_sciences.mathematics
 File: /mnt/c/Users/andre/Pynomaly/src/packages/formal_sciences/mathematics/README.md
-Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for anomaly detection and data analysis in the Pynomaly platform.
+Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for anomaly detection and data analysis in the anomaly detection platform.
 Term: anomaly
 Severity: warning
 ----------------------------------------

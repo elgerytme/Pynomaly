@@ -64,7 +64,7 @@
     "accessibility",
     "performance"
   ],
-  "author": "Pynomaly Team",
+  "author": "Anomaly Detection Team",
   "license": "MIT",
   "dependencies": {
     "alpinejs": "^3.13.5",

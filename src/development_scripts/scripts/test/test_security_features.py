@@ -524,7 +524,7 @@ async def main():
     parser.add_argument(
         "--url",
         default="http://localhost:8000",
-        help="Base URL of Pynomaly application (default: http://localhost:8000)",
+        help="Base URL of anomaly detection application (default: http://localhost:8000)",
     )
     parser.add_argument("--output", help="Output file for test results (JSON format)")
     parser.add_argument("--report", help="Output file for test report (text format)")

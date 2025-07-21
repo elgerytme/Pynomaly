@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Pynomaly package architecture is organized by business domains with clear boundaries:
+The anomaly_detection package architecture is organized by business domains with clear boundaries:
 
 1. **Domain Packages** - Business logic organized by domain (ai/, data/)
 2. **Enterprise Services** - Cross-cutting enterprise concerns  

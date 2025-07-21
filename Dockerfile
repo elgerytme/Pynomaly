@@ -1,4 +1,4 @@
-# Production Dockerfile for Pynomaly Anomaly Detection Platform
+# Production Dockerfile for Anomaly Detection Platform
 # Multi-stage build for optimized production image
 
 # Build stage
@@ -34,11 +34,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 FROM python:3.11-slim as production
 
 # Set build labels
-LABEL maintainer="Pynomaly Team"
+LABEL maintainer="Anomaly Detection Team"
 LABEL version="${VERSION}"
 LABEL build-date="${BUILD_DATE}"
 LABEL git-commit="${GIT_COMMIT}"
-LABEL description="Pynomaly Anomaly Detection Platform - Production Image"
+LABEL description="Anomaly Detection Platform - Production Image"
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
@@ -48,7 +48,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Create non-root user for security
-RUN groupadd -r pynomaly && useradd -r -g pynomaly -m -d /home/pynomaly pynomaly
+RUN groupadd -r anomaly && useradd -r -g anomaly -m -d /home/anomaly anomaly
 
 # Set working directory
 WORKDIR /app
@@ -58,7 +58,7 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
-COPY --chown=pynomaly:pynomaly . .
+COPY --chown=anomaly:anomaly . .
 
 # Set environment variables for production
 ENV PYTHONPATH=/app \
@@ -73,13 +73,15 @@ ENV PYTHONPATH=/app \
 
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data /app/models /app/cache && \
-    chown -R pynomaly:pynomaly /app/logs /app/data /app/models /app/cache
+    chown -R anomaly:anomaly /app/logs /app/data /app/models /app/cache
 
-# Install application in development mode (for imports)
+# Install packages individually (no root pyproject.toml)
+WORKDIR /app/src/packages/data/anomaly_detection_restructured
 RUN pip install -e .
 
-# Switch to non-root user
-USER pynomaly
+# Switch back to app directory and non-root user
+WORKDIR /app
+USER anomaly
 
 # Expose port
 EXPOSE 8000

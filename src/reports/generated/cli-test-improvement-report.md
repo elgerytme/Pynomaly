@@ -338,7 +338,7 @@ pytest tests/cli/ --cov=src/pynomaly/presentation/cli --cov-report=html
 
 ## Conclusion
 
-The CLI test coverage and stability improvements represent a significant enhancement to the Pynomaly project's quality assurance. With **1,200+ new tests** covering **85-90% of CLI functionality**, the project now has a robust foundation for:
+The CLI test coverage and stability improvements represent a significant enhancement to the project's quality assurance. With **1,200+ new tests** covering **85-90% of CLI functionality**, the project now has a robust foundation for:
 
 - **Reliable CLI behavior** across all commands and scenarios
 - **Comprehensive error handling** for better user experience
@@ -346,7 +346,7 @@ The CLI test coverage and stability improvements represent a significant enhance
 - **Security testing** for vulnerability prevention
 - **Performance monitoring** for stability assurance
 
-The implemented test infrastructure provides a solid foundation for future CLI development and ensures that the Pynomaly CLI will be stable, reliable, and user-friendly in production environments.
+The implemented test infrastructure provides a solid foundation for future CLI development and ensures that the anomaly detection CLI will be stable, reliable, and user-friendly in production environments.
 
 ---
 

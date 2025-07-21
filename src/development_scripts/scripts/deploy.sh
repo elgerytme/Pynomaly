@@ -353,7 +353,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Deploy Pynomaly API to Kubernetes
+Deploy anomaly detection API to Kubernetes
 
 OPTIONS:
     -e, --environment ENV       Deployment environment (default: production)
@@ -734,7 +734,7 @@ post_deployment_tasks() {
 # =============================================================================
 
 main() {
-    log "Starting Pynomaly API deployment..."
+    log "Starting anomaly detection API deployment..."
     log "Environment: $ENVIRONMENT"
     log "Namespace: $NAMESPACE"
     log "Image Tag: $IMAGE_TAG"

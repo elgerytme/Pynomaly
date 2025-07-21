@@ -31,7 +31,7 @@ def generate_openapi_spec():
     spec = {
         "openapi": "3.0.3",
         "info": {
-            "title": "Pynomaly API",
+            "title": "anomaly detection API",
             "description": "State-of-the-art anomaly detection API",
             "version": "1.0.0",
         },
@@ -107,7 +107,7 @@ def generate_swagger_ui():
     html_content = """<!DOCTYPE html>
 <html>
 <head>
-    <title>Pynomaly API Documentation</title>
+    <title>anomaly detection API Documentation</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
 </head>
 <body>
@@ -143,7 +143,7 @@ def generate_postman_collection():
 
     collection = {
         "info": {
-            "name": "Pynomaly API",
+            "name": "anomaly detection API",
             "description": "API collection for Pynomaly",
             "version": "1.0.0",
         },
@@ -242,7 +242,7 @@ def generate_readme():
     """Generate README."""
     log("Generating README...")
 
-    readme_content = f"""# Pynomaly API Documentation
+    readme_content = f"""# anomaly detection API Documentation
 
 Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 

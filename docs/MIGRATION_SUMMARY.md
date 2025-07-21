@@ -1,7 +1,7 @@
 # Package Migration Summary
 
 ## Overview
-Successfully migrated the Pynomaly project from legacy structure to a modern Domain-Driven Design (DDD) architecture with clean folder organization.
+Successfully migrated the project from legacy structure to a modern Domain-Driven Design (DDD) architecture with clean folder organization.
 
 ## Migration Results ✅
 

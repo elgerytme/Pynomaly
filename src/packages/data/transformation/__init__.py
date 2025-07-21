@@ -6,7 +6,7 @@ Provides tools for data integration, cleaning, preparation, and advanced feature
 """
 
 __version__ = "0.1.0"
-__author__ = "Pynomaly Team"
+__author__ = "Anomaly Detection Team"
 __email__ = "team@monorepo.io"
 
 from .application.use_cases.data_pipeline import DataPipelineUseCase

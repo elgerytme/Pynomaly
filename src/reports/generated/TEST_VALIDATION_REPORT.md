@@ -29,7 +29,7 @@
 - ✅ Python imports: SUCCESS
 - ✅ App creation: SUCCESS (106 routes)
 - ✅ Server startup: SUCCESS
-- ✅ API endpoints: WORKING (`{"message":"Pynomaly API","version":"0.1.0"}`)
+- ✅ API endpoints: WORKING (`{"message":"anomaly detection API","version":"0.1.0"}`)
 - ✅ Web UI: WORKING (`<title>Dashboard - Pynomaly</title>`)
 - ✅ Graceful shutdown: SUCCESS
 

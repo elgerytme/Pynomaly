@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive reorganization of the Pynomaly repository into logical domains following domain-driven design principles. The goal is to improve code organization, reduce coupling, and create clearer boundaries between different business domains.
+This document outlines the comprehensive reorganization of the repository into logical domains following domain-driven design principles. The goal is to improve code organization, reduce coupling, and create clearer boundaries between different business domains.
 
 ## Current Issues Addressed
 

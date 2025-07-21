@@ -25,8 +25,8 @@ class TargetedPriorityFixer:
     def __init__(self):
         self.priority_fixes = {
             'pynomaly': [
-                (r'\bpynomaly\b', 'software'),
-                (r'\bPynomaly\b', 'Software'),
+                (r'anomaly_detection', 'software'),
+                (r'Anomaly Detection Platform', 'Software'),
                 (r'pynomaly-', 'software-'),
                 (r'pynomaly_', 'software_'),
                 (r'"pynomaly"', '"software"'),

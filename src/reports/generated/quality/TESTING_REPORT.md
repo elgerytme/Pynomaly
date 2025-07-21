@@ -1,4 +1,4 @@
-# Comprehensive Testing Report - Pynomaly Platform
+# Comprehensive Testing Report - Anomaly Detection Platform
 
 **Date:** 2025-07-07  
 **Testing Scope:** Web API, CLI, Web UI  
@@ -209,6 +209,6 @@ Comprehensive testing revealed **5 critical issues** requiring immediate attenti
 
 ## Conclusion
 
-The Pynomaly platform shows strong foundation architecture with clean code organization and good functionality in the CLI component. The Web UI has excellent design and most features work well. However, several critical issues need immediate attention before the platform can be considered production-ready.
+The anomaly detection platform shows strong foundation architecture with clean code organization and good functionality in the CLI component. The Web UI has excellent design and most features work well. However, several critical issues need immediate attention before the platform can be considered production-ready.
 
 **Priority:** Fix OpenAPI and experiments endpoints first, then address static assets and authentication issues.

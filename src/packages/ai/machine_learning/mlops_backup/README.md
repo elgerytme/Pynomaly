@@ -6,7 +6,7 @@
 
 ## Overview
 
-Machine Learning Operations (MLOps) components for the Pynomaly platform.
+Machine Learning Operations (MLOps) components for the anomaly detection platform.
 
 **Architecture Layer**: Application Layer  
 **Package Type**: ML Operations  
@@ -110,7 +110,7 @@ pip install pynomaly-mlops[mlflow,kubeflow,monitoring]
 ### Pynomaly Installation
 
 ```bash
-# Install entire Pynomaly platform with this package
+# Install entire anomaly detection platform with this package
 cd /path/to/pynomaly
 pip install -e ".[mlops]"
 ```

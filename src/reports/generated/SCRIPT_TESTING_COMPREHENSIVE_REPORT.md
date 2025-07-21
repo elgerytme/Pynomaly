@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This report documents the comprehensive testing of all scripts in the `scripts/` directory of the Pynomaly project. Testing was conducted on 2025-01-07 in the current Linux environment (Python 3.12.3).
+This report documents the comprehensive testing of all scripts in the `scripts/` directory of the project. Testing was conducted on 2025-01-07 in the current Linux environment (Python 3.12.3).
 
 **Key Results:**
 - **Total Scripts Tested**: 65+ scripts across 12 categories

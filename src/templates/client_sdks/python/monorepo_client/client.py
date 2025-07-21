@@ -1,7 +1,7 @@
 """
 Pynomaly Python Client Implementation
 
-This module provides the main client classes for interacting with the Pynomaly API.
+This module provides the main client classes for interacting with the anomaly detection API.
 Includes both synchronous and asynchronous clients with comprehensive functionality.
 """
 
@@ -120,7 +120,7 @@ class BaseClient:
 
 
 class PynomaliClient(BaseClient):
-    """Synchronous client for the Pynomaly API."""
+    """Synchronous client for the anomaly detection API."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -216,7 +216,7 @@ class PynomaliClient(BaseClient):
 
 
 class AsyncPynomaliClient(BaseClient):
-    """Asynchronous client for the Pynomaly API."""
+    """Asynchronous client for the anomaly detection API."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

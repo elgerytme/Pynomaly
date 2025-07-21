@@ -2,7 +2,7 @@
 """
 Pynomaly SDK Generator CLI
 
-A comprehensive command-line interface for generating client SDKs for the Pynomaly API.
+A comprehensive command-line interface for generating client SDKs for the anomaly detection API.
 This tool provides easy-to-use commands for generating, managing, and publishing SDKs
 across multiple programming languages.
 

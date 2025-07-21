@@ -94,7 +94,7 @@ All updated files passed Python syntax validation:
 
 ## Next Steps
 1. Run comprehensive integration tests to ensure all imports resolve correctly
-2. Update any remaining imports in the main pynomaly package if needed
+2. Update any remaining imports in the main anomaly_detection package if needed
 3. Update documentation to reflect new import patterns
 4. Consider adding import linting rules to prevent future violations
 

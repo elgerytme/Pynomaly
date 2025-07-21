@@ -23,7 +23,7 @@ try:
     from pynomaly.infrastructure.config.settings import get_settings
     from pynomaly.presentation.api.app import create_app
 except ImportError as e:
-    print(f"Failed to import Pynomaly API modules: {e}")
+    print(f"Failed to import anomaly detection API modules: {e}")
     print("Please ensure the package is installed with: poetry install")
     print('For API functionality, install with: pip install -e ".[api]"')
     sys.exit(1)
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class APIServer:
-    """Manages the Pynomaly API server."""
+    """Manages the anomaly detection API server."""
 
     def __init__(self):
         self.settings = get_settings()
@@ -95,7 +95,7 @@ class APIServer:
         config = self.create_uvicorn_config(host, port, reload, workers, log_level)
         self.server = uvicorn.Server(config)
 
-        logger.info(f"Starting Pynomaly API server on {host}:{port}")
+        logger.info(f"Starting anomaly detection API server on {host}:{port}")
         logger.info(f"Workers: {workers}, Reload: {reload}, Log Level: {log_level}")
         logger.info(f"API Documentation: http://{host}:{port}/docs")
         logger.info(f"Health Check: http://{host}:{port}/health")
@@ -112,7 +112,7 @@ class APIServer:
 def main():
     """Main entry point for the API server."""
     parser = argparse.ArgumentParser(
-        description="Pynomaly API Server",
+        description="anomaly detection API Server",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

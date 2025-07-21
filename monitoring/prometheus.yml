@@ -17,7 +17,7 @@ alerting:
           - alertmanager:9093
 
 scrape_configs:
-  # Pynomaly API Service
+  # anomaly detection API Service
   - job_name: 'pynomaly-api'
     static_configs:
       - targets: ['pynomaly-api:8000']

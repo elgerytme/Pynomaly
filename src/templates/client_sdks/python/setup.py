@@ -23,7 +23,7 @@ with open("pynomaly_client/__init__.py") as fp:
 setup(
     name="pynomaly-client",
     version=version["__version__"],
-    author="Pynomaly Team",
+    author="Anomaly Detection Team",
     author_email="support@pynomaly.com",
     description="Official Python client library for the Pynomaly anomaly detection API",
     long_description=long_description,

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "pynomaly-machine-learning"
 version = "0.1.0"
 description = "Machine learning operations, training, and lifecycle management for Pynomaly"
-authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+authors = [{name = "Anomaly Detection Team", email = "team@pynomaly.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"

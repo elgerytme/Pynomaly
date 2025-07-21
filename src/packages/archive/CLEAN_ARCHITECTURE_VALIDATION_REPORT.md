@@ -1,7 +1,7 @@
 # Clean Architecture Validation Report
 
 ## Overview
-This report validates that all packages in the Pynomaly monorepo follow clean architecture principles with proper domain-driven design implementation.
+This report validates that all packages in the repository follow clean architecture principles with proper domain-driven design implementation.
 
 ## Architecture Validation Summary
 

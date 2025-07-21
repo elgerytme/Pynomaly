@@ -433,7 +433,7 @@ The multi-language SDK development project has been successfully completed, deli
 
 ### Key Achievements
 
-1. **Complete API Coverage**: All Pynomaly API endpoints are accessible through each SDK
+1. **Complete API Coverage**: All anomaly detection API endpoints are accessible through each SDK
 2. **Consistent Developer Experience**: Similar patterns and conventions across all languages
 3. **Production-Ready Quality**: Comprehensive testing, documentation, and error handling
 4. **Automated Infrastructure**: CI/CD pipelines for testing, building, and publishing

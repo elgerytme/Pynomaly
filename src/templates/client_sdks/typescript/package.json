@@ -36,7 +36,7 @@
     "typescript",
     "javascript"
   ],
-  "author": "Pynomaly Team <support@pynomaly.com>",
+  "author": "Anomaly Detection Team <support@pynomaly.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/pynomaly/pynomaly-typescript-sdk/issues"

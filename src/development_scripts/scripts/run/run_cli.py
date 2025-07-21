@@ -2,7 +2,7 @@
 """
 CLI runner for Pynomaly.
 
-This script provides a dedicated entry point for running the Pynomaly CLI
+This script provides a dedicated entry point for running the anomaly detection CLI
 with proper environment setup and error handling.
 """
 
@@ -18,7 +18,7 @@ try:
     from pynomaly.infrastructure.config.settings import get_settings
     from pynomaly.presentation.cli.app import app as cli_app
 except ImportError as e:
-    print(f"Failed to import Pynomaly CLI modules: {e}")
+    print(f"Failed to import anomaly detection CLI modules: {e}")
     print("Please ensure the package is installed with: poetry install")
     sys.exit(1)
 
@@ -43,7 +43,7 @@ def setup_cli_environment():
 
 def run_cli(args: list[str] | None = None):
     """
-    Run the Pynomaly CLI.
+    Run the anomaly detection CLI.
 
     Args:
         args: Optional list of CLI arguments. If None, uses sys.argv

@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 from scipy import stats
 
-# Import pynomaly modules for testing
+# Import anomaly_detection modules for testing
 try:
     from pynomaly.application.services.autonomous_service import AutonomousService
     from pynomaly.application.services.detection_service import DetectionService
@@ -26,7 +26,7 @@ try:
     from pynomaly.infrastructure.adapters.data_loader import DataLoader
 except ImportError:
     # Fallback for testing environment
-    pytest.skip("Pynomaly modules not available", allow_module_level=True)
+    pytest.skip("anomaly_detection modules not available", allow_module_level=True)
 
 
 class PerformanceBaselineManager:

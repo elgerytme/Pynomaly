@@ -34,7 +34,7 @@ When reporting a vulnerability, please include:
 
 This security policy applies to:
 
-- The core Pynomaly library
+- The core anomaly_detection library
 - Official Docker images
 - API endpoints and web interfaces
 - CLI tools and utilities

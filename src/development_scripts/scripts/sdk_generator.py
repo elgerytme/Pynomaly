@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Multi-Language Client SDK Generator for Pynomaly API
+Multi-Language Client SDK Generator for anomaly detection API
 
 This script generates comprehensive client SDKs for multiple programming languages
 from the OpenAPI specification. It supports:
@@ -37,7 +37,7 @@ import yaml
 
 
 class SDKGenerator:
-    """Multi-language SDK generator for Pynomaly API."""
+    """Multi-language SDK generator for anomaly detection API."""
 
     def __init__(self):
         """Initialize the SDK generator."""
@@ -106,8 +106,8 @@ class SDKGenerator:
                     "packageName": "Pynomaly.Client",
                     "packageVersion": "1.0.0",
                     "packageCompany": "Pynomaly",
-                    "packageTitle": "Pynomaly API Client",
-                    "packageDescription": "C# client library for Pynomaly API",
+                    "packageTitle": "anomaly detection API Client",
+                    "packageDescription": "C# client library for anomaly detection API",
                     "targetFramework": "net6.0",
                 },
             },
@@ -131,9 +131,9 @@ class SDKGenerator:
                     "gemName": "pynomaly_client",
                     "gemVersion": "1.0.0",
                     "gemHomepage": "https://github.com/pynomaly/ruby-client",
-                    "gemSummary": "Ruby client library for Pynomaly API",
+                    "gemSummary": "Ruby client library for anomaly detection API",
                     "gemDescription": "Ruby client library for Pynomaly anomaly detection API",
-                    "gemAuthor": "Pynomaly Team",
+                    "gemAuthor": "Anomaly Detection Team",
                     "gemAuthorEmail": "support@pynomaly.com",
                 },
             },
@@ -144,7 +144,7 @@ class SDKGenerator:
                 "additional_properties": {
                     "packageName": "pynomaly_client",
                     "packageVersion": "1.0.0",
-                    "packageAuthors": "Pynomaly Team <support@pynomaly.com>",
+                    "packageAuthors": "Anomaly Detection Team <support@pynomaly.com>",
                     "supportAsync": "true",
                     "library": "reqwest",
                 },
@@ -497,7 +497,7 @@ func main() {
         readme_content += f"""
 ## Features
 
-- ✅ **Full API Coverage**: Complete coverage of all Pynomaly API endpoints
+- ✅ **Full API Coverage**: Complete coverage of all anomaly detection API endpoints
 - ✅ **Authentication**: Built-in JWT token management
 - ✅ **Error Handling**: Comprehensive error handling with retry logic
 - ✅ **Rate Limiting**: Automatic rate limit handling
@@ -1216,7 +1216,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Generate multi-language client SDKs for Pynomaly API"
+        description="Generate multi-language client SDKs for anomaly detection API"
     )
     parser.add_argument(
         "--languages",

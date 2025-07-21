@@ -2,7 +2,7 @@
 """
 Performance Baseline Establishment Script
 
-This script establishes performance baselines for the Pynomaly application by:
+This script establishes performance baselines for the anomaly detection application by:
 - Running comprehensive load tests across different scenarios
 - Analyzing system performance under various loads
 - Setting optimal performance thresholds based on empirical data
@@ -455,7 +455,7 @@ async def main():
         except Exception as e:
             console.print(f"❌ Cannot connect to application: {e}", style="bold red")
             console.print(
-                "Please ensure the Pynomaly application is running at the specified URL"
+                "Please ensure the anomaly detection application is running at the specified URL"
             )
             sys.exit(1)
 

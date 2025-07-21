@@ -11,14 +11,14 @@
         {
           "file": "src/packages/software/architecture/README.md",
           "line": 9,
-          "content": "Architectural patterns, design principles, and structural blueprints for the Pynomaly platform.",
+          "content": "Architectural patterns, design principles, and structural blueprints for the anomaly detection platform.",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/architecture/README.md",
           "line": 17,
-          "content": "This package provides the architectural foundation and design patterns that guide the structure and organization of the entire Pynomaly platform. It includes architectural decision records, design patterns, and structural blueprints that ensure consistency, maintainability, and scalability across all components.",
+          "content": "This package provides the architectural foundation and design patterns that guide the structure and organization of the entire anomaly detection platform. It includes architectural decision records, design patterns, and structural blueprints that ensure consistency, maintainability, and scalability across all components.",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -60,7 +60,7 @@
         {
           "file": "src/packages/software/architecture/README.md",
           "line": 113,
-          "content": "# Install entire Pynomaly platform with this package",
+          "content": "# Install entire anomaly detection platform with this package",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -977,7 +977,7 @@
         {
           "file": "src/packages/software/core/CONTRIBUTING.md",
           "line": 786,
-          "content": "Thank you for contributing to the Core package! Your contributions help maintain the solid foundation that powers the entire Pynomaly platform.",
+          "content": "Thank you for contributing to the Core package! Your contributions help maintain the solid foundation that powers the entire anomaly detection platform.",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -1040,7 +1040,7 @@
         {
           "file": "src/packages/software/core/README.md",
           "line": 101,
-          "content": "# Install entire Pynomaly platform with this package",
+          "content": "# Install entire anomaly detection platform with this package",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -1229,7 +1229,7 @@
         {
           "file": "src/packages/software/core/README.md",
           "line": 427,
-          "content": "- **Related Packages**: Compatible with all Pynomaly packages",
+          "content": "- **Related Packages**: Compatible with all anomaly_detection packages",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -2608,7 +2608,7 @@
         {
           "file": "src/packages/software/core/docs/architecture.md",
           "line": 5,
-          "content": "The Core package implements the heart of the Pynomaly platform using Clean Architecture principles. It contains pure business logic with no external dependencies, making it highly testable and maintainable.",
+          "content": "The Core package implements the heart of the anomaly detection platform using Clean Architecture principles. It contains pure business logic with no external dependencies, making it highly testable and maintainable.",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -6080,7 +6080,7 @@
         {
           "file": "src/packages/software/core/src/core/__init__.py",
           "line": 13,
-          "content": "__author__ = \"Pynomaly Team\"",
+          "content": "__author__ = \"Anomaly Detection Team\"",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -18204,7 +18204,7 @@
         {
           "file": "src/packages/software/design/README.md",
           "line": 149,
-          "content": "# Install entire Pynomaly platform with this package",
+          "content": "# Install entire anomaly detection platform with this package",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -18442,7 +18442,7 @@
         {
           "file": "src/packages/software/domain_library/pyproject.toml",
           "line": 9,
-          "content": "authors = [{name = \"Pynomaly Team\", email = \"team@pynomaly.io\"}]",
+          "content": "authors = [{name = \"Anomaly Detection Team\", email = \"team@pynomaly.io\"}]",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -18526,7 +18526,7 @@
         {
           "file": "src/packages/software/domain_library/src/domain_library/__init__.py",
           "line": 14,
-          "content": "__author__ = \"Pynomaly Team\"",
+          "content": "__author__ = \"Anomaly Detection Team\"",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -18827,7 +18827,7 @@
         {
           "file": "src/packages/software/enterprise/README.md",
           "line": 841,
-          "content": "**Note**: This enterprise package requires a valid enterprise license and is designed for large-scale enterprise deployments. For standard features, see the main Pynomaly platform documentation.",
+          "content": "**Note**: This enterprise package requires a valid enterprise license and is designed for large-scale enterprise deployments. For standard features, see the main anomaly detection platform documentation.",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -20815,21 +20815,21 @@
         {
           "file": "src/packages/software/interfaces/CONTRIBUTING.md",
           "line": 383,
-          "content": "app = typer.Typer(help=\"Pynomaly CLI - Advanced anomaly detection\")",
+          "content": "app = typer.Typer(help=\"anomaly detection CLI - Advanced anomaly detection\")",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/CONTRIBUTING.md",
           "line": 383,
-          "content": "app = typer.Typer(help=\"Pynomaly CLI - Advanced anomaly detection\")",
+          "content": "app = typer.Typer(help=\"anomaly detection CLI - Advanced anomaly detection\")",
           "term": "anomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/CONTRIBUTING.md",
           "line": 383,
-          "content": "app = typer.Typer(help=\"Pynomaly CLI - Advanced anomaly detection\")",
+          "content": "app = typer.Typer(help=\"anomaly detection CLI - Advanced anomaly detection\")",
           "term": "detection",
           "severity": "error"
         },
@@ -26408,7 +26408,7 @@
         {
           "file": "src/packages/software/interfaces/api/docs/api-integration/openapi.yaml",
           "line": 36,
-          "content": "name: Pynomaly Team",
+          "content": "name: Anomaly Detection Team",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -29999,7 +29999,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 111,
-          "content": "The Pynomaly Team</p>",
+          "content": "The Anomaly Detection Team</p>",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30027,7 +30027,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 150,
-          "content": "The Pynomaly Team",
+          "content": "The Anomaly Detection Team",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30111,7 +30111,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 227,
-          "content": "The Pynomaly Team</p>",
+          "content": "The Anomaly Detection Team</p>",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30174,7 +30174,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 263,
-          "content": "The Pynomaly Team",
+          "content": "The Anomaly Detection Team",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30195,7 +30195,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 344,
-          "content": "The Pynomaly Team</p>",
+          "content": "The Anomaly Detection Team</p>",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30223,7 +30223,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 382,
-          "content": "The Pynomaly Team",
+          "content": "The Anomaly Detection Team",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30272,7 +30272,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 460,
-          "content": "The Pynomaly Team</p>",
+          "content": "The Anomaly Detection Team</p>",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30307,7 +30307,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 499,
-          "content": "The Pynomaly Team",
+          "content": "The Anomaly Detection Team",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30356,7 +30356,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 582,
-          "content": "The Pynomaly Team</p>",
+          "content": "The Anomaly Detection Team</p>",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30384,7 +30384,7 @@
         {
           "file": "src/packages/software/interfaces/email/templates/beta_onboarding_templates.py",
           "line": 622,
-          "content": "The Pynomaly Team",
+          "content": "The Anomaly Detection Team",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30566,14 +30566,14 @@
         {
           "file": "src/packages/software/interfaces/python_sdk/pyproject.toml",
           "line": 12,
-          "content": "{name = \"Pynomaly Team\", email = \"support@pynomaly.com\"},",
+          "content": "{name = \"Anomaly Detection Team\", email = \"support@pynomaly.com\"},",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/python_sdk/pyproject.toml",
           "line": 15,
-          "content": "{name = \"Pynomaly Team\", email = \"support@pynomaly.com\"},",
+          "content": "{name = \"Anomaly Detection Team\", email = \"support@pynomaly.com\"},",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -30888,7 +30888,7 @@
         {
           "file": "src/packages/software/interfaces/python_sdk/README.md",
           "line": 585,
-          "content": "**Made with \u2764\ufe0f by the Pynomaly Team**",
+          "content": "**Made with \u2764\ufe0f by the Anomaly Detection Team**",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -43621,7 +43621,7 @@
         {
           "file": "src/packages/software/interfaces/python_sdk/docs/tutorials/README.md",
           "line": 206,
-          "content": "This documentation is provided under the same license as the Pynomaly platform. It may be used, modified, and distributed according to the project's licensing terms.",
+          "content": "This documentation is provided under the same license as the anomaly detection platform. It may be used, modified, and distributed according to the project's licensing terms.",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -62787,7 +62787,7 @@
         {
           "file": "src/packages/software/interfaces/python_sdk/docs/user-guides/troubleshooting/troubleshooting-guide.md",
           "line": 1161,
-          "content": "This comprehensive troubleshooting guide provides systematic approaches to diagnosing and resolving issues across all components of the Pynomaly platform.",
+          "content": "This comprehensive troubleshooting guide provides systematic approaches to diagnosing and resolving issues across all components of the anomaly detection platform.",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -66266,7 +66266,7 @@
         {
           "file": "src/packages/software/interfaces/sdk/pynomaly-js-sdk/package.json",
           "line": 44,
-          "content": "\"author\": \"Pynomaly Team\",",
+          "content": "\"author\": \"Anomaly Detection Team\",",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -66910,7 +66910,7 @@
         {
           "file": "src/packages/software/interfaces/sdks/sdks/python/setup.py",
           "line": 26,
-          "content": "author=\"Pynomaly Team\",",
+          "content": "author=\"Anomaly Detection Team\",",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -66980,7 +66980,7 @@
         {
           "file": "src/packages/software/interfaces/sdks/sdks/python/monorepo_client/__init__.py",
           "line": 47,
-          "content": "__author__ = \"Pynomaly Team\"",
+          "content": "__author__ = \"Anomaly Detection Team\"",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -67008,7 +67008,7 @@
         {
           "file": "src/packages/software/interfaces/sdks/sdks/typescript/package.json",
           "line": 39,
-          "content": "\"author\": \"Pynomaly Team <support@pynomaly.com>\",",
+          "content": "\"author\": \"Anomaly Detection Team <support@pynomaly.com>\",",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -67029,7 +67029,7 @@
         {
           "file": "src/packages/software/interfaces/src/interfaces/__init__.py",
           "line": 15,
-          "content": "__author__ = \"Pynomaly Team\"",
+          "content": "__author__ = \"Anomaly Detection Team\"",
           "term": "pynomaly",
           "severity": "error"
         },
@@ -67708,28 +67708,28 @@
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/accessibility-guidelines.md",
           "line": 10,
-          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the Pynomaly platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
+          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the anomaly detection platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/accessibility-guidelines.md",
           "line": 10,
-          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the Pynomaly platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
+          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the anomaly detection platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
           "term": "anomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/accessibility-guidelines.md",
           "line": 10,
-          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the Pynomaly platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
+          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the anomaly detection platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
           "term": "detection",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/accessibility-guidelines.md",
           "line": 10,
-          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the Pynomaly platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
+          "content": "This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the anomaly detection platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.",
           "term": "compliance",
           "severity": "error"
         },
@@ -68324,14 +68324,14 @@
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/accessibility-guidelines.md",
           "line": 1548,
-          "content": "This comprehensive accessibility guidelines document provides the foundation for ensuring WCAG 2.1 AA compliance across the Pynomaly platform. Regular testing and adherence to these standards will create an inclusive experience for all users.",
+          "content": "This comprehensive accessibility guidelines document provides the foundation for ensuring WCAG 2.1 AA compliance across the anomaly detection platform. Regular testing and adherence to these standards will create an inclusive experience for all users.",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/accessibility-guidelines.md",
           "line": 1548,
-          "content": "This comprehensive accessibility guidelines document provides the foundation for ensuring WCAG 2.1 AA compliance across the Pynomaly platform. Regular testing and adherence to these standards will create an inclusive experience for all users.",
+          "content": "This comprehensive accessibility guidelines document provides the foundation for ensuring WCAG 2.1 AA compliance across the anomaly detection platform. Regular testing and adherence to these standards will create an inclusive experience for all users.",
           "term": "compliance",
           "severity": "error"
         },
@@ -68345,14 +68345,14 @@
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/Accessibility_Testing_Checklist.md",
           "line": 10,
-          "content": "This checklist provides comprehensive accessibility testing procedures for the Pynomaly platform, ensuring WCAG 2.1 AA compliance and optimal user experience for people with disabilities.",
+          "content": "This checklist provides comprehensive accessibility testing procedures for the anomaly detection platform, ensuring WCAG 2.1 AA compliance and optimal user experience for people with disabilities.",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/Accessibility_Testing_Checklist.md",
           "line": 10,
-          "content": "This checklist provides comprehensive accessibility testing procedures for the Pynomaly platform, ensuring WCAG 2.1 AA compliance and optimal user experience for people with disabilities.",
+          "content": "This checklist provides comprehensive accessibility testing procedures for the anomaly detection platform, ensuring WCAG 2.1 AA compliance and optimal user experience for people with disabilities.",
           "term": "compliance",
           "severity": "error"
         },
@@ -68632,14 +68632,14 @@
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/Accessibility_Testing_Checklist.md",
           "line": 550,
-          "content": "This comprehensive accessibility testing checklist ensures that the Pynomaly platform maintains WCAG 2.1 AA compliance and provides an excellent user experience for all users, including those with disabilities. Regular execution of these testing procedures, combined with automated testing integration, creates a robust accessibility quality assurance process.",
+          "content": "This comprehensive accessibility testing checklist ensures that the anomaly detection platform maintains WCAG 2.1 AA compliance and provides an excellent user experience for all users, including those with disabilities. Regular execution of these testing procedures, combined with automated testing integration, creates a robust accessibility quality assurance process.",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/Accessibility_Testing_Checklist.md",
           "line": 550,
-          "content": "This comprehensive accessibility testing checklist ensures that the Pynomaly platform maintains WCAG 2.1 AA compliance and provides an excellent user experience for all users, including those with disabilities. Regular execution of these testing procedures, combined with automated testing integration, creates a robust accessibility quality assurance process.",
+          "content": "This comprehensive accessibility testing checklist ensures that the anomaly detection platform maintains WCAG 2.1 AA compliance and provides an excellent user experience for all users, including those with disabilities. Regular execution of these testing procedures, combined with automated testing integration, creates a robust accessibility quality assurance process.",
           "term": "compliance",
           "severity": "error"
         },
@@ -69122,14 +69122,14 @@
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/WCAG_2.1_AA_Compliance_Guide.md",
           "line": 813,
-          "content": "Maintaining WCAG 2.1 AA compliance requires ongoing commitment and systematic testing. By following these guidelines, using the automated testing framework, and conducting regular manual testing, the Pynomaly platform can provide an accessible experience for all users.",
+          "content": "Maintaining WCAG 2.1 AA compliance requires ongoing commitment and systematic testing. By following these guidelines, using the automated testing framework, and conducting regular manual testing, the anomaly detection platform can provide an accessible experience for all users.",
           "term": "pynomaly",
           "severity": "error"
         },
         {
           "file": "src/packages/software/interfaces/web/docs/accessibility/WCAG_2.1_AA_Compliance_Guide.md",
           "line": 813,
-          "content": "Maintaining WCAG 2.1 AA compliance requires ongoing commitment and systematic testing. By following these guidelines, using the automated testing framework, and conducting regular manual testing, the Pynomaly platform can provide an accessible experience for all users.",
+          "content": "Maintaining WCAG 2.1 AA compliance requires ongoing commitment and systematic testing. By following these guidelines, using the automated testing framework, and conducting regular manual testing, the anomaly detection platform can provide an accessible experience for all users.",
           "term": "compliance",
           "severity": "error"
         },
@@ -69885,7 +69885,7 @@
         {
           "file": "src/packages/software/interfaces/web/docs/design-system/design-tokens.md",
           "line": 488,
-          "content": "This comprehensive design token system ensures consistency, maintainability, and accessibility across the entire Pynomaly platform while providing flexibility for customization and theming.",
+          "content": "This comprehensive design token system ensures consistency, maintainability, and accessibility across the entire anomaly detection platform while providing flexibility for customization and theming.",
           "term": "pynomaly",
           "severity": "error"
         },

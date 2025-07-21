@@ -608,7 +608,7 @@ class DeploymentOrchestrator:
             return False
 
     async def deploy_application(self) -> bool:
-        """Deploy the Pynomaly application"""
+        """Deploy the anomaly detection application"""
         self.log("Starting application deployment...")
 
         try:

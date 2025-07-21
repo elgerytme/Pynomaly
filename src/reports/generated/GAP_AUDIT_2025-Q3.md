@@ -3,7 +3,7 @@
 ## Comprehensive Requirement & Gap Audit
 
 ### Overview
-This report highlights the key gaps within the Pynomaly codebase regarding its feature claims versus actual implementations.
+This report highlights the key gaps within the codebase regarding its feature claims versus actual implementations.
 
 ### Identified Gaps
 

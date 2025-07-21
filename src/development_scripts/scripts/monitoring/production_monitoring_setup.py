@@ -294,8 +294,8 @@ class ProductionMonitoringSetup:
                             "for": "1m",
                             "labels": {"severity": "critical"},
                             "annotations": {
-                                "summary": "Pynomaly service is down",
-                                "description": "The Pynomaly API service has been down for more than 1 minute.",
+                                "summary": "anomaly detection service is down",
+                                "description": "The anomaly detection API service has been down for more than 1 minute.",
                             },
                         },
                         {

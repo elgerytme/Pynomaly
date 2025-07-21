@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document establishes comprehensive Python language conventions, naming standards, and code style guidelines for the Pynomaly monorepo. These rules ensure consistency, maintainability, and alignment with clean architecture principles across all packages.
+This document establishes comprehensive Python language conventions, naming standards, and code style guidelines for the repository. These rules ensure consistency, maintainability, and alignment with clean architecture principles across all packages.
 
 ## Core Principles
 
@@ -905,7 +905,7 @@ if __name__ == "__main__":
 
 ## Summary
 
-This comprehensive language convention guide ensures that all Python code in the Pynomaly monorepo follows consistent, maintainable, and architecturally-aligned naming patterns. By following these conventions, developers can:
+This comprehensive language convention guide ensures that all Python code in the repository follows consistent, maintainable, and architecturally-aligned naming patterns. By following these conventions, developers can:
 
 - Write self-documenting code that clearly expresses business intent
 - Maintain consistency across all packages and architectural layers  

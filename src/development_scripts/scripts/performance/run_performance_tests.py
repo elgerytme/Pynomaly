@@ -33,7 +33,7 @@ class LocalPerformanceRunner:
         self.app_ready = False
 
     def check_application_status(self) -> bool:
-        """Check if the Pynomaly application is running."""
+        """Check if the anomaly detection application is running."""
         try:
             import requests
 
@@ -43,8 +43,8 @@ class LocalPerformanceRunner:
             return False
 
     def start_application(self, env: str = "development") -> bool:
-        """Start the Pynomaly application locally."""
-        console.print("🚀 Starting Pynomaly application...")
+        """Start the anomaly detection application locally."""
+        console.print("🚀 Starting anomaly detection application...")
 
         try:
             # Set environment variables

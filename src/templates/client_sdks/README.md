@@ -73,7 +73,7 @@ System.out.println("Anomalies: " + result.getAnomalies());
 
 All SDKs provide:
 
-- ✅ **Complete API Coverage**: Full access to all Pynomaly API endpoints
+- ✅ **Complete API Coverage**: Full access to all anomaly detection API endpoints
 - 🔐 **Authentication**: JWT and API Key authentication support
 - 🔄 **Retry Logic**: Automatic retry with exponential backoff
 - ⚡ **Rate Limiting**: Built-in request throttling

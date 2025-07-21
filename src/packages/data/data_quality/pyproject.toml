@@ -7,7 +7,7 @@ name = "data-quality"
 version = "0.1.0" 
 description = "Data quality assessment and validation framework"
 authors = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"}
+    {name = "Anomaly Detection Team", email = "team@pynomaly.com"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"

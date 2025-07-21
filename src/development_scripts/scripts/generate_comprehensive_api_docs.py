@@ -26,7 +26,7 @@ try:
     from pynomaly.infrastructure.config import create_container
     from pynomaly.presentation.api.app import create_app
 except ImportError as e:
-    print(f"Warning: Could not import Pynomaly modules: {e}")
+    print(f"Warning: Could not import anomaly_detection modules: {e}")
     print("API documentation will be generated from static analysis")
 
 class APIDocumentationGenerator:
@@ -328,11 +328,11 @@ class APIDocumentationGenerator:
         spec = {
             "openapi": "3.0.3",
             "info": {
-                "title": "Pynomaly API",
+                "title": "anomaly detection API",
                 "description": "Comprehensive anomaly detection API with authentication, MFA, and admin capabilities",
                 "version": "1.0.0",
                 "contact": {
-                    "name": "Pynomaly Team",
+                    "name": "Anomaly Detection Team",
                     "url": "https://github.com/pynomaly/pynomaly",
                     "email": "support@pynomaly.com"
                 },
@@ -548,7 +548,7 @@ class APIDocumentationGenerator:
         """Generate Postman collection."""
         collection = {
             "info": {
-                "name": "Pynomaly API",
+                "name": "anomaly detection API",
                 "description": "Comprehensive anomaly detection API",
                 "version": "1.0.0",
                 "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -626,11 +626,11 @@ class APIDocumentationGenerator:
 
     def generate_developer_guide(self) -> str:
         """Generate developer integration guide."""
-        guide = """# Pynomaly API Developer Guide
+        guide = """# anomaly detection API Developer Guide
 
 ## Overview
 
-The Pynomaly API provides comprehensive anomaly detection capabilities with built-in authentication, multi-factor authentication (MFA), and administrative features.
+The anomaly detection API provides comprehensive anomaly detection capabilities with built-in authentication, multi-factor authentication (MFA), and administrative features.
 
 ## Base URL
 
@@ -883,7 +883,7 @@ For support and questions:
 
 ## Overview
 
-Pynomaly API supports multiple authentication methods:
+anomaly detection API supports multiple authentication methods:
 - JWT Token Authentication (recommended for user sessions)
 - API Key Authentication (recommended for server-to-server)
 - Multi-Factor Authentication (MFA) for enhanced security
@@ -1092,7 +1092,7 @@ headers = {
 
 ## Overview
 
-Pynomaly API follows semantic versioning and provides multiple versioning strategies to ensure backward compatibility and smooth upgrades.
+anomaly detection API follows semantic versioning and provides multiple versioning strategies to ensure backward compatibility and smooth upgrades.
 
 ## Versioning Scheme
 
@@ -1266,7 +1266,7 @@ def test_health_endpoint(version):
 
     def _generate_documentation_index(self):
         """Generate main documentation index."""
-        index_content = f"""# Pynomaly API Documentation
+        index_content = f"""# anomaly detection API Documentation
 
 Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 

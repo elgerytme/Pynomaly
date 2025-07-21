@@ -61,7 +61,7 @@ class AutomatedDomainFixer:
         rules = [
             # Package name fixes
             ReplacementRule(
-                pattern=r'\bpynomaly\b',
+                pattern=r'anomaly_detection',
                 replacement='software',
                 category='package_names',
                 description='Replace pynomaly with software',

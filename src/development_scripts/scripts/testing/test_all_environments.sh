@@ -1,5 +1,5 @@
 #!/bin/bash
-# Comprehensive test script for Pynomaly API in different environments
+# Comprehensive test script for anomaly detection API in different environments
 # Tests: Current environment, Fresh environment, Different shells
 
 set -e
@@ -7,7 +7,7 @@ set -e
 PROJECT_ROOT="/mnt/c/Users/andre/Pynomaly"
 SRC_PATH="$PROJECT_ROOT/src"
 
-echo "=== Pynomaly API Multi-Environment Test Suite ==="
+echo "=== anomaly detection API Multi-Environment Test Suite ==="
 echo "Project: $PROJECT_ROOT"
 echo "Testing Date: $(date)"
 echo ""

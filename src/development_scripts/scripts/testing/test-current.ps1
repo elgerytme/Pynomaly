@@ -69,7 +69,7 @@ Start-Sleep -Seconds 8
 Write-Host "Testing API endpoint..."
 try {
     $apiResponse = Invoke-RestMethod -Uri "http://localhost:8000/" -TimeoutSec 10
-    if ($apiResponse.message -eq "Pynomaly API") {
+    if ($apiResponse.message -eq "anomaly detection API") {
         Write-Host "✓ API endpoint working" -ForegroundColor Green
     } else {
         Write-Host "✗ API endpoint failed - unexpected response" -ForegroundColor Red

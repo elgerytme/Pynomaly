@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "MLOps package for Pynomaly - Comprehensive ML Operations platform"
 readme = "README.md"
 authors = [
-    {name = "Pynomaly Team", email = "dev@pynomaly.io"},
+    {name = "Anomaly Detection Team", email = "dev@pynomaly.io"},
 ]
 license = {text = "MIT"}
 keywords = [

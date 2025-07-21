@@ -9,10 +9,10 @@ description = "Data observability and monitoring package for data pipelines and 
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"},
+    {name = "Anomaly Detection Team", email = "team@pynomaly.com"},
 ]
 maintainers = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"},
+    {name = "Anomaly Detection Team", email = "team@pynomaly.com"},
 ]
 keywords = [
     "data-observability",

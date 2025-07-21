@@ -3,7 +3,7 @@
 Security Hardening Report Generator
 
 This script generates a comprehensive report of all security hardening measures
-implemented in the Pynomaly platform.
+implemented in the anomaly detection platform.
 """
 
 import json

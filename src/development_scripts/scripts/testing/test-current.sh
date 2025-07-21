@@ -60,7 +60,7 @@ sleep 5
 # Test API endpoint
 echo "Testing API endpoint..."
 API_RESPONSE=$(curl -s http://localhost:8000/ 2>/dev/null)
-if echo "$API_RESPONSE" | grep -q "Pynomaly API"; then
+if echo "$API_RESPONSE" | grep -q "anomaly detection API"; then
     echo "✓ API endpoint working"
 else
     echo "✗ API endpoint failed"

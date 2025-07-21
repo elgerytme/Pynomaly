@@ -7,7 +7,7 @@ name = "statistics"
 version = "0.1.0" 
 description = "Statistical analysis and mathematical operations"
 authors = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"}
+    {name = "Anomaly Detection Team", email = "team@pynomaly.com"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"

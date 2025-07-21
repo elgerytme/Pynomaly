@@ -2,7 +2,7 @@
 Pynomaly Python SDK
 
 Official Python client library for the Pynomaly anomaly detection API.
-This SDK provides convenient access to the Pynomaly API with full type support,
+This SDK provides convenient access to the anomaly detection API with full type support,
 authentication handling, error management, and comprehensive documentation.
 
 Features:
@@ -44,7 +44,7 @@ Example Usage:
 """
 
 __version__ = "1.0.0"
-__author__ = "Pynomaly Team"
+__author__ = "Anomaly Detection Team"
 __email__ = "support@pynomaly.com"
 __license__ = "MIT"
 

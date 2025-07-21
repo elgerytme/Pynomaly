@@ -82,7 +82,7 @@ jobs:
       - name: Generate documentation index
         run: |
           cat > docs/api/generated/README.md << 'EOF'
-          # Pynomaly API Documentation
+          # anomaly detection API Documentation
 
           This directory contains automatically generated API documentation.
 
@@ -297,7 +297,7 @@ jobs:
           cat > docs/api/overview.md << 'EOF'
           # API Overview
 
-          The Pynomaly API provides comprehensive REST endpoints for anomaly detection operations.
+          The anomaly detection API provides comprehensive REST endpoints for anomaly detection operations.
 
           ## Base URL
 

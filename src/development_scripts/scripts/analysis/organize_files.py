@@ -426,7 +426,7 @@ def main():
         ]
 
         # Parse original arguments to map to new CLI
-        parser = argparse.ArgumentParser(description="Organize Pynomaly project files")
+        parser = argparse.ArgumentParser(description="Organize project files")
         parser.add_argument(
             "--execute",
             action="store_true",
@@ -460,7 +460,7 @@ def main():
         print("    Falling back to original implementation...\n")
 
         # Fallback to original implementation
-        parser = argparse.ArgumentParser(description="Organize Pynomaly project files")
+        parser = argparse.ArgumentParser(description="Organize project files")
         parser.add_argument(
             "--execute",
             action="store_true",

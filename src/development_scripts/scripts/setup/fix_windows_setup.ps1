@@ -5,10 +5,10 @@ Write-Host "🔧 Fixing Pynomaly Windows Setup Issues" -ForegroundColor Cyan
 Write-Host "=" * 50
 
 # Step 1: Remove conflicting package
-Write-Host "`n📌 Step 1: Removing conflicting pynomaly package" -ForegroundColor Yellow
+Write-Host "`n📌 Step 1: Removing conflicting anomaly_detection package" -ForegroundColor Yellow
 try {
     python -m pip uninstall pynomaly -y
-    Write-Host "✅ Removed existing pynomaly package" -ForegroundColor Green
+    Write-Host "✅ Removed existing anomaly_detection package" -ForegroundColor Green
 } catch {
     Write-Host "⚠️  No existing package found or removal failed" -ForegroundColor Yellow
 }

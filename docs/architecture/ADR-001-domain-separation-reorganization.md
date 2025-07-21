@@ -5,7 +5,7 @@
 
 ## Context
 
-The Pynomaly repository had evolved over time with significant domain leakage where anomaly detection functionality was scattered across multiple packages, violating clean architecture principles and making the codebase difficult to maintain and understand.
+The repository had evolved over time with significant domain leakage where anomaly detection functionality was scattered across multiple packages, violating clean architecture principles and making the codebase difficult to maintain and understand.
 
 ### Problems Identified
 

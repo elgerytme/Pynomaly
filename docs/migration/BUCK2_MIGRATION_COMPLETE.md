@@ -2,7 +2,7 @@
 
 ## 🎉 Migration Successfully Completed!
 
-The Pynomaly repository has been successfully transformed into a **Buck2-first monorepo** with selective Nx integration for optimal developer experience.
+The repository has been successfully transformed into a **Buck2-first monorepo** with selective Nx integration for optimal developer experience.
 
 ## 📊 Final Package Structure
 

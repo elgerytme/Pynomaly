@@ -11,11 +11,11 @@ try:
     import uvicorn
     
     # Create a simple FastAPI app for testing
-    app = FastAPI(title="Pynomaly API", version="0.1.0")
+    app = FastAPI(title="anomaly detection API", version="0.1.0")
     
     @app.get("/")
     async def root():
-        return {"message": "Pynomaly API is running", "version": "0.1.0"}
+        return {"message": "anomaly detection API is running", "version": "0.1.0"}
     
     @app.get("/health")
     async def health():
@@ -56,7 +56,7 @@ try:
     
     # Test the API
     if __name__ == "__main__":
-        print("Testing Pynomaly API...")
+        print("Testing anomaly detection API...")
         
         # Create test client
         client = TestClient(app)

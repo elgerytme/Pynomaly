@@ -2,7 +2,7 @@
 """
 Main application runner for Pynomaly.
 
-This script provides a unified entry point to run the complete Pynomaly application
+This script provides a unified entry point to run the complete anomaly detection application
 with all components (CLI, API, and Web UI) or specific components based on configuration.
 """
 
@@ -24,7 +24,7 @@ try:
     from pynomaly.presentation.api.app import create_app
     from pynomaly.presentation.cli.app import app as cli_app
 except ImportError as e:
-    print(f"Failed to import Pynomaly modules: {e}")
+    print(f"Failed to import anomaly_detection modules: {e}")
     print("Please ensure the package is installed with: poetry install")
     sys.exit(1)
 
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class ApplicationRunner:
-    """Manages running different components of the Pynomaly application."""
+    """Manages running different components of the anomaly detection application."""
 
     def __init__(self):
         self.settings = get_settings()
@@ -107,7 +107,7 @@ class ApplicationRunner:
 
 def run_cli_mode(args: list[str]):
     """Run in CLI mode."""
-    logger.info("Starting Pynomaly CLI")
+    logger.info("Starting anomaly detection CLI")
     original_argv = sys.argv.copy()
     try:
         sys.argv = ["pynomaly"] + args

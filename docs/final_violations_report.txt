@@ -99,7 +99,7 @@ Severity: warning
 ----------------------------------------
 ⚠️ Package: ai.mlops
 File: src/packages/ai/mlops/README.md
-Line 9: Machine Learning Operations (MLOps) components for the Pynomaly platform.
+Line 9: Machine Learning Operations (MLOps) components for the anomaly detection platform.
 Term: ml
 Severity: warning
 ----------------------------------------
@@ -3687,13 +3687,13 @@ Severity: warning
 ----------------------------------------
 ⚠️ Package: data.anomaly_detection.src.pynomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder
 File: src/packages/data/anomaly_detection/src/pynomaly_detection/ml/anomaly_detection - move to data anomaly_detection folder/README.md
-Line 3: Core anomaly detection algorithms and models for the Pynomaly platform.
+Line 3: Core anomaly detection algorithms and models for the anomaly detection platform.
 Term: anomaly
 Severity: warning
 ----------------------------------------
 ⚠️ Package: data.anomaly_detection.src.pynomaly_detection.ml.anomaly_detection - move to data anomaly_detection folder
 File: src/packages/data/anomaly_detection/src/pynomaly_detection/ml/anomaly_detection - move to data anomaly_detection folder/README.md
-Line 3: Core anomaly detection algorithms and models for the Pynomaly platform.
+Line 3: Core anomaly detection algorithms and models for the anomaly detection platform.
 Term: detection
 Severity: warning
 ----------------------------------------
@@ -4551,31 +4551,31 @@ Severity: warning
 ----------------------------------------
 ⚠️ Package: formal_sciences.mathematics
 File: src/packages/formal_sciences/mathematics/README.md
-Line 9: Advanced mathematical foundations and computational tools for the Pynomaly platform.
+Line 9: Advanced mathematical foundations and computational tools for the anomaly detection platform.
 Term: computation
 Severity: warning
 ----------------------------------------
 ⚠️ Package: formal_sciences.mathematics
 File: src/packages/formal_sciences/mathematics/README.md
-Line 9: Advanced mathematical foundations and computational tools for the Pynomaly platform.
+Line 9: Advanced mathematical foundations and computational tools for the anomaly detection platform.
 Term: computational
 Severity: warning
 ----------------------------------------
 ⚠️ Package: formal_sciences.mathematics
 File: src/packages/formal_sciences/mathematics/README.md
-Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the Pynomaly platform.
+Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the anomaly detection platform.
 Term: algorithm
 Severity: warning
 ----------------------------------------
 ⚠️ Package: formal_sciences.mathematics
 File: src/packages/formal_sciences/mathematics/README.md
-Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the Pynomaly platform.
+Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the anomaly detection platform.
 Term: computation
 Severity: warning
 ----------------------------------------
 ⚠️ Package: formal_sciences.mathematics
 File: src/packages/formal_sciences/mathematics/README.md
-Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the Pynomaly platform.
+Line 17: This package provides comprehensive mathematical abstractions, algorithms, and computational tools that form the theoretical foundation for data analysis in the anomaly detection platform.
 Term: computational
 Severity: warning
 ----------------------------------------
@@ -5073,7 +5073,7 @@ Severity: warning
 ----------------------------------------
 ⚠️ Package: software.core
 File: src/packages/software/core/README.md
-Line 17: This package contains the pure business logic that drives the Pynomaly platform. It follows Clean Architecture principles with no external dependencies on infrastructure concerns, making it highly testable and reusable across different interfaces.
+Line 17: This package contains the pure business logic that drives the anomaly detection platform. It follows Clean Architecture principles with no external dependencies on infrastructure concerns, making it highly testable and reusable across different interfaces.
 Term: business
 Severity: warning
 ----------------------------------------
@@ -5511,7 +5511,7 @@ Severity: warning
 ----------------------------------------
 ⚠️ Package: software.enterprise
 File: src/packages/software/enterprise/README.md
-Line 10: Enterprise-grade features, infrastructure, and compliance modules for the Pynomaly platform, providing the scalability, security, and governance required for large-scale enterprise deployments.
+Line 10: Enterprise-grade features, infrastructure, and compliance modules for the anomaly detection platform, providing the scalability, security, and governance required for large-scale enterprise deployments.
 Term: enterprise
 Severity: warning
 ----------------------------------------
@@ -6393,7 +6393,7 @@ Severity: warning
 ----------------------------------------
 ⚠️ Package: software.enterprise
 File: src/packages/software/enterprise/README.md
-Line 841: **Note**: This enterprise package requires a valid enterprise license and is designed for large-scale enterprise deployments. For standard features, see the main Pynomaly platform documentation.
+Line 841: **Note**: This enterprise package requires a valid enterprise license and is designed for large-scale enterprise deployments. For standard features, see the main anomaly detection platform documentation.
 Term: enterprise
 Severity: warning
 ----------------------------------------

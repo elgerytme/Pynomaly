@@ -677,7 +677,7 @@ if [ $failed_tests -eq 0 ]; then
     echo "✅ Performance: ACCEPTABLE"
     echo "✅ Error handling: WORKING"
     echo ""
-    print_status "SUCCESS" "CONCLUSION: Pynomaly CLI is production-ready!"
+    print_status "SUCCESS" "CONCLUSION: anomaly detection CLI is production-ready!"
     exit 0
 elif [ $success_rate -ge 80 ]; then
     print_status "WARNING" "⚠️ Most CLI tests passed with some issues"

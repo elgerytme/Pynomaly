@@ -1,5 +1,5 @@
 # Pynomaly Windows PowerShell Setup Script
-# This script sets up the Pynomaly project in development mode on Windows
+# This script sets up the project in development mode on Windows
 
 param(
     [string]$InstallProfile = "server",
@@ -60,7 +60,7 @@ function Test-Prerequisites {
 
     # Check if we're in the right directory
     if (-not (Test-Path "pyproject.toml")) {
-        Write-Error-Custom "pyproject.toml not found. Please run this script from the Pynomaly project root directory."
+        Write-Error-Custom "pyproject.toml not found. Please run this script from the project root directory."
         return $false
     }
 
@@ -378,7 +378,7 @@ catch {
     Write-Host "1. Ensure Python 3.11+ is installed and in PATH"
     Write-Host "2. Run PowerShell as Administrator if needed"
     Write-Host "3. Set execution policy: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
-    Write-Host "4. Check that you're in the Pynomaly project directory"
+    Write-Host "4. Check that you're in the project directory"
     Write-Host ""
     exit 1
 }

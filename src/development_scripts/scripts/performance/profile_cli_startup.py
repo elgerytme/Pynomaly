@@ -165,7 +165,7 @@ class CLIStartupProfiler:
 
     def run_comprehensive_analysis(self) -> None:
         """Run comprehensive startup performance analysis."""
-        print("🚀 Pynomaly CLI Startup Performance Analysis")
+        print("🚀 anomaly detection CLI Startup Performance Analysis")
         print("=" * 50)
 
         # Measure baseline CLI startup

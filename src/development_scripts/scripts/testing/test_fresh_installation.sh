@@ -86,10 +86,10 @@ print('Python path (first 3):', sys.path[:3])
 # Test imports
 try:
     import pynomaly
-    print('✓ pynomaly package imported successfully')
+    print('✓ anomaly_detection package imported successfully')
     print('  Package location:', pynomaly.__file__ if hasattr(pynomaly, '__file__') else 'Not available')
 except Exception as e:
-    print('✗ pynomaly package import failed:', str(e))
+    print('✗ anomaly_detection package import failed:', str(e))
     raise
 
 try:

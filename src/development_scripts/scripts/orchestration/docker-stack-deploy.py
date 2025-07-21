@@ -402,7 +402,7 @@ services:
         condition: any
         delay: 5s
 
-  # Pynomaly API
+  # anomaly detection API
   pynomaly-api:
     image: pynomaly/api:1.0.0
     environment:

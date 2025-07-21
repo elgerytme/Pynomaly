@@ -1,25 +1,22 @@
-# 🔍 Pynomaly - Open Source Anomaly Detection Platform
+# 🔍 Anomaly Detection Platform - Open Source Monorepo
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![CI/CD](https://github.com/pynomaly/pynomaly/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/pynomaly/pynomaly/actions)
-[![Coverage](https://codecov.io/gh/pynomaly/pynomaly/branch/main/graph/badge.svg)](https://codecov.io/gh/pynomaly/pynomaly)
-[![Docker](https://img.shields.io/docker/pulls/pynomaly/anomaly-detection)](https://hub.docker.com/r/pynomaly/anomaly-detection)
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![Clean Architecture](https://img.shields.io/badge/architecture-clean-green.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![Domain Driven Design](https://img.shields.io/badge/design-DDD-orange.svg)](https://www.domainlanguage.com/ddd/)
 
-**Pynomaly** is a comprehensive, production-ready open source platform for anomaly detection across various data types and domains. Built with enterprise-grade architecture, modern Python practices, and designed for scalability, security, and extensibility.
+This is a comprehensive, production-ready open source platform for anomaly detection across various data types and domains. Built with enterprise-grade architecture, modern Python practices, and designed for scalability, security, and extensibility.
 
 🚀 **Production-Ready** • 🔒 **Enterprise Security** • 📊 **Full Observability** • 🏗️ **Clean Architecture** • 🤖 **Advanced ML**
 
 ## 🏗️ Platform Architecture
 
-Pynomaly demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for anomaly detection, shared infrastructure, and comprehensive development tooling.
+This repository demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for anomaly detection, shared infrastructure, and comprehensive development tooling.
 
 ```
-pynomaly/
+repository/
 ├── src/packages/           # 🎯 Domain packages (clean architecture)
 │   ├── core/              # Shared domain logic & foundational patterns
 │   ├── anomaly_detection/ # Data analysis and anomaly detection domain

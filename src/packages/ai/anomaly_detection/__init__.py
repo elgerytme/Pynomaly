@@ -27,7 +27,7 @@ Examples:
 from __future__ import annotations
 
 __version__ = "0.3.0"  # Updated for consolidation
-__author__ = "Pynomaly Team"
+__author__ = "Anomaly Detection Team"
 __email__ = "team@anomaly-detection.io"
 
 # Core exports

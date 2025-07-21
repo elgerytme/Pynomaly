@@ -587,7 +587,7 @@ def generate_violations_report(analysis: dict) -> dict:
 
 def main():
     """Main function to run the analysis."""
-    print("🔍 Analyzing Pynomaly project structure...")
+    print("🔍 Analyzing project structure...")
 
     project_root = Path.cwd()
     analysis = analyze_project_structure()

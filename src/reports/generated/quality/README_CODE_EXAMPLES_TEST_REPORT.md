@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This report documents the testing of all code examples and instructions in the README.md and key documentation files for the Pynomaly project. The testing was conducted to verify that the examples work as documented and identify any issues that need fixing.
+This report documents the testing of all code examples and instructions in the README.md and key documentation files for the project. The testing was conducted to verify that the examples work as documented and identify any issues that need fixing.
 
 ## Test Environment
 
@@ -185,6 +185,6 @@ This report documents the testing of all code examples and instructions in the R
 
 ## Conclusion
 
-The Pynomaly project shows strong foundational architecture and most core features work as documented. The main issues are in example scripts and some CLI integration points. The 89% overall success rate indicates a generally well-implemented system with room for improvement in documentation accuracy and example quality.
+The project shows strong foundational architecture and most core features work as documented. The main issues are in example scripts and some CLI integration points. The 89% overall success rate indicates a generally well-implemented system with room for improvement in documentation accuracy and example quality.
 
 The fixes needed are primarily in code examples and CLI scripts rather than core functionality, suggesting that the underlying system is robust and the issues are mainly in the user-facing documentation and example code.

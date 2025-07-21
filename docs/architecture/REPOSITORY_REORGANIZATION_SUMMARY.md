@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Pynomaly repository has been successfully reorganized following modern monorepo best practices and clean architecture principles.
+The repository has been successfully reorganized following modern monorepo best practices and clean architecture principles.
 
 ## New Structure
 

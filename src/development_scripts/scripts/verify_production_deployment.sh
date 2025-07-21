@@ -103,7 +103,7 @@ main() {
     total_checks=$((total_checks + 6))
     check_docker_service "postgres" "PostgreSQL Database" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))
     check_docker_service "redis" "Redis Cache" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))
-    check_docker_service "api" "Pynomaly API Service" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))
+    check_docker_service "api" "anomaly detection API Service" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))
     check_docker_service "nginx" "Nginx Load Balancer" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))
     check_docker_service "prometheus" "Prometheus Monitoring" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))
     check_docker_service "grafana" "Grafana Dashboard" && passed_checks=$((passed_checks + 1)) || failed_checks=$((failed_checks + 1))

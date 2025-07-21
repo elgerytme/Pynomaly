@@ -94,7 +94,7 @@ generic_packages:
 
 ### Project Branding
 - ✅ Updated CHANGELOG.md: "Pynomaly" → "monorepo detection platform"
-- ✅ Updated LICENSE: "Pynomaly Team" → "Monorepo Team"
+- ✅ Updated LICENSE: "Anomaly Detection Team" → "Monorepo Team"
 - ✅ Maintained generic project metadata in pyproject.toml
 
 ## 🛡️ Domain Protection Mechanisms

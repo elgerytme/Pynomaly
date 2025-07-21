@@ -488,7 +488,7 @@ Let's schedule a quick call to review everything and ensure you're getting maxim
             "cta": template["cta"],
             "signature": """
 Best regards,
-The Pynomaly Team
+The Anomaly Detection Team
 
 P.S. As a beta user, you have our direct email for any urgent questions: beta-support@pynomaly.io
             """,

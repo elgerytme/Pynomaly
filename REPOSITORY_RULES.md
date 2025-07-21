@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document establishes formal rules for the Pynomaly repository to prevent architectural drift and maintain clean code organization.
+This document establishes formal rules for the repository to prevent architectural drift and maintain clean code organization.
 
 ## Rule 1: Prohibited Folder Creation
 

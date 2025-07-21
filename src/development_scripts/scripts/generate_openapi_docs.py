@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced OpenAPI Documentation Generator for Pynomaly API
+Enhanced OpenAPI Documentation Generator for anomaly detection API
 
 This script generates comprehensive OpenAPI documentation with:
 - Complete endpoint documentation
@@ -25,12 +25,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
 class OpenAPIDocumentationGenerator:
-    """Generate enhanced OpenAPI documentation for Pynomaly API."""
+    """Generate enhanced OpenAPI documentation for anomaly detection API."""
 
     def __init__(self):
         """Initialize the documentation generator."""
         self.app_info = {
-            "title": "Pynomaly API",
+            "title": "anomaly detection API",
             "version": "1.0.0",
             "description": self._get_api_description(),
             "contact": {
@@ -959,13 +959,13 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
     def _generate_readme(self, readme_path: Path, schema: dict[str, Any]) -> None:
         """Generate README.md for the API documentation."""
-        readme_content = f"""# Pynomaly API Documentation
+        readme_content = f"""# anomaly detection API Documentation
 
 {schema['info']['description']}
 
 ## Generated Documentation
 
-This directory contains comprehensive API documentation for the Pynomaly platform:
+This directory contains comprehensive API documentation for the anomaly detection platform:
 
 - **`openapi.json`** - OpenAPI 3.0 specification in JSON format
 - **`openapi.yaml`** - OpenAPI 3.0 specification in YAML format
@@ -1046,7 +1046,7 @@ Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
         # Python example
         python_example = '''"""
-Pynomaly API Client Example - Python
+anomaly detection API Client Example - Python
 """
 
 import requests
@@ -1054,7 +1054,7 @@ import json
 from typing import Dict, Any, List
 
 class PynomaliClient:
-    """Python client for Pynomaly API."""
+    """Python client for anomaly detection API."""
 
     def __init__(self, base_url: str = "https://api.pynomaly.com"):
         self.base_url = base_url
@@ -1142,7 +1142,7 @@ if __name__ == "__main__":
 
         # JavaScript example
         js_example = """/**
- * Pynomaly API Client Example - JavaScript
+ * anomaly detection API Client Example - JavaScript
  */
 
 class PynomaliClient {
@@ -1254,7 +1254,7 @@ class PynomaliClient {
 
         # cURL examples
         curl_example = """#!/bin/bash
-# Pynomaly API Client Example - cURL
+# anomaly detection API Client Example - cURL
 
 # Base URL
 BASE_URL="https://api.pynomaly.com"

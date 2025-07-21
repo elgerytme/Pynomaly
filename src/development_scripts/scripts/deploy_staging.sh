@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Deploy Pynomaly to Staging Environment
-# This script deploys the complete Pynomaly application to the staging environment
+# This script deploys the complete anomaly detection application to the staging environment
 
 set -euo pipefail
 

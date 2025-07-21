@@ -1,6 +1,6 @@
 # Getting Started with MLOps
 
-This guide will help you get started with the MLOps package for managing machine learning operations in the Pynomaly platform.
+This guide will help you get started with the MLOps package for managing machine learning operations in the anomaly detection platform.
 
 ## Prerequisites
 

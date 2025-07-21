@@ -1,7 +1,7 @@
-# PowerShell script to test Pynomaly API
+# PowerShell script to test anomaly detection API
 # Run this with: pwsh -File test_api_powershell.ps1
 
-Write-Host "=== Pynomaly API PowerShell Test ===" -ForegroundColor Green
+Write-Host "=== anomaly detection API PowerShell Test ===" -ForegroundColor Green
 
 # Set environment variables
 $env:PYTHONPATH = "C:\Users\andre\Pynomaly\src"
@@ -27,7 +27,7 @@ function Test-ApiEndpoint {
 }
 
 # Start the API server
-Write-Host "Starting Pynomaly API server on port $apiPort..." -ForegroundColor Blue
+Write-Host "Starting anomaly detection API server on port $apiPort..." -ForegroundColor Blue
 $serverProcess = Start-Process -FilePath "uvicorn" -ArgumentList @(
     "pynomaly.presentation.api:app",
     "--host", "127.0.0.1",

@@ -316,7 +316,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install k6
     
-    - name: Start Pynomaly API
+    - name: Start anomaly detection API
       run: |
         export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pynomaly_test
         export REDIS_URL=redis://localhost:6379

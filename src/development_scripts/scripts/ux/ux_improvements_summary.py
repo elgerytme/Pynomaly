@@ -2,7 +2,7 @@
 """
 UX Improvements Summary Script
 
-This script summarizes the user experience improvements made to the Pynomaly CLI.
+This script summarizes the user experience improvements made to the anomaly detection CLI.
 """
 
 import json

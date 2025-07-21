@@ -1,7 +1,7 @@
 # Static Code Quality & Type-Safety Verification Report
 
 ## Task Summary
-Completed Step 4: Static code quality & type-safety verification for the pynomaly project.
+Completed Step 4: Static code quality & type-safety verification for the project.
 
 ## Commands Executed
 

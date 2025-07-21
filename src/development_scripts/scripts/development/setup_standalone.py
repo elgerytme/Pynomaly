@@ -17,7 +17,7 @@ except FileNotFoundError:
 setup(
     name="pynomaly",
     version=version,
-    author="Pynomaly Team",
+    author="Anomaly Detection Team",
     author_email="team@pynomaly.io",
     description="State-of-the-art Python anomaly detection package with clean architecture",
     long_description=long_description,

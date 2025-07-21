@@ -220,7 +220,7 @@ check_prerequisites() {
 
     # Check if running in project root
     if [[ ! -f "$PROJECT_ROOT/pyproject.toml" ]]; then
-        log_error "Must be run from Pynomaly project root directory"
+        log_error "Must be run from project root directory"
         exit 1
     fi
 

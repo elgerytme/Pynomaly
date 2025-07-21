@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bash script to start Pynomaly API
+# Bash script to start anomaly detection API
 # Usage: ./start_api_bash.sh [PORT] [HOST]
 
 set -e
@@ -15,7 +15,7 @@ DEFAULT_HOST="0.0.0.0"
 PORT=${1:-$DEFAULT_PORT}
 HOST=${2:-$DEFAULT_HOST}
 
-echo "=== Starting Pynomaly API (Bash) ==="
+echo "=== Starting anomaly detection API (Bash) ==="
 echo "Project root: $PROJECT_ROOT"
 echo "Source path: $SRC_PATH"
 echo "Host: $HOST"
@@ -48,7 +48,7 @@ echo "Testing Pynomaly import..."
 python3 -c "
 try:
     from pynomaly.presentation.api import app
-    print('✓ Pynomaly API imported successfully')
+    print('✓ anomaly detection API imported successfully')
 except ImportError as e:
     print(f'✗ Import failed: {e}')
     exit(1)

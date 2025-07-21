@@ -7,7 +7,7 @@ name = "data-ingestion"
 version = "0.1.0"
 description = "Comprehensive data ingestion and collection capabilities"
 authors = [
-    {name = "Pynomaly Team", email = "team@pynomaly.com"}
+    {name = "Anomaly Detection Team", email = "team@pynomaly.com"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"

@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 name = "anomaly-detection"
 version = "0.3.0"
 description = "Domain-focused anomaly detection package with ML integration"
-authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+authors = [{name = "Anomaly Detection Team", email = "team@pynomaly.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"

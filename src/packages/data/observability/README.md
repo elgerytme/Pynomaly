@@ -155,7 +155,7 @@ forecast = facade.forecast_quality_metrics(
 
 ### Installation
 
-The Data Observability Package is included as part of the Pynomaly framework. Ensure you have the main framework installed:
+The Data Observability Package is included as part of the anomaly detection framework. Ensure you have the main framework installed:
 
 ```bash
 pip install pynomaly
@@ -327,4 +327,4 @@ To contribute to the Data Observability Package:
 
 ## License
 
-This package is part of the Pynomaly framework and follows the same licensing terms.
+This package is part of the anomaly detection framework and follows the same licensing terms.

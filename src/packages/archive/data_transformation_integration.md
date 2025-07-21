@@ -1,6 +1,6 @@
 # Data Transformation Package Integration Guide
 
-This document outlines the integration of the `data_transformation` package with other Pynomaly packages.
+This document outlines the integration of the `data_transformation` package with other anomaly_detection packages.
 
 ## Integration Overview
 

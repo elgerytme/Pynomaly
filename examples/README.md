@@ -140,7 +140,7 @@ python examples/production_example.py
 
 **What it covers:**
 - Creating custom anomaly detection algorithms
-- Integrating with Pynomaly framework
+- Integrating with anomaly detection framework
 - Algorithm validation and testing
 - Performance benchmarking
 - Documentation and best practices

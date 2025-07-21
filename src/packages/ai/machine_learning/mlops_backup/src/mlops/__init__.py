@@ -11,7 +11,7 @@ This package provides comprehensive MLOps capabilities including:
 """
 
 __version__ = "0.1.0"
-__author__ = "Pynomaly Team"
+__author__ = "Anomaly Detection Team"
 __email__ = "support@pynomaly.com"
 
 # Core imports

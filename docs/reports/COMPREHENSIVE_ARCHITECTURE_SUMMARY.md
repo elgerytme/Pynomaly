@@ -2,7 +2,7 @@
 
 ## 🎯 Executive Summary
 
-This document provides a comprehensive summary of the well-architected domain-driven system transformation completed for the Pynomaly codebase. The project successfully implemented a **Domain → Package → Feature → Layer** architecture that promotes maintainability, testability, and scalability.
+This document provides a comprehensive summary of the well-architected domain-driven system transformation completed for the codebase. The project successfully implemented a **Domain → Package → Feature → Layer** architecture that promotes maintainability, testability, and scalability.
 
 ---
 

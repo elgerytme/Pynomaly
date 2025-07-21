@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pynomaly API Documentation Generator
+anomaly detection API Documentation Generator
 
 This script generates comprehensive API documentation including:
 - OpenAPI 3.0 specification (JSON and YAML formats)
@@ -65,7 +65,7 @@ def generate_openapi_spec() -> dict[str, Any]:
     spec = {
         "openapi": "3.0.3",
         "info": {
-            "title": "Pynomaly API",
+            "title": "anomaly detection API",
             "description": (
                 "State-of-the-art anomaly detection API with comprehensive "
                 "machine learning capabilities"
@@ -721,7 +721,7 @@ def generate_swagger_ui():
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pynomaly API Documentation</title>
+    <title>anomaly detection API Documentation</title>
     <link rel="stylesheet" type="text/css"
           href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
     <style>
@@ -1130,7 +1130,7 @@ def generate_postman_collection():
 
     collection = {
         "info": {
-            "name": "Pynomaly API",
+            "name": "anomaly detection API",
             "description": (
                 "Comprehensive API collection for Pynomaly anomaly detection platform"
             ),
@@ -1389,9 +1389,9 @@ def generate_readme():
     log("Generating README...")
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    readme_content = f"""# Pynomaly API Documentation
+    readme_content = f"""# anomaly detection API Documentation
 
-Welcome to the Pynomaly API documentation! This directory contains comprehensive
+Welcome to the anomaly detection API documentation! This directory contains comprehensive
 documentation for the Pynomaly anomaly detection platform.
 
 ## 📁 Documentation Structure
@@ -1438,7 +1438,7 @@ API testing.
 
 ## 📖 API Overview
 
-The Pynomaly API provides comprehensive REST endpoints for:
+The anomaly detection API provides comprehensive REST endpoints for:
 
 - **Health Monitoring**: System health and status checks
 - **Detector Management**: Create, update, and manage anomaly detectors

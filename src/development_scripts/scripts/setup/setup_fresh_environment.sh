@@ -1,11 +1,11 @@
 #!/bin/bash
-# Fresh Environment Setup Script for Pynomaly API
-# This script sets up Pynomaly API in a fresh environment
+# Fresh Environment Setup Script for anomaly detection API
+# This script sets up anomaly detection API in a fresh environment
 
 set -e  # Exit on any error
 
 echo "=== Pynomaly Fresh Environment Setup ==="
-echo "Setting up Pynomaly API in a fresh environment..."
+echo "Setting up anomaly detection API in a fresh environment..."
 
 # Configuration
 PROJECT_ROOT="/mnt/c/Users/andre/Pynomaly"
@@ -94,7 +94,7 @@ export PYTHONPATH="$SRC_PATH"
 python3 -c "
 try:
     from pynomaly.presentation.api import app
-    print('✓ Pynomaly API imported successfully')
+    print('✓ anomaly detection API imported successfully')
 except ImportError as e:
     print('✗ Import failed:', e)
     exit(1)
