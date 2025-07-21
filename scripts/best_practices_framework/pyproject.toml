@@ -1,0 +1,279 @@
+[build-system]
+requires = ["setuptools>=65", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "best-practices-framework"
+description = "Comprehensive automated framework for enforcing software engineering best practices"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [{name = "Best Practices Framework Team", email = "team@bestpractices.dev"}]
+maintainers = [{name = "Best Practices Framework Team", email = "team@bestpractices.dev"}]
+keywords = [
+    "best-practices",
+    "code-quality", 
+    "security",
+    "testing",
+    "devops",
+    "sre",
+    "architecture",
+    "validation",
+    "compliance",
+    "automation",
+    "ci-cd",
+    "static-analysis"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Security",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    # Core dependencies
+    "pyyaml>=6.0",
+    "aiohttp>=3.8.0",
+    "asyncio-throttle>=1.0.0",
+    "jinja2>=3.1.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "tabulate>=0.9.0",
+    
+    # Code analysis
+    "gitpython>=3.1.0",
+    "pathspec>=0.11.0",
+    
+    # Security scanning
+    "bandit>=1.7.0",
+    "safety>=2.3.0",
+    
+    # Documentation
+    "pydantic>=2.0.0",
+    "jsonschema>=4.0.0",
+    
+    # Reporting
+    "matplotlib>=3.6.0",
+    "plotly>=5.0.0",
+    
+    # Testing framework integration
+    "pytest>=7.0.0",
+    "coverage>=7.0.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/best-practices-framework/best-practices-framework"
+Documentation = "https://docs.bestpractices.dev"
+Repository = "https://github.com/best-practices-framework/best-practices-framework.git"
+Changelog = "https://github.com/best-practices-framework/best-practices-framework/blob/main/CHANGELOG.md"
+"Bug Reports" = "https://github.com/best-practices-framework/best-practices-framework/issues"
+
+[project.optional-dependencies]
+# Development dependencies
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+
+# Full feature set
+full = [
+    # Container scanning
+    "docker>=6.0.0",
+    "kubernetes>=26.0.0",
+    
+    # Infrastructure as Code
+    "checkov>=2.3.0",
+    
+    # Advanced security
+    "cyclonedx-bom>=3.0.0",
+    "pip-audit>=2.5.0",
+    
+    # Performance testing
+    "locust>=2.14.0",
+    
+    # Cloud integrations
+    "boto3>=1.26.0",
+    "google-cloud-core>=2.3.0",
+    "azure-identity>=1.12.0",
+    
+    # PDF generation
+    "weasyprint>=59.0",
+]
+
+# CI/CD integrations
+github = ["pygithub>=1.58.0"]
+gitlab = ["python-gitlab>=3.14.0"]
+jenkins = ["jenkinsapi>=1.7.0"]
+azure = ["azure-devops>=7.1.0"]
+
+[project.scripts]
+best-practices = "best_practices_framework.cli:main"
+bp-validate = "best_practices_framework.cli:validate_command"
+bp-report = "best_practices_framework.cli:report_command"
+bp-init = "best_practices_framework.cli:init_command"
+
+[project.entry-points."best_practices_framework.reporters"]
+html = "best_practices_framework.reporting.formats:HTMLReporter"
+markdown = "best_practices_framework.reporting.formats:MarkdownReporter"
+json = "best_practices_framework.reporting.formats:JSONReporter"
+sarif = "best_practices_framework.reporting.formats:SARIFReporter"
+junit = "best_practices_framework.reporting.formats:JUnitReporter"
+
+[project.entry-points."best_practices_framework.integrations"]
+github = "best_practices_framework.integrations.github:GitHubIntegration"
+gitlab = "best_practices_framework.integrations.gitlab:GitLabIntegration"
+jenkins = "best_practices_framework.integrations.jenkins:JenkinsIntegration"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "examples*", "docs*"]
+
+[tool.setuptools.package-data]
+"best_practices_framework" = [
+    "configs/*.yml",
+    "configs/**/*.yml", 
+    "templates/*.html",
+    "templates/*.md",
+    "templates/*.xml",
+    "integrations/**/*.yml",
+    "integrations/**/*.json",
+]
+
+[tool.setuptools_scm]
+write_to = "best_practices_framework/_version.py"
+
+# Development tools configuration
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # Exclude specific directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_optional = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "bandit.*",
+    "safety.*",
+    "semgrep.*",
+    "docker.*",
+    "kubernetes.*",
+    "checkov.*",
+    "cyclonedx.*",
+    "locust.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "security: marks tests related to security validation",
+    "architecture: marks tests related to architecture validation",
+    "devops: marks tests related to devops validation",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["best_practices_framework"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/_version.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ .__main__.:",
+    "class .*\bProtocol\):",
+    "@(abc\.)?abstractmethod",
+]
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = [
+    "E203",  # whitespace before ':'
+    "W503",  # line break before binary operator
+    "E501",  # line too long (handled by black)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs/source/conf.py",
+    "old",
+    "build",
+    "dist",
+    ".venv",
+    ".eggs",
+    "*.egg",
+]

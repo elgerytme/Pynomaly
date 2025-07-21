@@ -64,6 +64,38 @@ jobs:
         else:
             print('✅ All architectural layer rules validated successfully!')
         "
+
+    - name: Validate Package Uniqueness
+      run: |
+        echo "🔍 Validating package uniqueness and checking for duplicates..."
+        python -c "
+        import sys
+        import os
+        from pathlib import Path
+        sys.path.insert(0, 'scripts')
+        from package_independence_validator import PackageIndependenceValidator
+        
+        validator = PackageIndependenceValidator()
+        
+        # Get all package directories
+        packages_dir = Path('src/packages')
+        if packages_dir.exists():
+            package_dirs = [d for d in packages_dir.iterdir() if d.is_dir()]
+            
+            # Check for duplicates
+            duplicate_violations = validator._validate_duplicate_packages(package_dirs)
+            
+            if duplicate_violations:
+                print('❌ Duplicate packages detected!')
+                for violation in duplicate_violations:
+                    print(f'   - {violation.description}')
+                    print(f'     Suggestion: {violation.suggestion}')
+                exit(1)
+            else:
+                print('✅ No duplicate packages detected!')
+        else:
+            print('⚠️  Packages directory not found')
+        "
     
     - name: Upload Domain Violations Report
       uses: actions/upload-artifact@v4

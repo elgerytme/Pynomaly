@@ -1,0 +1,387 @@
+# Best Practices Framework - GitHub Actions Integration
+# ===================================================
+# Automated validation of software engineering best practices in CI/CD
+
+name: Best Practices Validation
+
+on:
+  push:
+    branches: [ main, develop, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      categories:
+        description: 'Categories to validate (comma-separated)'
+        required: false
+        default: 'all'
+        type: string
+      fail_on_high:
+        description: 'Fail on high severity violations'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+  BP_FRAMEWORK_VERSION: 'latest'
+
+jobs:
+  # Quick validation for PRs
+  quick-validation:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for better analysis
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Best Practices Framework
+      run: |
+        python -m pip install --upgrade pip
+        pip install best-practices-framework[full]
+    
+    - name: Get changed files
+      id: changed-files
+      run: |
+        echo "files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+    
+    - name: Run Security Validation (Quick)
+      run: |
+        best-practices validate \
+          --category security \
+          --output security-results.json \
+          --format json \
+          --fail-on-critical \
+          ${{ steps.changed-files.outputs.files && format('--incremental {0}', steps.changed-files.outputs.files) || '' }}
+    
+    - name: Comment PR with Security Results
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('security-results.json')) {
+            const results = JSON.parse(fs.readFileSync('security-results.json', 'utf8'));
+            const score = results.compliance_score?.overall_score || 0;
+            const critical = results.compliance_score?.critical_violations || 0;
+            const high = results.compliance_score?.high_violations || 0;
+            
+            const emoji = score >= 80 ? '✅' : score >= 60 ? '⚠️' : '❌';
+            
+            let comment = `## ${emoji} Security Validation Results\n\n`;
+            comment += `**Score:** ${score.toFixed(1)}% (${results.compliance_score?.grade || 'F'})\n`;
+            comment += `**Critical Issues:** ${critical}\n`;
+            comment += `**High Priority Issues:** ${high}\n\n`;
+            
+            if (critical > 0 || high > 0) {
+              comment += `### 🚨 Action Required\n`;
+              comment += `Please address the security issues before merging.\n\n`;
+            }
+            
+            comment += `[View full report in workflow artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  # Comprehensive validation for main branches and scheduled runs
+  comprehensive-validation:
+    name: Comprehensive Validation
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    
+    strategy:
+      matrix:
+        category: [architecture, security, testing, devops, sre, engineering]
+      fail-fast: false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Best Practices Framework
+      run: |
+        python -m pip install --upgrade pip
+        pip install best-practices-framework[full]
+    
+    - name: Initialize Configuration
+      run: |
+        if [ ! -f .best-practices.yml ]; then
+          best-practices init --profile default
+        fi
+    
+    - name: Run ${{ matrix.category }} Validation
+      run: |
+        best-practices validate \
+          --category ${{ matrix.category }} \
+          --output ${{ matrix.category }}-results.json \
+          --format json \
+          --fail-on-critical
+    
+    - name: Generate ${{ matrix.category }} Report
+      if: always()
+      run: |
+        best-practices report \
+          --input ${{ matrix.category }}-results.json \
+          --output ${{ matrix.category }}-report.html \
+          --format html
+    
+    - name: Upload ${{ matrix.category }} Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: ${{ matrix.category }}-validation-results
+        path: |
+          ${{ matrix.category }}-results.json
+          ${{ matrix.category }}-report.html
+        retention-days: 30
+
+  # Generate comprehensive report
+  generate-report:
+    name: Generate Comprehensive Report
+    runs-on: ubuntu-latest
+    needs: comprehensive-validation
+    if: always() && github.event_name != 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Best Practices Framework
+      run: |
+        python -m pip install --upgrade pip
+        pip install best-practices-framework[full]
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: validation-results/
+    
+    - name: Run Comprehensive Validation
+      run: |
+        best-practices validate \
+          --output comprehensive-results.json \
+          --format json
+    
+    - name: Generate Comprehensive Report
+      run: |
+        best-practices report \
+          --input comprehensive-results.json \
+          --output comprehensive-report.html \
+          --format html
+        
+        best-practices report \
+          --input comprehensive-results.json \
+          --output comprehensive-report.md \
+          --format markdown
+    
+    - name: Generate SARIF Report
+      run: |
+        best-practices report \
+          --input comprehensive-results.json \
+          --output best-practices.sarif \
+          --format sarif
+    
+    - name: Upload SARIF to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: best-practices.sarif
+        category: best-practices-framework
+    
+    - name: Upload Comprehensive Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: comprehensive-validation-results
+        path: |
+          comprehensive-results.json
+          comprehensive-report.html
+          comprehensive-report.md
+          best-practices.sarif
+        retention-days: 90
+    
+    - name: Quality Gate Check
+      id: quality-gate
+      run: |
+        if best-practices quality-gate \
+          --input comprehensive-results.json \
+          --enforce-critical \
+          ${{ github.event.inputs.fail_on_high == 'true' && '--enforce-high' || '' }}; then
+          echo "status=passed" >> $GITHUB_OUTPUT
+          echo "Quality gate PASSED ✅"
+        else
+          echo "status=failed" >> $GITHUB_OUTPUT
+          echo "Quality gate FAILED ❌"
+          exit 1
+        fi
+    
+    - name: Create GitHub Issue for Failures
+      if: failure() && steps.quality-gate.outputs.status == 'failed'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('comprehensive-results.json')) {
+            const results = JSON.parse(fs.readFileSync('comprehensive-results.json', 'utf8'));
+            const score = results.compliance_score?.overall_score || 0;
+            const critical = results.compliance_score?.critical_violations || 0;
+            const high = results.compliance_score?.high_violations || 0;
+            
+            const title = `🚨 Best Practices Quality Gate Failed - Score: ${score.toFixed(1)}%`;
+            
+            let body = `## Quality Gate Failure Report\n\n`;
+            body += `**Overall Score:** ${score.toFixed(1)}% (${results.compliance_score?.grade || 'F'})\n`;
+            body += `**Critical Violations:** ${critical}\n`;
+            body += `**High Priority Violations:** ${high}\n`;
+            body += `**Total Violations:** ${results.compliance_score?.total_violations || 0}\n\n`;
+            
+            body += `### 📊 Category Breakdown\n\n`;
+            const categoryScores = results.compliance_score?.category_scores || {};
+            for (const [category, categoryScore] of Object.entries(categoryScores)) {
+              body += `- **${category}**: ${categoryScore.toFixed(1)}%\n`;
+            }
+            
+            body += `\n### 🔧 Recommendations\n\n`;
+            const recommendations = results.compliance_score?.recommendations || [];
+            recommendations.slice(0, 5).forEach((rec, index) => {
+              body += `${index + 1}. ${rec}\n`;
+            });
+            
+            body += `\n### 📋 Action Items\n\n`;
+            body += `- [ ] Review the [validation report](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
+            body += `- [ ] Address critical violations immediately\n`;
+            body += `- [ ] Plan remediation for high priority issues\n`;
+            body += `- [ ] Update best practices configuration if needed\n\n`;
+            
+            body += `**Workflow:** [${context.workflow}](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
+            body += `**Triggered by:** ${context.eventName}\n`;
+            body += `**Commit:** ${context.sha.substring(0, 7)}\n`;
+            
+            // Check if similar issue already exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'best-practices,quality-gate-failure'
+            });
+            
+            if (existingIssues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['best-practices', 'quality-gate-failure', 'bug']
+              });
+            } else {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssues.data[0].number,
+                body: `## Latest Quality Gate Failure\n\n${body}`
+              });
+            }
+          }
+
+  # Custom validation for workflow dispatch
+  custom-validation:
+    name: Custom Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Best Practices Framework
+      run: |
+        python -m pip install --upgrade pip
+        pip install best-practices-framework[full]
+    
+    - name: Parse Categories
+      id: parse-categories
+      run: |
+        categories="${{ github.event.inputs.categories }}"
+        if [ "$categories" = "all" ]; then
+          echo "args=" >> $GITHUB_OUTPUT
+        else
+          # Convert comma-separated list to --category flags
+          formatted_categories=$(echo "$categories" | sed 's/,/ --category /g')
+          echo "args=--category $formatted_categories" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Run Custom Validation
+      run: |
+        best-practices validate \
+          ${{ steps.parse-categories.outputs.args }} \
+          --output custom-results.json \
+          --format json \
+          --fail-on-critical \
+          ${{ github.event.inputs.fail_on_high == 'true' && '--fail-on-high' || '' }}
+    
+    - name: Generate Custom Report
+      run: |
+        best-practices report \
+          --input custom-results.json \
+          --output custom-report.html \
+          --format html
+    
+    - name: Upload Custom Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: custom-validation-results
+        path: |
+          custom-results.json
+          custom-report.html

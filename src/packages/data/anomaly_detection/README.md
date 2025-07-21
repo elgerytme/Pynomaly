@@ -1,238 +1,232 @@
-# Pynomaly Detection
+# Anomaly Detection Package
 
-Production-ready Python anomaly detection library with clean architecture, AutoML, and 40+ algorithms.
+A clean, domain-focused anomaly detection package that integrates with the broader Pynomaly ML infrastructure.
 
-## Features
+## Overview
 
-- **40+ Algorithms**: Support for PyOD, scikit-learn, PyTorch, TensorFlow, and JAX-based algorithms
-- **Clean Architecture**: Domain-driven design with clear separation of concerns
-- **AutoML**: Automatic algorithm selection and hyperparameter optimization
-- **Real-time & Batch**: Support for both streaming and batch processing
-- **Explainable AI**: Built-in explainability features using SHAP and LIME
-- **Production Ready**: Enterprise features including monitoring, multi-tenancy, and scalability
-- **Type Safe**: Full type annotations and strict mypy compliance
+This package provides core anomaly detection functionality while leveraging the ML/MLOps capabilities from `@src/packages/ai/machine_learning`. It follows clean architecture principles and focuses specifically on anomaly detection domain logic.
 
-## Installation
+## Key Features
 
-### Basic Installation
-```bash
-pip install pynomaly-detection
-```
-
-### With ML Dependencies
-```bash
-pip install pynomaly-detection[ml]
-```
-
-### With AutoML
-```bash
-pip install pynomaly-detection[automl]
-```
-
-### With Deep Learning
-```bash
-pip install pynomaly-detection[torch]  # PyTorch
-pip install pynomaly-detection[tensorflow]  # TensorFlow
-pip install pynomaly-detection[jax]  # JAX
-```
-
-### Full Installation
-```bash
-pip install pynomaly-detection[all]
-```
+- **Core Detection Services**: Unified interfaces for anomaly detection, ensemble methods, and streaming detection
+- **Algorithm Adapters**: Support for scikit-learn, PyOD, and deep learning frameworks
+- **ML Integration**: Seamless integration with AutoML and MLOps services
+- **Production Ready**: Clean architecture, type safety, and comprehensive testing
+- **Streaming Support**: Real-time anomaly detection with concept drift monitoring
 
 ## Quick Start
 
 ### Basic Usage
+
 ```python
-from pynomaly_detection import AnomalyDetector
+from anomaly_detection import AnomalyDetector
 import numpy as np
 
 # Generate sample data
-X = np.random.randn(1000, 10)
-X[0:10] += 5  # Add some outliers
+X = np.random.rand(1000, 10)
 
-# Create detector
-detector = AnomalyDetector()
+# Create and use detector
+detector = AnomalyDetector(algorithm="iforest")
+anomalies = detector.detect(X)
 
-# Fit and predict
-detector.fit(X)
-anomalies = detector.predict(X)
-
-print(f"Found {anomalies.sum()} anomalies")
+print(f"Found {np.sum(anomalies)} anomalies")
 ```
 
-### With Specific Algorithm
+### Advanced Usage
+
 ```python
-from pynomaly_detection import AnomalyDetector
-from pynomaly_detection.algorithms import IsolationForestAdapter
+from anomaly_detection import DetectionService, EnsembleService
+from anomaly_detection.algorithms.adapters import SklearnAdapter, PyODAdapter
 
-# Use specific algorithm
-detector = AnomalyDetector(algorithm=IsolationForestAdapter())
-detector.fit(X)
-results = detector.predict(X)
+# Use detection service directly
+service = DetectionService()
+result = service.detect_anomalies(X, algorithm="lof", contamination=0.1)
+
+# Create ensemble detector
+ensemble = EnsembleService()
+ensemble_result = ensemble.detect_with_ensemble(
+    X, 
+    algorithms=["iforest", "lof"], 
+    combination_method="majority"
+)
+
+# Use specific adapters
+sklearn_adapter = SklearnAdapter("iforest", n_estimators=200)
+sklearn_adapter.fit(X)
+predictions = sklearn_adapter.predict(X)
 ```
 
-### AutoML Mode
+### Streaming Detection
+
 ```python
-from pynomaly_detection.services import AutoMLService
+from anomaly_detection import StreamingService
+import numpy as np
 
-# Automatic algorithm selection
-automl = AutoMLService()
-best_detector = automl.find_best_algorithm(X_train, y_train)
-predictions = best_detector.predict(X_test)
+# Create streaming detector
+streaming = StreamingService(window_size=500, update_frequency=50)
+
+# Process data stream
+for i in range(1000):
+    sample = np.random.rand(10)  # New data point
+    result = streaming.process_sample(sample)
+    
+    if result.predictions[0] == 1:
+        print(f"Anomaly detected at sample {i}")
+
+# Check for concept drift
+drift_info = streaming.detect_concept_drift()
+print("Drift detected:", drift_info["drift_detected"])
 ```
-
-### Explainable AI
-```python
-from pynomaly_detection.services import ExplainabilityService
-
-explainer = ExplainabilityService()
-explanations = explainer.explain_predictions(detector, X, predictions)
-```
-
-## Supported Algorithms
-
-### Statistical Methods
-- Isolation Forest
-- Local Outlier Factor (LOF)
-- One-Class SVM
-- Elliptic Envelope
-- Z-Score
-- Modified Z-Score
-- Interquartile Range (IQR)
-
-### Machine Learning
-- Auto-Encoder
-- Variational Auto-Encoder (VAE)
-- LSTM-based detectors
-- k-NN based methods
-- Principal Component Analysis (PCA)
-- Independent Component Analysis (ICA)
-
-### Deep Learning
-- Deep Auto-Encoders (PyTorch/TensorFlow)
-- Deep SVDD
-- Adversarial Auto-Encoders
-- Transformer-based detectors
-
-### Ensemble Methods
-- Feature Bagging
-- Isolation Forest Ensemble
-- LSCP (Locally Selective Combination)
-- Average/Max/Min Ensemble
-
-### Specialized
-- Time Series Anomaly Detection
-- Graph Anomaly Detection
-- Text Anomaly Detection
-- Multimodal Fusion
 
 ## Architecture
 
-The library follows clean architecture principles:
+### Package Structure
 
 ```
-pynomaly_detection/
-├── core/                   # Domain logic
-│   ├── domain/            # Entities, value objects, services
-│   ├── use_cases/         # Application use cases
-│   └── dto/               # Data transfer objects
-├── algorithms/            # Algorithm implementations
-│   └── adapters/          # Algorithm adapters
-├── services/              # Application services
-└── infrastructure/        # External concerns
+anomaly_detection/
+├── __init__.py              # Main public API
+├── core/                    # Core domain logic
+│   └── services/            # Detection, ensemble, streaming services
+├── algorithms/              # Algorithm implementations
+│   └── adapters/            # Framework adapters (sklearn, PyOD, deep learning)
+├── data/                    # Data processing utilities
+├── monitoring/              # Performance monitoring
+├── integrations/            # External integrations
+└── utils/                   # Shared utilities
 ```
+
+### Core Services
+
+1. **DetectionService**: Main service for anomaly detection operations
+2. **EnsembleService**: Combines multiple algorithms for robust detection  
+3. **StreamingService**: Real-time detection with incremental learning
+
+### Algorithm Adapters
+
+1. **SklearnAdapter**: Scikit-learn algorithms (Isolation Forest, LOF, One-Class SVM, PCA)
+2. **PyODAdapter**: 40+ algorithms from PyOD library
+3. **DeepLearningAdapter**: Autoencoder-based detection with TensorFlow/PyTorch
+
+## Integration with ML Infrastructure
+
+This package integrates with the broader ML infrastructure:
+
+```python
+# AutoML integration
+from anomaly_detection import get_automl_service
+automl = get_automl_service()
+
+# MLOps integration  
+from anomaly_detection import ModelManagementService
+model_mgmt = ModelManagementService()
+```
+
+## Installation
+
+### Core Package
+```bash
+pip install -e .
+```
+
+### With PyOD Support
+```bash
+pip install -e ".[pyod]"
+```
+
+### With Deep Learning Support
+```bash
+pip install -e ".[deeplearning]"
+```
+
+### Full Installation
+```bash
+pip install -e ".[full]"
+```
+
+## Available Algorithms
+
+### Built-in Algorithms
+- `iforest`: Isolation Forest
+- `lof`: Local Outlier Factor
+
+### With SklearnAdapter
+- `iforest`: Isolation Forest
+- `lof`: Local Outlier Factor  
+- `ocsvm`: One-Class SVM
+- `pca`: PCA-based detection
+
+### With PyODAdapter (40+ algorithms)
+- `iforest`, `lof`, `ocsvm`, `pca`, `knn`, `hbos`, `abod`, `feature_bagging`
+- And many more specialized algorithms
+
+### With DeepLearningAdapter
+- `autoencoder`: Autoencoder-based detection (TensorFlow/PyTorch)
 
 ## Configuration
 
-### Environment Variables
-```bash
-export PYNOMALY_LOG_LEVEL=INFO
-export PYNOMALY_CACHE_SIZE=1000
-export PYNOMALY_MAX_WORKERS=4
-```
+The package supports flexible configuration:
 
-### Configuration File
 ```python
-from pynomaly_detection.core.dto import ConfigurationDTO
-
-config = ConfigurationDTO(
-    contamination=0.1,
-    n_estimators=100,
-    max_samples=256,
-    bootstrap=True,
-    n_jobs=-1
+# Algorithm-specific parameters
+detector = AnomalyDetector(
+    algorithm="iforest",
+    n_estimators=200,
+    contamination=0.05
 )
 
-detector = AnomalyDetector(config=config)
+# Service configuration
+service = DetectionService()
+service.register_adapter("custom_algo", CustomAdapter())
 ```
 
-## Performance
+## Testing
 
-Benchmarks on common datasets:
-
-| Algorithm | Dataset | Training Time | Prediction Time | F1-Score |
-|-----------|---------|---------------|-----------------|----------|
-| IsolationForest | KDD Cup 99 | 2.3s | 0.1s | 0.87 |
-| AutoEncoder | Credit Card | 45s | 0.05s | 0.92 |
-| LOF | Breast Cancer | 0.8s | 0.2s | 0.85 |
-
-## Development
-
-### Setup
-```bash
-git clone https://github.com/elgerytme/Pynomaly.git
-cd Pynomaly/src/packages/data/anomaly_detection
-pip install -e .[dev,test]
-```
-
-### Testing
+Run tests with:
 ```bash
 pytest tests/
 ```
 
-### Linting
+With coverage:
 ```bash
-ruff check src/
-black src/
-mypy src/
+pytest --cov=anomaly_detection tests/
 ```
+
+## Development
+
+### Code Quality
+```bash
+# Linting
+ruff check anomaly_detection/
+
+# Type checking  
+mypy anomaly_detection/
+
+# Formatting
+black anomaly_detection/
+```
+
+## Migration from Legacy Package
+
+This consolidated package replaces the previous complex structure with:
+
+- **Reduced complexity**: From 118+ services to 3 core services
+- **Clear separation**: Domain logic vs ML infrastructure
+- **Better integration**: Proper ML/MLOps delegation
+- **Maintainable structure**: Standard Python package organization
+
+### Key Changes
+1. AutoML functionality moved to `@src/packages/ai/machine_learning`
+2. MLOps features moved to `@src/packages/ai/machine_learning/mlops`
+3. Algorithm adapters consolidated and simplified
+4. Core detection logic streamlined
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+1. Follow the existing code style and architecture
+2. Add tests for new functionality
+3. Update documentation for changes
+4. Ensure integration with ML infrastructure works properly
 
 ## License
 
 MIT License - see LICENSE file for details.
-
-## Citation
-
-```bibtex
-@software{pynomaly_detection,
-  title={Pynomaly Detection: Production-ready Python Anomaly Detection},
-  author={Pynomaly Team},
-  url={https://github.com/elgerytme/Pynomaly},
-  year={2024}
-}
-```
-
-## Support
-
-- Documentation: [GitHub Pages](https://github.com/elgerytme/Pynomaly/blob/main/docs/)
-- Issues: [GitHub Issues](https://github.com/elgerytme/Pynomaly/issues)
-- Discussions: [GitHub Discussions](https://github.com/elgerytme/Pynomaly/discussions)
-
-## Roadmap
-
-- [ ] Distributed computing support
-- [ ] ONNX model export
-- [ ] REST API server
-- [ ] Kubernetes operators
-- [ ] MLflow integration
-- [ ] Apache Kafka streaming

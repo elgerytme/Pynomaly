@@ -91,6 +91,17 @@ class PackageIndependenceValidator:
             'cloud_services',
         }
         
+        # Duplicate package detection patterns
+        self.duplicate_patterns = [
+            r'^(.+)_new$',      # package_name_new
+            r'^(.+)_v2$',       # package_name_v2  
+            r'^(.+)_backup$',   # package_name_backup
+            r'^(.+)_old$',      # package_name_old
+            r'^new_(.+)$',      # new_package_name
+            r'^(.+)_copy$',     # package_name_copy
+            r'^(.+)_temp$',     # package_name_temp
+        ]
+        
     def _setup_logging(self) -> logging.Logger:
         """Set up logging"""
         logger = logging.getLogger('package_independence_validator')
@@ -209,6 +220,14 @@ class PackageIndependenceValidator:
         
         # Perform cross-package analysis
         self._analyze_cross_package_dependencies(package_analyses)
+        
+        # Validate for duplicate packages
+        duplicate_violations = self._validate_duplicate_packages(package_dirs)
+        if duplicate_violations:
+            for violation in duplicate_violations:
+                # Add duplicate violations to the affected package analysis
+                if violation.source_package in package_analyses:
+                    package_analyses[violation.source_package].violations.append(violation)
         
         # Generate report
         self._generate_independence_report(package_analyses)
@@ -862,6 +881,84 @@ class PackageIndependenceValidator:
                         description=f"Package has too many dependencies: {len(dependencies)}",
                         suggestion="Consider breaking down the package or using event-driven patterns"
                     ))
+    
+    def _validate_duplicate_packages(self, package_dirs: List[Path]) -> List[DependencyViolation]:
+        """Detect and validate duplicate packages based on naming patterns"""
+        violations = []
+        package_names = [d.name for d in package_dirs if d.is_dir()]
+        
+        self.logger.info("🔍 Checking for duplicate packages...")
+        
+        for package_name in package_names:
+            # Check if this package name matches duplicate patterns
+            for pattern in self.duplicate_patterns:
+                match = re.match(pattern, package_name)
+                if match:
+                    base_name = match.group(1)
+                    
+                    # Check if the base package exists
+                    potential_duplicates = []
+                    for other_name in package_names:
+                        if other_name == base_name or (other_name != package_name and re.match(rf'^{re.escape(base_name)}(_new|_v2|_backup|_old|_copy|_temp)$', other_name)):
+                            potential_duplicates.append(other_name)
+                    
+                    if potential_duplicates:
+                        violations.append(DependencyViolation(
+                            source_package=package_name,
+                            target_package=", ".join(potential_duplicates),
+                            violation_type="duplicate_package",
+                            location=f"src/packages/{package_name}",
+                            severity="error",
+                            description=f"Duplicate package detected: '{package_name}' appears to be a duplicate of '{base_name}' or conflicts with: {', '.join(potential_duplicates)}",
+                            suggestion=f"Consolidate with the main package '{base_name}' or choose a distinct name. Remove unused duplicate packages."
+                        ))
+                        self.logger.warning(f"⚠️  Duplicate package detected: {package_name} -> {potential_duplicates}")
+        
+        # Also check for similar names that might be duplicates
+        for i, package_name in enumerate(package_names):
+            for j, other_name in enumerate(package_names):
+                if i >= j:
+                    continue
+                    
+                # Check for very similar names (edit distance)
+                similarity = self._calculate_name_similarity(package_name, other_name)
+                if similarity > 0.8:  # High similarity threshold
+                    violations.append(DependencyViolation(
+                        source_package=package_name,
+                        target_package=other_name,
+                        violation_type="similar_package_names",
+                        location=f"src/packages/{package_name}",
+                        severity="warning",
+                        description=f"Package names are very similar: '{package_name}' and '{other_name}' (similarity: {similarity:.1%})",
+                        suggestion="Consider using more distinct package names to avoid confusion."
+                    ))
+        
+        return violations
+    
+    def _calculate_name_similarity(self, name1: str, name2: str) -> float:
+        """Calculate similarity between two package names using Levenshtein distance"""
+        def levenshtein_distance(s1: str, s2: str) -> int:
+            if len(s1) < len(s2):
+                return levenshtein_distance(s2, s1)
+            
+            if len(s2) == 0:
+                return len(s1)
+            
+            previous_row = list(range(len(s2) + 1))
+            for i, c1 in enumerate(s1):
+                current_row = [i + 1]
+                for j, c2 in enumerate(s2):
+                    insertions = previous_row[j + 1] + 1
+                    deletions = current_row[j] + 1
+                    substitutions = previous_row[j] + (c1 != c2)
+                    current_row.append(min(insertions, deletions, substitutions))
+                previous_row = current_row
+            
+            return previous_row[-1]
+        
+        distance = levenshtein_distance(name1.lower(), name2.lower())
+        max_length = max(len(name1), len(name2))
+        return 1.0 - (distance / max_length) if max_length > 0 else 0.0
     
     def _generate_independence_report(self, package_analyses: Dict[str, PackageAnalysis]) -> None:
         """Generate independence validation report"""

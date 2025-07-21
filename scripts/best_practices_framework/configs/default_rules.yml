@@ -1,0 +1,258 @@
+# Default Best Practices Framework Configuration
+# ==============================================
+
+framework_version: "1.0.0"
+
+# Enable/disable validation categories
+enabled_categories:
+  - architecture
+  - engineering
+  - security
+  - testing
+  - devops
+  - sre
+
+# Global enforcement settings
+global:
+  enforcement_level: "strict"  # strict, moderate, lenient
+  fail_on_critical: true
+  fail_on_high: false
+  max_violations_per_category: 10
+
+# Architecture validation rules
+architecture:
+  enabled: true
+  clean_architecture:
+    enabled: true
+    rules:
+      dependency_inversion:
+        enabled: true
+        severity: "high"
+      layer_separation:
+        enabled: true
+        severity: "medium"
+        max_skip_layers: 0
+  
+  microservices:
+    enabled: true
+    rules:
+      service_independence:
+        enabled: true
+        max_external_dependencies: 5
+        severity: "high"
+      data_ownership:
+        enabled: true
+        shared_databases_allowed: false
+        severity: "critical"
+
+# Security validation rules
+security:
+  enabled: true
+  owasp:
+    enabled: true
+    rules:
+      injection_prevention:
+        enabled: true
+        severity: "critical"
+      authentication_security:
+        enabled: true
+        severity: "high"
+      sensitive_data_exposure:
+        enabled: true
+        severity: "critical"
+  
+  secrets_detection:
+    enabled: true
+    scan_all_files: true
+    rules:
+      aws_credentials:
+        enabled: true
+        severity: "critical"
+      api_keys:
+        enabled: true
+        severity: "high"
+      passwords:
+        enabled: true
+        severity: "high"
+    exclude_patterns:
+      - "*.test.*"
+      - "*.spec.*"
+      - "**/test_*"
+
+# Testing validation rules
+testing:
+  enabled: true
+  coverage:
+    enabled: true
+    rules:
+      unit_test_coverage:
+        enabled: true
+        minimum: 80
+        severity: "medium"
+      integration_test_coverage:
+        enabled: true
+        minimum: 60
+        severity: "medium"
+      e2e_test_coverage:
+        enabled: true
+        minimum: 40
+        severity: "low"
+  
+  test_pyramid:
+    enabled: true
+    rules:
+      distribution_check:
+        enabled: true
+        unit_tests_percentage: 70
+        integration_tests_percentage: 20
+        e2e_tests_percentage: 10
+        tolerance: 10
+        severity: "medium"
+
+# Engineering practices rules
+engineering:
+  enabled: true
+  code_quality:
+    enabled: true
+    rules:
+      complexity_limit:
+        enabled: true
+        max_complexity: 10
+        severity: "medium"
+      function_length:
+        enabled: true
+        max_lines: 50
+        severity: "low"
+      class_length:
+        enabled: true
+        max_lines: 200
+        severity: "low"
+  
+  documentation:
+    enabled: true
+    rules:
+      api_documentation:
+        enabled: true
+        required: true
+        severity: "medium"
+      readme_required:
+        enabled: true
+        severity: "low"
+
+# DevOps practices rules
+devops:
+  enabled: true
+  cicd:
+    enabled: true
+    rules:
+      required_stages:
+        enabled: true
+        stages: ["build", "test", "security_scan", "deploy"]
+        severity: "high"
+      security_gates:
+        enabled: true
+        required: true
+        severity: "high"
+      rollback_capability:
+        enabled: true
+        required: true
+        severity: "medium"
+  
+  infrastructure_as_code:
+    enabled: true
+    rules:
+      version_controlled:
+        enabled: true
+        severity: "medium"
+      immutable_infrastructure:
+        enabled: true
+        severity: "medium"
+      drift_detection:
+        enabled: true
+        tolerance: 0
+        severity: "medium"
+
+# Site Reliability Engineering rules
+sre:
+  enabled: true
+  observability:
+    enabled: true
+    rules:
+      metrics_coverage:
+        enabled: true
+        minimum: 90
+        severity: "medium"
+      logging_coverage:
+        enabled: true
+        minimum: 95
+        severity: "medium"
+      distributed_tracing:
+        enabled: true
+        required: true
+        severity: "low"
+  
+  reliability:
+    enabled: true
+    rules:
+      slo_definition:
+        enabled: true
+        required: true
+        severity: "high"
+      error_budget_tracking:
+        enabled: true
+        required: true
+        severity: "medium"
+      incident_response:
+        enabled: true
+        max_response_time: "15m"
+        severity: "high"
+
+# Compliance framework mappings
+compliance_frameworks:
+  SOC2:
+    - "security.secrets_detection"
+    - "devops.cicd.security_gates"
+    - "sre.observability.logging_coverage"
+  
+  OWASP:
+    - "security.owasp.*"
+    - "security.secrets_detection"
+  
+  ISO27001:
+    - "security.*"
+    - "devops.infrastructure_as_code"
+    - "sre.reliability.incident_response"
+
+# Notification settings
+notifications:
+  enabled: false
+  channels:
+    slack:
+      webhook_url: ""
+      channel: "#dev-quality"
+    email:
+      smtp_server: ""
+      recipients: []
+
+# Reporting settings
+reporting:
+  formats:
+    - html
+    - json
+    - markdown
+  include_suggestions: true
+  include_compliance_mapping: true
+  
+# File exclusion patterns (global)
+exclude_patterns:
+  - ".git/**/*"
+  - "node_modules/**/*"
+  - "__pycache__/**/*"
+  - "*.pyc"
+  - ".venv/**/*"
+  - "venv/**/*"
+  - "dist/**/*"
+  - "build/**/*"
+  - ".idea/**/*"
+  - ".vscode/**/*"
+  - "*.log"

@@ -1,0 +1,1 @@
+"""Domain layer for data ingestion business logic."""

@@ -1,0 +1,33 @@
+# Manifest file for Best Practices Framework package distribution
+# Include additional files in the package
+
+# Documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+
+# Configuration files
+recursive-include best_practices_framework/configs *.yml *.yaml
+recursive-include best_practices_framework/templates *.html *.md *.xml *.jinja2
+
+# Integration templates
+recursive-include best_practices_framework/integrations *.yml *.yaml *.json *.xml
+
+# Examples
+recursive-include examples *.py *.yml *.yaml *.md
+
+# Tests
+recursive-include tests *.py
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude *.so
+global-exclude .git*
+global-exclude .coverage
+global-exclude .pytest_cache
+global-exclude .mypy_cache
+global-exclude *.egg-info

@@ -161,6 +161,36 @@ hierarchical_validation:
     layer_4_specialized: 15
     layer_5_application: 25
 
+# Duplicate Package Prevention Rules
+duplicate_package_validation:
+  # Enable duplicate package detection
+  enable_duplicate_detection: true
+  
+  # Patterns that indicate potential duplicate packages
+  duplicate_patterns:
+    - "^(.+)_new$"      # package_name_new
+    - "^(.+)_v2$"       # package_name_v2
+    - "^(.+)_backup$"   # package_name_backup
+    - "^(.+)_old$"      # package_name_old
+    - "^new_(.+)$"      # new_package_name
+    - "^(.+)_copy$"     # package_name_copy
+    - "^(.+)_temp$"     # package_name_temp
+    - "^(.+)_test$"     # package_name_test
+    - "^(.+)_experimental$"  # package_name_experimental
+  
+  # Name similarity threshold (0.0-1.0) for detecting similar package names
+  similarity_threshold: 0.8
+  
+  # Action to take when duplicates are detected
+  duplicate_action: "error"  # error, warning, info
+  
+  # Allowed exceptions (packages that can have similar names)
+  exceptions:
+    - pattern: "^api_v[0-9]+$"
+      reason: "API versioning is allowed"
+    - pattern: "^sdk_.*$"
+      reason: "SDK variants are allowed"
+
 # Dependency analysis rules
 dependency_rules:
   # Import analysis
@@ -234,6 +264,8 @@ violation_severity:
   circular_dependency: error
   cross_package_import: error
   cross_package_db_reference: error
+  duplicate_package: error
+  similar_package_names: warning
   unauthorized_api_call: warning
   missing_required_component: warning
   configuration_reference: warning
