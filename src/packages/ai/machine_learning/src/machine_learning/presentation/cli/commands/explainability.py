@@ -96,9 +96,9 @@ def explain(
     DATASET_PATH: Path to dataset file (CSV or Parquet)
 
     Examples:
-        anomaly_detection explainability explain model.pkl data.csv
-        anomaly_detection explainability explain model.pkl data.csv --methods shap lime
-        anomaly_detection explainability explain model.pkl data.csv --explanation-type local --n-samples 20
+        machine_learning explainability explain model.pkl data.csv
+        machine_learning explainability explain model.pkl data.csv --methods shap lime
+        machine_learning explainability explain model.pkl data.csv --explanation-type local --n-samples 20
     """
     try:
         # Load dataset
@@ -199,8 +199,8 @@ def analyze_bias(
     DATASET_PATH: Path to dataset file with protected attributes
 
     Examples:
-        anomaly_detection explainability analyze-bias model.pkl data.csv --protected-attributes gender age
-        anomaly_detection explainability analyze-bias model.pkl data.csv -p race -m demographic_parity equalized_odds
+        machine_learning explainability analyze-bias model.pkl data.csv --protected-attributes gender age
+        machine_learning explainability analyze-bias model.pkl data.csv -p race -m demographic_parity equalized_odds
     """
     try:
         if not protected_attributes or len(protected_attributes) == 0:
@@ -291,8 +291,8 @@ def assess_trust(
     DATASET_PATH: Path to dataset file
 
     Examples:
-        anomaly_detection explainability assess-trust model.pkl data.csv
-        anomaly_detection explainability assess-trust model.pkl data.csv --n-perturbations 200
+        machine_learning explainability assess-trust model.pkl data.csv
+        machine_learning explainability assess-trust model.pkl data.csv --n-perturbations 200
     """
     try:
         # Load dataset and detector
@@ -369,8 +369,8 @@ def feature_importance(
     DATASET_PATH: Path to dataset file
 
     Examples:
-        anomaly_detection explainability feature-importance model.pkl data.csv
-        anomaly_detection explainability feature-importance model.pkl data.csv --method permutation --top-k 20
+        machine_learning explainability feature-importance model.pkl data.csv
+        machine_learning explainability feature-importance model.pkl data.csv --method permutation --top-k 20
     """
     try:
         # Load dataset and detector
@@ -444,7 +444,7 @@ def status(
     """Show explainability service status and capabilities.
 
     Examples:
-        anomaly_detection explainability status
+        machine_learning explainability status
     """
     try:
         # Initialize service
@@ -566,8 +566,8 @@ def counterfactuals(
     DATASET_PATH: Path to dataset file
 
     Examples:
-        anomaly_detection explainability counterfactuals model.pkl data.csv --instance 10
-        anomaly_detection explainability counterfactuals model.pkl data.csv --num-counterfactuals 10
+        machine_learning explainability counterfactuals model.pkl data.csv --instance 10
+        machine_learning explainability counterfactuals model.pkl data.csv --num-counterfactuals 10
     """
     try:
         # Load dataset and detector
@@ -674,8 +674,8 @@ def interactions(
     DATASET_PATH: Path to dataset file
 
     Examples:
-        anomaly_detection explainability interactions model.pkl data.csv
-        anomaly_detection explainability interactions model.pkl data.csv --max-interactions 50
+        machine_learning explainability interactions model.pkl data.csv
+        machine_learning explainability interactions model.pkl data.csv --max-interactions 50
     """
     try:
         # Load dataset and detector
@@ -765,8 +765,8 @@ def dashboard(
     DATASET_PATH: Path to dataset file
 
     Examples:
-        anomaly_detection explainability dashboard model.pkl data.csv
-        anomaly_detection explainability dashboard model.pkl data.csv --port 8080
+        machine_learning explainability dashboard model.pkl data.csv
+        machine_learning explainability dashboard model.pkl data.csv --port 8080
     """
     try:
         # Load dataset and detector
@@ -830,8 +830,8 @@ def info(
     EXPLANATION_TYPE: Type of explanation to get information about
 
     Examples:
-        anomaly_detection explainability info local
-        anomaly_detection explainability info bias
+        machine_learning explainability info local
+        machine_learning explainability info bias
     """
     try:
         _display_explanation_info(explanation_type)

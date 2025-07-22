@@ -39,7 +39,7 @@ from interfaces.application.services.advanced_automl_service import AdvancedAuto
 
 # Domain imports
 from interfaces.domain.entities import Dataset
-from interfaces.domain.services.advanced_detection_service import DetectionAlgorithm
+from interfaces.domain.services.advanced_prediction_service import PredictionAlgorithm
 from interfaces.domain.services.automl_service import (
     OptimizationConfig,
     OptimizationMetric,
@@ -103,9 +103,9 @@ def optimize(
     ALGORITHM_NAME: Algorithm to optimize (IsolationForest, LocalOutlierFactor, OneClassSVM)
 
     Examples:
-        anomaly_detection automl optimize data.csv IsolationForest
-        anomaly_detection automl optimize data.csv LOF --max-time 1800 --max-trials 50
-        anomaly_detection automl optimize data.parquet OneClassSVM --objectives accuracy speed
+        machine_learning automl optimize data.csv IsolationForest
+        machine_learning automl optimize data.csv LOF --max-time 1800 --max-trials 50
+        machine_learning automl optimize data.parquet OneClassSVM --objectives accuracy speed
     """
     try:
         # Load dataset
@@ -225,8 +225,8 @@ def compare(
     DATASET_PATH: Path to the dataset file
 
     Examples:
-        anomaly_detection automl compare data.csv
-        anomaly_detection automl compare data.csv --algorithms IsolationForest LOF
+        machine_learning automl compare data.csv
+        machine_learning automl compare data.csv --algorithms IsolationForest LOF
     """
     try:
         # Load dataset
@@ -304,8 +304,8 @@ def insights(
     """Analyze optimization history and learning insights.
 
     Examples:
-        anomaly_detection automl insights
-        anomaly_detection automl insights --storage-path /path/to/storage
+        machine_learning automl insights
+        machine_learning automl insights --storage-path /path/to/storage
     """
     try:
         # Initialize AutoML service
@@ -347,7 +347,7 @@ def predict_performance(
     ALGORITHM_NAME: Algorithm to predict performance for
 
     Examples:
-        anomaly_detection automl predict-performance data.csv IsolationForest
+        machine_learning automl predict-performance data.csv IsolationForest
     """
     try:
         # Load dataset
@@ -672,9 +672,9 @@ def comprehensive(
     ALGORITHM_NAME: Algorithm to optimize (IsolationForest, LOF, OneClassSVM, etc.)
 
     Examples:
-        anomaly_detection automl comprehensive data.csv IsolationForest
-        anomaly_detection automl comprehensive data.csv LOF --strategy grid_search --ensemble stacking
-        anomaly_detection automl comprehensive data.parquet OneClassSVM --feature-engineering --max-trials 200
+        machine_learning automl comprehensive data.csv IsolationForest
+        machine_learning automl comprehensive data.csv LOF --strategy grid_search --ensemble stacking
+        machine_learning automl comprehensive data.parquet OneClassSVM --feature-engineering --max-trials 200
     """
     try:
         # Load dataset
@@ -799,9 +799,9 @@ def run(
     ALGORITHM_NAME: PyOD algorithm to optimize (KNN, LOF, IsolationForest, etc.)
 
     Examples:
-        anomaly_detection automl run data.csv KNN
-        anomaly_detection automl run data.csv IsolationForest --max-trials 50
-        anomaly_detection automl run data.parquet LOF --storage ./results
+        machine_learning automl run data.csv KNN
+        machine_learning automl run data.csv IsolationForest --max-trials 50
+        machine_learning automl run data.parquet LOF --storage ./results
     """
     try:
         console.print(f"📊 Loading dataset: {dataset_path}")

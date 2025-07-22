@@ -132,7 +132,7 @@ class OptimizationResult:
 
 
 class AutoMLService:
-    """AutoML service for automated anomaly detection optimization."""
+    """AutoML service for automated machine learning optimization."""
 
     # JSON schemas for PyOD algorithms' search spaces
     PYOD_PARAMETER_SPACES = {
@@ -150,7 +150,7 @@ class AutoMLService:
 
     def __init__(self):
         """Initialize AutoML service."""
-        self.detection_service = get_detection_service()
+        self.prediction_service = get_prediction_service()
         self.optimization_history = []
 
         # Parameter search spaces for different algorithms
@@ -217,13 +217,13 @@ class AutoMLService:
         return spaces
 
     @trace_operation("automl_optimization")
-    async def optimize_detection(
+    async def optimize_prediction(
         self,
         dataset: Dataset,
         optimization_config: OptimizationConfig | None = None,
         ground_truth: np.ndarray | None = None,
     ) -> OptimizationResult:
-        """Automatically optimize anomaly detection for the given dataset."""
+        """Automatically optimize machine learning predictions for the given dataset."""
 
         if optimization_config is None:
             optimization_config = OptimizationConfig()
@@ -233,7 +233,7 @@ class AutoMLService:
         try:
             # Get available algorithms
             available_algorithms = (
-                await self.detection_service.get_available_algorithms()
+                await self.prediction_service.get_available_algorithms()
             )
 
             # Filter algorithms if specified
@@ -627,8 +627,8 @@ class AutoMLService:
         """Evaluate a single algorithm configuration."""
 
         try:
-            # Run detection
-            result = await self.detection_service.detect_anomalies(
+            # Run prediction
+            result = await self.prediction_service.predict(
                 dataset, config.algorithm, config, ground_truth
             )
 
@@ -730,7 +730,7 @@ class AutoMLService:
                         )
 
                         # Evaluate ensemble
-                        result = await self.detection_service.detect_anomalies_ensemble(
+                        result = await self.prediction_service.predict_ensemble(
                             dataset, ensemble_config, ground_truth
                         )
 
@@ -787,7 +787,7 @@ class AutoMLService:
                 search_strategy=SearchStrategy.RANDOM_SEARCH,
             )
 
-            result = await self.optimize_detection(dataset, config, ground_truth)
+            result = await self.optimize_prediction(dataset, config, ground_truth)
             return result.best_algorithm, result.best_config
 
     async def _quick_algorithm_selection(
@@ -836,7 +836,7 @@ class AutoMLService:
     async def get_optimization_recommendations(
         self, dataset: Dataset, current_results: PredictionResult | None = None
     ) -> dict[str, Any]:
-        """Get recommendations for improving detection performance."""
+        """Get recommendations for improving prediction performance."""
 
         recommendations = {
             "data_preprocessing": [],
