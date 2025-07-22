@@ -300,7 +300,7 @@ class TestContaminationRateAccuracy:
             f"Accuracy {metrics['accuracy']:.3f} too low for contamination {contamination_rate:.3f}"
         )
     
-    def test_extreme_contamination_rates(self):
+    def test_extreme_contamination_rates(self, contamination_rate: float):
         """Test behavior with extreme contamination rates."""
         # Very low contamination (1%)
         X_low, y_low = generate_synthetic_anomalies(n_samples=1000, contamination=0.01)

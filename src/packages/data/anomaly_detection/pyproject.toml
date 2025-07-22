@@ -3,7 +3,7 @@ name = "anomaly_detection"
 version = "0.1.0"
 description = "Data anomaly detection package with ML integration and pattern discovery"
 authors = [
-    {name = "Anomaly Detection Team", email = "team@anomaly_detection.io"}
+    {name = "Development Team", email = "team@anomaly_detection.io"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"

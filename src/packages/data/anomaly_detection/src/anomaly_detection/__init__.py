@@ -15,12 +15,12 @@ from .domain.services.streaming_service import StreamingService
 
 # Infrastructure layer exports
 from .infrastructure.adapters.algorithms.adapters.sklearn_adapter import SklearnAdapter
-from .infrastructure.adapters.algorithms.adapters.pyod_adapter import PyodAdapter
+from .infrastructure.adapters.algorithms.adapters.pyod_adapter import PyODAdapter
 from .infrastructure.adapters.algorithms.adapters.deeplearning_adapter import DeepLearningAdapter
 
-# Application layer exports
-from .application.services.explanation.analyzers import ExplanationAnalyzers
-from .application.services.performance.optimization import PerformanceOptimizer
+# Application layer exports - TODO: Implement these services
+# from .application.services.explanation.analyzers import ExplanationAnalyzers
+# from .application.services.performance.optimization import PerformanceOptimizer
 
 __all__ = [
     "__version__",
@@ -32,9 +32,9 @@ __all__ = [
     "StreamingService",
     # Infrastructure adapters
     "SklearnAdapter",
-    "PyodAdapter", 
+    "PyODAdapter", 
     "DeepLearningAdapter",
-    # Application services
-    "ExplanationAnalyzers",
-    "PerformanceOptimizer",
+    # Application services - TODO: Add when implemented
+    # "ExplanationAnalyzers",
+    # "PerformanceOptimizer",
 ]

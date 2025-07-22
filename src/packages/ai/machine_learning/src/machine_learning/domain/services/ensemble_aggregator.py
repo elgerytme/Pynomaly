@@ -6,11 +6,11 @@ from collections import Counter
 
 import numpy as np
 
-from monorepo.domain.value_objects import AnomalyScore
+from machine_learning.domain.value_objects.prediction_score import PredictionScore
 
 
 class EnsembleAggregator:
-    """Domain service for aggregating results from multiple detectors.
+    """Domain service for aggregating results from multiple models.
 
     This service implements various strategies for combining
     predictions from ensemble members.
@@ -18,29 +18,29 @@ class EnsembleAggregator:
 
     @staticmethod
     def aggregate_scores(
-        scores_dict: dict[str, list[AnomalyScore]],
+        scores_dict: dict[str, list[PredictionScore]],
         weights: dict[str, float] | None = None,
         method: str = "average",
-    ) -> list[AnomalyScore]:
-        """Aggregate scores from multiple detectors.
+    ) -> list[PredictionScore]:
+        """Aggregate scores from multiple models.
 
         Args:
-            scores_dict: Dictionary mapping detector names to score lists
-            weights: Optional weights for each detector
+            scores_dict: Dictionary mapping model names to score lists
+            weights: Optional weights for each model
             method: Aggregation method ('average', 'median', 'max', 'weighted')
 
         Returns:
-            Aggregated anomaly scores
+            Aggregated prediction scores
         """
         if not scores_dict:
             return []
 
-        # Validate all detectors have same number of scores
+        # Validate all models have same number of scores
         n_samples = len(next(iter(scores_dict.values())))
         for name, scores in scores_dict.items():
             if len(scores) != n_samples:
                 raise ValueError(
-                    f"Detector '{name}' has {len(scores)} scores, expected {n_samples}"
+                    f"Model '{name}' has {len(scores)} scores, expected {n_samples}"
                 )
 
         if method == "average":
@@ -59,11 +59,11 @@ class EnsembleAggregator:
 
     @staticmethod
     def _average_scores(
-        scores_dict: dict[str, list[AnomalyScore]],
-    ) -> list[AnomalyScore]:
-        """Calculate average scores across detectors."""
+        scores_dict: dict[str, list[PredictionScore]],
+    ) -> list[PredictionScore]:
+        """Calculate average scores across models."""
         n_samples = len(next(iter(scores_dict.values())))
-        n_detectors = len(scores_dict)
+        n_models = len(scores_dict)
 
         aggregated = []
         for i in range(n_samples):

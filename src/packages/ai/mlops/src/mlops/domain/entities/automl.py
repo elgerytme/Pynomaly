@@ -1,4 +1,4 @@
-"""AutoML domain entities for automated anomaly detection pipeline configuration."""
+"""AutoML domain entities for automated machine learning pipeline configuration."""
 
 from __future__ import annotations
 
@@ -98,7 +98,7 @@ class HyperparameterSpace:
 
 @dataclass
 class AlgorithmConfiguration:
-    """Configuration for an anomaly detection algorithm."""
+    """Configuration for a machine learning algorithm."""
 
     algorithm_name: str
     algorithm_class: str
@@ -210,7 +210,7 @@ class AutoMLConfiguration:
     enable_ensemble: bool = True
     ensemble_size: int = 5
     enable_model_explanation: bool = True
-    enable_drift_detection: bool = True
+    enable_model_monitoring: bool = True
 
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)

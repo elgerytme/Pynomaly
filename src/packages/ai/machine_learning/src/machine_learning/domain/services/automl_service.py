@@ -1,4 +1,4 @@
-"""AutoML service for automated anomaly detection model selection and optimization."""
+"""AutoML service for automated machine learning model selection and optimization."""
 
 import itertools
 import logging

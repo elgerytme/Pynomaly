@@ -1,4 +1,4 @@
-# Pynomaly Neuro-Symbolic AI
+# Neuro-Symbolic AI
 
 Advanced neuro-symbolic AI package that combines neural networks with symbolic reasoning for enhanced pattern recognition and interpretable AI systems.
 

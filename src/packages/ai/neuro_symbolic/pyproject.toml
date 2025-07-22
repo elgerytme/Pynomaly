@@ -1,8 +1,8 @@
 [project]
-name = "pynomaly-neuro-symbolic"
+name = "neuro-symbolic"
 version = "0.1.0"
 description = "Neuro-symbolic AI combining neural networks with symbolic reasoning for advanced pattern recognition"
-authors = [{name = "Pynomaly AI Team", email = "team@pynomaly.ai"}]
+authors = [{name = "AI Team", email = "team@company.ai"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"

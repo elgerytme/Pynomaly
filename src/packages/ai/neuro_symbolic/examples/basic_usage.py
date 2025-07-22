@@ -11,7 +11,7 @@ def main():
     
     # Create a neuro-symbolic model
     model = service.create_model(
-        name="anomaly_detector",
+        name="reasoning_system",
         neural_backbone="transformer", 
         symbolic_reasoner="first_order_logic"
     )
@@ -19,10 +19,10 @@ def main():
     print(f"Created model: {model.name} (ID: {model.id})")
     
     # Create a simple knowledge graph
-    kg = KnowledgeGraph.create("anomaly_rules")
-    kg.add_triple("Normal", "hasProperty", "LowVariance")
-    kg.add_triple("Anomaly", "hasProperty", "HighVariance")
-    kg.add_triple("HighVariance", "indicates", "PotentialAnomaly")
+    kg = KnowledgeGraph.create("reasoning_rules")
+    kg.add_triple("Standard", "hasProperty", "LowVariance")
+    kg.add_triple("Unusual", "hasProperty", "HighVariance")
+    kg.add_triple("HighVariance", "indicates", "NotablePattern")
     
     # Register the knowledge graph
     service.knowledge_graphs[kg.id] = kg

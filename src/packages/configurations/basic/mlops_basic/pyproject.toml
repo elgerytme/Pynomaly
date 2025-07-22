@@ -2,7 +2,7 @@
 name = "anomaly_detection-mlops-basic"
 version = "0.1.0"
 description = "Basic open-source MLOps configuration for anomaly_detection"
-authors = [{name = "Anomaly Detection Team", email = "dev@anomaly_detection.io"}]
+authors = [{name = "Development Team", email = "dev@anomaly_detection.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"

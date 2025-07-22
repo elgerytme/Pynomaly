@@ -2,7 +2,7 @@
 name = "anomaly_detection-data-transformation"
 dynamic = ["version"]
 description = "Advanced data transformation and feature engineering for anomaly detection"
-authors = [{name = "Anomaly Detection Team", email = "team@anomaly_detection.io"}]
+authors = [{name = "Development Team", email = "team@anomaly_detection.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"

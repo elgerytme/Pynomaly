@@ -3,7 +3,7 @@ name = "data-pipelines"
 version = "0.1.0" 
 description = "Data pipeline orchestration and management"
 authors = [
-    {name = "Anomaly Detection Team", email = "team@anomaly_detection.com"}
+    {name = "Development Team", email = "team@pynomaly.com"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"
@@ -109,11 +109,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/anomaly_detection/anomaly_detection"
-Documentation = "https://github.com/anomaly_detection/anomaly_detection/tree/main/src/packages/data/data_pipelines/docs"
-Repository = "https://github.com/anomaly_detection/anomaly_detection"
-"Bug Tracker" = "https://github.com/anomaly_detection/anomaly_detection/issues"
-Changelog = "https://github.com/anomaly_detection/anomaly_detection/blob/main/src/packages/data/data_pipelines/docs/CHANGELOG.md"
+Homepage = "https://github.com/pynomaly/pynomaly"
+Documentation = "https://github.com/pynomaly/pynomaly/tree/main/src/packages/data/data_pipelines/docs"
+Repository = "https://github.com/pynomaly/pynomaly"
+"Bug Tracker" = "https://github.com/pynomaly/pynomaly/issues"
+Changelog = "https://github.com/pynomaly/pynomaly/blob/main/src/packages/data/data_pipelines/docs/CHANGELOG.md"
 
 [project.scripts]
 data-pipelines = "data_pipelines.cli:main"

@@ -1,13 +1,13 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Neuro-Symbolic AI Package - Standardized Buck2 Configuration
 # Domain: ai
 # Package: neuro_symbolic
 # Type: ml
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:python_package.bzl", "python_package")
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_ml_package")
+load("//tools/buck:python_package.bzl", "ml_package")
 
-pynomaly_ml_package(
+ml_package(
     name = "neuro_symbolic",
     frameworks = ["sklearn"],  # Adjust as needed
     visibility = ["PUBLIC"],

@@ -61,7 +61,7 @@ To create an intelligent data quality management system that proactively identif
 - **Automated Rule Discovery**: ML-generated validation rules from data patterns
 - **Quality Forecasting**: Predict future quality trends and risks
 - **Adaptive Thresholds**: Self-adjusting quality thresholds based on patterns
-- **Anomaly Scoring**: ML-based anomaly detection for quality assessment
+- **Statistical Scoring**: ML-based statistical analysis for quality assessment
 
 #### Data Quality Lineage
 - **Quality Impact Tracking**: Trace quality issues through data pipelines
@@ -407,10 +407,10 @@ class RemediationSuggestion:
 
 ## 7. Integration Requirements
 
-### 7.1 anomaly_detection Ecosystem Integration
+### 7.1 Data Ecosystem Integration
 - Data profiling integration with data_profiling package
 - Statistical validation integration with data_science package
-- Anomaly detection integration with core algorithms
+- Data validation integration with core quality algorithms
 - MLOps integration for model data validation
 
 ### 7.2 External System Integration

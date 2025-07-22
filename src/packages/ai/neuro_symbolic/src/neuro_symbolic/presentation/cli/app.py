@@ -10,7 +10,7 @@ from ...application.services.neuro_symbolic_service import NeuroSymbolicService
 @click.group()
 @click.pass_context
 def cli(ctx):
-    """Pynomaly Neuro-Symbolic AI CLI"""
+    """Neuro-Symbolic AI CLI"""
     ctx.ensure_object(dict)
     ctx.obj['service'] = NeuroSymbolicService()
 

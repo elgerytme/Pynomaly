@@ -1,5 +1,5 @@
 """
-Pynomaly Neuro-Symbolic AI Package
+Neuro-Symbolic AI Package
 
 Combines neural networks with symbolic reasoning for interpretable AI systems.
 """
