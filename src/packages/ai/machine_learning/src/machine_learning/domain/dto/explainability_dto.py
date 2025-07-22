@@ -128,14 +128,14 @@ class AlgorithmExplanationDTO(BaseModel):
     )
 
 
-class AnomalyExplanationDTO(BaseModel):
-    """DTO for individual anomaly explanations."""
+class PredictionExplanationDTO(BaseModel):
+    """DTO for individual prediction explanations."""
 
     model_config = ConfigDict(extra="forbid")
     sample_id: int = Field(..., description="Sample identifier")
-    anomaly_score: float = Field(..., description="Anomaly score")
+    prediction_score: float = Field(..., description="Prediction score")
     contributing_features: dict[str, float] = Field(
-        default_factory=dict, description="Feature contributions to anomaly score"
+        default_factory=dict, description="Feature contributions to prediction score"
     )
     feature_importances: dict[str, float] = Field(
         default_factory=dict, description="Feature importance scores"

@@ -191,7 +191,7 @@ def audit(model: str, framework: str) -> None:
         "issues_found": 2,
         "recommendations": [
             "Add data lineage documentation",
-            "Implement bias detection monitoring"
+            "Implement bias monitoring"
         ]
     }
     

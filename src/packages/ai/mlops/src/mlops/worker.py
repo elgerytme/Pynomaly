@@ -253,7 +253,7 @@ async def run_worker_demo() -> None:
     # Demo pipeline deployment
     pipeline_job = {
         "id": "pipeline_001",
-        "config_path": "/configs/fraud_detection_pipeline.yaml",
+        "config_path": "/configs/prediction_pipeline.yaml",
         "environment": "staging"
     }
     
@@ -262,9 +262,9 @@ async def run_worker_demo() -> None:
     
     # Demo model training and registration
     training_job = {
-        "name": "fraud_detector",
+        "name": "classifier_model",
         "version": "2.0",
-        "dataset": "/data/fraud_training.csv",
+        "dataset": "/data/training_data.csv",
         "algorithm": "xgboost"
     }
     

@@ -877,5 +877,298 @@ def analyze(results: str, method: str) -> None:
     click.echo(f"Analyzing results from: {results} using {method}")
 
 
+@main.group()
+def worker() -> None:
+    """Background worker management commands."""
+    pass
+
+
+@worker.command()
+@click.option('--models-dir', '-d', default='models', help='Models directory')
+@click.option('--max-jobs', default=3, type=int, help='Maximum concurrent jobs')
+@click.option('--enable-monitoring', is_flag=True, default=True, help='Enable monitoring')
+@handle_cli_error
+def start(models_dir: str, max_jobs: int, enable_monitoring: bool) -> None:
+    """Start the background worker service."""
+    from .worker import AnomalyDetectionWorker
+    
+    click.echo(f"🚀 Starting Anomaly Detection Worker")
+    click.echo(f"   Models directory: {models_dir}")
+    click.echo(f"   Max concurrent jobs: {max_jobs}")
+    click.echo(f"   Monitoring enabled: {enable_monitoring}")
+    click.echo("   Press Ctrl+C to stop worker\n")
+    
+    worker_instance = AnomalyDetectionWorker(
+        models_dir=models_dir,
+        max_concurrent_jobs=max_jobs,
+        enable_monitoring=enable_monitoring
+    )
+    
+    async def run_worker():
+        try:
+            await worker_instance.start()
+        except KeyboardInterrupt:
+            click.echo("\n🛑 Shutting down worker...")
+            await worker_instance.stop()
+            click.echo("✅ Worker stopped successfully")
+    
+    try:
+        asyncio.run(run_worker())
+    except KeyboardInterrupt:
+        click.echo("\n✅ Worker shutdown complete")
+
+
+@worker.command()
+@click.option('--job-type', required=True,
+              type=click.Choice(['detection', 'ensemble', 'batch_training', 'stream_monitoring', 
+                               'model_validation', 'data_preprocessing', 'explanation_generation', 
+                               'scheduled_analysis']),
+              help='Type of job to submit')
+@click.option('--data-source', help='Data source (file path or direct data)')
+@click.option('--algorithm', default='isolation_forest', help='Algorithm to use')
+@click.option('--contamination', default=0.1, type=float, help='Contamination rate')
+@click.option('--output', help='Output file path')
+@click.option('--priority', default='normal',
+              type=click.Choice(['low', 'normal', 'high', 'critical']),
+              help='Job priority')
+@click.option('--models-dir', '-d', default='models', help='Models directory')
+@click.option('--wait', is_flag=True, help='Wait for job completion')
+@handle_cli_error
+def submit(job_type: str, data_source: Optional[str], algorithm: str, 
+           contamination: float, output: Optional[str], priority: str,
+           models_dir: str, wait: bool) -> None:
+    """Submit a job to the background worker."""
+    from .worker import AnomalyDetectionWorker, JobType, JobPriority
+    
+    # Map string values to enums
+    job_type_map = {
+        'detection': JobType.DETECTION,
+        'ensemble': JobType.ENSEMBLE,
+        'batch_training': JobType.BATCH_TRAINING,
+        'stream_monitoring': JobType.STREAM_MONITORING,
+        'model_validation': JobType.MODEL_VALIDATION,
+        'data_preprocessing': JobType.DATA_PREPROCESSING,
+        'explanation_generation': JobType.EXPLANATION_GENERATION,
+        'scheduled_analysis': JobType.SCHEDULED_ANALYSIS
+    }
+    
+    priority_map = {
+        'low': JobPriority.LOW,
+        'normal': JobPriority.NORMAL,
+        'high': JobPriority.HIGH,
+        'critical': JobPriority.CRITICAL
+    }
+    
+    # Build job payload
+    payload = {
+        'algorithm': algorithm,
+        'contamination': contamination
+    }
+    
+    if data_source:
+        payload['data_source'] = data_source
+    if output:
+        payload['output_path'] = output
+    
+    # Additional payload based on job type
+    if job_type == 'ensemble':
+        payload['algorithms'] = ['isolation_forest', 'lof']
+        payload['method'] = 'majority'
+    elif job_type == 'explanation_generation':
+        payload['anomaly_indices'] = [1, 2, 3]  # Default indices
+        payload['method'] = 'feature_importance'
+    elif job_type == 'scheduled_analysis':
+        payload['analysis_type'] = 'daily_summary'
+        payload['data_sources'] = ['default']
+    
+    worker_instance = AnomalyDetectionWorker(
+        models_dir=models_dir,
+        enable_monitoring=False
+    )
+    
+    async def submit_and_wait():
+        # Submit job
+        job_id = await worker_instance.submit_job(
+            job_type_map[job_type],
+            payload,
+            priority=priority_map[priority]
+        )
+        
+        click.echo(f"✅ Job submitted successfully")
+        click.echo(f"   Job ID: {job_id}")
+        click.echo(f"   Type: {job_type}")
+        click.echo(f"   Priority: {priority}")
+        
+        if wait:
+            click.echo("\n⏳ Waiting for job completion...")
+            
+            # Start worker in background
+            worker_task = asyncio.create_task(worker_instance.start())
+            
+            try:
+                # Monitor job progress
+                max_wait = 300  # 5 minutes
+                wait_time = 0
+                
+                while wait_time < max_wait:
+                    status = await worker_instance.get_job_status(job_id)
+                    if status:
+                        job_status = status['status']
+                        progress = status.get('progress', 0)
+                        
+                        click.echo(f"   Status: {job_status} ({progress:.1f}%)")
+                        
+                        if job_status in ['completed', 'failed', 'cancelled']:
+                            break
+                    
+                    await asyncio.sleep(3)
+                    wait_time += 3
+                
+                # Get final result
+                final_status = await worker_instance.get_job_status(job_id)
+                if final_status:
+                    if final_status['status'] == 'completed':
+                        click.echo(f"\n✅ Job completed successfully!")
+                        if final_status.get('result'):
+                            click.echo("   Result:")
+                            click.echo(f"   {json.dumps(final_status['result'], indent=2, default=str)}")
+                    else:
+                        click.echo(f"\n❌ Job {final_status['status']}")
+                        if final_status.get('error_message'):
+                            click.echo(f"   Error: {final_status['error_message']}")
+                
+            finally:
+                await worker_instance.stop()
+                worker_task.cancel()
+                try:
+                    await worker_task
+                except asyncio.CancelledError:
+                    pass
+    
+    asyncio.run(submit_and_wait())
+
+
+@worker.command()
+@click.option('--job-id', required=True, help='Job ID to check')
+@click.option('--models-dir', '-d', default='models', help='Models directory')
+@handle_cli_error
+def status(job_id: str, models_dir: str) -> None:
+    """Check the status of a specific job."""
+    from .worker import AnomalyDetectionWorker
+    
+    worker_instance = AnomalyDetectionWorker(
+        models_dir=models_dir,
+        enable_monitoring=False
+    )
+    
+    async def check_status():
+        job_status = await worker_instance.get_job_status(job_id)
+        
+        if job_status:
+            click.echo(f"📋 Job Status: {job_id}")
+            click.echo(f"   Status: {job_status['status']}")
+            click.echo(f"   Type: {job_status['job_type']}")
+            click.echo(f"   Priority: {job_status['priority']}")
+            click.echo(f"   Progress: {job_status.get('progress', 0):.1f}%")
+            click.echo(f"   Created: {job_status['created_at']}")
+            
+            if job_status.get('started_at'):
+                click.echo(f"   Started: {job_status['started_at']}")
+            
+            if job_status.get('completed_at'):
+                click.echo(f"   Completed: {job_status['completed_at']}")
+            
+            if job_status.get('error_message'):
+                click.echo(f"   Error: {job_status['error_message']}")
+            
+            if job_status.get('result'):
+                click.echo(f"\n📊 Result:")
+                click.echo(f"{json.dumps(job_status['result'], indent=2, default=str)}")
+        else:
+            click.echo(f"❌ Job not found: {job_id}")
+    
+    asyncio.run(check_status())
+
+
+@worker.command()
+@click.option('--models-dir', '-d', default='models', help='Models directory')
+@handle_cli_error
+def info() -> None:
+    """Show worker system information."""
+    from .worker import AnomalyDetectionWorker
+    
+    worker_instance = AnomalyDetectionWorker(
+        models_dir='models',
+        enable_monitoring=False
+    )
+    
+    async def show_info():
+        worker_status = await worker_instance.get_worker_status()
+        queue_status = worker_status['queue_status']
+        
+        click.echo(f"🔧 Worker System Information")
+        click.echo(f"   Running: {worker_status['is_running']}")
+        click.echo(f"   Max concurrent jobs: {worker_status['max_concurrent_jobs']}")
+        click.echo(f"   Currently running: {worker_status['currently_running_jobs']}")
+        click.echo(f"   Monitoring enabled: {worker_status['monitoring_enabled']}")
+        
+        click.echo(f"\n📋 Job Queue Status")
+        click.echo(f"   Pending jobs: {queue_status['pending_jobs']}")
+        click.echo(f"   Total jobs: {queue_status['total_jobs']}")
+        
+        if queue_status['status_counts']:
+            click.echo(f"\n📊 Job Status Counts:")
+            for status, count in queue_status['status_counts'].items():
+                click.echo(f"   {status}: {count}")
+        
+        if worker_status['running_job_ids']:
+            click.echo(f"\n🏃 Currently Running Jobs:")
+            for job_id in worker_status['running_job_ids']:
+                click.echo(f"   {job_id}")
+    
+    asyncio.run(show_info())
+
+
+@worker.command()
+@click.option('--job-id', required=True, help='Job ID to cancel')
+@click.option('--models-dir', '-d', default='models', help='Models directory')
+@handle_cli_error
+def cancel(job_id: str, models_dir: str) -> None:
+    """Cancel a pending or running job."""
+    from .worker import AnomalyDetectionWorker
+    
+    worker_instance = AnomalyDetectionWorker(
+        models_dir=models_dir,
+        enable_monitoring=False
+    )
+    
+    async def cancel_job():
+        success = await worker_instance.cancel_job(job_id)
+        
+        if success:
+            click.echo(f"✅ Job cancelled successfully: {job_id}")
+        else:
+            click.echo(f"❌ Failed to cancel job: {job_id}")
+            click.echo("   Job may not exist or already be completed")
+    
+    asyncio.run(cancel_job())
+
+
+@worker.command()
+@handle_cli_error
+def demo() -> None:
+    """Run a demonstration of worker capabilities."""
+    from .worker import run_worker_demo
+    
+    click.echo(f"🎭 Running Worker Demo")
+    click.echo(f"   This will demonstrate various worker capabilities")
+    click.echo(f"   Including detection, ensemble, and explanation jobs\n")
+    
+    try:
+        asyncio.run(run_worker_demo())
+    except KeyboardInterrupt:
+        click.echo("\n🛑 Demo interrupted by user")
+
+
 if __name__ == '__main__':
     main()

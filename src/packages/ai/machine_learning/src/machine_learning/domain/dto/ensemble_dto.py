@@ -414,8 +414,8 @@ def create_ensemble_performance_from_dict(
 # DTOs for Ensemble Detection Use Case
 
 
-class EnsembleDetectionRequestDTO(BaseModel):
-    """Request DTO for ensemble detection."""
+class EnsemblePredictionRequestDTO(BaseModel):
+    """Request DTO for ensemble prediction."""
 
     model_config = ConfigDict(extra="forbid")
     detector_ids: list[str] = Field(
@@ -525,17 +525,17 @@ class EnsembleDetectionRequestDTO(BaseModel):
         return v
 
 
-class EnsembleDetectionResponseDTO(BaseModel):
-    """Response DTO for ensemble detection."""
+class EnsemblePredictionResponseDTO(BaseModel):
+    """Response DTO for ensemble prediction."""
 
     model_config = ConfigDict(extra="forbid")
-    success: bool = Field(description="Whether the detection was successful")
+    success: bool = Field(description="Whether the prediction was successful")
     predictions: list[int] = Field(
         default_factory=list,
-        description="Binary anomaly predictions (0=normal, 1=anomaly)",
+        description="Binary predictions (0=negative, 1=positive)",
     )
-    anomaly_scores: list[float] = Field(
-        default_factory=list, description="Continuous anomaly scores (0.0-1.0)"
+    prediction_scores: list[float] = Field(
+        default_factory=list, description="Continuous prediction scores (0.0-1.0)"
     )
     confidence_scores: list[float] = Field(
         default_factory=list, description="Prediction confidence levels"
@@ -566,7 +566,7 @@ class EnsembleDetectionResponseDTO(BaseModel):
     )
     warnings: list[str] = Field(default_factory=list, description="Warning messages")
     error_message: str | None = Field(
-        default=None, description="Error message if detection failed"
+        default=None, description="Error message if prediction failed"
     )
 
 
