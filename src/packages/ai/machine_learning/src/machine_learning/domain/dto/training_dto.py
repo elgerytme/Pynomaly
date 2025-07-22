@@ -388,9 +388,9 @@ class ModelMetricsDTO:
     f1_score: float | None = None
     roc_auc: float | None = None
 
-    # Anomaly detection specific
-    anomaly_score_mean: float | None = None
-    anomaly_score_std: float | None = None
+    # Prediction specific
+    prediction_score_mean: float | None = None
+    prediction_score_std: float | None = None
     contamination_detected: float | None = None
 
     # Cross-validation metrics
@@ -416,8 +416,8 @@ class ModelMetricsDTO:
             "recall": self.recall,
             "f1_score": self.f1_score,
             "roc_auc": self.roc_auc,
-            "anomaly_score_mean": self.anomaly_score_mean,
-            "anomaly_score_std": self.anomaly_score_std,
+            "prediction_score_mean": self.prediction_score_mean,
+            "prediction_score_std": self.prediction_score_std,
             "contamination_detected": self.contamination_detected,
             "cv_scores": self.cv_scores,
             "cv_mean": self.cv_mean,
