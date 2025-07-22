@@ -74,7 +74,7 @@ graph TB
 
 **Responsibility**: Core anomaly detection algorithms, real-time detection, ensemble methods, and streaming detection with ML integration delegation.
 
-**Package Location**: `@src/packages/ai/anomaly_detection` (Consolidated from 118+ services to 3 core services)
+**Package Location**: `@src/packages/data/anomaly_detection` (Consolidated from 118+ services to 3 core services)
 
 #### 🏛️ Domain Entities & Aggregates
 

@@ -1,0 +1,13 @@
+"""
+Presentation layer - User interface and external API concerns.
+
+This layer contains:
+- REST API controllers
+- GraphQL resolvers
+- CLI commands
+- Web interfaces
+- Request/Response models
+- Input validation
+- Authentication/Authorization
+- API documentation
+"""

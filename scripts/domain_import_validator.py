@@ -2,7 +2,8 @@
 """
 Domain Import Validator
 
-This script validates that import statements don't violate domain boundaries.
+This script validates that import statements don't violate domain boundaries
+and enforces import consolidation rules (single import per package).
 It's designed to be used as a pre-commit hook for individual files.
 """
 
@@ -10,6 +11,7 @@ import ast
 import sys
 from pathlib import Path
 from typing import List, Dict, Set, Optional
+from collections import defaultdict
 
 class DomainImportValidator:
     def __init__(self, project_root: str):
@@ -78,7 +80,11 @@ class DomainImportValidator:
             tree = ast.parse(content)
             imports = self._extract_imports(tree)
             
-            # Check each import
+            # Check import consolidation (single import per package rule)
+            consolidation_violations = self._check_import_consolidation(imports)
+            violations.extend(consolidation_violations)
+            
+            # Check each import for domain boundary violations
             for import_info in imports:
                 import_domain = self._get_domain_from_import(import_info['module'])
                 
@@ -194,6 +200,78 @@ class DomainImportValidator:
                     return True
                     
         return False
+
+    def _check_import_consolidation(self, imports: List[Dict]) -> List[str]:
+        """Check for import consolidation violations (multiple imports from same package)"""
+        violations = []
+        
+        # Group imports by package
+        imports_by_package = defaultdict(list)
+        
+        for import_info in imports:
+            module = import_info['module']
+            
+            # Skip standard library and relative imports
+            if self._is_standard_library_or_relative(module):
+                continue
+            
+            # Extract base package name
+            package_name = self._extract_base_package(module)
+            if package_name:
+                imports_by_package[package_name].append(import_info)
+        
+        # Check for multiple imports from same package
+        for package, import_list in imports_by_package.items():
+            if len(import_list) > 1:
+                lines = [str(imp['line']) for imp in import_list]
+                statements = [f"'{imp['module']}'" for imp in import_list]
+                
+                violations.append(
+                    f"Lines {', '.join(lines)}: Multiple imports from package '{package}' - "
+                    f"consolidate {', '.join(statements[:3])}{'...' if len(statements) > 3 else ''}"
+                )
+        
+        return violations
+    
+    def _is_standard_library_or_relative(self, module: str) -> bool:
+        """Check if module is standard library or relative import"""
+        if not module or module.startswith('.'):
+            return True
+            
+        # Common standard library modules
+        stdlib_modules = {
+            'os', 'sys', 'json', 'yaml', 'datetime', 'typing', 'pathlib', 're',
+            'subprocess', 'logging', 'collections', 'itertools', 'functools',
+            'asyncio', 'concurrent', 'multiprocessing', 'threading', 'unittest',
+            'ast', 'argparse', 'tempfile', 'shutil', 'base64', 'hashlib'
+        }
+        
+        root_module = module.split('.')[0]
+        return root_module in stdlib_modules
+    
+    def _extract_base_package(self, module: str) -> Optional[str]:
+        """Extract base package name for consolidation checking"""
+        if not module:
+            return None
+            
+        # Handle internal packages (src.packages.domain.package)
+        if module.startswith('src.packages.'):
+            parts = module.split('.')
+            if len(parts) >= 4:
+                return f"{parts[2]}.{parts[3]}"  # domain.package
+            elif len(parts) >= 3:
+                return parts[2]  # domain
+                
+        # Handle packages.domain.package imports
+        if module.startswith('packages.'):
+            parts = module.split('.')
+            if len(parts) >= 3:
+                return f"{parts[1]}.{parts[2]}"  # domain.package
+            elif len(parts) >= 2:
+                return parts[1]  # domain
+        
+        # For external packages, use root module name
+        return module.split('.')[0]
 
 def main():
     """Main entry point for pre-commit hook"""

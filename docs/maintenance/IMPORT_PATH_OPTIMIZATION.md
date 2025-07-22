@@ -2,7 +2,45 @@
 
 ## Overview
 
-After the comprehensive domain reorganization, import paths need to be updated to reflect the new clean architecture structure. This document provides guidance for maintaining and optimizing imports.
+After the comprehensive domain reorganization, import paths need to be updated to reflect the new clean architecture structure. This document provides guidance for maintaining and optimizing imports, including the new **single import per package rule**.
+
+## Single Import Per Package Rule
+
+Starting with the latest update, the monorepo enforces a **single import per package rule**:
+
+- **Rule**: Each Python file may only have ONE import statement per external package
+- **Rationale**: Reduces coupling, improves maintainability, and makes dependencies explicit
+- **Enforcement**: Automated validation in pre-commit hooks and Buck2 builds
+- **Auto-fix**: Available through automated refactoring tools
+
+### Examples
+
+❌ **Bad - Multiple imports from same package:**
+```python
+from src.packages.data.analytics import DataProcessor  
+from src.packages.data.analytics import MetricsCalculator
+from src.packages.data.analytics import ReportGenerator
+```
+
+✅ **Good - Single consolidated import:**
+```python
+from src.packages.data.analytics import (
+    DataProcessor,
+    MetricsCalculator, 
+    ReportGenerator
+)
+```
+
+❌ **Bad - Mixed import styles:**
+```python
+import src.packages.ai.mlops
+from src.packages.ai.mlops import ExperimentTracker
+```
+
+✅ **Good - Consistent from-import style:**
+```python
+from src.packages.ai.mlops import MLOpsService, ExperimentTracker
+```
 
 ## New Import Structure
 
@@ -111,7 +149,68 @@ Update test file imports systematically:
    from src.packages.infrastructure.adapters.pyod_adapter import PyODAdapter
    ```
 
-## Automated Import Fixing
+## Import Consolidation Tools
+
+### Validation Tool
+The import consolidation validator checks for violations of the single import per package rule:
+
+```bash
+# Validate all packages
+python scripts/import_consolidation_validator.py
+
+# Validate specific package
+python scripts/import_consolidation_validator.py --package data.analytics
+
+# Validate specific files (useful for pre-commit hooks)
+python scripts/import_consolidation_validator.py --changed-files file1.py file2.py
+
+# Fail build on violations
+python scripts/import_consolidation_validator.py --fail-on-violations
+```
+
+### Auto-Fix Tool
+The import consolidation refactor tool automatically fixes violations:
+
+```bash
+# Fix all packages (with backup)
+python scripts/import_consolidation_refactor.py
+
+# Fix specific package
+python scripts/import_consolidation_refactor.py --package data.analytics
+
+# Fix specific files
+python scripts/import_consolidation_refactor.py --files file1.py file2.py
+
+# Dry run (preview changes without applying)
+python scripts/import_consolidation_refactor.py --dry-run
+
+# Restore from backup
+python scripts/import_consolidation_refactor.py --restore-backup 20250122_143000
+```
+
+### Buck2 Integration
+Import validation is integrated into the Buck2 build system:
+
+```bash
+# Run import validation for all packages
+buck2 test //:import-validation-all
+
+# Run import validation for specific domain
+buck2 test //src/packages/data/analytics:import-validation
+
+# Auto-fix imports and rebuild
+buck2 run //:import-fix-all
+buck2 build //:pynomaly
+```
+
+### Pre-commit Hook Integration
+Import consolidation is automatically checked in pre-commit hooks:
+
+- **Automatic validation**: Runs on every commit for changed Python files
+- **Auto-fix**: Automatically fixes violations and re-stages files
+- **Configuration**: Set `AUTO_FIX_IMPORTS=false` to disable auto-fix
+
+## Legacy Import Fixing
 
 ### Using sed (Linux/macOS)
 ```bash
@@ -172,7 +271,25 @@ if __name__ == "__main__":
 
 ## Best Practices
 
-### 1. Use Absolute Imports
+### 1. Follow the Single Import Per Package Rule
+```python
+# ❌ Bad - Multiple imports from same package
+from src.packages.data.quality import QualityChecker
+from src.packages.data.quality import ValidationRules
+from src.packages.data.quality import DataProfiler
+
+# ✅ Good - Single consolidated import
+from src.packages.data.quality import (
+    QualityChecker,
+    ValidationRules,
+    DataProfiler
+)
+
+# ✅ Also good - Single line for few imports
+from src.packages.data.quality import QualityChecker, ValidationRules
+```
+
+### 2. Use Absolute Imports
 ```python
 # Good - absolute import
 from src.packages.core.domain.entities.anomaly import Anomaly
@@ -302,7 +419,7 @@ from packages.testing.fixtures import sample_dataset
 ## Monitoring Import Health
 
 ### CI Integration
-Add import validation to your CI pipeline:
+Add import consolidation validation to your CI pipeline:
 
 ```yaml
 # In .github/workflows/main-ci.yml
@@ -311,30 +428,74 @@ Add import validation to your CI pipeline:
     echo "Checking import syntax..."
     find src/ -name "*.py" -exec python -m py_compile {} \;
     
-    echo "Checking import performance..."
-    python scripts/performance_validation.py
+    echo "Checking import consolidation..."
+    python scripts/import_consolidation_validator.py --fail-on-violations
+    
+    echo "Checking domain boundaries..."
+    python scripts/domain_import_validator.py --fail-on-violation src/packages/**/*.py
 ```
 
 ### Pre-commit Hook
-```yaml
-# In .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: validate-imports
-        name: Validate Python imports
-        entry: python -m py_compile
-        language: system
-        files: \.py$
+The pre-commit hook automatically includes import consolidation validation:
+
+```bash
+# Install the enhanced pre-commit hook
+cp scripts/git-hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
+# Configure auto-fix behavior
+export AUTO_FIX_IMPORTS=true  # Enable automatic import fixes
+export AUTO_FIX_IMPORTS=false # Disable automatic import fixes (manual fixes required)
+```
+
+### Buck2 Build Integration
+Import validation runs automatically during Buck2 builds:
+
+```bash
+# Build with import validation
+buck2 build //:pynomaly
+
+# Run only import validation tests
+buck2 test //:import-validation-all
+
+# View validation results
+buck2 log show-output //:import-validation-all
 ```
 
 ## Summary
 
-The domain reorganization has created a clean, maintainable architecture. Import path updates are a one-time migration cost that will pay dividends in:
+The domain reorganization combined with the new **single import per package rule** creates a clean, maintainable architecture. The import consolidation system provides:
 
-1. **Clarity**: Clear domain boundaries make code easier to understand
-2. **Maintainability**: Changes are isolated to specific domains
-3. **Testability**: Domain separation enables better unit testing
-4. **Scalability**: New features can be added without affecting existing domains
+### Benefits
 
-Follow this guide to systematically update imports while maintaining the benefits of our clean architecture.
+1. **Reduced Coupling**: Single import per package rule makes dependencies explicit and minimal
+2. **Improved Maintainability**: Clear domain boundaries and consolidated imports are easier to understand
+3. **Automated Enforcement**: Pre-commit hooks, Buck2 integration, and CI validation prevent violations
+4. **Easy Fixes**: Automated refactoring tools fix violations with backup and rollback capabilities
+5. **Better Testability**: Domain separation and clear dependencies enable better unit testing
+6. **Scalability**: New features can be added without creating import complexity
+
+### Migration Path
+
+1. **Run validation**: `python scripts/import_consolidation_validator.py`
+2. **Auto-fix violations**: `python scripts/import_consolidation_refactor.py`
+3. **Enable enforcement**: Install the enhanced pre-commit hook
+4. **Build integration**: Use Buck2 build system with import validation
+
+### Quick Commands
+
+```bash
+# Check for violations
+python scripts/import_consolidation_validator.py
+
+# Fix all violations automatically
+python scripts/import_consolidation_refactor.py
+
+# Preview changes without applying
+python scripts/import_consolidation_refactor.py --dry-run
+
+# Enable pre-commit enforcement
+cp scripts/git-hooks/pre-commit .git/hooks/pre-commit
+```
+
+Follow this guide to maintain clean, consolidated imports while benefiting from the enhanced architecture and automated tooling.

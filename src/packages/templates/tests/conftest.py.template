@@ -1,0 +1,26 @@
+"""
+Template conftest.py for pytest configuration and fixtures.
+
+Customize this file based on your package's specific testing needs.
+"""
+
+import pytest
+from pathlib import Path
+
+
+@pytest.fixture
+def test_data_dir():
+    """Path to test data directory."""
+    return Path(__file__).parent / "data"
+
+
+@pytest.fixture
+def sample_config():
+    """Sample configuration for testing."""
+    return {
+        "debug": True,
+        "test_mode": True,
+    }
+
+
+# Add package-specific fixtures here

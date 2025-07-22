@@ -21,6 +21,8 @@ NC='\033[0m' # No Color
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 DOMAIN_VALIDATOR="$REPO_ROOT/scripts/domain_boundary_validator.py"
 DOMAIN_CLI="$REPO_ROOT/scripts/domain_cli.py"
+IMPORT_CONSOLIDATION_VALIDATOR="$REPO_ROOT/scripts/import_consolidation_validator.py"
+IMPORT_REFACTOR="$REPO_ROOT/scripts/import_consolidation_refactor.py"
 SINGLE_PACKAGE_VALIDATOR="$REPO_ROOT/tools/validate_single_package_development.py"
 VALIDATION_SCRIPT="$REPO_ROOT/scripts/validation/validate_organization.py"
 
@@ -29,6 +31,7 @@ AUTO_FIX_VIOLATIONS=${AUTO_FIX_VIOLATIONS:-true}
 DETECT_NEW_DOMAINS=${DETECT_NEW_DOMAINS:-true}
 BLOCK_ON_HIGH_CONFIDENCE_DOMAINS=${BLOCK_ON_HIGH_CONFIDENCE_DOMAINS:-true}
 CONFIDENCE_THRESHOLD=${CONFIDENCE_THRESHOLD:-0.8}
+AUTO_FIX_IMPORTS=${AUTO_FIX_IMPORTS:-true}
 
 echo -e "${BLUE}🔍 Pre-commit: Domain Boundary Enforcement${NC}"
 echo -e "${CYAN}===========================================${NC}"
@@ -181,9 +184,71 @@ except:
     fi
 }
 
+# Function to run import consolidation validation
+run_import_consolidation_check() {
+    echo -e "${BLUE}🔍 Step 2: Import Consolidation Validation${NC}"
+    
+    if [ ! -f "$IMPORT_CONSOLIDATION_VALIDATOR" ]; then
+        echo -e "${YELLOW}⚠️  Import consolidation validator not found, skipping${NC}"
+        return 0
+    fi
+    
+    # Get list of changed Python files
+    CHANGED_PY_FILES=$(git diff --cached --name-only | grep "\.py$" | grep "^src/packages/" || true)
+    
+    if [ -z "$CHANGED_PY_FILES" ]; then
+        echo -e "${GREEN}✅ No Python files in packages changed${NC}"
+        return 0
+    fi
+    
+    echo -e "${BLUE}   Checking import consolidation in changed files...${NC}"
+    
+    # Run import consolidation validation on changed files
+    if python3 "$IMPORT_CONSOLIDATION_VALIDATOR" --changed-files $CHANGED_PY_FILES --fail-on-violations; then
+        echo -e "${GREEN}✅ Import consolidation validation passed${NC}"
+        return 0
+    else
+        VIOLATIONS_FOUND=$?
+        echo -e "${RED}❌ Found import consolidation violations${NC}"
+        
+        if [ "$AUTO_FIX_IMPORTS" = "true" ] && [ -f "$IMPORT_REFACTOR" ]; then
+            echo -e "${BLUE}🔧 Attempting to auto-fix import violations...${NC}"
+            
+            # Run import refactoring on changed files
+            if python3 "$IMPORT_REFACTOR" --files $CHANGED_PY_FILES; then
+                echo -e "${GREEN}✅ Auto-fixed import consolidation violations${NC}"
+                
+                # Re-stage the fixed files
+                for file in $CHANGED_PY_FILES; do
+                    git add "$file"
+                done
+                
+                echo -e "${BLUE}📝 Fixed files have been re-staged${NC}"
+                
+                # Re-validate to ensure fixes worked
+                if python3 "$IMPORT_CONSOLIDATION_VALIDATOR" --changed-files $CHANGED_PY_FILES --fail-on-violations; then
+                    echo -e "${GREEN}✅ Import consolidation validation passed after auto-fix${NC}"
+                    return 0
+                else
+                    echo -e "${YELLOW}⚠️  Some violations could not be auto-fixed${NC}"
+                fi
+            else
+                echo -e "${YELLOW}⚠️  Could not auto-fix import violations${NC}"
+            fi
+        fi
+        
+        echo -e "${RED}❌ Import consolidation violations remain${NC}"
+        echo -e "${BLUE}💡 Manual fixes required:${NC}"
+        echo "   • Run: python scripts/import_consolidation_validator.py --changed-files <files>"
+        echo "   • Fix violations manually or run: python scripts/import_consolidation_refactor.py --files <files>"
+        echo "   • Use --no-verify to skip (not recommended)"
+        return 1
+    fi
+}
+
 # Function to run single package development check
 run_single_package_check() {
-    echo -e "${BLUE}🔍 Step 2: Single Package Development Check${NC}"
+    echo -e "${BLUE}🔍 Step 3: Single Package Development Check${NC}"
     
     # Get changed files in src/packages/
     PACKAGE_FILES=$(git diff --cached --name-only | grep "^src/packages/" || true)
@@ -229,14 +294,19 @@ if ! run_domain_validation; then
     VALIDATION_FAILED=true
 fi
 
-# Step 2: Single package development check
+# Step 2: Import consolidation validation
+if ! run_import_consolidation_check; then
+    VALIDATION_FAILED=true
+fi
+
+# Step 3: Single package development check
 if ! run_single_package_check; then
     VALIDATION_FAILED=true
 fi
 
-# Step 3: Repository organization validation (if script exists)
+# Step 4: Repository organization validation (if script exists)
 if [ -f "$VALIDATION_SCRIPT" ]; then
-    echo -e "${BLUE}🔍 Step 3: Repository Organization Validation${NC}"
+    echo -e "${BLUE}🔍 Step 4: Repository Organization Validation${NC}"
     if python3 "$VALIDATION_SCRIPT" --quiet; then
         echo -e "${GREEN}✅ Repository organization validation passed${NC}"
     else
@@ -263,6 +333,7 @@ if [ "$VALIDATION_FAILED" = true ]; then
     echo -e "${RED}❌ Pre-commit validation failed${NC}"
     echo -e "${BLUE}💡 Quick fixes:${NC}"
     echo "   • Domain issues: python scripts/domain_cli.py validate --fix"
+    echo "   • Import consolidation: python scripts/import_consolidation_refactor.py --files <files>"
     echo "   • Single package: split commits by package"
     echo "   • Organization: scripts/cleanup/auto_organize.py"
     echo ""

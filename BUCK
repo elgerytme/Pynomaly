@@ -6,15 +6,16 @@ load("//tools/buck:python.bzl", "monorepo_workspace_package")
 load("//tools/buck:testing.bzl", "python_test_suite")
 load("//tools/buck:advanced_features.bzl", "openapi_python_client", "ml_model_artifacts", "docker_image_build", "documentation_site")
 load("//tools/buck:monitoring.bzl", "build_metrics_collector", "performance_dashboard", "build_performance_alerts")
+load("//tools/buck:import_validation.bzl", "create_import_validation_suite", "create_import_fix_suite")
 
 # ==========================================
 # AI DOMAIN - Machine Learning and Anomaly Detection
 # ==========================================
 
-# Reference to self-contained package-level targets
+# Reference to self-contained package-level targets (moved to data domain)
 alias(
-    name = "ai-anomaly-detection",
-    actual = "//src/packages/ai/anomaly_detection:anomaly_detection",
+    name = "data-anomaly-detection",
+    actual = "//src/packages/data/anomaly_detection:anomaly_detection",
     visibility = ["PUBLIC"],
 )
 
@@ -118,9 +119,9 @@ python_binary(
 # Anomaly Detection CLI  
 python_binary(
     name = "anomaly-detection-cli",
-    main = "src/packages/ai/anomaly_detection/infrastructure/cli/app.py", 
+    main = "src/packages/data/anomaly_detection/cli/__init__.py", 
     deps = [
-        ":ai-anomaly-detection",
+        ":data-anomaly-detection",
         "//third-party/python:click",
     ],
     visibility = ["PUBLIC"],
@@ -139,7 +140,6 @@ python_test_suite(
         "src/packages/ai/**/tests/**/*.py",
     ]),
     deps = [
-        ":ai-anomaly-detection",
         ":ai-machine-learning", 
         ":ai-mlops",
     ],
@@ -155,6 +155,7 @@ python_test_suite(
         "src/packages/data/**/tests/**/*.py",
     ]),
     deps = [
+        ":data-anomaly-detection",
         ":data-analytics",
         ":data-engineering",
         ":data-quality",
@@ -188,7 +189,6 @@ python_test_suite(
 python_library(
     name = "ai-all",
     deps = [
-        ":ai-anomaly-detection",
         ":ai-machine-learning",
         ":ai-mlops", 
     ],
@@ -199,6 +199,7 @@ python_library(
 python_library(
     name = "data-all",
     deps = [
+        ":data-anomaly-detection",
         ":data-analytics",
         ":data-engineering", 
         ":data-quality",
@@ -245,7 +246,7 @@ python_library(
 # ML Model Artifacts (example)
 # ml_model_artifacts(
 #     name = "anomaly-detection-models",
-#     model_script = "src/packages/ai/anomaly_detection/scripts/train_model.py",
+#     model_script = "src/packages/data/anomaly_detection/scripts/train_model.py",
 #     training_data = [
 #         "data/training/anomaly_dataset.csv",
 #     ],
@@ -322,4 +323,48 @@ build_performance_alerts(
         "min_cache_hit_rate": 0.8,  # 80%
     },
     visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# IMPORT CONSOLIDATION VALIDATION
+# ==========================================
+
+# Create import validation suite for all packages
+create_import_validation_suite(
+    name = "import-validation-all",
+    packages = {
+        "ai.machine_learning": [":ai-machine-learning"],
+        "ai.mlops": [":ai-mlops"],
+        "data.anomaly_detection": [":data-anomaly-detection"],
+        "data.analytics": [":data-analytics"],
+        "data.engineering": [":data-engineering"],
+        "data.quality": [":data-quality"],
+        "data.observability": [":data-observability"],
+        "data.profiling": [":data-profiling"],
+        "data.architecture": [":data-architecture"],
+        "data.statistics": [":data-statistics"],
+        "enterprise.auth": [":enterprise-auth"],
+        "enterprise.governance": [":enterprise-governance"],
+        "enterprise.scalability": [":enterprise-scalability"],
+    }
+)
+
+# Create import fix suite for all packages  
+create_import_fix_suite(
+    name = "import-fix-all",
+    packages = {
+        "ai.machine_learning": [":ai-machine-learning"],
+        "ai.mlops": [":ai-mlops"],
+        "data.anomaly_detection": [":data-anomaly-detection"],
+        "data.analytics": [":data-analytics"],
+        "data.engineering": [":data-engineering"],
+        "data.quality": [":data-quality"],
+        "data.observability": [":data-observability"],
+        "data.profiling": [":data-profiling"],
+        "data.architecture": [":data-architecture"],
+        "data.statistics": [":data-statistics"],
+        "enterprise.auth": [":enterprise-auth"],
+        "enterprise.governance": [":enterprise-governance"],
+        "enterprise.scalability": [":enterprise-scalability"],
+    }
 )
