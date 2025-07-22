@@ -8,16 +8,16 @@ from typing import Any
 
 @dataclass(frozen=True)
 class PerformanceMetrics:
-    """Comprehensive performance metrics for anomaly detection models.
+    """Comprehensive performance metrics for machine learning models.
 
     This value object captures all relevant performance measurements
-    for an anomaly detection model, including detection quality,
+    for a machine learning model, including prediction quality,
     computational efficiency, and resource usage.
 
     Attributes:
         accuracy: Overall accuracy of the model
-        precision: Precision score for anomaly detection
-        recall: Recall score for anomaly detection
+        precision: Precision score for predictions
+        recall: Recall score for predictions
         f1_score: F1 score (harmonic mean of precision and recall)
         roc_auc: ROC AUC score (if applicable)
         pr_auc: Precision-Recall AUC score
@@ -229,7 +229,7 @@ class PerformanceMetrics:
         Returns:
             PerformanceMetrics with estimated precision, recall, F1
         """
-        # Estimate precision and recall from accuracy for anomaly detection
+        # Estimate precision and recall from accuracy for machine learning
         # This is a rough approximation assuming balanced performance
         estimated_precision = accuracy
         estimated_recall = accuracy

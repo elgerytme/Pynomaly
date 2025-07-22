@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 
 class ModelType(Enum):
-    """Type of anomaly detection model."""
+    """Type of machine learning model."""
 
     SUPERVISED = "supervised"
     UNSUPERVISED = "unsupervised"
@@ -18,6 +18,9 @@ class ModelType(Enum):
     ENSEMBLE = "ensemble"
     DEEP_LEARNING = "deep_learning"
     TIME_SERIES = "time_series"
+    CLASSIFICATION = "classification"
+    REGRESSION = "regression"
+    CLUSTERING = "clustering"
 
 
 class ModelStage(Enum):
@@ -34,15 +37,15 @@ class Model:
     """Represents an ML model in the system.
 
     A Model is the conceptual representation of a machine learning solution
-    for anomaly detection. It can have multiple versions (ModelVersion entities)
+    for various prediction tasks. It can have multiple versions (ModelVersion entities)
     and tracks the model's lifecycle from development to production.
 
     Attributes:
         id: Unique identifier for the model
         name: Human-readable name for the model
         description: Detailed description of the model's purpose
-        model_type: Type of anomaly detection approach
-        algorithm_family: The family of algorithms (e.g., 'isolation_forest', 'neural_network')
+        model_type: Type of machine learning approach
+        algorithm_family: The family of algorithms (e.g., 'random_forest', 'neural_network')
         created_at: When the model was first created
         created_by: User who created the model
         team: Team or organization responsible for the model

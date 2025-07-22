@@ -1,7 +1,7 @@
 """
 ModelSelector Domain Service
 
-Provides intelligent model selection capabilities for anomaly detection models
+Provides intelligent model selection capabilities for machine learning models
 including multi-objective optimization, Pareto front analysis, and statistical
 significance testing.
 """

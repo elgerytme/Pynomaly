@@ -1,4 +1,4 @@
-"""Explainability domain entities for anomaly detection interpretation."""
+"""Explainability domain entities for machine learning model interpretation."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 
 class ExplanationType(str, Enum):
-    """Types of explanations for anomaly detection."""
+    """Types of explanations for machine learning models."""
 
     GLOBAL = "global"
     LOCAL = "local"
@@ -46,7 +46,7 @@ class ConfidenceLevel(str, Enum):
 
 @dataclass
 class FeatureContribution:
-    """Individual feature contribution to anomaly score."""
+    """Individual feature contribution to prediction score."""
 
     feature_name: str
     contribution_score: float
@@ -87,7 +87,7 @@ class CounterfactualExample:
 
 @dataclass
 class ExplanationRule:
-    """Rule-based explanation for anomaly detection."""
+    """Rule-based explanation for machine learning predictions."""
 
     condition: str
     support: float
@@ -159,8 +159,8 @@ class ExplanationMetadata:
 
 
 @dataclass
-class AnomalyExplanation:
-    """Comprehensive explanation for anomaly detection result."""
+class PredictionExplanation:
+    """Comprehensive explanation for machine learning prediction result."""
 
     # Identity
     instance_id: str | UUID
@@ -169,7 +169,7 @@ class AnomalyExplanation:
     metadata: ExplanationMetadata
 
     # Core explanation data
-    anomaly_score: float
+    prediction_score: float
     feature_contributions: list[FeatureContribution]
 
     # Auto-generated fields
@@ -202,9 +202,9 @@ class AnomalyExplanation:
     custom_fields: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        """Validate anomaly explanation."""
-        if not (0.0 <= self.anomaly_score <= 1.0):
-            raise ValueError("Anomaly score must be between 0.0 and 1.0")
+        """Validate prediction explanation."""
+        if not (0.0 <= self.prediction_score <= 1.0):
+            raise ValueError("Prediction score must be between 0.0 and 1.0")
 
         if self.explanation_quality_score is not None and not (
             0.0 <= self.explanation_quality_score <= 1.0
@@ -223,11 +223,11 @@ class AnomalyExplanation:
         )[:n]
 
     def get_positive_contributions(self) -> list[FeatureContribution]:
-        """Get features with positive contributions to anomaly score."""
+        """Get features with positive contributions to prediction score."""
         return [fc for fc in self.feature_contributions if fc.contribution_score > 0]
 
     def get_negative_contributions(self) -> list[FeatureContribution]:
-        """Get features with negative contributions to anomaly score."""
+        """Get features with negative contributions to prediction score."""
         return [fc for fc in self.feature_contributions if fc.contribution_score < 0]
 
     def get_total_contribution(self) -> float:
@@ -359,11 +359,11 @@ class ExplanationTemplate:
         if not self.required_fields:
             raise ValueError("At least one required field must be specified")
 
-    def can_generate(self, explanation: AnomalyExplanation) -> bool:
+    def can_generate(self, explanation: PredictionExplanation) -> bool:
         """Check if template can generate explanation for given data."""
         # Check if all required fields are available
         explanation_dict = {
-            "anomaly_score": explanation.anomaly_score,
+            "prediction_score": explanation.prediction_score,
             "top_feature": (
                 explanation.get_top_features(1)[0].feature_name
                 if explanation.feature_contributions
@@ -379,7 +379,7 @@ class ExplanationTemplate:
             for field in self.required_fields
         )
 
-    def generate_text(self, explanation: AnomalyExplanation) -> str:
+    def generate_text(self, explanation: PredictionExplanation) -> str:
         """Generate explanation text using template."""
         if not self.can_generate(explanation):
             raise ValueError("Cannot generate explanation: missing required fields")
@@ -388,7 +388,7 @@ class ExplanationTemplate:
         top_features = explanation.get_top_features(3)
 
         context = {
-            "anomaly_score": f"{explanation.anomaly_score:.2f}",
+            "prediction_score": f"{explanation.prediction_score:.2f}",
             "top_feature": top_features[0].feature_name if top_features else "Unknown",
             "contribution_count": len(explanation.feature_contributions),
             "confidence": explanation.explanation_confidence.value.replace(
