@@ -114,3 +114,40 @@ repos:
             fi
             
             echo "✅ No prohibited folders found."
+
+  - repo: local
+    hooks:
+      - id: branch-isolation-validation
+        name: Git Branch Isolation Validation
+        entry: python scripts/git_branch_isolation_manager.py
+        language: python
+        args: [validate]
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        description: "Validates branch name follows isolation rules"
+        
+      - id: quality-gate-pre-commit
+        name: Quality Gate Pre-commit Validation
+        entry: python scripts/quality_gate_runner.py
+        language: python
+        args: [--quick]
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        description: "Run Phase 1 quality gate validation before commit"
+        
+      - id: pytest-critical-tests
+        name: Run Critical Tests
+        entry: python -m pytest
+        language: python
+        args: [
+          src/packages/ai/machine_learning/tests/unit/test_algorithm_validation.py::TestAnomalyDetectionAlgorithms::test_high_dimensional_anomaly_detection,
+          src/packages/enterprise/enterprise_auth/tests/security/test_authentication_security.py::TestSecurityValidation::test_prevent_sql_injection,
+          --no-cov,
+          -v,
+          --tb=short
+        ]
+        pass_filenames: false
+        stages: [commit]
+        description: "Run critical algorithm and security tests before commit"
