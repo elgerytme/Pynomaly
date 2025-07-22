@@ -1,0 +1,20 @@
+# Testing Configuration Buck2 Build File
+
+# Export tox configuration for use by other packages
+exports_files([
+    "tox.ini",
+])
+
+# Create filegroup for easy reference
+filegroup(
+    name = "tox-config",
+    srcs = ["tox.ini"],
+    visibility = ["PUBLIC"],
+)
+
+# Documentation  
+filegroup(
+    name = "docs",
+    srcs = ["README.md"],
+    visibility = ["PUBLIC"],
+)

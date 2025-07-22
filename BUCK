@@ -7,6 +7,8 @@ load("//tools/buck:testing.bzl", "python_test_suite")
 load("//tools/buck:advanced_features.bzl", "openapi_python_client", "ml_model_artifacts", "docker_image_build", "documentation_site")
 load("//tools/buck:monitoring.bzl", "build_metrics_collector", "performance_dashboard", "build_performance_alerts")
 load("//tools/buck:import_validation.bzl", "create_import_validation_suite", "create_import_fix_suite")
+load("//tools/buck:tox_integration.bzl", "create_standard_tox_integration")
+load("//tools/buck:performance_baselines.bzl", "create_performance_monitoring_suite")
 
 # ==========================================
 # AI DOMAIN - Machine Learning and Anomaly Detection
@@ -407,4 +409,45 @@ create_import_fix_suite(
         "enterprise.governance": [":enterprise-governance"],
         "enterprise.scalability": [":enterprise-scalability"],
     }
+)
+# ==========================================
+# TOX INTEGRATION  
+# ==========================================
+
+# Create standard tox integration with comprehensive test environments
+create_standard_tox_integration(
+    name = "tox"
+)
+
+# ==========================================
+# PERFORMANCE BASELINE MONITORING
+# ==========================================
+
+# Create performance monitoring suite for critical build targets
+create_performance_monitoring_suite(
+    name = "performance-monitoring",
+    targets = [
+        "//:pynomaly",
+        "//:ai-all",
+        "//:data-all", 
+        "//:enterprise-all"
+    ],
+    tolerance = 0.15,  # 15% regression tolerance
+)
+        "//:ai-machine-learning",
+        "//:ai-mlops",
+        "//:ai-neuro-symbolic"
+    ],
+    tolerance = 0.20,  # Higher tolerance for AI workloads
+)
+
+create_performance_monitoring_suite(
+    name = "data-performance", 
+    targets = [
+        "//:data-anomaly-detection",
+        "//:data-analytics", 
+        "//:data-engineering",
+        "//:data-quality"
+    ],
+    tolerance = 0.15,
 )
