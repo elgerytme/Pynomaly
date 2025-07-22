@@ -1,12 +1,12 @@
 [project]
-name = "anomaly_detection-data-transformation"
+name = "pynomaly-data-transformation"
 dynamic = ["version"]
-description = "Advanced data transformation and feature engineering for anomaly detection"
-authors = [{name = "Development Team", email = "team@anomaly_detection.io"}]
+description = "Advanced data transformation and feature engineering for machine learning"
+authors = [{name = "Development Team", email = "team@pynomaly.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
-keywords = ["data-transformation", "feature-engineering", "data-processing", "anomaly-detection"]
+keywords = ["data-transformation", "feature-engineering", "data-processing", "machine-learning"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -108,7 +108,7 @@ test = [
 ]
 
 all = [
-    "anomaly_detection-data-transformation[enhanced,database,cloud,streaming,feature-engineering,quality]"
+    "pynomaly-data-transformation[enhanced,database,cloud,streaming,feature-engineering,quality]"
 ]
 
 [tool.hatch.version]

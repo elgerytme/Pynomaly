@@ -13,7 +13,7 @@ machine_learning/
 ├── training/           # Model training workflows and pipelines
 ├── optimization/       # Hyperparameter optimization and AutoML
 ├── lifecycle/          # Model versioning, registry, and deployment
-├── monitoring/         # Model performance monitoring and drift detection
+├── monitoring/         # Model performance monitoring and drift analysis
 ├── experiments/        # Experiment tracking and management
 └── governance/         # ML governance and compliance
 ```
@@ -24,7 +24,7 @@ machine_learning/
 - **Hyperparameter Optimization**: Optuna and Hyperopt integration
 - **Model Registry**: Centralized model versioning and artifact management
 - **Deployment**: Model serving and deployment automation
-- **Monitoring**: Real-time model performance and drift monitoring
+- **Monitoring**: Real-time model performance and drift analysis
 - **Experiment Tracking**: Comprehensive experiment management
 - **Governance**: ML compliance and audit trails
 

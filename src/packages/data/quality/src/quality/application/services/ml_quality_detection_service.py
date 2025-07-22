@@ -1,6 +1,6 @@
-"""ML-Enhanced Quality Detection Service.
+"""ML-Enhanced Quality Assessment Service.
 
-Service for detecting quality anomalies using machine learning models
+Service for assessing quality issues using machine learning models
 including unsupervised learning, pattern recognition, and predictive analytics.
 """
 
@@ -27,9 +27,9 @@ from sklearn.metrics import classification_report, accuracy_score
 from sklearn.pipeline import Pipeline
 import joblib
 
-# TODO: Replace quality_anomaly with quality_issue - from ...domain.entities.quality_issue import (
-    QualityIssue, QualityIssueId, AnomalyType, ImpactLevel, AnomalyStatus,
-    AnomalyDetectionResult, AnomalyPattern
+# from ...domain.entities.quality_issue import (
+    QualityIssue, QualityIssueId, IssueType, ImpactLevel, IssueStatus,
+    QualityAssessmentResult, QualityPattern
 )
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.entities.quality_scores import QualityScores
@@ -38,16 +38,16 @@ from .quality_assessment_service import QualityAssessmentService
 logger = logging.getLogger(__name__)
 
 
-class DetectionMethod(Enum):
-    """ML detection methods."""
+class AssessmentMethod(Enum):
+    """ML assessment methods."""
     ISOLATION_FOREST = "isolation_forest"
     LOCAL_OUTLIER_FACTOR = "local_outlier_factor"
-    CLUSTERING_ANOMALY = "clustering_anomaly"
-    STATISTICAL_OUTLIER = "statistical_outlier"
-    ENSEMBLE_DETECTION = "ensemble_detection"
-    DRIFT_DETECTION = "drift_detection"
-    PATTERN_DEVIATION = "pattern_deviation"
-    TEMPORAL_ANOMALY = "temporal_anomaly"
+    CLUSTERING_ANALYSIS = "clustering_analysis"
+    STATISTICAL_ANALYSIS = "statistical_analysis"
+    ENSEMBLE_ASSESSMENT = "ensemble_assessment"
+    DRIFT_ANALYSIS = "drift_analysis"
+    PATTERN_ANALYSIS = "pattern_analysis"
+    TEMPORAL_ANALYSIS = "temporal_analysis"
 
 
 @dataclass(frozen=True)

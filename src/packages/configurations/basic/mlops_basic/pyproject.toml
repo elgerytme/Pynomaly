@@ -1,8 +1,8 @@
 [project]
-name = "anomaly_detection-mlops-basic"
+name = "pynomaly-mlops-basic"
 version = "0.1.0"
-description = "Basic open-source MLOps configuration for anomaly_detection"
-authors = [{name = "Development Team", email = "dev@anomaly_detection.io"}]
+description = "Basic open-source MLOps configuration for Pynomaly"
+authors = [{name = "Development Team", email = "dev@pynomaly.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
@@ -11,7 +11,7 @@ keywords = [
     "machine-learning", 
     "open-source",
     "basic",
-    "anomaly-detection"
+    "pynomaly"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -51,12 +51,12 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/anomaly_detection"
-Repository = "https://github.com/your-org/anomaly_detection"
-Documentation = "https://docs.anomaly_detection.org/mlops/basic"
+Homepage = "https://github.com/your-org/pynomaly"
+Repository = "https://github.com/your-org/pynomaly"
+Documentation = "https://docs.pynomaly.org/mlops/basic"
 
 [project.scripts]
-anomaly_detection-mlops-basic = "mlops_basic.cli:main"
+pynomaly-mlops-basic = "mlops_basic.cli:main"
 
 [tool.hatch.build.targets.wheel] 
 packages = ["mlops_basic"]

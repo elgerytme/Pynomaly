@@ -17,7 +17,7 @@ try:
     from machine_learning.domain.services.automl_service import AutoMLService
     from machine_learning.domain.services.explainable_ai_service import ExplainableAIService
     from machine_learning.domain.entities.model import Model
-    from machine_learning.domain.entities.detection_result import DetectionResult
+    from machine_learning.domain.entities.prediction_result import PredictionResult
 except ImportError as e:
     # Create mock classes if imports fail for initial testing
     class AutoMLService:
@@ -40,14 +40,14 @@ except ImportError as e:
         def predict(self, X):
             return np.random.choice([-1, 1], len(X))
     
-    class DetectionResult:
+    class PredictionResult:
         def __init__(self, predictions, confidence_scores=None):
             self.predictions = predictions
             self.confidence_scores = confidence_scores or np.random.random(len(predictions))
 
 
 @pytest.mark.algorithm_validation
-class TestAnomalyDetectionAlgorithms:
+class TestMachineLearningAlgorithms:
     """Test core anomaly detection algorithms for accuracy and performance."""
     
     @pytest.mark.parametrize("algorithm,expected_accuracy", [
