@@ -215,7 +215,7 @@ async def start_training(
             "recall": OptimizationObjective.RECALL,
             "f1_score": OptimizationObjective.F1_SCORE,
             "balanced_accuracy": OptimizationObjective.BALANCED_ACCURACY,
-            "detection_rate": OptimizationObjective.DETECTION_RATE,
+            "prediction_rate": OptimizationObjective.DETECTION_RATE,
         }
 
         objective = objective_map.get(
@@ -289,7 +289,7 @@ async def schedule_training(
             "recall": OptimizationObjective.RECALL,
             "f1_score": OptimizationObjective.F1_SCORE,
             "balanced_accuracy": OptimizationObjective.BALANCED_ACCURACY,
-            "detection_rate": OptimizationObjective.DETECTION_RATE,
+            "prediction_rate": OptimizationObjective.DETECTION_RATE,
         }
 
         objective = objective_map.get(

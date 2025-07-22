@@ -77,7 +77,7 @@ class ExplainModelGlobalRequest(BaseModel):
     enable_interaction_analysis: bool = Field(
         True, description="Analyze feature interactions"
     )
-    enable_bias_detection: bool = Field(True, description="Detect model bias")
+    enable_bias_prediction: bool = Field(True, description="Detect model bias")
 
     @field_validator("sample_size")
     @classmethod
@@ -113,7 +113,7 @@ class FeatureImportanceRequest(BaseModel):
 
 
 class BiasDetectionRequest(BaseModel):
-    """Request model for bias detection."""
+    """Request model for bias prediction."""
 
     model_id: str = Field(..., description="Model identifier")
     protected_attributes: list[str] = Field(
@@ -121,7 +121,7 @@ class BiasDetectionRequest(BaseModel):
     )
     feature_names: list[str] = Field(..., description="All feature names")
     sample_size: int = Field(1000, description="Sample size for bias analysis")
-    bias_threshold: float = Field(0.3, description="Bias detection threshold")
+    bias_threshold: float = Field(0.3, description="Bias prediction threshold")
 
     @field_validator("protected_attributes")
     @classmethod
@@ -471,7 +471,7 @@ async def explain_model_global(
             ),
             num_features=request.num_features,
             enable_interaction_analysis=request.enable_interaction_analysis,
-            enable_bias_detection=request.enable_bias_detection,
+            enable_bias_prediction=request.enable_bias_prediction,
         )
 
         # Generate global explanation
@@ -787,7 +787,7 @@ async def get_default_configuration() -> dict[str, Any]:
         "num_samples": config.num_samples,
         "background_sample_size": config.background_sample_size,
         "enable_interaction_analysis": config.enable_interaction_analysis,
-        "enable_bias_detection": config.enable_bias_detection,
+        "enable_bias_prediction": config.enable_bias_prediction,
         "confidence_threshold": config.confidence_threshold,
         "explanation_timeout_seconds": config.explanation_timeout_seconds,
         "cache_explanations": config.cache_explanations,
@@ -877,7 +877,7 @@ def _get_bias_type_description(bias_type: BiasType) -> str:
         BiasType.EQUALITY_OF_OPPORTUNITY: "Equal true positive rates across groups",
         BiasType.CALIBRATION: "Equal prediction calibration across groups",
     }
-    return descriptions.get(bias_type, "Fairness metric for bias detection")
+    return descriptions.get(bias_type, "Fairness metric for bias prediction")
 
 
 def _get_audience_description(audience: ExplanationAudience) -> str:

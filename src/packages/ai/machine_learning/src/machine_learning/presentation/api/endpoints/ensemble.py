@@ -1,4 +1,4 @@
-"""API endpoints for ensemble-based anomaly detection."""
+"""API endpoints for ensemble-based anomaly prediction."""
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
@@ -11,7 +11,7 @@ from interfaces.application.dto.ensemble_dto import (
     EnsembleOptimizationResponseDTO,
     EnsembleStatusResponseDTO,
 )
-from interfaces.application.use_cases.ensemble_detection_use_case import (
+from interfaces.application.use_cases.ensemble_prediction_use_case import (
     EnsembleDetectionRequest,
     EnsembleDetectionUseCase,
     EnsembleOptimizationObjective,
@@ -39,10 +39,10 @@ async def detect_anomalies_ensemble(
     _permissions: str = Depends(require_read),
 ) -> EnsembleDetectionResponseDTO:
     """
-    Perform ensemble-based anomaly detection using multiple detectors.
+    Perform ensemble-based anomaly prediction using multiple detectors.
 
     This endpoint orchestrates multiple anomaly detectors using advanced voting strategies
-    to provide robust and accurate anomaly detection results.
+    to provide robust and accurate anomaly prediction results.
 
     **Features:**
     - Multiple voting strategies (simple average, weighted, Bayesian, consensus, etc.)
@@ -82,7 +82,7 @@ async def detect_anomalies_ensemble(
     """
     try:
         ensemble_use_case: EnsembleDetectionUseCase = (
-            container.ensemble_detection_use_case()
+            container.ensemble_prediction_use_case()
         )
 
         # Convert DTO to use case request
@@ -100,13 +100,13 @@ async def detect_anomalies_ensemble(
             return_individual_results=request.return_individual_results,
         )
 
-        # Execute ensemble detection
+        # Execute ensemble prediction
         response = await ensemble_use_case.detect_anomalies_ensemble(use_case_request)
 
         if not response.success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=response.error_message or "Ensemble detection failed",
+                detail=response.error_message or "Ensemble prediction failed",
             )
 
         # Convert to DTO response
@@ -131,7 +131,7 @@ async def detect_anomalies_ensemble(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error during ensemble detection: {str(e)}",
+            detail=f"Internal server error during ensemble prediction: {str(e)}",
         )
 
 
@@ -159,8 +159,8 @@ async def optimize_ensemble(
 
     **Optimization Objectives:**
     - `accuracy`: Overall classification accuracy
-    - `precision`: Precision for anomaly detection
-    - `recall`: Recall for anomaly detection
+    - `precision`: Precision for anomaly prediction
+    - `recall`: Recall for anomaly prediction
     - `f1_score`: F1-score balancing precision and recall
     - `auc_score`: Area under ROC curve
     - `balanced_accuracy`: Balanced accuracy for imbalanced data
@@ -188,7 +188,7 @@ async def optimize_ensemble(
     """
     try:
         ensemble_use_case: EnsembleDetectionUseCase = (
-            container.ensemble_detection_use_case()
+            container.ensemble_prediction_use_case()
         )
 
         # Convert DTO to use case request
@@ -259,7 +259,7 @@ async def get_ensemble_status(
     """
     try:
         ensemble_use_case: EnsembleDetectionUseCase = (
-            container.ensemble_detection_use_case()
+            container.ensemble_prediction_use_case()
         )
 
         # Get available strategies and objectives
@@ -327,7 +327,7 @@ async def get_ensemble_metrics(
     """
     try:
         ensemble_use_case: EnsembleDetectionUseCase = (
-            container.ensemble_detection_use_case()
+            container.ensemble_prediction_use_case()
         )
 
         # Get performance metrics for specified detectors
@@ -473,8 +473,8 @@ def _get_objective_description(objective: EnsembleOptimizationObjective) -> str:
     """Get description for optimization objective."""
     descriptions = {
         EnsembleOptimizationObjective.ACCURACY: "Overall classification accuracy",
-        EnsembleOptimizationObjective.PRECISION: "Precision for anomaly detection",
-        EnsembleOptimizationObjective.RECALL: "Recall for anomaly detection",
+        EnsembleOptimizationObjective.PRECISION: "Precision for anomaly prediction",
+        EnsembleOptimizationObjective.RECALL: "Recall for anomaly prediction",
         EnsembleOptimizationObjective.F1_SCORE: "F1-score balancing precision and recall",
         EnsembleOptimizationObjective.AUC_SCORE: "Area under ROC curve",
         EnsembleOptimizationObjective.BALANCED_ACCURACY: "Balanced accuracy for imbalanced data",
