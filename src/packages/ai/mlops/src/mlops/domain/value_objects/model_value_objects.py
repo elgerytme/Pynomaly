@@ -27,7 +27,7 @@ class ModelType(Enum):
     REGRESSION = "regression"
     CLUSTERING = "clustering"
     DIMENSIONALITY_REDUCTION = "dimensionality_reduction"
-    OUTLIER_DETECTION = "outlier_detection"
+    OUTLIER_PREDICTION = "outlier_prediction"
     REINFORCEMENT_LEARNING = "reinforcement_learning"
     GENERATIVE = "generative"
     ENSEMBLE = "ensemble"
