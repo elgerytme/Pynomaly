@@ -1,30 +1,12 @@
-load("@prelude//python:python_library.bzl", "python_library")
-load("@prelude//python:python_test.bzl", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: quality
+# Type: standard
 
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+pynomaly_python_package(
     name = "quality",
-    srcs = glob(["src/quality/**/*.py"]),
-    resources = glob(["src/quality/**/*.yaml", "src/quality/**/*.json"]),
-    deps = [
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog", 
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:celery",
-    ],
+    domain = "data",
     visibility = ["PUBLIC"],
-)
-
-python_test(
-    name = "quality_tests",
-    srcs = glob(["tests/**/*.py"]),
-    deps = [
-        ":quality",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest_asyncio", 
-        "//third-party/python:pytest_mock",
-        "//third-party/python:httpx",
-    ],
-    visibility = ["//..."],
 )

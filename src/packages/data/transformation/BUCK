@@ -1,66 +1,12 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: transformation
+# Type: standard
 
-python_library(
-    name = "data_transformation",
-    srcs = glob([
-        "application/**/*.py",
-        "domain/**/*.py", 
-        "infrastructure/**/*.py"
-    ]),
-    deps = [
-        "//third-party/python:pandas",
-        "//third-party/python:numpy",
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:httpx",
-        "//third-party/python:typing-extensions",
-        "//third-party/python:pyarrow",
-    ],
-    visibility = ["PUBLIC"],
-)
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
 
-python_test(
-    name = "data_transformation_tests",
-    srcs = glob(["tests/**/*.py"]),
-    deps = [
-        ":data_transformation",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:pytest-cov",
-        "//third-party/python:hypothesis",
-        "//third-party/python:factory-boy",
-        "//third-party/python:faker",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# Integration tests
-python_test(
-    name = "integration_tests",
-    srcs = glob(["tests/integration/**/*.py"]),
-    deps = [
-        ":data_transformation",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:testcontainers",
-    ],
-    labels = ["integration"],
-    visibility = ["PUBLIC"],
-)
-
-# Unit tests
-python_test(
-    name = "unit_tests",
-    srcs = glob(["tests/unit/**/*.py"]),
-    deps = [
-        ":data_transformation",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-mock",
-        "//third-party/python:hypothesis",
-    ],
-    labels = ["unit"],
+pynomaly_python_package(
+    name = "transformation",
+    domain = "data",
     visibility = ["PUBLIC"],
 )

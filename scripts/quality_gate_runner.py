@@ -11,7 +11,7 @@ import os
 import subprocess
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import argparse
@@ -25,7 +25,7 @@ class QualityGateRunner:
     def __init__(self, base_dir: str = None):
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
         self.results = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "phases": {},
             "overall_status": "UNKNOWN",
             "execution_time_seconds": 0

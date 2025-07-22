@@ -9,6 +9,8 @@ load("//tools/buck:monitoring.bzl", "build_metrics_collector", "performance_dash
 load("//tools/buck:import_validation.bzl", "create_import_validation_suite", "create_import_fix_suite")
 load("//tools/buck:tox_integration.bzl", "create_standard_tox_integration")
 load("//tools/buck:performance_baselines.bzl", "create_performance_monitoring_suite")
+load("//tools/buck:security_compliance.bzl", "create_security_suite", "create_compliance_report")
+load("//tools/buck:analytics_dashboard.bzl", "create_analytics_suite")
 
 # ==========================================
 # AI DOMAIN - Machine Learning and Anomaly Detection
@@ -434,20 +436,70 @@ create_performance_monitoring_suite(
     ],
     tolerance = 0.15,  # 15% regression tolerance
 )
-        "//:ai-machine-learning",
-        "//:ai-mlops",
-        "//:ai-neuro-symbolic"
-    ],
-    tolerance = 0.20,  # Higher tolerance for AI workloads
+
+# ==========================================
+# SECURITY AND COMPLIANCE
+# ==========================================
+
+# Create comprehensive security suite for all domains
+create_security_suite(
+    name = "security-suite",
+    targets = [
+        "//:ai-all",
+        "//:data-all",
+        "//:enterprise-all"
+    ]
 )
 
-create_performance_monitoring_suite(
-    name = "data-performance", 
+# Create compliance report for the entire monorepo
+create_compliance_report(
+    name = "compliance-report",
+    packages = [
+        "//:ai-all",
+        "//:data-all", 
+        "//:enterprise-all"
+    ]
+)
+
+# ==========================================
+# BXL INTEGRATION - IDE SUPPORT
+# ==========================================
+
+# Reference to BXL tools for IDE integration and development workflows
+alias(
+    name = "bxl-tools",
+    actual = "//tools/bxl:all_bxl_tools",
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# ENHANCED BUILD ANALYTICS & VISUALIZATION
+# ==========================================
+
+# Create comprehensive analytics suite with interactive dashboard
+create_analytics_suite(
+    name = "build-analytics",
     targets = [
-        "//:data-anomaly-detection",
-        "//:data-analytics", 
-        "//:data-engineering",
-        "//:data-quality"
+        "//:pynomaly",
+        "//:ai-all",
+        "//:data-all",
+        "//:enterprise-all"
+    ]
+)
+
+# ==========================================
+# SECURITY AND COMPLIANCE
+# ==========================================
+
+# Create comprehensive security and compliance suite for critical targets
+create_security_compliance_suite(
+    name = "security-compliance",
+    targets = [
+        "//:pynomaly",
+        "//:ai-all",
+        "//:data-all", 
+        "//:enterprise-all"
     ],
-    tolerance = 0.15,
+    scan_types = ["bandit", "safety", "semgrep", "dependency_check", "license_check"],
+    fail_threshold = "high",
 )

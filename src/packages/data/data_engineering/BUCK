@@ -1,112 +1,15 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: data_engineering
+# Type: microservice
 
-# Main library for data engineering tools and pipelines
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+
+pynomaly_microservice(
     name = "data_engineering",
-    srcs = glob([
-        "src/**/*.py",
-    ], exclude = [
-        "tests/**/*.py",
-        "**/test_*.py",
-        "**/*_test.py",
-    ]),
-    deps = [
-        "//third-party/python:pandas",
-        "//third-party/python:numpy",
-        "//third-party/python:pyarrow",
-        "//third-party/python:polars",
-        "//third-party/python:dask",
-        "//third-party/python:ray",
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:sqlalchemy",
-        "//third-party/python:alembic",
-        "//third-party/python:psycopg2-binary",
-        "//third-party/python:pymongo",
-        "//third-party/python:redis",
-        "//third-party/python:kafka-python",
-        "//third-party/python:boto3",
-        "//third-party/python:azure-storage-blob",
-        "//third-party/python:google-cloud-storage",
-        "//third-party/python:minio",
-        "//third-party/python:delta-lake",
-        "//third-party/python:great-expectations",
-        "//third-party/python:dbt-core",
-        "//third-party/python:airflow",
-        "//third-party/python:prefect",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# CLI interface
-python_binary(
-    name = "data_engineering_cli",
-    main = "src/data_engineering/presentation/cli/app.py",
-    deps = [":data_engineering"],
-    visibility = ["PUBLIC"],
-)
-
-# Server interface  
-python_binary(
-    name = "data_engineering_server",
-    main = "src/data_engineering/presentation/api/app.py",
-    deps = [":data_engineering"],
-    visibility = ["PUBLIC"],
-)
-
-# All tests
-python_test(
-    name = "data_engineering_tests",
-    srcs = glob([
-        "tests/**/*.py",
-        "**/test_*.py", 
-        "**/*_test.py",
-    ]),
-    deps = [
-        ":data_engineering",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:pytest-cov",
-        "//third-party/python:pytest-mock",
-        "//third-party/python:testcontainers",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# Unit tests
-python_test(
-    name = "unit_tests",
-    srcs = glob([
-        "tests/unit/**/*.py",
-        "**/test_*.py",
-    ], exclude = [
-        "tests/integration/**/*.py",
-        "tests/e2e/**/*.py",
-    ]),
-    deps = [
-        ":data_engineering",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-mock",
-    ],
-    labels = ["unit"],
-    visibility = ["PUBLIC"],
-)
-
-# Integration tests
-python_test(
-    name = "integration_tests",
-    srcs = glob([
-        "tests/integration/**/*.py",
-    ]),
-    deps = [
-        ":data_engineering", 
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:testcontainers",
-    ],
-    labels = ["integration"],
+    domain = "data",
+    main_module = "data_engineering.main",  # Adjust as needed
     visibility = ["PUBLIC"],
 )

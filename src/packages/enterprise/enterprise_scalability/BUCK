@@ -1,53 +1,15 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: enterprise
+# Package: enterprise_scalability
+# Type: microservice
 
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+
+pynomaly_microservice(
     name = "enterprise_scalability",
-    srcs = glob([
-        "src/**/*.py",
-    ], exclude = [
-        "tests/**/*.py",
-        "**/test_*.py", 
-        "**/*_test.py",
-    ]),
-    deps = [
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:pandas",
-        "//third-party/python:numpy", 
-        "//third-party/python:dask",
-        "//third-party/python:ray",
-        "//third-party/python:celery",
-        "//third-party/python:redis",
-        "//third-party/python:kubernetes",
-        "//third-party/python:docker",
-        "//third-party/python:prometheus-client",
-        "//third-party/python:grafana-api",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-python_binary(
-    name = "enterprise_scalability_cli",
-    main = "src/enterprise_scalability/presentation/cli/app.py",
-    deps = [":enterprise_scalability"],
-    visibility = ["PUBLIC"], 
-)
-
-python_test(
-    name = "enterprise_scalability_tests",
-    srcs = glob([
-        "tests/**/*.py",
-        "**/test_*.py",
-        "**/*_test.py",
-    ]),
-    deps = [
-        ":enterprise_scalability",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:pytest-mock",
-    ],
+    domain = "enterprise",
+    main_module = "enterprise_scalability.main",  # Adjust as needed
     visibility = ["PUBLIC"],
 )

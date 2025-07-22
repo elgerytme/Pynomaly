@@ -1,49 +1,14 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: ai
+# Package: neuro_symbolic
+# Type: ml
 
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_ml_package")
+
+pynomaly_ml_package(
     name = "neuro_symbolic",
-    srcs = glob([
-        "src/**/*.py",
-    ], exclude = [
-        "tests/**/*.py",
-        "**/test_*.py",
-        "**/*_test.py",
-    ]),
-    deps = [
-        "//third-party/python:torch",
-        "//third-party/python:transformers",
-        "//third-party/python:numpy",
-        "//third-party/python:pandas",
-        "//third-party/python:pydantic",
-        "//third-party/python:networkx",
-        "//third-party/python:sympy",
-        "//third-party/python:scikit-learn",
-        "//third-party/python:click",
-        "//third-party/python:structlog",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-python_binary(
-    name = "neuro_symbolic_cli",
-    main = "src/neuro_symbolic/presentation/cli/app.py",
-    deps = [":neuro_symbolic"],
-    visibility = ["PUBLIC"],
-)
-
-python_test(
-    name = "neuro_symbolic_tests",
-    srcs = glob([
-        "tests/**/*.py",
-        "**/test_*.py",
-        "**/*_test.py",
-    ]),
-    deps = [
-        ":neuro_symbolic",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-cov",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:hypothesis",
-    ],
+    frameworks = ["sklearn"],  # Adjust as needed
     visibility = ["PUBLIC"],
 )

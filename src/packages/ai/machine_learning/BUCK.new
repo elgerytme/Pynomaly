@@ -1,0 +1,48 @@
+# Machine Learning Package - Modernized with Standardized Macros
+load("//tools/buck:python_package.bzl", "pynomaly_ai_package")
+
+# Create AI machine learning package with standardized configuration
+pynomaly_ai_package(
+    name = "machine_learning",
+    srcs = glob([
+        "src/**/*.py",
+        "machine_learning/**/*.py",
+    ], exclude = [
+        "tests/**",
+        "**/test_*.py",
+        "**/*_test.py",
+    ]),
+    deps = [
+        # ML-specific dependencies (beyond AI domain defaults)
+        "//third-party/python:tensorflow",
+        "//third-party/python:torch", 
+        "//third-party/python:transformers",
+        "//third-party/python:wandb",
+        "//third-party/python:optuna",
+        "//third-party/python:joblib",
+        "//third-party/python:matplotlib",
+        "//third-party/python:seaborn",
+        "//third-party/python:plotly",
+        "//third-party/python:xgboost",
+        "//third-party/python:lightgbm",
+    ],
+    # Test configuration handled automatically by macro
+    test_deps = [
+        "//third-party/python:pytest-benchmark",  # For ML performance tests
+    ],
+)
+
+# CLI Application (if exists)
+# pynomaly_cli_application(
+#     name = "ml-cli",
+#     main_module = "machine_learning.cli.main",
+#     deps = [":machine_learning"],
+# )
+
+# Microservice (if exists)  
+# pynomaly_microservice(
+#     name = "ml-service",
+#     main_module = "machine_learning.api.main",
+#     port = 8000,
+#     deps = [":machine_learning"],
+# )

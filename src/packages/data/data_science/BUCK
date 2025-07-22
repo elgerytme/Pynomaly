@@ -1,115 +1,15 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: data_science
+# Type: microservice
 
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+
+pynomaly_microservice(
     name = "data_science",
-    srcs = glob(["src/data_science/**/*.py"]),
-    deps = [
-        "//third-party/python:pandas",
-        "//third-party/python:numpy",
-        "//third-party/python:scipy",
-        "//third-party/python:scikit-learn",
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:httpx",
-        "//third-party/python:typing-extensions",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-python_binary(
-    name = "data_science_cli",
-    main = "src/data_science/cli.py",
-    deps = [":data_science"],
-    visibility = ["PUBLIC"],
-)
-
-python_binary(
-    name = "data_science_server",
-    main = "src/data_science/server.py",
-    deps = [":data_science"],
-    visibility = ["PUBLIC"],
-)
-
-python_binary(
-    name = "data_science_worker",
-    main = "src/data_science/worker.py",
-    deps = [":data_science"],
-    visibility = ["PUBLIC"],
-)
-
-python_test(
-    name = "data_science_tests",
-    srcs = glob(["tests/**/*.py"]),
-    deps = [
-        ":data_science",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:pytest-cov",
-        "//third-party/python:hypothesis",
-        "//third-party/python:factory-boy",
-        "//third-party/python:faker",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# Integration tests
-python_test(
-    name = "integration_tests",
-    srcs = glob(["tests/integration/**/*.py"]),
-    deps = [
-        ":data_science",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:testcontainers",
-    ],
-    labels = ["integration"],
-    visibility = ["PUBLIC"],
-)
-
-# Unit tests
-python_test(
-    name = "unit_tests",
-    srcs = glob(["tests/unit/**/*.py"]),
-    deps = [
-        ":data_science",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-mock",
-        "//third-party/python:hypothesis",
-    ],
-    labels = ["unit"],
-    visibility = ["PUBLIC"],
-)
-
-# Performance tests
-python_test(
-    name = "performance_tests",
-    srcs = glob(["tests/performance/**/*.py"]),
-    deps = [
-        ":data_science",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-benchmark",
-        "//third-party/python:locust",
-    ],
-    labels = ["performance"],
-    visibility = ["PUBLIC"],
-)
-
-# Example scripts
-python_binary(
-    name = "basic_example",
-    main = "examples/basic_usage.py",
-    deps = [":data_science"],
-    visibility = ["PUBLIC"],
-)
-
-# Documentation generation
-genrule(
-    name = "docs",
-    srcs = glob(["docs/**/*.md", "docs/**/*.rst"]),
-    out = "docs-html",
-    cmd = "mkdocs build -d $OUT",
+    domain = "data",
+    main_module = "data_science.main",  # Adjust as needed
     visibility = ["PUBLIC"],
 )

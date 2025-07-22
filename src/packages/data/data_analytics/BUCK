@@ -1,104 +1,15 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: data_analytics
+# Type: microservice
 
-# Main library for data analytics and visualization
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+
+pynomaly_microservice(
     name = "data_analytics",
-    srcs = glob([
-        "src/**/*.py",
-    ], exclude = [
-        "tests/**/*.py",
-        "**/test_*.py",
-        "**/*_test.py",
-    ]),
-    deps = [
-        "//third-party/python:pandas",
-        "//third-party/python:numpy",
-        "//third-party/python:scipy",
-        "//third-party/python:scikit-learn",
-        "//third-party/python:matplotlib",
-        "//third-party/python:seaborn",
-        "//third-party/python:plotly",
-        "//third-party/python:bokeh",
-        "//third-party/python:dash",
-        "//third-party/python:streamlit",
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:sqlalchemy",
-        "//third-party/python:polars",
-        "//third-party/python:duckdb",
-        "//third-party/python:jupyter",
-        "//third-party/python:ipywidgets",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# CLI interface
-python_binary(
-    name = "data_analytics_cli",
-    main = "src/data_analytics/presentation/cli/app.py",
-    deps = [":data_analytics"],
-    visibility = ["PUBLIC"],
-)
-
-# Server interface
-python_binary(
-    name = "data_analytics_server",
-    main = "src/data_analytics/presentation/api/app.py", 
-    deps = [":data_analytics"],
-    visibility = ["PUBLIC"],
-)
-
-# All tests
-python_test(
-    name = "data_analytics_tests",
-    srcs = glob([
-        "tests/**/*.py",
-        "**/test_*.py",
-        "**/*_test.py",
-    ]),
-    deps = [
-        ":data_analytics",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:pytest-cov",
-        "//third-party/python:pytest-mock",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# Unit tests
-python_test(
-    name = "unit_tests",
-    srcs = glob([
-        "tests/unit/**/*.py",
-        "**/test_*.py",
-    ], exclude = [
-        "tests/integration/**/*.py",
-        "tests/e2e/**/*.py",
-    ]),
-    deps = [
-        ":data_analytics",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-mock",
-    ],
-    labels = ["unit"],
-    visibility = ["PUBLIC"],
-)
-
-# Integration tests
-python_test(
-    name = "integration_tests",
-    srcs = glob([
-        "tests/integration/**/*.py", 
-    ]),
-    deps = [
-        ":data_analytics",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-    ],
-    labels = ["integration"],
+    domain = "data",
+    main_module = "data_analytics.main",  # Adjust as needed
     visibility = ["PUBLIC"],
 )

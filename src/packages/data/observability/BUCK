@@ -1,92 +1,15 @@
-load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: observability
+# Type: microservice
 
-python_library(
-    name = "data_observability",
-    srcs = glob(["src/data_observability/**/*.py"]),
-    deps = [
-        "//third-party/python:pandas",
-        "//third-party/python:numpy",
-        "//third-party/python:sqlalchemy",
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:fastapi",
-        "//third-party/python:uvicorn",
-        "//third-party/python:prometheus-client",
-        "//third-party/python:schedule",
-        "//third-party/python:aiohttp",
-        "//third-party/python:asyncpg",
-        "//third-party/python:redis",
-        "//third-party/python:python-multipart",
-    ],
-    visibility = ["PUBLIC"],
-)
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
 
-python_binary(
-    name = "data_observability_cli",
-    main = "src/data_observability/cli.py",
-    deps = [":data_observability"],
-    visibility = ["PUBLIC"],
-)
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
 
-python_test(
-    name = "data_observability_tests",
-    srcs = glob(["tests/**/*.py"]),
-    deps = [
-        ":data_observability",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:pytest-cov",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-# Integration tests
-python_test(
-    name = "integration_tests",
-    srcs = glob(["tests/integration/**/*.py"]),
-    deps = [
-        ":data_observability",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-    ],
-    labels = ["integration"],
-    visibility = ["PUBLIC"],
-)
-
-# Unit tests
-python_test(
-    name = "unit_tests",
-    srcs = glob(["tests/unit/**/*.py"]),
-    deps = [
-        ":data_observability",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-    ],
-    labels = ["unit"],
-    visibility = ["PUBLIC"],
-)
-
-# Example scripts
-python_binary(
-    name = "basic_example",
-    main = "examples/basic_usage.py",
-    deps = [":data_observability"],
-    visibility = ["PUBLIC"],
-)
-
-python_binary(
-    name = "comprehensive_example",
-    main = "examples/comprehensive_example.py",
-    deps = [":data_observability"],
-    visibility = ["PUBLIC"],
-)
-
-# Documentation generation
-genrule(
-    name = "docs",
-    srcs = glob(["docs/**/*.md", "docs/**/*.rst"]),
-    out = "docs-html",
-    cmd = "sphinx-build -b html docs/ $OUT",
+pynomaly_microservice(
+    name = "observability",
+    domain = "data",
+    main_module = "observability.main",  # Adjust as needed
     visibility = ["PUBLIC"],
 )

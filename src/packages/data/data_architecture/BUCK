@@ -1,21 +1,12 @@
-load("@prelude//python:defs.bzl", "python_library", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: data_architecture
+# Type: standard
 
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+pynomaly_python_package(
     name = "data_architecture",
-    srcs = glob(["src/**/*.py"], exclude = ["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
-    deps = [
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-        "//third-party/python:click",
-        "//third-party/python:sqlalchemy",
-        "//third-party/python:great-expectations",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-python_test(
-    name = "data_architecture_tests",
-    srcs = glob(["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
-    deps = [":data_architecture", "//third-party/python:pytest"],
+    domain = "data",
     visibility = ["PUBLIC"],
 )

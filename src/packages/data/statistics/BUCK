@@ -1,24 +1,12 @@
-load("@prelude//python:defs.bzl", "python_library", "python_test")
+# Pynomaly Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: statistics
+# Type: standard
 
-python_library(
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+pynomaly_python_package(
     name = "statistics",
-    srcs = glob(["src/**/*.py"], exclude = ["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
-    deps = [
-        "//third-party/python:pandas", 
-        "//third-party/python:numpy",
-        "//third-party/python:scipy",
-        "//third-party/python:scikit-learn",
-        "//third-party/python:matplotlib",
-        "//third-party/python:seaborn",
-        "//third-party/python:pydantic",
-        "//third-party/python:structlog",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-python_test(
-    name = "statistics_tests",
-    srcs = glob(["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
-    deps = [":statistics", "//third-party/python:pytest"],
+    domain = "data",
     visibility = ["PUBLIC"],
 )
