@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pre-commit hook for Pynomaly isolation system
+# Pre-commit hook for isolation system
 # Automatically triggers isolation for qualifying changes
 
 set -euo pipefail
@@ -120,7 +120,7 @@ if [ ! -t 0 ]; then
     echo "🔒 Isolation environment created!"
     echo "Please switch to the isolation environment to continue development:"
     echo "  cd .isolated-work/container-*/  # Navigate to isolation"
-    echo "  docker-compose exec pynomaly-isolated /bin/bash  # Enter isolation"
+    echo "  docker-compose exec isolated /bin/bash  # Enter isolation"
     echo ""
     echo "Commit cancelled. Please retry in isolation environment."
     exit 1

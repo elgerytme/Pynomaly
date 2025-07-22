@@ -1,51 +1,66 @@
 load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
 
-# Main library for machine learning utilities and models
+# Main library for data analytics and visualization
 python_library(
-    name = "machine_learning",
+    name = "data_analytics",
     srcs = glob([
-        "**/*.py",
+        "src/**/*.py",
     ], exclude = [
         "tests/**/*.py",
-        "**/test_*.py", 
+        "**/test_*.py",
         "**/*_test.py",
     ]),
     deps = [
-        "//third-party/python:numpy",
         "//third-party/python:pandas",
-        "//third-party/python:scikit-learn", 
+        "//third-party/python:numpy",
         "//third-party/python:scipy",
-        "//third-party/python:tensorflow",
-        "//third-party/python:torch",
-        "//third-party/python:transformers",
+        "//third-party/python:scikit-learn",
+        "//third-party/python:matplotlib",
+        "//third-party/python:seaborn",
+        "//third-party/python:plotly",
+        "//third-party/python:bokeh",
+        "//third-party/python:dash",
+        "//third-party/python:streamlit",
         "//third-party/python:pydantic",
         "//third-party/python:structlog",
         "//third-party/python:click",
         "//third-party/python:fastapi",
         "//third-party/python:uvicorn",
-        "//third-party/python:mlflow",
-        "//third-party/python:wandb",
-        "//third-party/python:optuna",
-        "//third-party/python:joblib",
-        "//third-party/python:matplotlib",
-        "//third-party/python:seaborn",
-        "//third-party/python:plotly",
-        "//third-party/python:xgboost",
-        "//third-party/python:lightgbm",
+        "//third-party/python:sqlalchemy",
+        "//third-party/python:polars",
+        "//third-party/python:duckdb",
+        "//third-party/python:jupyter",
+        "//third-party/python:ipywidgets",
     ],
+    visibility = ["PUBLIC"],
+)
+
+# CLI interface
+python_binary(
+    name = "data_analytics_cli",
+    main = "src/data_analytics/presentation/cli/app.py",
+    deps = [":data_analytics"],
+    visibility = ["PUBLIC"],
+)
+
+# Server interface
+python_binary(
+    name = "data_analytics_server",
+    main = "src/data_analytics/presentation/api/app.py", 
+    deps = [":data_analytics"],
     visibility = ["PUBLIC"],
 )
 
 # All tests
 python_test(
-    name = "machine_learning_tests",
+    name = "data_analytics_tests",
     srcs = glob([
         "tests/**/*.py",
         "**/test_*.py",
-        "**/*_test.py", 
+        "**/*_test.py",
     ]),
     deps = [
-        ":machine_learning",
+        ":data_analytics",
         "//third-party/python:pytest",
         "//third-party/python:pytest-asyncio",
         "//third-party/python:pytest-cov",
@@ -65,7 +80,7 @@ python_test(
         "tests/e2e/**/*.py",
     ]),
     deps = [
-        ":machine_learning",
+        ":data_analytics",
         "//third-party/python:pytest",
         "//third-party/python:pytest-mock",
     ],
@@ -75,12 +90,12 @@ python_test(
 
 # Integration tests
 python_test(
-    name = "integration_tests", 
+    name = "integration_tests",
     srcs = glob([
-        "tests/integration/**/*.py",
+        "tests/integration/**/*.py", 
     ]),
     deps = [
-        ":machine_learning",
+        ":data_analytics",
         "//third-party/python:pytest",
         "//third-party/python:pytest-asyncio",
     ],

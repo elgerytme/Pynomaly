@@ -1,51 +1,79 @@
 load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
 
-# Main library for machine learning utilities and models
+# Main library for anomaly detection algorithms and services
 python_library(
-    name = "machine_learning",
+    name = "anomaly_detection",
     srcs = glob([
         "**/*.py",
     ], exclude = [
         "tests/**/*.py",
-        "**/test_*.py", 
+        "**/test_*.py",
         "**/*_test.py",
     ]),
     deps = [
         "//third-party/python:numpy",
-        "//third-party/python:pandas",
-        "//third-party/python:scikit-learn", 
+        "//third-party/python:pandas", 
+        "//third-party/python:scikit-learn",
         "//third-party/python:scipy",
+        "//third-party/python:pyod",
         "//third-party/python:tensorflow",
         "//third-party/python:torch",
-        "//third-party/python:transformers",
         "//third-party/python:pydantic",
         "//third-party/python:structlog",
         "//third-party/python:click",
         "//third-party/python:fastapi",
         "//third-party/python:uvicorn",
         "//third-party/python:mlflow",
-        "//third-party/python:wandb",
-        "//third-party/python:optuna",
         "//third-party/python:joblib",
         "//third-party/python:matplotlib",
         "//third-party/python:seaborn",
         "//third-party/python:plotly",
-        "//third-party/python:xgboost",
-        "//third-party/python:lightgbm",
     ],
+    visibility = ["PUBLIC"],
+)
+
+# CLI interface for anomaly detection
+python_binary(
+    name = "anomaly_detection_cli",
+    main = "cli/__init__.py",
+    deps = [":anomaly_detection"],
+    visibility = ["PUBLIC"],
+)
+
+# Detection service binary
+python_binary(
+    name = "detection_service",
+    main = "domain/services/detection_service.py",
+    deps = [":anomaly_detection"],
+    visibility = ["PUBLIC"],
+)
+
+# Ensemble service binary
+python_binary(
+    name = "ensemble_service", 
+    main = "domain/services/ensemble_service.py",
+    deps = [":anomaly_detection"],
+    visibility = ["PUBLIC"],
+)
+
+# Streaming service binary
+python_binary(
+    name = "streaming_service",
+    main = "domain/services/streaming_service.py", 
+    deps = [":anomaly_detection"],
     visibility = ["PUBLIC"],
 )
 
 # All tests
 python_test(
-    name = "machine_learning_tests",
+    name = "anomaly_detection_tests",
     srcs = glob([
         "tests/**/*.py",
         "**/test_*.py",
-        "**/*_test.py", 
+        "**/*_test.py",
     ]),
     deps = [
-        ":machine_learning",
+        ":anomaly_detection",
         "//third-party/python:pytest",
         "//third-party/python:pytest-asyncio",
         "//third-party/python:pytest-cov",
@@ -54,7 +82,7 @@ python_test(
     visibility = ["PUBLIC"],
 )
 
-# Unit tests
+# Unit tests specifically
 python_test(
     name = "unit_tests",
     srcs = glob([
@@ -65,7 +93,7 @@ python_test(
         "tests/e2e/**/*.py",
     ]),
     deps = [
-        ":machine_learning",
+        ":anomaly_detection",
         "//third-party/python:pytest",
         "//third-party/python:pytest-mock",
     ],
@@ -75,12 +103,12 @@ python_test(
 
 # Integration tests
 python_test(
-    name = "integration_tests", 
+    name = "integration_tests",
     srcs = glob([
         "tests/integration/**/*.py",
     ]),
     deps = [
-        ":machine_learning",
+        ":anomaly_detection", 
         "//third-party/python:pytest",
         "//third-party/python:pytest-asyncio",
     ],

@@ -1,4 +1,4 @@
-# Pynomaly Makefile - Best Practices Implementation
+# Makefile - Best Practices Implementation
 # Following software engineering standards from RULES.md
 #
 # Prerequisites:
@@ -27,7 +27,7 @@
 
 # Default target
 help: ## Show this help message
-	@echo "🚀 Pynomaly Development Commands (Hatch-based)"
+	@echo "🚀 Development Commands (Hatch-based)"
 	@echo ""
 	@echo "Setup & Installation:"
 	@echo "  make setup          - Initial project setup (install Hatch, create environments)"
@@ -74,7 +74,7 @@ help: ## Show this help message
 	@echo "For detailed help: make help-detailed"
 
 help-detailed: ## Show detailed help with examples
-	@echo "🔧 Detailed Pynomaly Development Guide"
+	@echo "🔧 Detailed Development Guide"
 	@echo ""
 	@echo "=== INITIAL SETUP ==="
 	@echo "1. Clone repository and navigate to directory"
@@ -117,7 +117,7 @@ kafka_stream: ## Start Kafka stream producing 1000 events per second
 	@python scripts/kafka_producer.py
 
 setup: ## Initial project setup - install Hatch and create environments
-	@echo "🚀 Setting up Pynomaly development environment..."
+	@echo "🚀 Setting up development environment..."
 	@command -v hatch >/dev/null 2>&1 || (echo "Installing Hatch..." && pip install hatch)
 	@echo "✅ Hatch installed: $$(hatch --version)"
 	@echo "📦 Creating Hatch environments..."
@@ -130,7 +130,7 @@ install: ## Install package in current environment
 	pip install -e .
 
 dev-install: ## Install package in development mode with all dependencies
-	@echo "📦 Installing Pynomaly in development mode..."
+	@echo "📦 Installing in development mode..."
 	hatch env run dev:setup
 	@echo "✅ Development installation complete!"
 
@@ -240,7 +240,7 @@ ci: ## Run full CI pipeline locally
 	@echo "6️⃣ CLI test..."
 	hatch env run cli:test-cli
 	@echo "7️⃣ Core imports..."
-	python -c "import sys; sys.path.insert(0, 'src'); from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')"
+	python -c "import sys; sys.path.insert(0, 'src'); from monorepo.domain.entities import Dataset; print('✅ Core imports successful')"
 	@echo "✅ Full CI pipeline completed successfully!"
 
 # === DOCUMENTATION ===
@@ -258,13 +258,13 @@ docs-serve: ## Serve documentation locally
 
 docker: ## Build Docker image
 	@echo "🐳 Building Docker image..."
-	docker build -f deploy/docker/Dockerfile -t pynomaly:latest .
-	@echo "✅ Docker image built: pynomaly:latest"
+	docker build -f deploy/docker/Dockerfile -t monorepo:latest .
+	@echo "✅ Docker image built: monorepo:latest"
 
 # === UTILITIES ===
 
 status: ## Show project status and environment info
-	@echo "📊 Pynomaly Project Status"
+	@echo "📊 Monorepo Project Status"
 	@echo "=========================="
 	@echo "Version: $$(hatch version)"
 	@echo "Hatch: $$(hatch --version)"
@@ -351,8 +351,8 @@ npm-watch: npm-install ## Watch and rebuild web assets
 npm-clean: ## Clean npm artifacts
 	@echo "🧹 Cleaning npm artifacts..."
 	-rm -rf node_modules/
-	-rm -rf src/pynomaly/presentation/web/static/css/styles.css
-	-rm -rf src/pynomaly/presentation/web/static/js/app.js
+	-rm -rf src/monorepo/presentation/web/static/css/styles.css
+	-rm -rf src/monorepo/presentation/web/static/js/app.js
 	@echo "✅ npm artifacts cleaned!"
 
 dev: ## Start development environment with watch mode
@@ -397,13 +397,13 @@ s: status   ## Alias for status
 
 docker-build-hardened: ## Build hardened Docker image
 	@echo "🔒 Building hardened Docker image..."
-	docker build -f deploy/docker/Dockerfile.hardened -t pynomaly:hardened .
+	docker build -f deploy/docker/Dockerfile.hardened -t monorepo:hardened .
 	@echo "✅ Hardened image built successfully"
 
 docker-security-scan: ## Run comprehensive container security scan
 	@echo "🔍 Running container security scan..."
 	@mkdir -p reports/security
-	python scripts/security/run_container_scans.py pynomaly:hardened --output-dir reports/security
+	python scripts/security/run_container_scans.py monorepo:hardened --output-dir reports/security
 	@echo "✅ Security scan completed"
 
 docker-security-all: docker-build-hardened docker-security-scan ## Build and scan hardened image

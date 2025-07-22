@@ -27,10 +27,22 @@
   interpreter = python3
   pex_extension = .pex
 
-# Build optimizations
+# Build optimizations and remote caching
 [cache]
   mode = dir
   dir = .buck-cache
+  
+[cache.http]
+  # Remote HTTP cache configuration (configure endpoints as needed)
+  # address = https://buck2-cache.example.com
+  # read_headers = Authorization: Bearer ${BUCK2_CACHE_TOKEN}
+  # write_headers = Authorization: Bearer ${BUCK2_CACHE_TOKEN}
+  
+[cache.re]
+  # Remote Execution cache configuration  
+  # action_cache_address = grpc://buck2-ac.example.com:9092
+  # engine_address = grpc://buck2-re.example.com:9092
+  # cas_address = grpc://buck2-cas.example.com:9092
 
 [project]
   ignore = .git, __pycache__, *.pyc, .pytest_cache, node_modules, .hatch, dist, build
@@ -48,3 +60,38 @@
 
 [buck2]
   materializations = deferred
+  
+# Advanced performance optimizations
+[build]
+  threads = 0  # Use all available cores
+  
+[cache]
+  # Cache size limits (in MB)
+  disk_cache_size_mb = 10240  # 10GB local cache
+  
+[http_cache]
+  # HTTP cache timeouts and retries
+  connect_timeout_ms = 5000
+  read_timeout_ms = 30000
+  max_retries = 3
+  
+[action_cache]
+  # Action cache optimizations
+  max_entries = 100000
+  cleanup_threshold = 0.8
+  
+[parser]
+  # Parser performance tuning
+  enable_profiling = false
+  thread_count = 0  # Use all cores
+  
+[test]
+  # Test execution optimizations
+  parallel_execution = true
+  timeout_ms = 300000  # 5 minute default timeout
+  
+[python]
+  # Python-specific optimizations  
+  enable_bytecode_cache = true
+  cache_bytecode_files = true
+  precompile_modules = true

@@ -1,4 +1,4 @@
-# Isolation Dockerfile Template for Pynomaly Development
+# Isolation Dockerfile Template for Development
 # This creates a clean, isolated environment for development work
 
 ARG PYTHON_VERSION=3.11
@@ -13,8 +13,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYNOMALY_ENV=isolated
 
 # Create isolation user (non-root for security)
-RUN groupadd --gid 1000 pynomaly && \
-    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home pynomaly
+RUN groupadd --gid 1000 monorepo && \
+    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home monorepo
 
 # Install system dependencies for development
 RUN apt-get update && apt-get install -y \
@@ -30,17 +30,17 @@ RUN apt-get update && apt-get install -y \
 
 # Create isolated workspace
 WORKDIR /workspace
-RUN chown pynomaly:pynomaly /workspace
+RUN chown monorepo:monorepo /workspace
 
 # Switch to isolation user
-USER pynomaly
+USER monorepo
 
 # Create Python virtual environment in isolation
-RUN python -m venv /home/pynomaly/.venv
-ENV PATH="/home/pynomaly/.venv/bin:$PATH"
+RUN python -m venv /home/monorepo/.venv
+ENV PATH="/home/monorepo/.venv/bin:$PATH"
 
 # Copy requirements (if they exist)
-COPY --chown=pynomaly:pynomaly requirements*.txt pyproject.toml* ./
+COPY --chown=monorepo:monorepo requirements*.txt pyproject.toml* ./
 
 # Install Python dependencies in isolation
 RUN if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi && \
@@ -66,17 +66,17 @@ RUN mkdir -p /workspace/src \
              /workspace/.isolation
 
 # Copy isolation helper scripts
-COPY --chown=pynomaly:pynomaly .project-rules/scripts/ /workspace/.isolation/scripts/
+COPY --chown=monorepo:monorepo .project-rules/scripts/ /workspace/.isolation/scripts/
 RUN chmod +x /workspace/.isolation/scripts/*.sh
 
 # Set up Git configuration for isolation
 RUN git config --global user.name "Isolation Environment" && \
-    git config --global user.email "isolation@pynomaly.local" && \
+    git config --global user.email "isolation@monorepo.local" && \
     git config --global init.defaultBranch main
 
 # Create isolation startup script
 RUN echo '#!/bin/bash\n\
-echo "🔒 Pynomaly Isolation Environment Activated"\n\
+echo "🔒 Monorepo Isolation Environment Activated"\n\
 echo "📁 Workspace: $(pwd)"\n\
 echo "🐍 Python: $(python --version)"\n\
 echo "📦 Pip packages: $(pip list | wc -l) installed"\n\
@@ -103,7 +103,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD python -c "import sys; sys.exit(0)" || exit 1
 
 # Labels for isolation tracking
-LABEL isolation.project="pynomaly" \
+LABEL isolation.project="monorepo" \
       isolation.version="1.0" \
       isolation.type="development" \
       isolation.created="$(date -u +%Y-%m-%dT%H:%M:%SZ)"

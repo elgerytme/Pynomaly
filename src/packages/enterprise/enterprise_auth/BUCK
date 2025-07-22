@@ -1,0 +1,60 @@
+load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+
+python_library(
+    name = "enterprise_auth",
+    srcs = glob([
+        "src/**/*.py",
+    ], exclude = [
+        "tests/**/*.py",
+        "**/test_*.py",
+        "**/*_test.py",
+    ]),
+    deps = [
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+        "//third-party/python:click",
+        "//third-party/python:fastapi",
+        "//third-party/python:uvicorn",
+        "//third-party/python:sqlalchemy",
+        "//third-party/python:alembic",
+        "//third-party/python:bcrypt",
+        "//third-party/python:passlib",
+        "//third-party/python:python-jose",
+        "//third-party/python:oauth2lib",
+        "//third-party/python:ldap3",
+        "//third-party/python:redis",
+        "//third-party/python:python-multipart",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_binary(
+    name = "enterprise_auth_cli",
+    main = "src/enterprise_auth/presentation/cli/app.py",
+    deps = [":enterprise_auth"],
+    visibility = ["PUBLIC"],
+)
+
+python_binary(
+    name = "enterprise_auth_server",
+    main = "src/enterprise_auth/presentation/api/app.py", 
+    deps = [":enterprise_auth"],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "enterprise_auth_tests",
+    srcs = glob([
+        "tests/**/*.py",
+        "**/test_*.py",
+        "**/*_test.py",
+    ]),
+    deps = [
+        ":enterprise_auth",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-asyncio",
+        "//third-party/python:pytest-cov",
+        "//third-party/python:pytest-mock",
+    ],
+    visibility = ["PUBLIC"],
+)

@@ -1,0 +1,44 @@
+load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+
+python_library(
+    name = "mlops_basic",
+    srcs = glob([
+        "src/**/*.py",
+    ], exclude = [
+        "tests/**/*.py",
+        "**/test_*.py",
+        "**/*_test.py",
+    ]),
+    deps = [
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog", 
+        "//third-party/python:click",
+        "//third-party/python:mlflow",
+        "//third-party/python:pandas",
+        "//third-party/python:numpy",
+        "//third-party/python:scikit-learn",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_binary(
+    name = "mlops_basic_cli",
+    main = "src/mlops_basic/presentation/cli/app.py",
+    deps = [":mlops_basic"],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "mlops_basic_tests",
+    srcs = glob([
+        "tests/**/*.py",
+        "**/test_*.py", 
+        "**/*_test.py",
+    ]),
+    deps = [
+        ":mlops_basic",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-mock",
+    ],
+    visibility = ["PUBLIC"],
+)

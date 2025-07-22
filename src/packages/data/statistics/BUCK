@@ -1,0 +1,24 @@
+load("@prelude//python:defs.bzl", "python_library", "python_test")
+
+python_library(
+    name = "statistics",
+    srcs = glob(["src/**/*.py"], exclude = ["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
+    deps = [
+        "//third-party/python:pandas", 
+        "//third-party/python:numpy",
+        "//third-party/python:scipy",
+        "//third-party/python:scikit-learn",
+        "//third-party/python:matplotlib",
+        "//third-party/python:seaborn",
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "statistics_tests",
+    srcs = glob(["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
+    deps = [":statistics", "//third-party/python:pytest"],
+    visibility = ["PUBLIC"],
+)

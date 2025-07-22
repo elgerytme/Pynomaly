@@ -1,4 +1,4 @@
-# Pynomaly .gitignore
+# .gitignore
 # ====================
 
 # Python
@@ -443,7 +443,7 @@ dist/
 /toolchains/
 /tools/
 /stories/
-/pynomaly/
+
 # Note: /data/ moved to line 251 with clarification about src/packages/data/
 
 # Archive directory - track structure but ignore most content

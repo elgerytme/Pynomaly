@@ -68,7 +68,7 @@
   materializations = deferred
   # Use more aggressive daemon settings for CI/CD
   daemon_startup_timeout = 60s
-  daemon_buster = pynomaly-ci
+  daemon_buster = ci
 
 # Build performance optimization
 [build.ci]
@@ -83,7 +83,7 @@
   # cas_address = remote-cache.company.com:443
   # engine_address = remote-execution.company.com:443
   # tls = true
-  # instance_name = pynomaly-builds
+  # instance_name = builds
 
 # Logging configuration for CI/CD
 [log]

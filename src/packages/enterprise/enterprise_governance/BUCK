@@ -1,0 +1,49 @@
+load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+
+python_library(
+    name = "enterprise_governance",
+    srcs = glob([
+        "src/**/*.py",
+    ], exclude = [
+        "tests/**/*.py", 
+        "**/test_*.py",
+        "**/*_test.py",
+    ]),
+    deps = [
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+        "//third-party/python:click", 
+        "//third-party/python:fastapi",
+        "//third-party/python:uvicorn",
+        "//third-party/python:sqlalchemy",
+        "//third-party/python:alembic",
+        "//third-party/python:pandas",
+        "//third-party/python:numpy",
+        "//third-party/python:great-expectations",
+        "//third-party/python:evidently",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_binary(
+    name = "enterprise_governance_cli",
+    main = "src/enterprise_governance/presentation/cli/app.py",
+    deps = [":enterprise_governance"],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "enterprise_governance_tests", 
+    srcs = glob([
+        "tests/**/*.py",
+        "**/test_*.py",
+        "**/*_test.py",
+    ]),
+    deps = [
+        ":enterprise_governance",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-asyncio",
+        "//third-party/python:pytest-mock",
+    ],
+    visibility = ["PUBLIC"],
+)

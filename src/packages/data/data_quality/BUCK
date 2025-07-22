@@ -1,0 +1,26 @@
+load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+
+python_library(
+    name = "data_quality",
+    srcs = glob(["**/*.py"], exclude = ["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
+    deps = [
+        "//third-party/python:pandas",
+        "//third-party/python:numpy",
+        "//third-party/python:great-expectations",
+        "//third-party/python:evidently",
+        "//third-party/python:deepchecks",
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+        "//third-party/python:click",
+        "//third-party/python:fastapi",
+        "//third-party/python:sqlalchemy",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "data_quality_tests",
+    srcs = glob(["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
+    deps = [":data_quality", "//third-party/python:pytest", "//third-party/python:pytest-mock"],
+    visibility = ["PUBLIC"],
+)

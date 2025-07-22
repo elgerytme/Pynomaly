@@ -1,22 +1,22 @@
 load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
 
-# Main library for MLOps platform and orchestration
+# Main library for data engineering tools and pipelines
 python_library(
-    name = "mlops",
+    name = "data_engineering",
     srcs = glob([
-        "**/*.py",
+        "src/**/*.py",
     ], exclude = [
         "tests/**/*.py",
         "**/test_*.py",
         "**/*_test.py",
     ]),
     deps = [
-        "//third-party/python:numpy",
         "//third-party/python:pandas",
-        "//third-party/python:scikit-learn",
-        "//third-party/python:scipy", 
-        "//third-party/python:tensorflow",
-        "//third-party/python:torch",
+        "//third-party/python:numpy",
+        "//third-party/python:pyarrow",
+        "//third-party/python:polars",
+        "//third-party/python:dask",
+        "//third-party/python:ray",
         "//third-party/python:pydantic",
         "//third-party/python:structlog",
         "//third-party/python:click",
@@ -24,37 +24,49 @@ python_library(
         "//third-party/python:uvicorn",
         "//third-party/python:sqlalchemy",
         "//third-party/python:alembic",
-        "//third-party/python:mlflow",
-        "//third-party/python:wandb",
-        "//third-party/python:kubeflow",
-        "//third-party/python:airflow",
-        "//third-party/python:prefect",
-        "//third-party/python:great-expectations",
-        "//third-party/python:evidently",
-        "//third-party/python:prometheus-client",
-        "//third-party/python:grafana-api",
-        "//third-party/python:kubernetes",
-        "//third-party/python:docker",
+        "//third-party/python:psycopg2-binary",
+        "//third-party/python:pymongo",
         "//third-party/python:redis",
-        "//third-party/python:celery",
+        "//third-party/python:kafka-python",
         "//third-party/python:boto3",
         "//third-party/python:azure-storage-blob",
         "//third-party/python:google-cloud-storage",
         "//third-party/python:minio",
+        "//third-party/python:delta-lake",
+        "//third-party/python:great-expectations",
+        "//third-party/python:dbt-core",
+        "//third-party/python:airflow",
+        "//third-party/python:prefect",
     ],
+    visibility = ["PUBLIC"],
+)
+
+# CLI interface
+python_binary(
+    name = "data_engineering_cli",
+    main = "src/data_engineering/presentation/cli/app.py",
+    deps = [":data_engineering"],
+    visibility = ["PUBLIC"],
+)
+
+# Server interface  
+python_binary(
+    name = "data_engineering_server",
+    main = "src/data_engineering/presentation/api/app.py",
+    deps = [":data_engineering"],
     visibility = ["PUBLIC"],
 )
 
 # All tests
 python_test(
-    name = "mlops_tests",
+    name = "data_engineering_tests",
     srcs = glob([
         "tests/**/*.py",
-        "**/test_*.py",
+        "**/test_*.py", 
         "**/*_test.py",
     ]),
     deps = [
-        ":mlops",
+        ":data_engineering",
         "//third-party/python:pytest",
         "//third-party/python:pytest-asyncio",
         "//third-party/python:pytest-cov",
@@ -71,11 +83,11 @@ python_test(
         "tests/unit/**/*.py",
         "**/test_*.py",
     ], exclude = [
-        "tests/integration/**/*.py", 
+        "tests/integration/**/*.py",
         "tests/e2e/**/*.py",
     ]),
     deps = [
-        ":mlops",
+        ":data_engineering",
         "//third-party/python:pytest",
         "//third-party/python:pytest-mock",
     ],
@@ -90,27 +102,11 @@ python_test(
         "tests/integration/**/*.py",
     ]),
     deps = [
-        ":mlops",
+        ":data_engineering", 
         "//third-party/python:pytest",
         "//third-party/python:pytest-asyncio",
         "//third-party/python:testcontainers",
     ],
     labels = ["integration"],
-    visibility = ["PUBLIC"],
-)
-
-# E2E tests
-python_test(
-    name = "e2e_tests",
-    srcs = glob([
-        "tests/e2e/**/*.py",
-    ]),
-    deps = [
-        ":mlops",
-        "//third-party/python:pytest",
-        "//third-party/python:pytest-asyncio",
-        "//third-party/python:testcontainers",
-    ],
-    labels = ["e2e", "slow"],
     visibility = ["PUBLIC"],
 )
