@@ -1,13 +1,13 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Company Python Package - Standardized Buck2 Configuration
 # Domain: ai
 # Package: machine_learning
 # Type: ml
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:company_python_package.bzl", "company_python_package")
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_ml_package")
+load("//tools/buck:company_python_package.bzl", "company_ml_package")
 
-pynomaly_ml_package(
+company_ml_package(
     name = "machine_learning",
     frameworks = ["sklearn"],  # Adjust as needed
     visibility = ["PUBLIC"],

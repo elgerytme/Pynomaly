@@ -1,14 +1,29 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Company Python Package - Standardized Buck2 Configuration
 # Domain: ai
 # Package: mlops
 # Type: ml
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:company_python_package.bzl", "company_ml_package")
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_ml_package")
-
-pynomaly_ml_package(
+company_ml_package(
     name = "mlops",
-    frameworks = ["sklearn"],  # Adjust as needed
+    domain = "ai",
+    frameworks = [
+        "fastapi",
+        "uvicorn",
+        "pydantic", 
+        "structlog",
+        "click",
+    ],
+    ml_frameworks = [
+        "sklearn",
+        "tensorflow",
+        "pytorch",
+    ],
+    entry_points = [
+        "mlops:cli",
+        "mlops-server:server", 
+        "mlops-worker:worker",
+    ],
     visibility = ["PUBLIC"],
 )

@@ -1,8 +1,8 @@
 # Machine Learning Package - Modernized with Standardized Macros
-load("//tools/buck:python_package.bzl", "pynomaly_ai_package")
+load("//tools/buck:python_package.bzl", "company_ai_package")
 
 # Create AI machine learning package with standardized configuration
-pynomaly_ai_package(
+company_ai_package(
     name = "machine_learning",
     srcs = glob([
         "src/**/*.py",
@@ -33,14 +33,14 @@ pynomaly_ai_package(
 )
 
 # CLI Application (if exists)
-# pynomaly_cli_application(
+# company_cli_application(
 #     name = "ml-cli",
 #     main_module = "machine_learning.cli.main",
 #     deps = [":machine_learning"],
 # )
 
 # Microservice (if exists)  
-# pynomaly_microservice(
+# company_microservice(
 #     name = "ml-service",
 #     main_module = "machine_learning.api.main",
 #     port = 8000,

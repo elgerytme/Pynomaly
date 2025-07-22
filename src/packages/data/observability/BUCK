@@ -1,15 +1,15 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Company Python Package - Standardized Buck2 Configuration
 # Domain: data
 # Package: observability
 # Type: microservice
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:company_python_package.bzl", "company_python_package")
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+load("//tools/buck:company_python_package.bzl", "company_microservice")
 
-pynomaly_microservice(
+company_microservice(
     name = "observability",
     domain = "data",
-    main_module = "observability.main",  # Adjust as needed
+    main_module = "data_observability.server",
     visibility = ["PUBLIC"],
 )

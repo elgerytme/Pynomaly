@@ -1,13 +1,13 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Company Python Package - Standardized Buck2 Configuration
 # Domain: enterprise
 # Package: enterprise_governance
 # Type: microservice
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:company_python_package.bzl", "company_python_package")
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+load("//tools/buck:company_python_package.bzl", "company_microservice")
 
-pynomaly_microservice(
+company_microservice(
     name = "enterprise_governance",
     domain = "enterprise",
     main_module = "enterprise_governance.main",  # Adjust as needed
