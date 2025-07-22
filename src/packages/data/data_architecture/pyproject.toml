@@ -32,7 +32,9 @@ dependencies = [
     "typing-extensions>=4.0.0", 
     "structlog>=23.0.0",
     "click>=8.0.0",
-    "pydantic>=2.0.0",\n    "typing-extensions>=4.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "celery>=5.3.0",
 ]
 
 [project.optional-dependencies]
@@ -283,3 +285,4 @@ skips = ["B101"]
 [tool.py-spy]
 format = "flamegraph"
 output = "reports/profile.svg"
+where = ["src"]

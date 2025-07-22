@@ -2,6 +2,26 @@
 repos:
   - repo: local
     hooks:
+      - id: validate-report-locations
+        name: Validate Report Locations
+        entry: python tools/scripts/validate_report_locations.py
+        language: python
+        args: [--scan-all]
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        description: "Ensures reports are placed in correct locations (docs/reports/ or package/docs/reports/)"
+        
+      - id: prevent-root-documentation
+        name: Prevent Root Documentation Files
+        entry: python tools/scripts/validate_root_documentation.py
+        language: python
+        args: [--suggest-moves]
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        description: "Prevents creation of new documentation files in repository root"
+        
       - id: single-package-development
         name: Single Package Development Rule
         entry: python3 tools/validate_single_package_development.py

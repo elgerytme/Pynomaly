@@ -334,6 +334,36 @@ build_performance_alerts(
 )
 
 # ==========================================
+# DOCUMENTATION VALIDATION
+# ==========================================
+
+load("//tools/buck:report_validation.bzl", "create_report_validation_rule")
+load("//tools/buck:root_documentation_validation.bzl", "create_root_documentation_validation_rule", "create_strict_root_documentation_validation_rule")
+
+# Validate report locations across repository
+create_report_validation_rule(
+    name = "validate-report-locations",
+    report_files = glob(["docs/reports/**/*"]),
+    package_docs_paths = [
+        "src/packages/*/docs/reports/",
+        "src/packages/*/*/docs/reports/"
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# Prevent new documentation files in repository root
+create_root_documentation_validation_rule(
+    name = "validate-root-documentation",
+    visibility = ["PUBLIC"],
+)
+
+# Strict validation (also fails on grandfathered files)
+create_strict_root_documentation_validation_rule(
+    name = "validate-root-documentation-strict",
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
 # IMPORT CONSOLIDATION VALIDATION
 # ==========================================
 

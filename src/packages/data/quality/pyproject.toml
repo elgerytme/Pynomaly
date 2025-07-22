@@ -290,3 +290,4 @@ skips = ["B101"]
 [tool.py-spy]
 format = "flamegraph"
 output = "reports/profile.svg"
+where = ["src"]

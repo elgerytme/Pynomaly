@@ -166,3 +166,4 @@ markers = [
     "gpu: Tests requiring GPU",
     "cloud: Tests requiring cloud access",
 ]
+where = ["src"]

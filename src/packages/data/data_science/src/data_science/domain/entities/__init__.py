@@ -1,0 +1,1 @@
+"""Entities for data_science domain layer."""

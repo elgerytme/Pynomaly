@@ -33,16 +33,27 @@
   dir = .buck-cache
   
 [cache.http]
-  # Remote HTTP cache configuration (configure endpoints as needed)
-  # address = https://buck2-cache.example.com
-  # read_headers = Authorization: Bearer ${BUCK2_CACHE_TOKEN}
-  # write_headers = Authorization: Bearer ${BUCK2_CACHE_TOKEN}
+  # Remote HTTP cache configuration - secure implementation
+  # Enable by setting BUCK2_CACHE_ENABLED=true and BUCK2_CACHE_TOKEN environment variables
+  address = ${BUCK2_CACHE_URL:-}
+  read_headers = Authorization: Bearer ${BUCK2_CACHE_TOKEN:-}
+  write_headers = Authorization: Bearer ${BUCK2_CACHE_TOKEN:-}
+  tls_ca_cert = ${BUCK2_CACHE_CA_CERT:-}
+  connect_timeout_ms = 10000
+  read_timeout_ms = 60000
+  write_timeout_ms = 120000
+  max_retries = 3
+  retry_delay_ms = 1000
   
 [cache.re]
-  # Remote Execution cache configuration  
-  # action_cache_address = grpc://buck2-ac.example.com:9092
-  # engine_address = grpc://buck2-re.example.com:9092
-  # cas_address = grpc://buck2-cas.example.com:9092
+  # Remote Execution cache configuration - secure implementation
+  # Enable by setting BUCK2_RE_ENABLED=true and appropriate endpoint variables
+  action_cache_address = ${BUCK2_RE_ACTION_CACHE_ADDRESS:-}
+  engine_address = ${BUCK2_RE_ENGINE_ADDRESS:-}
+  cas_address = ${BUCK2_RE_CAS_ADDRESS:-}
+  instance_name = ${BUCK2_RE_INSTANCE_NAME:-main}
+  tls_ca_cert = ${BUCK2_RE_CA_CERT:-}
+  auth_token = ${BUCK2_RE_AUTH_TOKEN:-}
 
 [project]
   ignore = .git, __pycache__, *.pyc, .pytest_cache, node_modules, .hatch, dist, build

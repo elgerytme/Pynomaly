@@ -76,3 +76,4 @@ line-length = 88
 [tool.mypy]
 python_version = "3.9"
 strict = true
+where = ["src"]

@@ -1,0 +1,30 @@
+load("@prelude//python:python_library.bzl", "python_library")
+load("@prelude//python:python_test.bzl", "python_test")
+
+python_library(
+    name = "quality",
+    srcs = glob(["src/quality/**/*.py"]),
+    resources = glob(["src/quality/**/*.yaml", "src/quality/**/*.json"]),
+    deps = [
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog", 
+        "//third-party/python:click",
+        "//third-party/python:fastapi",
+        "//third-party/python:uvicorn",
+        "//third-party/python:celery",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "quality_tests",
+    srcs = glob(["tests/**/*.py"]),
+    deps = [
+        ":quality",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest_asyncio", 
+        "//third-party/python:pytest_mock",
+        "//third-party/python:httpx",
+    ],
+    visibility = ["//..."],
+)
