@@ -18,9 +18,9 @@ def sample_model_data() -> Dict[str, Any]:
     """Sample model data for testing."""
     return {
         'id': uuid4(),
-        'name': 'test_anomaly_detector',
-        'description': 'Test anomaly detection model',
-        'model_type': 'anomaly_detection',
+        'name': 'test_ml_model',
+        'description': 'Test machine learning model',
+        'model_type': 'classification',
         'algorithm_family': 'isolation_forest',
         'created_by': 'test_user',
         'team': 'ml_team',
@@ -84,7 +84,7 @@ def training_dataset() -> pd.DataFrame:
 def experiment_config() -> Dict[str, Any]:
     """Standard experiment configuration."""
     return {
-        'experiment_name': 'anomaly_detection_v1',
+        'experiment_name': 'ml_model_v1',
         'algorithm': 'isolation_forest',
         'hyperparameters': {
             'n_estimators': 100,
@@ -110,7 +110,7 @@ def experiment_config() -> Dict[str, Any]:
 def pipeline_config() -> Dict[str, Any]:
     """Standard ML pipeline configuration."""
     return {
-        'pipeline_name': 'anomaly_detection_pipeline',
+        'pipeline_name': 'ml_training_pipeline',
         'stages': [
             {
                 'name': 'data_ingestion',

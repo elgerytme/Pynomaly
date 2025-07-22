@@ -391,12 +391,10 @@ class TestMLOpsAlgorithmValidation:
         model_data = sample_model_data.copy()
         model_data['algorithm_family'] = algorithm
         model_data['expected_accuracy'] = expected_accuracy
+        model_data['name'] = f"{algorithm}_detector"
+        model_data['description'] = f"ML model using {algorithm}"
         
-        result = model_service.create_model(
-            name=f"{algorithm}_detector",
-            description=f"Anomaly detection model using {algorithm}",
-            **model_data
-        )
+        result = model_service.create_model(**model_data)
         
         assert result['success'], f"Model creation failed for {algorithm}"
         assert 'model' in result, "Model data not returned"

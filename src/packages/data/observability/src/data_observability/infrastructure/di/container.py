@@ -10,6 +10,7 @@ from ...application.services.data_lineage_service import DataLineageService
 from ...application.services.pipeline_health_service import PipelineHealthService
 from ...application.services.data_catalog_service import DataCatalogService
 from ...application.services.predictive_quality_service import PredictiveQualityService
+from ...application.facades.observability_facade import DataObservabilityFacade
 
 
 class DataObservabilityContainer(containers.DeclarativeContainer):
@@ -29,7 +30,7 @@ class DataObservabilityContainer(containers.DeclarativeContainer):
     
     # Composed services that depend on core services
     observability_facade = providers.Factory(
-        "monorepo.packages.data_observability.application.facades.observability_facade.DataObservabilityFacade",
+        DataObservabilityFacade,
         lineage_service=data_lineage_service,
         health_service=pipeline_health_service,
         catalog_service=data_catalog_service,

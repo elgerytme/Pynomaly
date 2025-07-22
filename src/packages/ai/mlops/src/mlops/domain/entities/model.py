@@ -8,16 +8,7 @@ from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-
-class ModelType(Enum):
-    """Type of anomaly detection model."""
-
-    SUPERVISED = "supervised"
-    UNSUPERVISED = "unsupervised"
-    SEMI_SUPERVISED = "semi_supervised"
-    ENSEMBLE = "ensemble"
-    DEEP_LEARNING = "deep_learning"
-    TIME_SERIES = "time_series"
+from ..value_objects.model_value_objects import ModelType
 
 
 class ModelStage(Enum):

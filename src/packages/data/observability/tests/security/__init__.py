@@ -1,0 +1,1 @@
+"""Security tests for data observability."""

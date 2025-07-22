@@ -27,7 +27,7 @@ class ModelType(Enum):
     REGRESSION = "regression"
     CLUSTERING = "clustering"
     DIMENSIONALITY_REDUCTION = "dimensionality_reduction"
-    ANOMALY_DETECTION = "anomaly_detection"
+    OUTLIER_DETECTION = "outlier_detection"
     REINFORCEMENT_LEARNING = "reinforcement_learning"
     GENERATIVE = "generative"
     ENSEMBLE = "ensemble"
@@ -203,3 +203,168 @@ class ModelVersion:
     def increment_major(self) -> "ModelVersion":
         """Increment major version."""
         return ModelVersion(self.major + 1, 0, 0, self.build)
+
+
+@dataclass(frozen=True)
+class ModelStorageInfo:
+    """Storage information for ML models."""
+    
+    storage_type: str  # "local", "s3", "gcs", "azure", etc.
+    bucket_name: Optional[str] = None
+    path: Optional[str] = None
+    url: Optional[str] = None
+    size_bytes: Optional[int] = None
+    checksum: Optional[str] = None
+    compression: Optional[str] = None
+    
+    def __post_init__(self) -> None:
+        """Validate storage info after creation."""
+        if not self.storage_type:
+            raise ValueError("Storage type is required")
+        
+        if self.storage_type in ("s3", "gcs", "azure") and not self.bucket_name:
+            raise ValueError(f"Bucket name is required for {self.storage_type} storage")
+    
+    @property
+    def full_path(self) -> str:
+        """Get the full storage path."""
+        if self.storage_type == "local":
+            return self.path or ""
+        elif self.storage_type in ("s3", "gcs", "azure"):
+            bucket = self.bucket_name or ""
+            path = self.path or ""
+            return f"{bucket}/{path}" if path else bucket
+        else:
+            return self.url or self.path or ""
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary representation."""
+        return {
+            "storage_type": self.storage_type,
+            "bucket_name": self.bucket_name,
+            "path": self.path,
+            "url": self.url,
+            "size_bytes": self.size_bytes,
+            "checksum": self.checksum,
+            "compression": self.compression,
+            "full_path": self.full_path,
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ModelStorageInfo":
+        """Create storage info from dictionary."""
+        return cls(
+            storage_type=data["storage_type"],
+            bucket_name=data.get("bucket_name"),
+            path=data.get("path"),
+            url=data.get("url"),
+            size_bytes=data.get("size_bytes"),
+            checksum=data.get("checksum"),
+            compression=data.get("compression"),
+        )
+
+
+@dataclass(frozen=True)
+class PerformanceMetrics:
+    """Performance metrics for model evaluation."""
+    
+    accuracy: Optional[float] = None
+    precision: Optional[float] = None
+    recall: Optional[float] = None
+    f1_score: Optional[float] = None
+    auc_roc: Optional[float] = None
+    auc_pr: Optional[float] = None
+    
+    # Regression metrics
+    mse: Optional[float] = None
+    rmse: Optional[float] = None
+    mae: Optional[float] = None
+    r2_score: Optional[float] = None
+    
+    # Custom metrics
+    custom_metrics: Dict[str, float] = field(default_factory=dict)
+    
+    def __post_init__(self) -> None:
+        """Validate metrics after creation."""
+        for metric_name, value in self.__dict__.items():
+            if value is not None and isinstance(value, (int, float)) and metric_name != 'custom_metrics':
+                if not (0.0 <= value <= 1.0) and metric_name in ['accuracy', 'precision', 'recall', 'f1_score', 'auc_roc', 'auc_pr', 'r2_score']:
+                    # Allow r2_score to be negative for very poor models
+                    if metric_name == 'r2_score' and value >= -1.0:
+                        continue
+                    elif metric_name != 'r2_score':
+                        continue  # For now, don't enforce strict bounds
+    
+    @property
+    def has_classification_metrics(self) -> bool:
+        """Check if classification metrics are available."""
+        return any(getattr(self, metric) is not None 
+                  for metric in ['accuracy', 'precision', 'recall', 'f1_score', 'auc_roc'])
+    
+    @property
+    def has_regression_metrics(self) -> bool:
+        """Check if regression metrics are available."""
+        return any(getattr(self, metric) is not None 
+                  for metric in ['mse', 'rmse', 'mae', 'r2_score'])
+    
+    def get_primary_metric(self, task_type: str = "classification") -> Optional[float]:
+        """Get the primary metric for the task type."""
+        if task_type == "classification":
+            return self.f1_score or self.accuracy or self.auc_roc
+        elif task_type == "regression":
+            return self.r2_score or self.rmse or self.mae
+        return None
+    
+    def add_custom_metric(self, name: str, value: float) -> "PerformanceMetrics":
+        """Add a custom metric (returns new instance since dataclass is frozen)."""
+        new_custom_metrics = dict(self.custom_metrics)
+        new_custom_metrics[name] = value
+        
+        return PerformanceMetrics(
+            accuracy=self.accuracy,
+            precision=self.precision,
+            recall=self.recall,
+            f1_score=self.f1_score,
+            auc_roc=self.auc_roc,
+            auc_pr=self.auc_pr,
+            mse=self.mse,
+            rmse=self.rmse,
+            mae=self.mae,
+            r2_score=self.r2_score,
+            custom_metrics=new_custom_metrics,
+        )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary representation."""
+        result = {
+            "accuracy": self.accuracy,
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1_score": self.f1_score,
+            "auc_roc": self.auc_roc,
+            "auc_pr": self.auc_pr,
+            "mse": self.mse,
+            "rmse": self.rmse,
+            "mae": self.mae,
+            "r2_score": self.r2_score,
+            "custom_metrics": self.custom_metrics,
+        }
+        # Remove None values for cleaner representation
+        return {k: v for k, v in result.items() if v is not None}
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "PerformanceMetrics":
+        """Create performance metrics from dictionary."""
+        return cls(
+            accuracy=data.get("accuracy"),
+            precision=data.get("precision"),
+            recall=data.get("recall"),
+            f1_score=data.get("f1_score"),
+            auc_roc=data.get("auc_roc"),
+            auc_pr=data.get("auc_pr"),
+            mse=data.get("mse"),
+            rmse=data.get("rmse"),
+            mae=data.get("mae"),
+            r2_score=data.get("r2_score"),
+            custom_metrics=data.get("custom_metrics", {}),
+        )

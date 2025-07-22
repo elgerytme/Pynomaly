@@ -1,10 +1,10 @@
 [project]
-name = "anomaly_detection-mlops"
+name = "mlops"
 version = "0.1.0"
-description = "MLOps package for anomaly_detection - Comprehensive ML Operations platform"
+description = "Comprehensive ML Operations platform for model lifecycle management"
 readme = "README.md"
 authors = [
-    {name = "Anomaly Detection Team", email = "dev@anomaly_detection.io"},
+    {name = "MLOps Team", email = "mlops@company.com"},
 ]
 license = {text = "MIT"}
 keywords = [
@@ -14,7 +14,7 @@ keywords = [
     "model-management",
     "deployment",
     "monitoring",
-    "anomaly-detection",
+    "ml-lifecycle",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -31,20 +31,42 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
+    # Core Dependencies
     "pydantic>=2.5.0",
     "typing-extensions>=4.0.0",
     "structlog>=24.4.0",
     "dependency-injector>=4.42.0",
+    
+    # Web Framework (Critical - used in server.py)
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    
+    # Async and I/O
     "aiofiles>=24.1.0",
     "aiocache>=0.12.3",
     "aiohttp>=3.9.0",
+    "httpx>=0.28.1",
+    
+    # Data Processing
     "pandas>=2.0.0",
     "numpy>=1.24.0",
     "scikit-learn>=1.3.0",
-    "httpx>=0.28.1",
-    "python-dateutil>=2.8.0",
+    
+    # CLI Framework (used in training_automation_commands.py)
     "click>=8.1.0",
+    "typer>=0.9.0",
     "rich>=13.0.0",
+    
+    # ML Optimization (used throughout services)
+    "optuna>=3.4.0",
+    "scipy>=1.11.0",
+    
+    # Core ML Frameworks
+    "torch>=2.1.0",
+    "tensorflow>=2.15.0",
+    
+    # Utilities
+    "python-dateutil>=2.8.0",
     "pyyaml>=6.0",
     "jsonschema>=4.20.0",
 ]
@@ -252,21 +274,23 @@ enterprise = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Distracted-E421/anomaly_detection"
-Documentation = "https://anomaly_detection.readthedocs.io/"
-Repository = "https://github.com/Distracted-E421/anomaly_detection"
-"Bug Tracker" = "https://github.com/Distracted-E421/anomaly_detection/issues"
+Homepage = "https://github.com/company/mlops"
+Documentation = "https://mlops.company.io/"
+Repository = "https://github.com/company/mlops"
+"Bug Tracker" = "https://github.com/company/mlops/issues"
 
-# [project.scripts]
-# anomaly_detection-mlops = "anomaly_detection_mlops.cli:main"
+[project.scripts]
+mlops = "mlops.cli:main"
+mlops-server = "mlops.server:main"
+mlops-worker = "mlops.worker:main"
 
 
 [tool.hatch.build.targets.wheel]
-packages = ["anomaly_detection_mlops"]
+packages = ["src"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/anomaly_detection_mlops",
+    "/src",
     "/tests",
     "/docs",
     "README.md",
@@ -295,7 +319,7 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["anomaly_detection_mlops", "anomaly_detection_core"]
+known_first_party = ["mlops"]
 
 [tool.mypy]
 python_version = "3.9"
@@ -330,7 +354,7 @@ minversion = "7.0"
 addopts = [
     "--strict-markers",
     "--strict-config",
-    "--cov=anomaly_detection_mlops",
+    "--cov=mlops",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
@@ -349,7 +373,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["anomaly_detection_mlops"]
+source = ["src/mlops"]
 omit = [
     "*/tests/*",
     "*/test_*",

@@ -7,7 +7,14 @@ from typing import Any, Protocol
 import numpy as np
 import numpy.typing as npt
 
-logger = logging.getLogger(__name__)
+from ..entities.detection_result import DetectionResult
+from ...infrastructure.logging import get_logger, log_decorator, timing_decorator
+from ...infrastructure.logging.error_handler import ErrorHandler, InputValidationError, AlgorithmError
+from ...infrastructure.monitoring import MetricsCollector, get_metrics_collector
+
+logger = get_logger(__name__)
+error_handler = ErrorHandler(logger._logger)
+metrics_collector = get_metrics_collector()
 
 
 class AlgorithmAdapter(Protocol):
@@ -25,23 +32,6 @@ class AlgorithmAdapter(Protocol):
         """Fit and predict in one step."""
         ...
 
-
-class DetectionResult:
-    """Detection result container."""
-    
-    def __init__(
-        self,
-        predictions: npt.NDArray[np.integer],
-        scores: npt.NDArray[np.floating] | None = None,
-        algorithm: str = "unknown",
-        metadata: dict[str, Any] | None = None
-    ):
-        self.predictions = predictions
-        self.scores = scores
-        self.algorithm = algorithm
-        self.metadata = metadata or {}
-        self.anomaly_count = int(np.sum(predictions))
-        self.normal_count = len(predictions) - self.anomaly_count
 
 
 class DetectionService:
@@ -91,6 +81,7 @@ class DetectionService:
             
             return DetectionResult(
                 predictions=predictions,
+                confidence_scores=None,  # Will be added when available
                 algorithm=algorithm,
                 metadata={
                     "contamination": contamination,
@@ -99,10 +90,53 @@ class DetectionService:
                 }
             )
             
+            # Log detection statistics
+            logger.info("Anomaly detection completed successfully", 
+                       algorithm=algorithm,
+                       total_samples=result.total_samples,
+                       anomalies_detected=result.anomaly_count,
+                       anomaly_rate=result.anomaly_rate)
+            
+            # Record metrics
+            operation_id = metrics_collector.start_operation(f"detection_{algorithm}")
+            duration_ms = metrics_collector.end_operation(operation_id, success=True)
+            
+            metrics_collector.record_model_metrics(
+                model_id="realtime",
+                algorithm=algorithm,
+                operation="detect",
+                duration_ms=duration_ms,
+                success=True,
+                samples_processed=result.total_samples,
+                anomalies_detected=result.anomaly_count
+            )
+            
+            # Log data quality metrics
+            logger.log_data_quality(
+                dataset_name=f"detection_input_{algorithm}",
+                quality_metrics={
+                    "samples": result.total_samples,
+                    "features": data.shape[1] if len(data.shape) > 1 else 1,
+                    "anomaly_rate": result.anomaly_rate,
+                    "contamination_expected": contamination
+                }
+            )
+            
+            return result
+            
         except Exception as e:
-            logger.error(f"Detection failed with algorithm {algorithm}: {e}")
-            raise
+            return error_handler.handle_error(
+                error=e,
+                context={
+                    "algorithm": algorithm,
+                    "data_shape": data.shape,
+                    "contamination": contamination
+                },
+                operation="anomaly_detection",
+                reraise=True
+            )
     
+    @log_decorator(operation="model_fitting", log_args=True, log_duration=True)
     def fit(
         self,
         data: npt.NDArray[np.floating],
@@ -118,18 +152,49 @@ class DetectionService:
             
         Returns:
             Self for method chaining
-        """
-        if algorithm in self._adapters:
-            adapter = self._adapters[algorithm]
-            adapter.fit(data)
-            self._fitted_models[algorithm] = adapter
-        else:
-            # Handle built-in algorithms
-            model = self._fit_builtin(data, algorithm, **kwargs)
-            self._fitted_models[algorithm] = model
             
-        return self
+        Raises:
+            InputValidationError: If input parameters are invalid
+            AlgorithmError: If model fitting fails
+        """
+        # Input validation
+        self._validate_detection_inputs(data, algorithm, 0.1)  # contamination not used in fit
+        
+        logger.info("Starting model fitting", 
+                   algorithm=algorithm, 
+                   data_shape=data.shape)
+        
+        try:
+            if algorithm in self._adapters:
+                adapter = self._adapters[algorithm]
+                adapter.fit(data)
+                self._fitted_models[algorithm] = adapter
+                logger.debug("Fitted registered adapter", adapter_name=algorithm)
+            else:
+                # Handle built-in algorithms
+                model = self._fit_builtin(data, algorithm, **kwargs)
+                self._fitted_models[algorithm] = model
+                logger.debug("Fitted built-in algorithm", algorithm=algorithm)
+            
+            logger.info("Model fitting completed successfully", 
+                       algorithm=algorithm,
+                       training_samples=data.shape[0])
+            
+            return self
+            
+        except Exception as e:
+            return error_handler.handle_error(
+                error=e,
+                context={
+                    "algorithm": algorithm,
+                    "data_shape": data.shape,
+                    "operation": "fit"
+                },
+                operation="model_fitting",
+                reraise=True
+            )
     
+    @log_decorator(operation="model_prediction", log_args=True, log_duration=True)
     def predict(
         self,
         data: npt.NDArray[np.floating],
@@ -143,20 +208,56 @@ class DetectionService:
             
         Returns:
             DetectionResult with predictions
+            
+        Raises:
+            InputValidationError: If input parameters are invalid
+            AlgorithmError: If model prediction fails
         """
-        if algorithm not in self._fitted_models:
-            raise ValueError(f"Algorithm {algorithm} not fitted. Call fit() first.")
-            
-        model = self._fitted_models[algorithm]
+        # Validate inputs
+        if data.size == 0:
+            raise InputValidationError("Input data cannot be empty")
         
-        if hasattr(model, 'predict'):
-            predictions = model.predict(data)
-        else:
-            # Handle adapter protocol
-            predictions = model.predict(data)
+        if algorithm not in self._fitted_models:
+            raise AlgorithmError(
+                f"Algorithm {algorithm} not fitted. Call fit() first.",
+                details={"available_models": list(self._fitted_models.keys())}
+            )
+        
+        logger.info("Starting model prediction", 
+                   algorithm=algorithm, 
+                   data_shape=data.shape)
+        
+        try:
+            model = self._fitted_models[algorithm]
             
-        return DetectionResult(predictions=predictions, algorithm=algorithm)
+            if hasattr(model, 'predict'):
+                predictions = model.predict(data)
+            else:
+                # Handle adapter protocol
+                predictions = model.predict(data)
+            
+            result = DetectionResult(predictions=predictions, algorithm=algorithm)
+            
+            logger.info("Model prediction completed successfully", 
+                       algorithm=algorithm,
+                       prediction_samples=data.shape[0],
+                       anomalies_predicted=result.anomaly_count)
+            
+            return result
+            
+        except Exception as e:
+            return error_handler.handle_error(
+                error=e,
+                context={
+                    "algorithm": algorithm,
+                    "data_shape": data.shape,
+                    "operation": "predict"
+                },
+                operation="model_prediction",
+                reraise=True
+            )
     
+    @timing_decorator(operation="builtin_detection")
     def _detect_with_builtin(
         self,
         data: npt.NDArray[np.floating],
@@ -165,13 +266,24 @@ class DetectionService:
         **kwargs: Any
     ) -> npt.NDArray[np.integer]:
         """Detect using built-in algorithm implementations."""
+        logger.debug("Running built-in detection algorithm", 
+                    algorithm=algorithm,
+                    contamination=contamination)
+        
         if algorithm == "iforest":
             return self._isolation_forest(data, contamination, **kwargs)
         elif algorithm == "lof":
             return self._local_outlier_factor(data, contamination, **kwargs)
         else:
-            raise ValueError(f"Unknown algorithm: {algorithm}")
+            raise AlgorithmError(
+                f"Unknown algorithm: {algorithm}",
+                details={
+                    "requested_algorithm": algorithm,
+                    "available_algorithms": self.list_available_algorithms()
+                }
+            )
     
+    @timing_decorator(operation="fit_builtin_algorithm")
     def _fit_builtin(
         self,
         data: npt.NDArray[np.floating],
@@ -179,17 +291,39 @@ class DetectionService:
         **kwargs: Any
     ) -> Any:
         """Fit built-in algorithm."""
-        if algorithm == "iforest":
-            try:
-                from sklearn.ensemble import IsolationForest
-                model = IsolationForest(**kwargs)
-                model.fit(data)
-                return model
-            except ImportError:
-                raise ImportError("scikit-learn required for IsolationForest")
-        else:
-            raise ValueError(f"Unknown algorithm for fitting: {algorithm}")
+        logger.debug("Fitting built-in algorithm", 
+                    algorithm=algorithm,
+                    data_samples=data.shape[0])
+        
+        try:
+            if algorithm == "iforest":
+                try:
+                    from sklearn.ensemble import IsolationForest
+                    model = IsolationForest(**kwargs)
+                    model.fit(data)
+                    logger.debug("IsolationForest model fitted successfully")
+                    return model
+                except ImportError as e:
+                    raise AlgorithmError(
+                        "scikit-learn required for IsolationForest",
+                        details={"missing_dependency": "scikit-learn"},
+                        original_error=e
+                    )
+            else:
+                raise AlgorithmError(
+                    f"Unknown algorithm for fitting: {algorithm}",
+                    details={"available_algorithms": self.list_available_algorithms()}
+                )
+        except Exception as e:
+            if isinstance(e, AlgorithmError):
+                raise
+            raise AlgorithmError(
+                f"Failed to fit {algorithm} algorithm: {str(e)}",
+                details={"algorithm": algorithm, "data_shape": data.shape},
+                original_error=e
+            )
     
+    @timing_decorator(operation="isolation_forest")
     def _isolation_forest(
         self,
         data: npt.NDArray[np.floating],
@@ -200,18 +334,40 @@ class DetectionService:
         try:
             from sklearn.ensemble import IsolationForest
             
+            logger.debug("Running Isolation Forest", 
+                        contamination=contamination,
+                        data_samples=data.shape[0])
+            
             model = IsolationForest(
                 contamination=contamination,
                 random_state=kwargs.get('random_state', 42),
                 **kwargs
             )
             predictions = model.fit_predict(data)
-            # Convert sklearn output (-1, 1) to (1, 0) for anomalies
-            return (predictions == -1).astype(int)
+            # Keep sklearn format: -1 for anomaly, 1 for normal
+            result = predictions.astype(np.integer)
             
-        except ImportError:
-            raise ImportError("scikit-learn required for IsolationForest")
+            anomaly_count = np.sum(result == -1)
+            logger.debug("Isolation Forest completed", 
+                        anomalies_found=anomaly_count,
+                        normal_samples=np.sum(result == 1))
+            
+            return result
+            
+        except ImportError as e:
+            raise AlgorithmError(
+                "scikit-learn required for IsolationForest",
+                details={"missing_dependency": "scikit-learn"},
+                original_error=e
+            )
+        except Exception as e:
+            raise AlgorithmError(
+                f"Isolation Forest execution failed: {str(e)}",
+                details={"contamination": contamination, "data_shape": data.shape},
+                original_error=e
+            )
     
+    @timing_decorator(operation="local_outlier_factor")
     def _local_outlier_factor(
         self,
         data: npt.NDArray[np.floating],
@@ -222,16 +378,37 @@ class DetectionService:
         try:
             from sklearn.neighbors import LocalOutlierFactor
             
+            logger.debug("Running Local Outlier Factor", 
+                        contamination=contamination,
+                        data_samples=data.shape[0])
+            
             model = LocalOutlierFactor(
                 contamination=contamination,
                 **kwargs
             )
             predictions = model.fit_predict(data)
-            # Convert sklearn output (-1, 1) to (1, 0) for anomalies
-            return (predictions == -1).astype(int)
+            # Keep sklearn format: -1 for anomaly, 1 for normal
+            result = predictions.astype(np.integer)
             
-        except ImportError:
-            raise ImportError("scikit-learn required for LocalOutlierFactor")
+            anomaly_count = np.sum(result == -1)
+            logger.debug("Local Outlier Factor completed", 
+                        anomalies_found=anomaly_count,
+                        normal_samples=np.sum(result == 1))
+            
+            return result
+            
+        except ImportError as e:
+            raise AlgorithmError(
+                "scikit-learn required for LocalOutlierFactor",
+                details={"missing_dependency": "scikit-learn"},
+                original_error=e
+            )
+        except Exception as e:
+            raise AlgorithmError(
+                f"Local Outlier Factor execution failed: {str(e)}",
+                details={"contamination": contamination, "data_shape": data.shape},
+                original_error=e
+            )
     
     def list_available_algorithms(self) -> list[str]:
         """List all available algorithms."""
@@ -250,3 +427,49 @@ class DetectionService:
             info["type"] = "registered_adapter"
             
         return info
+    
+    def _validate_detection_inputs(
+        self, 
+        data: npt.NDArray[np.floating], 
+        algorithm: str, 
+        contamination: float
+    ) -> None:
+        """Validate inputs for detection operations.
+        
+        Args:
+            data: Input data array
+            algorithm: Algorithm name
+            contamination: Contamination rate
+            
+        Raises:
+            InputValidationError: If any input is invalid
+        """
+        if data.size == 0:
+            raise InputValidationError("Input data cannot be empty")
+        
+        if len(data.shape) != 2:
+            raise InputValidationError(
+                f"Input data must be 2-dimensional, got shape {data.shape}"
+            )
+        
+        if data.shape[0] < 2:
+            raise InputValidationError(
+                f"Need at least 2 samples, got {data.shape[0]}"
+            )
+        
+        if not isinstance(algorithm, str) or not algorithm.strip():
+            raise InputValidationError("Algorithm name must be a non-empty string")
+        
+        if not (0.001 <= contamination <= 0.5):
+            raise InputValidationError(
+                f"Contamination must be between 0.001 and 0.5, got {contamination}"
+            )
+        
+        # Check for non-finite values
+        if not np.isfinite(data).all():
+            raise InputValidationError("Input data contains non-finite values (NaN or inf)")
+        
+        logger.debug("Input validation passed", 
+                    data_shape=data.shape,
+                    algorithm=algorithm,
+                    contamination=contamination)

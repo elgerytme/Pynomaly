@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Set, Any, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Enum, Field
+from pydantic import BaseModel, Field
 
 
 class DataAssetType(str):
@@ -124,7 +124,11 @@ class DataSchema(BaseModel):
     created_by: Optional[str] = None
     
     # Compatibility
-    compatible_formats: List[DataFormat] = Field(default_factory=list)        use_enum_values = True
+    compatible_formats: List[DataFormat] = Field(default_factory=list)
+    
+    model_config = ConfigDict(
+        use_enum_values=True
+    )
     
     def add_column(self, column: ColumnMetadata) -> None:
         """Add a column to the schema."""
@@ -166,7 +170,11 @@ class DataUsage(BaseModel):
     # Context
     application: Optional[str] = None
     purpose: Optional[str] = None
-    ip_address: Optional[str] = None        use_enum_values = True
+    ip_address: Optional[str] = None
+    
+    model_config = ConfigDict(
+        use_enum_values=True
+    )
 
 
 class DataCatalogEntry(BaseModel):
@@ -217,8 +225,12 @@ class DataCatalogEntry(BaseModel):
     usage_stats: Dict[str, Any] = Field(default_factory=dict)
     
     # Custom properties
-    properties: Dict[str, Any] = Field(default_factory=dict)        use_enum_values = True
-        allow_population_by_field_name = True
+    properties: Dict[str, Any] = Field(default_factory=dict)
+    
+    model_config = ConfigDict(
+        use_enum_values=True,
+        populate_by_name=True
+    )
     
     def add_tag(self, tag: str) -> None:
         """Add a tag to the asset."""

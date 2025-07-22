@@ -29,6 +29,8 @@ class PipelineDeployResponse(BaseModel):
 
 class ModelRegisterRequest(BaseModel):
     """Request model for model registration."""
+    model_config = {"protected_namespaces": ()}
+    
     name: str
     version: str
     model_path: str
@@ -38,6 +40,8 @@ class ModelRegisterRequest(BaseModel):
 
 class ModelRegisterResponse(BaseModel):
     """Response model for model registration."""
+    model_config = {"protected_namespaces": ()}
+    
     model_id: str
     name: str
     version: str
@@ -47,6 +51,8 @@ class ModelRegisterResponse(BaseModel):
 
 class ModelDeployRequest(BaseModel):
     """Request model for model deployment."""
+    model_config = {"protected_namespaces": ()}
+    
     model_name: str
     version: str
     environment: str = "staging"
@@ -56,6 +62,8 @@ class ModelDeployRequest(BaseModel):
 
 class ModelDeployResponse(BaseModel):
     """Response model for model deployment."""
+    model_config = {"protected_namespaces": ()}
+    
     deployment_id: str
     model_name: str
     version: str
