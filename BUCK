@@ -31,6 +31,12 @@ alias(
     visibility = ["PUBLIC"],
 )
 
+alias(
+    name = "ai-neuro-symbolic",
+    actual = "//src/packages/ai/neuro_symbolic:neuro_symbolic",
+    visibility = ["PUBLIC"],
+)
+
 # ==========================================
 # DATA DOMAIN - Data Processing and Analytics
 # ==========================================
@@ -142,6 +148,7 @@ python_test_suite(
     deps = [
         ":ai-machine-learning", 
         ":ai-mlops",
+        ":ai-neuro-symbolic",
     ],
     visibility = ["PUBLIC"],
 )
@@ -190,7 +197,8 @@ python_library(
     name = "ai-all",
     deps = [
         ":ai-machine-learning",
-        ":ai-mlops", 
+        ":ai-mlops",
+        ":ai-neuro-symbolic",
     ],
     visibility = ["PUBLIC"],
 )
@@ -335,6 +343,7 @@ create_import_validation_suite(
     packages = {
         "ai.machine_learning": [":ai-machine-learning"],
         "ai.mlops": [":ai-mlops"],
+        "ai.neuro_symbolic": [":ai-neuro-symbolic"],
         "data.anomaly_detection": [":data-anomaly-detection"],
         "data.analytics": [":data-analytics"],
         "data.engineering": [":data-engineering"],
@@ -355,6 +364,7 @@ create_import_fix_suite(
     packages = {
         "ai.machine_learning": [":ai-machine-learning"],
         "ai.mlops": [":ai-mlops"],
+        "ai.neuro_symbolic": [":ai-neuro-symbolic"],
         "data.anomaly_detection": [":data-anomaly-detection"],
         "data.analytics": [":data-analytics"],
         "data.engineering": [":data-engineering"],
