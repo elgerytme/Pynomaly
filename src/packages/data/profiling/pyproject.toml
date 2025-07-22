@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "data-profiling"
+name = "profiling"
 version = "0.1.0"
 description = "Data profiling package with pattern discovery, schema analysis, and quality assessment"
 authors = [
@@ -12,7 +12,7 @@ authors = [
 license = {text = "MIT"}
 readme = "docs/README.md"
 requires-python = ">=3.11"
-keywords = ["data-profiling", "pattern-discovery", "schema-analysis", "quality-assessment", "self-contained", "microservice", "ddd"]
+keywords = ["profiling", "self-contained", "microservice", "ddd"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -111,7 +111,7 @@ monitoring = [
 
 # All optional dependencies
 all = [
-    "data-profiling[dev,test,docs,performance,security,monitoring]"
+    "profiling[dev,test,docs,performance,security,monitoring]"
 ]
 
 [project.urls]
@@ -122,15 +122,15 @@ Repository = "https://github.com/monorepo/data-profiling"
 Changelog = "https://github.com/monorepo/data-profiling/blob/main/docs/CHANGELOG.md"
 
 [project.scripts]
-data-profiling = "data_profiling.cli:main"
-data-profiling-server = "data_profiling.server:main"
-data-profiling-worker = "data_profiling.worker:main"
+profiling = "profiling.cli:main"
+profiling-server = "profiling.server:main"
+profiling-worker = "profiling.worker:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
 
 [tool.hatch.version]
-path = "src/data_profiling/__init__.py"
+path = "src/profiling/__init__.py"
 
 # Black configuration
 [tool.black]
@@ -156,7 +156,7 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["data_profiling"]
+known_first_party = ["profiling"]
 skip_glob = ["*/migrations/*"]
 
 # Ruff configuration
@@ -222,7 +222,7 @@ addopts = [
     "--strict-config",
     "--verbose",
     "--tb=short",
-    "--cov=src/data_profiling",
+    "--cov=src/profiling",
     "--cov-report=html:reports/coverage",
     "--cov-report=term-missing",
     "--cov-report=xml:reports/coverage.xml",
@@ -248,7 +248,7 @@ filterwarnings = [
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["src/data_profiling"]
+source = ["src/profiling"]
 branch = true
 omit = [
     "*/tests/*",

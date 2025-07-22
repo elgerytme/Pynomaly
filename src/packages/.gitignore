@@ -48,6 +48,7 @@ creative/*/temp/
 
 # Package profiling and debugging
 */profiling/
+!data/profiling/
 */debug/
 */memory_analysis/
 

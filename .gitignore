@@ -569,6 +569,7 @@ scratch_*/
 
 # Memory and performance profiling
 **/profiling/
+!src/packages/data/profiling/
 **/memory_dumps/
 **/heap_dumps/
 **/performance_logs/

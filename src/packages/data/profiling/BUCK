@@ -1,0 +1,25 @@
+load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+
+python_library(
+    name = "profiling",
+    srcs = glob(["**/*.py"], exclude = ["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
+    deps = [
+        "//third-party/python:pandas",
+        "//third-party/python:numpy",
+        "//third-party/python:pandas-profiling",
+        "//third-party/python:sweetviz",
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+        "//third-party/python:click",
+        "//third-party/python:matplotlib",
+        "//third-party/python:seaborn",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "profiling_tests",
+    srcs = glob(["tests/**/*.py", "**/test_*.py", "**/*_test.py"]),
+    deps = [":profiling", "//third-party/python:pytest", "//third-party/python:pytest-mock"],
+    visibility = ["PUBLIC"],
+)

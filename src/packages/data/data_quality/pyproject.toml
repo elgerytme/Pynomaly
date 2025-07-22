@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "data-quality"
+name = "data_quality"
 version = "0.1.0" 
 description = "Data quality assessment and validation framework"
 authors = [
@@ -12,7 +12,7 @@ authors = [
 license = {text = "MIT"}
 readme = "docs/README.md"
 requires-python = ">=3.11"
-keywords = ["data-quality", "validation", "profiling", "self-contained", "microservice", "ddd"]
+keywords = ["data_quality", "self-contained", "microservice", "ddd"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers", 
@@ -32,7 +32,11 @@ dependencies = [
     "typing-extensions>=4.0.0", 
     "structlog>=23.0.0",
     "click>=8.0.0",
-    "great-expectations>=0.18.0",\n    "pandera>=0.17.0",
+    "httpx>=0.25.0",
+    "uvicorn[standard]>=0.24.0",
+    "fastapi>=0.104.0",
+    "great-expectations>=0.18.0",
+    "pandera>=0.17.0",
 ]
 
 [project.optional-dependencies]
@@ -105,7 +109,7 @@ monitoring = [
 
 # All optional dependencies
 all = [
-    "data-quality[dev,test,docs,performance,security,monitoring]"
+    "data_quality[dev,test,docs,performance,security,monitoring]"
 ]
 
 [project.urls]
@@ -116,9 +120,9 @@ Repository = "https://github.com/anomaly_detection/anomaly_detection"
 Changelog = "https://github.com/anomaly_detection/anomaly_detection/blob/main/src/packages/data/data_quality/docs/CHANGELOG.md"
 
 [project.scripts]
-data-quality = "data_quality.cli:main"
-data-quality-server = "data_quality.server:main"
-data-quality-worker = "data_quality.worker:main"
+data_quality = "data_quality.cli:main"
+data_quality-server = "data_quality.server:main"
+data_quality-worker = "data_quality.worker:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
