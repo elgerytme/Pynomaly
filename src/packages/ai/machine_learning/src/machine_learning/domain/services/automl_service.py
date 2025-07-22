@@ -37,12 +37,12 @@ except ImportError:
 
 from ...infrastructure.monitoring.distributed_tracing import trace_operation
 from ..entities.dataset import Dataset
-from ..entities.detection_result import DetectionResult
-from .advanced_detection_service import (
+from ..entities.prediction_result import PredictionResult
+from .advanced_prediction_service import (
     AlgorithmConfig,
-    DetectionAlgorithm,
+    PredictionAlgorithm,
     EnsembleConfig,
-    get_detection_service,
+    get_prediction_service,
 )
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class OptimizationConfig:
     cv_scoring: str = "f1"
 
     # Algorithm selection
-    algorithms_to_test: list[DetectionAlgorithm] | None = None
+    algorithms_to_test: list[PredictionAlgorithm] | None = None
     ensemble_methods: bool = True
     max_ensemble_size: int = 5
 
@@ -111,7 +111,7 @@ class OptimizationConfig:
 class OptimizationResult:
     """Result of AutoML optimization."""
 
-    best_algorithm: DetectionAlgorithm
+    best_algorithm: PredictionAlgorithm
     best_config: AlgorithmConfig
     best_score: float
     best_metrics: dict[str, float]
@@ -122,7 +122,7 @@ class OptimizationResult:
     optimization_time: float = 0.0
 
     # Alternative configurations
-    top_k_results: list[tuple[DetectionAlgorithm, AlgorithmConfig, float]] = field(
+    top_k_results: list[tuple[PredictionAlgorithm, AlgorithmConfig, float]] = field(
         default_factory=list
     )
 
@@ -158,12 +158,12 @@ class AutoMLService:
 
         logger.info("AutoML service initialized")
 
-    def _initialize_parameter_spaces(self) -> dict[DetectionAlgorithm, dict[str, Any]]:
+    def _initialize_parameter_spaces(self) -> dict[PredictionAlgorithm, dict[str, Any]]:
         """Initialize hyperparameter search spaces for algorithms."""
         spaces = {}
 
         # Isolation Forest
-        spaces[DetectionAlgorithm.ISOLATION_FOREST] = {
+        spaces[PredictionAlgorithm.ISOLATION_FOREST] = {
             "n_estimators": [50, 100, 200, 300],
             "max_samples": ["auto", 0.5, 0.7, 0.9],
             "max_features": [0.5, 0.7, 0.9, 1.0],
@@ -171,7 +171,7 @@ class AutoMLService:
         }
 
         # Local Outlier Factor
-        spaces[DetectionAlgorithm.LOCAL_OUTLIER_FACTOR] = {
+        spaces[PredictionAlgorithm.LOCAL_OUTLIER_FACTOR] = {
             "n_neighbors": [5, 10, 20, 30, 50],
             "algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
             "metric": ["euclidean", "manhattan", "chebyshev", "minkowski"],
@@ -179,7 +179,7 @@ class AutoMLService:
         }
 
         # One-Class SVM
-        spaces[DetectionAlgorithm.ONE_CLASS_SVM] = {
+        spaces[PredictionAlgorithm.ONE_CLASS_SVM] = {
             "kernel": ["rbf", "linear", "poly", "sigmoid"],
             "gamma": ["scale", "auto", 0.001, 0.01, 0.1, 1.0],
             "nu": [0.01, 0.05, 0.1, 0.2, 0.3],
@@ -187,7 +187,7 @@ class AutoMLService:
         }
 
         # DBSCAN
-        spaces[DetectionAlgorithm.DBSCAN] = {
+        spaces[PredictionAlgorithm.DBSCAN] = {
             "eps": [0.1, 0.3, 0.5, 0.7, 1.0, 1.5],
             "min_samples": [3, 5, 10, 15, 20],
             "metric": ["euclidean", "manhattan", "chebyshev"],
@@ -195,14 +195,14 @@ class AutoMLService:
 
         # KNN (PyOD)
         if True:  # Assuming PyOD might be available
-            spaces[DetectionAlgorithm.KNN] = {
+            spaces[PredictionAlgorithm.KNN] = {
                 "n_neighbors": [3, 5, 10, 15, 20, 30],
                 "method": ["largest", "mean", "median"],
                 "contamination": [0.05, 0.1, 0.15, 0.2, 0.25],
             }
 
             # AutoEncoder (PyOD)
-            spaces[DetectionAlgorithm.AUTO_ENCODER] = {
+            spaces[PredictionAlgorithm.AUTO_ENCODER] = {
                 "hidden_neurons": [
                     [32, 16, 16, 32],
                     [64, 32, 32, 64],
@@ -311,7 +311,7 @@ class AutoMLService:
     async def _grid_search_optimization(
         self,
         dataset: Dataset,
-        algorithms: list[DetectionAlgorithm],
+        algorithms: list[PredictionAlgorithm],
         config: OptimizationConfig,
         ground_truth: np.ndarray | None,
     ) -> OptimizationResult:
@@ -385,7 +385,7 @@ class AutoMLService:
         top_k_results = []
         sorted_trials = sorted(trial_history, key=lambda x: x["score"], reverse=True)
         for trial in sorted_trials[:5]:  # Top 5
-            algo = DetectionAlgorithm(trial["algorithm"])
+            algo = PredictionAlgorithm(trial["algorithm"])
             cfg = AlgorithmConfig(algorithm=algo, parameters=trial["parameters"])
             top_k_results.append((algo, cfg, trial["score"]))
 
@@ -402,7 +402,7 @@ class AutoMLService:
     async def _random_search_optimization(
         self,
         dataset: Dataset,
-        algorithms: list[DetectionAlgorithm],
+        algorithms: list[PredictionAlgorithm],
         config: OptimizationConfig,
         ground_truth: np.ndarray | None,
     ) -> OptimizationResult:
@@ -479,7 +479,7 @@ class AutoMLService:
         top_k_results = []
         sorted_trials = sorted(trial_history, key=lambda x: x["score"], reverse=True)
         for trial in sorted_trials[:5]:
-            algo = DetectionAlgorithm(trial["algorithm"])
+            algo = PredictionAlgorithm(trial["algorithm"])
             cfg = AlgorithmConfig(algorithm=algo, parameters=trial["parameters"])
             top_k_results.append((algo, cfg, trial["score"]))
 
@@ -496,7 +496,7 @@ class AutoMLService:
     async def _bayesian_optimization(
         self,
         dataset: Dataset,
-        algorithms: list[DetectionAlgorithm],
+        algorithms: list[PredictionAlgorithm],
         config: OptimizationConfig,
         ground_truth: np.ndarray | None,
     ) -> OptimizationResult:
@@ -521,7 +521,7 @@ class AutoMLService:
             algorithm_name = trial.suggest_categorical(
                 "algorithm", [alg.value for alg in algorithms]
             )
-            algorithm = DetectionAlgorithm(algorithm_name)
+            algorithm = PredictionAlgorithm(algorithm_name)
 
             # Get parameter space for this algorithm
             param_space = self.parameter_spaces.get(algorithm, {})
@@ -603,7 +603,7 @@ class AutoMLService:
         top_k_results = []
         sorted_trials = sorted(trial_history, key=lambda x: x["score"], reverse=True)
         for trial in sorted_trials[:5]:
-            algo = DetectionAlgorithm(trial["algorithm"])
+            algo = PredictionAlgorithm(trial["algorithm"])
             cfg = AlgorithmConfig(algorithm=algo, parameters=trial["parameters"])
             top_k_results.append((algo, cfg, trial["score"]))
 
@@ -680,7 +680,7 @@ class AutoMLService:
     async def _optimize_ensemble(
         self,
         dataset: Dataset,
-        algorithms: list[DetectionAlgorithm],
+        algorithms: list[PredictionAlgorithm],
         config: OptimizationConfig,
         ground_truth: np.ndarray | None,
         individual_results: OptimizationResult,
@@ -774,7 +774,7 @@ class AutoMLService:
         dataset: Dataset,
         ground_truth: np.ndarray | None = None,
         quick_mode: bool = False,
-    ) -> tuple[DetectionAlgorithm, AlgorithmConfig]:
+    ) -> tuple[PredictionAlgorithm, AlgorithmConfig]:
         """Automatically select the best algorithm for a dataset."""
 
         if quick_mode:
@@ -792,7 +792,7 @@ class AutoMLService:
 
     async def _quick_algorithm_selection(
         self, dataset: Dataset
-    ) -> tuple[DetectionAlgorithm, AlgorithmConfig]:
+    ) -> tuple[PredictionAlgorithm, AlgorithmConfig]:
         """Quick algorithm selection based on dataset characteristics."""
 
         # Get data characteristics
@@ -815,18 +815,18 @@ class AutoMLService:
         if n_samples < 1000:
             # Small dataset - use simple algorithms
             if n_features <= 10:
-                algorithm = DetectionAlgorithm.LOCAL_OUTLIER_FACTOR
+                algorithm = PredictionAlgorithm.LOCAL_OUTLIER_FACTOR
             else:
-                algorithm = DetectionAlgorithm.ISOLATION_FOREST
+                algorithm = PredictionAlgorithm.ISOLATION_FOREST
         elif n_samples > 100000:
             # Large dataset - use scalable algorithms
-            algorithm = DetectionAlgorithm.ISOLATION_FOREST
+            algorithm = PredictionAlgorithm.ISOLATION_FOREST
         else:
             # Medium dataset - use balanced approach
             if n_features > 50:
-                algorithm = DetectionAlgorithm.ISOLATION_FOREST
+                algorithm = PredictionAlgorithm.ISOLATION_FOREST
             else:
-                algorithm = DetectionAlgorithm.LOCAL_OUTLIER_FACTOR
+                algorithm = PredictionAlgorithm.LOCAL_OUTLIER_FACTOR
 
         # Create default config for selected algorithm
         config = AlgorithmConfig(algorithm=algorithm)
@@ -834,7 +834,7 @@ class AutoMLService:
         return algorithm, config
 
     async def get_optimization_recommendations(
-        self, dataset: Dataset, current_results: DetectionResult | None = None
+        self, dataset: Dataset, current_results: PredictionResult | None = None
     ) -> dict[str, Any]:
         """Get recommendations for improving detection performance."""
 
