@@ -112,9 +112,9 @@ def create(
     DATASET_PATH: Path to the dataset file (CSV or Parquet)
 
     Examples:
-        anomaly_detection ensemble create data.csv
-        anomaly_detection ensemble create data.csv --algorithms IsolationForest LOF OneClassSVM
-        anomaly_detection ensemble create data.csv --strategy weighted_voting --max-size 7
+        machine_learning ensemble create data.csv
+        machine_learning ensemble create data.csv --algorithms IsolationForest LOF OneClassSVM
+        machine_learning ensemble create data.csv --strategy weighted_voting --max-size 7
     """
     try:
         # Load dataset
@@ -216,8 +216,8 @@ def compare(
     DATASET_PATH: Path to the dataset file
 
     Examples:
-        anomaly_detection ensemble compare data.csv
-        anomaly_detection ensemble compare data.csv --strategies voting weighted_voting stacking
+        machine_learning ensemble compare data.csv
+        machine_learning ensemble compare data.csv --strategies voting weighted_voting stacking
     """
     try:
         # Load dataset
@@ -318,8 +318,8 @@ def insights():
     """Analyze meta-learning insights and knowledge base.
 
     Examples:
-        anomaly_detection ensemble insights
-        anomaly_detection ensemble insights --meta-knowledge-path /path/to/knowledge
+        machine_learning ensemble insights
+        machine_learning ensemble insights --meta-knowledge-path /path/to/knowledge
     """
     try:
         # Initialize ensemble service
@@ -361,7 +361,7 @@ def predict_performance(
     ALGORITHMS: Algorithms to include in predicted ensemble
 
     Examples:
-        anomaly_detection ensemble predict-performance data.csv IsolationForest LOF OneClassSVM
+        machine_learning ensemble predict-performance data.csv IsolationForest LOF OneClassSVM
     """
     try:
         # Load dataset
@@ -403,7 +403,7 @@ def diversity(algorithms: tuple):
     ALGORITHMS: Algorithms to analyze for diversity
 
     Examples:
-        anomaly_detection ensemble diversity IsolationForest LOF OneClassSVM
+        machine_learning ensemble diversity IsolationForest LOF OneClassSVM
     """
     try:
         if len(algorithms) < 2:
@@ -441,7 +441,7 @@ def strategies():
     """List available ensemble strategies and their characteristics.
 
     Examples:
-        anomaly_detection ensemble strategies
+        machine_learning ensemble strategies
     """
     try:
         # Initialize ensemble service

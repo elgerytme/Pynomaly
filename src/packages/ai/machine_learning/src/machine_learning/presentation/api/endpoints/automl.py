@@ -336,7 +336,7 @@ async def list_supported_algorithms(
                 "precision",
                 "recall",
                 "f1_score",
-                "detection_rate",
+                "prediction_rate",
                 "balanced_accuracy",
             ],
             "ensemble_methods": ["weighted_voting", "stacking", "bagging"],
