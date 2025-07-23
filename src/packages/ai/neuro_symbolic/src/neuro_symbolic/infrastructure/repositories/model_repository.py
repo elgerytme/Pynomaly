@@ -27,7 +27,6 @@ except ImportError:
     warnings.warn("Joblib not available. Some persistence features may be limited.")
 
 from ...domain.entities.neuro_symbolic_model import NeuroSymbolicModel
-from ...domain.entities.knowledge_graph import KnowledgeGraph, Triple
 from ..config.settings import get_config
 
 
@@ -145,7 +144,6 @@ class FileSystemModelRepository(ModelRepository):
             'is_trained': model.is_trained,
             'version': model.version,
             'saved_version': version,
-            'num_knowledge_graphs': len(model.knowledge_graphs),
             'num_symbolic_constraints': len(model.symbolic_constraints),
             'created_at': datetime.now().isoformat(),
             'save_format': self.save_format,
@@ -168,93 +166,7 @@ class FileSystemModelRepository(ModelRepository):
             warnings.warn(f"Failed to load metadata: {e}")
             return {}
     
-    def _save_knowledge_graphs(self, model_path: Path, knowledge_graphs: List[KnowledgeGraph]) -> None:
-        """Save knowledge graphs."""
-        kg_dir = model_path / 'knowledge_graphs'
-        kg_dir.mkdir(exist_ok=True)
-        
-        for i, kg in enumerate(knowledge_graphs):
-            kg_path = kg_dir / f'kg_{i}.json'
-            
-            kg_data = {
-                'id': kg.id,
-                'name': kg.name,
-                'triples': [
-                    {
-                        'subject': t.subject,
-                        'predicate': t.predicate, 
-                        'object': t.object,
-                        'confidence': t.confidence,
-                        'metadata': t.metadata
-                    }
-                    for t in kg.triples
-                ],
-                'rules': [
-                    {
-                        'id': r.id,
-                        'antecedent': r.antecedent,
-                        'consequent': r.consequent,
-                        'logic_type': r.logic_type.value,
-                        'confidence': r.confidence,
-                        'metadata': r.metadata
-                    }
-                    for r in kg.rules
-                ],
-                'namespaces': kg.namespaces
-            }
-            
-            with open(kg_path, 'w') as f:
-                json.dump(kg_data, f, indent=2)
     
-    def _load_knowledge_graphs(self, model_path: Path) -> List[KnowledgeGraph]:
-        """Load knowledge graphs."""
-        kg_dir = model_path / 'knowledge_graphs'
-        if not kg_dir.exists():
-            return []
-        
-        knowledge_graphs = []
-        
-        for kg_file in sorted(kg_dir.glob('kg_*.json')):
-            try:
-                with open(kg_file, 'r') as f:
-                    kg_data = json.load(f)
-                
-                kg = KnowledgeGraph(
-                    id=kg_data['id'],
-                    name=kg_data['name'],
-                    namespaces=kg_data.get('namespaces', {})
-                )
-                
-                # Load triples
-                for triple_data in kg_data.get('triples', []):
-                    triple = Triple(
-                        subject=triple_data['subject'],
-                        predicate=triple_data['predicate'],
-                        object=triple_data['object'],
-                        confidence=triple_data.get('confidence', 1.0),
-                        metadata=triple_data.get('metadata', {})
-                    )
-                    kg.triples.append(triple)
-                
-                # Load rules
-                from ...infrastructure.adapters.symbolic_adapter import LogicalRule, LogicType
-                for rule_data in kg_data.get('rules', []):
-                    rule = LogicalRule(
-                        id=rule_data['id'],
-                        antecedent=rule_data['antecedent'],
-                        consequent=rule_data['consequent'],
-                        logic_type=LogicType(rule_data['logic_type']),
-                        confidence=rule_data.get('confidence', 1.0),
-                        metadata=rule_data.get('metadata', {})
-                    )
-                    kg.rules.append(rule)
-                
-                knowledge_graphs.append(kg)
-                
-            except Exception as e:
-                warnings.warn(f"Failed to load knowledge graph from {kg_file}: {e}")
-        
-        return knowledge_graphs
     
     def _save_neural_components(self, model_path: Path, model: NeuroSymbolicModel) -> None:
         """Save neural network components (placeholder for actual implementation)."""
@@ -309,9 +221,6 @@ class FileSystemModelRepository(ModelRepository):
         try:
             # Save metadata
             self._save_metadata(model_path, model, version)
-            
-            # Save knowledge graphs
-            self._save_knowledge_graphs(model_path, model.knowledge_graphs)
             
             # Save neural components
             self._save_neural_components(model_path, model)
@@ -368,9 +277,6 @@ class FileSystemModelRepository(ModelRepository):
             # Load metadata
             metadata = self._load_metadata(model_path)
             
-            # Load knowledge graphs
-            knowledge_graphs = self._load_knowledge_graphs(model_path)
-            
             # Load symbolic constraints
             constraints_path = model_path / 'symbolic_constraints.json'
             symbolic_constraints = []
@@ -387,7 +293,6 @@ class FileSystemModelRepository(ModelRepository):
                 name=metadata.get('name', f'Model {model_id}'),
                 neural_backbone=metadata.get('neural_backbone', 'transformer'),
                 symbolic_reasoner=metadata.get('symbolic_reasoner', 'first_order_logic'),
-                knowledge_graphs=knowledge_graphs,
                 symbolic_constraints=symbolic_constraints,
                 is_trained=metadata.get('is_trained', False),
                 version=metadata.get('version', '0.1.0')

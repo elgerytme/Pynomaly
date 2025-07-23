@@ -78,11 +78,6 @@ class SymbolicConfig:
     use_sympy: bool = True
     enable_rdfs_inference: bool = True
     
-    # Knowledge graph settings
-    sparql_timeout: float = 10.0
-    max_graph_size: int = 1000000  # maximum number of triples
-    enable_graph_validation: bool = True
-    
     # Rule settings
     max_rules: int = 10000
     rule_confidence_threshold: float = 0.5
@@ -118,7 +113,7 @@ class StorageConfig:
     """Configuration for data storage and persistence."""
     base_path: str = "./neuro_symbolic_data"
     models_path: str = "models"
-    knowledge_graphs_path: str = "knowledge_graphs" 
+ 
     logs_path: str = "logs"
     cache_path: str = "cache"
     
@@ -128,8 +123,6 @@ class StorageConfig:
     versioning_enabled: bool = True
     max_versions: int = 5
     
-    # Knowledge graph persistence
-    kg_format: str = "turtle"  # turtle, rdf/xml, n-triples, json-ld
     backup_enabled: bool = True
     backup_interval_hours: int = 24
     
@@ -185,7 +178,6 @@ if HAS_PYDANTIC:
         # Storage settings
         storage_base_path: str = "./neuro_symbolic_data"
         storage_models_path: str = "models"
-        storage_kg_path: str = "knowledge_graphs"
         
         # Security settings
         security_enable_auth: bool = False
@@ -337,7 +329,6 @@ class NeuroSymbolicConfig:
         
         config.storage.base_path = settings.storage_base_path
         config.storage.models_path = settings.storage_models_path
-        config.storage.knowledge_graphs_path = settings.storage_kg_path
         
         config.security.enable_authentication = settings.security_enable_auth
         config.security.api_key = settings.security_api_key
@@ -379,9 +370,6 @@ class NeuroSymbolicConfig:
                 'z3_timeout': self.symbolic.z3_timeout,
                 'use_sympy': self.symbolic.use_sympy,
                 'enable_rdfs_inference': self.symbolic.enable_rdfs_inference,
-                'sparql_timeout': self.symbolic.sparql_timeout,
-                'max_graph_size': self.symbolic.max_graph_size,
-                'enable_graph_validation': self.symbolic.enable_graph_validation,
                 'max_rules': self.symbolic.max_rules,
                 'rule_confidence_threshold': self.symbolic.rule_confidence_threshold,
                 'enable_rule_learning': self.symbolic.enable_rule_learning
@@ -404,14 +392,12 @@ class NeuroSymbolicConfig:
             'storage': {
                 'base_path': self.storage.base_path,
                 'models_path': self.storage.models_path,
-                'knowledge_graphs_path': self.storage.knowledge_graphs_path,
                 'logs_path': self.storage.logs_path,
                 'cache_path': self.storage.cache_path,
                 'save_format': self.storage.save_format,
                 'compression': self.storage.compression,
                 'versioning_enabled': self.storage.versioning_enabled,
                 'max_versions': self.storage.max_versions,
-                'kg_format': self.storage.kg_format,
                 'backup_enabled': self.storage.backup_enabled,
                 'backup_interval_hours': self.storage.backup_interval_hours,
                 'database_url': self.storage.database_url,
