@@ -1,0 +1,109 @@
+#!/bin/bash
+#
+# Pre-commit hook for documentation domain boundary validation
+# This hook prevents commits that introduce documentation domain leakage
+#
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Configuration
+DOMAIN_BOUNDARY_DETECTOR="python -m src.packages.tools.domain_boundary_detector.cli"
+CONFIG_FILE=".domain-boundaries.yaml"
+
+echo -e "${GREEN}Running documentation domain boundary validation...${NC}"
+
+# Check if domain boundary detector is available
+if ! command -v python &> /dev/null; then
+    echo -e "${RED}Error: Python is not available${NC}"
+    exit 1
+fi
+
+# Check if config file exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo -e "${YELLOW}Warning: Domain boundaries config file not found: $CONFIG_FILE${NC}"
+    echo -e "${YELLOW}Skipping documentation boundary validation${NC}"
+    exit 0
+fi
+
+# Get list of modified documentation files
+MODIFIED_DOCS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(md|rst)$' || true)
+
+if [ -z "$MODIFIED_DOCS" ]; then
+    echo -e "${GREEN}No documentation files modified, skipping validation${NC}"
+    exit 0
+fi
+
+echo -e "${GREEN}Checking documentation files:${NC}"
+for file in $MODIFIED_DOCS; do
+    echo "  - $file"
+done
+
+# Create temporary directory for staged files
+TEMP_DIR=$(mktemp -d)
+trap "rm -rf $TEMP_DIR" EXIT
+
+# Copy staged files to temp directory for validation
+for file in $MODIFIED_DOCS; do
+    if [ -f "$file" ]; then
+        mkdir -p "$TEMP_DIR/$(dirname "$file")"
+        git show ":$file" > "$TEMP_DIR/$file" 2>/dev/null || cp "$file" "$TEMP_DIR/$file"
+    fi
+done
+
+# Run documentation boundary validation on staged files
+echo -e "${GREEN}Running documentation boundary validation...${NC}"
+
+# Use the scan-docs command for documentation-only validation
+VALIDATION_OUTPUT=$(mktemp)
+VALIDATION_FAILED=false
+
+# Scan each modified documentation file
+for file in $MODIFIED_DOCS; do
+    if [ -f "$TEMP_DIR/$file" ]; then
+        echo "Validating: $file"
+        if ! $DOMAIN_BOUNDARY_DETECTOR scan-docs --path "$TEMP_DIR/$file" --strict --format console > "$VALIDATION_OUTPUT" 2>&1; then
+            VALIDATION_FAILED=true
+            echo -e "${RED}Documentation boundary violations found in: $file${NC}"
+            cat "$VALIDATION_OUTPUT"
+            echo ""
+        fi
+    fi
+done
+
+# Also run repository-level validation to catch cross-file issues
+echo "Running repository-level documentation validation..."
+if ! $DOMAIN_BOUNDARY_DETECTOR scan --docs-only --strict --format console > "$VALIDATION_OUTPUT" 2>&1; then
+    VALIDATION_FAILED=true
+    echo -e "${RED}Repository-level documentation boundary violations found:${NC}"
+    cat "$VALIDATION_OUTPUT"
+    echo ""
+fi
+
+# Clean up
+rm -f "$VALIDATION_OUTPUT"
+
+if [ "$VALIDATION_FAILED" = true ]; then
+    echo -e "${RED}❌ Commit rejected due to documentation domain boundary violations${NC}"
+    echo -e "${YELLOW}To fix these issues:${NC}"
+    echo "1. Review the violations listed above"
+    echo "2. Update your documentation to follow domain boundary rules"
+    echo "3. Use relative imports in code examples"
+    echo "4. Remove cross-package references from package documentation"
+    echo "5. Keep repository documentation generic"
+    echo ""
+    echo -e "${YELLOW}For more information, see:${NC}"
+    echo "  docs/rules/DOCUMENTATION_DOMAIN_BOUNDARY_RULES.md"
+    echo ""
+    echo -e "${YELLOW}To bypass this check (not recommended):${NC}"
+    echo "  git commit --no-verify"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Documentation domain boundary validation passed${NC}"
+exit 0

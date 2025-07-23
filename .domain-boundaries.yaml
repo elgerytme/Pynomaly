@@ -161,10 +161,184 @@ global_allowed:
   - infrastructure
   - interfaces
 
+documentation:
+  rules:
+    - name: no_cross_package_references_in_package_docs
+      description: "Package documentation must not reference other packages"
+      severity: critical
+      scope: "src/packages/*/docs/**/*.md"
+      patterns:
+        - pattern: "from\\s+(?!\\.{1,2})([a-zA-Z_][\\w_]*)\\..*import"
+          message: "Package documentation must not reference other packages - use relative imports"
+        - pattern: "(?<!\\.)\\b(anomaly_detection|mlops|data_science|enterprise_\\w+|neuro_symbolic|machine_learning)\\b(?!\\w)"
+          message: "Package documentation must not reference other package names"
+          exclude_self: true
+        
+    - name: no_package_specific_refs_in_repo_docs
+      description: "Repository documentation must not reference specific packages"
+      severity: critical
+      scope: "docs/**/*.md"
+      patterns:
+        - pattern: "(?<!\\.)\\b(anomaly_detection|mlops|data_science|enterprise_\\w+|neuro_symbolic|machine_learning)\\b(?!\\w)"
+          message: "Repository documentation must not reference specific packages - keep it generic"
+        - pattern: "src/packages/[^\\s/]+/[^\\s]*"
+          message: "Repository documentation must not reference specific package paths"
+          
+    - name: no_monorepo_imports
+      description: "Use relative imports instead of monorepo-style imports"
+      severity: warning
+      scope: "**/*.md"
+      patterns:
+        - pattern: "from\\s+monorepo\\.[a-zA-Z_][\\w_]*"
+          message: "Use relative imports instead of 'from monorepo.*' imports"
+        - pattern: "import\\s+monorepo\\.[a-zA-Z_][\\w_]*"
+          message: "Use relative imports instead of 'import monorepo.*' imports"
+          
+    - name: no_absolute_package_imports_in_package_docs
+      description: "Package docs should use relative imports in code examples"
+      severity: warning
+      scope: "src/packages/*/docs/**/*.md"
+      patterns:
+        - pattern: "from\\s+[a-zA-Z_][\\w_]*\\.[a-zA-Z_][\\w_]*.*import"
+          message: "Use relative imports (from .module import) in package documentation examples"
+          exceptions:
+            - "from typing import"
+            - "from abc import"
+            - "from collections import"
+            - "from dataclasses import"
+            - "from pathlib import"
+            - "from datetime import"
+            - "import os"
+            - "import sys"
+            - "import re"
+            - "import json"
+            - "import yaml"
+            - "import logging"
+            - "from pytest import"
+            - "import pytest"
+            - "from unittest import"
+            - "import unittest"
+
+  exceptions:
+    - file: "docs/architecture/DOMAIN_SEPARATION_COMPLETION_SUMMARY.md"
+      reason: "Historical migration documentation - contains specific package references for tracking"
+      expires: "2025-12-31"
+      approved_by: "architecture-team"
+    - file: "docs/KNOWLEDGE_TRANSFER.md"
+      reason: "Legacy knowledge transfer document - needs refactoring"
+      expires: "2025-06-30"
+      approved_by: "architecture-team"
+    - file: "docs/rules/DOMAIN_BOUNDARY_RULES.md"
+      reason: "Rule documentation may reference packages as examples"
+      permanent: true
+      approved_by: "architecture-team"
+
+testing:
+  rules:
+    - name: no_cross_package_imports_in_package_tests
+      description: "Package tests must not import from other packages"
+      severity: critical
+      scope: "src/packages/*/tests/**/*.py"
+      patterns:
+        - pattern: "from\\s+(?!\\.|test_|conftest)([a-zA-Z_][\\w_]*)\\..*import"
+          message: "Package tests must only import from their own package - use relative imports"
+          exceptions:
+            - "from typing import"
+            - "from abc import"
+            - "from collections import"
+            - "from dataclasses import"
+            - "from pathlib import"
+            - "from datetime import"
+            - "from unittest import"
+            - "from unittest.mock import"
+            - "import unittest"
+            - "from pytest import"
+            - "import pytest"
+            - "from hypothesis import"
+            - "import hypothesis"
+            - "from faker import"
+            - "import faker"
+            - "from freezegun import"
+            - "import freezegun"
+            - "from testcontainers import"
+            - "import testcontainers"
+        - pattern: "import\\s+(?!test_|conftest)([a-zA-Z_][\\w_]*)\\.(?!__)"
+          message: "Package tests must not import other packages directly"
+          exceptions:
+            - "import os"
+            - "import sys"
+            - "import re" 
+            - "import json"
+            - "import yaml"
+            - "import logging"
+            - "import tempfile"
+            - "import shutil"
+            - "import subprocess"
+            - "import asyncio"
+            - "import threading"
+            - "import multiprocessing"
+            - "import uuid"
+            - "import hashlib"
+            - "import base64"
+            - "import pickle"
+            - "import sqlite3"
+            - "import urllib"
+            - "import http"
+            - "import socket"
+            - "import time"
+            - "import random"
+            - "import math"
+            - "import statistics"
+            - "import itertools"
+            - "import functools"
+            - "import operator"
+            - "import contextlib"
+            - "import warnings"
+            - "import traceback"
+            - "import inspect"
+            - "import types"
+            - "import copy"
+            - "import weakref"
+
+    - name: no_package_imports_in_system_tests
+      description: "System tests must not import from specific packages"
+      severity: critical
+      scope: "src/packages/system_tests/**/*.py"
+      patterns:
+        - pattern: "from\\s+(ai|data|finance|software|tools)\\..*import"
+          message: "System tests must not import directly from domain packages - use public APIs or test fixtures"
+        - pattern: "import\\s+(ai|data|finance|software|tools)\\."
+          message: "System tests must not import domain packages directly"
+
+    - name: no_repo_level_package_imports
+      description: "Repository-level tests must not import from packages"
+      severity: critical  
+      scope: "tests/**/*.py"
+      patterns:
+        - pattern: "from\\s+src\\.packages\\..*import"
+          message: "Repository tests must not import from src.packages - use repository-level utilities only"
+        - pattern: "import\\s+src\\.packages\\."
+          message: "Repository tests must not import from src.packages"
+        - pattern: "sys\\.path\\.insert.*src/packages"
+          message: "Repository tests must not manipulate sys.path to access packages"
+
+  exceptions:
+    - file: "src/packages/*/tests/conftest.py"
+      pattern: "from\\s+\\.\\."
+      reason: "Test configuration files may need to import package modules for fixtures"
+      approved_by: "testing-team"
+    - file: "src/packages/shared/*/tests/**/*.py"
+      pattern: "from\\s+(infrastructure|interfaces)\\."
+      reason: "Shared package tests may import from infrastructure and interfaces"
+      approved_by: "architecture-team"
+    - file: "src/packages/infrastructure/*/tests/**/*.py"
+      reason: "Infrastructure tests are foundational and have no domain restrictions"
+      approved_by: "architecture-team"
+
 options:
-  ignore_tests: true
+  ignore_tests: false  # Enable test scanning
   ignore_examples: true
-  ignore_docs: true
+  ignore_docs: false  # Enable documentation scanning
   strict_mode: false
   
   # Patterns to ignore when scanning
@@ -187,6 +361,15 @@ options:
   # File patterns to consider
   include_patterns:
     - "*.py"
+    - "*.md"    # Include markdown files for documentation scanning
+    - "*.rst"   # Include reStructuredText files
+    
+  # Documentation-specific options
+  documentation:
+    scan_enabled: true
+    include_code_blocks: true
+    check_links: false  # For future enhancement
+    validate_examples: true
     
   # Violation thresholds for CI/CD
   thresholds:

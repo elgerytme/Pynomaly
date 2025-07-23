@@ -10,6 +10,8 @@ import os
 from core.domain.services.scanner import Scanner
 from core.domain.services.registry import DomainRegistry
 from core.domain.services.analyzer import BoundaryAnalyzer
+from core.domain.services.documentation_scanner import DocumentationScanner
+from core.domain.services.integrated_boundary_detector import IntegratedBoundaryDetector
 from core.application.services.reporter import (
     ConsoleReporter, JsonReporter, MarkdownReporter, ReportOptions
 )
@@ -37,13 +39,21 @@ def cli(ctx: click.Context, verbose: bool, config: Optional[str]) -> None:
 @click.option('--max-violations', type=int, help='Maximum violations to show')
 @click.option('--group-by', type=click.Choice(['severity', 'type', 'domain']), 
               default='severity', help='Group violations by')
+@click.option('--include-docs', is_flag=True, default=True, help='Include documentation scanning')
+@click.option('--include-code', is_flag=True, default=True, help='Include code scanning')
+@click.option('--docs-only', is_flag=True, help='Scan only documentation files')
 @click.pass_context
 def scan(ctx: click.Context, path: str, format: str, output: Optional[str], 
          strict: bool, show_exempted: bool, max_violations: Optional[int], 
-         group_by: str) -> None:
+         group_by: str, include_docs: bool, include_code: bool, docs_only: bool) -> None:
     """Scan for domain boundary violations."""
     verbose = ctx.obj['verbose']
-    config_path = ctx.obj['config']
+    config_path = ctx.obj['config'] or '.domain-boundaries.yaml'
+    
+    # Handle docs-only mode
+    if docs_only:
+        include_docs = True
+        include_code = False
     
     # Find monorepo root
     monorepo_root = _find_monorepo_root(Path(path))
@@ -54,61 +64,86 @@ def scan(ctx: click.Context, path: str, format: str, output: Optional[str],
     if verbose:
         click.echo(f"Monorepo root: {monorepo_root}")
         click.echo(f"Scanning: {path}")
-        
-    # Load or create registry
-    registry = DomainRegistry()
-    if config_path:
-        if verbose:
-            click.echo(f"Loading config from: {config_path}")
-        registry.load_from_file(Path(config_path))
-    else:
-        # Use default registry
-        registry = registry.get_default_registry()
-        
-    # Scan files
-    scanner = Scanner()
-    scan_path = Path(path).resolve()
+        click.echo(f"Include docs: {include_docs}, Include code: {include_code}")
+    
+    # Use integrated boundary detector for comprehensive scanning
+    detector = IntegratedBoundaryDetector(config_path)
     
     if verbose:
-        click.echo("Scanning for imports...")
-        
-    if scan_path.is_file():
-        scan_result = scanner.scan_file(scan_path)
-    else:
-        scan_result = scanner.scan_directory(scan_path)
-        
-    if verbose:
-        click.echo(f"Found {len(scan_result.imports)} imports")
-        
-    # Analyze violations
-    analyzer = BoundaryAnalyzer(registry, str(monorepo_root))
-    analysis_result = analyzer.analyze(scan_result)
+        click.echo("Scanning for violations...")
     
-    # Report results
-    if format == 'console':
-        options = ReportOptions(
-            show_exempted=show_exempted,
-            max_violations=max_violations,
-            group_by=group_by,
-            verbose=verbose
-        )
-        reporter = ConsoleReporter(options)
-        reporter.report(analysis_result)
-    elif format == 'json':
-        reporter = JsonReporter()
-        json_output = reporter.report(analysis_result, Path(output) if output else None)
-        if not output:
-            click.echo(json_output)
-    elif format == 'markdown':
-        reporter = MarkdownReporter()
-        md_output = reporter.report(analysis_result, Path(output) if output else None)
-        if not output:
-            click.echo(md_output)
-            
+    # Perform integrated scan
+    scan_result = detector.scan_repository(
+        repository_path=str(monorepo_root),
+        include_code=include_code,
+        include_docs=include_docs
+    )
+    
+    if verbose:
+        click.echo(f"Found {scan_result.total_violations} total violations")
+        click.echo(f"  - Code violations: {scan_result.summary['code_violations']}")
+        click.echo(f"  - Documentation violations: {scan_result.summary['documentation_violations']}")
+    
+    # Generate and output report
+    if output:
+        report_content = detector.generate_report(scan_result, format, include_suggestions=True)
+        with open(output, 'w', encoding='utf-8') as f:
+            f.write(report_content)
+        click.echo(f"Report written to: {output}")
+    else:
+        report_content = detector.generate_report(scan_result, format, include_suggestions=True)
+        click.echo(report_content)
+    
     # Exit code for CI/CD
-    if strict and analysis_result.violations:
-        critical_count = sum(1 for v in analysis_result.violations 
-                           if v.severity.value == 'critical' and not v.is_exempted())
+    if strict:
+        exit_code = detector.check_exit_code(scan_result)
+        if exit_code > 0:
+            sys.exit(exit_code)
+
+
+@cli.command()
+@click.option('--path', '-p', type=click.Path(exists=True), default='.', 
+              help='Path to scan (default: current directory)')
+@click.option('--format', '-f', type=click.Choice(['console', 'json', 'markdown']), 
+              default='console', help='Output format')
+@click.option('--output', '-o', type=click.Path(), help='Output file (for json/markdown)')
+@click.option('--strict', is_flag=True, help='Exit with error code on violations')
+@click.pass_context
+def scan_docs(ctx: click.Context, path: str, format: str, output: Optional[str], strict: bool) -> None:
+    """Scan only documentation files for domain boundary violations."""
+    verbose = ctx.obj['verbose']
+    config_path = ctx.obj['config'] or '.domain-boundaries.yaml'
+    
+    if verbose:
+        click.echo(f"Scanning documentation files in: {path}")
+        click.echo(f"Using config: {config_path}")
+    
+    # Initialize documentation scanner
+    doc_scanner = DocumentationScanner(config_path)
+    
+    # Scan for documentation violations
+    if Path(path).is_file() and path.endswith(('.md', '.rst')):
+        violations = doc_scanner.scan_file(path)
+    else:
+        violations = doc_scanner.scan_repository(path)
+    
+    if verbose:
+        click.echo(f"Found {len(violations)} documentation violations")
+    
+    # Generate report
+    doc_scanner.violations = violations
+    report_content = doc_scanner.generate_report(format)
+    
+    if output:
+        with open(output, 'w', encoding='utf-8') as f:
+            f.write(report_content)
+        click.echo(f"Documentation report written to: {output}")
+    else:
+        click.echo(report_content)
+    
+    # Exit code for CI/CD
+    if strict and violations:
+        critical_count = sum(1 for v in violations if v.severity == 'critical')
         if critical_count > 0:
             sys.exit(1)
 

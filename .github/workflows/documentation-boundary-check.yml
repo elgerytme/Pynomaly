@@ -1,0 +1,196 @@
+name: Documentation Domain Boundary Check
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.rst'
+      - 'docs/**/*'
+      - 'src/packages/*/docs/**/*'
+      - 'src/packages/*/README.md'
+      - '.domain-boundaries.yaml'
+      - '.github/workflows/documentation-boundary-check.yml'
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**/*.md'
+      - '**/*.rst'
+      - 'docs/**/*'
+      - 'src/packages/*/docs/**/*'
+      - 'src/packages/*/README.md'
+      - '.domain-boundaries.yaml'
+
+jobs:
+  documentation-boundary-check:
+    runs-on: ubuntu-latest
+    name: Check Documentation Domain Boundaries
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml click
+        # Install domain boundary detector
+        cd src/packages/tools/domain_boundary_detector
+        pip install -e .
+    
+    - name: Check domain boundaries configuration
+      run: |
+        if [ ! -f ".domain-boundaries.yaml" ]; then
+          echo "❌ Domain boundaries configuration file not found"
+          echo "Please create .domain-boundaries.yaml in the repository root"
+          exit 1
+        fi
+        echo "✅ Domain boundaries configuration found"
+    
+    - name: Run documentation domain boundary check
+      id: boundary_check
+      run: |
+        echo "Running documentation domain boundary validation..."
+        
+        # Run the documentation boundary check
+        python -m domain_boundary_detector.cli scan-docs \
+          --path . \
+          --format json \
+          --output docs-violations.json \
+          --strict
+        
+        # Check if violations file was created and has content
+        if [ -f "docs-violations.json" ]; then
+          VIOLATION_COUNT=$(python -c "
+        import json
+        try:
+            with open('docs-violations.json', 'r') as f:
+                data = json.load(f)
+            total = data.get('summary', {}).get('total_violations', 0)
+            print(total)
+        except:
+            print(0)
+        ")
+          echo "violation_count=$VIOLATION_COUNT" >> $GITHUB_OUTPUT
+        else
+          echo "violation_count=0" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Generate documentation report
+      if: always()
+      run: |
+        echo "Generating documentation domain boundary report..."
+        python -m domain_boundary_detector.cli scan-docs \
+          --path . \
+          --format markdown \
+          --output documentation-boundary-report.md
+        
+        # Also generate console output for summary
+        python -m domain_boundary_detector.cli scan-docs \
+          --path . \
+          --format console > console-report.txt 2>&1 || true
+    
+    - name: Upload violation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation-boundary-report
+        path: |
+          documentation-boundary-report.md
+          docs-violations.json
+          console-report.txt
+        retention-days: 30
+    
+    - name: Comment on PR with violations
+      if: github.event_name == 'pull_request' && steps.boundary_check.outputs.violation_count != '0'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read the markdown report
+          let reportContent = '';
+          try {
+            reportContent = fs.readFileSync('documentation-boundary-report.md', 'utf8');
+          } catch (error) {
+            reportContent = 'Error reading documentation boundary report.';
+          }
+          
+          // Read console output for summary
+          let consoleOutput = '';
+          try {
+            consoleOutput = fs.readFileSync('console-report.txt', 'utf8');
+          } catch (error) {
+            consoleOutput = 'Error reading console output.';
+          }
+          
+          const comment = `## 📚 Documentation Domain Boundary Violations Found
+          
+          This PR introduces documentation that violates domain boundary rules.
+          
+          ### Summary
+          \`\`\`
+          ${consoleOutput.substring(0, 1000)}${consoleOutput.length > 1000 ? '...' : ''}
+          \`\`\`
+          
+          ### Detailed Report
+          ${reportContent.substring(0, 5000)}${reportContent.length > 5000 ? '\n\n*Report truncated. See full report in artifacts.*' : ''}
+          
+          ### How to Fix
+          1. **Package Documentation**: Use relative imports in code examples
+          2. **Repository Documentation**: Keep it generic, avoid package-specific references
+          3. **Cross-Package References**: Remove references to other packages from package docs
+          
+          ### Resources
+          - [Documentation Domain Boundary Rules](docs/rules/DOCUMENTATION_DOMAIN_BOUNDARY_RULES.md)
+          - [Domain Boundary Configuration](.domain-boundaries.yaml)
+          
+          *This comment was generated automatically by the Documentation Domain Boundary Check workflow.*`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+    
+    - name: Set status check
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const violationCount = '${{ steps.boundary_check.outputs.violation_count }}';
+          const state = violationCount === '0' ? 'success' : 'failure';
+          const description = violationCount === '0' 
+            ? 'No documentation domain boundary violations found'
+            : `${violationCount} documentation domain boundary violations found`;
+          
+          github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: context.sha,
+            state: state,
+            target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            description: description,
+            context: 'documentation-boundary-check'
+          });
+    
+    - name: Fail if violations found
+      if: steps.boundary_check.outputs.violation_count != '0'
+      run: |
+        echo "❌ Documentation domain boundary violations found: ${{ steps.boundary_check.outputs.violation_count }}"
+        echo "Please fix the violations before merging this PR."
+        echo "See the artifacts for detailed reports."
+        exit 1
+    
+    - name: Success message
+      if: steps.boundary_check.outputs.violation_count == '0'
+      run: |
+        echo "✅ No documentation domain boundary violations found!"
+        echo "Documentation follows domain boundary rules correctly."
