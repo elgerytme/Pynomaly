@@ -7,7 +7,7 @@ import psutil
 import threading
 from typing import Dict, List, Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from memory_profiler import profile
+# from memory_profiler import profile  # Optional dependency
 import gc
 
 from anomaly_detection.domain.services.detection_service import DetectionService

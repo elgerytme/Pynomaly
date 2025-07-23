@@ -1,23 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.329" timestamp="2025-07-23T15:14:09.972291-04:00" hostname="rocm-socm"><testcase classname="" name="tests.performance.test_algorithm_performance" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_algorithm_performance.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/home/admeier/.local/lib/python3.12/site-packages/_pytest/python.py:498: in importtestmodule
-    mod = import_path(
-/home/admeier/.local/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
-    importlib.import_module(module_name)
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
-    ???
-&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
-    ???
-&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
-    ???
-&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
-    ???
-/home/admeier/.local/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/performance/test_algorithm_performance.py:10: in &lt;module&gt;
-    from memory_profiler import profile
-E   ModuleNotFoundError: No module named 'memory_profiler'</error></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.638" timestamp="2025-07-23T15:16:56.639145-04:00" hostname="rocm-socm"><testcase classname="tests.integration.test_monitoring_integration.TestMonitoringIntegration" name="test_model_metrics_recording" time="0.004"><error message="failed on setup with &quot;AttributeError: 'MetricsCollector' object has no attribute 'clear_all_metrics'. Did you mean: 'cleanup_old_metrics'?&quot;">tests/integration/conftest.py:115: in metrics_collector
+    collector.clear_all_metrics()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'MetricsCollector' object has no attribute 'clear_all_metrics'. Did you mean: 'cleanup_old_metrics'?</error></testcase></testsuite></testsuites>

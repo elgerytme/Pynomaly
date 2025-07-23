@@ -355,6 +355,19 @@ class MetricsCollector:
         
         logger.info("Metrics cleanup completed", **cleanup_stats)
         return cleanup_stats
+    
+    def clear_all_metrics(self) -> None:
+        """Clear all stored metrics (for testing purposes)."""
+        with self._lock:
+            self._metrics.clear()
+            self._performance_metrics.clear()
+            self._model_metrics.clear()
+            self._counters.clear()
+            self._timers.clear()
+            self._gauges.clear()
+            self._active_operations.clear()
+        
+        logger.debug("All metrics cleared")
 
 
 # Global metrics collector instance
