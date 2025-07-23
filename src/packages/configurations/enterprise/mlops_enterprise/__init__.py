@@ -1,23 +1,35 @@
 """Enterprise MLOps configuration with full enterprise features."""
 
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Type
 from uuid import UUID
 
-# Core MLOps services
-from ....core.ai.machine_learning.mlops.services.experiment_tracking_service import ExperimentTrackingService
-from ....core.ai.machine_learning.mlops.services.model_registry_service import ModelRegistryService
+# Use shared interfaces instead of direct imports
+from shared.interfaces.mlops import (
+    ExperimentTrackingInterface,
+    ModelRegistryInterface,
+)
+from shared.interfaces.enterprise import (
+    AuthServiceInterface,
+    MultiTenantInterface,
+    OperationsInterface,
+)
+from infrastructure.dependency_injection import ServiceRegistry
+from infrastructure.configuration import get_config
 
-# Enterprise cross-cutting services
-from ....enterprise.auth import EnterpriseAuthService, SAMLAuthProvider, BasicAuthProvider
-from ....enterprise.multi_tenancy import MultiTenantService, InMemoryTenantStorage
-from ....enterprise.operations import EnterpriseOperationsService, SystemMetricsCollector
+# TODO: Refactor to use proper dependency injection
+# These imports violate domain boundaries and should be removed:
+# from ....core.ai.machine_learning.mlops.services.experiment_tracking_service import ExperimentTrackingService
+# from ....core.ai.machine_learning.mlops.services.model_registry_service import ModelRegistryService
+# from ....enterprise.auth import EnterpriseAuthService, SAMLAuthProvider, BasicAuthProvider
+# from ....enterprise.multi_tenancy import MultiTenantService, InMemoryTenantStorage
+# from ....enterprise.operations import EnterpriseOperationsService, SystemMetricsCollector
 
-# Optional MLOps platform integrations
-try:
-    from ....integrations.mlops import MLflowIntegration
-except ImportError:
-    MLflowIntegration = None
+# Optional MLOps platform integrations - use infrastructure adapters
+# try:
+#     from ....integrations.mlops import MLflowIntegration
+# except ImportError:
+#     MLflowIntegration = None
 
 try:
     from ....integrations.mlops import KubeflowIntegration  
