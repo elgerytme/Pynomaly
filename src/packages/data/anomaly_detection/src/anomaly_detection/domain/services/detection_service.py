@@ -78,6 +78,11 @@ class DetectionService:
                 predictions = self._detect_with_time_series(
                     data, algorithm, contamination, **kwargs
                 )
+            elif algorithm in ["gcn", "gaan", "anomalydae", "radar", "dominant", "simple_graph"]:
+                # Use graph algorithms
+                predictions = self._detect_with_graph(
+                    data, algorithm, contamination, **kwargs
+                )
             else:
                 # Fall back to built-in algorithms
                 predictions = self._detect_with_builtin(
@@ -343,6 +348,49 @@ class DetectionService:
                 original_error=e
             )
     
+    @timing_decorator(operation="graph_detection")
+    def _detect_with_graph(
+        self,
+        data: npt.NDArray[np.floating],
+        algorithm: str,
+        contamination: float,
+        **kwargs: Any
+    ) -> npt.NDArray[np.integer]:
+        """Detect using graph algorithms."""
+        logger.debug("Running graph detection algorithm", 
+                    algorithm=algorithm,
+                    contamination=contamination)
+        
+        try:
+            from .graph_anomaly_detection_service import GraphAnomalyDetectionService
+            
+            graph_service = GraphAnomalyDetectionService()
+            
+            result = graph_service.detect_anomalies(
+                graph_data=data,
+                algorithm=algorithm,
+                contamination=contamination,
+                **kwargs
+            )
+            
+            if not result.success:
+                raise AlgorithmError(f"Graph detection failed for {algorithm}")
+            
+            return result.predictions
+            
+        except ImportError as e:
+            raise AlgorithmError(
+                f"Graph service required for {algorithm}",
+                details={"missing_dependency": "graph_anomaly_detection_service"},
+                original_error=e
+            )
+        except Exception as e:
+            raise AlgorithmError(
+                f"Graph detection failed: {str(e)}",
+                details={"algorithm": algorithm, "data_shape": getattr(data, 'shape', 'unknown')},
+                original_error=e
+            )
+    
     @timing_decorator(operation="fit_builtin_algorithm")
     def _fit_builtin(
         self,
@@ -478,8 +526,9 @@ class DetectionService:
         """List all available algorithms."""
         builtin = ["iforest", "lof"]
         time_series = ["lstm_autoencoder", "prophet", "statistical_ts", "isolation_forest_ts"]
+        graph = ["gcn", "gaan", "anomalydae", "radar", "dominant", "simple_graph"]
         registered = list(self._adapters.keys())
-        return builtin + time_series + registered
+        return builtin + time_series + graph + registered
     
     def get_algorithm_info(self, algorithm: str) -> dict[str, Any]:
         """Get information about an algorithm."""
@@ -498,6 +547,12 @@ class DetectionService:
                 info["requires"] = []
             elif algorithm == "isolation_forest_ts":
                 info["requires"] = ["scikit-learn"]
+        elif algorithm in ["gcn", "gaan", "anomalydae", "radar", "dominant", "simple_graph"]:
+            info["type"] = "graph"
+            if algorithm == "simple_graph":
+                info["requires"] = []
+            else:
+                info["requires"] = ["pygod", "torch", "torch_geometric"]
         elif algorithm in self._adapters:
             info["type"] = "registered_adapter"
             
