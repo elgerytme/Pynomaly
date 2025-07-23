@@ -36,34 +36,7 @@ def create_model(ctx, name: str, neural_backbone: str, symbolic_reasoner: str):
     click.echo(f"Symbolic reasoner: {model.symbolic_reasoner}")
 
 
-@cli.command()
-@click.argument('name')
-@click.argument('file_path')
-@click.pass_context
-def load_knowledge(ctx, name: str, file_path: str):
-    """Load a knowledge graph from file."""
-    service = ctx.obj['service']
-    
-    kg = service.load_knowledge_graph(name, file_path)
-    
-    click.echo(f"Loaded knowledge graph: {kg.id}")
-    click.echo(f"Name: {kg.name}")
-    click.echo(f"Triples: {len(kg.triples)}")
-
-
-@cli.command()
-@click.argument('model_id')
-@click.argument('kg_id')
-@click.pass_context
-def attach_knowledge(ctx, model_id: str, kg_id: str):
-    """Attach knowledge graph to model."""
-    service = ctx.obj['service']
-    
-    try:
-        service.attach_knowledge_to_model(model_id, kg_id)
-        click.echo(f"Attached knowledge graph {kg_id} to model {model_id}")
-    except ValueError as e:
-        click.echo(f"Error: {e}", err=True)
+# Knowledge graph commands have been moved to the knowledge_graph package
 
 
 @cli.command()
@@ -85,7 +58,6 @@ def list_models(ctx):
         click.echo(f"  Neural backbone: {model['neural_backbone']}")
         click.echo(f"  Symbolic reasoner: {model['symbolic_reasoner']}")
         click.echo(f"  Trained: {model['is_trained']}")
-        click.echo(f"  Knowledge graphs: {model['num_knowledge_graphs']}")
         click.echo()
 
 

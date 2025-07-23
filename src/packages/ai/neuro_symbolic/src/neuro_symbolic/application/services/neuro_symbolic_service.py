@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional
 import structlog
 
 from ...domain.entities.neuro_symbolic_model import NeuroSymbolicModel
-from ...domain.entities.knowledge_graph import KnowledgeGraph
 from ...domain.value_objects.reasoning_result import ReasoningResult
 
 
@@ -19,7 +18,6 @@ class NeuroSymbolicService:
     
     def __init__(self):
         self.models: Dict[str, NeuroSymbolicModel] = {}
-        self.knowledge_graphs: Dict[str, KnowledgeGraph] = {}
     
     def create_model(
         self,
@@ -46,45 +44,6 @@ class NeuroSymbolicService:
         
         return model
     
-    def load_knowledge_graph(self, name: str, file_path: str) -> KnowledgeGraph:
-        """Load and register a knowledge graph from file."""
-        kg = KnowledgeGraph.from_file(file_path)
-        kg.name = name
-        
-        self.knowledge_graphs[kg.id] = kg
-        
-        logger.info(
-            "Loaded knowledge graph",
-            kg_id=kg.id,
-            name=name,
-            file_path=file_path,
-            num_triples=len(kg.triples)
-        )
-        
-        return kg
-    
-    def attach_knowledge_to_model(
-        self,
-        model_id: str,
-        knowledge_graph_id: str
-    ) -> None:
-        """Attach a knowledge graph to a model."""
-        if model_id not in self.models:
-            raise ValueError(f"Model {model_id} not found")
-        
-        if knowledge_graph_id not in self.knowledge_graphs:
-            raise ValueError(f"Knowledge graph {knowledge_graph_id} not found")
-        
-        model = self.models[model_id]
-        kg = self.knowledge_graphs[knowledge_graph_id]
-        
-        model.add_knowledge_graph(kg)
-        
-        logger.info(
-            "Attached knowledge graph to model",
-            model_id=model_id,
-            kg_id=knowledge_graph_id
-        )
     
     def train_model(
         self,
@@ -110,8 +69,7 @@ class NeuroSymbolicService:
         logger.info(
             "Trained neuro-symbolic model",
             model_id=model_id,
-            num_constraints=len(model.symbolic_constraints),
-            num_knowledge_graphs=len(model.knowledge_graphs)
+            num_constraints=len(model.symbolic_constraints)
         )
     
     def predict_with_explanation(
@@ -149,8 +107,7 @@ class NeuroSymbolicService:
                 "name": model.name,
                 "neural_backbone": model.neural_backbone,
                 "symbolic_reasoner": model.symbolic_reasoner,
-                "is_trained": model.is_trained,
-                "num_knowledge_graphs": len(model.knowledge_graphs)
+                "is_trained": model.is_trained
             }
             for model in self.models.values()
         ]

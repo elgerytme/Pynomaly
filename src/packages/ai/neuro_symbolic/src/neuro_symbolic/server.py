@@ -10,26 +10,11 @@ from pydantic import BaseModel
 logger = structlog.get_logger()
 
 
-class KnowledgeGraphRequest(BaseModel):
-    """Request model for knowledge graph operations."""
-    ontology_path: str
-    data_path: str
-    format: str = "rdf"
-    name: Optional[str] = None
-
-
-class KnowledgeGraphResponse(BaseModel):
-    """Response model for knowledge graph."""
-    graph_id: str
-    name: str
-    entities: int
-    relations: int
-    status: str
+# Knowledge graph models have been moved to the knowledge_graph package
 
 
 class ReasoningRequest(BaseModel):
     """Request model for symbolic reasoning."""
-    knowledge_graph_id: str
     query: str
     engine: str = "prolog"
     max_results: int = 100
@@ -47,7 +32,6 @@ class ReasoningResponse(BaseModel):
 class NeuralTrainingRequest(BaseModel):
     """Request model for neural model training."""
     model_type: str = "gnn"
-    knowledge_graph_id: Optional[str] = None
     dataset_path: str
     epochs: int = 100
     learning_rate: float = 0.001
@@ -127,45 +111,13 @@ async def health_check() -> dict[str, str]:
     return {"status": "healthy", "service": "neuro-symbolic-ai"}
 
 
-@app.post("/api/v1/knowledge-graph", response_model=KnowledgeGraphResponse)
-async def create_knowledge_graph(request: KnowledgeGraphRequest) -> KnowledgeGraphResponse:
-    """Create knowledge graph from ontology and data."""
-    logger.info("Creating knowledge graph", 
-                ontology=request.ontology_path,
-                data=request.data_path,
-                format=request.format)
-    
-    # Implementation would use KnowledgeGraphService
-    graph_id = f"kg_{hash(request.ontology_path + request.data_path) % 10000}"
-    
-    return KnowledgeGraphResponse(
-        graph_id=graph_id,
-        name=request.name or f"KG_{graph_id}",
-        entities=12543,
-        relations=8721,
-        status="created"
-    )
-
-
-@app.get("/api/v1/knowledge-graph/{graph_id}")
-async def get_knowledge_graph(graph_id: str) -> Dict[str, Any]:
-    """Get knowledge graph information."""
-    return {
-        "graph_id": graph_id,
-        "name": f"KG_{graph_id}",
-        "entities": 12543,
-        "relations": 8721,
-        "status": "active",
-        "created_at": "2023-07-22T10:00:00Z",
-        "last_updated": "2023-07-22T10:30:00Z"
-    }
+# Knowledge graph endpoints have been moved to the knowledge_graph package
 
 
 @app.post("/api/v1/reasoning", response_model=ReasoningResponse)
 async def run_reasoning(request: ReasoningRequest) -> ReasoningResponse:
     """Run symbolic reasoning inference."""
     logger.info("Running reasoning", 
-                kg=request.knowledge_graph_id,
                 engine=request.engine,
                 query=request.query[:100])
     
@@ -288,14 +240,6 @@ async def list_models() -> Dict[str, List[Dict[str, Any]]]:
                 "performance": {"accuracy": 0.94}
             }
         ],
-        "knowledge_graphs": [
-            {
-                "graph_id": "kg_001",
-                "name": "Medical_KG",
-                "entities": 12543,
-                "relations": 8721
-            }
-        ],
         "fused_models": [
             {
                 "fused_model_id": "fused_001",
@@ -335,32 +279,7 @@ async def validate_consistency(
     }
 
 
-@app.post("/api/v1/query/natural-language")
-async def query_with_natural_language(
-    knowledge_graph_id: str,
-    query: str,
-    model_id: Optional[str] = None
-) -> Dict[str, Any]:
-    """Query knowledge graph using natural language."""
-    logger.info("Processing natural language query", 
-                kg=knowledge_graph_id, query=query[:100])
-    
-    return {
-        "knowledge_graph_id": knowledge_graph_id,
-        "natural_query": query,
-        "parsed_query": "SELECT ?person WHERE { ?person rdf:type Person . ?person age ?age . FILTER(?age > 25) }",
-        "results": [
-            {"person": "John_Doe", "age": 30, "confidence": 0.95},
-            {"person": "Jane_Smith", "age": 28, "confidence": 0.89}
-        ],
-        "reasoning_steps": [
-            "Parse natural language to structured query",
-            "Map entities to knowledge graph",
-            "Execute symbolic reasoning",
-            "Apply neural ranking for relevance"
-        ],
-        "confidence": 0.91
-    }
+# Natural language query endpoint has been moved to the knowledge_graph package
 
 
 def main() -> None:

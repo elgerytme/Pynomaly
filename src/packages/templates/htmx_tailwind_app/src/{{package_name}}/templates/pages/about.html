@@ -1,0 +1,78 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">About {{package_name}}</h1>
+    
+    <div class="prose prose-lg">
+        <p class="text-gray-600">
+            {{package_name}} is a modern web application template that combines the power of 
+            FastAPI, HTMX, and Tailwind CSS to create fast, interactive, and beautiful web applications.
+        </p>
+
+        <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">Technology Stack</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-2">Backend</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li>• FastAPI - Modern Python web framework</li>
+                    <li>• SQLAlchemy - Async ORM</li>
+                    <li>• Pydantic - Data validation</li>
+                    <li>• Uvicorn - ASGI server</li>
+                </ul>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-2">Frontend</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li>• HTMX - Dynamic HTML</li>
+                    <li>• Tailwind CSS - Utility-first CSS</li>
+                    <li>• Alpine.js - Lightweight JS</li>
+                    <li>• Jinja2 - Template engine</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">Features</h2>
+        
+        <ul class="space-y-3 text-gray-600">
+            <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Server-side rendering with dynamic updates
+            </li>
+            <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Responsive design out of the box
+            </li>
+            <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Async database operations
+            </li>
+            <li class="flex items-start">
+                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Real-time UI updates without JavaScript
+            </li>
+        </ul>
+
+        <div class="mt-12 bg-indigo-50 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-indigo-900 mb-2">Get Started</h3>
+            <p class="text-indigo-700">
+                Ready to build something amazing? Check out the 
+                <a href="/items" class="underline hover:text-indigo-900">Items section</a> 
+                to see HTMX in action, or visit the 
+                <a href="/dashboard" class="underline hover:text-indigo-900">Dashboard</a> 
+                for more interactive components.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

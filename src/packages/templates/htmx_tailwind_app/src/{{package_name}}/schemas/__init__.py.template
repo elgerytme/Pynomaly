@@ -1,0 +1,6 @@
+"""Pydantic schemas."""
+
+from {{package_name}}.schemas.item import Item, ItemCreate, ItemUpdate
+from {{package_name}}.schemas.user import User, UserCreate, UserUpdate
+
+__all__ = ["Item", "ItemCreate", "ItemUpdate", "User", "UserCreate", "UserUpdate"]

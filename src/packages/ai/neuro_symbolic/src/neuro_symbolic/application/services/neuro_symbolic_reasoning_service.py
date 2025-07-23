@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from ...domain.entities.neuro_symbolic_model import NeuroSymbolicModel, ModelStatus, FusionStrategy
-from ...domain.entities.knowledge_graph import KnowledgeGraph, Triple
 from ...domain.value_objects.reasoning_result import ReasoningResult
 from ...domain.value_objects.causal_explanation import (
     CausalExplanation, CausalFactor, CausalLink, CausalChain, 
@@ -46,14 +45,11 @@ class NeuroSymbolicResult:
     # Metadata
     algorithm: str = "neuro_symbolic"
     fusion_strategy: str = "late_fusion"
-    knowledge_graphs_used: List[str] = None
     constraints_applied: List[str] = None
     processing_time: float = 0.0
     metadata: Optional[Dict[str, Any]] = None
     
     def __post_init__(self):
-        if self.knowledge_graphs_used is None:
-            self.knowledge_graphs_used = []
         if self.constraints_applied is None:
             self.constraints_applied = []
         if self.metadata is None:
@@ -197,97 +193,9 @@ class NeuroSymbolicReasoningService:
                 remediation="Check model parameters and system resources"
             )
     
-    def add_domain_knowledge(
-        self,
-        model_id: str,
-        knowledge_graph: KnowledgeGraph,
-        domain_rules: Optional[List[LogicalRule]] = None
-    ) -> None:
-        """Add domain knowledge to a reasoning model."""
-        if model_id not in self.models:
-            raise ModelError(
-                f"Model '{model_id}' not found",
-                model_id=model_id,
-                remediation="Create the model first"
-            )
-        
-        model = self.models[model_id]
-        model.add_knowledge_graph(knowledge_graph)
-        
-        if domain_rules:
-            for rule in domain_rules:
-                knowledge_graph.add_rule(rule)
-        
-        model.updated_at = datetime.now()
+    # Knowledge graph functionality has been moved to the knowledge_graph package
     
-    def add_reasoning_rules(self, model_id: str, feature_names: List[str], task_type: str = "classification") -> None:
-        """Add common reasoning rules for given features and task type."""
-        if model_id not in self.models:
-            raise ModelError(
-                f"Model '{model_id}' not found",
-                model_id=model_id,
-                remediation="Create the model first"
-            )
-        
-        model = self.models[model_id]
-        
-        # Create reasoning knowledge graph
-        reasoning_kg = KnowledgeGraph.create(f"reasoning_rules_{task_type}")
-        
-        # Add basic reasoning concepts
-        reasoning_kg.add_triple("Input", "hasProperty", "Features")
-        reasoning_kg.add_triple("Output", "hasProperty", "Prediction")
-        reasoning_kg.add_triple("Evidence", "supports", "Conclusion")
-        reasoning_kg.add_triple("Rule", "applies_to", "Domain")
-        
-        # Add feature-specific concepts
-        for feature in feature_names:
-            reasoning_kg.add_triple(feature, "hasType", "Feature")
-            reasoning_kg.add_triple(feature, "contributesTo", "Reasoning")
-        
-        # Add task-specific rules
-        if task_type == "classification":
-            rules = [
-                LogicalRule(
-                    id="confidence_rule",
-                    antecedent="hasProperty(X, HighConfidence)",
-                    consequent="indicates(X, ReliablePrediction)",
-                    logic_type=LogicType.FIRST_ORDER,
-                    confidence=0.9
-                ),
-                LogicalRule(
-                    id="evidence_rule", 
-                    antecedent="supports(Evidence, Conclusion)",
-                    consequent="increases(Confidence, Conclusion)",
-                    logic_type=LogicType.FIRST_ORDER,
-                    confidence=0.8
-                )
-            ]
-        elif task_type == "regression":
-            rules = [
-                LogicalRule(
-                    id="continuity_rule",
-                    antecedent="similar(Input1, Input2)",
-                    consequent="similar(Output1, Output2)",
-                    logic_type=LogicType.FIRST_ORDER,
-                    confidence=0.7
-                )
-            ]
-        else:  # general reasoning
-            rules = [
-                LogicalRule(
-                    id="consistency_rule",
-                    antecedent="consistent(Evidence)",
-                    consequent="increases(Confidence, Conclusion)",
-                    logic_type=LogicType.FIRST_ORDER,
-                    confidence=0.8
-                )
-            ]
-        
-        for rule in rules:
-            reasoning_kg.add_rule(rule)
-        
-        model.add_knowledge_graph(reasoning_kg)
+    # Reasoning rules functionality has been moved to the knowledge_graph package
     
     def train_reasoning_model(
         self,
@@ -521,13 +429,11 @@ class NeuroSymbolicReasoningService:
                 counterfactual_explanations=counterfactual_explanations,
                 algorithm="neuro_symbolic",
                 fusion_strategy=model.fusion_strategy.value,
-                knowledge_graphs_used=[kg.name for kg in model.knowledge_graphs],
                 constraints_applied=[c.name for c in model.get_active_constraints()],
                 processing_time=processing_time,
                 metadata={
                     'model_id': model_id,
                     'data_shape': data.shape,
-                    'num_knowledge_graphs': len(model.knowledge_graphs),
                     'num_constraints': model.total_constraints,
                     'neural_backbone': model.neural_backbone,
                     'symbolic_reasoner': model.symbolic_reasoner
@@ -616,26 +522,11 @@ class NeuroSymbolicReasoningService:
                             rule_score += constraint.confidence
                             sample_explanations.append(f"Consistency rule satisfied: {constraint.rule}")
                 
-                # Knowledge graph reasoning
-                kg_score = 0.0
-                for kg in model.knowledge_graphs:
-                    # General knowledge-based scoring
-                    reasoning_indicators = 0
-                    for triple in kg.triples:
-                        if "supports" in triple.predicate or "indicates" in triple.predicate:
-                            reasoning_indicators += 1
-                    
-                    if reasoning_indicators > 0:
-                        # Use neural output as basis for knowledge enhancement
-                        kg_score += neural_outputs[i] * (reasoning_indicators / len(kg.triples))
-                        sample_explanations.append(f"Knowledge from '{kg.name}': {reasoning_indicators} reasoning patterns")
-                
-                # Combine rule and knowledge graph scores
-                symbolic_outputs[i] = min(1.0, (rule_score + kg_score) / 2)
+                # Use rule score directly
+                symbolic_outputs[i] = min(1.0, rule_score)
                 symbolic_explanations.append({
                     'sample_index': i,
                     'rule_score': rule_score,
-                    'kg_score': kg_score,
                     'explanations': sample_explanations
                 })
             

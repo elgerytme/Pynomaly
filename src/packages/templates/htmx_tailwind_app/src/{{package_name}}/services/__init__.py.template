@@ -1,0 +1,6 @@
+"""Services module."""
+
+from {{package_name}}.services.item import item
+from {{package_name}}.services.user import user
+
+__all__ = ["item", "user"]

@@ -1,0 +1,195 @@
+# Domain Boundary Configuration for Monorepo
+# This file defines the domain boundaries and rules for the codebase
+
+domains:
+  ai:
+    description: "Artificial Intelligence and Machine Learning"
+    packages:
+      - ai/mlops
+      - ai/ml_platform
+      - ai/neuro_symbolic
+    allowed_dependencies:
+      - shared
+      - infrastructure
+      - data
+      - interfaces
+
+  data:
+    description: "Data processing, analytics, and management"
+    packages:
+      - data/analytics
+      - data/anomaly_detection
+      - data/data
+      - data/data_analytics
+      - data/data_architecture
+      - data/data_engineering
+      - data/data_ingestion
+      - data/data_lineage
+      - data/data_modeling
+      - data/data_pipelines
+      - data/data_quality
+      - data/data_science
+      - data/data_visualization
+      - data/knowledge_graph
+      - data/observability
+      - data/profiling
+      - data/quality
+      - data/statistics
+      - data/transformation
+    allowed_dependencies:
+      - shared
+      - infrastructure
+      - interfaces
+
+  finance:
+    description: "Financial services, billing, and payments"
+    packages:
+      - finance/billing
+      - finance/payments
+      - finance/accounting
+      - finance/invoicing
+    allowed_dependencies:
+      - shared
+      - infrastructure
+      - interfaces
+      - data  # For analytics
+
+  software:
+    description: "Software engineering and development tools"
+    packages:
+      - software/algorithms
+      - software/architecture
+      - software/compiler
+      - software/data_structures
+      - software/database
+      - software/design_patterns
+      - software/devops
+      - software/security
+      - software/testing
+    allowed_dependencies:
+      - shared
+      - infrastructure
+      - interfaces
+
+  tools:
+    description: "Development and operational tools"
+    packages:
+      - tools/domain_boundary_detector
+      - tools/code_generator
+      - tools/migration_tools
+    allowed_dependencies:
+      - shared
+      - infrastructure
+      - interfaces
+
+  infrastructure:
+    description: "Technical infrastructure and cross-cutting concerns"
+    packages:
+      - infrastructure/logging
+      - infrastructure/monitoring
+      - infrastructure/config
+      - infrastructure/cache
+      - infrastructure/messaging
+      - infrastructure/security
+    allowed_dependencies: []  # Infrastructure should not depend on business domains
+
+  shared:
+    description: "Shared utilities and common code"
+    packages:
+      - shared/utils
+      - shared/types
+      - shared/constants
+      - shared/protocols
+    allowed_dependencies:
+      - infrastructure  # Only infrastructure
+
+  interfaces:
+    description: "Shared interfaces and contracts between domains"
+    packages:
+      - interfaces/api_contracts
+      - interfaces/events
+      - interfaces/dto
+    allowed_dependencies:
+      - shared
+
+  templates:
+    description: "Package and project templates"
+    packages:
+      - templates/fastapi_api
+      - templates/typer_cli
+      - templates/htmx_tailwind_app
+      - templates/self_contained_package
+    allowed_dependencies:
+      - shared
+      - infrastructure
+
+rules:
+  - name: no_cross_domain_imports
+    description: "Prevent direct imports between different business domains"
+    severity: critical
+    pattern: cross_domain
+    exceptions:
+      # Example exceptions (should be reviewed and justified)
+      - from: ai/mlops
+        to: finance/billing
+        reason: "Temporary: Cost calculation for model training"
+        expires: "2024-12-31"
+        approved_by: "architecture-team"
+
+  - name: no_circular_dependencies
+    description: "Prevent circular dependencies between packages"
+    severity: critical
+    pattern: circular
+
+  - name: no_private_access
+    description: "Prevent access to private modules (starting with _)"
+    severity: warning
+    pattern: private_access
+
+  - name: no_implementation_details
+    description: "Prevent importing from internal/impl directories"
+    severity: warning
+    pattern: implementation_details
+
+  - name: stable_interfaces_only
+    description: "Only import from stable public APIs"
+    severity: info
+    pattern: unstable_api
+
+global_allowed:
+  - shared
+  - infrastructure
+  - interfaces
+
+options:
+  ignore_tests: true
+  ignore_examples: true
+  ignore_docs: true
+  strict_mode: false
+  
+  # Patterns to ignore when scanning
+  ignore_patterns:
+    - "*.pyc"
+    - "__pycache__"
+    - ".git"
+    - ".pytest_cache"
+    - "venv"
+    - "env"
+    - ".env"
+    - "node_modules"
+    - "*.egg-info"
+    - "build/"
+    - "dist/"
+    - ".tox"
+    - ".mypy_cache"
+    - ".ruff_cache"
+    
+  # File patterns to consider
+  include_patterns:
+    - "*.py"
+    
+  # Violation thresholds for CI/CD
+  thresholds:
+    critical: 0  # Fail on any critical violation
+    warning: 10  # Warn if more than 10 warnings
+    info: 50     # Info only

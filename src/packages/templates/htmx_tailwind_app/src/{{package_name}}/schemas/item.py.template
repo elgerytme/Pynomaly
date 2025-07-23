@@ -1,0 +1,44 @@
+"""Item schemas."""
+
+from typing import Optional
+
+from pydantic import BaseModel
+
+
+class ItemBase(BaseModel):
+    """Item base schema."""
+
+    title: str
+    description: Optional[str] = None
+    price: float
+
+
+class ItemCreate(ItemBase):
+    """Item create schema."""
+
+    pass
+
+
+class ItemUpdate(ItemBase):
+    """Item update schema."""
+
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+
+
+class ItemInDBBase(ItemBase):
+    """Item in DB base schema."""
+
+    id: int
+
+    class Config:
+        """Pydantic config."""
+
+        from_attributes = True
+
+
+class Item(ItemInDBBase):
+    """Item schema."""
+
+    pass

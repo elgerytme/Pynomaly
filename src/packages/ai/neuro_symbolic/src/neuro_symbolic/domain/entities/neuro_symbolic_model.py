@@ -75,7 +75,6 @@ class NeuroSymbolicModel:
     name: str
     neural_backbone: str
     symbolic_reasoner: str
-    knowledge_graphs: List["KnowledgeGraph"]
     symbolic_constraints: List[SymbolicConstraint]
     fusion_strategy: FusionStrategy = FusionStrategy.LATE_FUSION
     status: ModelStatus = ModelStatus.UNTRAINED
@@ -142,7 +141,6 @@ class NeuroSymbolicModel:
             neural_backbone=neural_backbone,
             symbolic_reasoner=symbolic_reasoner,
             fusion_strategy=fusion_strategy,
-            knowledge_graphs=[],
             symbolic_constraints=[],
             description=description,
             tags=tags or []
@@ -158,30 +156,12 @@ class NeuroSymbolicModel:
         """Get total number of symbolic constraints."""
         return len([c for c in self.symbolic_constraints if c.active])
     
-    @property
-    def total_knowledge_triples(self) -> int:
-        """Get total number of triples across all knowledge graphs."""
-        return sum(len(kg.triples) for kg in self.knowledge_graphs)
     
     def update_status(self, status: ModelStatus) -> None:
         """Update model status and timestamp."""
         self.status = status
         self.updated_at = datetime.now()
     
-    def add_knowledge_graph(self, knowledge_graph: "KnowledgeGraph") -> None:
-        """Add a knowledge graph to the model."""
-        if knowledge_graph not in self.knowledge_graphs:
-            self.knowledge_graphs.append(knowledge_graph)
-            self.updated_at = datetime.now()
-    
-    def remove_knowledge_graph(self, knowledge_graph_id: str) -> bool:
-        """Remove a knowledge graph from the model."""
-        for i, kg in enumerate(self.knowledge_graphs):
-            if kg.id == knowledge_graph_id:
-                del self.knowledge_graphs[i]
-                self.updated_at = datetime.now()
-                return True
-        return False
     
     def add_symbolic_constraint(
         self, 
@@ -361,9 +341,6 @@ class NeuroSymbolicModel:
             for i, constraint in enumerate(self.get_active_constraints()[:3]):
                 symbolic_steps.append(f"Applied constraint '{constraint.name}': {constraint.rule}")
             
-            # Simulate knowledge graph reasoning
-            for kg in self.knowledge_graphs[:2]:
-                symbolic_steps.append(f"Reasoned over knowledge graph '{kg.name}' with {len(kg.triples)} facts")
             
             if not symbolic_steps:
                 symbolic_steps = ["Neural prediction without symbolic reasoning"]
@@ -442,8 +419,6 @@ class NeuroSymbolicModel:
             'version': self.version,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
-            'knowledge_graphs': len(self.knowledge_graphs),
-            'total_knowledge_triples': self.total_knowledge_triples,
             'active_constraints': self.total_constraints,
             'training_epochs': len(self.training_history),
             'performance': {

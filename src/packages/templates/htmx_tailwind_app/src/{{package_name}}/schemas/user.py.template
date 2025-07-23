@@ -1,0 +1,50 @@
+"""User schemas."""
+
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr
+
+
+class UserBase(BaseModel):
+    """User base schema."""
+
+    email: EmailStr
+    full_name: Optional[str] = None
+    is_active: bool = True
+    is_superuser: bool = False
+
+
+class UserCreate(UserBase):
+    """User create schema."""
+
+    password: str
+
+
+class UserUpdate(UserBase):
+    """User update schema."""
+
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+
+
+class UserInDBBase(UserBase):
+    """User in DB base schema."""
+
+    id: int
+
+    class Config:
+        """Pydantic config."""
+
+        from_attributes = True
+
+
+class User(UserInDBBase):
+    """User schema."""
+
+    pass
+
+
+class UserInDB(UserInDBBase):
+    """User in DB schema."""
+
+    hashed_password: str

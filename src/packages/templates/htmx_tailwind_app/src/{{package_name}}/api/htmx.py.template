@@ -1,0 +1,157 @@
+"""HTMX API endpoints."""
+
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from {{package_name}}.db.session import get_db
+from {{package_name}}.schemas.item import ItemCreate
+from {{package_name}}.services import item as item_service
+
+router = APIRouter()
+templates = Jinja2Templates(directory="src/{{package_name}}/templates")
+
+
+@router.get("/items/search", response_class=HTMLResponse)
+async def search_items(
+    request: Request,
+    q: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """Search items with HTMX."""
+    if q:
+        items = await item_service.search(db, query=q)
+    else:
+        items = await item_service.get_multi(db, limit=10)
+    
+    return templates.TemplateResponse(
+        "components/item_list.html",
+        {
+            "request": request,
+            "items": items,
+        },
+    )
+
+
+@router.post("/items", response_class=HTMLResponse)
+async def create_item(
+    request: Request,
+    title: str = Form(...),
+    description: str = Form(None),
+    price: float = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create new item with HTMX."""
+    item_in = ItemCreate(
+        title=title,
+        description=description,
+        price=price,
+    )
+    item = await item_service.create(db, obj_in=item_in)
+    
+    return templates.TemplateResponse(
+        "components/item_card.html",
+        {
+            "request": request,
+            "item": item,
+        },
+    )
+
+
+@router.delete("/items/{item_id}", response_class=HTMLResponse)
+async def delete_item(
+    request: Request,
+    item_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete item with HTMX."""
+    await item_service.remove(db, id=item_id)
+    return HTMLResponse("")
+
+
+@router.get("/items/{item_id}/edit", response_class=HTMLResponse)
+async def edit_item_form(
+    request: Request,
+    item_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get edit form for item."""
+    item = await item_service.get(db, id=item_id)
+    
+    if not item:
+        return HTMLResponse("Item not found", status_code=404)
+    
+    return templates.TemplateResponse(
+        "components/item_edit_form.html",
+        {
+            "request": request,
+            "item": item,
+        },
+    )
+
+
+@router.put("/items/{item_id}", response_class=HTMLResponse)
+async def update_item(
+    request: Request,
+    item_id: int,
+    title: str = Form(...),
+    description: str = Form(None),
+    price: float = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update item with HTMX."""
+    item = await item_service.get(db, id=item_id)
+    
+    if not item:
+        return HTMLResponse("Item not found", status_code=404)
+    
+    item_data = {
+        "title": title,
+        "description": description,
+        "price": price,
+    }
+    
+    item = await item_service.update(db, db_obj=item, obj_in=item_data)
+    
+    return templates.TemplateResponse(
+        "components/item_card.html",
+        {
+            "request": request,
+            "item": item,
+        },
+    )
+
+
+@router.get("/notifications/success", response_class=HTMLResponse)
+async def success_notification(
+    request: Request,
+    message: str = "Operation completed successfully",
+):
+    """Show success notification."""
+    return templates.TemplateResponse(
+        "components/notification.html",
+        {
+            "request": request,
+            "type": "success",
+            "message": message,
+        },
+    )
+
+
+@router.get("/notifications/error", response_class=HTMLResponse)
+async def error_notification(
+    request: Request,
+    message: str = "An error occurred",
+):
+    """Show error notification."""
+    return templates.TemplateResponse(
+        "components/notification.html",
+        {
+            "request": request,
+            "type": "error",
+            "message": message,
+        },
+    )

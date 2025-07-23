@@ -24,35 +24,7 @@ def main(ctx: click.Context, verbose: bool, config: Optional[str]) -> None:
         )
 
 
-@main.group()
-def knowledge() -> None:
-    """Knowledge graph management commands."""
-    pass
-
-
-@knowledge.command()
-@click.option('--ontology', '-o', required=True, help='Ontology file path')
-@click.option('--data', '-d', required=True, help='Data file to import')
-@click.option('--format', '-f', default='rdf', 
-              type=click.Choice(['rdf', 'owl', 'json-ld']),
-              help='Data format')
-def build(ontology: str, data: str, format: str) -> None:
-    """Build knowledge graph from ontology and data."""
-    logger.info("Building knowledge graph", 
-                ontology=ontology, data=data, format=format)
-    
-    # Implementation would use KnowledgeGraphService
-    result = {
-        "ontology": ontology,
-        "data": data,
-        "format": format,
-        "graph_id": "kg_001",
-        "entities": 12543,
-        "relations": 8721,
-        "status": "built"
-    }
-    
-    click.echo(json.dumps(result, indent=2))
+# Knowledge graph commands have been moved to the knowledge_graph package
 
 
 @main.group()
@@ -62,19 +34,17 @@ def reasoning() -> None:
 
 
 @reasoning.command()
-@click.option('--knowledge-graph', '-k', required=True, help='Knowledge graph ID')
 @click.option('--query', '-q', required=True, help='SPARQL query or logical rule')
 @click.option('--engine', '-e', default='prolog', 
               type=click.Choice(['prolog', 'datalog', 'first_order']),
               help='Reasoning engine')
-def infer(knowledge_graph: str, query: str, engine: str) -> None:
+def infer(query: str, engine: str) -> None:
     """Run symbolic reasoning inference."""
     logger.info("Running inference", 
-                kg=knowledge_graph, engine=engine)
+                engine=engine)
     
     # Implementation would use SymbolicReasoningEngine
     result = {
-        "knowledge_graph": knowledge_graph,
         "query": query,
         "engine": engine,
         "inference_id": "inf_001",
@@ -99,10 +69,9 @@ def neural() -> None:
 @click.option('--model-type', '-t', default='gnn', 
               type=click.Choice(['gnn', 'transformer', 'lstm']),
               help='Neural model type')
-@click.option('--knowledge-graph', '-k', help='Knowledge graph to integrate')
 @click.option('--dataset', '-d', required=True, help='Training dataset')
 @click.option('--epochs', default=100, type=int, help='Training epochs')
-def train(model_type: str, knowledge_graph: Optional[str], dataset: str, epochs: int) -> None:
+def train(model_type: str, dataset: str, epochs: int) -> None:
     """Train neural-symbolic model."""
     logger.info("Training neural-symbolic model", 
                 model=model_type, dataset=dataset, epochs=epochs)
@@ -110,7 +79,6 @@ def train(model_type: str, knowledge_graph: Optional[str], dataset: str, epochs:
     # Implementation would use NeuralSymbolicTrainer
     result = {
         "model_type": model_type,
-        "knowledge_graph": knowledge_graph,
         "dataset": dataset,
         "epochs": epochs,
         "model_id": "ns_model_001",

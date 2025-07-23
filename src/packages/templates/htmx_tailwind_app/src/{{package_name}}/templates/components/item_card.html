@@ -1,0 +1,30 @@
+<div class="bg-white overflow-hidden shadow rounded-lg" id="item-{{ item.id }}">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ item.title }}</h3>
+        <p class="text-sm text-gray-500 mb-4">{{ item.description or "No description" }}</p>
+        <p class="text-xl font-semibold text-gray-900">${{ "%.2f"|format(item.price) }}</p>
+    </div>
+    <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-between">
+        <a href="/items/{{ item.id }}" 
+           class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            View details
+        </a>
+        <div class="space-x-2">
+            <button type="button"
+                    hx-get="/htmx/items/{{ item.id }}/edit"
+                    hx-target="#item-{{ item.id }}"
+                    hx-swap="outerHTML"
+                    class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                Edit
+            </button>
+            <button type="button"
+                    hx-delete="/htmx/items/{{ item.id }}"
+                    hx-target="#item-{{ item.id }}"
+                    hx-swap="outerHTML swap:1s"
+                    hx-confirm="Are you sure you want to delete this item?"
+                    class="text-sm font-medium text-red-600 hover:text-red-500">
+                Delete
+            </button>
+        </div>
+    </div>
+</div>

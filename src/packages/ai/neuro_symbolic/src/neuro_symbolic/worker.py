@@ -14,35 +14,7 @@ class NeuroSymbolicWorker:
         """Initialize the worker."""
         self.logger = logger.bind(component="neuro_symbolic_worker")
     
-    async def build_knowledge_graph(self, kg_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Build knowledge graph in background."""
-        self.logger.info("Building knowledge graph", graph_id=kg_data.get("id"))
-        
-        # Implementation would:
-        # 1. Parse ontology file (OWL, RDF, etc.)
-        # 2. Process data files and extract entities/relations
-        # 3. Build graph structure in memory or database
-        # 4. Create indices for efficient querying
-        # 5. Validate graph consistency
-        # 6. Generate graph statistics and metadata
-        
-        ontology_path = kg_data.get("ontology_path")
-        data_path = kg_data.get("data_path")
-        
-        await asyncio.sleep(20)  # Simulate graph building time
-        
-        return {
-            "graph_id": kg_data.get("id"),
-            "ontology_path": ontology_path,
-            "data_path": data_path,
-            "status": "completed",
-            "entities": 12543,
-            "relations": 8721,
-            "triples": 45123,
-            "build_time": "20s",
-            "validation_passed": True,
-            "indices_created": ["entity_index", "relation_index", "property_index"]
-        }
+    # Knowledge graph building has been moved to the knowledge_graph package
     
     async def train_neural_symbolic_model(self, training_data: Dict[str, Any]) -> Dict[str, Any]:
         """Train neuro-symbolic model in background."""
@@ -50,7 +22,7 @@ class NeuroSymbolicWorker:
                         model_type=training_data.get("model_type"))
         
         # Implementation would:
-        # 1. Load dataset and knowledge graph
+        # 1. Load dataset
         # 2. Initialize neural network architecture (GNN, Transformer, etc.)
         # 3. Integrate symbolic reasoning components
         # 4. Train with combined neural-symbolic loss
@@ -60,7 +32,6 @@ class NeuroSymbolicWorker:
         model_type = training_data.get("model_type", "gnn")
         epochs = training_data.get("epochs", 100)
         dataset = training_data.get("dataset_path")
-        kg_id = training_data.get("knowledge_graph_id")
         
         await asyncio.sleep(epochs * 0.5)  # Simulate training time
         
@@ -69,7 +40,6 @@ class NeuroSymbolicWorker:
             "model_type": model_type,
             "status": "completed",
             "dataset": dataset,
-            "knowledge_graph_id": kg_id,
             "epochs_completed": epochs,
             "performance": {
                 "accuracy": 0.94,
@@ -88,12 +58,11 @@ class NeuroSymbolicWorker:
     async def perform_symbolic_reasoning(self, reasoning_data: Dict[str, Any]) -> Dict[str, Any]:
         """Perform symbolic reasoning in background."""
         self.logger.info("Performing symbolic reasoning", 
-                        engine=reasoning_data.get("engine"),
-                        kg=reasoning_data.get("knowledge_graph_id"))
+                        engine=reasoning_data.get("engine"))
         
         # Implementation would:
         # 1. Parse query (SPARQL, Prolog, etc.)
-        # 2. Load relevant knowledge graph segments
+        # 2. Load relevant symbolic rules
         # 3. Apply reasoning rules and inference
         # 4. Generate proof trees and explanations
         # 5. Rank results by confidence
@@ -101,13 +70,11 @@ class NeuroSymbolicWorker:
         
         query = reasoning_data.get("query")
         engine = reasoning_data.get("engine", "prolog")
-        kg_id = reasoning_data.get("knowledge_graph_id")
         
         await asyncio.sleep(3)  # Simulate reasoning time
         
         return {
             "reasoning_id": reasoning_data.get("reasoning_id"),
-            "knowledge_graph_id": kg_id,
             "query": query,
             "engine": engine,
             "status": "completed",
@@ -281,22 +248,13 @@ async def run_worker_demo() -> None:
     """Demo function to show worker capabilities."""
     worker = NeuroSymbolicWorker()
     
-    # Demo knowledge graph building
-    kg_job = {
-        "id": "kg_001",
-        "ontology_path": "/ontologies/medical_ontology.owl",
-        "data_path": "/data/medical_entities.json"
-    }
-    
-    result = await worker.build_knowledge_graph(kg_job)
-    print(f"Knowledge graph build result: {result}")
+    # Knowledge graph demo has been moved to the knowledge_graph package
     
     # Demo neural-symbolic model training
     training_job = {
         "model_id": "ns_model_001",
         "model_type": "gnn",
         "dataset_path": "/data/medical_training.csv",
-        "knowledge_graph_id": "kg_001",
         "epochs": 50
     }
     
