@@ -1,0 +1,1583 @@
+
+📊 Documentation Code Testing Report
+==================================================
+
+Summary:
+  Total code blocks tested: 155
+  ✅ Passed: 28
+  ❌ Failed: 65
+  ⏭️  Skipped: 62
+  ⚠️  Warnings: 62
+
+Success Rate: 30.1%
+
+
+❌ Failed Tests:
+------------------------------
+• algorithms.md (block 1, line 132)
+  Error: Execution failed:   File "/tmp/tmpc6i79h6k.py", line 146
+    algorithm='auto',       # auto, ball_tree, kd_tree, brute
+    ^^^^^^^^^^^^^^^^
+SyntaxError: keyword argument repeated: algorithm
+
+
+• algorithms.md (block 4, line 221)
+  Error: Execution failed:   File "/tmp/tmp8ym8y42v.py", line 138
+    algorithm='auto',     # Algorithm for neighbor search
+    ^^^^^^^^^^^^^^^^
+SyntaxError: keyword argument repeated: algorithm
+
+
+• algorithms.md (block 5, line 245)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpezx38k1i.py", line 122, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import PyODAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• algorithms.md (block 15, line 389)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpjdkw4cgh.py", line 167, in <module>
+    from anomaly_detection import DeepLearningAdapter
+ImportError: cannot import name 'DeepLearningAdapter' from 'mock_anomaly_detection' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/docs/mock_anomaly_detection.py)
+
+
+• algorithms.md (block 19, line 491)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpvuemxg2j.py", line 130, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnsembleService' object has no attribute 'detect_with_ensemble'
+
+
+• algorithms.md (block 20, line 505)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpwabxtchf.py", line 117, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+• algorithms.md (block 21, line 517)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpkyoy8hot.py", line 112, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+• algorithms.md (block 22, line 528)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp6m0teufx.py", line 165, in <module>
+    result = ensemble.create_stacking_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+• algorithms.md (block 23, line 548)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp2semtxdv.py", line 141, in <module>
+    ('iforest', IForest()),
+                ^^^^^^^
+NameError: name 'IForest' is not defined
+
+
+• algorithms.md (block 25, line 620)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp56h7c9ao.py", line 157, in <module>
+    from anomaly_detection.utils import BayesianOptAD
+ModuleNotFoundError: No module named 'anomaly_detection.utils'; 'anomaly_detection' is not a package
+
+
+• algorithms.md (block 27, line 658)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmph678ooot.py", line 132, in <module>
+    from anomaly_detection.preprocessing import AnomalyPreprocessor
+ImportError: cannot import name 'AnomalyPreprocessor' from '<unknown module name>' (unknown location)
+
+
+• algorithms.md (block 28, line 673)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpho48ud7e.py", line 132, in <module>
+    from anomaly_detection.features import FeatureEngineer
+ModuleNotFoundError: No module named 'anomaly_detection.features'; 'anomaly_detection' is not a package
+
+
+• algorithms.md (block 31, line 722)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp9t403mcn.py", line 157, in <module>
+    from anomaly_detection.threshold import ThresholdSelector
+ModuleNotFoundError: No module named 'anomaly_detection.threshold'; 'anomaly_detection' is not a package
+
+
+• algorithms.md (block 32, line 742)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp2dfrgay3.py", line 177, in <module>
+    from anomaly_detection.deployment import ModelDeployer
+ModuleNotFoundError: No module named 'anomaly_detection.deployment'; 'anomaly_detection' is not a package
+
+
+• api.md (block 2, line 89)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpo51ndxyb.py", line 118, in <module>
+    normal_data = generate_normal_data()
+                  ^^^^^^^^^^^^^^^^^^^^
+NameError: name 'generate_normal_data' is not defined. Did you mean: 'generate_sample_data'?
+
+
+• api.md (block 4, line 143)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpxqcmoc_c.py", line 112, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+• api.md (block 5, line 168)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp__f027oe.py", line 97, in <module>
+    from anomaly_detection.domain.services import StreamingService
+ImportError: cannot import name 'StreamingService' from '<unknown module name>' (unknown location)
+
+
+• api.md (block 7, line 279)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp_8vuxyx9.py", line 107, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import SklearnAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• api.md (block 8, line 295)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpgrnmgn2e.py", line 107, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import PyODAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• api.md (block 9, line 313)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpdwmw39bn.py", line 132, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import DeepLearningAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• api.md (block 11, line 448)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpelceffto.py", line 207, in <module>
+    from anomaly_detection import (
+ImportError: cannot import name 'AnomalyDetector' from 'mock_anomaly_detection' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/docs/mock_anomaly_detection.py)
+
+
+• configuration.md (block 1, line 389)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp74wplqoz.py", line 165, in <module>
+    result = service.detect(data, algorithm='lof', **lof_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: mock_anomaly_detection.DetectionService.detect() got multiple values for keyword argument 'algorithm'
+
+
+• configuration.md (block 2, line 408)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmphk2rt6tj.py", line 183, in <module>
+    result = ensemble.detect_with_config(data, ensemble_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnsembleService' object has no attribute 'detect_with_config'
+
+
+• configuration.md (block 3, line 432)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpz_5pdg1v.py", line 162, in <module>
+    from anomaly_detection.server import create_app
+ModuleNotFoundError: No module named 'anomaly_detection.server'; 'anomaly_detection' is not a package
+
+
+• configuration.md (block 4, line 453)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpuur14wug.py", line 167, in <module>
+    from anomaly_detection.worker import AnomalyDetectionWorker
+ModuleNotFoundError: No module named 'anomaly_detection.worker'; 'anomaly_detection' is not a package
+
+
+• configuration.md (block 5, line 477)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp85jaen6n.py", line 188, in <module>
+    from anomaly_detection.infrastructure.logging import configure_logging
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• configuration.md (block 6, line 723)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpuojc8uvc.py", line 132, in <module>
+    from anomaly_detection.infrastructure.config import load_config
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• deployment.md (block 0, line 46)
+  Error: Execution failed:   File "/tmp/tmpabpyb53l.py", line 52
+    """Configuration for scaling strategies."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• deployment.md (block 1, line 300)
+  Error: Execution failed:   File "/tmp/tmpxhg3wnkc.py", line 47
+    """High-availability deployment configuration for AWS."""
+       ^^^^
+SyntaxError: invalid syntax
+
+
+• deployment.md (block 2, line 1201)
+  Error: Execution failed:   File "/tmp/tmpsrn76m_0.py", line 49
+    """Handle creation of AnomalyDetector custom resource."""
+       ^^^^^^
+SyntaxError: invalid syntax
+
+
+• ensemble.md (block 6, line 995)
+  Error: Execution failed:   File "/tmp/tmpzd7wtxny.py", line 43
+    """
+       ^
+SyntaxError: expected ':'
+
+
+• explainability.md (block 0, line 50)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpe4bxs4l_.py", line 142, in <module>
+    from anomaly_detection.core.domain.services.explainability import ExplainabilityService
+ModuleNotFoundError: No module named 'anomaly_detection.core'; 'anomaly_detection' is not a package
+
+
+• explainability.md (block 8, line 1076)
+  Error: Execution failed:   File "/tmp/tmphfse4cco.py", line 76
+    """Generate explanation for a single instance."""
+       ^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• explainability.md (block 10, line 1387)
+  Error: Execution failed:   File "/tmp/tmptucirnlj.py", line 42
+    """Recommend explanation method based on constraints."""
+       ^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• explainability.md (block 11, line 1431)
+  Error: Execution failed:   File "/tmp/tmpi2c4gu_b.py", line 47
+    """Validate LIME explanation quality."""
+       ^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• integration.md (block 0, line 46)
+  Error: Execution failed:   File "/tmp/tmp08gyu64d.py", line 55
+    """Configuration for different integration types."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• integration.md (block 2, line 470)
+  Error: Execution failed:   File "/tmp/tmp83cfn3rn.py", line 101
+    """Get list of available models."""
+       ^^^
+SyntaxError: invalid syntax
+
+
+• model_management.md (block 1, line 118)
+  Error: Execution failed:   File "/tmp/tmppalhocpz.py", line 54
+    """Train model with cross-validation and hyperparameter tuning."""
+       ^^^^^
+SyntaxError: invalid syntax
+
+
+• model_management.md (block 2, line 229)
+  Error: Execution failed:   File "/tmp/tmpgm84p1bk.py", line 51
+    """Train ensemble model with multiple base algorithms."""
+       ^^^^^
+SyntaxError: invalid syntax
+
+
+• model_management.md (block 5, line 603)
+  Error: Execution failed:   File "/tmp/tmp97fo0rxx.py", line 55
+    """Serialize model with various formats."""
+       ^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• model_management.md (block 6, line 727)
+  Error: Execution failed:   File "/tmp/tmpeaovi_g3.py", line 52
+    """Initialize cloud storage client."""
+       ^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• performance.md (block 0, line 45)
+  Error: Execution failed:   File "/tmp/tmpyf9pke97.py", line 46
+    """Define performance targets for different deployment scenarios."""
+       ^^^^^^
+SyntaxError: invalid syntax
+
+
+• README.md (block 0, line 163)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmplxb8u2ek.py", line 103, in <module>
+    anomaly-detection-server
+    ^^^^^^^
+NameError: name 'anomaly' is not defined
+
+
+• security.md (block 0, line 35)
+  Error: Execution failed:   File "/tmp/tmpq8qnr_hf.py", line 63
+    """Security threat definition."""
+       ^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 0, line 96)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp_42kzm6x.py", line 177, in <module>
+    from anomaly_detection.domain.services import StreamingService
+ImportError: cannot import name 'StreamingService' from '<unknown module name>' (unknown location)
+
+
+• streaming.md (block 2, line 134)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmppwe176ys.py", line 118, in <module>
+    streaming = StreamingService(
+                ^^^^^^^^^^^^^^^^^
+TypeError: StreamingService.__init__() got an unexpected keyword argument 'window_type'
+
+
+• streaming.md (block 3, line 148)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp_zpwrt9_.py", line 212, in <module>
+    from anomaly_detection.domain.services import StreamingService
+ImportError: cannot import name 'StreamingService' from '<unknown module name>' (unknown location)
+
+
+• streaming.md (block 4, line 181)
+  Error: Execution failed:   File "/tmp/tmpesnf5i7s.py", line 133
+    result = await streaming.process_sample(sample)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: 'await' outside function
+
+
+• streaming.md (block 8, line 297)
+  Error: Execution failed:   File "/tmp/tmprfpud_mf.py", line 53
+    """Monitor transaction stream for fraud."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 9, line 346)
+  Error: Execution failed:   File "/tmp/tmpnuibxrfk.py", line 53
+    """Monitor network traffic for anomalies."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 10, line 414)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpv24jwd6s.py", line 162, in <module>
+    from anomaly_detection.infrastructure.drift import StatisticalDriftDetector
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• streaming.md (block 11, line 435)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpzunbshxf.py", line 152, in <module>
+    from anomaly_detection.infrastructure.drift import PerformanceDriftDetector
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+• streaming.md (block 12, line 454)
+  Error: Execution failed:   File "/tmp/tmpqcwulxzb.py", line 49
+    """Update reference distribution."""
+       ^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 13, line 506)
+  Error: Execution failed:   File "/tmp/tmp7crler9l.py", line 42
+    """Completely retrain model on recent data."""
+       ^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 14, line 527)
+  Error: Execution failed:   File "/tmp/tmpreb2nfg5.py", line 42
+    """Incrementally update model with new data."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 20, line 858)
+  Error: Execution failed:   File "/tmp/tmpkwo5l1hu.py", line 52
+    """Add sample to processing queue."""
+       ^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 21, line 922)
+  Error: Execution failed:   File "/tmp/tmpoah_hnxz.py", line 58
+    """Process sample using parallel workers."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 22, line 1158)
+  Error: Execution failed:   File "/tmp/tmponba1ye8.py", line 89
+    """Process sample and collect metrics."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 23, line 1249)
+  Error: Execution failed:   File "/tmp/tmp69gjim_a.py", line 74
+    """Process sample with comprehensive logging."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 25, line 1398)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpyv838x12.py", line 245, in <module>
+    streaming_ht = StreamingService(
+                   ^^^^^^^^^^^^^^^^^
+TypeError: StreamingService.__init__() got an unexpected keyword argument 'algorithm'
+
+
+• streaming.md (block 26, line 1435)
+  Error: Execution failed:   File "/tmp/tmpza32cu_c.py", line 42
+    """Find optimal window size for streaming detection."""
+       ^^^^
+SyntaxError: invalid syntax
+
+
+• streaming.md (block 29, line 1645)
+  Error: Execution failed:   File "/tmp/tmpr6jw2taa.py", line 46
+    """Configuration for streaming anomaly detection."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+• troubleshooting.md (block 8, line 1134)
+  Error: Execution failed:   File "/tmp/tmprznr_f2i.py", line 45
+    """Profile memory usage of anomaly detection."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• troubleshooting.md (block 21, line 1809)
+  Error: Execution failed:   File "/tmp/tmpu3jlkwt1.py", line 43
+    """Predict in batches for better performance."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+• first-detection.md (block 4, line 143)
+  Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpb3z_cj3x.py", line 269, in <module>
+    scatter1 = ax1.scatter(data[:, 0], data[:, 1], c=true_labels, 
+                                                     ^^^^^^^^^^^
+NameError: name 'true_labels' is not defined
+
+
+
+
+⚠️  Warnings:
+------------------------------
+• algorithms.md (block 24): Documentation example, not executable code
+• algorithms.md (block 26): Documentation example, not executable code
+• algorithms.md (block 29): Documentation example, not executable code
+• algorithms.md (block 30): Documentation example, not executable code
+• api.md (block 1): Documentation example, not executable code
+• api.md (block 6): Documentation example, not executable code
+• api.md (block 10): Documentation example, not executable code
+• configuration.md (block 7): Documentation example, not executable code
+• deployment.md (block 3): Documentation example, not executable code
+• ensemble.md (block 0): Documentation example, not executable code
+• ensemble.md (block 1): Documentation example, not executable code
+• ensemble.md (block 2): Documentation example, not executable code
+• ensemble.md (block 3): Documentation example, not executable code
+• ensemble.md (block 4): Documentation example, not executable code
+• ensemble.md (block 7): Documentation example, not executable code
+• integration.md (block 3): Documentation example, not executable code
+• model_management.md (block 0): Documentation example, not executable code
+• model_management.md (block 3): Documentation example, not executable code
+• model_management.md (block 4): Documentation example, not executable code
+• model_management.md (block 7): Documentation example, not executable code
+• model_management.md (block 8): Documentation example, not executable code
+• security.md (block 2): Documentation example, not executable code
+• streaming.md (block 5): Documentation example, not executable code
+• streaming.md (block 6): Documentation example, not executable code
+• streaming.md (block 7): Documentation example, not executable code
+• streaming.md (block 15): Documentation example, not executable code
+• streaming.md (block 16): Documentation example, not executable code
+• streaming.md (block 17): Documentation example, not executable code
+• streaming.md (block 18): Documentation example, not executable code
+• streaming.md (block 19): Documentation example, not executable code
+• streaming.md (block 27): Documentation example, not executable code
+• streaming.md (block 28): Documentation example, not executable code
+• troubleshooting.md (block 1): Documentation example, not executable code
+• troubleshooting.md (block 2): Documentation example, not executable code
+• troubleshooting.md (block 3): Documentation example, not executable code
+• troubleshooting.md (block 4): Documentation example, not executable code
+• troubleshooting.md (block 6): Documentation example, not executable code
+• troubleshooting.md (block 10): Documentation example, not executable code
+• troubleshooting.md (block 11): Documentation example, not executable code
+• troubleshooting.md (block 12): Documentation example, not executable code
+• troubleshooting.md (block 13): Documentation example, not executable code
+• troubleshooting.md (block 14): Documentation example, not executable code
+• troubleshooting.md (block 17): Documentation example, not executable code
+• troubleshooting.md (block 18): Documentation example, not executable code
+• troubleshooting.md (block 19): Documentation example, not executable code
+• troubleshooting.md (block 20): Documentation example, not executable code
+• troubleshooting.md (block 22): Documentation example, not executable code
+• troubleshooting.md (block 23): Documentation example, not executable code
+• examples.md (block 0): Documentation example, not executable code
+• examples.md (block 1): Documentation example, not executable code
+• examples.md (block 2): Documentation example, not executable code
+• examples.md (block 3): Documentation example, not executable code
+• examples.md (block 4): Documentation example, not executable code
+• examples.md (block 5): Documentation example, not executable code
+• first-detection.md (block 1): Documentation example, not executable code
+• first-detection.md (block 2): Documentation example, not executable code
+• first-detection.md (block 3): Documentation example, not executable code
+• first-detection.md (block 5): Documentation example, not executable code
+• first-detection.md (block 6): Documentation example, not executable code
+• first-detection.md (block 7): Documentation example, not executable code
+• index.md (block 0): Documentation example, not executable code
+• index.md (block 1): Documentation example, not executable code
+
+
+Detailed Results:
+==================================================
+
+PASSED (28):
+--------------------
+File: algorithms.md
+Block: 0
+Line: 92
+
+File: algorithms.md
+Block: 2
+Line: 168
+
+File: algorithms.md
+Block: 3
+Line: 200
+
+File: algorithms.md
+Block: 6
+Line: 260
+
+File: algorithms.md
+Block: 7
+Line: 275
+
+File: algorithms.md
+Block: 8
+Line: 288
+
+File: algorithms.md
+Block: 9
+Line: 303
+
+File: algorithms.md
+Block: 10
+Line: 318
+
+File: algorithms.md
+Block: 11
+Line: 333
+
+File: algorithms.md
+Block: 12
+Line: 345
+
+File: algorithms.md
+Block: 13
+Line: 360
+
+File: algorithms.md
+Block: 14
+Line: 373
+
+File: algorithms.md
+Block: 16
+Line: 426
+
+File: algorithms.md
+Block: 17
+Line: 447
+
+File: algorithms.md
+Block: 18
+Line: 469
+
+File: api.md
+Block: 0
+Line: 27
+
+File: api.md
+Block: 3
+Line: 120
+
+File: configuration.md
+Block: 0
+Line: 357
+
+File: README.md
+Block: 1
+Line: 171
+
+File: streaming.md
+Block: 1
+Line: 121
+
+File: troubleshooting.md
+Block: 5
+Line: 1027
+
+File: troubleshooting.md
+Block: 7
+Line: 1091
+
+File: troubleshooting.md
+Block: 9
+Line: 1152
+
+File: troubleshooting.md
+Block: 16
+Line: 1621
+
+File: examples.md
+Block: 6
+Line: 561
+
+File: examples.md
+Block: 7
+Line: 575
+
+File: examples.md
+Block: 8
+Line: 588
+
+File: first-detection.md
+Block: 0
+Line: 26
+
+
+FAILED (65):
+--------------------
+File: algorithms.md
+Block: 1
+Line: 132
+Error: Execution failed:   File "/tmp/tmpc6i79h6k.py", line 146
+    algorithm='auto',       # auto, ball_tree, kd_tree, brute
+    ^^^^^^^^^^^^^^^^
+SyntaxError: keyword argument repeated: algorithm
+
+
+File: algorithms.md
+Block: 4
+Line: 221
+Error: Execution failed:   File "/tmp/tmp8ym8y42v.py", line 138
+    algorithm='auto',     # Algorithm for neighbor search
+    ^^^^^^^^^^^^^^^^
+SyntaxError: keyword argument repeated: algorithm
+
+
+File: algorithms.md
+Block: 5
+Line: 245
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpezx38k1i.py", line 122, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import PyODAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: algorithms.md
+Block: 15
+Line: 389
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpjdkw4cgh.py", line 167, in <module>
+    from anomaly_detection import DeepLearningAdapter
+ImportError: cannot import name 'DeepLearningAdapter' from 'mock_anomaly_detection' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/docs/mock_anomaly_detection.py)
+
+
+File: algorithms.md
+Block: 19
+Line: 491
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpvuemxg2j.py", line 130, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnsembleService' object has no attribute 'detect_with_ensemble'
+
+
+File: algorithms.md
+Block: 20
+Line: 505
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpwabxtchf.py", line 117, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+File: algorithms.md
+Block: 21
+Line: 517
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpkyoy8hot.py", line 112, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+File: algorithms.md
+Block: 22
+Line: 528
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp6m0teufx.py", line 165, in <module>
+    result = ensemble.create_stacking_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+File: algorithms.md
+Block: 23
+Line: 548
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp2semtxdv.py", line 141, in <module>
+    ('iforest', IForest()),
+                ^^^^^^^
+NameError: name 'IForest' is not defined
+
+
+File: algorithms.md
+Block: 25
+Line: 620
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp56h7c9ao.py", line 157, in <module>
+    from anomaly_detection.utils import BayesianOptAD
+ModuleNotFoundError: No module named 'anomaly_detection.utils'; 'anomaly_detection' is not a package
+
+
+File: algorithms.md
+Block: 27
+Line: 658
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmph678ooot.py", line 132, in <module>
+    from anomaly_detection.preprocessing import AnomalyPreprocessor
+ImportError: cannot import name 'AnomalyPreprocessor' from '<unknown module name>' (unknown location)
+
+
+File: algorithms.md
+Block: 28
+Line: 673
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpho48ud7e.py", line 132, in <module>
+    from anomaly_detection.features import FeatureEngineer
+ModuleNotFoundError: No module named 'anomaly_detection.features'; 'anomaly_detection' is not a package
+
+
+File: algorithms.md
+Block: 31
+Line: 722
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp9t403mcn.py", line 157, in <module>
+    from anomaly_detection.threshold import ThresholdSelector
+ModuleNotFoundError: No module named 'anomaly_detection.threshold'; 'anomaly_detection' is not a package
+
+
+File: algorithms.md
+Block: 32
+Line: 742
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp2dfrgay3.py", line 177, in <module>
+    from anomaly_detection.deployment import ModelDeployer
+ModuleNotFoundError: No module named 'anomaly_detection.deployment'; 'anomaly_detection' is not a package
+
+
+File: api.md
+Block: 2
+Line: 89
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpo51ndxyb.py", line 118, in <module>
+    normal_data = generate_normal_data()
+                  ^^^^^^^^^^^^^^^^^^^^
+NameError: name 'generate_normal_data' is not defined. Did you mean: 'generate_sample_data'?
+
+
+File: api.md
+Block: 4
+Line: 143
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpxqcmoc_c.py", line 112, in <module>
+    result = ensemble.detect_with_ensemble(
+             ^^^^^^^^
+NameError: name 'ensemble' is not defined
+
+
+File: api.md
+Block: 5
+Line: 168
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp__f027oe.py", line 97, in <module>
+    from anomaly_detection.domain.services import StreamingService
+ImportError: cannot import name 'StreamingService' from '<unknown module name>' (unknown location)
+
+
+File: api.md
+Block: 7
+Line: 279
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp_8vuxyx9.py", line 107, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import SklearnAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: api.md
+Block: 8
+Line: 295
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpgrnmgn2e.py", line 107, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import PyODAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: api.md
+Block: 9
+Line: 313
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpdwmw39bn.py", line 132, in <module>
+    from anomaly_detection.infrastructure.adapters.algorithms import DeepLearningAdapter
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: api.md
+Block: 11
+Line: 448
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpelceffto.py", line 207, in <module>
+    from anomaly_detection import (
+ImportError: cannot import name 'AnomalyDetector' from 'mock_anomaly_detection' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/docs/mock_anomaly_detection.py)
+
+
+File: configuration.md
+Block: 1
+Line: 389
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp74wplqoz.py", line 165, in <module>
+    result = service.detect(data, algorithm='lof', **lof_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: mock_anomaly_detection.DetectionService.detect() got multiple values for keyword argument 'algorithm'
+
+
+File: configuration.md
+Block: 2
+Line: 408
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmphk2rt6tj.py", line 183, in <module>
+    result = ensemble.detect_with_config(data, ensemble_config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EnsembleService' object has no attribute 'detect_with_config'
+
+
+File: configuration.md
+Block: 3
+Line: 432
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpz_5pdg1v.py", line 162, in <module>
+    from anomaly_detection.server import create_app
+ModuleNotFoundError: No module named 'anomaly_detection.server'; 'anomaly_detection' is not a package
+
+
+File: configuration.md
+Block: 4
+Line: 453
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpuur14wug.py", line 167, in <module>
+    from anomaly_detection.worker import AnomalyDetectionWorker
+ModuleNotFoundError: No module named 'anomaly_detection.worker'; 'anomaly_detection' is not a package
+
+
+File: configuration.md
+Block: 5
+Line: 477
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp85jaen6n.py", line 188, in <module>
+    from anomaly_detection.infrastructure.logging import configure_logging
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: configuration.md
+Block: 6
+Line: 723
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpuojc8uvc.py", line 132, in <module>
+    from anomaly_detection.infrastructure.config import load_config
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: deployment.md
+Block: 0
+Line: 46
+Error: Execution failed:   File "/tmp/tmpabpyb53l.py", line 52
+    """Configuration for scaling strategies."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: deployment.md
+Block: 1
+Line: 300
+Error: Execution failed:   File "/tmp/tmpxhg3wnkc.py", line 47
+    """High-availability deployment configuration for AWS."""
+       ^^^^
+SyntaxError: invalid syntax
+
+
+File: deployment.md
+Block: 2
+Line: 1201
+Error: Execution failed:   File "/tmp/tmpsrn76m_0.py", line 49
+    """Handle creation of AnomalyDetector custom resource."""
+       ^^^^^^
+SyntaxError: invalid syntax
+
+
+File: ensemble.md
+Block: 6
+Line: 995
+Error: Execution failed:   File "/tmp/tmpzd7wtxny.py", line 43
+    """
+       ^
+SyntaxError: expected ':'
+
+
+File: explainability.md
+Block: 0
+Line: 50
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpe4bxs4l_.py", line 142, in <module>
+    from anomaly_detection.core.domain.services.explainability import ExplainabilityService
+ModuleNotFoundError: No module named 'anomaly_detection.core'; 'anomaly_detection' is not a package
+
+
+File: explainability.md
+Block: 8
+Line: 1076
+Error: Execution failed:   File "/tmp/tmphfse4cco.py", line 76
+    """Generate explanation for a single instance."""
+       ^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: explainability.md
+Block: 10
+Line: 1387
+Error: Execution failed:   File "/tmp/tmptucirnlj.py", line 42
+    """Recommend explanation method based on constraints."""
+       ^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: explainability.md
+Block: 11
+Line: 1431
+Error: Execution failed:   File "/tmp/tmpi2c4gu_b.py", line 47
+    """Validate LIME explanation quality."""
+       ^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: integration.md
+Block: 0
+Line: 46
+Error: Execution failed:   File "/tmp/tmp08gyu64d.py", line 55
+    """Configuration for different integration types."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: integration.md
+Block: 2
+Line: 470
+Error: Execution failed:   File "/tmp/tmp83cfn3rn.py", line 101
+    """Get list of available models."""
+       ^^^
+SyntaxError: invalid syntax
+
+
+File: model_management.md
+Block: 1
+Line: 118
+Error: Execution failed:   File "/tmp/tmppalhocpz.py", line 54
+    """Train model with cross-validation and hyperparameter tuning."""
+       ^^^^^
+SyntaxError: invalid syntax
+
+
+File: model_management.md
+Block: 2
+Line: 229
+Error: Execution failed:   File "/tmp/tmpgm84p1bk.py", line 51
+    """Train ensemble model with multiple base algorithms."""
+       ^^^^^
+SyntaxError: invalid syntax
+
+
+File: model_management.md
+Block: 5
+Line: 603
+Error: Execution failed:   File "/tmp/tmp97fo0rxx.py", line 55
+    """Serialize model with various formats."""
+       ^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: model_management.md
+Block: 6
+Line: 727
+Error: Execution failed:   File "/tmp/tmpeaovi_g3.py", line 52
+    """Initialize cloud storage client."""
+       ^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: performance.md
+Block: 0
+Line: 45
+Error: Execution failed:   File "/tmp/tmpyf9pke97.py", line 46
+    """Define performance targets for different deployment scenarios."""
+       ^^^^^^
+SyntaxError: invalid syntax
+
+
+File: README.md
+Block: 0
+Line: 163
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmplxb8u2ek.py", line 103, in <module>
+    anomaly-detection-server
+    ^^^^^^^
+NameError: name 'anomaly' is not defined
+
+
+File: security.md
+Block: 0
+Line: 35
+Error: Execution failed:   File "/tmp/tmpq8qnr_hf.py", line 63
+    """Security threat definition."""
+       ^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 0
+Line: 96
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp_42kzm6x.py", line 177, in <module>
+    from anomaly_detection.domain.services import StreamingService
+ImportError: cannot import name 'StreamingService' from '<unknown module name>' (unknown location)
+
+
+File: streaming.md
+Block: 2
+Line: 134
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmppwe176ys.py", line 118, in <module>
+    streaming = StreamingService(
+                ^^^^^^^^^^^^^^^^^
+TypeError: StreamingService.__init__() got an unexpected keyword argument 'window_type'
+
+
+File: streaming.md
+Block: 3
+Line: 148
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmp_zpwrt9_.py", line 212, in <module>
+    from anomaly_detection.domain.services import StreamingService
+ImportError: cannot import name 'StreamingService' from '<unknown module name>' (unknown location)
+
+
+File: streaming.md
+Block: 4
+Line: 181
+Error: Execution failed:   File "/tmp/tmpesnf5i7s.py", line 133
+    result = await streaming.process_sample(sample)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: 'await' outside function
+
+
+File: streaming.md
+Block: 8
+Line: 297
+Error: Execution failed:   File "/tmp/tmprfpud_mf.py", line 53
+    """Monitor transaction stream for fraud."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 9
+Line: 346
+Error: Execution failed:   File "/tmp/tmpnuibxrfk.py", line 53
+    """Monitor network traffic for anomalies."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 10
+Line: 414
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpv24jwd6s.py", line 162, in <module>
+    from anomaly_detection.infrastructure.drift import StatisticalDriftDetector
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: streaming.md
+Block: 11
+Line: 435
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpzunbshxf.py", line 152, in <module>
+    from anomaly_detection.infrastructure.drift import PerformanceDriftDetector
+ModuleNotFoundError: No module named 'anomaly_detection.infrastructure'; 'anomaly_detection' is not a package
+
+
+File: streaming.md
+Block: 12
+Line: 454
+Error: Execution failed:   File "/tmp/tmpqcwulxzb.py", line 49
+    """Update reference distribution."""
+       ^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 13
+Line: 506
+Error: Execution failed:   File "/tmp/tmp7crler9l.py", line 42
+    """Completely retrain model on recent data."""
+       ^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 14
+Line: 527
+Error: Execution failed:   File "/tmp/tmpreb2nfg5.py", line 42
+    """Incrementally update model with new data."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 20
+Line: 858
+Error: Execution failed:   File "/tmp/tmpkwo5l1hu.py", line 52
+    """Add sample to processing queue."""
+       ^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 21
+Line: 922
+Error: Execution failed:   File "/tmp/tmpoah_hnxz.py", line 58
+    """Process sample using parallel workers."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 22
+Line: 1158
+Error: Execution failed:   File "/tmp/tmponba1ye8.py", line 89
+    """Process sample and collect metrics."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 23
+Line: 1249
+Error: Execution failed:   File "/tmp/tmp69gjim_a.py", line 74
+    """Process sample with comprehensive logging."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 25
+Line: 1398
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpyv838x12.py", line 245, in <module>
+    streaming_ht = StreamingService(
+                   ^^^^^^^^^^^^^^^^^
+TypeError: StreamingService.__init__() got an unexpected keyword argument 'algorithm'
+
+
+File: streaming.md
+Block: 26
+Line: 1435
+Error: Execution failed:   File "/tmp/tmpza32cu_c.py", line 42
+    """Find optimal window size for streaming detection."""
+       ^^^^
+SyntaxError: invalid syntax
+
+
+File: streaming.md
+Block: 29
+Line: 1645
+Error: Execution failed:   File "/tmp/tmpr6jw2taa.py", line 46
+    """Configuration for streaming anomaly detection."""
+       ^^^^^^^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: troubleshooting.md
+Block: 8
+Line: 1134
+Error: Execution failed:   File "/tmp/tmprznr_f2i.py", line 45
+    """Profile memory usage of anomaly detection."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: troubleshooting.md
+Block: 21
+Line: 1809
+Error: Execution failed:   File "/tmp/tmpu3jlkwt1.py", line 43
+    """Predict in batches for better performance."""
+       ^^^^^^^
+SyntaxError: invalid syntax
+
+
+File: first-detection.md
+Block: 4
+Line: 143
+Error: Execution failed: Traceback (most recent call last):
+  File "/tmp/tmpb3z_cj3x.py", line 269, in <module>
+    scatter1 = ax1.scatter(data[:, 0], data[:, 1], c=true_labels, 
+                                                     ^^^^^^^^^^^
+NameError: name 'true_labels' is not defined
+
+
+
+SKIPPED (62):
+--------------------
+File: algorithms.md
+Block: 24
+Line: 597
+Warning: Documentation example, not executable code
+
+File: algorithms.md
+Block: 26
+Line: 640
+Warning: Documentation example, not executable code
+
+File: algorithms.md
+Block: 29
+Line: 688
+Warning: Documentation example, not executable code
+
+File: algorithms.md
+Block: 30
+Line: 707
+Warning: Documentation example, not executable code
+
+File: api.md
+Block: 1
+Line: 49
+Warning: Documentation example, not executable code
+
+File: api.md
+Block: 6
+Line: 204
+Warning: Documentation example, not executable code
+
+File: api.md
+Block: 10
+Line: 431
+Warning: Documentation example, not executable code
+
+File: configuration.md
+Block: 7
+Line: 764
+Warning: Documentation example, not executable code
+
+File: deployment.md
+Block: 3
+Line: 1430
+Warning: Documentation example, not executable code
+
+File: ensemble.md
+Block: 0
+Line: 71
+Warning: Documentation example, not executable code
+
+File: ensemble.md
+Block: 1
+Line: 200
+Warning: Documentation example, not executable code
+
+File: ensemble.md
+Block: 2
+Line: 347
+Warning: Documentation example, not executable code
+
+File: ensemble.md
+Block: 3
+Line: 551
+Warning: Documentation example, not executable code
+
+File: ensemble.md
+Block: 4
+Line: 665
+Warning: Documentation example, not executable code
+
+File: ensemble.md
+Block: 7
+Line: 1121
+Warning: Documentation example, not executable code
+
+File: integration.md
+Block: 3
+Line: 701
+Warning: Documentation example, not executable code
+
+File: model_management.md
+Block: 0
+Line: 85
+Warning: Documentation example, not executable code
+
+File: model_management.md
+Block: 3
+Line: 380
+Warning: Documentation example, not executable code
+
+File: model_management.md
+Block: 4
+Line: 481
+Warning: Documentation example, not executable code
+
+File: model_management.md
+Block: 7
+Line: 902
+Warning: Documentation example, not executable code
+
+File: model_management.md
+Block: 8
+Line: 1129
+Warning: Documentation example, not executable code
+
+File: security.md
+Block: 2
+Line: 575
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 5
+Line: 196
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 6
+Line: 209
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 7
+Line: 227
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 15
+Line: 546
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 16
+Line: 583
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 17
+Line: 662
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 18
+Line: 738
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 19
+Line: 832
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 27
+Line: 1478
+Warning: Documentation example, not executable code
+
+File: streaming.md
+Block: 28
+Line: 1558
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 1
+Line: 917
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 2
+Line: 944
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 3
+Line: 977
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 4
+Line: 994
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 6
+Line: 1053
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 10
+Line: 1220
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 11
+Line: 1256
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 12
+Line: 1340
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 13
+Line: 1383
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 14
+Line: 1412
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 17
+Line: 1653
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 18
+Line: 1687
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 19
+Line: 1720
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 20
+Line: 1777
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 22
+Line: 1858
+Warning: Documentation example, not executable code
+
+File: troubleshooting.md
+Block: 23
+Line: 1895
+Warning: Documentation example, not executable code
+
+File: examples.md
+Block: 0
+Line: 12
+Warning: Documentation example, not executable code
+
+File: examples.md
+Block: 1
+Line: 80
+Warning: Documentation example, not executable code
+
+File: examples.md
+Block: 2
+Line: 98
+Warning: Documentation example, not executable code
+
+File: examples.md
+Block: 3
+Line: 167
+Warning: Documentation example, not executable code
+
+File: examples.md
+Block: 4
+Line: 243
+Warning: Documentation example, not executable code
+
+File: examples.md
+Block: 5
+Line: 327
+Warning: Documentation example, not executable code
+
+File: first-detection.md
+Block: 1
+Line: 42
+Warning: Documentation example, not executable code
+
+File: first-detection.md
+Block: 2
+Line: 78
+Warning: Documentation example, not executable code
+
+File: first-detection.md
+Block: 3
+Line: 113
+Warning: Documentation example, not executable code
+
+File: first-detection.md
+Block: 5
+Line: 186
+Warning: Documentation example, not executable code
+
+File: first-detection.md
+Block: 6
+Line: 217
+Warning: Documentation example, not executable code
+
+File: first-detection.md
+Block: 7
+Line: 247
+Warning: Documentation example, not executable code
+
+File: index.md
+Block: 0
+Line: 39
+Warning: Documentation example, not executable code
+
+File: index.md
+Block: 1
+Line: 72
+Warning: Documentation example, not executable code
+
