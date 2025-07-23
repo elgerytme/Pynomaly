@@ -791,7 +791,7 @@ class DataCleansingService:
         return max(0.0, min(1.0, quality_score))
     
     def _evaluate_condition(self, df: pd.DataFrame, condition: str) -> bool:
-        """Evaluate condition for rule application.
+        """Evaluate condition for rule application using safe parsing.
         
         Args:
             df: DataFrame to evaluate condition on
@@ -801,13 +801,38 @@ class DataCleansingService:
             Whether condition is met
         """
         try:
-            # Simple condition evaluation
-            # In production, use proper expression parser
+            # Safe condition evaluation for common patterns
             if 'len(' in condition:
-                return eval(condition.replace('df', f'len(df)'), {'len': len, 'df': df})
-            else:
-                return True  # Default to applying rule
-        except:
+                # Handle simple length conditions like "len(df) > 100"
+                import re
+                
+                # Extract numeric comparisons safely
+                pattern = r'len\(df\)\s*([<>=!]+)\s*(\d+)'
+                match = re.search(pattern, condition)
+                
+                if match:
+                    operator_str, value_str = match.groups()
+                    df_len = len(df)
+                    value = int(value_str)
+                    
+                    if operator_str == '>':
+                        return df_len > value
+                    elif operator_str == '>=':
+                        return df_len >= value
+                    elif operator_str == '<':
+                        return df_len < value
+                    elif operator_str == '<=':
+                        return df_len <= value
+                    elif operator_str == '==':
+                        return df_len == value
+                    elif operator_str == '!=':
+                        return df_len != value
+            
+            # Default to applying rule for unknown conditions
+            return True
+            
+        except Exception as e:
+            logger.warning(f"Condition evaluation failed: {e}")
             return True  # Default to applying rule if evaluation fails
     
     def _validate_cleaned_data(self, cleaned_df: pd.DataFrame, original_df: pd.DataFrame) -> List[str]:

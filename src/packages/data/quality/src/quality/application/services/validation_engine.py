@@ -21,6 +21,108 @@ from ...infrastructure.logging.quality_logger import get_logger
 logger = get_logger(__name__)
 
 
+class SafeExpressionEvaluator:
+    """Safe expression evaluator using AST to prevent code injection."""
+    
+    # Allowed operations for security
+    ALLOWED_OPS = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.Mod: operator.mod,
+        ast.Pow: operator.pow,
+        ast.Lt: operator.lt,
+        ast.LtE: operator.le,
+        ast.Gt: operator.gt,
+        ast.GtE: operator.ge,
+        ast.Eq: operator.eq,
+        ast.NotEq: operator.ne,
+        ast.And: operator.and_,
+        ast.Or: operator.or_,
+        ast.Not: operator.not_,
+        ast.USub: operator.neg,
+        ast.UAdd: operator.pos,
+    }
+    
+    def __init__(self, allowed_names: Optional[set] = None):
+        """Initialize with allowed variable names."""
+        self.allowed_names = allowed_names or set()
+    
+    def evaluate(self, expression: str, namespace: Dict[str, Any]) -> Any:
+        """Safely evaluate expression using AST."""
+        try:
+            # Parse expression into AST
+            tree = ast.parse(expression, mode='eval')
+            
+            # Validate the AST contains only safe operations
+            self._validate_ast(tree)
+            
+            # Evaluate using safe visitor
+            return self._eval_node(tree.body, namespace)
+            
+        except (SyntaxError, ValueError, TypeError) as e:
+            logger.warning(f"Expression evaluation failed: {e}")
+            return False
+    
+    def _validate_ast(self, tree):
+        """Validate AST contains only allowed operations."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name):
+                if node.id not in self.allowed_names:
+                    raise ValueError(f"Forbidden variable: {node.id}")
+            elif isinstance(node, (ast.Call, ast.Import, ast.ImportFrom, ast.Exec, ast.Eval)):
+                raise ValueError("Function calls and imports not allowed")
+    
+    def _eval_node(self, node, namespace):
+        """Recursively evaluate AST node."""
+        if isinstance(node, ast.Constant):  # Python 3.8+
+            return node.value
+        elif isinstance(node, ast.Num):  # Python < 3.8
+            return node.n
+        elif isinstance(node, ast.Str):  # Python < 3.8
+            return node.s
+        elif isinstance(node, ast.Name):
+            if node.id in namespace:
+                return namespace[node.id]
+            raise NameError(f"Name '{node.id}' not defined")
+        elif isinstance(node, ast.BinOp):
+            left = self._eval_node(node.left, namespace)
+            right = self._eval_node(node.right, namespace)
+            op_func = self.ALLOWED_OPS.get(type(node.op))
+            if not op_func:
+                raise ValueError(f"Operation {type(node.op)} not allowed")
+            return op_func(left, right)
+        elif isinstance(node, ast.UnaryOp):
+            operand = self._eval_node(node.operand, namespace)
+            op_func = self.ALLOWED_OPS.get(type(node.op))
+            if not op_func:
+                raise ValueError(f"Operation {type(node.op)} not allowed")
+            return op_func(operand)
+        elif isinstance(node, ast.Compare):
+            left = self._eval_node(node.left, namespace)
+            result = True
+            for op, comparator in zip(node.ops, node.comparators):
+                right = self._eval_node(comparator, namespace)
+                op_func = self.ALLOWED_OPS.get(type(op))
+                if not op_func:
+                    raise ValueError(f"Comparison {type(op)} not allowed")
+                result = result and op_func(left, right)
+                left = right
+            return result
+        elif isinstance(node, ast.BoolOp):
+            values = [self._eval_node(value, namespace) for value in node.values]
+            op_func = self.ALLOWED_OPS.get(type(node.op))
+            if not op_func:
+                raise ValueError(f"Boolean operation {type(node.op)} not allowed")
+            if isinstance(node.op, ast.And):
+                return all(values)
+            elif isinstance(node.op, ast.Or):
+                return any(values)
+        else:
+            raise ValueError(f"Node type {type(node)} not supported")
+
+
 class ValidationEngine:
     """High-performance validation engine with caching and parallel processing."""
     
@@ -706,14 +808,18 @@ class ValidationEngine:
         failed_records = 0
         error_details = []
         
+        # Create safe evaluator with allowed column names
+        allowed_names = set(df.columns) | {'row'}
+        evaluator = SafeExpressionEvaluator(allowed_names)
+        
         for idx, row in df.iterrows():
             try:
                 # Create namespace for row
                 namespace = dict(row)
                 namespace['row'] = row
                 
-                # Evaluate expression
-                result = eval(compiled_expr, {"__builtins__": {}}, namespace)
+                # Safely evaluate expression
+                result = evaluator.evaluate(compiled_expr, namespace)
                 
                 if result:
                     passed_records += 1
@@ -743,13 +849,17 @@ class ValidationEngine:
                                  logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
         """Execute aggregate Python validation."""
         try:
+            # Create safe evaluator with allowed column names and DataFrame
+            allowed_names = set(df.columns) | {'df'}
+            evaluator = SafeExpressionEvaluator(allowed_names)
+            
             # Create namespace for DataFrame
             namespace = {'df': df}
             for col in df.columns:
                 namespace[col] = df[col]
             
-            # Evaluate expression
-            result = eval(compiled_expr, {"__builtins__": {}}, namespace)
+            # Safely evaluate expression
+            result = evaluator.evaluate(compiled_expr, namespace)
             
             if isinstance(result, bool):
                 if result:

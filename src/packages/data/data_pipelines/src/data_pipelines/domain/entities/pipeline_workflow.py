@@ -7,6 +7,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 from uuid import UUID, uuid4
+import ast
+import operator
+import logging
 
 
 class WorkflowStatus(str, Enum):
@@ -83,13 +86,83 @@ class StepCondition:
         if self.operator not in valid_operators:
             raise ValueError(f"Invalid operator: {self.operator}")
     
+    def _safe_evaluate_expression(self, expression: str, context: Dict[str, Any]) -> bool:
+        """Safely evaluate boolean expression using AST parsing."""
+        try:
+            # Parse expression into AST
+            tree = ast.parse(expression, mode='eval')
+            
+            # Only allow simple comparison and boolean operations
+            allowed_node_types = (
+                ast.Expression, ast.BoolOp, ast.Compare, ast.Name, 
+                ast.Constant, ast.Num, ast.Str, ast.And, ast.Or, 
+                ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE
+            )
+            
+            for node in ast.walk(tree):
+                if not isinstance(node, allowed_node_types):
+                    raise ValueError(f"Forbidden operation: {type(node)}")
+            
+            # Evaluate with restricted context
+            safe_context = {k: v for k, v in context.items() if isinstance(k, str)}
+            return self._eval_ast_node(tree.body, safe_context)
+            
+        except Exception as e:
+            logging.warning(f"Safe expression evaluation failed: {e}")
+            return False
+    
+    def _eval_ast_node(self, node, context):
+        """Recursively evaluate AST node safely."""
+        if isinstance(node, ast.Constant):  # Python 3.8+
+            return node.value
+        elif isinstance(node, ast.Num):  # Python < 3.8
+            return node.n
+        elif isinstance(node, ast.Str):  # Python < 3.8
+            return node.s
+        elif isinstance(node, ast.Name):
+            if node.id in context:
+                return context[node.id]
+            raise NameError(f"Variable '{node.id}' not found in context")
+        elif isinstance(node, ast.Compare):
+            left = self._eval_ast_node(node.left, context)
+            result = True
+            for op, comparator in zip(node.ops, node.comparators):
+                right = self._eval_ast_node(comparator, context)
+                if isinstance(op, ast.Eq):
+                    result = result and (left == right)
+                elif isinstance(op, ast.NotEq):
+                    result = result and (left != right)
+                elif isinstance(op, ast.Lt):
+                    result = result and (left < right)
+                elif isinstance(op, ast.LtE):
+                    result = result and (left <= right)
+                elif isinstance(op, ast.Gt):
+                    result = result and (left > right)
+                elif isinstance(op, ast.GtE):
+                    result = result and (left >= right)
+                else:
+                    raise ValueError(f"Unsupported comparison: {type(op)}")
+                left = right
+            return result
+        elif isinstance(node, ast.BoolOp):
+            values = [self._eval_ast_node(value, context) for value in node.values]
+            if isinstance(node.op, ast.And):
+                return all(values)
+            elif isinstance(node.op, ast.Or):
+                return any(values)
+            else:
+                raise ValueError(f"Unsupported boolean operation: {type(node.op)}")
+        else:
+            raise ValueError(f"Unsupported node type: {type(node)}")
+    
     def evaluate(self, context: Dict[str, Any]) -> bool:
-        """Evaluate the condition against provided context."""
+        """Evaluate the condition against provided context using safe evaluation."""
         if self.expression:
-            # Simplified expression evaluation - would use proper parser in real implementation
+            # Safe expression evaluation using AST parsing
             try:
-                return eval(self.expression, {"__builtins__": {}}, context)
-            except Exception:
+                return self._safe_evaluate_expression(self.expression, context)
+            except Exception as e:
+                logging.warning(f"Expression evaluation failed: {e}")
                 return False
         
         if self.source_step_id and self.source_field:
