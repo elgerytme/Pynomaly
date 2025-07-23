@@ -314,39 +314,114 @@ Choose your journey based on your role and experience level:
     </div>
 </div>
 
-## Quick Navigation
+## 🧭 Complete Navigation Guide
+
+<div class="navigation-section">
+    <div class="nav-intro">
+        <p>📖 <strong><a href="navigation/">Complete Navigation Guide</a></strong> - Detailed roadmap to all documentation</p>
+        <p>📑 <strong><a href="table_of_contents/">Table of Contents</a></strong> - Structured overview of all pages</p>
+    </div>
+</div>
+
+### Quick Navigation
 
 <div class="feature-grid">
     <div class="feature-card">
-        <div class="feature-title">📚 By Learning Goal</div>
+        <div class="feature-title">🚀 Get Started Fast</div>
         <div class="feature-description">
-            • <a href="getting-started/">Getting Started</a> - Learn the basics<br>
-            • <a href="algorithms/">Choose Algorithm</a> - Pick the right approach<br>
-            • <a href="deployment/">Go to Production</a> - Deploy at scale<br>
-            • <a href="troubleshooting/">Solve Problems</a> - Debug and optimize
+            • <a href="installation/">📦 Installation</a> - Setup in 5 minutes<br>
+            • <a href="quickstart/">⚡ Quickstart</a> - Copy-paste examples<br>
+            • <a href="datasets/">📊 Example Datasets</a> - 8 ready-to-use datasets<br>
+            • <a href="templates/">📝 Code Templates</a> - Production-ready code
         </div>
     </div>
     
     <div class="feature-card">
-        <div class="feature-title">👥 By Role</div>
+        <div class="feature-title">👥 Find Your Role</div>
         <div class="feature-description">
-            • <a href="getting-started/">Data Scientists</a> - Model building and tuning<br>
-            • <a href="deployment/">DevOps Engineers</a> - Deployment and scaling<br>
-            • <a href="cli/">System Administrators</a> - Operations and monitoring<br>
-            • <a href="api/">Developers</a> - API integration and development
+            • <a href="navigation/#complete-beginner">🟢 Complete Beginner</a> - New to anomaly detection<br>
+            • <a href="navigation/#data-scientist">👨‍🔬 Data Scientist</a> - Building ML models<br>
+            • <a href="navigation/#devops-engineer">🛠️ DevOps Engineer</a> - Production deployment<br>
+            • <a href="navigation/#software-developer">👨‍💻 Software Developer</a> - API integration
         </div>
     </div>
     
     <div class="feature-card">
         <div class="feature-title">🎯 By Use Case</div>
         <div class="feature-description">
-            • <a href="getting-started/examples/">Fraud Detection</a> - Financial security<br>
-            • <a href="getting-started/examples/">Network Security</a> - Cyber threat detection<br>
-            • <a href="getting-started/examples/">Quality Control</a> - Manufacturing defects<br>
-            • <a href="getting-started/examples/">IoT Monitoring</a> - Device anomalies
+            • <a href="navigation/#financial-services">🏦 Financial Services</a> - Fraud detection<br>
+            • <a href="navigation/#cybersecurity">🔒 Cybersecurity</a> - Threat detection<br>
+            • <a href="navigation/#iot--manufacturing">🏭 IoT & Manufacturing</a> - Quality control<br>
+            • <a href="navigation/#it-operations">💻 IT Operations</a> - System monitoring
         </div>
     </div>
 </div>
+
+### Documentation Sections
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <div class="feature-title">📚 Core Learning (4 pages)</div>
+        <div class="feature-description">
+            • <a href="installation/">Installation Guide</a> - Setup & dependencies<br>
+            • <a href="quickstart/">Quickstart Templates</a> - Working examples<br>
+            • <a href="getting-started/">Getting Started</a> - Tutorials & guides<br>
+            • <a href="algorithms/">Algorithm Guide</a> - Deep dive into methods
+        </div>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-title">🔬 Advanced Features (3 pages)</div>
+        <div class="feature-description">
+            • <a href="ensemble/">Ensemble Methods</a> - Combine algorithms<br>
+            • <a href="streaming/">Real-time Processing</a> - Stream detection<br>
+            • <a href="explainability/">Model Explainability</a> - Understand results
+        </div>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-title">🏗️ Implementation (4 pages)</div>
+        <div class="feature-description">
+            • <a href="api/">API Reference</a> - Complete documentation<br>
+            • <a href="cli/">CLI Usage</a> - Command-line interface<br>
+            • <a href="architecture/">System Architecture</a> - Design overview<br>
+            • <a href="model_management/">Model Management</a> - MLOps practices
+        </div>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-title">🚀 Production (4 pages)</div>
+        <div class="feature-description">
+            • <a href="deployment/">Deployment Guide</a> - Docker, K8s, cloud<br>
+            • <a href="performance/">Performance Optimization</a> - Scale & speed<br>
+            • <a href="security/">Security & Privacy</a> - Enterprise features<br>
+            • <a href="configuration/">Configuration</a> - Environment setup
+        </div>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-title">🔗 Integration (2 pages)</div>
+        <div class="feature-description">
+            • <a href="integration/">Integration Guide</a> - Connect systems<br>
+            • <a href="troubleshooting/">Troubleshooting</a> - Debug & optimize
+        </div>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-title">📂 Resources (3 sections)</div>
+        <div class="feature-description">
+            • <a href="datasets/">Example Datasets</a> - 8 realistic datasets<br>
+            • <a href="templates/">Code Templates</a> - Production code<br>
+            • <a href="getting-started/examples/">Interactive Examples</a> - Hands-on learning
+        </div>
+    </div>
+</div>
+
+!!! tip "New to Anomaly Detection?"
+    Start with the **[Complete Beginner Path](navigation/#beginner-path-1-2-hours)**: Installation → Quickstart → First Detection → Example Datasets (2-3 hours total)
+
+!!! success "Need Production Deployment?"
+    Follow the **[Advanced Path](navigation/#advanced-path-8-12-hours)**: Architecture → Performance → Streaming → Deployment → Security (8-12 hours total)
 
 ## Community and Support
 

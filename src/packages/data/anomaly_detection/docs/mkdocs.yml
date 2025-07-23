@@ -151,34 +151,35 @@ extra_javascript:
 
 nav:
   - Home: index.md
-  - Getting Started:
-    - Quick Start: getting-started/index.md
+  - 🧭 Navigation:
+    - Complete Guide: navigation.md
+    - Table of Contents: table_of_contents.md
+  - 🚀 Getting Started:
+    - Overview: getting-started/index.md
     - Installation: installation.md
+    - Quickstart Templates: quickstart.md
     - First Detection: getting-started/first-detection.md
-    - Basic Examples: getting-started/examples.md
-  - User Guides:
-    - CLI Reference: cli.md
-    - API Overview: api.md
-    - Model Management: model_management.md
+    - Working with Examples: getting-started/examples.md
+  - 🧠 Core Concepts:
+    - Algorithm Guide: algorithms.md
     - Ensemble Methods: ensemble.md
-    - Explainability: explainability.md
-  - Advanced Topics:
+    - Model Management: model_management.md
+  - 🔬 Advanced Features:
     - Streaming Detection: streaming.md
+    - Model Explainability: explainability.md
     - Performance Optimization: performance.md
-    - Integration Patterns: integration.md
-    - Security & Privacy: security.md
-  - Production:
+  - 🏗️ Implementation:
+    - System Architecture: architecture.md
+    - API Reference: api.md
+    - CLI Usage: cli.md
+  - 🚀 Production:
     - Deployment Guide: deployment.md
     - Configuration: configuration.md
-    - Monitoring: monitoring.md
+    - Security & Privacy: security.md
+  - 🔗 Integration:
+    - Integration Guide: integration.md
     - Troubleshooting: troubleshooting.md
-  - Reference:
-    - Architecture: architecture.md
-    - Algorithms: algorithms.md
-    - API Reference: reference/
-    - Examples: examples/
-  - Development:
-    - Contributing: contributing.md
-    - Development Setup: development.md
-    - Testing: testing.md
-    - Release Notes: changelog.md
+  - 📂 Resources:
+    - Example Datasets: datasets/
+    - Code Templates: templates/
+    - Interactive Examples: getting-started/examples.md
