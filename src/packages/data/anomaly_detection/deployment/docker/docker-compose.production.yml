@@ -1,0 +1,627 @@
+# Production Docker Compose configuration for Anomaly Detection System
+# This configuration is designed for production deployments with proper
+# security, monitoring, and high availability considerations
+
+version: '3.8'
+
+networks:
+  anomaly-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  monitoring:
+    driver: bridge
+    external: false
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  kafka_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+  model_storage:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+
+services:
+  # =============================================================================
+  # Core Application Services
+  # =============================================================================
+  
+  anomaly-api:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.production
+      target: production
+      args:
+        - BUILD_DATE=${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        - VERSION=${VERSION:-latest}
+        - VCS_REF=${VCS_REF:-$(git rev-parse HEAD)}
+    image: anomaly-detection:${VERSION:-latest}
+    container_name: anomaly-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://anomaly_user:${POSTGRES_PASSWORD}@postgres:5432/anomaly_db
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - LOG_LEVEL=INFO
+      - WORKERS=4
+      - MAX_CONNECTIONS=100
+      - PROMETHEUS_METRICS_PORT=9090
+    env_file:
+      - .env.production
+    volumes:
+      - model_storage:/app/models:ro
+      - ./logs:/app/logs
+      - ./config/production.yaml:/app/config/production.yaml:ro
+    networks:
+      - anomaly-network
+      - monitoring
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.anomaly-api.rule=Host(`api.anomaly-detection.local`)"
+      - "traefik.http.services.anomaly-api.loadbalancer.server.port=8000"
+      - "prometheus.scrape=true"
+      - "prometheus.port=9090"
+      - "prometheus.path=/metrics"
+
+  anomaly-worker:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.production
+      target: worker
+    image: anomaly-detection-worker:${VERSION:-latest}
+    container_name: anomaly-worker
+    restart: unless-stopped
+    scale: 3
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://anomaly_user:${POSTGRES_PASSWORD}@postgres:5432/anomaly_db
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - WORKER_CONCURRENCY=4
+      - WORKER_PREFETCH_MULTIPLIER=1
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env.production
+    volumes:
+      - model_storage:/app/models
+      - ./logs:/app/logs
+    networks:
+      - anomaly-network
+      - monitoring
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '6.0'
+          memory: 12G
+        reservations:
+          cpus: '3.0'
+          memory: 6G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  anomaly-streaming:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.production
+      target: streaming
+    image: anomaly-detection-streaming:${VERSION:-latest}
+    container_name: anomaly-streaming
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=production
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - STREAM_BUFFER_SIZE=1000
+      - STREAM_BATCH_SIZE=100
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env.production
+    volumes:
+      - model_storage:/app/models:ro
+      - ./logs:/app/logs
+    networks:
+      - anomaly-network
+      - monitoring
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  anomaly-web:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.production
+      target: web
+    image: anomaly-detection-web:${VERSION:-latest}
+    container_name: anomaly-web
+    restart: unless-stopped
+    ports:
+      - "8080:8000"
+    environment:
+      - ENVIRONMENT=production
+      - API_BASE_URL=http://anomaly-api:8000
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./static:/app/static:ro
+    networks:
+      - anomaly-network
+    depends_on:
+      - anomaly-api
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.anomaly-web.rule=Host(`dashboard.anomaly-detection.local`)"
+      - "traefik.http.services.anomaly-web.loadbalancer.server.port=8000"
+
+  # =============================================================================
+  # Infrastructure Services
+  # =============================================================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: anomaly-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=anomaly_db
+      - POSTGRES_USER=anomaly_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/:/docker-entrypoint-initdb.d/:ro
+      - ./backup:/backup
+    networks:
+      - anomaly-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anomaly_user -d anomaly_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command: >
+      postgres
+        -c shared_preload_libraries=pg_stat_statements
+        -c pg_stat_statements.track=all
+        -c max_connections=200
+        -c shared_buffers=2GB
+        -c effective_cache_size=6GB
+        -c work_mem=16MB
+        -c maintenance_work_mem=512MB
+        -c random_page_cost=1.1
+        -c temp_file_limit=10GB
+        -c log_min_duration_statement=1000ms
+        -c log_connections=on
+        -c log_disconnections=on
+        -c log_lock_waits=on
+
+  redis:
+    image: redis:7-alpine
+    container_name: anomaly-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+        --requirepass ${REDIS_PASSWORD}
+        --appendonly yes
+        --appendfsync everysec
+        --auto-aof-rewrite-percentage 100
+        --auto-aof-rewrite-min-size 64mb
+        --maxmemory 4gb
+        --maxmemory-policy allkeys-lru
+        --timeout 300
+        --tcp-keepalive 60
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - anomaly-network
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: anomaly-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: server.1=zookeeper:2888:3888
+      ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT: 3
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: 1
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - ./logs:/var/lib/zookeeper/log
+    networks:
+      - anomaly-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: anomaly-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_RETENTION_BYTES: 1073741824
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      KAFKA_COMPRESSION_TYPE: snappy
+      KAFKA_CLEANUP_POLICY: delete
+      KAFKA_DELETE_RETENTION_MS: 86400000
+      KAFKA_MAX_MESSAGE_BYTES: 1048576
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - ./logs:/var/lib/kafka/logs
+    networks:
+      - anomaly-network
+    ports:
+      - "29092:29092"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =============================================================================
+  # Monitoring & Observability
+  # =============================================================================
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: anomaly-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules/:/etc/prometheus/rules/:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+      - anomaly-network
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: anomaly-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - monitoring
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: anomaly-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - monitoring
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: anomaly-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - XPACK_SECURITY_ENABLED=false
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${KIBANA_ENCRYPTION_KEY}
+    networks:
+      - monitoring
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Load Balancer & Reverse Proxy
+  # =============================================================================
+
+  traefik:
+    image: traefik:v2.10
+    container_name: anomaly-traefik
+    restart: unless-stopped
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.myresolver.acme.httpchallenge=true
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --metrics.prometheus=true
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+      - --accesslog=true
+      - --log.level=INFO
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - anomaly-network
+      - monitoring
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.anomaly-detection.local`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+  # =============================================================================
+  # Backup & Maintenance
+  # =============================================================================
+
+  backup:
+    image: postgres:15-alpine
+    container_name: anomaly-backup
+    restart: "no"
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./backup:/backup
+      - ./scripts/backup.sh:/backup.sh:ro
+    networks:
+      - anomaly-network
+    depends_on:
+      - postgres
+    command: ["sh", "/backup.sh"]
+    profiles:
+      - backup
+
+# =============================================================================
+# Additional Configuration
+# =============================================================================
+
+# Secrets (use Docker secrets in Swarm mode)
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  secret_key:
+    file: ./secrets/secret_key.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+
+# Configs
+configs:
+  production_config:
+    file: ./config/production.yaml
+  prometheus_config:
+    file: ./monitoring/prometheus/prometheus.yml
+  nginx_config:
+    file: ./config/nginx.conf

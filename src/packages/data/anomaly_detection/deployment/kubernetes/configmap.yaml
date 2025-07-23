@@ -1,0 +1,358 @@
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anomaly-detection-config
+  namespace: anomaly-detection
+  labels:
+    app: anomaly-detection
+    component: config
+data:
+  # Database configuration
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "anomaly_db"
+  DATABASE_USER: "anomaly_user"
+  DATABASE_SSL_MODE: "require"
+  DATABASE_MAX_CONNECTIONS: "100"
+  DATABASE_POOL_SIZE: "20"
+  
+  # Redis configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_MAX_CONNECTIONS: "50"
+  REDIS_SOCKET_TIMEOUT: "5"
+  
+  # Kafka configuration
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-service:9092"
+  KAFKA_CONSUMER_GROUP: "anomaly-detection"
+  KAFKA_AUTO_OFFSET_RESET: "latest"
+  KAFKA_ENABLE_AUTO_COMMIT: "true"
+  KAFKA_SESSION_TIMEOUT_MS: "30000"
+  KAFKA_REQUEST_TIMEOUT_MS: "40000"
+  
+  # Application configuration
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+  WORKERS_COUNT: "4"
+  MAX_MEMORY_MB: "4096"
+  TIMEOUT_SECONDS: "300"
+  
+  # API configuration
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  API_PREFIX: "/api/v1"
+  API_CORS_ORIGINS: "https://dashboard.anomaly-detection.com"
+  API_RATE_LIMIT: "1000/hour"
+  API_MAX_REQUEST_SIZE: "100MB"
+  
+  # Worker configuration
+  WORKER_CONCURRENCY: "4"
+  WORKER_PREFETCH_MULTIPLIER: "1"
+  WORKER_MAX_TASKS_PER_CHILD: "1000"
+  WORKER_TASK_ALWAYS_EAGER: "false"
+  
+  # Streaming configuration
+  STREAM_BUFFER_SIZE: "1000"
+  STREAM_BATCH_SIZE: "100"
+  STREAM_WINDOW_SIZE: "5000"
+  STREAM_UPDATE_FREQUENCY: "100"
+  
+  # Model configuration
+  MODEL_PATH: "/app/models"
+  MODEL_CACHE_SIZE: "100"
+  MODEL_CACHE_TTL: "3600"
+  MODEL_AUTO_RELOAD: "true"
+  
+  # Monitoring configuration
+  METRICS_ENABLED: "true"
+  METRICS_PORT: "9090"
+  METRICS_PATH: "/metrics"
+  HEALTH_CHECK_TIMEOUT: "30"
+  
+  # Security configuration
+  SECURITY_HEADERS_ENABLED: "true"
+  CORS_ENABLED: "true"
+  RATE_LIMITING_ENABLED: "true"
+  REQUEST_VALIDATION_ENABLED: "true"
+
+---
+# ConfigMap for Prometheus configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: anomaly-detection
+  labels:
+    app: prometheus
+    component: config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: 'anomaly-detection'
+        environment: 'production'
+
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+
+    scrape_configs:
+      # API service metrics
+      - job_name: 'anomaly-api'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - anomaly-detection
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: anomaly-api
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+
+      # Worker service metrics
+      - job_name: 'anomaly-worker'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - anomaly-detection
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: anomaly-worker
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+
+      # Streaming service metrics
+      - job_name: 'anomaly-streaming'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - anomaly-detection
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: anomaly-streaming
+
+      # Infrastructure metrics
+      - job_name: 'postgres-exporter'
+        static_configs:
+          - targets: ['postgres-exporter:9187']
+
+      - job_name: 'redis-exporter'
+        static_configs:
+          - targets: ['redis-exporter:9121']
+
+      - job_name: 'kafka-exporter'
+        static_configs:
+          - targets: ['kafka-exporter:9308']
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+
+---
+# ConfigMap for alert rules
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: anomaly-detection
+  labels:
+    app: prometheus
+    component: rules
+data:
+  anomaly-detection.yml: |
+    groups:
+      - name: anomaly_detection_alerts
+        rules:
+          # High error rate alert
+          - alert: HighErrorRate
+            expr: |
+              (
+                rate(http_requests_total{job="anomaly-api",status=~"5.."}[5m]) /
+                rate(http_requests_total{job="anomaly-api"}[5m])
+              ) > 0.05
+            for: 2m
+            labels:
+              severity: warning
+              service: anomaly-api
+            annotations:
+              summary: "High error rate detected"
+              description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+
+          # High response time alert
+          - alert: HighResponseTime
+            expr: |
+              histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="anomaly-api"}[5m])) > 2
+            for: 5m
+            labels:
+              severity: warning
+              service: anomaly-api
+            annotations:
+              summary: "High response time detected"
+              description: "95th percentile response time is {{ $value }}s"
+
+          # Service down alert
+          - alert: ServiceDown
+            expr: |
+              up{job=~"anomaly-api|anomaly-worker|anomaly-streaming"} == 0
+            for: 1m
+            labels:
+              severity: critical
+              service: "{{ $labels.job }}"
+            annotations:
+              summary: "Service is down"
+              description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
+
+          # High memory usage alert
+          - alert: HighMemoryUsage
+            expr: |
+              (process_resident_memory_bytes{job=~"anomaly-api|anomaly-worker"} / 1024 / 1024 / 1024) > 6
+            for: 5m
+            labels:
+              severity: warning
+              service: "{{ $labels.job }}"
+            annotations:
+              summary: "High memory usage"
+              description: "Memory usage is {{ $value }}GB on {{ $labels.instance }}"
+
+          # Database connection issues
+          - alert: DatabaseConnectionIssues
+            expr: |
+              increase(database_connection_errors_total[5m]) > 5
+            for: 2m
+            labels:
+              severity: critical
+              service: database
+            annotations:
+              summary: "Database connection issues"
+              description: "{{ $value }} database connection errors in the last 5 minutes"
+
+          # Kafka lag alert
+          - alert: KafkaConsumerLag
+            expr: |
+              kafka_consumer_lag_sum > 1000
+            for: 3m
+            labels:
+              severity: warning
+              service: kafka
+            annotations:
+              summary: "High Kafka consumer lag"
+              description: "Consumer lag is {{ $value }} messages"
+
+          # Model loading failures
+          - alert: ModelLoadingFailures
+            expr: |
+              increase(model_loading_failures_total[10m]) > 3
+            for: 2m
+            labels:
+              severity: warning
+              service: model-management
+            annotations:
+              summary: "Model loading failures"
+              description: "{{ $value }} model loading failures in the last 10 minutes"
+
+---
+# ConfigMap for Grafana dashboards
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: anomaly-detection
+  labels:
+    app: grafana
+    component: dashboards
+data:
+  dashboard-config.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards
+  
+  anomaly-detection-overview.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Anomaly Detection Overview",
+        "tags": ["anomaly-detection", "production"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"anomaly-api\"}[5m])",
+                "legendFormat": "{{ method }} {{ status }}"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"anomaly-api\"}[5m]))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"anomaly-api\"}[5m]))",
+                "legendFormat": "50th percentile"
+              }
+            ]
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "30s"
+      }
+    }

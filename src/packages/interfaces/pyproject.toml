@@ -1,0 +1,126 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "interfaces"
+version = "0.1.0"
+description = "Domain contracts and interfaces for cross-domain communication"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Development Team", email = "dev@company.com" },
+]
+keywords = ["interfaces", "contracts", "dto", "domain"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Object Brokering",
+]
+dependencies = [
+    "shared>=0.1.0",
+    "pydantic>=2.0.0",
+    "typing-extensions>=4.5.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+    "hypothesis>=6.70.0",
+]
+docs = [
+    "mkdocs>=1.4.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.20.0",
+]
+validation = [
+    "jsonschema>=4.17.0",
+    "pydantic>=2.0.0",
+]
+serialization = [
+    "msgpack>=1.0.0",
+    "orjson>=3.8.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/company/monorepo"
+"Bug Reports" = "https://github.com/company/monorepo/issues"
+"Source" = "https://github.com/company/monorepo"
+"Documentation" = "https://company.github.io/monorepo/interfaces"
+
+[project.scripts]
+interfaces-validate = "interfaces.cli:validate"
+
+[tool.hatch.version]
+path = "src/interfaces/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/interfaces"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=interfaces",
+    "--cov-report=term-missing", 
+    "--cov-report=xml",
+    "--cov-report=html",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "contract: marks tests as contract tests",
+]
+
+[tool.coverage.run]
+source = ["src/interfaces"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_equality = true
