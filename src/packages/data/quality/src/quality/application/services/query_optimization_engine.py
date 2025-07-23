@@ -362,7 +362,7 @@ class QueryOptimizationEngine:
     # Error handling would be managed by interface implementation
     async def optimize_query(self, query: str, database: str = "default") -> QueryOptimizationResult:
         """Optimize a database query using multiple strategies."""
-        query_hash = hashlib.md5(query.encode()).hexdigest()
+        query_hash = hashlib.sha256(query.encode()).hexdigest()
         
         # Check optimization cache
         if query_hash in self.optimization_cache:
@@ -428,7 +428,7 @@ class QueryOptimizationEngine:
                 query_plan = plan[0]["Plan"] if isinstance(plan, list) else plan["Plan"]
                 
                 execution_plan = QueryExecutionPlan(
-                    query_id=hashlib.md5(query.encode()).hexdigest(),
+                    query_id=hashlib.sha256(query.encode()).hexdigest(),
                     query_text=query,
                     estimated_cost=query_plan.get("Total Cost", 0),
                     estimated_rows=query_plan.get("Plan Rows", 0),
@@ -447,7 +447,7 @@ class QueryOptimizationEngine:
             logger.error(f"Failed to analyze execution plan: {str(e)}")
             # Return basic plan with error info
             return QueryExecutionPlan(
-                query_id=hashlib.md5(query.encode()).hexdigest(),
+                query_id=hashlib.sha256(query.encode()).hexdigest(),
                 query_text=query,
                 estimated_cost=1000.0,  # High cost for failed analysis
                 estimated_rows=1000,

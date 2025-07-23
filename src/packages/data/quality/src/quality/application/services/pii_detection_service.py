@@ -281,7 +281,7 @@ class PIIDetectionService:
     def _tokenize_value(self, value: Any, pii_type: PIIType) -> str:
         """Generate reversible token."""
         # This would integrate with a tokenization service
-        token_base = hashlib.md5(str(value).encode()).hexdigest()[:8]
+        token_base = hashlib.sha256(str(value).encode()).hexdigest()[:8]
         return f"TOKEN_{token_base.upper()}"
     
     def _apply_k_anonymity(self, data: Dict[str, Any], k: int) -> Dict[str, Any]:

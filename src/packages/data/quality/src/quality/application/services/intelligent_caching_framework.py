@@ -540,7 +540,7 @@ class IntelligentCacheManager:
     
     async def _set_on_disk(self, key: str, entry: CacheEntry) -> None:
         """Set entry on disk cache."""
-        cache_file = self.disk_cache_path / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+        cache_file = self.disk_cache_path / f"{hashlib.sha256(key.encode()).hexdigest()}.cache"
         
         try:
             with open(cache_file, 'wb') as f:
@@ -571,7 +571,7 @@ class IntelligentCacheManager:
     
     async def _get_from_disk(self, key: str) -> Optional[Any]:
         """Get value from disk cache."""
-        cache_file = self.disk_cache_path / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+        cache_file = self.disk_cache_path / f"{hashlib.sha256(key.encode()).hexdigest()}.cache"
         
         if not cache_file.exists():
             return None

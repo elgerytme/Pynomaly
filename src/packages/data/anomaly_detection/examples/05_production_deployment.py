@@ -205,7 +205,7 @@ class ProductionAnomalyService:
             if self.redis_client:
                 # Create cache key from request hash
                 import hashlib
-                request_hash = hashlib.md5(
+                request_hash = hashlib.sha256(
                     f"{X.tobytes()}{request.algorithm}{request.contamination}".encode()
                 ).hexdigest()
                 cache_key = f"anomaly_detection:{request_hash}"

@@ -582,7 +582,7 @@ class DashboardPerformanceOptimizer:
         """Generate cache key from query ID and parameters."""
         # Create deterministic key from parameters
         param_str = json.dumps(params, sort_keys=True, default=str)
-        param_hash = hashlib.md5(param_str.encode()).hexdigest()[:8]
+        param_hash = hashlib.sha256(param_str.encode()).hexdigest()[:8]
         
         return f"dashboard:{query_id}:{param_hash}"
     

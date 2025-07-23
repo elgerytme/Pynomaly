@@ -424,7 +424,7 @@ class TestCryptographicSecurity:
         import hashlib
         
         # Should not store passwords in plain text
-        plain_hash = hashlib.md5(password.encode()).hexdigest()  # Weak, for comparison
+        plain_hash = hashlib.sha256(password.encode()).hexdigest()  # Strong hash for comparison
         
         # Should use strong hashing (bcrypt, argon2, etc.)
         # For testing purposes, verify the concept exists

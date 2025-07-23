@@ -267,7 +267,7 @@ class DistributedQualityProcessingService:
         memory = psutil.virtual_memory()
         
         local_node = ProcessingNode(
-            node_id=f"node_{hashlib.md5(psutil.boot_time().encode()).hexdigest()[:8]}",
+            node_id=f"node_{hashlib.sha256(str(psutil.boot_time()).encode()).hexdigest()[:8]}",
             hostname=psutil.hostname(),
             ip_address="localhost",  # Would get actual IP in production
             port=self.config.get("processing_port", 8080),
