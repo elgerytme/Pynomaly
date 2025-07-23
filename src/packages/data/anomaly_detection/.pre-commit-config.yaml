@@ -1,0 +1,187 @@
+# Pre-commit hooks configuration for Anomaly Detection Service
+repos:
+  # Python code formatting
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+
+  # Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile, black, --line-length, "88"]
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: ^k8s/
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: debug-statements
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # Python linting
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        args: 
+          - --max-line-length=88
+          - --extend-ignore=E203,W503
+          - --exclude=venv,build,dist,.git,__pycache__,.pytest_cache
+
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        args: [--config-file=pyproject.toml]
+
+  # Security scanning
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, ., -f, json, -o, bandit-report.json]
+        pass_filenames: false
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]
+
+  # YAML formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        types: [yaml]
+        exclude: ^(k8s/|docker-compose)
+        args: [--tab-width, "2"]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: [-e, SC1091]
+
+  # Requirements files
+  - repo: https://github.com/pycqa/pip-audit
+    rev: v2.6.1
+    hooks:
+      - id: pip-audit
+        args: [--requirement, requirements-prod.txt]
+
+  # Secrets detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: .*\.ipynb$
+
+  # Python dependency sorting
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.12.0
+    hooks:
+      - id: reorder-python-imports
+        args: [--py38-plus]
+
+  # Python upgrade syntax
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: [--py38-plus]
+
+  # Local hooks for custom checks
+  - repo: local
+    hooks:
+      # Run tests before commit
+      - id: tests
+        name: run tests
+        entry: python -m pytest tests/unit/ --no-cov -x
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+      # Check for TODO/FIXME comments
+      - id: check-todos
+        name: check for todos
+        entry: python -c "
+import sys, re
+files = sys.argv[1:]
+todos = []
+for file in files:
+    if file.endswith('.py'):
+        with open(file) as f:
+            for i, line in enumerate(f, 1):
+                if re.search(r'(TODO|FIXME|XXX)', line, re.I):
+                    todos.append(f'{file}:{i}: {line.strip()}')
+if todos:
+    print('TODOs found:')
+    for todo in todos:
+        print(f'  {todo}')
+    print('Please resolve or document these TODOs.')
+    sys.exit(1)
+"
+        language: system
+        files: \.py$
+
+      # Ensure no debug prints
+      - id: no-debug-prints
+        name: check for debug prints
+        entry: python -c "
+import sys, re
+files = sys.argv[1:]
+debug_prints = []
+for file in files:
+    if file.endswith('.py'):
+        with open(file) as f:
+            for i, line in enumerate(f, 1):
+                if re.search(r'print\s*\(', line) and 'test' not in file:
+                    debug_prints.append(f'{file}:{i}: {line.strip()}')
+if debug_prints:
+    print('Debug print statements found:')
+    for debug_print in debug_prints:
+        print(f'  {debug_print}')
+    print('Please remove debug print statements or use logging.')
+    sys.exit(1)
+"
+        language: system
+        files: \.py$
+
+# Configuration
+default_stages: [commit]
+fail_fast: false
+minimum_pre_commit_version: 3.0.0
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [tests, no-debug-prints, check-todos]
+  submodules: false
