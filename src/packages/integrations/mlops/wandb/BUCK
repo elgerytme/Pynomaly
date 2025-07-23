@@ -1,0 +1,10 @@
+# BUCK file for wandb_integration package
+
+python_library(
+    name = "wandb_integration",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

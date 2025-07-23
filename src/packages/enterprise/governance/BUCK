@@ -1,0 +1,10 @@
+# BUCK file for governance package
+
+python_library(
+    name = "governance",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

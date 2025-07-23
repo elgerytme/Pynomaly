@@ -1,0 +1,10 @@
+# BUCK file for mlflow_integration package
+
+python_library(
+    name = "mlflow_integration",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

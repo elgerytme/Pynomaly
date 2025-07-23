@@ -1,0 +1,10 @@
+# BUCK file for neptune_integration package
+
+python_library(
+    name = "neptune_integration",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

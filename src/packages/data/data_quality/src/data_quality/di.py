@@ -1,0 +1,18 @@
+
+from src.packages.data.data_quality.src.data_quality.application.services.data_profiling_service import DataProfilingService
+from src.packages.data.data_quality.src.data_quality.application.services.data_quality_check_service import DataQualityCheckService
+from src.packages.data.data_quality.src.data_quality.application.services.data_quality_rule_service import DataQualityRuleService
+from src.packages.data.data_quality.src.data_quality.infrastructure.repositories.in_memory_data_profile_repository import InMemoryDataProfileRepository
+from src.packages.data.data_quality.src.data_quality.infrastructure.repositories.in_memory_data_quality_check_repository import InMemoryDataQualityCheckRepository
+from src.packages.data.data_quality.src.data_quality.infrastructure.repositories.in_memory_data_quality_rule_repository import InMemoryDataQualityRuleRepository
+
+
+# Repositories
+data_profile_repository = InMemoryDataProfileRepository()
+data_quality_check_repository = InMemoryDataQualityCheckRepository()
+data_quality_rule_repository = InMemoryDataQualityRuleRepository()
+
+# Services
+data_profiling_service = DataProfilingService(data_profile_repository)
+data_quality_check_service = DataQualityCheckService(data_quality_check_repository)
+data_quality_rule_service = DataQualityRuleService(data_quality_rule_repository)

@@ -1,0 +1,10 @@
+# BUCK file for cloud_integrations package
+
+python_library(
+    name = "cloud_integrations",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

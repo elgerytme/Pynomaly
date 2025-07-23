@@ -1,0 +1,6 @@
+[project]
+name = "grafana_integration"
+version = "0.1.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/grafana_integration"]

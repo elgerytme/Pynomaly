@@ -1,0 +1,6 @@
+[project]
+name = "prometheus_integration"
+version = "0.1.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/prometheus_integration"]

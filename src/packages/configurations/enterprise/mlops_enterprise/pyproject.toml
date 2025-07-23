@@ -1,0 +1,6 @@
+[project]
+name = "mlops_enterprise_configuration"
+version = "0.1.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mlops_enterprise_configuration"]

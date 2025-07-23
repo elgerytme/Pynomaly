@@ -1,0 +1,10 @@
+# BUCK file for auth package
+
+python_library(
+    name = "auth",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

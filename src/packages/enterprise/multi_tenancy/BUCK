@@ -1,0 +1,10 @@
+# BUCK file for multi_tenancy package
+
+python_library(
+    name = "multi_tenancy",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

@@ -1,0 +1,10 @@
+# BUCK file for kubeflow_integration package
+
+python_library(
+    name = "kubeflow_integration",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

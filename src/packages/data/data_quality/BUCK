@@ -1,0 +1,10 @@
+# BUCK file for data_quality package
+
+python_library(
+    name = "data_quality",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

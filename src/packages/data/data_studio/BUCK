@@ -1,0 +1,10 @@
+# BUCK file for data_studio package
+
+python_library(
+    name = "data_studio",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

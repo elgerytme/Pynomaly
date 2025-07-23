@@ -1,0 +1,10 @@
+# BUCK file for prometheus_integration package
+
+python_library(
+    name = "prometheus_integration",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)

@@ -1,0 +1,6 @@
+[project]
+name = "knowledge_graph"
+version = "0.1.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/knowledge_graph"]

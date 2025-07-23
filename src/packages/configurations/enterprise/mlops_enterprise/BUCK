@@ -1,0 +1,10 @@
+# BUCK file for mlops_enterprise_configuration package
+
+python_library(
+    name = "mlops_enterprise_configuration",
+    srcs = glob(["src/**/*.py"]),
+    visibility = ["PUBLIC"],
+    deps = [
+        # Add dependencies here
+    ],
+)
