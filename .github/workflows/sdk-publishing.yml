@@ -1,0 +1,600 @@
+name: 🚀 Multi-Language SDK Publishing
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      sdks_to_publish:
+        description: 'SDKs to publish (comma-separated: python,typescript,java)'
+        required: true
+        default: 'python,typescript,java'
+        type: string
+      environment:
+        description: 'Target environment for publication'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - test
+      version_override:
+        description: 'Override version (optional, uses git tag by default)'
+        required: false
+        type: string
+      skip_validation:
+        description: 'Skip pre-publication validation (for emergency releases)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+  JAVA_VERSION: "11"
+
+jobs:
+  detect-changes:
+    name: 🔍 Detect SDK Changes
+    runs-on: ubuntu-latest
+    outputs:
+      python_changed: ${{ steps.changes.outputs.python }}
+      typescript_changed: ${{ steps.changes.outputs.typescript }}
+      java_changed: ${{ steps.changes.outputs.java }}
+      version: ${{ steps.version.outputs.version }}
+      publish_python: ${{ steps.publish-matrix.outputs.python }}
+      publish_typescript: ${{ steps.publish-matrix.outputs.typescript }}
+      publish_java: ${{ steps.publish-matrix.outputs.java }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔍 Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            python:
+              - 'src/templates/client_sdks/python/**'
+              - 'src/packages/data/anomaly_detection/**'
+            typescript:
+              - 'src/templates/client_sdks/typescript/**'
+            java:
+              - 'src/templates/client_sdks/java/**'
+      
+      - name: 🔢 Get version
+        id: version
+        run: |
+          if [[ -n "${{ github.event.inputs.version_override }}" ]]; then
+            VERSION="${{ github.event.inputs.version_override }}"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          else
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "📦 Using version: ${VERSION}"
+      
+      - name: 🎯 Determine publish matrix
+        id: publish-matrix
+        run: |
+          REQUESTED_SDKS="${{ github.event.inputs.sdks_to_publish || 'python,typescript,java' }}"
+          
+          # Check if we should publish Python SDK
+          if [[ "$REQUESTED_SDKS" == *"python"* ]] && ([[ "${{ steps.changes.outputs.python }}" == "true" ]] || [[ "${{ github.event_name }}" == "release" ]]); then
+            echo "python=true" >> $GITHUB_OUTPUT
+            echo "✅ Python SDK will be published"
+          else
+            echo "python=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Python SDK will be skipped"
+          fi
+          
+          # Check if we should publish TypeScript SDK
+          if [[ "$REQUESTED_SDKS" == *"typescript"* ]] && ([[ "${{ steps.changes.outputs.typescript }}" == "true" ]] || [[ "${{ github.event_name }}" == "release" ]]); then
+            echo "typescript=true" >> $GITHUB_OUTPUT
+            echo "✅ TypeScript SDK will be published"
+          else
+            echo "typescript=false" >> $GITHUB_OUTPUT
+            echo "⏭️ TypeScript SDK will be skipped"
+          fi
+          
+          # Check if we should publish Java SDK
+          if [[ "$REQUESTED_SDKS" == *"java"* ]] && ([[ "${{ steps.changes.outputs.java }}" == "true" ]] || [[ "${{ github.event_name }}" == "release" ]]); then
+            echo "java=true" >> $GITHUB_OUTPUT
+            echo "✅ Java SDK will be published"
+          else
+            echo "java=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Java SDK will be skipped"
+          fi
+
+  validate-sdks:
+    name: 🧪 Validate SDKs
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: github.event.inputs.skip_validation != 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 🚀 Start API server
+        run: |
+          cd src/packages/data/anomaly_detection
+          pip install -e ".[api,dev]"
+          python -m anomaly_detection.server &
+          echo "API_PID=$!" >> $GITHUB_ENV
+          
+          # Wait for server to start
+          echo "⏳ Waiting for API server to start..."
+          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+          echo "✅ API server is running"
+      
+      - name: 🧪 Run SDK validation
+        run: |
+          echo "🔍 Running comprehensive SDK validation..."
+          python3 src/development_scripts/scripts/sdk_validation.py --api-url http://localhost:8000
+          echo "✅ SDK validation completed successfully"
+      
+      - name: 🛑 Stop API server
+        if: always()
+        run: |
+          if [[ -n "$API_PID" ]]; then
+            kill $API_PID || true
+          fi
+
+  publish-python:
+    name: 🐍 Publish Python SDK
+    runs-on: ubuntu-latest
+    needs: [detect-changes, validate-sdks]
+    if: |
+      always() && 
+      (needs.validate-sdks.result == 'success' || needs.validate-sdks.result == 'skipped') &&
+      needs.detect-changes.outputs.publish_python == 'true'
+    
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: ⚡ Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch twine
+      
+      - name: 🏗️ Build Python package
+        working-directory: src/packages/data/anomaly_detection
+        run: |
+          echo "📦 Building Python package version: ${{ needs.detect-changes.outputs.version }}"
+          hatch build --clean
+          
+          echo "📋 Built packages:"
+          ls -la dist/
+      
+      - name: ✅ Validate package
+        working-directory: src/packages/data/anomaly_detection
+        run: |
+          twine check dist/*
+          echo "✅ Package validation passed"
+      
+      - name: 🚀 Publish to TestPyPI
+        if: github.event.inputs.environment == 'test'
+        working-directory: src/packages/data/anomaly_detection
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TESTPYPI_API_TOKEN }}
+        run: |
+          twine upload --repository testpypi dist/*
+          echo "✅ Published to TestPyPI"
+      
+      - name: 🚀 Publish to PyPI
+        if: github.event.inputs.environment == 'production' || github.event_name == 'release'
+        working-directory: src/packages/data/anomaly_detection
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*
+          echo "✅ Published to PyPI"
+      
+      - name: 💾 Store Python artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-sdk-dist
+          path: src/packages/data/anomaly_detection/dist/
+          retention-days: 30
+
+  publish-typescript:
+    name: 📦 Publish TypeScript SDK
+    runs-on: ubuntu-latest
+    needs: [detect-changes, validate-sdks]
+    if: |
+      always() && 
+      (needs.validate-sdks.result == 'success' || needs.validate-sdks.result == 'skipped') &&
+      needs.detect-changes.outputs.publish_typescript == 'true'
+    
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: 📦 Install dependencies
+        working-directory: src/templates/client_sdks/typescript
+        run: |
+          npm ci
+          echo "✅ Dependencies installed"
+      
+      - name: 🔧 Update package version
+        working-directory: src/templates/client_sdks/typescript
+        run: |
+          VERSION="${{ needs.detect-changes.outputs.version }}"
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+          npm version $VERSION --no-git-tag-version
+          echo "📦 Updated package.json to version: $VERSION"
+      
+      - name: 🧪 Run tests
+        working-directory: src/templates/client_sdks/typescript
+        run: |
+          npm run test:coverage
+          echo "✅ Tests passed"
+      
+      - name: 🔍 Lint code
+        working-directory: src/templates/client_sdks/typescript
+        run: |
+          npm run lint
+          echo "✅ Linting passed"
+      
+      - name: 🏗️ Build package
+        working-directory: src/templates/client_sdks/typescript
+        run: |
+          npm run build
+          echo "📦 TypeScript package built successfully"
+          
+          echo "📋 Built files:"
+          ls -la dist/
+      
+      - name: 🚀 Publish to npm (test)
+        if: github.event.inputs.environment == 'test'
+        working-directory: src/templates/client_sdks/typescript
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --tag beta --access public
+          echo "✅ Published to npm with beta tag"
+      
+      - name: 🚀 Publish to npm (production)
+        if: github.event.inputs.environment == 'production' || github.event_name == 'release'
+        working-directory: src/templates/client_sdks/typescript
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --access public
+          echo "✅ Published to npm"
+      
+      - name: 💾 Store TypeScript artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-sdk-dist
+          path: src/templates/client_sdks/typescript/dist/
+          retention-days: 30
+
+  publish-java:
+    name: ☕ Publish Java SDK
+    runs-on: ubuntu-latest
+    needs: [detect-changes, validate-sdks]
+    if: |
+      always() && 
+      (needs.validate-sdks.result == 'success' || needs.validate-sdks.result == 'skipped') &&
+      needs.detect-changes.outputs.publish_java == 'true'
+    
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: ☕ Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      
+      - name: 📦 Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      
+      - name: 🔧 Update pom.xml version
+        working-directory: src/templates/client_sdks/java
+        run: |
+          VERSION="${{ needs.detect-changes.outputs.version }}"
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+          
+          # Update version in pom.xml
+          mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+          echo "📦 Updated pom.xml to version: $VERSION"
+      
+      - name: 🧪 Run tests
+        working-directory: src/templates/client_sdks/java
+        run: |
+          mvn test
+          echo "✅ Tests passed"
+      
+      - name: 🔍 Run code quality checks
+        working-directory: src/templates/client_sdks/java
+        run: |
+          mvn verify -DskipTests
+          echo "✅ Code quality checks passed"
+      
+      - name: 🏗️ Build package
+        working-directory: src/templates/client_sdks/java
+        run: |
+          mvn clean package -DskipTests
+          echo "📦 Java package built successfully"
+          
+          echo "📋 Built artifacts:"
+          ls -la target/
+      
+      - name: 🚀 Deploy to Maven Central (staging)
+        if: github.event.inputs.environment == 'test'
+        working-directory: src/templates/client_sdks/java
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: |
+          mvn deploy -P release -DskipTests -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}"
+          echo "✅ Deployed to Maven Central staging"
+      
+      - name: 🚀 Deploy to Maven Central (production)
+        if: github.event.inputs.environment == 'production' || github.event_name == 'release'
+        working-directory: src/templates/client_sdks/java
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: |
+          mvn deploy -P release -DskipTests -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}"
+          echo "✅ Deployed to Maven Central"
+      
+      - name: 💾 Store Java artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-sdk-dist
+          path: src/templates/client_sdks/java/target/
+          retention-days: 30
+
+  verify-publications:
+    name: ✅ Verify Publications
+    runs-on: ubuntu-latest
+    needs: [detect-changes, publish-python, publish-typescript, publish-java]
+    if: always() && (needs.publish-python.result == 'success' || needs.publish-typescript.result == 'success' || needs.publish-java.result == 'success')
+    
+    steps:
+      - name: 🐍 Set up Python
+        if: needs.detect-changes.outputs.publish_python == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 🟢 Set up Node.js
+        if: needs.detect-changes.outputs.publish_typescript == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: ☕ Set up JDK
+        if: needs.detect-changes.outputs.publish_java == 'true'
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+      
+      - name: ⏳ Wait for package availability
+        run: |
+          echo "⏳ Waiting for packages to become available..."
+          sleep 120  # Give package registries time to process uploads
+      
+      - name: 🐍 Verify Python package
+        if: needs.detect-changes.outputs.publish_python == 'true'
+        run: |
+          VERSION="${{ needs.detect-changes.outputs.version }}"
+          VERSION=${VERSION#v}
+          
+          if [[ "${{ github.event.inputs.environment }}" == "test" ]]; then
+            pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "anomaly_detection==${VERSION}"
+          else
+            pip install "anomaly_detection==${VERSION}"
+          fi
+          
+          # Test basic import
+          python -c "
+          import anomaly_detection
+          print(f'✅ Python SDK version: {anomaly_detection.__version__}')
+          from anomaly_detection import create_detector
+          print('✅ Python SDK import successful')
+          "
+      
+      - name: 📦 Verify TypeScript package
+        if: needs.detect-changes.outputs.publish_typescript == 'true'
+        run: |
+          VERSION="${{ needs.detect-changes.outputs.version }}"
+          VERSION=${VERSION#v}
+          
+          if [[ "${{ github.event.inputs.environment }}" == "test" ]]; then
+            npm install "@anomaly_detection/client@${VERSION}-beta"
+          else
+            npm install "@anomaly_detection/client@${VERSION}"
+          fi
+          
+          # Test basic import
+          node -e "
+          const client = require('@anomaly_detection/client');
+          console.log('✅ TypeScript SDK import successful');
+          "
+      
+      - name: ☕ Verify Java package
+        if: needs.detect-changes.outputs.publish_java == 'true' && github.event.inputs.environment != 'test'
+        run: |
+          VERSION="${{ needs.detect-changes.outputs.version }}"
+          VERSION=${VERSION#v}
+          
+          # Create a simple test project
+          mkdir java-test && cd java-test
+          cat > pom.xml << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>test</groupId>
+              <artifactId>test</artifactId>
+              <version>1.0.0</version>
+              <properties>
+                  <maven.compiler.source>11</maven.compiler.source>
+                  <maven.compiler.target>11</maven.compiler.target>
+              </properties>
+              <dependencies>
+                  <dependency>
+                      <groupId>com.anomaly_detection</groupId>
+                      <artifactId>anomaly_detection-java-sdk</artifactId>
+                      <version>${VERSION}</version>
+                  </dependency>
+              </dependencies>
+          </project>
+          EOF
+          
+          mvn dependency:resolve
+          echo "✅ Java SDK dependency resolved successfully"
+
+  generate-release-report:
+    name: 📊 Generate Release Report
+    runs-on: ubuntu-latest
+    needs: [detect-changes, publish-python, publish-typescript, publish-java, verify-publications]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate comprehensive report
+        run: |
+          VERSION="${{ needs.detect-changes.outputs.version }}"
+          ENVIRONMENT="${{ github.event.inputs.environment || 'production' }}"
+          
+          cat > sdk-release-report.md << EOF
+          # 🚀 Multi-Language SDK Release Report
+          
+          **Version:** $VERSION  
+          **Environment:** $ENVIRONMENT  
+          **Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')  
+          **Trigger:** ${{ github.event_name }}
+          
+          ## 📦 Publication Results
+          
+          ### Python SDK
+          - **Status:** ${{ needs.publish-python.result || 'skipped' }}
+          - **Published:** ${{ needs.detect-changes.outputs.publish_python }}
+          - **Package:** anomaly_detection
+          
+          ### TypeScript SDK
+          - **Status:** ${{ needs.publish-typescript.result || 'skipped' }}
+          - **Published:** ${{ needs.detect-changes.outputs.publish_typescript }}
+          - **Package:** @anomaly_detection/client
+          
+          ### Java SDK
+          - **Status:** ${{ needs.publish-java.result || 'skipped' }}
+          - **Published:** ${{ needs.detect-changes.outputs.publish_java }}
+          - **Package:** com.anomaly_detection:anomaly_detection-java-sdk
+          
+          ## 🔗 Package Links
+          
+          EOF
+          
+          if [[ "${{ needs.detect-changes.outputs.publish_python }}" == "true" ]]; then
+            if [[ "$ENVIRONMENT" == "test" ]]; then
+              echo "- [Python (TestPyPI)](https://test.pypi.org/project/anomaly_detection/${VERSION#v}/)" >> sdk-release-report.md
+            else
+              echo "- [Python (PyPI)](https://pypi.org/project/anomaly_detection/${VERSION#v}/)" >> sdk-release-report.md
+            fi
+          fi
+          
+          if [[ "${{ needs.detect-changes.outputs.publish_typescript }}" == "true" ]]; then
+            if [[ "$ENVIRONMENT" == "test" ]]; then
+              echo "- [TypeScript (npm beta)](https://www.npmjs.com/package/@anomaly_detection/client/v/${VERSION#v}-beta)" >> sdk-release-report.md
+            else
+              echo "- [TypeScript (npm)](https://www.npmjs.com/package/@anomaly_detection/client/v/${VERSION#v})" >> sdk-release-report.md
+            fi
+          fi
+          
+          if [[ "${{ needs.detect-changes.outputs.publish_java }}" == "true" ]] && [[ "$ENVIRONMENT" != "test" ]]; then
+            echo "- [Java (Maven Central)](https://central.sonatype.com/artifact/com.anomaly_detection/anomaly_detection-java-sdk/${VERSION#v})" >> sdk-release-report.md
+          fi
+          
+          cat >> sdk-release-report.md << EOF
+          
+          ## 📈 Summary
+          
+          **Total SDKs Published:** $(( ${{ needs.detect-changes.outputs.publish_python == 'true' && 1 || 0 }} + ${{ needs.detect-changes.outputs.publish_typescript == 'true' && 1 || 0 }} + ${{ needs.detect-changes.outputs.publish_java == 'true' && 1 || 0 }} ))  
+          **Validation:** ${{ needs.validate-sdks.result || 'skipped' }}  
+          **Verification:** ${{ needs.verify-publications.result || 'skipped' }}  
+          
+          **Overall Status:** ${{ (contains(needs.*.result, 'failure') && '❌ Failed') || '✅ Success' }}
+          
+          EOF
+          
+          echo "📊 Release report generated:"
+          cat sdk-release-report.md
+      
+      - name: 💾 Upload release report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-release-report
+          path: sdk-release-report.md
+          retention-days: 90
+      
+      - name: 📢 Summary
+        run: |
+          echo "🎉 Multi-Language SDK Publishing Complete!"
+          echo "📦 Version: ${{ needs.detect-changes.outputs.version }}"
+          echo "🌍 Environment: ${{ github.event.inputs.environment || 'production' }}"
+          echo ""
+          echo "📊 Results:"
+          echo "- Python: ${{ needs.publish-python.result || 'skipped' }}"
+          echo "- TypeScript: ${{ needs.publish-typescript.result || 'skipped' }}"
+          echo "- Java: ${{ needs.publish-java.result || 'skipped' }}"
+          echo ""
+          echo "✅ All configured SDKs have been processed!"
