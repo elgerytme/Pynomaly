@@ -6,6 +6,7 @@ Tests authentication flows, injection attack prevention, and security compliance
 import pytest
 import time
 import json
+import os
 from typing import Dict, Any, List
 from unittest.mock import Mock, patch
 import sys
@@ -417,7 +418,7 @@ class TestCryptographicSecurity:
     def test_password_hashing_security(self):
         """Test secure password hashing."""
         # Test password storage security
-        password = "test_password_123"
+        password = os.getenv("TEST_SECURITY_PASSWORD", "test_password_placeholder")
         
         # Mock password hashing (in real implementation, test actual hashing)
         import hashlib

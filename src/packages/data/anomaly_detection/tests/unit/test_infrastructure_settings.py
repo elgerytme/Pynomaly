@@ -48,10 +48,10 @@ class TestDatabaseSettings:
             port=5433,
             database="testdb",
             username="testuser",
-            password="testpass"
+            password=os.getenv("TEST_DB_PASSWORD", "test_password_placeholder")
         )
         
-        expected_url = "postgresql://testuser:testpass@testhost:5433/testdb"
+        expected_url = f"postgresql://testuser:{os.getenv('TEST_DB_PASSWORD', 'test_password_placeholder')}@testhost:5433/testdb"
         assert db_settings.url == expected_url
     
     @patch.dict(os.environ, {
@@ -59,7 +59,7 @@ class TestDatabaseSettings:
         "DB_PORT": "5434",
         "DB_DATABASE": "envdb",
         "DB_USERNAME": "envuser",
-        "DB_PASSWORD": "envpass",
+        "DB_PASSWORD": os.getenv("TEST_ENV_DB_PASSWORD", "test_env_password"),
         "DB_POOL_SIZE": "20"
     })
     def test_from_env(self):
@@ -70,7 +70,7 @@ class TestDatabaseSettings:
         assert db_settings.port == 5434
         assert db_settings.database == "envdb"
         assert db_settings.username == "envuser"
-        assert db_settings.password == "envpass"
+        assert db_settings.password == os.getenv("TEST_ENV_DB_PASSWORD", "test_env_password")
         assert db_settings.pool_size == 20
     
     @patch.dict(os.environ, {}, clear=True)

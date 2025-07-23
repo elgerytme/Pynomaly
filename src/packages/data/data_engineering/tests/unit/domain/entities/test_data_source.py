@@ -1,6 +1,7 @@
 """Comprehensive unit tests for DataSource domain entity."""
 
 import pytest
+import os
 from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 from unittest.mock import patch
@@ -67,7 +68,7 @@ class TestConnectionConfig:
             host="db.example.com",
             port=5432,
             username="admin",
-            password="secret123",
+            password=os.getenv("TEST_DATA_SOURCE_PASSWORD", "test_secret_placeholder"),
             database="production",
             schema="public",
             connection_string="postgresql://user:pass@host:5432/db",
@@ -156,7 +157,7 @@ class TestConnectionConfig:
             host="localhost",
             port=5432,
             username="user",
-            password="secret123",
+            password=os.getenv("TEST_DATA_SOURCE_PASSWORD", "test_secret_placeholder"),
             database="testdb",
             connection_string="postgresql://user:pass@host:5432/db",
             auth_token="token123",

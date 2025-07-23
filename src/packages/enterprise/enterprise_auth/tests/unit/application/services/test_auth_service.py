@@ -3,6 +3,7 @@ Unit tests for AuthService.
 """
 
 import pytest
+import os
 from datetime import datetime, timedelta
 from uuid import uuid4
 from unittest.mock import AsyncMock, Mock, patch
@@ -147,7 +148,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123"
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder")
         )
         
         with patch.object(auth_service, '_generate_access_token', return_value="access_token_123"):
@@ -173,7 +174,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="nonexistent@example.com",
-            password="password123"
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder")
         )
         
         with pytest.raises(AuthenticationError, match="Invalid credentials"):
@@ -195,7 +196,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123"
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder")
         )
         
         with pytest.raises(AuthenticationError, match="Account suspended"):
@@ -219,7 +220,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123"
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder")
         )
         
         with pytest.raises(AuthenticationError, match="Account suspended"):
@@ -243,7 +244,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123"
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder")
         )
         
         with pytest.raises(AuthenticationError, match="Account locked"):
@@ -259,7 +260,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="wrongpassword"
+            password=os.getenv("TEST_WRONG_PASSWORD", "wrong_test_password")
         )
         
         with pytest.raises(AuthenticationError, match="Invalid credentials"):
@@ -290,7 +291,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123"
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder")
         )
         
         response = await auth_service.authenticate_local(request)
@@ -324,7 +325,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123",
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder"),
             mfa_code="123456"
         )
         
@@ -359,7 +360,7 @@ class TestAuthService:
         
         request = LoginRequest(
             email="test@example.com",
-            password="password123",
+            password=os.getenv("TEST_AUTH_PASSWORD", "test_password_placeholder"),
             mfa_code="invalid"
         )
         
@@ -390,7 +391,7 @@ class TestAuthService:
         request = RegisterRequest(
             tenant_id=sample_tenant.id,
             email="newuser@example.com",
-            password="Password123!",
+            password=os.getenv("TEST_STRONG_PASSWORD", "StrongTestPassword123!"),
             first_name="New",
             last_name="User"
         )
@@ -417,7 +418,7 @@ class TestAuthService:
         request = RegisterRequest(
             tenant_id=uuid4(),
             email="test@example.com",
-            password="Password123!",
+            password=os.getenv("TEST_STRONG_PASSWORD", "StrongTestPassword123!"),
             first_name="Test",
             last_name="User"
         )
@@ -434,7 +435,7 @@ class TestAuthService:
         request = RegisterRequest(
             tenant_id=uuid4(),
             email="newuser@example.com",
-            password="Password123!",
+            password=os.getenv("TEST_STRONG_PASSWORD", "StrongTestPassword123!"),
             first_name="New",
             last_name="User"
         )
@@ -461,7 +462,7 @@ class TestAuthService:
         request = RegisterRequest(
             tenant_id=full_tenant.id,
             email="newuser@example.com",
-            password="Password123!",
+            password=os.getenv("TEST_STRONG_PASSWORD", "StrongTestPassword123!"),
             first_name="New",
             last_name="User"
         )
@@ -478,7 +479,7 @@ class TestAuthService:
         request = RegisterRequest(
             tenant_id=sample_tenant.id,
             email="newuser@example.com",
-            password="weak",  # Doesn't meet policy
+            password=os.getenv("TEST_WEAK_PASSWORD", "weak_test"),  # Doesn't meet policy
             first_name="New",
             last_name="User"
         )

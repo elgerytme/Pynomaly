@@ -48,7 +48,7 @@ def mock_client_config():
     """Create a test client configuration."""
     return ClientConfig.for_environment(
         Environment.LOCAL,
-        api_key="test-api-key",
+        api_key=os.getenv("TEST_INTEGRATION_API_KEY", "test_api_key_placeholder"),
         timeout=30.0,
         max_retries=1  # Reduce retries for faster tests
     )

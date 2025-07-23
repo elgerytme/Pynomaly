@@ -1,6 +1,7 @@
 """Pytest configuration for data engineering package testing."""
 
 import pytest
+import os
 from datetime import datetime, timedelta
 from uuid import uuid4
 from unittest.mock import Mock
@@ -46,7 +47,7 @@ def sample_connection_config():
         host="localhost",
         port=5432,
         username="testuser", 
-        password="testpass",
+        password=os.getenv("TEST_CONFTEST_PASSWORD", "test_password_placeholder"),
         database="testdb",
         timeout_seconds=30
     )

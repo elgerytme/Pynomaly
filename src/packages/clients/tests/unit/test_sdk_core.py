@@ -6,6 +6,7 @@ Unit tests for the core SDK functionality.
 import asyncio
 import pytest
 import sys
+import os
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timedelta
@@ -50,7 +51,7 @@ class TestClientConfig:
         # Development environment
         dev_config = ClientConfig.for_environment(
             Environment.DEVELOPMENT,
-            api_key="test-key"
+            api_key=os.getenv("TEST_SDK_API_KEY", "test_key_placeholder")
         )
         assert "dev-api" in dev_config.base_url
         assert dev_config.log_requests is True
@@ -58,7 +59,7 @@ class TestClientConfig:
         # Production environment
         prod_config = ClientConfig.for_environment(
             Environment.PRODUCTION,
-            api_key="test-key"
+            api_key=os.getenv("TEST_SDK_API_KEY", "test_key_placeholder")
         )
         assert "api.platform.com" in prod_config.base_url
         assert prod_config.log_requests is False
@@ -66,7 +67,7 @@ class TestClientConfig:
         # Local environment
         local_config = ClientConfig.for_environment(
             Environment.LOCAL,
-            api_key="test-key"
+            api_key=os.getenv("TEST_SDK_API_KEY", "test_key_placeholder")
         )
         assert "localhost" in local_config.base_url
         assert local_config.verify_ssl is False
@@ -81,7 +82,7 @@ class TestClientConfig:
         """Test configuration with authentication."""
         config = ClientConfig(base_url="https://api.example.com")
         
-        auth_config = config.with_auth(api_key="new-key")
+        auth_config = config.with_auth(api_key=os.getenv("TEST_SDK_NEW_KEY", "new_key_placeholder"))
         
         # Original config should be unchanged
         assert config.api_key is None
@@ -93,7 +94,7 @@ class TestClientConfig:
         """Test configuration to/from dict conversion."""
         config = ClientConfig(
             base_url="https://api.example.com",
-            api_key="test-key",
+            api_key=os.getenv("TEST_SDK_API_KEY", "test_key_placeholder"),
             timeout=60.0
         )
         
@@ -129,7 +130,7 @@ class TestJWTAuth:
         mock_client.post.return_value = mock_response
         
         auth = JWTAuth(
-            api_key="test-api-key",
+            api_key=os.getenv("TEST_API_KEY", "test_api_key_placeholder"),
             base_url="https://api.example.com",
             client=mock_client
         )
@@ -174,7 +175,7 @@ class TestJWTAuth:
         mock_client.post.side_effect = [initial_response, refresh_response]
         
         auth = JWTAuth(
-            api_key="test-api-key",
+            api_key=os.getenv("TEST_API_KEY", "test_api_key_placeholder"),
             base_url="https://api.example.com",
             client=mock_client
         )
@@ -202,7 +203,7 @@ class TestJWTAuth:
         mock_client.post.return_value = mock_response
         
         auth = JWTAuth(
-            api_key="invalid-key",
+            api_key=os.getenv("TEST_INVALID_KEY", "invalid_key_placeholder"),
             base_url="https://api.example.com",
             client=mock_client
         )
@@ -218,7 +219,7 @@ class TestJWTAuth:
         # For now, we'll test the error case
         
         auth = JWTAuth(
-            api_key="test-key",
+            api_key=os.getenv("TEST_SDK_API_KEY", "test_key_placeholder"),
             base_url="https://api.example.com"
         )
         
@@ -356,7 +357,7 @@ class TestBaseClient:
     @pytest.mark.asyncio
     async def test_client_initialization(self):
         """Test client initialization."""
-        config = ClientConfig(base_url="https://api.example.com", api_key="test-key")
+        config = ClientConfig(base_url="https://api.example.com", api_key=os.getenv("TEST_SDK_API_KEY", "test_key_placeholder"))
         auth = TokenAuth("test-token")
         
         client = BaseClient(config, auth)

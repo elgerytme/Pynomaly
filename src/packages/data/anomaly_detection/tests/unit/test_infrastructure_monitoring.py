@@ -4,6 +4,7 @@ import pytest
 import asyncio
 import time
 import json
+import os
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch, MagicMock, AsyncMock, call
 from collections import deque
@@ -815,7 +816,7 @@ class TestAlertingSystem:
             smtp_server="smtp.gmail.com",
             smtp_port=587,
             username="alerts@company.com",
-            password="password123",
+            password=os.getenv("TEST_EMAIL_PASSWORD", "test_password_placeholder"),
             recipients=["admin@company.com"]
         )
         
@@ -881,7 +882,7 @@ class TestAlertingSystem:
         mock_smtp_class.return_value = mock_smtp
         
         self.alerting.add_email_channel(
-            "test", "smtp.test.com", 587, "user", "pass", ["admin@test.com"]
+            "test", "smtp.test.com", 587, "user", os.getenv("TEST_SMTP_PASSWORD", "test_password"), ["admin@test.com"]
         )
         
         alert = Alert(
