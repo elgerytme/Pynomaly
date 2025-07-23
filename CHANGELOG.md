@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the monorepo detection platform will be documented in this file.
+All notable changes to the monorepo data intelligence platform will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-07-14
 
 ### Added
-- Initial release of anomaly_detection anomaly detection platform
+- Initial release of data intelligence platform
 - Clean Architecture implementation with Domain-Driven Design
 - PyOD integration with 40+ anomaly detection algorithms
 - FastAPI REST API with 65+ endpoints
@@ -112,5 +112,5 @@ When making changes to this repository:
 
 For more information, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-[Unreleased]: https://github.com/elgerytme/anomaly_detection/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/elgerytme/anomaly_detection/releases/tag/v0.1.0
+[Unreleased]: https://github.com/elgerytme/data_intelligence/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/elgerytme/data_intelligence/releases/tag/v0.1.0

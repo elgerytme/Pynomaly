@@ -1,7 +1,11 @@
 """ML-Enhanced Quality Assessment Service.
 
-Service for assessing quality issues using machine learning models
+Service for assessing data quality issues using machine learning models
 including unsupervised learning, pattern recognition, and predictive analytics.
+
+Note: This service uses statistical outlier detection techniques to identify
+quality issues in data. It is part of the quality assessment domain, not
+the anomaly_detection package which is a separate specialized analytics domain.
 """
 
 import pandas as pd

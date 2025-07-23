@@ -1,4 +1,4 @@
-# 🔍 Anomaly Detection Platform - Open Source Monorepo
+# 🔍 Data Intelligence Platform - Open Source Monorepo
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -7,19 +7,19 @@
 [![Clean Architecture](https://img.shields.io/badge/architecture-clean-green.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![Domain Driven Design](https://img.shields.io/badge/design-DDD-orange.svg)](https://www.domainlanguage.com/ddd/)
 
-This is a comprehensive, production-ready open source platform for anomaly detection across various data types and domains. Built with enterprise-grade architecture, modern Python practices, and designed for scalability, security, and extensibility.
+This is a comprehensive, production-ready open source platform for data intelligence and machine learning across various data types and domains. Built with enterprise-grade architecture, modern Python practices, and designed for scalability, security, and extensibility.
 
 🚀 **Production-Ready** • 🔒 **Enterprise Security** • 📊 **Full Observability** • 🏗️ **Clean Architecture** • 🤖 **Advanced ML**
 
 ## 🏗️ Platform Architecture
 
-This repository demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for anomaly detection, shared infrastructure, and comprehensive development tooling.
+This repository demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for data intelligence, machine learning, shared infrastructure, and comprehensive development tooling.
 
 ```
 repository/
 ├── src/packages/           # 🎯 Domain packages (clean architecture)
 │   ├── core/              # Shared domain logic & foundational patterns
-│   ├── anomaly_detection/ # Data analysis and anomaly detection domain
+│   ├── anomaly_detection/ # Specialized analytics and statistical modeling domain
 │   ├── machine_learning/  # ML operations and model lifecycle management
 │   ├── people_ops/        # User management and authentication domain
 │   ├── mathematics/       # Mathematical computations and statistics

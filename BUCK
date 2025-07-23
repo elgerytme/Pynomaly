@@ -1,4 +1,4 @@
-# Buck2 Build Configuration for Pynomaly Monorepo
+# Buck2 Build Configuration for Data Intelligence Monorepo
 # Matches actual repository structure as of 2025-01-21
 
 load("@prelude//python:defs.bzl", "python_binary", "python_library", "python_test")
@@ -13,7 +13,7 @@ load("//tools/buck:security_compliance.bzl", "create_security_suite", "create_co
 load("//tools/buck:analytics_dashboard.bzl", "create_analytics_suite")
 
 # ==========================================
-# AI DOMAIN - Machine Learning and Anomaly Detection
+# AI DOMAIN - Machine Learning and Data Analytics
 # ==========================================
 
 # Reference to self-contained package-level targets (moved to data domain)
@@ -234,7 +234,7 @@ python_library(
 
 # Complete Monorepo
 python_library(
-    name = "pynomaly",
+    name = "anomaly-detection",
     deps = [
         ":ai-all",
         ":data-all", 
@@ -269,14 +269,14 @@ python_library(
 
 # Docker Images
 docker_image_build(
-    name = "pynomaly-api-image",
+    name = "anomaly-detection-api-image",
     dockerfile = "docker/api/Dockerfile",
     srcs = [
-        ":pynomaly",
+        ":anomaly-detection",
     ],
     tags = [
-        "pynomaly/api:latest",
-        "pynomaly/api:v0.1.0",
+        "anomaly-detection/api:latest",
+        "anomaly-detection/api:v0.1.0",
     ],
     build_args = {
         "PYTHON_VERSION": "3.11",
@@ -287,7 +287,7 @@ docker_image_build(
 
 # Documentation Site
 documentation_site(
-    name = "pynomaly-docs",
+    name = "anomaly-detection-docs",
     markdown_files = glob([
         "docs/**/*.md",
         "README.md",
@@ -305,7 +305,7 @@ documentation_site(
 build_metrics_collector(
     name = "build-metrics-collector",
     targets = [
-        "//:pynomaly",
+        "//:anomaly-detection",
         "//:ai-all",
         "//:data-all", 
         "//:enterprise-all"
@@ -429,7 +429,7 @@ create_standard_tox_integration(
 create_performance_monitoring_suite(
     name = "performance-monitoring",
     targets = [
-        "//:pynomaly",
+        "//:anomaly-detection",
         "//:ai-all",
         "//:data-all", 
         "//:enterprise-all"
@@ -480,7 +480,7 @@ alias(
 create_analytics_suite(
     name = "build-analytics",
     targets = [
-        "//:pynomaly",
+        "//:anomaly-detection",
         "//:ai-all",
         "//:data-all",
         "//:enterprise-all"
@@ -495,7 +495,7 @@ create_analytics_suite(
 create_security_compliance_suite(
     name = "security-compliance",
     targets = [
-        "//:pynomaly",
+        "//:anomaly-detection",
         "//:ai-all",
         "//:data-all", 
         "//:enterprise-all"

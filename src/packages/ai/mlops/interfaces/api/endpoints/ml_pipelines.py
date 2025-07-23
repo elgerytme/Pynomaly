@@ -32,8 +32,8 @@ class PipelineCreateRequest(BaseModel):
     validation: Optional[Dict[str, Any]] = Field(default=None, description="Validation configuration")
     deployment: Optional[Dict[str, Any]] = Field(default=None, description="Deployment configuration")        schema_extra = {
             "example": {
-                "name": "customer_anomaly_detection",
-                "description": "Pipeline for detecting anomalies in customer behavior data",
+                "name": "customer_behavior_analysis",
+                "description": "Pipeline for analyzing customer behavior patterns",
                 "pipeline_type": "training",
                 "algorithm": "IsolationForest",
                 "hyperparameters": {
@@ -113,7 +113,7 @@ class ModelDeploymentRequest(BaseModel):
     monitoring: Optional[Dict[str, Any]] = Field(default=None, description="Monitoring configuration")        schema_extra = {
             "example": {
                 "model_id": "model_123456789",
-                "deployment_name": "anomaly-detector-v1",
+                "deployment_name": "behavior-analyzer-v1",
                 "environment": "production",
                 "resources": {
                     "cpu": "2",
@@ -277,8 +277,8 @@ async def get_pipeline(
         
         mock_pipeline = PipelineResponse(
             pipeline_id=pipeline_id,
-            name="customer_anomaly_detection",
-            description="Pipeline for detecting anomalies in customer behavior data",
+            name="customer_behavior_analysis",
+            description="Pipeline for analyzing customer behavior patterns",
             pipeline_type="training",
             algorithm="IsolationForest",
             status="active",

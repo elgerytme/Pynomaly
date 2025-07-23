@@ -162,7 +162,7 @@ def create_training_job(
                 rprint(f"[green]Training job {job.job_id} started successfully[/green]")
             else:
                 rprint(
-                    f"[blue]To start the job, run: anomaly_detection training start {job.job_id}[/blue]"
+                    f"[blue]To start the job, run: mlops training start {job.job_id}[/blue]"
                 )
 
         except Exception as e:
