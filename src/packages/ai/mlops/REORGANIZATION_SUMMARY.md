@@ -1,16 +1,18 @@
 # MLOps Package Reorganization Summary
 
 ## Overview
-The MLOps package has been successfully reorganized to follow the standard Company package template and Domain-Driven Design (DDD) architecture.
+The MLOps package has been reorganized to follow the standard monorepo package template structure (matching the pattern used in other packages like data/).
 
 ## ✅ Changes Completed
 
 ### 1. **Directory Structure Standardization**
-- Created proper DDD layers in `src/mlops/`:
-  - `domain/services/` - Core business logic services
-  - `application/services/` - Application orchestration services  
-  - `application/use_cases/` - Business use case implementations
-  - `infrastructure/adapters/` - External system integrations
+- Moved `src/mlops/*` → `core/*` to follow standard template
+- Created proper layers:
+  - `core/domain/` - Domain entities, services, value objects, repositories
+  - `core/application/` - Application services and use cases
+  - `core/dto/` - Data transfer objects
+  - `infrastructure/` - External adapters, persistence, repositories
+  - `interfaces/` - API, CLI, Web, and Python SDK interfaces
 
 ### 2. **Service Consolidation**
 **Before**: 25+ services in flat `services/` directory
@@ -114,31 +116,39 @@ The reorganization maintains:
 ```
 mlops/
 ├── BUCK                          # Standardized build configuration
-├── src/mlops/
-│   ├── __init__.py              # Standard package exports
-│   ├── cli.py                   # Enhanced CLI interface
-│   ├── server.py                # FastAPI server
-│   ├── worker.py                # Background worker (to implement)
-│   ├── domain/                  # Domain layer (DDD)
-│   │   ├── entities/            # Domain entities
-│   │   ├── value_objects/       # Value objects  
-│   │   └── services/            # Domain services (4 core services)
-│   ├── application/             # Application layer (DDD)
-│   │   ├── services/            # Application services (3 services)
-│   │   └── use_cases/           # Use cases (4 use cases)
-│   ├── infrastructure/          # Infrastructure layer (DDD)
-│   │   └── adapters/            # External system adapters
-│   └── presentation/            # Presentation layer (DDD)
-│       ├── api/                 # API endpoints
-│       ├── cli/                 # CLI commands
-│       └── web/                 # Web interface
-├── tests/                       # Comprehensive test structure
-│   ├── unit/                    # Unit tests
-│   ├── integration/             # Integration tests  
-│   ├── e2e/                     # End-to-end tests
-│   ├── performance/             # Performance tests
-│   └── security/                # Security tests
-└── temp_backup/                 # Backup of original services
+├── cli.py                       # CLI entry point
+├── server.py                    # FastAPI server
+├── worker.py                    # Background worker
+├── core/                        # Core business logic
+│   ├── domain/                  # Domain layer
+│   │   ├── entities/           # Domain entities
+│   │   ├── repositories/       # Repository interfaces
+│   │   ├── services/           # Domain services
+│   │   └── value_objects/      # Value objects
+│   ├── application/            # Application layer
+│   │   ├── services/           # Application services
+│   │   └── use_cases/          # Use cases
+│   └── dto/                    # Data transfer objects
+├── infrastructure/             # Infrastructure layer
+│   ├── adapters/              # External adapters
+│   ├── external/              # External services
+│   ├── persistence/           # Data persistence
+│   └── repositories/          # Repository implementations
+├── interfaces/                 # Interface layer
+│   ├── api/                   # REST API
+│   │   └── endpoints/         # API endpoints
+│   ├── cli/                   # CLI interface
+│   │   └── commands/          # CLI commands
+│   ├── web/                   # Web interface
+│   │   └── handlers/          # Web handlers
+│   └── python_sdk/            # Python SDK
+│       └── examples/          # SDK examples
+├── tests/                     # Test suite
+│   ├── unit/                  # Unit tests
+│   ├── integration/           # Integration tests
+│   └── e2e/                   # End-to-end tests
+├── docs/                      # Documentation
+└── examples/                  # Usage examples
 ```
 
-This reorganization transforms the MLOps package from a prototype structure into a production-ready, enterprise-grade package following established architectural patterns and best practices.
+This reorganization aligns the MLOps package with the standard monorepo package template, ensuring consistency across all packages in the repository.

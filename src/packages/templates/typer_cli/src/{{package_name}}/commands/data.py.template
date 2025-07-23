@@ -1,0 +1,150 @@
+"""Data processing commands."""
+
+import json
+from pathlib import Path
+from typing import List, Optional
+
+import typer
+from rich import print
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+
+from {{package_name}}.core.config import settings
+from {{package_name}}.utils.data import DataProcessor
+
+console = Console()
+app = typer.Typer()
+
+
+@app.command()
+def process(
+    input_file: Path = typer.Argument(help="Input file to process"),
+    output_file: Optional[Path] = typer.Option(None, help="Output file path"),
+    format: str = typer.Option("json", help="Output format (json, csv, yaml)"),
+    filter: Optional[str] = typer.Option(None, help="Filter expression"),
+) -> None:
+    """Process data from input file."""
+    if not input_file.exists():
+        console.print(f"[red]Error: Input file '{input_file}' not found[/red]")
+        raise typer.Exit(1)
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Processing data...", total=None)
+        
+        processor = DataProcessor()
+        data = processor.load(input_file)
+        
+        if filter:
+            progress.update(task, description="Applying filter...")
+            data = processor.filter(data, filter)
+        
+        progress.update(task, description="Formatting output...")
+        
+        if output_file:
+            processor.save(data, output_file, format=format)
+            console.print(f"[green]✓[/green] Data saved to {output_file}")
+        else:
+            if format == "json":
+                print(json.dumps(data, indent=2))
+            else:
+                console.print(data)
+
+
+@app.command()
+def stats(
+    input_file: Path = typer.Argument(help="Input file to analyze"),
+) -> None:
+    """Show statistics for data file."""
+    if not input_file.exists():
+        console.print(f"[red]Error: Input file '{input_file}' not found[/red]")
+        raise typer.Exit(1)
+    
+    processor = DataProcessor()
+    data = processor.load(input_file)
+    stats = processor.get_stats(data)
+    
+    table = Table(title=f"Statistics for {input_file.name}")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", style="green")
+    
+    for key, value in stats.items():
+        table.add_row(key, str(value))
+    
+    console.print(table)
+
+
+@app.command()
+def merge(
+    files: List[Path] = typer.Argument(help="Files to merge"),
+    output: Path = typer.Option(..., help="Output file path"),
+    format: str = typer.Option("json", help="Output format"),
+) -> None:
+    """Merge multiple data files."""
+    processor = DataProcessor()
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Merging files...", total=len(files))
+        
+        merged_data = []
+        for file in files:
+            if not file.exists():
+                console.print(f"[yellow]Warning: File '{file}' not found, skipping[/yellow]")
+                continue
+            
+            data = processor.load(file)
+            merged_data.extend(data if isinstance(data, list) else [data])
+            progress.advance(task)
+        
+        progress.update(task, description="Saving merged data...")
+        processor.save(merged_data, output, format=format)
+    
+    console.print(f"[green]✓[/green] Merged {len(files)} files to {output}")
+
+
+@app.command()
+def validate(
+    input_file: Path = typer.Argument(help="File to validate"),
+    schema_file: Optional[Path] = typer.Option(None, help="JSON schema file"),
+) -> None:
+    """Validate data file."""
+    if not input_file.exists():
+        console.print(f"[red]Error: Input file '{input_file}' not found[/red]")
+        raise typer.Exit(1)
+    
+    processor = DataProcessor()
+    
+    try:
+        data = processor.load(input_file)
+        
+        if schema_file:
+            if not schema_file.exists():
+                console.print(f"[red]Error: Schema file '{schema_file}' not found[/red]")
+                raise typer.Exit(1)
+            
+            with open(schema_file) as f:
+                schema = json.load(f)
+            
+            is_valid, errors = processor.validate(data, schema)
+        else:
+            is_valid, errors = processor.validate_basic(data)
+        
+        if is_valid:
+            console.print(f"[green]✓[/green] Data is valid")
+        else:
+            console.print(f"[red]✗[/red] Data validation failed:")
+            for error in errors:
+                console.print(f"  [red]•[/red] {error}")
+            raise typer.Exit(1)
+            
+    except Exception as e:
+        console.print(f"[red]Error validating data: {e}[/red]")
+        raise typer.Exit(1)

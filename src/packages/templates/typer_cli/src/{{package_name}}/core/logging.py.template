@@ -1,0 +1,49 @@
+"""Logging configuration."""
+
+import logging
+import sys
+
+import structlog
+from rich.logging import RichHandler
+
+
+def setup_logging(verbose: bool = False, debug: bool = False) -> None:
+    """Set up logging configuration."""
+    if debug:
+        log_level = logging.DEBUG
+    elif verbose:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+
+    # Rich handler for pretty console output
+    rich_handler = RichHandler(
+        rich_tracebacks=True,
+        markup=True,
+        show_time=False,
+    )
+    
+    logging.basicConfig(
+        level=log_level,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[rich_handler],
+    )
+
+    # Configure structlog
+    structlog.configure(
+        processors=[
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            structlog.dev.ConsoleRenderer() if debug else structlog.processors.JSONRenderer(),
+        ],
+        context_class=dict,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        cache_logger_on_first_use=True,
+    )

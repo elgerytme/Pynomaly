@@ -1,0 +1,14 @@
+"""Item service."""
+
+from {{package_name}}.models.item import Item
+from {{package_name}}.schemas.item import ItemCreate, ItemUpdate
+from {{package_name}}.services.base import CRUDBase
+
+
+class CRUDItem(CRUDBase[Item, ItemCreate, ItemUpdate]):
+    """Item CRUD operations."""
+
+    pass
+
+
+item = CRUDItem(Item)

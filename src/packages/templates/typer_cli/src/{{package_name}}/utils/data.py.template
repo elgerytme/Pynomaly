@@ -1,0 +1,106 @@
+"""Data processing utilities."""
+
+import csv
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import yaml
+
+
+class DataProcessor:
+    """Data processing utilities."""
+
+    def load(self, file_path: Path) -> Any:
+        """Load data from file based on extension."""
+        suffix = file_path.suffix.lower()
+        
+        with open(file_path, "r") as f:
+            if suffix == ".json":
+                return json.load(f)
+            elif suffix in [".yaml", ".yml"]:
+                return yaml.safe_load(f)
+            elif suffix == ".csv":
+                reader = csv.DictReader(f)
+                return list(reader)
+            else:
+                return f.read()
+
+    def save(self, data: Any, file_path: Path, format: str = "json") -> None:
+        """Save data to file in specified format."""
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(file_path, "w") as f:
+            if format == "json":
+                json.dump(data, f, indent=2)
+            elif format == "yaml":
+                yaml.dump(data, f, default_flow_style=False)
+            elif format == "csv" and isinstance(data, list):
+                if data and isinstance(data[0], dict):
+                    writer = csv.DictWriter(f, fieldnames=data[0].keys())
+                    writer.writeheader()
+                    writer.writerows(data)
+            else:
+                f.write(str(data))
+
+    def filter(self, data: Any, expression: str) -> Any:
+        """Apply filter expression to data."""
+        # Simple filter implementation
+        if isinstance(data, list):
+            # Example: "age>30" or "status=active"
+            if ">" in expression:
+                key, value = expression.split(">")
+                return [item for item in data if item.get(key, 0) > float(value)]
+            elif "<" in expression:
+                key, value = expression.split("<")
+                return [item for item in data if item.get(key, 0) < float(value)]
+            elif "=" in expression:
+                key, value = expression.split("=")
+                return [item for item in data if str(item.get(key, "")) == value]
+        return data
+
+    def get_stats(self, data: Any) -> Dict[str, Any]:
+        """Get statistics for data."""
+        stats = {
+            "type": type(data).__name__,
+        }
+        
+        if isinstance(data, list):
+            stats["count"] = len(data)
+            if data and isinstance(data[0], dict):
+                stats["keys"] = list(data[0].keys())
+                stats["sample"] = data[0]
+        elif isinstance(data, dict):
+            stats["keys"] = list(data.keys())
+            stats["count"] = len(data)
+        elif isinstance(data, str):
+            stats["length"] = len(data)
+            stats["lines"] = data.count("\n") + 1
+        
+        return stats
+
+    def validate_basic(self, data: Any) -> Tuple[bool, List[str]]:
+        """Basic data validation."""
+        errors = []
+        
+        if data is None:
+            errors.append("Data is None")
+        elif isinstance(data, list) and len(data) == 0:
+            errors.append("Data is empty list")
+        elif isinstance(data, dict) and len(data) == 0:
+            errors.append("Data is empty dict")
+        elif isinstance(data, str) and data.strip() == "":
+            errors.append("Data is empty string")
+        
+        return len(errors) == 0, errors
+
+    def validate(self, data: Any, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+        """Validate data against JSON schema."""
+        try:
+            import jsonschema
+            jsonschema.validate(data, schema)
+            return True, []
+        except jsonschema.ValidationError as e:
+            return False, [str(e)]
+        except ImportError:
+            return False, ["jsonschema package not installed"]

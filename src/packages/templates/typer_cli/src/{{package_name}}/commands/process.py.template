@@ -1,0 +1,207 @@
+"""Process management commands."""
+
+import asyncio
+import time
+from typing import List, Optional
+
+import typer
+from rich.console import Console
+from rich.live import Live
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+from rich.table import Table
+
+from {{package_name}}.core.config import settings
+from {{package_name}}.utils.process import ProcessManager, ProcessStatus
+
+console = Console()
+app = typer.Typer()
+
+
+@app.command()
+def run(
+    command: str = typer.Argument(help="Command to run"),
+    name: Optional[str] = typer.Option(None, help="Process name"),
+    detach: bool = typer.Option(False, help="Run in background"),
+    restart: bool = typer.Option(False, help="Auto-restart on failure"),
+) -> None:
+    """Run a process."""
+    manager = ProcessManager()
+    
+    process_name = name or f"process_{int(time.time())}"
+    
+    if detach:
+        pid = manager.start_background(command, process_name, auto_restart=restart)
+        console.print(f"[green]✓[/green] Started process '{process_name}' (PID: {pid})")
+    else:
+        with console.status(f"Running '{command}'..."):
+            result = manager.run_foreground(command)
+        
+        if result.returncode == 0:
+            console.print(f"[green]✓[/green] Process completed successfully")
+        else:
+            console.print(f"[red]✗[/red] Process failed with code {result.returncode}")
+            if result.stderr:
+                console.print(f"[red]Error:[/red] {result.stderr}")
+            raise typer.Exit(result.returncode)
+
+
+@app.command()
+def list() -> None:
+    """List all running processes."""
+    manager = ProcessManager()
+    processes = manager.list_processes()
+    
+    if not processes:
+        console.print("[yellow]No running processes[/yellow]")
+        return
+    
+    table = Table(title="Running Processes")
+    table.add_column("Name", style="cyan")
+    table.add_column("PID", style="green")
+    table.add_column("Status", style="yellow")
+    table.add_column("Started", style="blue")
+    table.add_column("Command")
+    
+    for proc in processes:
+        table.add_row(
+            proc.name,
+            str(proc.pid),
+            proc.status.value,
+            proc.started_at.strftime("%Y-%m-%d %H:%M:%S"),
+            proc.command[:50] + "..." if len(proc.command) > 50 else proc.command,
+        )
+    
+    console.print(table)
+
+
+@app.command()
+def stop(
+    name: str = typer.Argument(help="Process name or PID"),
+    force: bool = typer.Option(False, help="Force kill process"),
+) -> None:
+    """Stop a running process."""
+    manager = ProcessManager()
+    
+    try:
+        pid = int(name)
+        success = manager.stop_by_pid(pid, force=force)
+    except ValueError:
+        success = manager.stop_by_name(name, force=force)
+    
+    if success:
+        console.print(f"[green]✓[/green] Process '{name}' stopped")
+    else:
+        console.print(f"[red]✗[/red] Failed to stop process '{name}'")
+        raise typer.Exit(1)
+
+
+@app.command()
+def logs(
+    name: str = typer.Argument(help="Process name or PID"),
+    follow: bool = typer.Option(False, "-f", help="Follow log output"),
+    lines: int = typer.Option(50, "-n", help="Number of lines to show"),
+) -> None:
+    """Show process logs."""
+    manager = ProcessManager()
+    
+    try:
+        pid = int(name)
+        log_file = manager.get_log_file_by_pid(pid)
+    except ValueError:
+        log_file = manager.get_log_file_by_name(name)
+    
+    if not log_file or not log_file.exists():
+        console.print(f"[yellow]No logs found for process '{name}'[/yellow]")
+        return
+    
+    if follow:
+        with console.status(f"Following logs for '{name}'..."):
+            asyncio.run(manager.tail_logs(log_file, console))
+    else:
+        with open(log_file) as f:
+            lines_list = f.readlines()
+            for line in lines_list[-lines:]:
+                console.print(line, end="")
+
+
+@app.command()
+def monitor() -> None:
+    """Monitor all running processes."""
+    manager = ProcessManager()
+    
+    def generate_table() -> Table:
+        """Generate process monitoring table."""
+        processes = manager.list_processes()
+        
+        table = Table(title="Process Monitor")
+        table.add_column("Name", style="cyan")
+        table.add_column("PID", style="green")
+        table.add_column("Status", style="yellow")
+        table.add_column("CPU %", style="blue")
+        table.add_column("Memory", style="magenta")
+        table.add_column("Runtime")
+        
+        for proc in processes:
+            stats = manager.get_process_stats(proc.pid)
+            if stats:
+                table.add_row(
+                    proc.name,
+                    str(proc.pid),
+                    proc.status.value,
+                    f"{stats.cpu_percent:.1f}",
+                    f"{stats.memory_mb:.1f} MB",
+                    stats.runtime,
+                )
+        
+        return table
+    
+    try:
+        with Live(generate_table(), console=console, refresh_per_second=1) as live:
+            while True:
+                time.sleep(1)
+                live.update(generate_table())
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Monitoring stopped[/yellow]")
+
+
+@app.command()
+def restart(
+    name: str = typer.Argument(help="Process name to restart"),
+) -> None:
+    """Restart a process."""
+    manager = ProcessManager()
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Restarting process...", total=3)
+        
+        progress.update(task, description="Stopping process...")
+        stopped = manager.stop_by_name(name)
+        progress.advance(task)
+        
+        if not stopped:
+            console.print(f"[red]✗[/red] Process '{name}' not found")
+            raise typer.Exit(1)
+        
+        progress.update(task, description="Waiting...")
+        time.sleep(1)
+        progress.advance(task)
+        
+        progress.update(task, description="Starting process...")
+        proc_info = manager.get_process_info(name)
+        if proc_info:
+            pid = manager.start_background(
+                proc_info.command,
+                name,
+                auto_restart=proc_info.auto_restart,
+            )
+            progress.advance(task)
+            
+            console.print(f"[green]✓[/green] Process '{name}' restarted (PID: {pid})")
+        else:
+            console.print(f"[red]✗[/red] Could not restart process '{name}'")
+            raise typer.Exit(1)

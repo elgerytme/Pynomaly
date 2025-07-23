@@ -1,0 +1,87 @@
+"""Main CLI application."""
+
+import typer
+from rich import print
+from rich.console import Console
+from rich.table import Table
+
+from {{package_name}} import __version__
+from {{package_name}}.commands import config, data, process
+from {{package_name}}.core.config import settings
+from {{package_name}}.core.logging import setup_logging
+
+console = Console()
+
+app = typer.Typer(
+    name="{{package_name}}",
+    help="{{description}}",
+    no_args_is_help=True,
+    pretty_exceptions_show_locals=False,
+)
+
+app.add_typer(config.app, name="config", help="Configuration management commands")
+app.add_typer(data.app, name="data", help="Data processing commands")
+app.add_typer(process.app, name="process", help="Process management commands")
+
+
+def version_callback(value: bool) -> None:
+    """Show version and exit."""
+    if value:
+        print(f"{{package_name}} version: {__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        None,
+        "--version",
+        "-v",
+        help="Show version and exit.",
+        callback=version_callback,
+        is_eager=True,
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Enable verbose output",
+    ),
+    debug: bool = typer.Option(
+        False,
+        "--debug",
+        help="Enable debug mode",
+    ),
+) -> None:
+    """{{description}}"""
+    setup_logging(verbose=verbose, debug=debug)
+
+
+@app.command()
+def info() -> None:
+    """Show application information."""
+    table = Table(title="{{package_name}} Information")
+    table.add_column("Property", style="cyan")
+    table.add_column("Value", style="green")
+    
+    table.add_row("Version", __version__)
+    table.add_row("Config File", str(settings.config_file))
+    table.add_row("Data Directory", str(settings.data_dir))
+    table.add_row("Log Level", settings.log_level)
+    
+    console.print(table)
+
+
+@app.command()
+def init() -> None:
+    """Initialize {{package_name}} configuration."""
+    with console.status("[bold green]Initializing {{package_name}}..."):
+        settings.init_config()
+        settings.data_dir.mkdir(parents=True, exist_ok=True)
+        
+    console.print("[green]✓[/green] Configuration initialized")
+    console.print(f"[blue]Config file:[/blue] {settings.config_file}")
+    console.print(f"[blue]Data directory:[/blue] {settings.data_dir}")
+
+
+if __name__ == "__main__":
+    app()

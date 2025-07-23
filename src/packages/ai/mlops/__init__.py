@@ -1,29 +1,61 @@
-"""Core MLOps package - domain logic only."""
+"""MLOps Package - ML Operations and Lifecycle Management.
 
-__version__ = "0.3.0"
+This package provides comprehensive MLOps capabilities following DDD architecture:
+- Model versioning and registry
+- Experiment tracking and management
+- Model deployment and serving
+- Pipeline orchestration
+- Model governance and compliance
+"""
 
-# Core MLOps domain functionality
+__version__ = "0.1.0"
+__author__ = "AI Team"
+__email__ = "ai-team@company.com"
+
+# Domain layer exports
+from .domain.entities.model import Model
+from .domain.entities.model_version import ModelVersion
+from .domain.entities.experiment import Experiment
+from .domain.entities.pipeline import Pipeline
+from .domain.entities.deployment import Deployment
+
+# Domain services - using try/except to handle missing dependencies gracefully
 try:
-    from .src.mlops.domain.entities.model import Model, ModelType, ModelStage
-    from .services.experiment_tracking_service import ExperimentTrackingService
-    from .services.model_registry_service import ModelRegistryService
-    
-    __all__ = [
-        "__version__",
-        # Core entities
-        "Model", "ModelType", "ModelStage",
-        # Core services
-        "ExperimentTrackingService", "ModelRegistryService",
-    ]
+    from .domain.services.model_management_service import ModelManagementService
 except ImportError:
-    # Graceful degradation if dependencies not available
-    __all__ = ["__version__"]
+    ModelManagementService = None
 
-# Note: Enterprise features and platform integrations have been moved to:
-# - Enterprise services: packages/enterprise/
-# - Platform integrations: packages/integrations/
-# - Configuration compositions: packages/configurations/
-#
-# Use configuration packages to compose complete MLOps solutions:
-#   from configurations.basic.mlops_basic import create_basic_mlops_config
-#   from configurations.enterprise.mlops_enterprise import create_enterprise_mlops_config
+try:
+    from .domain.services.experiment_tracking_service import ExperimentTrackingService
+except ImportError:
+    ExperimentTrackingService = None
+
+# Application layer exports - using try/except for graceful degradation
+try:
+    from .application.use_cases.create_model_use_case import CreateModelUseCase
+except ImportError:
+    CreateModelUseCase = None
+
+try:
+    from .application.services.ml_lifecycle_service import MLLifecycleService  
+except ImportError:
+    MLLifecycleService = None
+
+__all__ = [
+    "__version__",
+    "__author__", 
+    "__email__",
+    # Domain entities
+    "Model",
+    "ModelVersion",
+    "Experiment", 
+    "Pipeline",
+    "Deployment",
+    # Domain services (may be None if imports fail)
+    "ModelManagementService",
+    "ExperimentTrackingService",
+    # Application use cases (may be None if imports fail)
+    "CreateModelUseCase",
+    # Application services (may be None if imports fail)
+    "MLLifecycleService",
+]
