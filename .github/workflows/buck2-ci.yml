@@ -218,8 +218,8 @@ jobs:
 
     - name: Build complete monorepo
       run: |
-        echo "🏗️ Building complete Pynomaly monorepo..."
-        buck2 build //:pynomaly \
+        echo "🏗️ Building complete anomaly detection monorepo..."
+        buck2 build //:anomaly-detection \
           --config python.toolchain=system
 
     - name: Run all tests
@@ -231,7 +231,7 @@ jobs:
     - name: Validate dependency graph
       run: |
         echo "📊 Validating dependency relationships..."
-        buck2 cquery "deps(//:pynomaly)" --output-attribute buck.type
+        buck2 cquery "deps(//:anomaly-detection)" --output-attribute buck.type
 
     - name: Generate build report
       run: |

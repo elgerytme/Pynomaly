@@ -1,8 +1,8 @@
 [project]
-name = "anomaly_detection-enterprise-auth"
+name = "data-intelligence-enterprise-auth"
 dynamic = ["version"]
-description = "Enterprise authentication and authorization for anomaly_detection"
-authors = [{name = "anomaly_detection Enterprise Team", email = "enterprise@anomaly_detection.org"}]
+description = "Enterprise authentication and authorization for data-intelligence"
+authors = [{name = "Data Intelligence Enterprise Team", email = "enterprise@data-intelligence.org"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
@@ -141,14 +141,14 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/anomaly_detection"
-Repository = "https://github.com/yourusername/anomaly_detection"
-Documentation = "https://docs.anomaly_detection.org/enterprise/auth"
-Issues = "https://github.com/yourusername/anomaly_detection/issues"
-Changelog = "https://github.com/yourusername/anomaly_detection/blob/main/src/packages/enterprise/enterprise_auth/CHANGELOG.md"
+Homepage = "https://github.com/yourusername/data-intelligence"
+Repository = "https://github.com/yourusername/data-intelligence"
+Documentation = "https://docs.data-intelligence.org/enterprise/auth"
+Issues = "https://github.com/yourusername/data-intelligence/issues"
+Changelog = "https://github.com/yourusername/data-intelligence/blob/main/src/packages/enterprise/enterprise_auth/CHANGELOG.md"
 
 [project.scripts]
-anomaly_detection-enterprise-auth = "enterprise_auth.presentation.cli.main:app"
+data-intelligence-enterprise-auth = "enterprise_auth.presentation.cli.main:app"
 
 [tool.hatch.version]
 source = "vcs"

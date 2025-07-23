@@ -1,12 +1,12 @@
 [project]
-name = "pynomaly-data-transformation"
+name = "data-intelligence-data-transformation"
 dynamic = ["version"]
 description = "Advanced data transformation and feature engineering for machine learning"
-authors = [{name = "Development Team", email = "team@pynomaly.io"}]
+authors = [{name = "Development Team", email = "team@data-intelligence.com"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
-keywords = ["data-transformation", "feature-engineering", "data-processing", "machine-learning"]
+keywords = ["data-transformation", "feature-engineering", "data-processing", "machine-learning", "data-intelligence"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -108,7 +108,7 @@ test = [
 ]
 
 all = [
-    "pynomaly-data-transformation[enhanced,database,cloud,streaming,feature-engineering,quality]"
+    "data-intelligence-data-transformation[enhanced,database,cloud,streaming,feature-engineering,quality]"
 ]
 
 [tool.hatch.version]

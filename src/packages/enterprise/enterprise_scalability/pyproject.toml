@@ -1,8 +1,8 @@
 [project]
-name = "anomaly_detection-enterprise-scalability"
+name = "data-intelligence-enterprise-scalability"
 dynamic = ["version"]
-description = "Enterprise scalability with distributed computing and streaming for anomaly_detection"
-authors = [{name = "anomaly_detection Enterprise Team", email = "enterprise@anomaly_detection.org"}]
+description = "Enterprise scalability with distributed computing and streaming for data-intelligence"
+authors = [{name = "Data Intelligence Enterprise Team", email = "enterprise@data-intelligence.org"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,7 +13,7 @@ keywords = [
     "dask", 
     "ray",
     "enterprise",
-    "anomaly-detection",
+    "data-intelligence",
     "machine-learning"
 ]
 classifiers = [
@@ -230,14 +230,14 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/anomaly_detection"
-Repository = "https://github.com/yourusername/anomaly_detection"
-Documentation = "https://docs.anomaly_detection.org/enterprise/scalability"
-Issues = "https://github.com/yourusername/anomaly_detection/issues"
-Changelog = "https://github.com/yourusername/anomaly_detection/blob/main/src/packages/enterprise/enterprise_scalability/CHANGELOG.md"
+Homepage = "https://github.com/yourusername/data-intelligence"
+Repository = "https://github.com/yourusername/data-intelligence"
+Documentation = "https://docs.data-intelligence.org/enterprise/scalability"
+Issues = "https://github.com/yourusername/data-intelligence/issues"
+Changelog = "https://github.com/yourusername/data-intelligence/blob/main/src/packages/enterprise/enterprise_scalability/CHANGELOG.md"
 
 [project.scripts]
-anomaly_detection-enterprise-scalability = "enterprise_scalability.presentation.cli.main:app"
+data-intelligence-enterprise-scalability = "enterprise_scalability.presentation.cli.main:app"
 
 [tool.hatch.version]
 source = "vcs"

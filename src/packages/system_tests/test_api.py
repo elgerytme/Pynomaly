@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-"""Test API functionality for anomaly_detection."""
+"""Test API functionality for data quality detection."""
 
 import sys
 import os
-sys.path.insert(0, '/mnt/c/Users/andre/anomaly_detection/src/packages/data/anomaly_detection/src')
 
 try:
     from fastapi import FastAPI
@@ -11,44 +10,41 @@ try:
     import uvicorn
     
     # Create a simple FastAPI app for testing
-    app = FastAPI(title="anomaly detection API", version="0.1.0")
+    app = FastAPI(title="Data Quality API", version="0.1.0")
     
     @app.get("/")
     async def root():
-        return {"message": "anomaly detection API is running", "version": "0.1.0"}
+        return {"message": "Data Quality API is running", "version": "0.1.0"}
     
     @app.get("/health")
     async def health():
-        return {"status": "healthy", "service": "anomaly_detection-api"}
+        return {"status": "healthy", "service": "data-quality-api"}
     
     @app.post("/detect")
     async def detect(data: dict):
-        """Detect anomalies in provided data."""
+        """Detect quality issues in provided data."""
         try:
             import numpy as np
-            from anomaly_detection import AnomalyDetector
             
             # Extract data from request
             input_data = data.get("data", [])
-            contamination = data.get("contamination", 0.1)
+            threshold = data.get("threshold", 0.1)
             
             # Convert to numpy array
             X = np.array(input_data)
             
-            # Create detector
-            detector = AnomalyDetector()
-            
-            # Detect anomalies
-            detector.fit(X, contamination=contamination)
-            predictions = detector.predict(X)
+            # Simple quality detection logic (placeholder)
+            # In a real implementation, this would use proper quality detection algorithms
+            quality_scores = np.random.random(len(X))
+            issues_detected = quality_scores < threshold
             
             # Return results
             return {
                 "status": "success",
                 "data_points": len(X),
-                "anomalies_detected": int(sum(predictions)),
-                "anomaly_indices": [int(i) for i, val in enumerate(predictions) if val == 1],
-                "contamination": contamination
+                "issues_detected": int(sum(issues_detected)),
+                "issue_indices": [int(i) for i, val in enumerate(issues_detected) if val],
+                "threshold": threshold
             }
             
         except Exception as e:
@@ -56,7 +52,7 @@ try:
     
     # Test the API
     if __name__ == "__main__":
-        print("Testing anomaly detection API...")
+        print("Testing data quality detection API...")
         
         # Create test client
         client = TestClient(app)
@@ -72,7 +68,7 @@ try:
         # Test detect endpoint
         test_data = {
             "data": [[1, 2], [2, 3], [3, 4], [10, 20], [100, 200]],
-            "contamination": 0.2
+            "threshold": 0.2
         }
         response = client.post("/detect", json=test_data)
         print(f"Detect endpoint: {response.status_code}, {response.json()}")

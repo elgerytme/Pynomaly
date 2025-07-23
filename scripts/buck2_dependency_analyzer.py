@@ -62,7 +62,7 @@ class Buck2DependencyAnalyzer:
             "//:enterprise-governance",
             "//:enterprise-scalability",
             "//:enterprise-all",
-            "//:pynomaly"
+            "//:anomaly-detection"
         ]
     
     def analyze_dependencies(self, targets: List[str]) -> None:
@@ -108,7 +108,7 @@ class Buck2DependencyAnalyzer:
                    "//:data-observability", "//:data-profiling"]
         elif target == "//:enterprise-all":
             deps = ["//:enterprise-auth", "//:enterprise-governance", "//:enterprise-scalability"]
-        elif target == "//:pynomaly":
+        elif target == "//:anomaly-detection":
             deps = ["//:ai-all", "//:data-all", "//:enterprise-all"]
         
         # Cross-domain dependencies (inferred)
@@ -160,7 +160,7 @@ class Buck2DependencyAnalyzer:
     
     def _estimate_complexity(self, target: str) -> str:
         """Estimate target complexity based on naming"""
-        if target.endswith('-all') or target == '//:pynomaly':
+        if target.endswith('-all') or target == '//:anomaly-detection':
             return 'high'
         elif any(keyword in target for keyword in ['mlops', 'scalability', 'governance']):
             return 'high'

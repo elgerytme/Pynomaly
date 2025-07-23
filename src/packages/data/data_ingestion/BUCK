@@ -1,13 +1,13 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Data Intelligence Python Package - Standardized Buck2 Configuration
 # Domain: data
 # Package: data_ingestion
 # Type: microservice
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:data_intelligence_python_package.bzl", "data_intelligence_python_package")
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")
+load("//tools/buck:data_intelligence_python_package.bzl", "data_intelligence_microservice")
 
-pynomaly_microservice(
+data_intelligence_microservice(
     name = "data_ingestion",
     domain = "data",
     main_module = "data_ingestion.main",  # Adjust as needed

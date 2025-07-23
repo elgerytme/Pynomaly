@@ -13,15 +13,10 @@ load("//tools/buck:security_compliance.bzl", "create_security_suite", "create_co
 load("//tools/buck:analytics_dashboard.bzl", "create_analytics_suite")
 
 # ==========================================
-# AI DOMAIN - Machine Learning and Data Analytics
+# AI DOMAIN - Machine Learning
 # ==========================================
 
-# Reference to self-contained package-level targets (moved to data domain)
-alias(
-    name = "data-anomaly-detection",
-    actual = "//src/packages/data/anomaly_detection:anomaly_detection",
-    visibility = ["PUBLIC"],
-)
+# Reference to self-contained package-level targets
 
 alias(
     name = "ai-machine-learning", 
@@ -126,16 +121,7 @@ python_binary(
     visibility = ["PUBLIC"],
 )
 
-# Anomaly Detection CLI  
-python_binary(
-    name = "anomaly-detection-cli",
-    main = "src/packages/data/anomaly_detection/cli/__init__.py", 
-    deps = [
-        ":data-anomaly-detection",
-        "//third-party/python:click",
-    ],
-    visibility = ["PUBLIC"],
-)
+# Data Engineering CLI applications are provided by individual packages
 
 # ==========================================
 # TEST TARGETS - Automated Testing
@@ -166,7 +152,6 @@ python_test_suite(
         "src/packages/data/**/tests/**/*.py",
     ]),
     deps = [
-        ":data-anomaly-detection",
         ":data-analytics",
         ":data-engineering",
         ":data-quality",
@@ -211,7 +196,6 @@ python_library(
 python_library(
     name = "data-all",
     deps = [
-        ":data-anomaly-detection",
         ":data-analytics",
         ":data-engineering", 
         ":data-quality",
@@ -234,7 +218,7 @@ python_library(
 
 # Complete Monorepo
 python_library(
-    name = "anomaly-detection",
+    name = "data-intelligence",
     deps = [
         ":ai-all",
         ":data-all", 
@@ -249,18 +233,18 @@ python_library(
 
 # API Client Generation (example)
 # openapi_python_client(
-#     name = "anomaly-detection-api-client",
+#     name = "data-intelligence-api-client",
 #     openapi_spec = "docs/api/openapi.yaml",
-#     client_name = "AnomalyDetectionClient",
+#     client_name = "DataIntelligenceClient",
 #     visibility = ["PUBLIC"],
 # )
 
 # ML Model Artifacts (example)
 # ml_model_artifacts(
-#     name = "anomaly-detection-models",
-#     model_script = "src/packages/data/anomaly_detection/scripts/train_model.py",
+#     name = "data-intelligence-models",
+#     model_script = "src/packages/data/data_analytics/scripts/train_model.py",
 #     training_data = [
-#         "data/training/anomaly_dataset.csv",
+#         "data/training/analytics_dataset.csv",
 #     ],
 #     model_config = "configs/model_config.yaml",
 #     output_formats = ["pkl", "onnx", "tensorflow"],
@@ -269,14 +253,14 @@ python_library(
 
 # Docker Images
 docker_image_build(
-    name = "anomaly-detection-api-image",
+    name = "data-intelligence-api-image",
     dockerfile = "docker/api/Dockerfile",
     srcs = [
-        ":anomaly-detection",
+        ":data-intelligence",
     ],
     tags = [
-        "anomaly-detection/api:latest",
-        "anomaly-detection/api:v0.1.0",
+        "data-intelligence/api:latest",
+        "data-intelligence/api:v0.1.0",
     ],
     build_args = {
         "PYTHON_VERSION": "3.11",
@@ -287,7 +271,7 @@ docker_image_build(
 
 # Documentation Site
 documentation_site(
-    name = "anomaly-detection-docs",
+    name = "data-intelligence-docs",
     markdown_files = glob([
         "docs/**/*.md",
         "README.md",
@@ -305,7 +289,7 @@ documentation_site(
 build_metrics_collector(
     name = "build-metrics-collector",
     targets = [
-        "//:anomaly-detection",
+        "//:data-intelligence",
         "//:ai-all",
         "//:data-all", 
         "//:enterprise-all"
@@ -378,7 +362,6 @@ create_import_validation_suite(
         "ai.machine_learning": [":ai-machine-learning"],
         "ai.mlops": [":ai-mlops"],
         "ai.neuro_symbolic": [":ai-neuro-symbolic"],
-        "data.anomaly_detection": [":data-anomaly-detection"],
         "data.analytics": [":data-analytics"],
         "data.engineering": [":data-engineering"],
         "data.quality": [":data-quality"],
@@ -399,7 +382,6 @@ create_import_fix_suite(
         "ai.machine_learning": [":ai-machine-learning"],
         "ai.mlops": [":ai-mlops"],
         "ai.neuro_symbolic": [":ai-neuro-symbolic"],
-        "data.anomaly_detection": [":data-anomaly-detection"],
         "data.analytics": [":data-analytics"],
         "data.engineering": [":data-engineering"],
         "data.quality": [":data-quality"],
@@ -429,7 +411,7 @@ create_standard_tox_integration(
 create_performance_monitoring_suite(
     name = "performance-monitoring",
     targets = [
-        "//:anomaly-detection",
+        "//:data-intelligence",
         "//:ai-all",
         "//:data-all", 
         "//:enterprise-all"
@@ -480,7 +462,7 @@ alias(
 create_analytics_suite(
     name = "build-analytics",
     targets = [
-        "//:anomaly-detection",
+        "//:data-intelligence",
         "//:ai-all",
         "//:data-all",
         "//:enterprise-all"
@@ -495,7 +477,7 @@ create_analytics_suite(
 create_security_compliance_suite(
     name = "security-compliance",
     targets = [
-        "//:anomaly-detection",
+        "//:data-intelligence",
         "//:ai-all",
         "//:data-all", 
         "//:enterprise-all"

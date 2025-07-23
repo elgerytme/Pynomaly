@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-anomaly_detection Terminology Replacement Script
-======================================
-Systematically replace anomaly_detection references with appropriate contextual terms.
+Pynomaly Terminology Replacement Script
+=======================================
+Systematically replace pynomaly references with appropriate contextual terms.
 """
 
 import os
@@ -12,7 +12,7 @@ from typing import Dict, List, Tuple
 
 
 class TerminologyReplacer:
-    """Replaces anomaly_detection terminology with contextually appropriate terms"""
+    """Replaces pynomaly terminology with contextually appropriate terms"""
     
     def __init__(self, repository_root: Path):
         self.repository_root = repository_root
@@ -154,7 +154,7 @@ class TerminologyReplacer:
             'errors': []
         }
         
-        print("🔍 Scanning repository for anomaly_detection references...")
+        print("🔍 Scanning repository for pynomaly references...")
         
         # Walk through all files
         for file_path in self.repository_root.rglob('*'):
@@ -192,7 +192,7 @@ class TerminologyReplacer:
         errors = len(results['errors'])
         
         report = f"""
-anomaly_detection Terminology Replacement Report
+Pynomaly Terminology Replacement Report
 =======================================
 
 ## Summary
@@ -220,7 +220,7 @@ def main():
     """Main entry point"""
     repository_root = Path(__file__).parent.parent
     
-    print("🔄 Starting anomaly_detection terminology replacement...")
+    print("🔄 Starting pynomaly terminology replacement...")
     print(f"📁 Repository root: {repository_root}")
     
     replacer = TerminologyReplacer(repository_root)
@@ -246,7 +246,7 @@ def main():
         print(f"\n⚠️  {len(results['errors'])} errors occurred during processing")
         return 1
     
-    print("\n✅ anomaly_detection terminology replacement completed successfully!")
+    print("\n✅ Pynomaly terminology replacement completed successfully!")
     return 0
 
 

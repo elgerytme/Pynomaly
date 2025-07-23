@@ -1,8 +1,8 @@
 [project]
-name = "anomaly_detection-enterprise-governance"
+name = "data-intelligence-enterprise-governance"
 dynamic = ["version"]
-description = "Enterprise governance, audit, and compliance for anomaly_detection"
-authors = [{name = "anomaly_detection Enterprise Team", email = "enterprise@anomaly_detection.org"}]
+description = "Enterprise governance, audit, and compliance for data-intelligence"
+authors = [{name = "Data Intelligence Enterprise Team", email = "enterprise@data-intelligence.org"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
@@ -177,14 +177,14 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/anomaly_detection"
-Repository = "https://github.com/yourusername/anomaly_detection"
-Documentation = "https://docs.anomaly_detection.org/enterprise/governance"
-Issues = "https://github.com/yourusername/anomaly_detection/issues"
-Changelog = "https://github.com/yourusername/anomaly_detection/blob/main/src/packages/enterprise/enterprise_governance/CHANGELOG.md"
+Homepage = "https://github.com/yourusername/data-intelligence"
+Repository = "https://github.com/yourusername/data-intelligence"
+Documentation = "https://docs.data-intelligence.org/enterprise/governance"
+Issues = "https://github.com/yourusername/data-intelligence/issues"
+Changelog = "https://github.com/yourusername/data-intelligence/blob/main/src/packages/enterprise/enterprise_governance/CHANGELOG.md"
 
 [project.scripts]
-anomaly_detection-enterprise-governance = "enterprise_governance.presentation.cli.main:app"
+data-intelligence-enterprise-governance = "enterprise_governance.presentation.cli.main:app"
 
 [tool.hatch.version]
 source = "vcs"

@@ -1,11 +1,11 @@
-# Pynomaly Python Package - Standardized Buck2 Configuration
+# Data Intelligence Python Package - Standardized Buck2 Configuration
 # Domain: data
 # Package: statistics
 # Type: standard
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:data_intelligence_python_package.bzl", "data_intelligence_python_package")
 
-pynomaly_python_package(
+data_intelligence_python_package(
     name = "statistics",
     domain = "data",
     visibility = ["PUBLIC"],

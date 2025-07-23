@@ -506,7 +506,7 @@ def quick_optimize(
                 await _monitor_job(service, job.job_id)
             else:
                 rprint(
-                    f"[blue]To monitor progress: anomaly_detection training status {job.job_id} --detailed[/blue]"
+                    f"[blue]To monitor progress: mlops training status {job.job_id} --detailed[/blue]"
                 )
 
         except Exception as e:

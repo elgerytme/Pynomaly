@@ -4,7 +4,7 @@ Buck2 Standardized Macro Migration
 ==================================
 
 Migrates existing package BUCK files to use the new standardized
-pynomaly_python_package macros and rules.
+anomalies_python_package macros and rules.
 
 Part of Phase 2.2 of the Buck2 enhancement roadmap.
 """
@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 class BuckMacroMigrator:
     """
-    Migrates existing BUCK files to use standardized Pynomaly macros.
+    Migrates existing BUCK files to use standardized Anomaly Detection macros.
     """
     
     def __init__(self, repository_root: Path = None, dry_run: bool = False):
@@ -192,37 +192,37 @@ class BuckMacroMigrator:
         
         # Generate new content
         content_parts = [
-            "# Pynomaly Python Package - Standardized Buck2 Configuration",
+            "# Anomaly Detection Python Package - Standardized Buck2 Configuration",
             f"# Domain: {domain}",
             f"# Package: {package_name}",
             f"# Type: {package_type}",
             "",
-            'load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")',
+            'load("//tools/buck:anomaly_detection_python_package.bzl", "anomaly_detection_python_package")',
             ""
         ]
         
         # Generate package rule based on type
         if package_type == 'standard':
             content_parts.extend([
-                "pynomaly_python_package(",
+                "anomaly_detection_python_package(",
                 f'    name = "{package_name}",',
                 f'    domain = "{domain}",',
             ])
             
         elif package_type == 'ml':
             content_parts.extend([
-                'load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_ml_package")',
+                'load("//tools/buck:anomaly_detection_python_package.bzl", "anomaly_detection_ml_package")',
                 "",
-                "pynomaly_ml_package(",
+                "anomaly_detection_ml_package(",
                 f'    name = "{package_name}",',
                 '    frameworks = ["sklearn"],  # Adjust as needed',
             ])
             
         elif package_type == 'microservice':
             content_parts.extend([
-                'load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_microservice")', 
+                'load("//tools/buck:anomaly_detection_python_package.bzl", "anomaly_detection_microservice")', 
                 "",
-                "pynomaly_microservice(",
+                "anomaly_detection_microservice(",
                 f'    name = "{package_name}",',
                 f'    domain = "{domain}",',
                 f'    main_module = "{package_name}.main",  # Adjust as needed',
@@ -230,9 +230,9 @@ class BuckMacroMigrator:
             
         elif package_type == 'cli':
             content_parts.extend([
-                'load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_cli_package")',
+                'load("//tools/buck:anomaly_detection_python_package.bzl", "anomaly_detection_cli_package")',
                 "",
-                "pynomaly_cli_package(",
+                "anomaly_detection_cli_package(",
                 f'    name = "{package_name}",',
                 f'    domain = "{domain}",',
                 f'    cli_module = "{package_name}.cli.main",  # Adjust as needed',
@@ -335,7 +335,7 @@ class BuckMacroMigrator:
                 content = buck_file.read_text()
                 
                 # Check for basic Buck2 syntax
-                if 'pynomaly_python_package' in content or 'pynomaly_' in content:
+                if 'anomaly_detection_python_package' in content or 'anomaly_detection_' in content:
                     # Check for balanced parentheses
                     if content.count('(') == content.count(')'):
                         validation_results[str(buck_file)] = True
@@ -357,6 +357,7 @@ class BuckMacroMigrator:
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(description="Migrate BUCK files to use standardized Pynomaly macros")
+    parser = argparse.ArgumentParser(description="Migrate BUCK files to use standardized Anomaly Detection macros")
     parser.add_argument('--repository-root', type=str, default=".", help="Repository root directory")
     parser.add_argument('--dry-run', action='store_true', help="Show what would be changed without making changes")
     parser.add_argument('--validate', action='store_true', help="Validate migrated BUCK files")

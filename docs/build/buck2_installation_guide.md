@@ -51,7 +51,7 @@ buck2 --version
 buck2 targets //...
 
 # Test basic build
-buck2 build //:pynomaly
+buck2 build //:anomaly-detection
 ```
 
 ## Available Build Targets
@@ -79,7 +79,7 @@ buck2 build //:enterprise-scalability
 buck2 build //:ai-all
 buck2 build //:data-all
 buck2 build //:enterprise-all
-buck2 build //:pynomaly  # Complete monorepo
+buck2 build //:anomaly-detection  # Complete monorepo
 ```
 
 ### CLI Targets
@@ -129,7 +129,7 @@ buck2 test //...
 ### Development Workflow  
 ```bash
 # Daily development cycle
-buck2 build //:pynomaly          # Build all packages
+buck2 build //:anomaly-detection          # Build all packages
 buck2 test //...                 # Run all tests  
 buck2 run //:data-engineering-cli  # Test CLI applications
 ```

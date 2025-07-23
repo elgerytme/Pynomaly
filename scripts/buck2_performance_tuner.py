@@ -104,7 +104,7 @@ class Buck2PerformanceTuner:
             
             # Run build with cache stats
             result = subprocess.run(
-                ['buck2', 'build', '//:pynomaly', '--show-output'],
+                ['buck2', 'build', '//:anomaly-detection', '--show-output'],
                 capture_output=True, text=True
             )
             
@@ -209,7 +209,7 @@ class Buck2PerformanceTuner:
             '//:ai-anomaly-detection',
             '//:data-engineering', 
             '//:enterprise-auth',
-            '//:pynomaly'
+            '//:anomaly-detection'
         ]
         
         suite_results = {
@@ -321,8 +321,8 @@ def main():
     )
     parser.add_argument(
         "--target",
-        default="//:pynomaly",
-        help="Target to benchmark (default: //:pynomaly)"
+        default="//:anomaly-detection",
+        help="Target to benchmark (default: //:anomaly-detection)"
     )
     parser.add_argument(
         "--verbose",

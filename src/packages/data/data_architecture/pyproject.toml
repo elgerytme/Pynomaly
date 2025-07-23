@@ -3,7 +3,7 @@ name = "data-architecture"
 version = "0.1.0" 
 description = "Data architecture patterns and frameworks"
 authors = [
-    {name = "Development Team", email = "team@pynomaly.com"}
+    {name = "Development Team", email = "team@data-intelligence.com"}
 ]
 license = {text = "MIT"}
 readme = "docs/README.md"
@@ -107,11 +107,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pynomaly/pynomaly"
-Documentation = "https://github.com/pynomaly/pynomaly/tree/main/src/packages/data/data_architecture/docs"
-Repository = "https://github.com/pynomaly/pynomaly"
-"Bug Tracker" = "https://github.com/pynomaly/pynomaly/issues"
-Changelog = "https://github.com/pynomaly/pynomaly/blob/main/src/packages/data/data_architecture/docs/CHANGELOG.md"
+Homepage = "https://github.com/data-intelligence/data-intelligence"
+Documentation = "https://github.com/data-intelligence/data-intelligence/tree/main/src/packages/data/data_architecture/docs"
+Repository = "https://github.com/data-intelligence/data-intelligence"
+"Bug Tracker" = "https://github.com/data-intelligence/data-intelligence/issues"
+Changelog = "https://github.com/data-intelligence/data-intelligence/blob/main/src/packages/data/data_architecture/docs/CHANGELOG.md"
 
 [project.scripts]
 data-architecture = "data_architecture.cli:main"

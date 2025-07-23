@@ -130,7 +130,7 @@ DEBUG_PORT=$((isolated_port + 2))
 MONITORING_PORT=$((isolated_port + 3))
 
 # Database settings (isolated)
-DATABASE_NAME=pynomaly_${scope_type}_${scope_id}
+DATABASE_NAME=anomaly_detection_${scope_type}_${scope_id}
 TEST_DATABASE_PREFIX=test_${scope_type}_${scope_id}_
 
 # Logging settings (isolated)
@@ -183,7 +183,7 @@ services:
     environment:
       - ISOLATION_SCOPE=$scope_type
       - ISOLATION_ID=$scope_id
-      - DATABASE_NAME=pynomaly_${scope_type}_${scope_id}
+      - DATABASE_NAME=anomaly_detection_${scope_type}_${scope_id}
     volumes:
       - $workspace_dir/logs:/app/logs
       - $workspace_dir/temp:/app/temp
@@ -199,7 +199,7 @@ services:
     
   database:
     environment:
-      - POSTGRES_DB=pynomaly_${scope_type}_${scope_id}
+      - POSTGRES_DB=anomaly_detection_${scope_type}_${scope_id}
     volumes:
       - ${scope_type}_${scope_id}_postgres_data:/var/lib/postgresql/data
     
@@ -208,7 +208,7 @@ services:
     
 volumes:
   ${scope_type}_${scope_id}_postgres_data:
-    name: pynomaly_${scope_type}_${scope_id}_postgres_data
+    name: anomaly_detection_${scope_type}_${scope_id}_postgres_data
 EOF
     
     log_success "Created Docker Compose override: $compose_file"
@@ -291,13 +291,13 @@ global:
     isolation_id: $scope_id
 
 scrape_configs:
-  - job_name: 'pynomaly-api-$scope_type-$scope_id'
+  - job_name: 'anomaly-detection-api-$scope_type-$scope_id'
     static_configs:
       - targets: ['localhost:$((isolated_port + 3))']
     metrics_path: /metrics
     scrape_interval: 5s
     
-  - job_name: 'pynomaly-system-$scope_type-$scope_id'
+  - job_name: 'anomaly-detection-system-$scope_type-$scope_id'
     static_configs:
       - targets: ['localhost:9100']
     scrape_interval: 30s
@@ -307,7 +307,7 @@ EOF
     cat > "$monitoring_dir/grafana-dashboard.json" << EOF
 {
   "dashboard": {
-    "title": "Pynomaly Isolated Environment - $scope_type-$scope_id",
+    "title": "Anomaly Detection Isolated Environment - $scope_type-$scope_id",
     "tags": ["isolation", "$scope_type", "$scope_id"],
     "timezone": "browser",
     "panels": [
@@ -446,7 +446,7 @@ cleanup_isolated_environment() {
         log_success "Removed workspace: $workspace_dir"
         
         # Remove Docker volumes
-        docker volume rm "pynomaly_${scope_type}_${scope_id}_postgres_data" 2>/dev/null || true
+        docker volume rm "anomaly_detection_${scope_type}_${scope_id}_postgres_data" 2>/dev/null || true
         log_success "Removed Docker volumes"
     else
         log_warning "No workspace found for: $scope_type-$scope_id"

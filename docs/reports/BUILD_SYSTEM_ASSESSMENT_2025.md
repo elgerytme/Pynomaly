@@ -1,13 +1,13 @@
 # Build System Assessment Report 2025
-## Pynomaly Monorepo: Buck2, Nx, and Build Infrastructure Analysis
+## Anomaly Detection Monorepo: Buck2, Nx, and Build Infrastructure Analysis
 
 ### Executive Summary
 
 **Date**: January 2025  
 **Assessment Scope**: Complete build system architecture analysis  
-**Primary Finding**: Pynomaly monorepo has implemented a **world-class Buck2 build system** with sophisticated caching, monitoring, and automation
+**Primary Finding**: Anomaly detection monorepo has implemented a **world-class Buck2 build system** with sophisticated caching, monitoring, and automation
 
-The Pynomaly monorepo demonstrates **best-in-class build system architecture** using Buck2 as the primary build orchestrator, with comprehensive Python package management, advanced performance monitoring, and enterprise-grade CI/CD integration. No Nx implementation was found, which is appropriate for this Python-focused monorepo architecture.
+The anomaly detection monorepo demonstrates **best-in-class build system architecture** using Buck2 as the primary build orchestrator, with comprehensive Python package management, advanced performance monitoring, and enterprise-grade CI/CD integration. No Nx implementation was found, which is appropriate for this Python-focused monorepo architecture.
 
 ---
 
@@ -66,7 +66,7 @@ Enterprise Domain: 3 packages
 - **CLI applications**: `data-engineering-cli`, `anomaly-detection-cli`
 - **Test suites**: Domain-aggregated testing (`ai-tests`, `data-tests`, `enterprise-tests`)
 - **Aggregate targets**: Domain rollups (`ai-all`, `data-all`, `enterprise-all`)
-- **Master target**: `:pynomaly` (complete monorepo build)
+- **Master target**: `:anomaly-detection` (complete monorepo build)
 
 #### Advanced Buck2 Features In Use
 
@@ -126,7 +126,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pynomaly-{domain}-{package}"
+name = "anomaly-detection-{domain}-{package}"
 dynamic = ["version"]
 requires-python = ">=3.11"
 ```
@@ -294,7 +294,7 @@ strategy:
 ```python
 build_metrics_collector(
     name = "build-metrics-collector",
-    targets = ["//:pynomaly", "//:ai-all", "//:data-all", "//:enterprise-all"],
+    targets = ["//:anomaly-detection", "//:ai-all", "//:data-all", "//:enterprise-all"],
     metrics_output = "metrics/build_metrics.json",
     enable_profiling = True,
     visibility = ["PUBLIC"],
@@ -378,7 +378,7 @@ compression = zstd
 buck-build:
 	@if command -v buck2 >/dev/null 2>&1; then \
 		echo "Building with Buck2..."; \
-		buck2 build //:pynomaly; \
+		buck2 build //:anomaly-detection; \
 	else \
 		echo "Buck2 not found, falling back to standard build"; \
 		$(MAKE) build; \
@@ -488,7 +488,7 @@ RUN pip install --no-cache-dir -e .
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health')"
 
-CMD ["python", "-m", "pynomaly.api"]
+CMD ["python", "-m", "anomaly_detection.api"]
 ```
 
 **Security Scanning Integration**:
@@ -497,7 +497,7 @@ CMD ["python", "-m", "pynomaly.api"]
   run: |
     docker run --rm -v $(pwd):/src \
       aquasec/trivy image --security-checks vuln \
-      pynomaly/api:latest
+      anomaly-detection/api:latest
 ```
 
 ---
@@ -559,7 +559,7 @@ CMD ["python", "-m", "pynomaly.api"]
 
 ## 7. Nx vs Buck2 Analysis for Python Monorepos
 
-### 7.1 Why Buck2 Over Nx for Pynomaly
+### 7.1 Why Buck2 Over Nx for Anomaly Detection
 
 **Performance Comparison**:
 | Metric | Buck2 | Nx | Analysis |
@@ -588,7 +588,7 @@ CMD ["python", "-m", "pynomaly.api"]
 - **Cloud Features**: Enhanced remote caching and distributed execution
 - **Rust Core**: Performance-critical parts rewritten in Rust
 
-**Relevance to Pynomaly**:
+**Relevance to Anomaly Detection**:
 - **Python-specific features**: Limited compared to Buck2
 - **AI tools**: Interesting but not critical for current needs
 - **Maven/.NET support**: Not relevant for Python monorepo
@@ -733,7 +733,7 @@ http_cache_tls_ca = /etc/ssl/certs/internal-ca.pem
    ```toml
    # Keep metadata and dependencies, remove build-system section
    [project]
-   name = "pynomaly-ai-machine-learning"
+   name = "anomaly-detection-ai-machine-learning"
    # Remove: [build-system] section - handled by Buck2
    ```
 
@@ -788,7 +788,7 @@ http_cache_tls_ca = /etc/ssl/certs/internal-ca.pem
 1. **Create shared macros**:
    ```python
    # tools/buck/python_package.bzl
-   def pynomaly_python_package(name, domain, **kwargs):
+   def anomaly_detection_python_package(name, domain, **kwargs):
        python_library(
            name = name,
            deps = [
@@ -802,9 +802,9 @@ http_cache_tls_ca = /etc/ssl/certs/internal-ca.pem
 
 2. **Update package BUCK files**:
    ```python
-   load("//tools/buck:python_package.bzl", "pynomaly_python_package")
+   load("//tools/buck:python_package.bzl", "anomaly_detection_python_package")
    
-   pynomaly_python_package(
+   anomaly_detection_python_package(
        name = "machine_learning",
        domain = "ai",
        srcs = glob(["**/*.py"]),
@@ -993,7 +993,7 @@ build_monitoring_dashboard(
 
 ### 12.1 Summary Assessment
 
-The Pynomaly monorepo demonstrates **exceptional build system architecture** with a sophisticated Buck2 implementation that rivals industry best practices. The current system includes:
+The anomaly detection monorepo demonstrates **exceptional build system architecture** with a sophisticated Buck2 implementation that rivals industry best practices. The current system includes:
 
 **Strengths**:
 - ✅ **World-class Buck2 implementation** with advanced caching, monitoring, and automation
@@ -1029,7 +1029,7 @@ The Pynomaly monorepo demonstrates **exceptional build system architecture** wit
 
 **Overall Grade: A+ (Exceptional)**
 
-The Pynomaly monorepo build system represents **best-in-class engineering** with sophisticated tooling that exceeds most industry standards. The Buck2 implementation is comprehensive, the Python package management is exemplary, and the CI/CD integration is enterprise-ready.
+The anomaly detection monorepo build system represents **best-in-class engineering** with sophisticated tooling that exceeds most industry standards. The Buck2 implementation is comprehensive, the Python package management is exemplary, and the CI/CD integration is enterprise-ready.
 
 The identified gaps are **minor optimizations** rather than fundamental issues, positioning the project excellently for continued scale and performance improvements. The recommendations focus on **maximizing the existing investment** in Buck2 rather than requiring architectural changes.
 

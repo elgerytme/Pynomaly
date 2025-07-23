@@ -100,7 +100,7 @@ jobs:
     - name: Test run scripts
       run: |
         python scripts/run/cli.py --help
-        python scripts/run/run_pynomaly.py --help
+        python scripts/run/run_anomaly_detection.py --help
         python scripts/run/run_api.py --help
         python scripts/run/run_app.py --help
         timeout 10 python scripts/run/run_web_app.py --help || true

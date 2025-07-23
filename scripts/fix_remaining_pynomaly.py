@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Comprehensive anomaly_detection Reference Cleanup
-=======================================
-Fix ALL remaining anomaly_detection references in the repository.
+Comprehensive Pynomaly Reference Cleanup
+========================================
+Fix ALL remaining pynomaly references in the repository.
 """
 
 import os
@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import Dict, List, Set
 
 
-class ComprehensivePynomaly_Fixer:
-    """Fixes ALL remaining anomaly_detection references"""
+class ComprehensivePynomalyFixer:
+    """Fixes ALL remaining pynomaly references"""
     
     def __init__(self, repository_root: Path):
         self.repository_root = repository_root
@@ -99,11 +99,11 @@ class ComprehensivePynomaly_Fixer:
         return True
     
     def contains_pynomaly(self, content: str) -> bool:
-        """Check if content contains anomaly_detection references"""
-        return bool(re.search(r'anomaly_detection', content, re.IGNORECASE))
+        """Check if content contains pynomaly references"""
+        return bool(re.search(r'pynomaly', content, re.IGNORECASE))
     
     def fix_content(self, content: str, file_path: Path) -> tuple[str, List[str]]:
-        """Fix all anomaly_detection references in content"""
+        """Fix all pynomaly references in content"""
         modified_content = content
         changes = []
         
@@ -125,7 +125,7 @@ class ComprehensivePynomaly_Fixer:
         except (UnicodeDecodeError, OSError) as e:
             return False, [f"Could not read file: {e}"]
         
-        # Skip if no anomaly_detection references
+        # Skip if no pynomaly references
         if not self.contains_pynomaly(original_content):
             return False, []
         
@@ -152,7 +152,7 @@ class ComprehensivePynomaly_Fixer:
             'changed_files': []
         }
         
-        print("🔍 Scanning for remaining anomaly_detection references...")
+        print("🔍 Scanning for remaining pynomaly references...")
         
         for file_path in self.repository_root.rglob('*'):
             if not file_path.is_file():
@@ -188,10 +188,10 @@ def main():
     """Main entry point"""
     repository_root = Path(__file__).parent.parent
     
-    print("🔧 Starting comprehensive anomaly_detection reference cleanup...")
+    print("🔧 Starting comprehensive pynomaly reference cleanup...")
     print(f"📁 Repository root: {repository_root}")
     
-    fixer = ComprehensivePynomaly_Fixer(repository_root)
+    fixer = ComprehensivePynomalyFixer(repository_root)
     results = fixer.fix_all_files()
     
     print(f"\n📊 Final Summary:")
@@ -200,16 +200,16 @@ def main():
     print(f"   Errors: {len(results['errors'])}")
     
     # Verify remaining count
-    print(f"\n🔍 Checking for remaining anomaly_detection references...")
+    print(f"\n🔍 Checking for remaining pynomaly references...")
     import subprocess
     try:
-        result = subprocess.run(['grep', '-ri', 'anomaly_detection', str(repository_root)], 
+        result = subprocess.run(['grep', '-ri', 'pynomaly', str(repository_root)], 
                               capture_output=True, text=True)
         remaining_lines = result.stdout.count('\n') if result.stdout else 0
-        print(f"   Remaining anomaly_detection references: {remaining_lines}")
+        print(f"   Remaining pynomaly references: {remaining_lines}")
         
         if remaining_lines == 0:
-            print("✅ All anomaly_detection references successfully removed!")
+            print("✅ All pynomaly references successfully removed!")
         else:
             print("⚠️ Some references may still remain")
             

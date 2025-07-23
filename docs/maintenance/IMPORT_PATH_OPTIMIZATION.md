@@ -200,7 +200,7 @@ buck2 test //src/packages/data/analytics:import-validation
 
 # Auto-fix imports and rebuild
 buck2 run //:import-fix-all
-buck2 build //:pynomaly
+buck2 build //:anomaly-detection
 ```
 
 ### Pre-commit Hook Integration
@@ -453,7 +453,7 @@ Import validation runs automatically during Buck2 builds:
 
 ```bash
 # Build with import validation
-buck2 build //:pynomaly
+buck2 build //:anomaly-detection
 
 # Run only import validation tests
 buck2 test //:import-validation-all

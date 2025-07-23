@@ -809,3 +809,490 @@ async def get_available_explainers_htmx(
             {"request": request, "error": str(e)},
             status_code=500
         )
+
+
+# Worker Management HTMX Endpoints
+
+# Global worker instance (in production, use proper dependency injection)
+_worker_instance = None
+
+def get_worker_instance():
+    """Get or create worker instance."""
+    global _worker_instance
+    if _worker_instance is None:
+        from ...worker import AnomalyDetectionWorker
+        _worker_instance = AnomalyDetectionWorker(
+            models_dir="./models",
+            max_concurrent_jobs=5,
+            enable_monitoring=True
+        )
+        logger.info("Created new worker instance for web interface")
+    return _worker_instance
+
+
+@router.post("/worker/submit", response_class=HTMLResponse)
+async def submit_worker_job_htmx(
+    request: Request,
+    job_type: str = Form(...),
+    data_source: str = Form(""),
+    algorithm: str = Form("isolation_forest"),
+    contamination: float = Form(0.1),
+    priority: str = Form("normal"),
+    model_name: str = Form(""),
+    output_path: str = Form("")
+):
+    """Submit a job to the background worker via web interface."""
+    try:
+        from ...worker import JobType, JobPriority
+        
+        # Map string values to enums
+        job_type_map = {
+            'detection': JobType.DETECTION,
+            'ensemble': JobType.ENSEMBLE,
+            'batch_training': JobType.BATCH_TRAINING,
+            'stream_monitoring': JobType.STREAM_MONITORING,
+            'model_validation': JobType.MODEL_VALIDATION,
+            'data_preprocessing': JobType.DATA_PREPROCESSING,
+            'explanation_generation': JobType.EXPLANATION_GENERATION,
+            'scheduled_analysis': JobType.SCHEDULED_ANALYSIS
+        }
+        
+        priority_map = {
+            'low': JobPriority.LOW,
+            'normal': JobPriority.NORMAL,
+            'high': JobPriority.HIGH,
+            'critical': JobPriority.CRITICAL
+        }
+        
+        if job_type not in job_type_map:
+            raise HTTPException(status_code=400, detail=f"Invalid job type: {job_type}")
+        
+        if priority not in priority_map:
+            raise HTTPException(status_code=400, detail=f"Invalid priority: {priority}")
+        
+        # Build job payload
+        payload = {
+            'algorithm': algorithm,
+            'contamination': contamination
+        }
+        
+        if data_source.strip():
+            # Try to parse as JSON data first, then treat as file path
+            try:
+                data_list = json.loads(data_source)
+                payload['data_source'] = data_list
+            except json.JSONDecodeError:
+                payload['data_source'] = data_source  # Treat as file path
+        else:
+            # Generate sample data for demo
+            np.random.seed(42)
+            sample_data = np.random.randn(100, 5).tolist()
+            payload['data_source'] = sample_data
+        
+        if model_name.strip():
+            payload['model_name'] = model_name
+        
+        if output_path.strip():
+            payload['output_path'] = output_path
+        
+        # Get worker instance and submit job
+        worker = get_worker_instance()
+        job_id = await worker.submit_job(
+            job_type_map[job_type],
+            payload,
+            priority=priority_map[priority]
+        )
+        
+        # Start worker if not running
+        if not worker.is_running:
+            import asyncio
+            asyncio.create_task(worker.start())
+        
+        # Get queue status for position estimation
+        queue_status = await worker.job_queue.get_queue_status()
+        queue_position = queue_status.get('pending_jobs', 0)
+        
+        context = {
+            "request": request,
+            "success": True,
+            "job_id": job_id,
+            "job_type": job_type,
+            "priority": priority,
+            "algorithm": algorithm,
+            "queue_position": queue_position,
+            "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/worker_job_submitted.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Worker job submission failed", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/worker/job/{job_id}/status", response_class=HTMLResponse)
+async def get_worker_job_status_htmx(
+    request: Request,
+    job_id: str
+):
+    """Get status of a specific worker job."""
+    try:
+        worker = get_worker_instance()
+        job_status = await worker.get_job_status(job_id)
+        
+        if not job_status:
+            return templates.TemplateResponse(
+                "components/error_message.html",
+                {"request": request, "error": f"Job {job_id} not found"},
+                status_code=404
+            )
+        
+        context = {
+            "request": request,
+            "job": job_status,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/worker_job_status.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get worker job status", job_id=job_id, error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/worker/dashboard", response_class=HTMLResponse)
+async def get_worker_dashboard_htmx(
+    request: Request
+):
+    """Get worker dashboard information."""
+    try:
+        worker = get_worker_instance()
+        worker_status = await worker.get_worker_status()
+        queue_status = worker_status['queue_status']
+        
+        # Calculate health metrics
+        current_jobs = worker_status['currently_running_jobs']
+        max_jobs = worker_status['max_concurrent_jobs']
+        utilization = (current_jobs / max_jobs) * 100 if max_jobs > 0 else 0
+        
+        pending_jobs = queue_status.get('pending_jobs', 0)
+        total_jobs = queue_status.get('total_jobs', 0)
+        
+        # Determine health status
+        health_status = "healthy"
+        if utilization > 90 or pending_jobs > 50:
+            health_status = "critical"
+        elif utilization > 70 or pending_jobs > 20:
+            health_status = "warning"
+        
+        context = {
+            "request": request,
+            "worker_status": worker_status,
+            "utilization": utilization,
+            "health_status": health_status,
+            "pending_jobs": pending_jobs,
+            "total_jobs": total_jobs,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/worker_dashboard.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get worker dashboard", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/worker/job/{job_id}/cancel", response_class=HTMLResponse)
+async def cancel_worker_job_htmx(
+    request: Request,
+    job_id: str
+):
+    """Cancel a pending or running worker job."""
+    try:
+        worker = get_worker_instance()
+        success = await worker.cancel_job(job_id)
+        
+        if success:
+            context = {
+                "request": request,
+                "success": True,
+                "job_id": job_id,
+                "message": f"Job {job_id} cancelled successfully",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            }
+        else:
+            context = {
+                "request": request,
+                "success": False,
+                "job_id": job_id,
+                "message": f"Job {job_id} not found or cannot be cancelled",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            }
+        
+        return templates.TemplateResponse(
+            "components/worker_job_cancelled.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to cancel worker job", job_id=job_id, error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/worker/jobs", response_class=HTMLResponse)
+async def list_worker_jobs_htmx(
+    request: Request,
+    status_filter: str = "",
+    job_type_filter: str = "",
+    limit: int = 20
+):
+    """List worker jobs with optional filtering."""
+    try:
+        worker = get_worker_instance()
+        worker_status = await worker.get_worker_status()
+        queue_status = worker_status['queue_status']
+        
+        # Get currently running jobs
+        jobs_list = []
+        for job_id in worker_status['running_job_ids']:
+            job_status = await worker.get_job_status(job_id)
+            if job_status:
+                # Apply filters
+                if status_filter and job_status['status'] != status_filter:
+                    continue
+                if job_type_filter and job_status['job_type'] != job_type_filter:
+                    continue
+                
+                jobs_list.append(job_status)
+        
+        # Limit results
+        jobs_list = jobs_list[:limit]
+        
+        context = {
+            "request": request,
+            "jobs": jobs_list,
+            "total_jobs": queue_status.get('total_jobs', 0),
+            "pending_jobs": queue_status.get('pending_jobs', 0),
+            "filtered_count": len(jobs_list),
+            "status_filter": status_filter,
+            "job_type_filter": job_type_filter,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/worker_jobs_list.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to list worker jobs", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/worker/health", response_class=HTMLResponse)
+async def get_worker_health_htmx(
+    request: Request
+):
+    """Get worker health metrics for web interface."""
+    try:
+        worker = get_worker_instance()
+        worker_status = await worker.get_worker_status()
+        
+        # Calculate health score
+        health_factors = []
+        
+        # Worker running status
+        health_factors.append(100 if worker_status['is_running'] else 0)
+        
+        # Resource utilization
+        current_jobs = worker_status['currently_running_jobs']
+        max_jobs = worker_status['max_concurrent_jobs']
+        utilization = (current_jobs / max_jobs) * 100 if max_jobs > 0 else 0
+        
+        if utilization < 50:
+            health_factors.append(100)
+        elif utilization < 80:
+            health_factors.append(80)
+        else:
+            health_factors.append(60)
+        
+        # Queue health
+        queue_status = worker_status['queue_status']
+        pending_jobs = queue_status.get('pending_jobs', 0)
+        
+        if pending_jobs < 10:
+            health_factors.append(100)
+        elif pending_jobs < 50:
+            health_factors.append(80)
+        else:
+            health_factors.append(60)
+        
+        # Calculate overall health score
+        health_score = sum(health_factors) / len(health_factors)
+        is_healthy = health_score >= 70
+        
+        # Mock resource utilization and performance metrics
+        resource_utilization = {
+            "cpu_usage_percent": 25.3,
+            "memory_usage_mb": 1024,
+            "memory_usage_percent": 15.2,
+            "disk_usage_percent": 45.8,
+            "worker_utilization_percent": utilization
+        }
+        
+        performance_metrics = {
+            "jobs_completed_24h": 156,
+            "jobs_failed_24h": 8,
+            "success_rate_percent": 95.1,
+            "avg_processing_time_seconds": 42.3,
+            "throughput_jobs_per_hour": 12.8
+        }
+        
+        # Recent issues
+        recent_issues = []
+        if utilization > 80:
+            recent_issues.append({
+                "severity": "warning",
+                "message": "High worker utilization detected",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            })
+        
+        if pending_jobs > 20:
+            recent_issues.append({
+                "severity": "info",
+                "message": "High queue length detected",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            })
+        
+        context = {
+            "request": request,
+            "is_healthy": is_healthy,
+            "health_score": health_score,
+            "resource_utilization": resource_utilization,
+            "performance_metrics": performance_metrics,
+            "recent_issues": recent_issues,
+            "worker_status": worker_status,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/worker_health.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get worker health", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/worker/start", response_class=HTMLResponse)
+async def start_worker_htmx(
+    request: Request
+):
+    """Start the worker service via web interface."""
+    try:
+        worker = get_worker_instance()
+        
+        if worker.is_running:
+            context = {
+                "request": request,
+                "success": True,
+                "message": "Worker is already running",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            }
+        else:
+            # Start worker in background
+            import asyncio
+            asyncio.create_task(worker.start())
+            
+            context = {
+                "request": request,
+                "success": True,
+                "message": "Worker start initiated",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            }
+        
+        return templates.TemplateResponse(
+            "components/worker_control_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to start worker", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/worker/stop", response_class=HTMLResponse)
+async def stop_worker_htmx(
+    request: Request
+):
+    """Stop the worker service via web interface."""
+    try:
+        worker = get_worker_instance()
+        
+        if not worker.is_running:
+            context = {
+                "request": request,
+                "success": True,
+                "message": "Worker is not running",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            }
+        else:
+            await worker.stop()
+            
+            context = {
+                "request": request,
+                "success": True,
+                "message": "Worker stopped successfully",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+            }
+        
+        return templates.TemplateResponse(
+            "components/worker_control_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to stop worker", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )

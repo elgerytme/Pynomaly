@@ -72,7 +72,7 @@ Phase 2 Migration successfully implements Buck2 build system integration, replac
 
 ### Build System Architecture
 ```
-Pynomaly Monorepo
+Anomaly Detection Monorepo
 ├── .buckconfig (main configuration)
 ├── .buckroot (workspace root)  
 ├── BUCK (monorepo build targets)
@@ -96,7 +96,7 @@ buck2 build //:enterprise-all            # All Enterprise packages
 buck2 test //:enterprise-tests           # Enterprise domain tests
 
 # Complete Monorepo
-buck2 build //:pynomaly                  # Everything
+buck2 build //:anomaly-detection                  # Everything
 buck2 test //...                         # All tests
 ```
 
@@ -156,7 +156,7 @@ The foundation is now complete for Phase 3 optimization work:
 - **Phase 3.4**: Build performance monitoring and metrics
 
 ### 🚀 Immediate Benefits Available
-- Install Buck2 and run `buck2 build //:pynomaly` to build entire monorepo
+- Install Buck2 and run `buck2 build //:anomaly-detection` to build entire monorepo
 - Use incremental testing with existing GitHub Actions workflows  
 - Enable remote caching for team-wide build acceleration
 - Migrate individual packages from pyproject.toml to Buck2 as needed

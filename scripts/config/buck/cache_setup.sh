@@ -22,10 +22,10 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 CACHE_CONFIG_DIR="${REPO_ROOT}/scripts/config/buck"
 
 # Default cache configuration
-DEFAULT_CACHE_URL="https://buck2-cache.internal.pynomaly.com"
-DEFAULT_RE_ENGINE="grpc://buck2-re.internal.pynomaly.com:9092"
-DEFAULT_RE_ACTION_CACHE="grpc://buck2-ac.internal.pynomaly.com:9092"
-DEFAULT_RE_CAS="grpc://buck2-cas.internal.pynomaly.com:9092"
+DEFAULT_CACHE_URL="https://buck2-cache.internal.anomaly-detection.com"
+DEFAULT_RE_ENGINE="grpc://buck2-re.internal.anomaly-detection.com:9092"
+DEFAULT_RE_ACTION_CACHE="grpc://buck2-ac.internal.anomaly-detection.com:9092"
+DEFAULT_RE_CAS="grpc://buck2-cas.internal.anomaly-detection.com:9092"
 
 echo -e "${BLUE}🔧 Buck2 Secure Cache Setup${NC}"
 echo -e "${BLUE}============================${NC}"
@@ -349,7 +349,7 @@ This directory contains configuration for Buck2 remote caching with security and
 
 4. **Test build with caching**:
    ```bash
-   buck2 build //:pynomaly
+   buck2 build //:anomaly-detection
    ```
 
 ## Configuration Files
@@ -406,7 +406,7 @@ buck2 audit dependencies //:target  # Dependency analysis
 ## Troubleshooting
 
 ### Cache Not Working
-1. Check connectivity: `ping buck2-cache.internal.pynomaly.com`
+1. Check connectivity: `ping buck2-cache.internal.anomaly-detection.com`
 2. Verify credentials: `echo $BUCK2_CACHE_TOKEN`
 3. Test manually: `curl -H "Authorization: Bearer $TOKEN" $BUCK2_CACHE_URL/health`
 4. Check Buck2 logs: `buck2 log show`
@@ -475,7 +475,7 @@ main() {
     echo "2. Configure environment: source scripts/config/buck/cache.env"
     echo "3. Set credentials: export BUCK2_CACHE_TOKEN=<token>"
     echo "4. Enable caching: export BUCK2_CACHE_ENABLED=true"
-    echo "5. Test with build: buck2 build //:pynomaly"
+    echo "5. Test with build: buck2 build //:anomaly-detection"
     echo "6. Monitor performance: ./scripts/config/buck/monitor_cache.sh"
     echo ""
     echo -e "${BLUE}📖 Full documentation: scripts/config/buck/README.md${NC}"

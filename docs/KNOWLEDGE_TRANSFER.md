@@ -802,13 +802,13 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
 ```bash
 # Start test database
 docker run -d --name test-db -p 5432:5432 \
-  -e POSTGRES_DB=test_pynomaly \
+  -e POSTGRES_DB=test_anomaly_detection \
   -e POSTGRES_USER=test \
   -e POSTGRES_PASSWORD=test \
   postgres:15
 
 # Set test environment
-export DATABASE_URL=postgresql://test:test@localhost:5432/test_pynomaly
+export DATABASE_URL=postgresql://test:test@localhost:5432/test_anomaly_detection
 
 # Run tests
 pytest tests/integration/
