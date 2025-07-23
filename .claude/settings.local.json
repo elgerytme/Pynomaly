@@ -344,7 +344,12 @@
       "Bash(DETECTION_DEFAULT_ALGORITHM=lof API_PORT=9000 PYTHONPATH=src python3 -c \"from anomaly_detection.infrastructure.config import settings; print(''Algorithm:'', settings.detection.default_algorithm); print(''API Port:'', settings.api.port)\")",
       "Bash(/mnt/c/Users/andre/Pynomaly/cleanup_pyproject_anomaly_refs.sh)",
       "Bash(git merge:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git push:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(git fetch:*)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": []
   }

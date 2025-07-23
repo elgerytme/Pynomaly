@@ -12,7 +12,6 @@ from neuro_symbolic.infrastructure.neural_adapters import TransformerBackbone, C
 from neuro_symbolic.infrastructure.symbolic_adapters import PropositionalReasoner, FirstOrderReasoner
 from neuro_symbolic.infrastructure.persistence.model_repository import ModelRepository
 from neuro_symbolic.domain.entities.neuro_symbolic_model import NeuroSymbolicModel
-from neuro_symbolic.domain.entities.knowledge_graph import KnowledgeGraph
 from neuro_symbolic.domain.value_objects.reasoning_result import (
     NeuroSymbolicReasoningResult, FusionStrategy
 )
@@ -58,7 +57,6 @@ def mock_trained_model():
     model.is_trained = True
     model.neural_backbone = "transformer"
     model.symbolic_reasoner = "first_order_logic"
-    model.knowledge_graphs = ["kg_001"]
     
     # Mock neural predictions
     model.neural_predict.return_value = {
@@ -398,61 +396,6 @@ class TestNeuralSymbolicReasoningWorkflows:
         strategies_used = set(decision["chosen_strategy"] for decision in decisions)
         assert len(strategies_used) > 1  # Multiple strategies should be used
     
-    def test_knowledge_graph_integration_workflow(self, mock_trained_model, sample_knowledge_graph):
-        """Test integration with knowledge graphs in reasoning workflow."""
-        # Add knowledge graph to model
-        mock_trained_model.knowledge_graphs = ["kg_001"]
-        self.model_repository.get_by_id.return_value = mock_trained_model
-        
-        # Mock knowledge graph
-        mock_kg = Mock(spec=KnowledgeGraph)
-        mock_kg.id = "kg_001"
-        mock_kg.query_entities.return_value = [
-            {"entity": "Temperature_Sensor", "type": "Sensor", "location": "Building_A"},
-            {"entity": "Pressure_Sensor", "type": "Sensor", "location": "Building_A"},
-        ]
-        mock_kg.infer_relationships.return_value = [
-            ("Temperature_Sensor", "monitors", "HVAC_System"),
-            ("Pressure_Sensor", "monitors", "Hydraulic_System")
-        ]
-        
-        self.model_repository.get_knowledge_graph.return_value = mock_kg
-        
-        # Neural predictions
-        self.neural_adapter.predict.return_value = {
-            "predictions": np.array([0.8, 0.2, 0.9]),
-            "confidence": np.array([0.9, 0.85, 0.92]),
-            "feature_mappings": {
-                0: "temperature_reading",
-                1: "pressure_reading", 
-                2: "flow_rate"
-            }
-        }
-        
-        # Symbolic reasoning enhanced with KG
-        self.symbolic_adapter.reason.return_value = {
-            "conclusions": ["positive", "negative", "positive"],
-            "confidence": [0.88, 0.83, 0.9],
-            "kg_enhanced_explanations": [
-                "Temperature condition in HVAC system of Building A",
-                "Pressure baseline for hydraulic system",
-                "Flow rate condition identified in connected systems"
-            ]
-        }
-        
-        test_data = np.random.randn(3, 64)
-        
-        result = self.reasoning_service.perform_reasoning(
-            model_id="test_model_001",
-            data=test_data,
-            use_knowledge_graph=True
-        )
-        
-        assert "knowledge_graph_insights" in result.additional_info
-        kg_insights = result.additional_info["knowledge_graph_insights"]
-        assert len(kg_insights["entities"]) > 0
-        assert len(kg_insights["relationships"]) > 0
-    
     def test_continual_learning_integration(self, mock_trained_model, sample_neural_data):
         """Test integration with continual learning mechanisms."""
         self.model_repository.get_by_id.return_value = mock_trained_model
@@ -496,22 +439,6 @@ class TestNeuralSymbolicReasoningWorkflows:
             assert adaptation["batch_number"] == i
             assert "distribution_shift" in adaptation
             assert "rule_stability" in adaptation
-
-
-@pytest.fixture
-def sample_knowledge_graph():
-    """Create sample knowledge graph for testing."""
-    return {
-        "entities": [
-            {"id": "temp_sensor_1", "type": "Sensor", "properties": {"location": "Building_A"}},
-            {"id": "hvac_system", "type": "System", "properties": {"building": "Building_A"}},
-            {"id": "building_a", "type": "Building", "properties": {"floor_count": 5}}
-        ],
-        "relationships": [
-            {"source": "temp_sensor_1", "relation": "monitors", "target": "hvac_system"},
-            {"source": "hvac_system", "relation": "located_in", "target": "building_a"}
-        ]
-    }
 
 
 class TestExplainableReasoningIntegrationWorkflows:

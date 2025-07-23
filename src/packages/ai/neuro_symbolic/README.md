@@ -5,7 +5,6 @@ Advanced neuro-symbolic AI package that combines neural networks with symbolic r
 ## Features
 
 - **Hybrid Neural-Symbolic Models**: Integration of deep learning with symbolic reasoning
-- **Knowledge Graph Integration**: Semantic reasoning over structured knowledge
 - **Interpretable AI**: Explainable decision-making processes
 - **Logic-Enhanced Learning**: Symbolic constraints in neural training
 - **Multi-Modal Reasoning**: Text, image, and structured data processing
@@ -14,17 +13,12 @@ Advanced neuro-symbolic AI package that combines neural networks with symbolic r
 
 ```python
 from neuro_symbolic import NeuroSymbolicModel
-from neuro_symbolic.domain.entities import KnowledgeGraph
 
 # Create a neuro-symbolic model
 model = NeuroSymbolicModel(
     neural_backbone="transformer",
     symbolic_reasoner="first_order_logic"
 )
-
-# Load knowledge base
-kg = KnowledgeGraph.from_file("knowledge_base.owl")
-model.add_knowledge_graph(kg)
 
 # Train with symbolic constraints
 model.train(data, symbolic_constraints=constraints)
@@ -36,7 +30,7 @@ result = model.predict_with_explanation(input_data)
 ## Architecture
 
 ### Domain Layer
-- **Entities**: Core neuro-symbolic concepts (models, knowledge graphs, rules)
+- **Entities**: Core neuro-symbolic concepts (models, rules)
 - **Value Objects**: Reasoning results, explanation traces
 - **Services**: Symbolic reasoning, neural-symbolic fusion
 
@@ -61,7 +55,7 @@ pip install -e .
 
 For additional features:
 ```bash
-pip install -e ".[reasoning,knowledge_graph,visualization]"
+pip install -e ".[reasoning,visualization]"
 ```
 
 ## Development
