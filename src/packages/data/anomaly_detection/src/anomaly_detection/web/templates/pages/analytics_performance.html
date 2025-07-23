@@ -1,0 +1,326 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Performance Analytics</h1>
+        <p class="text-gray-600">Comprehensive performance insights and metrics for anomaly detection operations.</p>
+    </div>
+
+    <!-- Performance Overview Cards -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="text-2xl">⚡</div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Avg Processing Time</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ "%.3f"|format(performance.average_detection_time) }}s</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="text-2xl">📊</div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
+                            <dd class="text-lg font-medium text-green-600">{{ "%.1f"|format(performance.success_rate * 100) }}%</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="text-2xl">🔄</div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Throughput</dt>
+                            <dd class="text-lg font-medium text-blue-600">{{ performance.throughput }}/hr</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="text-2xl">⚠️</div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Error Rate</dt>
+                            <dd class="text-lg font-medium text-red-600">{{ "%.1f"|format(performance.error_rate * 100) }}%</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Processing Time Trend -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Processing Time Trend</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="processingTimeTrendChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Throughput Analysis -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Hourly Detection Activity</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="throughputChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Performance Metrics -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Performance Breakdown -->
+        <div class="card lg:col-span-2">
+            <div class="card-header">
+                <h3 class="card-title">Performance Breakdown by Time</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceBreakdownChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Performance Statistics -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Key Metrics</h3>
+            </div>
+            <div class="p-4">
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700">Total Detections</span>
+                            <span class="text-sm text-gray-900">{{ performance.total_detections }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700">Anomalies Found</span>
+                            <span class="text-sm text-gray-900">{{ performance.total_anomalies }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            {% set anomaly_percentage = (performance.total_anomalies / performance.total_detections * 100) if performance.total_detections > 0 else 0 %}
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ anomaly_percentage }}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700">Success Rate</span>
+                            <span class="text-sm text-green-600">{{ "%.1f"|format(performance.success_rate * 100) }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ performance.success_rate * 100 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700">Error Rate</span>
+                            <span class="text-sm text-red-600">{{ "%.1f"|format(performance.error_rate * 100) }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ performance.error_rate * 100 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Quick Actions</h4>
+                    <div class="space-y-2">
+                        <button 
+                            hx-post="/htmx/analytics/simulate-detection"
+                            hx-target="#simulation-result"
+                            hx-swap="innerHTML"
+                            class="w-full btn btn-sm btn-outline">
+                            Run Test Detection
+                        </button>
+                        <a href="/htmx/analytics/export/json" 
+                           class="w-full btn btn-sm btn-secondary inline-block text-center">
+                            Export Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simulation Result Display -->
+    <div id="simulation-result" class="mt-6"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const charts = {{ charts | tojson }};
+    
+    // Processing Time Trend Chart
+    const processingCtx = document.getElementById('processingTimeTrendChart');
+    if (processingCtx && charts.performance_trend) {
+        new Chart(processingCtx, {
+            type: 'line',
+            data: {
+                labels: charts.performance_trend.labels || [],
+                datasets: [{
+                    label: 'Processing Time (ms)',
+                    data: charts.performance_trend.processing_times || [],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + 's';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Throughput Chart
+    const throughputCtx = document.getElementById('throughputChart');
+    if (throughputCtx && charts.timeline) {
+        new Chart(throughputCtx, {
+            type: 'bar',
+            data: {
+                labels: charts.timeline.labels || [],
+                datasets: [{
+                    label: 'Detections',
+                    data: charts.timeline.detections || [],
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Performance Breakdown Chart
+    const breakdownCtx = document.getElementById('performanceBreakdownChart');
+    if (breakdownCtx && charts.timeline) {
+        new Chart(breakdownCtx, {
+            type: 'line',
+            data: {
+                labels: charts.timeline.labels || [],
+                datasets: [
+                    {
+                        label: 'Detections',
+                        data: charts.timeline.detections || [],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Anomalies',
+                        data: charts.timeline.anomalies || [],
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Avg Time (s)',
+                        data: charts.timeline.processing_times || [],
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + 's';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

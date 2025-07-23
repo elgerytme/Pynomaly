@@ -1,0 +1,99 @@
+<!-- Dashboard Statistics Component -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- Total Detections -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="text-2xl">🔍</div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Detections</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ stats.performance.total_detections | default(0) }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomalies Found -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="text-2xl">⚠️</div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Anomalies Found</dt>
+                        <dd class="text-lg font-medium text-red-600">{{ stats.performance.total_anomalies | default(0) }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Processing Time -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="text-2xl">⚡</div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Avg Processing Time</dt>
+                        <dd class="text-lg font-medium text-blue-600">{{ "%.3f"|format(stats.performance.average_detection_time | default(0)) }}s</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    {% if stats.system_health.status == 'healthy' %}
+                        <div class="text-2xl">💚</div>
+                    {% elif stats.system_health.status == 'warning' %}
+                        <div class="text-2xl">⚠️</div>
+                    {% else %}
+                        <div class="text-2xl">❌</div>
+                    {% endif %}
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">System Status</dt>
+                        <dd class="text-lg font-medium {% if stats.system_health.status == 'healthy' %}text-green-600{% elif stats.system_health.status == 'warning' %}text-yellow-600{% else %}text-red-600{% endif %}">
+                            {{ stats.system_health.status | title }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Summary -->
+<div class="mt-6 bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Activity</h3>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ stats.recent_activity.last_hour | default(0) }}</div>
+                <div class="text-sm text-gray-500">Last Hour</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ stats.recent_activity.last_24h | default(0) }}</div>
+                <div class="text-sm text-gray-500">Last 24 Hours</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ "%.1f"|format(stats.performance.success_rate * 100) }}%</div>
+                <div class="text-sm text-gray-500">Success Rate</div>
+            </div>
+        </div>
+    </div>
+</div>

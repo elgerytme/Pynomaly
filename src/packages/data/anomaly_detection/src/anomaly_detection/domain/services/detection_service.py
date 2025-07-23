@@ -79,9 +79,12 @@ class DetectionService:
                     data, algorithm, contamination, **kwargs
                 )
             
-            return DetectionResult(
+            # Get confidence scores if available
+            confidence_scores = self._get_confidence_scores(data, algorithm, contamination, **kwargs)
+            
+            result = DetectionResult(
                 predictions=predictions,
-                confidence_scores=None,  # Will be added when available
+                confidence_scores=confidence_scores,
                 algorithm=algorithm,
                 metadata={
                     "contamination": contamination,
@@ -473,3 +476,87 @@ class DetectionService:
                     data_shape=data.shape,
                     algorithm=algorithm,
                     contamination=contamination)
+    
+    def _get_confidence_scores(
+        self,
+        data: npt.NDArray[np.floating],
+        algorithm: str,
+        contamination: float,
+        **kwargs: Any
+    ) -> npt.NDArray[np.floating] | None:
+        """Get confidence scores for predictions if available."""
+        try:
+            if algorithm == "iforest":
+                return self._isolation_forest_scores(data, contamination, **kwargs)
+            elif algorithm == "lof":
+                return self._local_outlier_factor_scores(data, contamination, **kwargs)
+            else:
+                # Check if registered adapter provides scores
+                if algorithm in self._adapters:
+                    adapter = self._adapters[algorithm]
+                    if hasattr(adapter, 'decision_function') or hasattr(adapter, 'score_samples'):
+                        # Try to get scores from adapter
+                        return None  # For now, adapters don't implement scoring
+                return None
+        except Exception as e:
+            logger.warning(f"Failed to get confidence scores for {algorithm}: {e}")
+            return None
+    
+    def _isolation_forest_scores(
+        self,
+        data: npt.NDArray[np.floating],
+        contamination: float,
+        **kwargs: Any
+    ) -> npt.NDArray[np.floating]:
+        """Get confidence scores from Isolation Forest."""
+        try:
+            from sklearn.ensemble import IsolationForest
+            
+            model = IsolationForest(
+                contamination=contamination,
+                random_state=kwargs.get('random_state', 42),
+                **kwargs
+            )
+            model.fit(data)
+            # Get anomaly scores (negative values are more anomalous)
+            scores = model.decision_function(data)
+            # Convert to confidence scores (0-1, higher = more anomalous)
+            # Normalize using contamination threshold
+            threshold = np.percentile(scores, contamination * 100)
+            normalized_scores = np.clip((threshold - scores) / (np.max(scores) - threshold + 1e-10), 0, 1)
+            return normalized_scores.astype(np.float64)
+            
+        except Exception as e:
+            logger.warning(f"Failed to get Isolation Forest scores: {e}")
+            return None
+    
+    def _local_outlier_factor_scores(
+        self,
+        data: npt.NDArray[np.floating],
+        contamination: float,
+        **kwargs: Any
+    ) -> npt.NDArray[np.floating]:
+        """Get confidence scores from Local Outlier Factor."""
+        try:
+            from sklearn.neighbors import LocalOutlierFactor
+            
+            model = LocalOutlierFactor(
+                contamination=contamination,
+                **kwargs
+            )
+            model.fit(data)
+            # Get negative outlier factor scores
+            scores = model.negative_outlier_factor_
+            # Convert to confidence scores (0-1, higher = more anomalous)
+            # LOF scores are negative, more negative = more anomalous
+            min_score = np.min(scores)
+            max_score = np.max(scores)
+            if min_score < max_score:
+                normalized_scores = (max_score - scores) / (max_score - min_score)
+            else:
+                normalized_scores = np.zeros_like(scores)
+            return normalized_scores.astype(np.float64)
+            
+        except Exception as e:
+            logger.warning(f"Failed to get LOF scores: {e}")
+            return None

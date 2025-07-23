@@ -72,16 +72,17 @@ class EnsembleService:
         
         # Combine scores if available
         combined_scores = None
-        if all(r.scores is not None for r in results):
+        scores_list = [r.confidence_scores for r in results if r.confidence_scores is not None]
+        if scores_list and len(scores_list) == len(results):
             combined_scores = self._combine_scores(
-                [r.scores for r in results],
+                scores_list,
                 method=combination_method,
                 weights=weights
             )
             
         return DetectionResult(
             predictions=combined_predictions,
-            scores=combined_scores,
+            confidence_scores=combined_scores,
             algorithm=f"ensemble({','.join(algorithms)})",
             metadata={
                 "algorithms": algorithms,
@@ -97,20 +98,26 @@ class EnsembleService:
         method: str,
         weights: list[float] | None = None
     ) -> npt.NDArray[np.integer]:
-        """Combine predictions from multiple algorithms."""
+        """Combine predictions from multiple algorithms.
+        
+        Assumes sklearn format: -1 for anomaly, 1 for normal.
+        """
         predictions_array = np.array(predictions_list)  # shape: (n_algorithms, n_samples)
         
+        # Convert to binary format for easier combination (0=normal, 1=anomaly)
+        binary_predictions = (predictions_array == -1).astype(int)
+        
         if method == "majority":
-            # Majority voting
-            return (np.sum(predictions_array, axis=0) > len(predictions_list) / 2).astype(int)
+            # Majority voting - if more than half predict anomaly
+            combined_binary = (np.sum(binary_predictions, axis=0) > len(predictions_list) / 2).astype(int)
             
         elif method == "average":
             # Average and threshold at 0.5
-            return (np.mean(predictions_array.astype(float), axis=0) > 0.5).astype(int)
+            combined_binary = (np.mean(binary_predictions.astype(float), axis=0) > 0.5).astype(int)
             
         elif method == "max":
             # Any algorithm predicts anomaly
-            return np.max(predictions_array, axis=0)
+            combined_binary = np.max(binary_predictions, axis=0)
             
         elif method == "weighted":
             if weights is None:
@@ -122,12 +129,16 @@ class EnsembleService:
             weights_array = weights_array / np.sum(weights_array)  # normalize
             
             weighted_sum = np.sum(
-                predictions_array * weights_array.reshape(-1, 1), axis=0
+                binary_predictions * weights_array.reshape(-1, 1), axis=0
             )
-            return (weighted_sum > 0.5).astype(int)
+            combined_binary = (weighted_sum > 0.5).astype(int)
             
         else:
             raise ValueError(f"Unknown combination method: {method}")
+        
+        # Convert back to sklearn format (-1 for anomaly, 1 for normal)
+        result = np.where(combined_binary == 1, -1, 1)
+        return result.astype(np.integer)
     
     def _combine_scores(
         self,

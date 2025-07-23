@@ -1,0 +1,57 @@
+<!-- Real-time Metrics Component -->
+<div class="bg-white shadow rounded-lg p-4">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Live Metrics</h3>
+        <div class="flex items-center text-sm text-gray-500">
+            <div class="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+            Live
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-4">
+        <!-- Activity Last Minute -->
+        <div class="text-center p-3 bg-blue-50 rounded-lg">
+            <div class="text-xl font-bold text-blue-600">{{ metrics.activity_1min }}</div>
+            <div class="text-xs text-blue-700">Detections (1m)</div>
+        </div>
+        
+        <!-- Anomalies Last Minute -->
+        <div class="text-center p-3 bg-red-50 rounded-lg">
+            <div class="text-xl font-bold text-red-600">{{ metrics.anomalies_1min }}</div>
+            <div class="text-xs text-red-700">Anomalies (1m)</div>
+        </div>
+        
+        <!-- Activity Last 5 Minutes -->
+        <div class="text-center p-3 bg-green-50 rounded-lg">
+            <div class="text-xl font-bold text-green-600">{{ metrics.activity_5min }}</div>
+            <div class="text-xs text-green-700">Detections (5m)</div>
+        </div>
+        
+        <!-- Average Processing Time -->
+        <div class="text-center p-3 bg-purple-50 rounded-lg">
+            <div class="text-xl font-bold text-purple-600">{{ "%.2f"|format(metrics.avg_processing_time_5min) }}s</div>
+            <div class="text-xs text-purple-700">Avg Time (5m)</div>
+        </div>
+    </div>
+    
+    <!-- System Health Indicator -->
+    <div class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">System Health</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if metrics.system_health == 'healthy' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ metrics.system_health | title }}
+            </span>
+        </div>
+        
+        <div class="mt-2 text-xs text-gray-500">
+            Active Operations: {{ metrics.system_metrics.active_operations }}
+            {% if metrics.system_metrics.success_rate %}
+                | Success Rate: {{ "%.1f"|format(metrics.system_metrics.success_rate * 100) }}%
+            {% endif %}
+        </div>
+        
+        <div class="text-xs text-gray-400 mt-1">
+            Last updated: {{ metrics.current_time[-8:] }}
+        </div>
+    </div>
+</div>
