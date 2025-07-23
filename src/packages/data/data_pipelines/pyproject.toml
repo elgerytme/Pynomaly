@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "data-pipelines"
 version = "0.1.0" 

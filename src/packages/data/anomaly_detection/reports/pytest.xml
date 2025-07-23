@@ -1,4 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.710" timestamp="2025-07-23T15:17:37.161278-04:00" hostname="rocm-socm"><testcase classname="tests.integration.test_monitoring_integration.TestMonitoringIntegration" name="test_model_metrics_recording" time="0.007"><failure message="assert 0 &gt; 5">tests/integration/test_monitoring_integration.py:303: in test_model_metrics_recording
-    assert summary["total_metrics"] &gt; 5  # Should have recorded multiple metrics
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   assert 0 &gt; 5</failure></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="18.835" timestamp="2025-07-23T15:18:05.518194-04:00" hostname="rocm-socm"><testcase classname="tests.integration.test_monitoring_integration.TestMonitoringIntegration" name="test_model_metrics_recording" time="0.008" /></testsuite></testsuites>

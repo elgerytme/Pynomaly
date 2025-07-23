@@ -348,7 +348,7 @@ class StaticCodeAnalyzer(SecurityScanner):
                                 line_number = content[:match.start()].count('\n') + 1
                                 
                                 vulnerability = SecurityVulnerability(
-                                    id=f"SAST-{category}-{hashlib.md5(str(match.group()).encode()).hexdigest()[:8]}",
+                                    id=f"SAST-{category}-{hashlib.sha256(str(match.group()).encode()).hexdigest()[:8]}",
                                     severity=pattern_info["severity"],
                                     title=pattern_info["description"],
                                     description=f"{pattern_info['description']} in {file_path}:{line_number}",

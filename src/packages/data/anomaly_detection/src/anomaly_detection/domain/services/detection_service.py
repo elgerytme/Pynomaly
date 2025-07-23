@@ -73,6 +73,11 @@ class DetectionService:
             if algorithm in self._adapters:
                 adapter = self._adapters[algorithm]
                 predictions = adapter.fit_predict(data)
+            elif algorithm in ["lstm_autoencoder", "prophet", "statistical_ts", "isolation_forest_ts"]:
+                # Use time series algorithms
+                predictions = self._detect_with_time_series(
+                    data, algorithm, contamination, **kwargs
+                )
             else:
                 # Fall back to built-in algorithms
                 predictions = self._detect_with_builtin(
@@ -286,6 +291,58 @@ class DetectionService:
                 }
             )
     
+    @timing_decorator(operation="time_series_detection")
+    def _detect_with_time_series(
+        self,
+        data: npt.NDArray[np.floating],
+        algorithm: str,
+        contamination: float,
+        **kwargs: Any
+    ) -> npt.NDArray[np.integer]:
+        """Detect using time series algorithms."""
+        logger.debug("Running time series detection algorithm", 
+                    algorithm=algorithm,
+                    contamination=contamination)
+        
+        try:
+            from .time_series_detection_service import TimeSeriesDetectionService
+            
+            ts_service = TimeSeriesDetectionService()
+            
+            # Map algorithm names
+            ts_algorithm = algorithm
+            if algorithm == "statistical_ts":
+                ts_algorithm = "statistical"
+            
+            # Extract timestamps if provided
+            timestamps = kwargs.pop('timestamps', None)
+            
+            result = ts_service.detect_anomalies(
+                data=data,
+                algorithm=ts_algorithm,
+                timestamps=timestamps,
+                contamination=contamination,
+                **kwargs
+            )
+            
+            if not result.success:
+                raise AlgorithmError(f"Time series detection failed for {algorithm}")
+            
+            return result.predictions
+            
+        except ImportError as e:
+            raise AlgorithmError(
+                f"Time series service required for {algorithm}",
+                details={"missing_dependency": "time_series_detection_service"},
+                original_error=e
+            )
+        except Exception as e:
+            raise AlgorithmError(
+                f"Time series detection failed: {str(e)}",
+                details={"algorithm": algorithm, "data_shape": data.shape},
+                original_error=e
+            )
+    
     @timing_decorator(operation="fit_builtin_algorithm")
     def _fit_builtin(
         self,
@@ -420,8 +477,9 @@ class DetectionService:
     def list_available_algorithms(self) -> list[str]:
         """List all available algorithms."""
         builtin = ["iforest", "lof"]
+        time_series = ["lstm_autoencoder", "prophet", "statistical_ts", "isolation_forest_ts"]
         registered = list(self._adapters.keys())
-        return builtin + registered
+        return builtin + time_series + registered
     
     def get_algorithm_info(self, algorithm: str) -> dict[str, Any]:
         """Get information about an algorithm."""
@@ -430,6 +488,16 @@ class DetectionService:
         if algorithm in ["iforest", "lof"]:
             info["type"] = "builtin"
             info["requires"] = ["scikit-learn"]
+        elif algorithm in ["lstm_autoencoder", "prophet", "statistical_ts", "isolation_forest_ts"]:
+            info["type"] = "time_series"
+            if algorithm == "lstm_autoencoder":
+                info["requires"] = ["tensorflow", "scikit-learn"]
+            elif algorithm == "prophet":
+                info["requires"] = ["prophet"]
+            elif algorithm == "statistical_ts":
+                info["requires"] = []
+            elif algorithm == "isolation_forest_ts":
+                info["requires"] = ["scikit-learn"]
         elif algorithm in self._adapters:
             info["type"] = "registered_adapter"
             

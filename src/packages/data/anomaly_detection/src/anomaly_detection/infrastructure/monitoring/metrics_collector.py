@@ -252,7 +252,8 @@ class MetricsCollector:
         anomalies_detected: int | None = None,
         **performance_metrics: float
     ) -> None:
-        """Record model operation metrics (alias for record_model_metric for backward compatibility)."""
+        """Record model operation metrics and individual performance metrics."""
+        # Record the main model metric
         self.record_model_metric(
             model_id=model_id,
             algorithm=algorithm,
@@ -263,6 +264,28 @@ class MetricsCollector:
             anomalies_detected=anomalies_detected,
             **performance_metrics
         )
+        
+        # Record individual performance metrics
+        tags = {"model_id": model_id, "algorithm": algorithm, "operation": operation}
+        
+        # Duration metric
+        self.record_metric(f"model.{operation}.duration_ms", duration_ms, tags, "milliseconds")
+        
+        # Samples processed metric
+        if samples_processed is not None:
+            self.record_metric(f"model.{operation}.samples_processed", float(samples_processed), tags, "count")
+        
+        # Anomalies detected metric
+        if anomalies_detected is not None:
+            self.record_metric(f"model.{operation}.anomalies_detected", float(anomalies_detected), tags, "count")
+        
+        # Performance metrics
+        for metric_name, value in performance_metrics.items():
+            if value is not None:
+                self.record_metric(f"model.{operation}.{metric_name}", value, tags, "ratio")
+        
+        # Success/failure counter
+        self.increment_counter(f"model.{operation}.{('success' if success else 'failure')}", 1, tags)
     
     def get_summary_stats(self) -> dict[str, Any]:
         """Get summary statistics for all metrics."""
