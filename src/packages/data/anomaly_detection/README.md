@@ -13,6 +13,8 @@ A clean, domain-focused anomaly detection package that integrates with the broad
 
 This package provides core anomaly detection functionality while leveraging the ML/MLOps capabilities from `@src/packages/ai/machine_learning`. It follows clean architecture principles and focuses specifically on anomaly detection domain logic.
 
+📋 **[Complete Requirements Documentation](./requirements/)** - Business requirements, user stories, use cases, and feature roadmap
+
 ## Key Features
 
 - **Core Detection Services**: Unified interfaces for anomaly detection, ensemble methods, and streaming detection
@@ -84,6 +86,25 @@ for i in range(1000):
 drift_info = streaming.detect_concept_drift()
 print("Drift detected:", drift_info["drift_detected"])
 ```
+
+## Documentation
+
+### Requirements and Planning
+- **[Requirements Documentation](./requirements/)** - Complete requirements specification
+  - [Business Requirements](./requirements/business_requirements.md) - Business context and objectives
+  - [Functional Requirements](./requirements/functional_requirements.md) - Feature specifications
+  - [Non-Functional Requirements](./requirements/non_functional_requirements.md) - Performance and quality
+  - [User Personas](./requirements/user_personas.md) - Target user profiles
+  - [Use Cases](./requirements/use_cases.md) - Detailed use case specifications  
+  - [User Stories](./requirements/user_stories.md) - Development backlog
+  - [Story Mapping](./requirements/story_mapping.md) - Feature prioritization and roadmap
+
+### Technical Documentation
+- **[Architecture Guide](./docs/architecture.md)** - System design and patterns
+- **[API Reference](./docs/api.md)** - Complete API documentation
+- **[Algorithm Guide](./docs/algorithms.md)** - Algorithm selection and tuning
+- **[Configuration Guide](./docs/configuration.md)** - System configuration
+- **[Installation Guide](./docs/installation.md)** - Setup and deployment
 
 ## Architecture
 

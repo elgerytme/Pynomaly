@@ -1,0 +1,29 @@
+# Advanced Requirements for Deep Learning and Advanced Algorithms
+# Includes requirements-basic.txt plus advanced ML libraries
+
+-r requirements-basic.txt
+
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+tensorflow>=2.13.0
+
+# Advanced anomaly detection algorithms
+pyod>=1.1.0
+
+# Time series analysis
+statsmodels>=0.14.0
+
+# Explainable AI
+shap>=0.42.0
+lime>=0.2.0.1
+
+# Interactive visualizations
+plotly>=5.15.0
+bokeh>=3.2.0
+
+# Statistical analysis
+scipy>=1.11.0
+
+# GPU acceleration (optional)
+numba>=0.57.0

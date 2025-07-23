@@ -1,5 +1,5 @@
 [project]
-name = "data-quality"
+name = "quality"
 version = "0.1.0"
 description = "Data quality package with validation, cleansing, monitoring, and compliance capabilities"
 authors = [
@@ -108,7 +108,7 @@ monitoring = [
 
 # All optional dependencies
 all = [
-    "data-quality[dev,test,docs,performance,security,monitoring]"
+    "quality[dev,test,docs,performance,security,monitoring]"
 ]
 
 [project.urls]
@@ -119,9 +119,9 @@ Repository = "https://github.com/monorepo/data-quality"
 Changelog = "https://github.com/monorepo/data-quality/blob/main/docs/CHANGELOG.md"
 
 [project.scripts]
-data-quality = "data_quality.cli:main"
-data-quality-server = "data_quality.server:main"
-data-quality-worker = "data_quality.worker:main"
+quality = "quality.cli:main"
+quality-server = "quality.server:main"
+quality-worker = "quality.worker:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -131,7 +131,7 @@ build-backend = "hatchling.build"
 packages = ["src"]
 
 [tool.hatch.version]
-path = "src/data_quality/__init__.py"
+path = "src/quality/__init__.py"
 
 # Black configuration
 [tool.black]
@@ -157,7 +157,7 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["data_quality"]
+known_first_party = ["quality"]
 skip_glob = ["*/migrations/*"]
 
 # Ruff configuration
@@ -223,7 +223,7 @@ addopts = [
     "--strict-config",
     "--verbose",
     "--tb=short",
-    "--cov=src/data_quality",
+    "--cov=src/quality",
     "--cov-report=html:reports/coverage",
     "--cov-report=term-missing",
     "--cov-report=xml:reports/coverage.xml",
@@ -249,7 +249,7 @@ filterwarnings = [
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["src/data_quality"]
+source = ["src/quality"]
 branch = true
 omit = [
     "*/tests/*",

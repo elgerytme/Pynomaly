@@ -1,0 +1,48 @@
+# MLflow Configuration Template
+# Copy this file to config/mlflow_config.yaml and modify as needed
+
+# MLflow Tracking Server
+tracking:
+  uri: "http://localhost:5000"  # MLflow tracking server URI
+  experiment_name: "anomaly_detection"
+  run_name_prefix: "anomaly_run"
+  
+# Model Registry
+registry:
+  model_name: "anomaly_detector"
+  stage: "staging"  # staging, production, archived
+  version: "latest"
+  
+# Artifact Storage
+artifacts:
+  location: "s3://mlflow-artifacts"  # or local path
+  log_models: true
+  log_datasets: true
+  log_figures: true
+  
+# AutoML Settings
+automl:
+  max_trials: 100
+  timeout: 3600  # 1 hour
+  metric: "f1_score"
+  direction: "maximize"
+  
+# Model Deployment
+deployment:
+  platform: "docker"  # docker, kubernetes, sagemaker
+  instance_type: "cpu"  # cpu, gpu
+  min_instances: 1
+  max_instances: 5
+  
+# Experiment Tracking
+tracking_config:
+  log_params: true
+  log_metrics: true
+  log_artifacts: true
+  log_system_metrics: true
+  
+# Tags
+tags:
+  team: "ml_team"
+  project: "anomaly_detection"
+  environment: "development"

@@ -1,0 +1,51 @@
+# Anomaly Detection Configuration Template
+# Copy this file to config/detection_config.yaml and modify as needed
+
+# Algorithm settings
+detection:
+  default_algorithm: "iforest"
+  contamination: 0.1
+  random_state: 42
+  
+  # Algorithm-specific parameters
+  algorithms:
+    iforest:
+      n_estimators: 100
+      max_samples: "auto"
+      max_features: 1.0
+      bootstrap: false
+      
+    lof:
+      n_neighbors: 20
+      leaf_size: 30
+      metric: "minkowski"
+      
+    ocsvm:
+      gamma: "scale"
+      kernel: "rbf"
+      degree: 3
+      coef0: 0.0
+      
+    pca:
+      n_components: null
+      whiten: true
+      svd_solver: "auto"
+
+# Data processing
+data:
+  scaling: "standard"  # standard, minmax, robust, none
+  handle_missing: "drop"  # drop, mean, median, zero
+  remove_duplicates: true
+  feature_selection: false
+  
+# Performance settings
+performance:
+  n_jobs: -1  # Use all available cores
+  batch_size: 1000
+  memory_limit: "8GB"
+  
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "anomaly_detection.log"

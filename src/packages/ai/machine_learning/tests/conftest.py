@@ -15,6 +15,12 @@ import pytest
 from sklearn.datasets import make_classification, make_regression
 from sklearn.model_selection import train_test_split
 
+# Import shared test utilities
+from test_utilities.fixtures import *
+from test_utilities.factories import *
+from test_utilities.helpers import *
+from test_utilities.markers import *
+
 
 # =========================================================================
 # TEST DATA FIXTURES - Algorithm Validation Datasets

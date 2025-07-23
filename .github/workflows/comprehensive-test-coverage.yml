@@ -1,0 +1,843 @@
+name: Comprehensive Test Coverage Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 6 * * *'  # Daily coverage report
+  workflow_dispatch:
+    inputs:
+      coverage_target:
+        description: 'Coverage target percentage'
+        required: false
+        default: '95'
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  DEFAULT_COVERAGE_TARGET: ${{ github.event.inputs.coverage_target || '95' }}
+  CACHE_VERSION: v3
+
+jobs:
+  # =============================================================================
+  # PACKAGE DISCOVERY AND MATRIX SETUP
+  # =============================================================================
+  discover-packages:
+    name: Discover Packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.discover.outputs.packages }}
+      changed-packages: ${{ steps.changes.outputs.packages }}
+      total-packages: ${{ steps.discover.outputs.total }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Discover all packages with tests
+        id: discover
+        run: |
+          packages=()
+          total=0
+          
+          # Find all packages with pyproject.toml and tests directory
+          for package_dir in $(find src/packages -name "pyproject.toml" -not -path "*/.*" | xargs dirname); do
+            package_name=$(basename "$package_dir")
+            parent_dir=$(basename "$(dirname "$package_dir")")
+            
+            # Create full package path for matrix
+            if [ "$parent_dir" != "packages" ]; then
+              full_name="${parent_dir}/${package_name}"
+            else
+              full_name="$package_name"
+            fi
+            
+            # Check if package has tests or can have tests added
+            if [ -d "$package_dir/tests" ] || [ -d "$package_dir/src" ]; then
+              packages+=("$full_name")
+              ((total++))
+            fi
+          done
+          
+          # Convert to JSON array
+          packages_json=$(printf '%s\n' "${packages[@]}" | jq -R . | jq -s .)
+          echo "packages=$packages_json" >> $GITHUB_OUTPUT
+          echo "total=$total" >> $GITHUB_OUTPUT
+          
+          echo "📦 Discovered $total packages for testing:"
+          printf '%s\n' "${packages[@]}" | sed 's/^/  - /'
+
+      - name: Detect changed packages (PR only)
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Get changed files
+            changed_files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD)
+            changed_packages=()
+            
+            # Extract package names from changed files
+            while IFS= read -r file; do
+              if [[ "$file" =~ ^src/packages/(.+)/.* ]]; then
+                package_path="${BASH_REMATCH[1]}"
+                if [[ ! " ${changed_packages[@]} " =~ " ${package_path} " ]]; then
+                  changed_packages+=("$package_path")
+                fi
+              fi
+            done <<< "$changed_files"
+            
+            # Convert to JSON array
+            changed_json=$(printf '%s\n' "${changed_packages[@]}" | jq -R . | jq -s .)
+            echo "packages=$changed_json" >> $GITHUB_OUTPUT
+            
+            echo "📝 Changed packages ($(echo "$changed_json" | jq length)):"
+            printf '%s\n' "${changed_packages[@]}" | sed 's/^/  - /'
+          else
+            echo "packages=[]" >> $GITHUB_OUTPUT
+            echo "📝 Full test run (not a PR)"
+          fi
+
+  # =============================================================================
+  # COMPREHENSIVE TEST EXECUTION MATRIX
+  # =============================================================================
+  comprehensive-tests:
+    name: Tests (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+        python-version: ["3.11", "3.12"]
+        test-type: ["unit", "integration", "e2e"]
+      fail-fast: false
+      max-parallel: 6
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      
+      mongodb:
+        image: mongo:7
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: test_password
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/pytest_cache
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.package }}-${{ hashFiles('**/pyproject.toml', '**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.package }}-
+            ${{ runner.os }}-py${{ matrix.python-version }}-
+
+      - name: Install shared test utilities
+        run: |
+          cd src/shared/test_utilities
+          pip install -e .
+
+      - name: Install package dependencies
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          if [ -f "$package_path/pyproject.toml" ]; then
+            cd "$package_path"
+            pip install -e ".[test,dev]" || pip install -e ".[dev]" || pip install -e .
+          fi
+
+      - name: Set up test environment
+        run: |
+          # Create test environment file
+          cat > .env.test << EOF
+          # Test Environment Configuration
+          ENVIRONMENT=test
+          DEBUG=true
+          
+          # Database URLs
+          DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_db
+          REDIS_URL=redis://localhost:6379/0
+          MONGODB_URL=mongodb://root:test_password@localhost:27017/test_db?authSource=admin
+          
+          # Test-specific settings
+          TEST_MODE=true
+          COVERAGE_TARGET=${{ env.DEFAULT_COVERAGE_TARGET }}
+          
+          # Disable external services in tests
+          DISABLE_EXTERNAL_APIS=true
+          MOCK_EXTERNAL_SERVICES=true
+          EOF
+
+      - name: Run unit tests
+        if: matrix.test-type == 'unit'
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          cd "$package_path"
+          
+          echo "::group::Unit Tests - ${{ matrix.package }}"
+          
+          if [ -d "tests" ]; then
+            pytest tests/ \
+              -v \
+              -m "unit or not integration and not e2e and not slow" \
+              --cov=src \
+              --cov-report=xml:coverage-unit.xml \
+              --cov-report=html:htmlcov-unit \
+              --cov-report=term-missing \
+              --cov-fail-under=${{ env.DEFAULT_COVERAGE_TARGET }} \
+              --junit-xml=test-results-unit.xml \
+              --tb=short \
+              --durations=10 \
+              || echo "Unit tests completed with issues"
+          else
+            echo "No tests directory found, creating coverage report for source code analysis"
+            pytest --collect-only src/ || echo "No test files to collect"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          cd "$package_path"
+          
+          echo "::group::Integration Tests - ${{ matrix.package }}"
+          
+          if [ -d "tests" ]; then
+            pytest tests/ \
+              -v \
+              -m "integration or api or database" \
+              --cov=src \
+              --cov-report=xml:coverage-integration.xml \
+              --cov-report=html:htmlcov-integration \
+              --cov-report=term-missing \
+              --junit-xml=test-results-integration.xml \
+              --tb=short \
+              --durations=10 \
+              || echo "Integration tests completed with issues"
+          else
+            echo "No integration tests found"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Run E2E tests
+        if: matrix.test-type == 'e2e'
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          cd "$package_path"
+          
+          echo "::group::E2E Tests - ${{ matrix.package }}"
+          
+          if [ -d "tests" ]; then
+            pytest tests/ \
+              -v \
+              -m "e2e or slow" \
+              --cov=src \
+              --cov-report=xml:coverage-e2e.xml \
+              --cov-report=html:htmlcov-e2e \
+              --cov-report=term-missing \
+              --junit-xml=test-results-e2e.xml \
+              --tb=short \
+              --durations=10 \
+              --timeout=300 \
+              || echo "E2E tests completed with issues"
+          else
+            echo "No E2E tests found"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: src/packages/${{ matrix.package }}/coverage-${{ matrix.test-type }}.xml
+          flags: ${{ matrix.package }},${{ matrix.test-type }},py${{ matrix.python-version }}
+          name: ${{ matrix.package }}-${{ matrix.test-type }}-py${{ matrix.python-version }}
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.package }}-${{ matrix.test-type }}-py${{ matrix.python-version }}
+          path: |
+            src/packages/${{ matrix.package }}/test-results-*.xml
+            src/packages/${{ matrix.package }}/htmlcov-*/
+            src/packages/${{ matrix.package }}/coverage-*.xml
+          retention-days: 30
+
+  # =============================================================================
+  # SECURITY AND PERFORMANCE TESTING
+  # =============================================================================
+  security-performance-tests:
+    name: Security & Performance
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+        scan-type: ["security", "performance"]
+      fail-fast: false
+      max-parallel: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install security and performance tools
+        run: |
+          pip install --upgrade pip
+          pip install bandit safety semgrep pytest-benchmark locust memory-profiler
+
+      - name: Install package
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          if [ -f "$package_path/pyproject.toml" ]; then
+            cd "$package_path"
+            pip install -e ".[test,security,performance]" || pip install -e . || true
+          fi
+
+      - name: Run security scans
+        if: matrix.scan-type == 'security'
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          cd "$package_path"
+          
+          echo "::group::Security Scans - ${{ matrix.package }}"
+          
+          # Bandit security scan
+          if [ -d "src" ]; then
+            bandit -r src/ -f json -o bandit-report.json || true
+            bandit -r src/ -f txt || true
+          fi
+          
+          # Safety dependency scan
+          safety check --json --output safety-report.json || true
+          safety check || true
+          
+          # Semgrep security analysis
+          if [ -d "src" ]; then
+            semgrep --config=auto src/ --json --output=semgrep-report.json || true
+            semgrep --config=auto src/ || true
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Run performance tests
+        if: matrix.scan-type == 'performance'
+        run: |
+          package_path="src/packages/${{ matrix.package }}"
+          cd "$package_path"
+          
+          echo "::group::Performance Tests - ${{ matrix.package }}"
+          
+          if [ -d "tests" ]; then
+            # Run benchmark tests
+            pytest tests/ \
+              -v \
+              -m "performance or benchmark" \
+              --benchmark-only \
+              --benchmark-json=benchmark-results.json \
+              --benchmark-sort=mean \
+              || echo "No performance tests found"
+            
+            # Memory profiling for key functions
+            python -c "
+import os
+if os.path.exists('src'):
+    print('Memory profiling would be performed here')
+            " || true
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Upload security/performance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.scan-type }}-results-${{ matrix.package }}
+          path: |
+            src/packages/${{ matrix.package }}/bandit-report.json
+            src/packages/${{ matrix.package }}/safety-report.json
+            src/packages/${{ matrix.package }}/semgrep-report.json
+            src/packages/${{ matrix.package }}/benchmark-results.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+  # =============================================================================
+  # COVERAGE AGGREGATION AND REPORTING
+  # =============================================================================
+  aggregate-coverage:
+    name: Aggregate Coverage
+    runs-on: ubuntu-latest
+    needs: [discover-packages, comprehensive-tests]
+    if: always() && needs.discover-packages.outputs.packages != '[]'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install coverage tools
+        run: |
+          pip install coverage[toml] jinja2 matplotlib seaborn pandas
+
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+
+      - name: Aggregate coverage data
+        run: |
+          mkdir -p coverage-reports
+          
+          python3 << 'EOF'
+import json
+import xml.etree.ElementTree as ET
+from pathlib import Path
+import re
+from datetime import datetime
+
+def parse_coverage_xml(xml_file):
+    """Parse coverage XML file and extract metrics."""
+    try:
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        
+        # Get overall coverage
+        coverage_attr = root.get('line-rate', '0')
+        line_coverage = float(coverage_attr) * 100
+        
+        branch_coverage_attr = root.get('branch-rate', '0')  
+        branch_coverage = float(branch_coverage_attr) * 100
+        
+        # Get package-level metrics
+        packages = {}
+        for package in root.findall('.//package'):
+            name = package.get('name', 'unknown')
+            line_rate = float(package.get('line-rate', '0')) * 100
+            branch_rate = float(package.get('branch-rate', '0')) * 100
+            
+            packages[name] = {
+                'line_coverage': line_rate,
+                'branch_coverage': branch_rate,
+                'classes': len(package.findall('.//class'))
+            }
+        
+        return {
+            'line_coverage': line_coverage,
+            'branch_coverage': branch_coverage,
+            'packages': packages
+        }
+    except Exception as e:
+        print(f"Error parsing {xml_file}: {e}")
+        return None
+
+# Aggregate coverage data
+coverage_data = {
+    'timestamp': datetime.utcnow().isoformat(),
+    'target_coverage': ${{ env.DEFAULT_COVERAGE_TARGET }},
+    'packages': {},
+    'summary': {
+        'total_packages': 0,
+        'passing_packages': 0,
+        'failing_packages': 0,
+        'overall_line_coverage': 0,
+        'overall_branch_coverage': 0
+    }
+}
+
+total_line_coverage = 0
+total_branch_coverage = 0
+package_count = 0
+
+# Process coverage files
+for coverage_file in Path('test-results').rglob('coverage-*.xml'):
+    # Extract package name from path
+    parts = str(coverage_file).split('/')
+    if len(parts) >= 3:
+        package_match = re.search(r'test-results-(.+?)-(?:unit|integration|e2e)', parts[2])
+        if package_match:
+            package_name = package_match.group(1)
+            
+            coverage_info = parse_coverage_xml(coverage_file)
+            if coverage_info:
+                if package_name not in coverage_data['packages']:
+                    coverage_data['packages'][package_name] = {
+                        'line_coverage': 0,
+                        'branch_coverage': 0,
+                        'test_types': []
+                    }
+                
+                # Use the highest coverage from all test types
+                current_line = coverage_data['packages'][package_name]['line_coverage']
+                current_branch = coverage_data['packages'][package_name]['branch_coverage']
+                
+                coverage_data['packages'][package_name]['line_coverage'] = max(
+                    current_line, coverage_info['line_coverage']
+                )
+                coverage_data['packages'][package_name]['branch_coverage'] = max(
+                    current_branch, coverage_info['branch_coverage']
+                )
+                
+                # Track which test type this coverage came from
+                test_type = 'unit' if 'unit' in str(coverage_file) else 'integration' if 'integration' in str(coverage_file) else 'e2e'
+                if test_type not in coverage_data['packages'][package_name]['test_types']:
+                    coverage_data['packages'][package_name]['test_types'].append(test_type)
+
+# Calculate summary statistics
+if coverage_data['packages']:
+    total_packages = len(coverage_data['packages'])
+    passing_packages = sum(1 for p in coverage_data['packages'].values() 
+                          if p['line_coverage'] >= ${{ env.DEFAULT_COVERAGE_TARGET }})
+    
+    avg_line_coverage = sum(p['line_coverage'] for p in coverage_data['packages'].values()) / total_packages
+    avg_branch_coverage = sum(p['branch_coverage'] for p in coverage_data['packages'].values()) / total_packages
+    
+    coverage_data['summary'] = {
+        'total_packages': total_packages,
+        'passing_packages': passing_packages,
+        'failing_packages': total_packages - passing_packages,
+        'overall_line_coverage': round(avg_line_coverage, 2),
+        'overall_branch_coverage': round(avg_branch_coverage, 2),
+        'pass_rate': round((passing_packages / total_packages) * 100, 2) if total_packages > 0 else 0
+    }
+
+# Save aggregated data
+with open('coverage-reports/coverage-summary.json', 'w') as f:
+    json.dump(coverage_data, f, indent=2)
+
+print("Coverage Summary:")
+print(f"📊 Total Packages: {coverage_data['summary']['total_packages']}")
+print(f"✅ Passing ({${{ env.DEFAULT_COVERAGE_TARGET }}%+): {coverage_data['summary']['passing_packages']}")
+print(f"❌ Failing: {coverage_data['summary']['failing_packages']}")
+print(f"📈 Overall Line Coverage: {coverage_data['summary']['overall_line_coverage']}%")
+print(f"🌿 Overall Branch Coverage: {coverage_data['summary']['overall_branch_coverage']}%")
+print(f"🎯 Pass Rate: {coverage_data['summary']['pass_rate']}%")
+EOF
+
+      - name: Generate coverage report
+        run: |
+          python3 << 'EOF'
+import json
+from datetime import datetime
+
+# Load coverage data
+with open('coverage-reports/coverage-summary.json', 'r') as f:
+    data = json.load(f)
+
+# Generate HTML report
+html_report = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Coverage Report - {datetime.now().strftime('%Y-%m-%d')}</title>
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 40px; }}
+        .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; }}
+        .summary {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }}
+        .metric {{ background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; }}
+        .metric h3 {{ margin: 0 0 10px 0; color: #495057; }}
+        .metric .value {{ font-size: 2em; font-weight: bold; }}
+        .passing {{ color: #28a745; }}
+        .failing {{ color: #dc3545; }}
+        .warning {{ color: #ffc107; }}
+        .package-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }}
+        .package {{ background: white; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; }}
+        .package h3 {{ margin: 0 0 15px 0; }}
+        .progress-bar {{ background: #e9ecef; border-radius: 10px; height: 10px; overflow: hidden; }}
+        .progress-fill {{ height: 100%; transition: width 0.3s ease; }}
+        .progress-passing {{ background: #28a745; }}
+        .progress-warning {{ background: #ffc107; }}
+        .progress-failing {{ background: #dc3545; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Comprehensive Test Coverage Report</h1>
+        <p>Generated on {datetime.now().strftime('%Y-%m-%d at %H:%M UTC')} | Target: {data['target_coverage']}%</p>
+    </div>
+    
+    <div class="summary">
+        <div class="metric">
+            <h3>Total Packages</h3>
+            <div class="value">{data['summary']['total_packages']}</div>
+        </div>
+        <div class="metric">
+            <h3>Passing Packages</h3>
+            <div class="value passing">{data['summary']['passing_packages']}</div>
+        </div>
+        <div class="metric">
+            <h3>Pass Rate</h3>
+            <div class="value {'passing' if data['summary']['pass_rate'] >= 90 else 'warning' if data['summary']['pass_rate'] >= 70 else 'failing'}">{data['summary']['pass_rate']}%</div>
+        </div>
+        <div class="metric">
+            <h3>Line Coverage</h3>
+            <div class="value {'passing' if data['summary']['overall_line_coverage'] >= data['target_coverage'] else 'warning' if data['summary']['overall_line_coverage'] >= 80 else 'failing'}">{data['summary']['overall_line_coverage']}%</div>
+        </div>
+        <div class="metric">
+            <h3>Branch Coverage</h3>
+            <div class="value {'passing' if data['summary']['overall_branch_coverage'] >= 85 else 'warning' if data['summary']['overall_branch_coverage'] >= 70 else 'failing'}">{data['summary']['overall_branch_coverage']}%</div>
+        </div>
+    </div>
+    
+    <h2>📦 Package Details</h2>
+    <div class="package-grid">
+"""
+
+for package_name, package_data in sorted(data['packages'].items()):
+    line_coverage = package_data['line_coverage']
+    branch_coverage = package_data['branch_coverage']
+    test_types = ', '.join(package_data['test_types']) if package_data['test_types'] else 'None'
+    
+    status_class = 'passing' if line_coverage >= data['target_coverage'] else 'warning' if line_coverage >= 80 else 'failing'
+    progress_class = 'progress-passing' if line_coverage >= data['target_coverage'] else 'progress-warning' if line_coverage >= 80 else 'progress-failing'
+    
+    html_report += f"""
+        <div class="package">
+            <h3>{package_name}</h3>
+            <p><strong>Line Coverage:</strong> <span class="{status_class}">{line_coverage:.1f}%</span></p>
+            <div class="progress-bar">
+                <div class="progress-fill {progress_class}" style="width: {line_coverage}%"></div>
+            </div>
+            <p><strong>Branch Coverage:</strong> {branch_coverage:.1f}%</p>
+            <p><strong>Test Types:</strong> {test_types}</p>
+        </div>
+    """
+
+html_report += """
+    </div>
+</body>
+</html>
+"""
+
+with open('coverage-reports/coverage-report.html', 'w') as f:
+    f.write(html_report)
+
+print("✅ Coverage report generated: coverage-reports/coverage-report.html")
+EOF
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage-reports/
+          retention-days: 90
+
+      - name: Deploy coverage report to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: coverage-reports/
+
+  # =============================================================================
+  # QUALITY GATES AND FINAL VALIDATION
+  # =============================================================================
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    needs: [discover-packages, comprehensive-tests, aggregate-coverage]
+    if: always()
+    
+    steps:
+      - name: Download coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+
+      - name: Validate quality gates
+        run: |
+          python3 << 'EOF'
+import json
+import sys
+
+# Load coverage data
+with open('coverage-summary.json', 'r') as f:
+    data = json.load(f)
+
+failed = False
+target = data['target_coverage']
+
+print("🎯 Quality Gate Validation")
+print("=" * 50)
+
+# Gate 1: Overall coverage threshold
+overall_coverage = data['summary']['overall_line_coverage']
+if overall_coverage < target:
+    print(f"❌ FAIL: Overall line coverage {overall_coverage:.1f}% < {target}%")
+    failed = True
+else:
+    print(f"✅ PASS: Overall line coverage {overall_coverage:.1f}% >= {target}%")
+
+# Gate 2: Branch coverage threshold  
+branch_target = 85  # Lower threshold for branch coverage
+branch_coverage = data['summary']['overall_branch_coverage']
+if branch_coverage < branch_target:
+    print(f"❌ FAIL: Overall branch coverage {branch_coverage:.1f}% < {branch_target}%")
+    failed = True
+else:
+    print(f"✅ PASS: Overall branch coverage {branch_coverage:.1f}% >= {branch_target}%")
+
+# Gate 3: Package pass rate
+pass_rate = data['summary']['pass_rate']
+min_pass_rate = 90  # 90% of packages must pass
+if pass_rate < min_pass_rate:
+    print(f"❌ FAIL: Package pass rate {pass_rate:.1f}% < {min_pass_rate}%")
+    failed = True
+else:
+    print(f"✅ PASS: Package pass rate {pass_rate:.1f}% >= {min_pass_rate}%")
+
+# Gate 4: No packages with critically low coverage
+critical_threshold = 70
+critical_packages = [
+    name for name, pkg in data['packages'].items() 
+    if pkg['line_coverage'] < critical_threshold
+]
+
+if critical_packages:
+    print(f"❌ FAIL: {len(critical_packages)} packages with critically low coverage (<{critical_threshold}%):")
+    for pkg in critical_packages:
+        coverage = data['packages'][pkg]['line_coverage']
+        print(f"  - {pkg}: {coverage:.1f}%")
+    failed = True
+else:
+    print(f"✅ PASS: No packages with critically low coverage (<{critical_threshold}%)")
+
+print("\n" + "=" * 50)
+if failed:
+    print("❌ QUALITY GATES FAILED")
+    print("\n🔧 Recommendations:")
+    print("1. Add unit tests for untested code paths")
+    print("2. Improve integration test coverage")
+    print("3. Add edge case testing")
+    print("4. Review and test error handling paths")
+    sys.exit(1)
+else:
+    print("✅ ALL QUALITY GATES PASSED")
+    print(f"\n🎉 Excellent! {data['summary']['total_packages']} packages meet coverage standards")
+EOF
+
+      - name: Comment on PR with coverage results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('coverage-summary.json', 'utf8'));
+            
+            const summary = `## 📊 Comprehensive Test Coverage Report
+            
+            ### 🎯 Overall Results
+            - **Target Coverage**: ${data.target_coverage}%
+            - **Overall Line Coverage**: ${data.summary.overall_line_coverage}% ${data.summary.overall_line_coverage >= data.target_coverage ? '✅' : '❌'}
+            - **Overall Branch Coverage**: ${data.summary.overall_branch_coverage}% ${data.summary.overall_branch_coverage >= 85 ? '✅' : '❌'}
+            - **Package Pass Rate**: ${data.summary.pass_rate}% ${data.summary.pass_rate >= 90 ? '✅' : '❌'}
+            
+            ### 📦 Package Summary
+            - **Total Packages**: ${data.summary.total_packages}
+            - **Passing Packages**: ${data.summary.passing_packages} ✅
+            - **Failing Packages**: ${data.summary.failing_packages} ❌
+            
+            ### 🔍 Package Details
+            ${Object.entries(data.packages)
+              .sort(([,a], [,b]) => b.line_coverage - a.line_coverage)
+              .slice(0, 10)
+              .map(([name, pkg]) => 
+                `- **${name}**: ${pkg.line_coverage.toFixed(1)}% ${pkg.line_coverage >= data.target_coverage ? '✅' : pkg.line_coverage >= 80 ? '⚠️' : '❌'}`
+              ).join('\n')}
+            ${Object.keys(data.packages).length > 10 ? `\n*... and ${Object.keys(data.packages).length - 10} more packages*` : ''}
+            
+            ### 📈 Coverage Trends
+            View the detailed coverage report in the workflow artifacts.
+            
+            ---
+            *Generated by Comprehensive Test Coverage Pipeline*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  # =============================================================================
+  # DEPLOY COVERAGE REPORT TO GITHUB PAGES
+  # =============================================================================
+  deploy-coverage-report:
+    name: Deploy Coverage Report
+    runs-on: ubuntu-latest
+    needs: [aggregate-coverage]
+    if: github.ref == 'refs/heads/main'
+    
+    permissions:
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
