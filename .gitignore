@@ -244,7 +244,6 @@ artifacts/
 *_original_backup.*
 
 # Local development
-.local/
 scratch/
 
 # Data files (customize as needed)
