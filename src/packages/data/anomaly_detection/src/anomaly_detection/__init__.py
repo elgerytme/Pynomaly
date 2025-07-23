@@ -34,7 +34,7 @@ __all__ = [
     "SklearnAdapter",
     "PyODAdapter", 
     "DeepLearningAdapter",
-    # Application services - TODO: Add when implemented
-    # "ExplanationAnalyzers",
-    # "PerformanceOptimizer",
+    # Application services
+    "ExplanationAnalyzers",
+    "PerformanceOptimizer",
 ]
