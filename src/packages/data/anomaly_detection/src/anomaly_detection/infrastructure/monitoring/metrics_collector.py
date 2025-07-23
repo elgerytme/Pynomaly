@@ -281,7 +281,9 @@ class MetricsCollector:
     def get_model_metrics(
         self,
         since: datetime | None = None,
-        algorithm: str | None = None
+        algorithm: str | None = None,
+        model_id: str | None = None,
+        limit: int | None = None
     ) -> list[ModelMetrics]:
         """Get model metrics with optional filtering."""
         with self._lock:
@@ -292,6 +294,15 @@ class MetricsCollector:
         
         if algorithm:
             metrics = [m for m in metrics if m.algorithm == algorithm]
+            
+        if model_id:
+            metrics = [m for m in metrics if m.model_id == model_id]
+        
+        # Sort by timestamp (most recent first)
+        metrics.sort(key=lambda m: m.timestamp, reverse=True)
+        
+        if limit:
+            metrics = metrics[:limit]
         
         return metrics
     

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.638" timestamp="2025-07-23T15:16:56.639145-04:00" hostname="rocm-socm"><testcase classname="tests.integration.test_monitoring_integration.TestMonitoringIntegration" name="test_model_metrics_recording" time="0.004"><error message="failed on setup with &quot;AttributeError: 'MetricsCollector' object has no attribute 'clear_all_metrics'. Did you mean: 'cleanup_old_metrics'?&quot;">tests/integration/conftest.py:115: in metrics_collector
-    collector.clear_all_metrics()
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   AttributeError: 'MetricsCollector' object has no attribute 'clear_all_metrics'. Did you mean: 'cleanup_old_metrics'?</error></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.710" timestamp="2025-07-23T15:17:37.161278-04:00" hostname="rocm-socm"><testcase classname="tests.integration.test_monitoring_integration.TestMonitoringIntegration" name="test_model_metrics_recording" time="0.007"><failure message="assert 0 &gt; 5">tests/integration/test_monitoring_integration.py:303: in test_model_metrics_recording
+    assert summary["total_metrics"] &gt; 5  # Should have recorded multiple metrics
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 0 &gt; 5</failure></testcase></testsuite></testsuites>
