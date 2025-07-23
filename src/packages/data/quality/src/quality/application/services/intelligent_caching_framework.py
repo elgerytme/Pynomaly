@@ -556,7 +556,8 @@ class IntelligentCacheManager:
     async def _set_in_distributed(self, key: str, entry: CacheEntry) -> None:
         """Set entry in distributed Redis cache."""
         try:
-            serialized_data = pickle.dumps(entry.value)
+            # Use JSON instead of pickle for security
+            serialized_data = json.dumps(entry.value, default=str).encode('utf-8')
             
             # Set with TTL if specified
             if entry.expires_at:
@@ -587,7 +588,12 @@ class IntelligentCacheManager:
         try:
             serialized_data = self.redis_client.get(f"cache:{key}")
             if serialized_data:
-                return pickle.loads(serialized_data)
+                # Use JSON instead of pickle for security
+                try:
+                    return json.loads(serialized_data.decode('utf-8'))
+                except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                    logger.warning(f"Failed to deserialize cached data: {e}")
+                    return None
             return None
         except Exception as e:
             logger.error(f"Failed to read from distributed cache: {str(e)}")

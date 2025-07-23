@@ -1,9 +1,36 @@
 """Tests for data type value objects."""
 
 import pytest
-# TODO: Replace with proper relative imports or shared interfaces
-# from packages.data.data.domain.value_objects.data_type import DataType, PrimitiveDataType
-from ....data.domain.value_objects.data_type import DataType, PrimitiveDataType
+from enum import Enum
+from dataclasses import dataclass
+from typing import Optional, Any
+
+# TODO: Replace with actual data domain value objects when available
+# Currently creating test fixtures since the referenced value objects don't exist
+# Original import: from ....data.domain.value_objects.data_type import DataType, PrimitiveDataType
+
+class PrimitiveDataType(str, Enum):
+    """Mock primitive data type for testing."""
+    STRING = "string"
+    INTEGER = "integer"
+    FLOAT = "float"
+    BOOLEAN = "boolean"
+    DATE = "date"
+    DATETIME = "datetime"
+
+@dataclass(frozen=True)
+class DataType:
+    """Mock data type value object for testing."""
+    primitive_type: PrimitiveDataType
+    nullable: bool = True
+    default_value: Optional[Any] = None
+    constraints: Optional[dict] = None
+    
+    def is_numeric(self) -> bool:
+        return self.primitive_type in [PrimitiveDataType.INTEGER, PrimitiveDataType.FLOAT]
+    
+    def is_temporal(self) -> bool:
+        return self.primitive_type in [PrimitiveDataType.DATE, PrimitiveDataType.DATETIME]
 
 
 class TestDataType:

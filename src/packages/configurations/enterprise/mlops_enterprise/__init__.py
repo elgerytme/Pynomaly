@@ -31,13 +31,25 @@ from infrastructure.configuration import get_config
 # except ImportError:
 #     MLflowIntegration = None
 
+# TODO: Replace with infrastructure integrations
+# try:
+#     from ....integrations.mlops import KubeflowIntegration  
+# except ImportError:
+#     KubeflowIntegration = None
+
+# try:
+#     from ....integrations.monitoring import DatadogIntegration
+
+# Use infrastructure integrations instead
+from infrastructure.integrations import get_integration
+
 try:
-    from ....integrations.mlops import KubeflowIntegration  
+    KubeflowIntegration = get_integration("kubeflow")
 except ImportError:
     KubeflowIntegration = None
 
 try:
-    from ....integrations.monitoring import DatadogIntegration
+    DatadogIntegration = get_integration("datadog")
 except ImportError:
     DatadogIntegration = None
 

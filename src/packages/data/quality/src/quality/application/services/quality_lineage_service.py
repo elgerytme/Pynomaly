@@ -20,6 +20,8 @@ import threading
 from functools import lru_cache, wraps
 import sqlite3
 import pickle
+import json
+from datetime import datetime
 import gzip
 import os
 from pathlib import Path
@@ -182,8 +184,14 @@ class QualityLineageService:
             
             row = cursor.fetchone()
             if row:
-                data = pickle.loads(gzip.decompress(row[0]) if self.config.cache_compression else row[0])
-                return data
+                # Use JSON instead of pickle for security
+                try:
+                    json_data = gzip.decompress(row[0]).decode('utf-8') if self.config.cache_compression else row[0].decode('utf-8')
+                    data = json.loads(json_data)
+                    return data
+                except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                    logger.warning(f"Failed to deserialize cached data: {e}")
+                    return None
                 
         except Exception as e:
             logger.warning(f"Failed to retrieve from persistent cache: {e}")
@@ -196,9 +204,12 @@ class QualityLineageService:
             return
         
         try:
-            serialized_data = pickle.dumps(data)
+            # Use JSON instead of pickle for security
+            json_data = json.dumps(data, default=str).encode('utf-8')  # Use str for datetime serialization
             if self.config.cache_compression:
-                serialized_data = gzip.compress(serialized_data)
+                serialized_data = gzip.compress(json_data)
+            else:
+                serialized_data = json_data
             
             cursor = self._persistent_cache_db.cursor()
             if table == "impact_cache":

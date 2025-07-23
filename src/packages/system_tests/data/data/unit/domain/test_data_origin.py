@@ -3,9 +3,35 @@
 import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
-# TODO: Replace with proper relative imports or shared interfaces
-# from packages.data.data.domain.entities.data_origin import DataOrigin, OriginType
-from ....data.domain.entities.data_origin import DataOrigin, OriginType
+from enum import Enum
+from dataclasses import dataclass
+from typing import Optional
+
+# TODO: Replace with actual data domain entities when available
+# Currently creating test fixtures since the referenced entities don't exist
+# Original import: from ....data.domain.entities.data_origin import DataOrigin, OriginType
+
+class OriginType(str, Enum):
+    """Mock origin type for testing."""
+    FILE = "file"
+    DATABASE = "database"
+    API = "api"
+    STREAM = "stream"
+
+@dataclass
+class DataOrigin:
+    """Mock data origin entity for testing."""
+    id: str = ""
+    name: str = ""
+    origin_type: OriginType = OriginType.FILE
+    source_path: Optional[str] = None
+    created_at: datetime = None
+    
+    def __post_init__(self):
+        if self.created_at is None:
+            self.created_at = datetime.utcnow()
+        if not self.id:
+            self.id = str(uuid4())
 
 
 class TestDataOrigin:

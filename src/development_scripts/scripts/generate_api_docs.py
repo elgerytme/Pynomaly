@@ -830,8 +830,8 @@ def generate_code_examples():
 import requests
 
 # Configuration
-API_KEY = "your-api-key-here"
-BASE_URL = "https://api.anomaly_detection.com"
+API_KEY = os.getenv("ANOMALY_DETECTION_API_KEY", "demo-key-for-docs")
+BASE_URL = os.getenv("ANOMALY_DETECTION_BASE_URL", "https://api.anomaly_detection.com")
 
 headers = {
     "X-API-Key": API_KEY,
@@ -892,7 +892,8 @@ print(f"Detection results: {results['data']['summary']}")
 from anomaly_detection_client import AnomalyDetectionClient
 
 # Initialize client
-client = AnomalyDetectionClient(api_key="your-api-key-here")
+import os
+client = AnomalyDetectionClient(api_key=os.getenv("ANOMALY_DETECTION_API_KEY"))
 
 # Create detector
 detector = client.detectors.create(
@@ -920,8 +921,8 @@ print(f"Anomalies detected: {results.summary.anomalies_detected}")
 const axios = require('axios');
 
 // Configuration
-const API_KEY = 'your-api-key-here';
-const BASE_URL = 'https://api.anomaly_detection.com';
+const API_KEY = process.env.ANOMALY_DETECTION_API_KEY || 'demo-key-for-docs';
+const BASE_URL = process.env.ANOMALY_DETECTION_BASE_URL || 'https://api.anomaly_detection.com';
 
 const headers = {
     'X-API-Key': API_KEY,

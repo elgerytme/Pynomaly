@@ -77,23 +77,26 @@ class EnterpriseDeployer:
             logger.info("✅ Multi-tenant manager initialized")
 
             # Test tenant creation request validation
+            import secrets
+            test_password = f"test_{secrets.token_urlsafe(16)}"
             tenant_request = TenantCreateRequest(
                 name="test_tenant",
                 display_name="Test Tenant",
                 domain="test.example.com",
                 admin_email="admin@test.example.com",
                 admin_username="admin",
-                admin_password="secure123",
+                admin_password=test_password,  # Use generated secure password
                 settings={"theme": "dark"},
                 resource_limits={"models": 50, "storage": 1000000000},
             )
             logger.info("✅ Tenant creation request validated")
 
             # Test user creation request validation
+            test_user_password = f"user_{secrets.token_urlsafe(16)}"
             user_request = UserCreateRequest(
                 email="user@test.example.com",
                 username="testuser",
-                password="secure123",
+                password=test_user_password,  # Use generated secure password
                 role=UserRole.DATA_SCIENTIST,
                 permissions=["models:read", "experiments:write"],
             )
@@ -375,16 +378,17 @@ class EnterpriseDeployer:
 
             # Test password hashing
             manager = get_multi_tenant_manager()
-            password = "secure_password_123"
-            hashed = manager.hash_password(password)
+            test_security_password = f"security_test_{secrets.token_urlsafe(16)}"
+            hashed = manager.hash_password(test_security_password)
             logger.info(f"✅ Password hashed: {hashed[:20]}...")
 
             # Test password verification
-            is_valid = manager.verify_password(password, hashed)
+            is_valid = manager.verify_password(test_security_password, hashed)
             logger.info(f"✅ Password verification: {is_valid}")
 
             # Test wrong password
-            is_invalid = manager.verify_password("wrong_password", hashed)
+            wrong_password = f"wrong_{secrets.token_urlsafe(8)}"
+            is_invalid = manager.verify_password(wrong_password, hashed)
             logger.info(f"✅ Wrong password rejected: {not is_invalid}")
 
             # Test audit event integrity

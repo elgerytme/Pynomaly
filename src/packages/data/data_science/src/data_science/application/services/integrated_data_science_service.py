@@ -19,15 +19,18 @@ from ..dto.ml_pipeline_dto import MLPipelineDTO
 from ..dto.statistical_analysis_dto import StatisticalAnalysisDTO
 from ..dto.visualization_dto import VisualizationDTO
 
-# Import data profiling services
-from ....data_profiling.application.services.profiling_engine import ProfilingEngine, ProfilingConfig
-from ....data_profiling.application.services.pattern_discovery_service import PatternDiscoveryService
-from ....data_profiling.application.services.statistical_profiling_service import StatisticalProfilingService
-
-# Import data quality services  
-from ....data_quality.application.services.quality_assessment_service import QualityAssessmentService
-from ....data_quality.application.services.validation_engine import ValidationEngine
-from ....data_quality.application.services.data_cleansing_engine import DataCleansingEngine
+# Use shared interfaces instead of direct package imports
+from shared.interfaces.data_profiling import (
+    DataProfilingInterface, 
+    PatternDiscoveryInterface, 
+    StatisticalProfilingInterface
+)
+from shared.interfaces.data_quality import (
+    DataQualityInterface,
+    ValidationEngineInterface,
+    DataCleansingInterface
+)
+from infrastructure.dependency_injection import ServiceRegistry, get_service_registry
 
 logger = logging.getLogger(__name__)
 
@@ -138,10 +141,11 @@ class IntegratedDataScienceService:
     Implements Phase 2.8 integration requirements with performance optimization.
     """
     
-    def __init__(self, config: DataScienceWorkflowConfig = None):
+    def __init__(self, config: DataScienceWorkflowConfig = None, service_registry: ServiceRegistry = None):
         self.config = config or DataScienceWorkflowConfig()
+        self.service_registry = service_registry or get_service_registry()
         
-        # Initialize individual package services
+        # Initialize services through dependency injection
         self._initialize_services()
         
         # Performance monitoring
@@ -151,37 +155,31 @@ class IntegratedDataScienceService:
         # Caching for performance optimization
         self.result_cache: Dict[str, Any] = {} if self.config.enable_caching else None
         
-        logger.info("Initialized IntegratedDataScienceService with advanced orchestration")
+        logger.info("Initialized IntegratedDataScienceService with dependency injection")
     
     def _initialize_services(self):
-        """Initialize all data science package services."""
+        """Initialize all data science package services through dependency injection."""
         try:
-            # Data profiling services
-            profiling_config = ProfilingConfig(
-                enable_sampling=True,
-                sample_size=self.config.profiling_sample_size,
-                enable_advanced_patterns=self.config.enable_advanced_patterns,
-                max_workers=self.config.max_workers
-            )
-            self.profiling_engine = ProfilingEngine(profiling_config)
-            self.pattern_discovery = PatternDiscoveryService()
-            self.statistical_profiling = StatisticalProfilingService()
+            # Initialize services through registry - handles missing dependencies gracefully  
+            self.profiling_engine = self.service_registry.get(DataProfilingInterface)
+            self.pattern_discovery = self.service_registry.get(PatternDiscoveryInterface)
+            self.statistical_profiling = self.service_registry.get(StatisticalProfilingInterface)
             
             # Data quality services
-            self.quality_assessment = QualityAssessmentService()
-            self.validation_engine = ValidationEngine()
-            self.data_cleansing = DataCleansingEngine()
+            self.quality_assessment = self.service_registry.get(DataQualityInterface)
+            self.validation_engine = self.service_registry.get(ValidationEngineInterface)
+            self.data_cleansing = self.service_registry.get(DataCleansingInterface)
             
             # Initialize other services as they become available
             self.ml_pipeline_service = None  # Will be initialized when ML pipeline is available
             self.feature_engineering_service = None
             self.visualization_service = None
             
-            logger.info("Successfully initialized all available data science services")
+            logger.info("Successfully initialized services through dependency injection")
             
         except Exception as e:
             logger.error(f"Failed to initialize some services: {e}")
-            # Continue with available services
+            # Continue with available services - the service registry handles missing dependencies
     
     async def execute_integrated_workflow(
         self,

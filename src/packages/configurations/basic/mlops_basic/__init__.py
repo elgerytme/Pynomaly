@@ -3,8 +3,9 @@
 from pathlib import Path
 from typing import Optional
 
-from ....core.ai.machine_learning.mlops.services.experiment_tracking_service import ExperimentTrackingService
-from ....core.ai.machine_learning.mlops.services.model_registry_service import ModelRegistryService
+# Use shared interfaces instead of direct cross-package imports
+from shared.interfaces.mlops import ExperimentTrackingInterface, ModelRegistryInterface
+from infrastructure.dependency_injection import ServiceRegistry, get_service_registry
 
 
 class BasicMLOpsConfiguration:
@@ -19,20 +20,19 @@ class BasicMLOpsConfiguration:
     - No multi-tenancy
     """
     
-    def __init__(self, data_path: Optional[Path] = None):
+    def __init__(self, data_path: Optional[Path] = None, service_registry: ServiceRegistry = None):
         """Initialize basic MLOps configuration."""
         self.data_path = data_path or Path("./mlops_data")
         self.data_path.mkdir(parents=True, exist_ok=True)
+        self.service_registry = service_registry or get_service_registry()
     
-    def create_experiment_tracker(self) -> ExperimentTrackingService:
-        """Create experiment tracking service."""
-        experiments_path = self.data_path / "experiments"
-        return ExperimentTrackingService(experiments_path)
+    def create_experiment_tracker(self) -> ExperimentTrackingInterface:
+        """Create experiment tracking service through dependency injection."""
+        return self.service_registry.get(ExperimentTrackingInterface)
     
-    def create_model_registry(self) -> ModelRegistryService:
-        """Create model registry service."""
-        registry_path = self.data_path / "models"
-        return ModelRegistryService(registry_path)
+    def create_model_registry(self) -> ModelRegistryInterface:
+        """Create model registry service through dependency injection."""
+        return self.service_registry.get(ModelRegistryInterface)
     
     def create_mlops_services(self) -> dict:
         """Create all MLOps services."""

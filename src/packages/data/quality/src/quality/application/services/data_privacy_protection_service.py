@@ -595,8 +595,8 @@ class DataPrivacyProtectionService:
     
     async def _generate_pseudonym(self, value: str, pii_type: PIIType) -> str:
         """Generate a pseudonym for a value."""
-        # Simple pseudonym generation - in production, use more sophisticated methods
-        hash_value = hashlib.md5(value.encode()).hexdigest()[:8]
+        # Use SHA-256 instead of MD5 for security
+        hash_value = hashlib.sha256(value.encode()).hexdigest()[:8]
         
         if pii_type == PIIType.NAME:
             return f"Person_{hash_value}"
