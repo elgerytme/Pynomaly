@@ -312,7 +312,19 @@ class TestDetectionService:
         algorithms = detection_service.list_available_algorithms()
         assert "iforest" in algorithms
         assert "lof" in algorithms
-        assert len(algorithms) == 2
+        # Time series algorithms
+        assert "lstm_autoencoder" in algorithms
+        assert "prophet" in algorithms
+        assert "statistical_ts" in algorithms
+        assert "isolation_forest_ts" in algorithms
+        # Graph algorithms
+        assert "gcn" in algorithms
+        assert "gaan" in algorithms
+        assert "anomalydae" in algorithms
+        assert "radar" in algorithms
+        assert "dominant" in algorithms
+        assert "simple_graph" in algorithms
+        assert len(algorithms) == 12  # 2 builtin + 4 time series + 6 graph
         
         # Test with registered adapters
         adapter = MockAlgorithmAdapter()
@@ -322,7 +334,7 @@ class TestDetectionService:
         assert "iforest" in algorithms
         assert "lof" in algorithms
         assert "custom_algo" in algorithms
-        assert len(algorithms) == 3
+        assert len(algorithms) == 13  # 12 + 1 custom
     
     def test_get_algorithm_info_builtin(self, detection_service):
         """Test getting info for built-in algorithms."""
@@ -344,6 +356,19 @@ class TestDetectionService:
         info = detection_service.get_algorithm_info("custom_algo")
         assert info["name"] == "custom_algo"
         assert info["type"] == "registered_adapter"
+    
+    def test_get_algorithm_info_graph(self, detection_service):
+        """Test getting info for graph algorithms."""
+        info_gcn = detection_service.get_algorithm_info("gcn")
+        assert info_gcn["name"] == "gcn"
+        assert info_gcn["type"] == "graph"
+        assert "pygod" in info_gcn["requires"]
+        assert "torch" in info_gcn["requires"]
+        
+        info_simple = detection_service.get_algorithm_info("simple_graph")
+        assert info_simple["name"] == "simple_graph"
+        assert info_simple["type"] == "graph"
+        assert info_simple["requires"] == []
     
     def test_get_algorithm_info_unknown(self, detection_service):
         """Test getting info for unknown algorithm."""
