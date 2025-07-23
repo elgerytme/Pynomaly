@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .api import htmx, pages
+from .api import htmx, pages, analytics
 from ..infrastructure.config.settings import get_settings
 from ..infrastructure.logging import setup_logging
 
@@ -58,6 +58,7 @@ def create_web_app() -> FastAPI:
     # Include routers
     app.include_router(pages.router)
     app.include_router(htmx.router, prefix="/htmx")
+    app.include_router(analytics.router, prefix="/htmx/analytics")
 
     # Error handlers
     @app.exception_handler(404)

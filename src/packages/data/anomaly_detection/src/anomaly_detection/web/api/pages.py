@@ -151,6 +151,18 @@ async def monitoring_page(request: Request):
     )
 
 
+@router.get("/analytics", response_class=HTMLResponse)
+async def analytics_dashboard(request: Request):
+    """Analytics dashboard page."""
+    return templates.TemplateResponse(
+        "pages/analytics_dashboard.html",
+        {
+            "request": request,
+            "title": "Analytics Dashboard"
+        }
+    )
+
+
 @router.get("/about", response_class=HTMLResponse)
 async def about_page(request: Request):
     """About page."""

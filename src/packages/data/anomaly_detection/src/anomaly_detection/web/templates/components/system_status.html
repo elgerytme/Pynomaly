@@ -1,0 +1,76 @@
+<!-- System Status Component -->
+<div class="p-4">
+    <div class="space-y-4">
+        <!-- Overall Status -->
+        <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">Overall Status</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if status.overall_status == 'healthy' %}bg-green-100 text-green-800{% elif status.overall_status == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ status.overall_status | title }}
+            </span>
+        </div>
+
+        <!-- System Metrics -->
+        <div class="space-y-3">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">API Status</span>
+                <span class="text-sm font-medium text-green-600">{{ status.api_status }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Database</span>
+                <span class="text-sm font-medium text-green-600">{{ status.database_status }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Memory Usage</span>
+                <span class="text-sm font-medium text-blue-600">{{ status.memory_usage }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">CPU Usage</span>
+                <span class="text-sm font-medium text-blue-600">{{ status.cpu_usage }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Disk Usage</span>
+                <span class="text-sm font-medium text-blue-600">{{ status.disk_usage }}</span>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="pt-3 border-t border-gray-200">
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Active Operations</span>
+                    <span class="text-xs font-medium">{{ status.active_operations }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Success Rate</span>
+                    <span class="text-xs font-medium text-green-600">{{ status.success_rate }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Last Check</span>
+                    <span class="text-xs text-gray-400">{{ status.last_check }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="pt-3 border-t border-gray-200">
+            <div class="grid grid-cols-2 gap-2">
+                <button 
+                    hx-get="/htmx/analytics/health/system-status"
+                    hx-target="#system-status"
+                    hx-swap="innerHTML"
+                    class="text-xs btn btn-outline btn-sm">
+                    🔄 Refresh
+                </button>
+                <a href="/monitoring" class="text-xs btn btn-secondary btn-sm text-center">
+                    📊 Monitoring
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

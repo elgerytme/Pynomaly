@@ -42,6 +42,9 @@
                             <a href="/models" class="nav-link {% if request.url.path == '/models' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
                                 Models
                             </a>
+                            <a href="/analytics" class="nav-link {% if request.url.path == '/analytics' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
+                                Analytics
+                            </a>
                             <a href="/monitoring" class="nav-link {% if request.url.path == '/monitoring' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
                                 Monitoring
                             </a>
@@ -78,6 +81,9 @@
                     </a>
                     <a href="/models" class="nav-link-mobile {% if request.url.path == '/models' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                         Models
+                    </a>
+                    <a href="/analytics" class="nav-link-mobile {% if request.url.path == '/analytics' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        Analytics
                     </a>
                     <a href="/monitoring" class="nav-link-mobile {% if request.url.path == '/monitoring' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                         Monitoring
