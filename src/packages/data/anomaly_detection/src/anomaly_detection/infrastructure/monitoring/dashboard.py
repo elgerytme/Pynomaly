@@ -109,4 +109,255 @@ class MonitoringDashboard:
             avg_response_time = total_time / len(recent_profiles)
         
         # Count anomalies detected today
-        anomalies_today = sum(\n            m.anomalies_detected or 0 \n            for m in model_metrics \n            if m.anomalies_detected and m.timestamp >= today_start\n        )\n        \n        # Count slow operations (> 5 seconds)\n        slow_operations = sum(\n            1 for p in recent_profiles \n            if p.total_duration_ms > 5000\n        )\n        \n        # Count recent errors\n        recent_errors = sum(\n            1 for p in recent_profiles \n            if not p.success\n        )\n        \n        # Get resource usage\n        resource_usage = self.performance_monitor.get_resource_usage(limit=1)\n        current_memory_mb = resource_usage[0].memory_mb if resource_usage else None\n        current_cpu_percent = resource_usage[0].cpu_percent if resource_usage else None\n        \n        # Calculate peak memory from recent profiles\n        peak_memory_mb = None\n        if recent_profiles:\n            peak_memories = [p.peak_memory_mb for p in recent_profiles if p.peak_memory_mb]\n            peak_memory_mb = max(peak_memories) if peak_memories else None\n        \n        # Count health check statuses\n        health_counts = health_summary.get(\"status_counts\", {})\n        healthy_checks = health_counts.get(\"healthy\", 0)\n        degraded_checks = health_counts.get(\"degraded\", 0)\n        unhealthy_checks = health_counts.get(\"unhealthy\", 0)\n        \n        # Active alerts (currently just unhealthy + degraded checks + errors)\n        active_alerts = unhealthy_checks + (1 if recent_errors > 5 else 0) + (1 if slow_operations > 3 else 0)\n        \n        return DashboardSummary(\n            overall_health_status=health_summary.get(\"overall_status\", \"unknown\"),\n            healthy_checks=healthy_checks,\n            degraded_checks=degraded_checks,\n            unhealthy_checks=unhealthy_checks,\n            total_operations=perf_summary.get(\"total_operations\", 0),\n            operations_last_hour=operations_last_hour,\n            avg_response_time_ms=avg_response_time,\n            success_rate=success_rate,\n            current_memory_mb=current_memory_mb,\n            current_cpu_percent=current_cpu_percent,\n            peak_memory_mb=peak_memory_mb,\n            total_models=0,  # Would be calculated from model repository\n            active_detections=operations_last_hour,  # Approximation\n            anomalies_detected_today=anomalies_today,\n            active_alerts=active_alerts,\n            recent_errors=recent_errors,\n            slow_operations=slow_operations,\n            generated_at=now\n        )\n    \n    def get_performance_trends(self, hours: int = 24) -> Dict[str, Any]:\n        \"\"\"Get performance trends over time.\n        \n        Args:\n            hours: Number of hours to look back\n            \n        Returns:\n            Dictionary with trend data\n        \"\"\"\n        since = datetime.utcnow() - timedelta(hours=hours)\n        \n        # Get performance profiles\n        profiles = self.performance_monitor.get_recent_profiles(since=since)\n        \n        # Group by hour\n        hourly_data = {}\n        for profile in profiles:\n            hour_key = profile.timestamp.replace(minute=0, second=0, microsecond=0)\n            \n            if hour_key not in hourly_data:\n                hourly_data[hour_key] = {\n                    \"timestamp\": hour_key,\n                    \"operations\": 0,\n                    \"successes\": 0,\n                    \"failures\": 0,\n                    \"total_duration\": 0,\n                    \"peak_memory\": 0\n                }\n            \n            data = hourly_data[hour_key]\n            data[\"operations\"] += 1\n            data[\"total_duration\"] += profile.total_duration_ms\n            \n            if profile.success:\n                data[\"successes\"] += 1\n            else:\n                data[\"failures\"] += 1\n            \n            if profile.peak_memory_mb:\n                data[\"peak_memory\"] = max(data[\"peak_memory\"], profile.peak_memory_mb)\n        \n        # Calculate averages and rates\n        trend_data = []\n        for hour_key in sorted(hourly_data.keys()):\n            data = hourly_data[hour_key]\n            \n            avg_duration = 0\n            success_rate = 0\n            if data[\"operations\"] > 0:\n                avg_duration = data[\"total_duration\"] / data[\"operations\"]\n                success_rate = data[\"successes\"] / data[\"operations\"]\n            \n            trend_data.append({\n                \"timestamp\": hour_key.isoformat(),\n                \"operations_count\": data[\"operations\"],\n                \"avg_duration_ms\": avg_duration,\n                \"success_rate\": success_rate,\n                \"peak_memory_mb\": data[\"peak_memory\"]\n            })\n        \n        return {\n            \"period_hours\": hours,\n            \"data_points\": len(trend_data),\n            \"trends\": trend_data\n        }\n    \n    def get_alert_summary(self) -> Dict[str, Any]:\n        \"\"\"Get summary of current alerts and issues.\n        \n        Returns:\n            Dictionary with alert information\n        \"\"\"\n        alerts = []\n        \n        # Health check alerts\n        health_summary = self.health_checker.get_health_summary()\n        for check_name, check_info in health_summary.get(\"checks\", {}).items():\n            if check_info[\"status\"] == \"unhealthy\":\n                alerts.append({\n                    \"type\": \"health_check\",\n                    \"severity\": \"critical\" if check_info.get(\"critical\", False) else \"warning\",\n                    \"message\": f\"Health check '{check_name}' is unhealthy: {check_info['message']}\",\n                    \"timestamp\": check_info[\"timestamp\"],\n                    \"source\": check_name\n                })\n            elif check_info[\"status\"] == \"degraded\":\n                alerts.append({\n                    \"type\": \"health_check\",\n                    \"severity\": \"warning\",\n                    \"message\": f\"Health check '{check_name}' is degraded: {check_info['message']}\",\n                    \"timestamp\": check_info[\"timestamp\"],\n                    \"source\": check_name\n                })\n        \n        # Performance alerts\n        recent_profiles = self.performance_monitor.get_recent_profiles(\n            since=datetime.utcnow() - timedelta(hours=1)\n        )\n        \n        # Slow operations alert\n        slow_ops = [p for p in recent_profiles if p.total_duration_ms > 10000]\n        if len(slow_ops) > 3:\n            alerts.append({\n                \"type\": \"performance\",\n                \"severity\": \"warning\",\n                \"message\": f\"High number of slow operations: {len(slow_ops)} operations > 10s in last hour\",\n                \"timestamp\": datetime.utcnow().isoformat(),\n                \"source\": \"performance_monitor\"\n            })\n        \n        # High error rate alert\n        failed_ops = [p for p in recent_profiles if not p.success]\n        if recent_profiles and len(failed_ops) / len(recent_profiles) > 0.1:\n            error_rate = len(failed_ops) / len(recent_profiles)\n            alerts.append({\n                \"type\": \"error_rate\",\n                \"severity\": \"critical\" if error_rate > 0.2 else \"warning\",\n                \"message\": f\"High error rate: {error_rate:.1%} in last hour\",\n                \"timestamp\": datetime.utcnow().isoformat(),\n                \"source\": \"performance_monitor\"\n            })\n        \n        # Memory usage alert\n        resource_usage = self.performance_monitor.get_resource_usage(limit=1)\n        if resource_usage and resource_usage[0].memory_percent > 85:\n            alerts.append({\n                \"type\": \"resource\",\n                \"severity\": \"warning\",\n                \"message\": f\"High memory usage: {resource_usage[0].memory_percent:.1f}%\",\n                \"timestamp\": resource_usage[0].timestamp.isoformat(),\n                \"source\": \"resource_monitor\"\n            })\n        \n        # Sort alerts by severity and timestamp\n        severity_order = {\"critical\": 0, \"warning\": 1, \"info\": 2}\n        alerts.sort(key=lambda x: (severity_order.get(x[\"severity\"], 3), x[\"timestamp\"]))\n        \n        return {\n            \"total_alerts\": len(alerts),\n            \"critical_count\": sum(1 for a in alerts if a[\"severity\"] == \"critical\"),\n            \"warning_count\": sum(1 for a in alerts if a[\"severity\"] == \"warning\"),\n            \"alerts\": alerts[:20]  # Limit to 20 most important alerts\n        }\n    \n    def get_operation_breakdown(self) -> Dict[str, Any]:\n        \"\"\"Get breakdown of operations by type and performance.\n        \n        Returns:\n            Dictionary with operation statistics\n        \"\"\"\n        # Get operation stats from performance monitor\n        operation_stats = self.performance_monitor.get_operation_stats()\n        \n        # Sort operations by total duration\n        sorted_operations = sorted(\n            operation_stats.items(),\n            key=lambda x: x[1].get(\"total_duration_ms\", 0),\n            reverse=True\n        )\n        \n        operation_breakdown = []\n        for op_name, stats in sorted_operations[:10]:  # Top 10 operations\n            operation_breakdown.append({\n                \"operation\": op_name,\n                \"total_calls\": stats.get(\"count\", 0),\n                \"success_count\": stats.get(\"success_count\", 0),\n                \"error_count\": stats.get(\"error_count\", 0),\n                \"success_rate\": stats.get(\"success_rate\", 0.0),\n                \"avg_duration_ms\": stats.get(\"avg_duration_ms\", 0.0),\n                \"min_duration_ms\": stats.get(\"min_duration_ms\", 0.0),\n                \"max_duration_ms\": stats.get(\"max_duration_ms\", 0.0),\n                \"total_duration_ms\": stats.get(\"total_duration_ms\", 0.0)\n            })\n        \n        return {\n            \"total_operations_monitored\": len(operation_stats),\n            \"top_operations\": operation_breakdown,\n            \"generated_at\": datetime.utcnow().isoformat()\n        }\n\n\n# Global dashboard instance\n_global_dashboard: Optional[MonitoringDashboard] = None\n\n\ndef get_monitoring_dashboard() -> MonitoringDashboard:\n    \"\"\"Get the global monitoring dashboard instance.\"\"\"\n    global _global_dashboard\n    \n    if _global_dashboard is None:\n        _global_dashboard = MonitoringDashboard()\n    \n    return _global_dashboard"
+        anomalies_today = sum(
+            m.anomalies_detected or 0 
+            for m in model_metrics 
+            if m.anomalies_detected and m.timestamp >= today_start
+        )
+        
+        # Count slow operations (> 5 seconds)
+        slow_operations = sum(
+            1 for p in recent_profiles 
+            if p.total_duration_ms > 5000
+        )
+        
+        # Count recent errors
+        recent_errors = sum(
+            1 for p in recent_profiles 
+            if not p.success
+        )
+        
+        # Get resource usage
+        resource_usage = self.performance_monitor.get_resource_usage(limit=1)
+        current_memory_mb = resource_usage[0].memory_mb if resource_usage else None
+        current_cpu_percent = resource_usage[0].cpu_percent if resource_usage else None
+        
+        # Calculate peak memory from recent profiles
+        peak_memory_mb = None
+        if recent_profiles:
+            peak_memories = [p.peak_memory_mb for p in recent_profiles if p.peak_memory_mb]
+            peak_memory_mb = max(peak_memories) if peak_memories else None
+        
+        # Count health check statuses
+        health_counts = health_summary.get("status_counts", {})
+        healthy_checks = health_counts.get("healthy", 0)
+        degraded_checks = health_counts.get("degraded", 0)
+        unhealthy_checks = health_counts.get("unhealthy", 0)
+        
+        # Active alerts (currently just unhealthy + degraded checks + errors)
+        active_alerts = unhealthy_checks + (1 if recent_errors > 5 else 0) + (1 if slow_operations > 3 else 0)
+        
+        return DashboardSummary(
+            overall_health_status=health_summary.get("overall_status", "unknown"),
+            healthy_checks=healthy_checks,
+            degraded_checks=degraded_checks,
+            unhealthy_checks=unhealthy_checks,
+            total_operations=perf_summary.get("total_operations", 0),
+            operations_last_hour=operations_last_hour,
+            avg_response_time_ms=avg_response_time,
+            success_rate=success_rate,
+            current_memory_mb=current_memory_mb,
+            current_cpu_percent=current_cpu_percent,
+            peak_memory_mb=peak_memory_mb,
+            total_models=0,  # Would be calculated from model repository
+            active_detections=operations_last_hour,  # Approximation
+            anomalies_detected_today=anomalies_today,
+            active_alerts=active_alerts,
+            recent_errors=recent_errors,
+            slow_operations=slow_operations,
+            generated_at=now
+        )
+    
+    def get_performance_trends(self, hours: int = 24) -> Dict[str, Any]:
+        """Get performance trends over time.
+        
+        Args:
+            hours: Number of hours to look back
+            
+        Returns:
+            Dictionary with trend data
+        """
+        since = datetime.utcnow() - timedelta(hours=hours)
+        
+        # Get performance profiles
+        profiles = self.performance_monitor.get_recent_profiles(since=since)
+        
+        # Group by hour
+        hourly_data = {}
+        for profile in profiles:
+            hour_key = profile.timestamp.replace(minute=0, second=0, microsecond=0)
+            
+            if hour_key not in hourly_data:
+                hourly_data[hour_key] = {
+                    "timestamp": hour_key,
+                    "operations": 0,
+                    "successes": 0,
+                    "failures": 0,
+                    "total_duration": 0,
+                    "peak_memory": 0
+                }
+            
+            data = hourly_data[hour_key]
+            data["operations"] += 1
+            data["total_duration"] += profile.total_duration_ms
+            
+            if profile.success:
+                data["successes"] += 1
+            else:
+                data["failures"] += 1
+            
+            if profile.peak_memory_mb:
+                data["peak_memory"] = max(data["peak_memory"], profile.peak_memory_mb)
+        
+        # Calculate averages and rates
+        trend_data = []
+        for hour_key in sorted(hourly_data.keys()):
+            data = hourly_data[hour_key]
+            
+            avg_duration = 0
+            success_rate = 0
+            if data["operations"] > 0:
+                avg_duration = data["total_duration"] / data["operations"]
+                success_rate = data["successes"] / data["operations"]
+            
+            trend_data.append({
+                "timestamp": hour_key.isoformat(),
+                "operations_count": data["operations"],
+                "avg_duration_ms": avg_duration,
+                "success_rate": success_rate,
+                "peak_memory_mb": data["peak_memory"]
+            })
+        
+        return {
+            "period_hours": hours,
+            "data_points": len(trend_data),
+            "trends": trend_data
+        }
+    
+    def get_alert_summary(self) -> Dict[str, Any]:
+        """Get summary of current alerts and issues.
+        
+        Returns:
+            Dictionary with alert information
+        """
+        alerts = []
+        
+        # Health check alerts
+        health_summary = self.health_checker.get_health_summary()
+        for check_name, check_info in health_summary.get("checks", {}).items():
+            if check_info["status"] == "unhealthy":
+                alerts.append({
+                    "type": "health_check",
+                    "severity": "critical" if check_info.get("critical", False) else "warning",
+                    "message": f"Health check '{check_name}' is unhealthy: {check_info['message']}",
+                    "timestamp": check_info["timestamp"],
+                    "source": check_name
+                })
+            elif check_info["status"] == "degraded":
+                alerts.append({
+                    "type": "health_check",
+                    "severity": "warning",
+                    "message": f"Health check '{check_name}' is degraded: {check_info['message']}",
+                    "timestamp": check_info["timestamp"],
+                    "source": check_name
+                })
+        
+        # Performance alerts
+        recent_profiles = self.performance_monitor.get_recent_profiles(
+            since=datetime.utcnow() - timedelta(hours=1)
+        )
+        
+        # Slow operations alert
+        slow_ops = [p for p in recent_profiles if p.total_duration_ms > 10000]
+        if len(slow_ops) > 3:
+            alerts.append({
+                "type": "performance",
+                "severity": "warning",
+                "message": f"High number of slow operations: {len(slow_ops)} operations > 10s in last hour",
+                "timestamp": datetime.utcnow().isoformat(),
+                "source": "performance_monitor"
+            })
+        
+        # High error rate alert
+        failed_ops = [p for p in recent_profiles if not p.success]
+        if recent_profiles and len(failed_ops) / len(recent_profiles) > 0.1:
+            error_rate = len(failed_ops) / len(recent_profiles)
+            alerts.append({
+                "type": "error_rate",
+                "severity": "critical" if error_rate > 0.2 else "warning",
+                "message": f"High error rate: {error_rate:.1%} in last hour",
+                "timestamp": datetime.utcnow().isoformat(),
+                "source": "performance_monitor"
+            })
+        
+        # Memory usage alert
+        resource_usage = self.performance_monitor.get_resource_usage(limit=1)
+        if resource_usage and resource_usage[0].memory_percent > 85:
+            alerts.append({
+                "type": "resource",
+                "severity": "warning",
+                "message": f"High memory usage: {resource_usage[0].memory_percent:.1f}%",
+                "timestamp": resource_usage[0].timestamp.isoformat(),
+                "source": "resource_monitor"
+            })
+        
+        # Sort alerts by severity and timestamp
+        severity_order = {"critical": 0, "warning": 1, "info": 2}
+        alerts.sort(key=lambda x: (severity_order.get(x["severity"], 3), x["timestamp"]))
+        
+        return {
+            "total_alerts": len(alerts),
+            "critical_count": sum(1 for a in alerts if a["severity"] == "critical"),
+            "warning_count": sum(1 for a in alerts if a["severity"] == "warning"),
+            "alerts": alerts[:20]  # Limit to 20 most important alerts
+        }
+    
+    def get_operation_breakdown(self) -> Dict[str, Any]:
+        """Get breakdown of operations by type and performance.
+        
+        Returns:
+            Dictionary with operation statistics
+        """
+        # Get operation stats from performance monitor
+        operation_stats = self.performance_monitor.get_operation_stats()
+        
+        # Sort operations by total duration
+        sorted_operations = sorted(
+            operation_stats.items(),
+            key=lambda x: x[1].get("total_duration_ms", 0),
+            reverse=True
+        )
+        
+        operation_breakdown = []
+        for op_name, stats in sorted_operations[:10]:  # Top 10 operations
+            operation_breakdown.append({
+                "operation": op_name,
+                "total_calls": stats.get("count", 0),
+                "success_count": stats.get("success_count", 0),
+                "error_count": stats.get("error_count", 0),
+                "success_rate": stats.get("success_rate", 0.0),
+                "avg_duration_ms": stats.get("avg_duration_ms", 0.0),
+                "min_duration_ms": stats.get("min_duration_ms", 0.0),
+                "max_duration_ms": stats.get("max_duration_ms", 0.0),
+                "total_duration_ms": stats.get("total_duration_ms", 0.0)
+            })
+        
+        return {
+            "total_operations_monitored": len(operation_stats),
+            "top_operations": operation_breakdown,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+
+
+# Global dashboard instance
+_global_dashboard: Optional[MonitoringDashboard] = None
+
+
+def get_monitoring_dashboard() -> MonitoringDashboard:
+    """Get the global monitoring dashboard instance."""
+    global _global_dashboard
+    
+    if _global_dashboard is None:
+        _global_dashboard = MonitoringDashboard()
+    
+    return _global_dashboard

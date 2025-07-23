@@ -237,7 +237,17 @@ class StreamingService:
     def get_streaming_stats(self) -> dict[str, Any]:
         """Get statistics about the streaming process."""
         with self._lock:
+            current_memory = self._get_memory_usage()
+            
+            # Calculate recent performance metrics
+            recent_processing_times = list(self._processing_times)[-100:] if self._processing_times else []
+            avg_processing_time = (
+                sum(recent_processing_times) / len(recent_processing_times)
+                if recent_processing_times else 0.0
+            )
+            
             return {
+                # Core streaming stats
                 "total_samples": self._sample_count,
                 "buffer_size": len(self._data_buffer),
                 "buffer_capacity": self.window_size,
@@ -245,7 +255,26 @@ class StreamingService:
                 "model_fitted": self._model_fitted,
                 "current_algorithm": self._current_algorithm,
                 "samples_since_update": self._sample_count - self._last_update,
-                "update_frequency": self.update_frequency
+                "update_frequency": self.update_frequency,
+                
+                # Memory management stats
+                "current_memory_mb": current_memory,
+                "initial_memory_mb": self._initial_memory_mb,
+                "peak_memory_mb": self._peak_memory_mb,
+                "memory_limit_mb": self.memory_limit_mb,
+                "memory_usage_ratio": current_memory / self.memory_limit_mb,
+                "memory_warnings": self._memory_warnings,
+                
+                # Performance stats
+                "avg_processing_time_ms": avg_processing_time,
+                "processing_samples_tracked": len(self._processing_times),
+                "error_count": self._error_count,
+                "last_error_time": self._last_error_time,
+                
+                # Cleanup stats
+                "cleanup_frequency": self.cleanup_frequency,
+                "samples_since_cleanup": self._sample_count - self._last_cleanup,
+                "last_gc_time": self._last_gc_time
             }
     
     def reset_stream(self) -> None:
@@ -254,8 +283,24 @@ class StreamingService:
             self._data_buffer.clear()
             self._sample_count = 0
             self._last_update = 0
+            self._last_cleanup = 0
             self._model_fitted = False
-            logger.info("Stream state reset")
+            
+            # Reset memory tracking
+            self._initial_memory_mb = self._get_memory_usage()
+            self._peak_memory_mb = self._initial_memory_mb
+            self._memory_warnings = 0
+            
+            # Clear performance tracking
+            self._processing_times.clear()
+            self._error_count = 0
+            self._last_error_time = None
+            
+            # Force garbage collection
+            gc.collect()
+            self._last_gc_time = time.time()
+            
+            logger.info("Stream state reset and memory cleaned")
     
     def set_update_frequency(self, frequency: int) -> None:
         """Update the retraining frequency."""
@@ -273,4 +318,127 @@ class StreamingService:
             old_data = list(self._data_buffer)
             self.window_size = size
             self._data_buffer = deque(old_data[-size:], maxlen=size)
+            
+            # Force garbage collection after resizing
+            gc.collect()
+            
             logger.info(f"Window size updated to {size}")
+    
+    def _get_memory_usage(self) -> float:
+        """Get current memory usage in MB."""
+        try:
+            process = psutil.Process()
+            return process.memory_info().rss / 1024 / 1024
+        except Exception:
+            return 0.0
+    
+    def _check_memory_usage(self) -> None:
+        """Check and log memory usage, trigger cleanup if needed."""
+        current_memory = self._get_memory_usage()
+        
+        # Update peak memory
+        if current_memory > self._peak_memory_mb:
+            self._peak_memory_mb = current_memory
+        
+        # Check if we're approaching memory limit
+        memory_usage_ratio = current_memory / self.memory_limit_mb
+        
+        if memory_usage_ratio > 0.9:  # 90% of limit
+            self._memory_warnings += 1
+            logger.warning(
+                f"High memory usage detected: {current_memory:.1f}MB "
+                f"({memory_usage_ratio:.1%} of limit)"
+            )
+            
+            # Force cleanup at 95% of limit
+            if memory_usage_ratio > 0.95:
+                logger.warning("Memory limit approaching, forcing cleanup")
+                self._perform_memory_cleanup(force=True)
+    
+    def _perform_memory_cleanup(self, force: bool = False) -> None:
+        """Perform memory cleanup operations."""
+        try:
+            cleanup_start = time.time()
+            
+            # Clear old processing times (keep only recent 500)
+            if len(self._processing_times) > 500:
+                # Convert to list, slice, and recreate deque
+                recent_times = list(self._processing_times)[-500:]
+                self._processing_times.clear()
+                self._processing_times.extend(recent_times)
+            
+            # Force garbage collection if needed
+            if force or (time.time() - self._last_gc_time) > 60:  # Every minute
+                collected = gc.collect()
+                self._last_gc_time = time.time()
+                logger.debug(f"Garbage collection completed, collected {collected} objects")
+            
+            # Update cleanup timestamp
+            self._last_cleanup = self._sample_count
+            
+            cleanup_duration = (time.time() - cleanup_start) * 1000
+            logger.debug(f"Memory cleanup completed in {cleanup_duration:.1f}ms")
+            
+        except Exception as e:
+            logger.error(f"Memory cleanup failed: {e}")
+    
+    def get_memory_stats(self) -> dict[str, Any]:
+        """Get detailed memory usage statistics."""
+        with self._lock:
+            current_memory = self._get_memory_usage()
+            
+            return {
+                "current_memory_mb": current_memory,
+                "initial_memory_mb": self._initial_memory_mb,
+                "peak_memory_mb": self._peak_memory_mb,
+                "memory_limit_mb": self.memory_limit_mb,
+                "memory_usage_ratio": current_memory / self.memory_limit_mb,
+                "memory_warnings": self._memory_warnings,
+                "buffer_size": len(self._data_buffer),
+                "buffer_capacity": self.window_size,
+                "processing_times_tracked": len(self._processing_times),
+                "avg_processing_time_ms": (
+                    sum(self._processing_times) / len(self._processing_times)
+                    if self._processing_times else 0.0
+                ),
+                "cleanup_frequency": self.cleanup_frequency,
+                "samples_since_cleanup": self._sample_count - self._last_cleanup
+            }
+    
+    def optimize_memory_usage(self) -> dict[str, Any]:
+        """Optimize memory usage and return optimization results."""
+        with self._lock:
+            initial_memory = self._get_memory_usage()
+            
+            # Perform comprehensive cleanup
+            self._perform_memory_cleanup(force=True)
+            
+            # Optimize buffer size if memory usage is high
+            memory_ratio = initial_memory / self.memory_limit_mb
+            if memory_ratio > 0.8:
+                # Reduce buffer size by 25%
+                new_size = max(100, int(self.window_size * 0.75))
+                if new_size < self.window_size:
+                    logger.info(f"Reducing buffer size from {self.window_size} to {new_size} due to memory pressure")
+                    self.set_window_size(new_size)
+            
+            # Clear processing time history if too large
+            if len(self._processing_times) > 100:
+                recent_times = list(self._processing_times)[-100:]
+                self._processing_times.clear()
+                self._processing_times.extend(recent_times)
+            
+            final_memory = self._get_memory_usage()
+            memory_saved = initial_memory - final_memory
+            
+            result = {
+                "initial_memory_mb": initial_memory,
+                "final_memory_mb": final_memory,
+                "memory_saved_mb": memory_saved,
+                "optimization_success": memory_saved > 0,
+                "current_buffer_size": self.window_size,
+                "memory_usage_ratio": final_memory / self.memory_limit_mb
+            }
+            
+            logger.info(f"Memory optimization completed: saved {memory_saved:.1f}MB")
+            return result

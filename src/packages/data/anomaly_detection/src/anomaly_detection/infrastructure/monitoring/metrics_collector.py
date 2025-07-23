@@ -185,12 +185,153 @@ class MetricsCollector:
         
         duration_ms = (end_time - start_time) * 1000
         
+        # Record performance metrics
+        perf_metric = PerformanceMetrics(
+            operation=operation_id,
+            duration_ms=duration_ms,
+            timestamp=datetime.utcnow(),
+            success=success,
+            error_type=error_type,
+            context=context or {}
+        )
+        
+        with self._lock:
+            self._performance_metrics.append(perf_metric)
+        
         logger.debug("Operation completed", 
                     operation_id=operation_id,
                     duration_ms=duration_ms,
                     success=success)
         
         return duration_ms
+    
+    def record_model_metric(
+        self,
+        model_id: str,
+        algorithm: str,
+        operation: str,
+        duration_ms: float,
+        success: bool,
+        samples_processed: int | None = None,
+        anomalies_detected: int | None = None,
+        **performance_metrics: float
+    ) -> None:
+        """Record model operation metrics."""
+        model_metric = ModelMetrics(
+            model_id=model_id,
+            algorithm=algorithm,
+            operation=operation,
+            duration_ms=duration_ms,
+            timestamp=datetime.utcnow(),
+            success=success,
+            samples_processed=samples_processed,
+            anomalies_detected=anomalies_detected,
+            accuracy=performance_metrics.get('accuracy'),
+            precision=performance_metrics.get('precision'),
+            recall=performance_metrics.get('recall'),
+            f1_score=performance_metrics.get('f1_score')
+        )
+        
+        with self._lock:
+            self._model_metrics.append(model_metric)
+        
+        logger.debug("Model metric recorded",
+                    model_id=model_id,
+                    algorithm=algorithm,
+                    operation=operation,
+                    duration_ms=duration_ms)
+    
+    def get_summary_stats(self) -> dict[str, Any]:
+        """Get summary statistics for all metrics."""
+        with self._lock:
+            return {
+                "total_metrics": len(self._metrics),
+                "total_performance_metrics": len(self._performance_metrics),
+                "total_model_metrics": len(self._model_metrics),
+                "active_operations": len(self._active_operations),
+                "counters": dict(self._counters),
+                "gauges": dict(self._gauges),
+                "buffer_size": self.buffer_size,
+                "retention_hours": self.retention_hours
+            }
+    
+    def get_model_metrics(
+        self,
+        since: datetime | None = None,
+        algorithm: str | None = None
+    ) -> list[ModelMetrics]:
+        """Get model metrics with optional filtering."""
+        with self._lock:
+            metrics = list(self._model_metrics)
+        
+        if since:
+            metrics = [m for m in metrics if m.timestamp >= since]
+        
+        if algorithm:
+            metrics = [m for m in metrics if m.algorithm == algorithm]
+        
+        return metrics
+    
+    def get_performance_metrics(
+        self,
+        since: datetime | None = None,
+        operation: str | None = None
+    ) -> list[PerformanceMetrics]:
+        """Get performance metrics with optional filtering."""
+        with self._lock:
+            metrics = list(self._performance_metrics)
+        
+        if since:
+            metrics = [m for m in metrics if m.timestamp >= since]
+        
+        if operation:
+            metrics = [m for m in metrics if m.operation == operation]
+        
+        return metrics
+    
+    def cleanup_old_metrics(self) -> dict[str, int]:
+        """Clean up old metrics beyond retention period."""
+        cutoff_time = datetime.utcnow() - timedelta(hours=self.retention_hours)
+        
+        with self._lock:
+            # Clean up metrics
+            initial_metrics = len(self._metrics)
+            self._metrics = deque(
+                (m for m in self._metrics if m.timestamp >= cutoff_time),
+                maxlen=self.buffer_size
+            )
+            metrics_removed = initial_metrics - len(self._metrics)
+            
+            # Clean up performance metrics
+            initial_perf = len(self._performance_metrics)
+            self._performance_metrics = deque(
+                (m for m in self._performance_metrics if m.timestamp >= cutoff_time),
+                maxlen=self.buffer_size
+            )
+            perf_removed = initial_perf - len(self._performance_metrics)
+            
+            # Clean up model metrics
+            initial_model = len(self._model_metrics)
+            self._model_metrics = deque(
+                (m for m in self._model_metrics if m.timestamp >= cutoff_time),
+                maxlen=self.buffer_size
+            )
+            model_removed = initial_model - len(self._model_metrics)
+            
+            # Clean up timer data
+            for timer_name, timer_data in self._timers.items():
+                if len(timer_data) > 500:  # Keep recent 500
+                    self._timers[timer_name] = timer_data[-500:]
+        
+        cleanup_stats = {
+            'metrics_removed': metrics_removed,
+            'performance_removed': perf_removed,
+            'model_removed': model_removed,
+            'total_removed': metrics_removed + perf_removed + model_removed
+        }
+        
+        logger.info("Metrics cleanup completed", **cleanup_stats)
+        return cleanup_stats
 
 
 # Global metrics collector instance
@@ -205,3 +346,13 @@ def get_metrics_collector() -> 'MetricsCollector':
         _global_metrics_collector = MetricsCollector()
     
     return _global_metrics_collector
+
+
+def cleanup_metrics_collector() -> dict[str, int]:
+    """Clean up the global metrics collector."""
+    global _global_metrics_collector
+    
+    if _global_metrics_collector is not None:
+        return _global_metrics_collector.cleanup_old_metrics()
+    
+    return {'total_removed': 0}
