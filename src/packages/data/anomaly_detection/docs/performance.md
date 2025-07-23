@@ -2,6 +2,16 @@
 
 This guide covers performance optimization techniques, monitoring strategies, and scalability considerations for the Anomaly Detection package in production environments.
 
+!!! warning "Advanced Topic"
+    This guide assumes familiarity with anomaly detection concepts. If you're new, start with the [Getting Started Guide](getting-started/index.md).
+
+!!! info "Prerequisites & Related Guides"
+    - **Need algorithm basics?** Review the [Algorithm Guide](algorithms.md) to understand performance characteristics
+    - **Working with ensembles?** See [Ensemble Methods](ensemble.md) for multi-algorithm optimization
+    - **Deploying to production?** Combine with [Deployment Guide](deployment.md) strategies
+    - **Processing streams?** Check [Streaming Detection](streaming.md) for real-time optimization
+    - **Having issues?** Use [Troubleshooting Guide](troubleshooting.md) for diagnosis
+
 ## Table of Contents
 
 1. [Overview](#overview)

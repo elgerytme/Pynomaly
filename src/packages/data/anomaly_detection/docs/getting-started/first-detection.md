@@ -418,16 +418,22 @@ Congratulations! You've successfully:
 Ready to go deeper? Here are recommended next steps:
 
 === "Explore More Algorithms"
-    Learn about different algorithms in the [Algorithm Guide](../algorithms/) and when to use each one.
+    Learn about different algorithms in the [Algorithm Guide](../algorithms/) and when to use each one. See the comparison table and selection guide.
 
 === "Real-World Examples"
-    See practical applications in [Examples](examples/) covering various industries and use cases.
+    See practical applications in [Examples](examples/) covering fraud detection, network security, manufacturing, IoT, and e-commerce.
 
 === "Production Deployment"
-    Learn how to deploy your models in the [Deployment Guide](../deployment/) for production use.
+    Learn how to deploy your models in the [Deployment Guide](../deployment/) for production use with Kubernetes, Docker, and auto-scaling.
 
 === "Advanced Techniques"
-    Explore [Ensemble Methods](../ensemble/) and [Performance Optimization](../performance/) for advanced usage.
+    Explore [Ensemble Methods](../ensemble/) for combining algorithms and [Performance Optimization](../performance/) for scaling.
+
+=== "Model Management"
+    Learn about [Model Management](../model_management/) for training, versioning, and lifecycle management.
+
+=== "Real-time Processing"
+    Implement [Streaming Detection](../streaming/) for real-time anomaly detection with Kafka and Redis.
 
 ## Need Help?
 

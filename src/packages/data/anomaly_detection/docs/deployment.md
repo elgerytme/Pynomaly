@@ -2,6 +2,18 @@
 
 This guide covers production deployment strategies, scaling patterns, and operational considerations for the Anomaly Detection package in enterprise environments.
 
+!!! note "Prerequisites"
+    - **Have working detection models?** If not, start with [Getting Started](getting-started/index.md) and [Your First Detection](getting-started/first-detection.md)
+    - **Need algorithm selection help?** Review the [Algorithm Guide](algorithms.md) first
+    - **Want to optimize performance?** Check [Performance Optimization](performance.md) before deployment
+    - **Need security guidance?** See [Security & Privacy](security.md) for enterprise requirements
+
+!!! tip "Related Guides"
+    - **Streaming data?** Combine with [Streaming Detection](streaming.md) patterns
+    - **Need monitoring?** Integrate with [Troubleshooting](troubleshooting.md) tools
+    - **CLI automation?** Use [CLI Guide](cli.md) for deployment scripts
+    - **API integration?** Reference the [Integration Guide](integration.md)
+
 ## Table of Contents
 
 1. [Overview](#overview)

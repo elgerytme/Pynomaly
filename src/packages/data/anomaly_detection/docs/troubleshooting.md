@@ -2,6 +2,18 @@
 
 This guide provides comprehensive troubleshooting information, common issues, solutions, and frequently asked questions for the Anomaly Detection package.
 
+!!! tip "Before Troubleshooting"
+    - **First time user?** Try the [Getting Started Guide](getting-started/index.md) for basic setup
+    - **Need examples?** Check [Practical Examples](getting-started/examples.md) for working code
+    - **API issues?** Review the [API Documentation](api.md) for correct usage
+    - **Performance problems?** See [Performance Optimization](performance.md) for solutions
+
+!!! info "Quick Help"
+    - **Installation problems?** Jump to [Installation Issues](#installation-issues)
+    - **Model not working?** See [Model Training Issues](#model-training-issues)
+    - **Deployment failures?** Check [Deployment and Infrastructure](#deployment-and-infrastructure)
+    - **Need urgent help?** Try the [Quick Diagnosis Tools](#quick-diagnosis-tools) below
+
 ## Table of Contents
 
 1. [Quick Diagnosis Tools](#quick-diagnosis-tools)

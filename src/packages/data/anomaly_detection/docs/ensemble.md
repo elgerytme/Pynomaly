@@ -2,6 +2,16 @@
 
 This comprehensive guide covers ensemble anomaly detection methods, including combination strategies, optimization techniques, and advanced ensemble architectures.
 
+!!! info "Learning Path"
+    - **New to ensemble methods?** Start with the [Algorithm Guide](algorithms.md) to understand individual algorithms first
+    - **Want to see examples?** Check [Practical Examples](getting-started/examples.md) for ensemble implementations
+    - **Need basic detection?** Begin with [Your First Detection](getting-started/first-detection.md)
+    - **Ready for production?** See [Deployment Guide](deployment.md) and [Performance Optimization](performance.md)
+    - **Want explainability?** Visit the [Explainability Guide](explainability.md) for ensemble interpretations
+
+!!! warning "Advanced Topic"
+    This guide covers advanced ensemble techniques. Ensure you're comfortable with individual algorithms before proceeding.
+
 ## Table of Contents
 
 1. [Overview](#overview)

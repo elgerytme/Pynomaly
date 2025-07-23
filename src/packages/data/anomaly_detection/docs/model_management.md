@@ -2,6 +2,17 @@
 
 This comprehensive guide covers model training, persistence, versioning, deployment, and lifecycle management for the Anomaly Detection package.
 
+!!! note "Prerequisites"
+    - **New to anomaly detection?** Complete the [Getting Started Guide](getting-started/index.md) first
+    - **Need algorithm knowledge?** Review the [Algorithm Guide](algorithms.md) for training considerations
+    - **Want examples?** See [Practical Examples](getting-started/examples.md) for model training workflows
+
+!!! info "Related Guides"
+    - **Using ensembles?** Check [Ensemble Methods](ensemble.md) for multi-model management
+    - **Need explanations?** See [Explainability Guide](explainability.md) for model interpretability
+    - **Going to production?** Review [Deployment Guide](deployment.md) for scaling model serving
+    - **Performance issues?** Use [Performance Optimization](performance.md) for model efficiency
+
 ## Table of Contents
 
 1. [Overview](#overview)

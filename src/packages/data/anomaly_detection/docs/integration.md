@@ -2,6 +2,17 @@
 
 This guide provides comprehensive examples and workflows for integrating the Anomaly Detection package with various systems, platforms, and existing infrastructure components.
 
+!!! info "Prerequisites"
+    - **Basic understanding needed?** Start with the [Getting Started Guide](getting-started/index.md)
+    - **API reference required?** Check the [API Documentation](api.md) for endpoint details
+    - **CLI integration?** See the [CLI Guide](cli.md) for command-line automation
+    - **Need deployment context?** Review the [Deployment Guide](deployment.md) first
+
+!!! tip "Integration Pathways"
+    - **Real-time processing?** Combine with [Streaming Detection](streaming.md) patterns
+    - **Production deployment?** Use [Security & Privacy](security.md) for enterprise integration
+    - **Performance critical?** Apply [Performance Optimization](performance.md) techniques
+
 ## Table of Contents
 
 1. [Overview](#overview)

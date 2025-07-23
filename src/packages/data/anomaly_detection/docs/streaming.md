@@ -2,6 +2,16 @@
 
 This comprehensive guide covers real-time anomaly detection, concept drift detection, and production streaming patterns using the Anomaly Detection package.
 
+!!! warning "Advanced Topic"
+    This guide covers real-time streaming patterns. Ensure you understand batch anomaly detection first from the [Getting Started Guide](getting-started/index.md).
+
+!!! info "Prerequisites & Related Guides"
+    - **New to anomaly detection?** Start with [Your First Detection](getting-started/first-detection.md)
+    - **Need algorithm selection?** Review the [Algorithm Guide](algorithms.md) for streaming-compatible algorithms
+    - **Performance concerns?** Check [Performance Optimization](performance.md) for low-latency techniques
+    - **Deploying streams?** Combine with [Deployment Guide](deployment.md) for production streaming
+    - **Integration needs?** See [Integration Patterns](integration.md) for message queue setup
+
 ## Table of Contents
 
 1. [Overview](#overview)

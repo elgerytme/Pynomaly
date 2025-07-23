@@ -2,6 +2,13 @@
 
 This document provides comprehensive API documentation for the Anomaly Detection package.
 
+!!! tip "Quick Links"
+    - **First time here?** Try the [Quick Start Guide](getting-started/index.md) or [Your First Detection](getting-started/first-detection.md)
+    - **Looking for examples?** See [Practical Examples](getting-started/examples.md) with real-world use cases
+    - **Need algorithm details?** Check the [Algorithm Guide](algorithms.md) for in-depth comparisons
+    - **Want to use the CLI?** Visit the [CLI Reference](cli.md) for command-line usage
+    - **Building integrations?** See [Integration Patterns](integration.md) for APIs and workflows
+
 ## Table of Contents
 
 1. [Core Services](#core-services)

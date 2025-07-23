@@ -601,16 +601,22 @@ def optimize_threshold(scores, true_labels):
 Ready to implement these patterns in your own projects?
 
 === "Production Deployment"
-    Learn how to deploy these examples in production with the [Deployment Guide](../deployment/).
+    Learn how to deploy these examples in production with the [Deployment Guide](../deployment/). Includes Kubernetes, Docker, and auto-scaling strategies.
 
 === "Advanced Techniques" 
-    Explore advanced ensemble methods and optimization in [Ensemble Methods](../ensemble/).
+    Explore advanced ensemble methods and optimization in [Ensemble Methods](../ensemble/). Learn voting, stacking, and hierarchical ensembles.
 
 === "Real-time Processing"
-    Implement streaming anomaly detection with the [Streaming Guide](../streaming/).
+    Implement streaming anomaly detection with the [Streaming Guide](../streaming/). Process data from Kafka, Redis, and other message systems.
 
 === "Performance Optimization"
-    Scale your detection to handle large datasets with [Performance Optimization](../performance/).
+    Scale your detection to handle large datasets with [Performance Optimization](../performance/). Includes parallel processing and memory optimization.
+
+=== "Model Management"
+    Learn systematic model training and versioning with [Model Management](../model_management/). Includes A/B testing and automated retraining.
+
+=== "Explainable AI"
+    Understand your model decisions with [Explainability](../explainability/). Includes SHAP integration and visualization techniques.
 
 ## Additional Resources
 

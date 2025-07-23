@@ -2,6 +2,13 @@
 
 This comprehensive guide covers all anomaly detection algorithms available in the package, their parameters, use cases, and performance characteristics.
 
+!!! info "Related Guides"
+    - **New to anomaly detection?** Start with the [Getting Started Guide](getting-started/index.md)
+    - **Ready to implement?** See [Practical Examples](getting-started/examples.md)
+    - **Want to combine algorithms?** Check out [Ensemble Methods](ensemble.md)
+    - **Need to optimize performance?** Visit [Performance Optimization](performance.md)
+    - **Deploying to production?** Follow the [Deployment Guide](deployment.md)
+
 ## Table of Contents
 
 1. [Algorithm Overview](#algorithm-overview)
@@ -106,14 +113,17 @@ result = service.detect_anomalies(
 - `max_features`: Feature sampling per tree
 
 **When to Use**:
-- ✅ General purpose anomaly detection
+- ✅ General purpose anomaly detection ([see examples](getting-started/examples.md#example-1-credit-card-fraud-detection))
 - ✅ No assumptions about data distribution
-- ✅ Scales well with large datasets
+- ✅ Scales well with large datasets - [performance optimization](performance.md#algorithm-optimization)
 - ✅ Works with high-dimensional data
-- ❌ Not suitable for local anomalies
+- ❌ Not suitable for local anomalies (use [LOF](#2-local-outlier-factor-lof) instead)
 - ❌ Less effective with very small datasets
 
 **Performance**: O(n log n) training, O(n) prediction
+
+!!! tip "Best Practices"
+    Isolation Forest works well in [ensemble methods](ensemble.md#base-algorithm-selection) and can be optimized for [real-time streaming](streaming.md#streaming-compatible-algorithms).
 
 ### 2. Local Outlier Factor (LOF)
 
@@ -140,13 +150,16 @@ result = service.detect_anomalies(
 - `novelty`: True for new data, False for training data
 
 **When to Use**:
-- ✅ Local anomalies in clusters
+- ✅ Local anomalies in clusters ([network intrusion example](getting-started/examples.md#example-2-network-intrusion-detection))
 - ✅ Varying density regions
-- ✅ Need interpretable scores
-- ❌ Large datasets (quadratic complexity)
+- ✅ Need interpretable scores - [explainability guide](explainability.md#algorithm-specific-explanations)
+- ❌ Large datasets (quadratic complexity) - consider [performance optimization](performance.md#parallel-processing)
 - ❌ High-dimensional sparse data
 
 **Performance**: O(n²) for training
+
+!!! warning "Scalability Considerations"
+    LOF can be memory-intensive. For large datasets, consider [ensemble approaches](ensemble.md#scalable-ensemble-architectures) or [streaming variants](streaming.md#concept-drift-detection).
 
 ### 3. One-Class SVM
 

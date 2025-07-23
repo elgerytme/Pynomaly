@@ -2,6 +2,18 @@
 
 This comprehensive guide covers all command-line interface features of the Anomaly Detection package, including commands, options, workflows, and automation patterns.
 
+!!! note "Prerequisites"
+    - **New to the package?** Complete the [Getting Started Guide](getting-started/index.md) first
+    - **Need API reference?** Check the [API Documentation](api.md) for programmatic usage
+    - **Want examples?** See [Practical Examples](getting-started/examples.md) for real-world CLI usage
+    - **Ready for production?** Follow the [Deployment Guide](deployment.md) for scaling CLI operations
+
+!!! success "What You'll Learn"
+    - How to use all CLI commands for detection, ensemble, and streaming operations
+    - Advanced workflows for automation and CI/CD integration
+    - Model management and data processing techniques
+    - Troubleshooting and debugging CLI issues
+
 ## Table of Contents
 
 1. [Overview](#overview)

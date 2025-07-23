@@ -2,6 +2,16 @@
 
 This guide covers model explainability and interpretability features in the Anomaly Detection package, helping you understand why models make specific predictions and build trust in your anomaly detection systems.
 
+!!! tip "Getting Started with Explanations"
+    - **New to anomaly detection?** Complete [Your First Detection](getting-started/first-detection.md) to understand basic concepts
+    - **Want practical examples?** See [Practical Examples](getting-started/examples.md) with explanation workflows
+    - **Using ensemble methods?** Check [Ensemble Methods](ensemble.md) for multi-model explanation techniques
+
+!!! info "Related Guides"
+    - **Algorithm selection?** Review the [Algorithm Guide](algorithms.md) for interpretability comparison
+    - **Need model management?** See [Model Management](model_management.md) for explanation persistence
+    - **Production deployment?** Check [Deployment Guide](deployment.md) for explanation API scaling
+
 ## Table of Contents
 
 1. [Overview](#overview)
