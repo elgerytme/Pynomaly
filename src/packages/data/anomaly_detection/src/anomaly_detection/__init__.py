@@ -18,9 +18,9 @@ from .infrastructure.adapters.algorithms.adapters.sklearn_adapter import Sklearn
 from .infrastructure.adapters.algorithms.adapters.pyod_adapter import PyODAdapter
 from .infrastructure.adapters.algorithms.adapters.deeplearning_adapter import DeepLearningAdapter
 
-# Application layer exports - TODO: Implement these services
-# from .application.services.explanation.analyzers import ExplanationAnalyzers
-# from .application.services.performance.optimization import PerformanceOptimizer
+# Application layer exports
+from .application.services.explanation.analyzers import ExplanationAnalyzers
+from .application.services.performance.optimization import PerformanceOptimizer
 
 __all__ = [
     "__version__",
