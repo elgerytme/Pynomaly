@@ -9,7 +9,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from ...domain.services.analytics_service import AnalyticsService
+from ...domain.services.enhanced_analytics_service import EnhancedEnhancedAnalyticsService
 from ...domain.services.detection_service import DetectionService
 from ...infrastructure.monitoring.metrics_collector import get_metrics_collector
 from ...infrastructure.logging import get_logger
@@ -21,16 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # Global service instances
-_analytics_service: AnalyticsService = None
+_analytics_service: EnhancedAnalyticsService = None
 _detection_service: DetectionService = None
 
 
-def get_analytics_service() -> AnalyticsService:
+def get_analytics_service() -> EnhancedAnalyticsService:
     """Get analytics service instance."""
     global _analytics_service
     if _analytics_service is None:
         metrics_collector = get_metrics_collector()
-        _analytics_service = AnalyticsService(metrics_collector)
+        _analytics_service = EnhancedAnalyticsService(metrics_collector)
         
         # Seed with some demo data
         _seed_demo_data(_analytics_service)
@@ -46,7 +46,7 @@ def get_detection_service() -> DetectionService:
     return _detection_service
 
 
-def _seed_demo_data(analytics_service: AnalyticsService):
+def _seed_demo_data(analytics_service: EnhancedAnalyticsService):
     """Seed analytics service with demo data for demonstration."""
     import numpy as np
     from ...domain.entities.detection_result import DetectionResult
@@ -77,7 +77,7 @@ def _seed_demo_data(analytics_service: AnalyticsService):
 
 
 @router.get("/dashboard/stats")
-async def dashboard_stats(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def dashboard_stats(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get dashboard statistics."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -92,7 +92,7 @@ async def dashboard_stats(request: Request, analytics: AnalyticsService = Depend
 
 
 @router.get("/dashboard/charts")
-async def dashboard_charts(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def dashboard_charts(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get chart data for dashboard."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -108,7 +108,7 @@ async def dashboard_charts(request: Request, analytics: AnalyticsService = Depen
 
 
 @router.get("/analytics/performance")
-async def performance_analytics(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def performance_analytics(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get performance analytics page."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -130,7 +130,7 @@ async def performance_analytics(request: Request, analytics: AnalyticsService = 
 
 
 @router.get("/analytics/algorithms")
-async def algorithm_analytics(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def algorithm_analytics(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get algorithm comparison analytics."""
     try:
         comparison_data = analytics.get_algorithm_comparison()
@@ -149,7 +149,7 @@ async def algorithm_analytics(request: Request, analytics: AnalyticsService = De
 
 
 @router.get("/analytics/data-insights")
-async def data_insights(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def data_insights(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get data insights and recommendations."""
     try:
         insights_data = analytics.get_data_insights()
@@ -168,7 +168,7 @@ async def data_insights(request: Request, analytics: AnalyticsService = Depends(
 
 
 @router.get("/realtime/metrics")
-async def realtime_metrics(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def realtime_metrics(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get real-time metrics for live updates."""
     try:
         metrics = analytics.get_real_time_metrics()
@@ -183,7 +183,7 @@ async def realtime_metrics(request: Request, analytics: AnalyticsService = Depen
 
 
 @router.get("/charts/performance-trend")
-async def performance_trend_chart(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def performance_trend_chart(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get performance trend chart data."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -196,7 +196,7 @@ async def performance_trend_chart(request: Request, analytics: AnalyticsService 
 
 
 @router.get("/charts/algorithm-distribution")
-async def algorithm_distribution_chart(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def algorithm_distribution_chart(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get algorithm distribution chart data."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -209,7 +209,7 @@ async def algorithm_distribution_chart(request: Request, analytics: AnalyticsSer
 
 
 @router.get("/charts/anomaly-timeline") 
-async def anomaly_timeline_chart(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def anomaly_timeline_chart(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get anomaly timeline chart data."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -224,7 +224,7 @@ async def anomaly_timeline_chart(request: Request, analytics: AnalyticsService =
 @router.post("/analytics/simulate-detection")
 async def simulate_detection(
     request: Request,
-    analytics: AnalyticsService = Depends(get_analytics_service),
+    analytics: EnhancedAnalyticsService = Depends(get_analytics_service),
     detection: DetectionService = Depends(get_detection_service)
 ):
     """Simulate a detection for demo purposes."""
@@ -271,7 +271,7 @@ async def simulate_detection(
 
 
 @router.get("/analytics/export/json")
-async def export_analytics_json(analytics: AnalyticsService = Depends(get_analytics_service)):
+async def export_analytics_json(analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Export analytics data as JSON."""
     try:
         stats = analytics.get_dashboard_stats()
@@ -295,7 +295,7 @@ async def export_analytics_json(analytics: AnalyticsService = Depends(get_analyt
 async def clear_analytics_history(
     request: Request,
     hours: int = 24,
-    analytics: AnalyticsService = Depends(get_analytics_service)
+    analytics: EnhancedAnalyticsService = Depends(get_analytics_service)
 ):
     """Clear analytics history older than specified hours."""
     try:
@@ -322,7 +322,7 @@ async def clear_analytics_history(
 
 
 @router.get("/health/system-status")
-async def system_status(request: Request, analytics: AnalyticsService = Depends(get_analytics_service)):
+async def system_status(request: Request, analytics: EnhancedAnalyticsService = Depends(get_analytics_service)):
     """Get detailed system health status."""
     try:
         metrics = analytics.get_real_time_metrics()

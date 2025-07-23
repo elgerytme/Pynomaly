@@ -9,20 +9,43 @@ from functools import wraps
 from dataclasses import dataclass
 from datetime import datetime
 
-from opentelemetry import trace
-from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
-from opentelemetry.instrumentation.redis import RedisInstrumentor
-from opentelemetry.propagate import inject, extract
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.semconv.resource import ResourceAttributes
-from opentelemetry.trace.status import Status, StatusCode
+# Optional OpenTelemetry imports - gracefully handle missing dependencies
+try:
+    from opentelemetry import trace
+    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+    from opentelemetry.instrumentation.requests import RequestsInstrumentor
+    from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+    from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
+    from opentelemetry.instrumentation.redis import RedisInstrumentor
+    from opentelemetry.propagate import inject, extract
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.semconv.resource import ResourceAttributes
+    from opentelemetry.trace.status import Status, StatusCode
+    OPENTELEMETRY_AVAILABLE = True
+except ImportError:
+    # Create stub classes when OpenTelemetry is not available
+    OPENTELEMETRY_AVAILABLE = False
+    
+    class Status:
+        pass
+    
+    class StatusCode:
+        UNSET = "UNSET"
+        OK = "OK"
+        ERROR = "ERROR"
+    
+    class TracerProvider:
+        pass
+    
+    class Resource:
+        pass
+    
+    class ResourceAttributes:
+        pass
 
 
 @dataclass
@@ -67,12 +90,23 @@ class TracingService:
         self.config = config
         self.logger = logging.getLogger(__name__)
         
+        # Check if OpenTelemetry is available
+        if not OPENTELEMETRY_AVAILABLE:
+            self.logger.warning("OpenTelemetry not available - tracing disabled")
+            self.tracer = None
+            self._active_spans: Dict[str, SpanContext] = {}
+            return
+        
         # Initialize tracer
         self._setup_tracing()
         self.tracer = trace.get_tracer(__name__)
         
         # Span storage for debugging
         self._active_spans: Dict[str, SpanContext] = {}
+    
+    def _is_tracing_enabled(self) -> bool:
+        """Check if tracing is enabled and available."""
+        return OPENTELEMETRY_AVAILABLE and self.tracer is not None
         
     def _setup_tracing(self):
         """Set up OpenTelemetry tracing configuration."""
@@ -174,6 +208,14 @@ class TracingService:
         Yields:
             Span context for the operation
         """
+        @contextmanager
+        def no_op_tracer():
+            """No-op context manager when tracing is disabled."""
+            yield None
+        
+        if not self._is_tracing_enabled():
+            return no_op_tracer()
+        
         with self.tracer.start_as_current_span(
             operation_name,
             context=parent_context
@@ -333,6 +375,9 @@ class TracingService:
             key: Attribute key
             value: Attribute value
         """
+        if not self._is_tracing_enabled():
+            return
+            
         current_span = trace.get_current_span()
         if current_span.is_recording():
             current_span.set_attribute(key, value)
@@ -526,6 +571,15 @@ class TracingService:
         Returns:
             Health status information
         """
+        if not self._is_tracing_enabled():
+            return {
+                "status": "degraded",
+                "message": "OpenTelemetry not available - tracing disabled",
+                "service_name": self.config.service_name,
+                "active_spans": 0,
+                "tracing_enabled": False
+            }
+        
         try:
             # Test that tracing is working
             with self.trace_operation("health_check_test"):
@@ -535,6 +589,7 @@ class TracingService:
                 "status": "healthy",
                 "service_name": self.config.service_name,
                 "active_spans": len(self._active_spans),
+                "tracing_enabled": True,
                 "exporters_configured": {
                     "jaeger": self.config.jaeger_endpoint is not None,
                     "otlp": self.config.otlp_endpoint is not None,
@@ -545,7 +600,8 @@ class TracingService:
         except Exception as e:
             return {
                 "status": "unhealthy",
-                "error": str(e)
+                "error": str(e),
+                "tracing_enabled": True
             }
 
 

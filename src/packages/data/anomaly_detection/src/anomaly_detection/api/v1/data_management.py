@@ -12,11 +12,8 @@ from fastapi import APIRouter, File, UploadFile, HTTPException, BackgroundTasks,
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
-from ...domain.services.batch_processing_service import BatchProcessingService
-from ...domain.services.data_validation_service import DataValidationService
-from ...domain.services.data_conversion_service import DataConversionService
-from ...domain.services.data_profiling_service import DataProfilingService
-from ...domain.services.data_sampling_service import DataSamplingService
+from ...domain.services.processing_service import ProcessingService
+from ...domain.services.data_processing_service import DataProcessingService
 from ...domain.services.detection_service import DetectionService
 from ...infrastructure.repositories.in_memory_model_repository import InMemoryModelRepository
 
@@ -97,27 +94,15 @@ class TaskStatusResponse(BaseModel):
     updated_at: str
 
 # Dependency to get services
-def get_batch_processing_service():
-    """Get batch processing service instance."""
+def get_processing_service():
+    """Get processing service instance."""
     detection_service = DetectionService()
     model_repository = InMemoryModelRepository()
-    return BatchProcessingService(detection_service, model_repository)
+    return ProcessingService(detection_service, model_repository)
 
-def get_validation_service():
-    """Get data validation service instance."""
-    return DataValidationService()
-
-def get_conversion_service():
-    """Get data conversion service instance."""
-    return DataConversionService()
-
-def get_profiling_service():
-    """Get data profiling service instance."""
-    return DataProfilingService()
-
-def get_sampling_service():
-    """Get data sampling service instance."""
-    return DataSamplingService()
+def get_data_processing_service():
+    """Get data processing service instance."""
+    return DataProcessingService()
 
 @router.post("/upload", response_model=FileUploadResponse)
 async def upload_file(
@@ -184,7 +169,7 @@ async def upload_file(
 async def validate_files(
     request: ValidationRequest,
     background_tasks: BackgroundTasks,
-    validation_service: DataValidationService = Depends(get_validation_service)
+    data_processing_service: DataProcessingService = Depends(get_data_processing_service)
 ) -> Dict[str, Any]:
     """
     Validate data files for quality and schema compliance.
@@ -213,7 +198,7 @@ async def validate_files(
         
         # For single file, run synchronously
         if len(file_paths) == 1:
-            result = await validation_service.validate_file(
+            result = await data_processing_service.validate_file(
                 file_path=file_paths[0],
                 schema_file=schema_file,
                 check_types=request.check_types,
@@ -225,7 +210,7 @@ async def validate_files(
             return {"validation_result": result}
         
         # For multiple files, use batch validation
-        result = await validation_service.validate_multiple_files(
+        result = await data_processing_service.validate_multiple_files(
             file_paths=file_paths,
             schema_file=schema_file,
             check_types=request.check_types,
@@ -247,7 +232,7 @@ async def validate_files(
 async def convert_files(
     request: ConversionRequest,
     background_tasks: BackgroundTasks,
-    conversion_service: DataConversionService = Depends(get_conversion_service)
+    data_processing_service: DataProcessingService = Depends(get_data_processing_service)
 ) -> Dict[str, Any]:
     """
     Convert data files between different formats.
@@ -265,7 +250,7 @@ async def convert_files(
             file_paths.append(path)
         
         # Validate output format
-        supported_formats = conversion_service.get_supported_formats()
+        supported_formats = data_processing_service.get_supported_formats()
         if request.output_format not in supported_formats:
             raise HTTPException(
                 status_code=400,
@@ -274,7 +259,7 @@ async def convert_files(
         
         # Validate compression if specified
         if request.compression:
-            supported_compressions = conversion_service.get_supported_compressions()
+            supported_compressions = data_processing_service.get_supported_compressions()
             if request.compression not in supported_compressions:
                 raise HTTPException(
                     status_code=400,
@@ -288,7 +273,7 @@ async def convert_files(
         # Convert files
         if len(file_paths) == 1:
             # Single file conversion
-            output_file = await conversion_service.convert_file(
+            output_file = await data_processing_service.convert_file(
                 input_file=file_paths[0],
                 output_format=request.output_format,
                 output_dir=output_dir,
@@ -308,7 +293,7 @@ async def convert_files(
             }
         else:
             # Batch conversion
-            result = await conversion_service.batch_convert(
+            result = await data_processing_service.batch_convert(
                 input_files=file_paths,
                 output_format=request.output_format,
                 output_dir=output_dir,
@@ -330,7 +315,7 @@ async def convert_files(
 async def profile_files(
     request: ProfilingRequest,
     background_tasks: BackgroundTasks,
-    profiling_service: DataProfilingService = Depends(get_profiling_service)
+    data_processing_service: DataProcessingService = Depends(get_data_processing_service)
 ) -> Dict[str, Any]:
     """
     Generate comprehensive data profiles for uploaded files.
@@ -398,7 +383,7 @@ async def profile_files(
 async def sample_files(
     request: SamplingRequest,
     background_tasks: BackgroundTasks,
-    sampling_service: DataSamplingService = Depends(get_sampling_service)
+    data_processing_service: DataProcessingService = Depends(get_data_processing_service)
 ) -> Dict[str, Any]:
     """
     Generate statistical samples from data files.
@@ -507,7 +492,7 @@ async def sample_files(
 async def batch_detect_anomalies(
     request: BatchDetectionRequest,
     background_tasks: BackgroundTasks,
-    batch_service: BatchProcessingService = Depends(get_batch_processing_service)
+    processing_service: ProcessingService = Depends(get_processing_service)
 ) -> Dict[str, Any]:
     """
     Run batch anomaly detection on multiple files.
@@ -534,7 +519,7 @@ async def batch_detect_anomalies(
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # Run batch detection
-        results = await batch_service.batch_detect_anomalies(
+        results = await processing_service.process_batch(
             file_paths=file_paths,
             output_dir=output_dir,
             algorithms=request.algorithms,
@@ -597,21 +582,21 @@ async def download_file(file_path: str) -> FileResponse:
 
 @router.get("/formats/supported")
 async def get_supported_formats(
-    conversion_service: DataConversionService = Depends(get_conversion_service)
+    data_processing_service: DataProcessingService = Depends(get_data_processing_service)
 ) -> Dict[str, Any]:
     """Get information about supported file formats and compression methods."""
     return {
-        "supported_formats": conversion_service.get_supported_formats(),
-        "supported_compressions": conversion_service.get_supported_compressions()
+        "supported_formats": data_processing_service.get_supported_formats(),
+        "supported_compressions": data_processing_service.get_supported_compressions()
     }
 
 @router.get("/sampling/methods")
 async def get_sampling_methods(
-    sampling_service: DataSamplingService = Depends(get_sampling_service)
+    data_processing_service: DataProcessingService = Depends(get_data_processing_service)
 ) -> Dict[str, Any]:
     """Get information about available sampling methods."""
     return {
-        "sampling_methods": sampling_service.get_sampling_methods_info()
+        "sampling_methods": data_processing_service.get_sampling_methods_info()
     }
 
 @router.delete("/cleanup")

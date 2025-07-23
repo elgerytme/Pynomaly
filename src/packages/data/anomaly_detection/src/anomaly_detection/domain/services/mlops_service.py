@@ -10,9 +10,8 @@ from pathlib import Path
 import numpy as np
 import joblib
 
-from anomaly_detection.domain.entities.model_entity import ModelEntity
+from anomaly_detection.domain.entities.model import Model as ModelEntity
 from anomaly_detection.domain.entities.detection_result import DetectionResult
-from anomaly_detection.domain.value_objects.algorithm_config import AlgorithmConfig
 from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
 
 
