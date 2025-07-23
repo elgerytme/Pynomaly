@@ -17,13 +17,13 @@ from ..entities.active_learning_session import (
     SamplingStrategy,
     SessionStatus,
 )
-from ..entities.detection_result import DetectionResult
+from ..entities.prediction_result import PredictionResult
 from ..entities.human_feedback import (
     FeedbackConfidence,
     FeedbackType,
     HumanFeedback,
 )
-from ..value_objects.anomaly_score import AnomalyScore
+from ..value_objects.prediction_score import PredictionScore
 
 
 @dataclass
@@ -110,12 +110,12 @@ class SelectSamplesRequest:
     """
 
     session_id: str
-    detection_results: list[DetectionResult]
+    detection_results: list[PredictionResult]
     n_samples: int
     sampling_strategy: SamplingStrategy
     features: np.ndarray | None = None
     strategy_params: dict[str, Any] = None
-    ensemble_results: list[list[DetectionResult]] | None = None
+    ensemble_results: list[list[PredictionResult]] | None = None
     model_gradients: np.ndarray | None = None
     existing_feedback: list[HumanFeedback] | None = None
 
@@ -178,7 +178,7 @@ class SubmitFeedbackRequest:
     feedback_type: FeedbackType
     feedback_value: bool | float | str | dict[str, Any]
     confidence: FeedbackConfidence
-    original_prediction: AnomalyScore | None = None
+    original_prediction: PredictionScore | None = None
     time_spent_seconds: float | None = None
     metadata: dict[str, Any] = None
 

@@ -13,9 +13,9 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import KMeans
 
-from monorepo.domain.entities.active_learning_session import SamplingStrategy
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.entities.human_feedback import HumanFeedback
+from machine_learning.domain.entities.active_learning_session import SamplingStrategy
+from machine_learning.domain.entities.prediction_result import PredictionResult
+from machine_learning.domain.entities.human_feedback import HumanFeedback
 
 
 class SampleSelectionProtocol(Protocol):
@@ -23,7 +23,7 @@ class SampleSelectionProtocol(Protocol):
 
     def select_samples(
         self,
-        detection_results: list[DetectionResult],
+        detection_results: list[PredictionResult],
         features: np.ndarray,
         n_samples: int,
     ) -> list[int]:
@@ -52,7 +52,7 @@ class ActiveLearningService:
 
     def select_samples_by_uncertainty(
         self,
-        detection_results: list[DetectionResult],
+        detection_results: list[PredictionResult],
         n_samples: int,
         uncertainty_method: str = "entropy",
     ) -> list[int]:
@@ -125,7 +125,7 @@ class ActiveLearningService:
         return selected_indices
 
     def select_samples_by_committee_disagreement(
-        self, ensemble_results: list[list[DetectionResult]], n_samples: int
+        self, ensemble_results: list[list[PredictionResult]], n_samples: int
     ) -> list[int]:
         """
         Select samples where ensemble models disagree most.
@@ -159,7 +159,7 @@ class ActiveLearningService:
 
     def select_samples_by_expected_model_change(
         self,
-        detection_results: list[DetectionResult],
+        detection_results: list[PredictionResult],
         features: np.ndarray,
         model_gradients: np.ndarray | None = None,
         n_samples: int = 10,
@@ -200,7 +200,7 @@ class ActiveLearningService:
 
     def combine_selection_strategies(
         self,
-        detection_results: list[DetectionResult],
+        detection_results: list[PredictionResult],
         features: np.ndarray,
         strategies: dict[SamplingStrategy, float],
         n_samples: int,
@@ -257,7 +257,7 @@ class ActiveLearningService:
     def calculate_annotation_value(
         self,
         sample_index: int,
-        detection_results: list[DetectionResult],
+        detection_results: list[PredictionResult],
         features: np.ndarray,
         existing_feedback: list[HumanFeedback],
     ) -> float:
@@ -488,7 +488,7 @@ class ActiveLearningService:
         return min(1.0, min_distance / np.std(features))
 
     def _calculate_novelty_value(
-        self, result: DetectionResult, existing_feedback: list[HumanFeedback]
+        self, result: PredictionResult, existing_feedback: list[HumanFeedback]
     ) -> float:
         """Calculate novelty value based on feedback patterns."""
         if not existing_feedback:

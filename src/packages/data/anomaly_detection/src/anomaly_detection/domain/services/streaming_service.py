@@ -44,6 +44,22 @@ class StreamingService:
         self._last_update = 0
         self._model_fitted = False
         self._current_algorithm = "iforest"
+        self._processing_times: deque = deque(maxlen=1000)  # Store processing times
+        
+        # Memory management  
+        self._initial_memory_mb = self._get_memory_usage()
+        self._peak_memory_mb = self._initial_memory_mb
+        self.memory_limit_mb = 1000  # Default memory limit
+        self._memory_warnings = 0
+        
+        # Performance tracking
+        self._error_count = 0
+        self._last_error_time = None
+        
+        # Cleanup tracking
+        self.cleanup_frequency = 1000  # Default cleanup frequency
+        self._last_cleanup = 0
+        self._last_gc_time = None
         
         # Thread safety
         self._lock = threading.RLock()
@@ -187,7 +203,7 @@ class StreamingService:
         
         return DetectionResult(
             predictions=predictions,
-            scores=np.array([0.5]),  # Neutral score
+            confidence_scores=np.array([0.5]),  # Neutral score
             algorithm="threshold",
             metadata={"buffer_size": len(self._data_buffer)}
         )

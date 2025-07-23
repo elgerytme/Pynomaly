@@ -273,3 +273,61 @@ class EnsembleService:
                 optimal_rate = 0.1
                 score = 1.0 - abs(anomaly_rate - optimal_rate) / optimal_rate
                 return max(0.1, score)
+    
+    def majority_vote(self, predictions_array: npt.NDArray[np.integer]) -> npt.NDArray[np.integer]:
+        """Apply majority voting to prediction arrays.
+        
+        Args:
+            predictions_array: Array of shape (n_algorithms, n_samples) with predictions -1/1
+            
+        Returns:
+            Combined predictions using majority vote
+        """
+        return self._combine_predictions(list(predictions_array), "majority")
+    
+    def average_combination(self, predictions_array: npt.NDArray[np.integer], 
+                          scores_array: npt.NDArray[np.floating]) -> tuple[npt.NDArray[np.integer], npt.NDArray[np.floating]]:
+        """Apply average combination to predictions and scores.
+        
+        Args:
+            predictions_array: Array of shape (n_algorithms, n_samples) with predictions
+            scores_array: Array of shape (n_algorithms, n_samples) with scores
+            
+        Returns:
+            Tuple of (combined_predictions, combined_scores)
+        """
+        combined_predictions = self._combine_predictions(list(predictions_array), "average")
+        combined_scores = self._combine_scores(list(scores_array), "average")
+        return combined_predictions, combined_scores
+    
+    def max_combination(self, predictions_array: npt.NDArray[np.integer],
+                       scores_array: npt.NDArray[np.floating]) -> tuple[npt.NDArray[np.integer], npt.NDArray[np.floating]]:
+        """Apply maximum combination to predictions and scores.
+        
+        Args:
+            predictions_array: Array of shape (n_algorithms, n_samples) with predictions
+            scores_array: Array of shape (n_algorithms, n_samples) with scores
+            
+        Returns:
+            Tuple of (combined_predictions, combined_scores)
+        """
+        combined_predictions = self._combine_predictions(list(predictions_array), "max")
+        combined_scores = self._combine_scores(list(scores_array), "max")
+        return combined_predictions, combined_scores
+    
+    def weighted_combination(self, predictions_array: npt.NDArray[np.integer],
+                           scores_array: npt.NDArray[np.floating],
+                           weights: npt.NDArray[np.floating]) -> tuple[npt.NDArray[np.integer], npt.NDArray[np.floating]]:
+        """Apply weighted combination to predictions and scores.
+        
+        Args:
+            predictions_array: Array of shape (n_algorithms, n_samples) with predictions
+            scores_array: Array of shape (n_algorithms, n_samples) with scores
+            weights: Weights for each algorithm
+            
+        Returns:
+            Tuple of (combined_predictions, combined_scores)
+        """
+        combined_predictions = self._combine_predictions(list(predictions_array), "weighted", list(weights))
+        combined_scores = self._combine_scores(list(scores_array), "weighted", list(weights))
+        return combined_predictions, combined_scores

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 
 class SessionStatus(Enum):
@@ -26,10 +26,12 @@ class SamplingStrategy(Enum):
     RANDOM = "random"
     UNCERTAINTY = "uncertainty"
     QUERY_BY_COMMITTEE = "query_by_committee"
+    COMMITTEE_DISAGREEMENT = "committee_disagreement"
     EXPECTED_MODEL_CHANGE = "expected_model_change"
     EXPECTED_ERROR_REDUCTION = "expected_error_reduction"
     DIVERSITY = "diversity"
     DENSITY_WEIGHTED = "density_weighted"
+    MARGIN = "margin"
 
 
 @dataclass
@@ -55,7 +57,7 @@ class ActiveLearningSession:
         quality_score: Current quality score
     """
     
-    session_id: UUID
+    session_id: str
     annotator_id: str
     model_version: str
     sampling_strategy: SamplingStrategy
@@ -70,11 +72,17 @@ class ActiveLearningSession:
     feedback_count: int = 0
     samples_annotated: int = 0
     quality_score: float = 0.0
+    selected_samples: list[Any] = None
+    annotated_samples: list[Any] = None
     
     def __post_init__(self) -> None:
         """Initialize default values."""
         if self.metadata is None:
             self.metadata = {}
+        if self.selected_samples is None:
+            self.selected_samples = []
+        if self.annotated_samples is None:
+            self.annotated_samples = []
     
     @classmethod
     def create(
@@ -91,7 +99,7 @@ class ActiveLearningSession:
         """Create a new active learning session."""
         now = datetime.now()
         return cls(
-            session_id=uuid4(),
+            session_id=f"al_{uuid4().hex[:12]}_{int(datetime.now().timestamp())}",
             annotator_id=annotator_id,
             model_version=model_version,
             sampling_strategy=sampling_strategy,
@@ -139,3 +147,11 @@ class ActiveLearningSession:
         """Update the quality score."""
         self.quality_score = quality_score
         self.updated_at = datetime.now()
+    
+    def get_session_duration(self) -> float | None:
+        """Get session duration in minutes."""
+        if self.status in [SessionStatus.COMPLETED, SessionStatus.EXPIRED, SessionStatus.CANCELLED]:
+            return (self.updated_at - self.created_at).total_seconds() / 60.0
+        elif self.status in [SessionStatus.ACTIVE, SessionStatus.PAUSED]:
+            return (datetime.now() - self.created_at).total_seconds() / 60.0
+        return None

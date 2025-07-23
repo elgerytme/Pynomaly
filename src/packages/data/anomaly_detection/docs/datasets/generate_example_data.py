@@ -175,7 +175,7 @@ def generate_sensor_data(n_samples=15000, anomaly_rate=0.03):
     
     # Time series with hourly readings
     start_time = datetime.now() - timedelta(days=30)
-    timestamps = pd.date_range(start_time, periods=n_samples, freq='H')
+    timestamps = pd.date_range(start_time, periods=n_samples, freq='h')
     
     normal_count = int(n_samples * (1 - anomaly_rate))
     
@@ -219,11 +219,13 @@ def generate_sensor_data(n_samples=15000, anomaly_rate=0.03):
     anomaly_timestamps = timestamps[normal_count:]
     
     # Malfunctions show extreme values
-    anomaly_temp = np.random.choice([
-        np.random.normal(-10, 5, anomaly_count//3),  # Too cold
-        np.random.normal(50, 10, anomaly_count//3),  # Too hot
-        np.random.normal(20, 20, anomaly_count//3)   # Very unstable
-    ]).flatten()[:anomaly_count]
+    third = anomaly_count // 3
+    remainder = anomaly_count - 2 * third
+    anomaly_temp = np.concatenate([
+        np.random.normal(-10, 5, third),      # Too cold
+        np.random.normal(50, 10, third),      # Too hot
+        np.random.normal(20, 20, remainder)   # Very unstable
+    ])
     
     anomaly_humidity = np.random.uniform(0, 100, anomaly_count)  # Erratic
     anomaly_pressure = np.random.normal(1013.25, 50, anomaly_count)  # Unstable
@@ -292,11 +294,13 @@ def generate_server_metrics_data(n_samples=25000, anomaly_rate=0.04):
     anomaly_count = n_samples - normal_count
     
     # Various types of server anomalies
+    third = anomaly_count // 3
+    remainder = anomaly_count - 2 * third
     anomaly_cpu = np.concatenate([
-        np.random.uniform(90, 100, anomaly_count//3),  # CPU spikes
-        np.random.uniform(0, 10, anomaly_count//3),    # CPU drops
-        np.random.uniform(20, 80, anomaly_count//3)    # Normal range but other metrics off
-    ])[:anomaly_count]
+        np.random.uniform(90, 100, third),      # CPU spikes
+        np.random.uniform(0, 10, third),        # CPU drops
+        np.random.uniform(20, 80, remainder)    # Normal range but other metrics off
+    ])
     
     anomaly_memory = np.random.uniform(80, 98, anomaly_count)  # Memory pressure
     anomaly_disk_io = np.random.exponential(5000, anomaly_count)  # I/O storms
@@ -355,11 +359,13 @@ def generate_manufacturing_data(n_samples=8000, anomaly_rate=0.06):
     defect_count = n_samples - normal_count
     
     # Various types of defects
+    third = defect_count // 3
+    remainder = defect_count - 2 * third
     defect_length = np.concatenate([
-        np.random.normal(100, 3, defect_count//3),   # High variation
-        np.random.normal(95, 1, defect_count//3),    # Systematic offset
-        np.random.uniform(90, 110, defect_count//3)  # Out of spec
-    ])[:defect_count]
+        np.random.normal(100, 3, third),        # High variation
+        np.random.normal(95, 1, third),         # Systematic offset
+        np.random.uniform(90, 110, remainder)   # Out of spec
+    ])
     
     defect_width = np.random.normal(50, 2, defect_count)
     defect_height = np.random.normal(25, 1, defect_count)
@@ -433,11 +439,13 @@ def generate_user_behavior_data(n_samples=12000, anomaly_rate=0.08):
     suspicious_count = n_samples - normal_count
     
     # Bot-like or malicious patterns
+    third = suspicious_count // 3
+    remainder = suspicious_count - 2 * third
     suspicious_session = np.concatenate([
-        np.random.uniform(0.1, 2, suspicious_count//3),    # Very short sessions
-        np.random.uniform(120, 300, suspicious_count//3),  # Very long sessions
-        np.random.lognormal(3, 2, suspicious_count//3)     # Highly variable
-    ])[:suspicious_count]
+        np.random.uniform(0.1, 2, third),           # Very short sessions
+        np.random.uniform(120, 300, third),         # Very long sessions
+        np.random.lognormal(3, 2, remainder)        # Highly variable
+    ])
     
     suspicious_page_views = np.random.poisson(lam=50, size=suspicious_count)  # Many pages
     suspicious_clicks = suspicious_page_views * np.random.uniform(0.1, 0.5, suspicious_count)  # Few clicks per page

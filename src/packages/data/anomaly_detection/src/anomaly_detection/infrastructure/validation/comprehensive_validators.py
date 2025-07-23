@@ -532,13 +532,17 @@ class ComprehensiveValidator:
                     combined_result.warnings.extend([f"Algorithm '{algorithm}': {warning}" for warning in param_result.warnings])
         
         # Update validity
+        param_errors = []
+        if parameters:
+            param_errors = [
+                self.parameter_validator.validate_parameters(alg, parameters.get(alg, {}))
+                for alg in algorithms
+            ]
+        
         combined_result.is_valid = all([
             data_result.is_valid,
             ensemble_result.is_valid,
-            not any(param_result.errors for param_result in [
-                self.parameter_validator.validate_parameters(alg, parameters.get(alg, {}))
-                for alg in algorithms
-            ] if parameters else [])
+            not any(param_result.errors for param_result in param_errors)
         ])
         
         return combined_result

@@ -12,8 +12,9 @@ Choose your scenario and copy the complete working example:
     import numpy as np
     from anomaly_detection import DetectionService
     
-    # Load your data
-    data = pd.read_csv('your_data.csv')
+    # Load your data (try our example dataset!)
+    # data = pd.read_csv('your_data.csv')
+    data = pd.read_csv('datasets/credit_card_transactions.csv')  # Example dataset
     
     # Select numeric columns (modify as needed)
     numeric_data = data.select_dtypes(include=[np.number]).values
@@ -563,6 +564,36 @@ conda install -c conda-forge anomaly-detection
 
 # Verify installation
 python -c "from anomaly_detection import DetectionService; print('✅ Import successful')"
+```
+
+## 📂 Ready-to-Use Example Datasets
+
+We've included 8 comprehensive example datasets in the `datasets/` folder:
+
+!!! info "Example Datasets Available"
+    - **`credit_card_transactions.csv`** - Financial fraud detection (10K samples, 2% fraud)
+    - **`network_traffic.csv`** - Network intrusion detection (20K samples, 5% attacks)
+    - **`sensor_readings.csv`** - IoT device monitoring (15K samples, 3% malfunctions)
+    - **`server_metrics.csv`** - IT infrastructure monitoring (25K samples, 4% issues)
+    - **`manufacturing_quality.csv`** - Quality control (8K samples, 6% defects)
+    - **`user_behavior.csv`** - User activity analysis (12K samples, 8% suspicious)
+    - **`time_series_anomalies.csv`** - Temporal anomaly detection (5K samples, 10% anomalies)
+    - **`mixed_features.csv`** - General purpose dataset (5K samples, 15% anomalies)
+
+```python
+# Try any dataset immediately!
+import pandas as pd
+from anomaly_detection import DetectionService
+
+# Load any example dataset
+data = pd.read_csv('datasets/sensor_readings.csv')
+features = data.select_dtypes(include=['number']).values
+
+# Detect anomalies
+service = DetectionService()
+result = service.detect(features, algorithm='isolation_forest')
+
+print(f"Found {result.anomaly_count} anomalies!")
 ```
 
 ## 📚 What's Next?

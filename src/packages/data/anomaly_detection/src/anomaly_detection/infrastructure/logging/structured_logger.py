@@ -176,8 +176,8 @@ class LoggerFactory:
             level=getattr(logging, settings.logging.level.upper())
         )
         
-        # Configure file logging if enabled
-        if settings.logging.file_enabled:
+        # Configure file logging if enabled and file_path is provided
+        if settings.logging.file_enabled and settings.logging.file_path:
             file_handler = logging.FileHandler(settings.logging.file_path)
             file_handler.setLevel(getattr(logging, settings.logging.level.upper()))
             

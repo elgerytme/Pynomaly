@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import numpy as np
 
-from monorepo.application.dto.active_learning_dto import (
+from machine_learning.domain.dto.active_learning_dto import (
     CreateSessionRequest,
     CreateSessionResponse,
     SelectSamplesRequest,
@@ -27,18 +27,18 @@ from monorepo.application.dto.active_learning_dto import (
     UpdateModelRequest,
     UpdateModelResponse,
 )
-from monorepo.domain.entities.active_learning_session import (
+from machine_learning.domain.entities.active_learning_session import (
     ActiveLearningSession,
     SamplingStrategy,
     SessionStatus,
 )
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.entities.human_feedback import (
+from machine_learning.domain.entities.prediction_result import PredictionResult
+from machine_learning.domain.entities.human_feedback import (
     FeedbackConfidence,
     FeedbackType,
     HumanFeedback,
 )
-from monorepo.domain.services.active_learning_service import ActiveLearningService
+from machine_learning.domain.services.active_learning_service import ActiveLearningService
 
 
 class ActiveLearningSessionRepositoryProtocol(Protocol):
@@ -364,8 +364,8 @@ class ManageActiveLearningUseCase:
                 {
                     "sample_id": result.sample_id,
                     "index": idx,
-                    "score": result.score.value,
-                    "is_anomaly": result.is_anomaly,
+                    "score": result.score,
+                    "is_anomaly": result.prediction,
                     "annotation_value": annotation_value,
                     "selection_reason": self._get_selection_reason(
                         request.sampling_strategy, idx, request.detection_results
@@ -691,17 +691,15 @@ class ManageActiveLearningUseCase:
         self,
         strategy: SamplingStrategy,
         sample_index: int,
-        detection_results: list[DetectionResult],
+        detection_results: list[PredictionResult],
     ) -> str:
         """Generate human-readable selection reason."""
         result = detection_results[sample_index]
 
         if strategy == SamplingStrategy.UNCERTAINTY:
-            return f"High uncertainty (score: {result.score.value:.3f})"
+            return f"High uncertainty (score: {result.score:.3f})"
         elif strategy == SamplingStrategy.DIVERSITY:
             return "Diverse feature representation"
-        elif strategy == SamplingStrategy.MARGIN:
-            return f"Close to decision boundary (score: {result.score.value:.3f})"
         elif strategy == SamplingStrategy.COMMITTEE_DISAGREEMENT:
             return "High model disagreement"
         elif strategy == SamplingStrategy.EXPECTED_MODEL_CHANGE:

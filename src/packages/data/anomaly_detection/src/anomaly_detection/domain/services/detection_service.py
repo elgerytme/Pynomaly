@@ -104,7 +104,7 @@ class DetectionService:
             operation_id = metrics_collector.start_operation(f"detection_{algorithm}")
             duration_ms = metrics_collector.end_operation(operation_id, success=True)
             
-            metrics_collector.record_model_metrics(
+            metrics_collector.record_model_metric(
                 model_id="realtime",
                 algorithm=algorithm,
                 operation="detect",
