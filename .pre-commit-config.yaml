@@ -67,6 +67,16 @@ repos:
         always_run: true
         args: [--check-cycles, --check-dependencies]
         
+      - id: test-domain-leakage-validator
+        name: Test Domain Leakage Validator
+        entry: python src/packages/tools/test_domain_leakage_detector/cli.py
+        language: python
+        args: [scan, --strict, --format, console]
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        description: "Validates test files don't have cross-domain imports"
+        
   - repo: local
     hooks:
       - id: validate-repository-structure

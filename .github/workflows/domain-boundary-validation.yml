@@ -223,3 +223,95 @@ jobs:
       with:
         name: domain-metrics
         path: domain-metrics.json
+
+  test-domain-leakage-validation:
+    name: Test Domain Leakage Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml click
+    
+    - name: Run Test Domain Leakage Validation
+      run: |
+        echo "🧪 Running test domain leakage validation..."
+        python src/packages/tools/test_domain_leakage_detector/cli.py scan --strict --format console --show-fixes
+    
+    - name: Generate Test Leakage Report
+      if: always()
+      run: |
+        echo "📊 Generating test domain leakage report..."
+        python src/packages/tools/test_domain_leakage_detector/cli.py scan --format json --output test-domain-leakage-report.json || echo "Report generation completed with findings"
+    
+    - name: Upload Test Domain Leakage Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-domain-leakage-report
+        path: test-domain-leakage-report.json
+    
+    - name: Comment PR with Test Domain Leakage Violations
+      if: github.event_name == 'pull_request' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('test-domain-leakage-report.json')) {
+            const report = JSON.parse(fs.readFileSync('test-domain-leakage-report.json', 'utf8'));
+            
+            let comment = `## 🧪 Test Domain Leakage Violations Found\n\n`;
+            comment += `**Files Scanned:** ${report.summary.files_scanned}\n`;
+            comment += `**Test Files Found:** ${report.summary.test_files_found}\n`;
+            comment += `**Violations Found:** ${report.summary.violations_found}\n\n`;
+            
+            if (report.violations.length > 0) {
+              comment += `### Violations:\n\n`;
+              
+              const groupedViolations = {};
+              report.violations.forEach(violation => {
+                const type = violation.violation_type;
+                if (!groupedViolations[type]) {
+                  groupedViolations[type] = [];
+                }
+                groupedViolations[type].push(violation);
+              });
+              
+              Object.keys(groupedViolations).forEach(type => {
+                comment += `#### ${type.replace(/_/g, ' ').toUpperCase()}\n\n`;
+                
+                groupedViolations[type].forEach(violation => {
+                  comment += `- **${violation.file_path}:${violation.line_number}**\n`;
+                  comment += `  - \`${violation.import_statement}\`\n`;
+                  comment += `  - ${violation.message}\n`;
+                  if (violation.suggested_fix) {
+                    comment += `  - 💡 **Suggested fix:** \`${violation.suggested_fix}\`\n`;
+                  }
+                  comment += `\n`;
+                });
+              });
+            }
+            
+            comment += `### Action Required:\n`;
+            comment += `Please fix the test domain leakage violations before merging:\n\n`;
+            comment += `- **Package tests** should only import from their own package using relative imports\n`;
+            comment += `- **System tests** should not import directly from domain packages\n`;
+            comment += `- **Repository tests** should not import from src.packages\n\n`;
+            comment += `Run \`python src/packages/tools/test_domain_leakage_detector/cli.py scan --show-fixes\` for detailed suggestions.\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
