@@ -1,0 +1,499 @@
+# GitHub Actions CI/CD Pipeline for Anomaly Detection Service
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/data/anomaly_detection/**'
+      - '!src/packages/data/anomaly_detection/docs/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/data/anomaly_detection/**'
+      - '!src/packages/data/anomaly_detection/docs/**'
+  release:
+    types: [published]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/anomaly-detection
+
+jobs:
+  # Code Quality and Security Checks
+  quality-checks:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/packages/data/anomaly_detection
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+    
+    - name: Code formatting check (Black)
+      run: black --check --diff .
+    
+    - name: Import sorting check (isort)
+      run: isort --check-only --diff .
+    
+    - name: Linting (flake8)
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Type checking (mypy)
+      run: mypy --config-file pyproject.toml .
+    
+    - name: Security scan (bandit)
+      run: bandit -r . -f json -o bandit-report.json
+      continue-on-error: true
+    
+    - name: Dependency vulnerability scan (safety)
+      run: safety check --json --output safety-report.json
+      continue-on-error: true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          src/packages/data/anomaly_detection/bandit-report.json
+          src/packages/data/anomaly_detection/safety-report.json
+
+  # Unit and Integration Tests
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/packages/data/anomaly_detection
+    
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: anomaly_detection_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+    
+    - name: Run unit tests
+      env:
+        ANOMALY_DETECTION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
+        ANOMALY_DETECTION_REDIS_URL: redis://localhost:6379/0
+        ANOMALY_DETECTION_ENV: testing
+      run: |
+        pytest tests/unit/ \
+          --cov=anomaly_detection \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term \
+          --cov-fail-under=85 \
+          --junit-xml=test-results.xml \
+          -v
+    
+    - name: Run integration tests
+      env:
+        ANOMALY_DETECTION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
+        ANOMALY_DETECTION_REDIS_URL: redis://localhost:6379/0
+        ANOMALY_DETECTION_ENV: testing
+      run: |
+        pytest tests/integration/ \
+          --junit-xml=integration-test-results.xml \
+          -v
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          src/packages/data/anomaly_detection/test-results.xml
+          src/packages/data/anomaly_detection/integration-test-results.xml
+          src/packages/data/anomaly_detection/htmlcov/
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: src/packages/data/anomaly_detection/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  # Performance and Load Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [quality-checks, test]
+    defaults:
+      run:
+        working-directory: src/packages/data/anomaly_detection
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: anomaly_detection_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+    
+    - name: Run performance tests
+      env:
+        ANOMALY_DETECTION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
+        ANOMALY_DETECTION_REDIS_URL: redis://localhost:6379/0
+        ANOMALY_DETECTION_ENV: testing
+      run: |
+        pytest tests/performance/ \
+          --benchmark-only \
+          --benchmark-json=benchmark-results.json \
+          -v
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: src/packages/data/anomaly_detection/benchmark-results.json
+
+  # Build and Push Docker Image
+  build-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [quality-checks, test]
+    defaults:
+      run:
+        working-directory: src/packages/data/anomaly_detection
+    
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: src/packages/data/anomaly_detection
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_VERSION=${{ github.ref_name }}
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VCS_REF=${{ github.sha }}
+    
+    - name: Set image output
+      id: image
+      run: echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  # Container Security Scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build-image.outputs.image }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Deploy to Development
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    needs: [build-image, performance-tests]
+    environment:
+      name: development
+      url: https://anomaly-detection-dev.company.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+    
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name dev-cluster --region us-west-2
+    
+    - name: Deploy to development
+      working-directory: src/packages/data/anomaly_detection
+      run: |
+        cd k8s/overlays/development
+        kustomize edit set image anomaly-detection=${{ needs.build-image.outputs.image }}
+        kustomize build . | kubectl apply -f -
+    
+    - name: Wait for deployment
+      run: |
+        kubectl rollout status deployment/anomaly-detection-api -n anomaly-detection-dev --timeout=600s
+        kubectl rollout status deployment/anomaly-detection-worker -n anomaly-detection-dev --timeout=600s
+    
+    - name: Run smoke tests
+      run: |
+        kubectl wait --for=condition=available --timeout=300s deployment/anomaly-detection-api -n anomaly-detection-dev
+        API_URL="https://anomaly-detection-dev.company.com"
+        curl -f "$API_URL/health" || exit 1
+        curl -f "$API_URL/api/v1/algorithms" || exit 1
+
+  # Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [build-image, performance-tests]
+    environment:
+      name: staging
+      url: https://anomaly-detection-staging.company.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+    
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name staging-cluster --region us-west-2
+    
+    - name: Deploy to staging
+      working-directory: src/packages/data/anomaly_detection
+      run: |
+        cd k8s/overlays/staging
+        kustomize edit set image anomaly-detection=${{ needs.build-image.outputs.image }}
+        kustomize build . | kubectl apply -f -
+    
+    - name: Wait for deployment
+      run: |
+        kubectl rollout status deployment/anomaly-detection-api -n anomaly-detection-staging --timeout=600s
+        kubectl rollout status deployment/anomaly-detection-worker -n anomaly-detection-staging --timeout=600s
+    
+    - name: Run E2E tests
+      run: |
+        kubectl wait --for=condition=available --timeout=300s deployment/anomaly-detection-api -n anomaly-detection-staging
+        # Run comprehensive E2E test suite
+        pytest tests/e2e/ --base-url="https://anomaly-detection-staging.company.com" -v
+
+  # Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    needs: [build-image, security-scan]
+    environment:
+      name: production
+      url: https://anomaly-detection.company.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+    
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name prod-cluster --region us-west-2
+    
+    - name: Deploy to production
+      working-directory: src/packages/data/anomaly_detection
+      run: |
+        cd k8s/overlays/production
+        kustomize edit set image anomaly-detection=${{ needs.build-image.outputs.image }}
+        kustomize build . | kubectl apply -f -
+    
+    - name: Wait for deployment
+      run: |
+        kubectl rollout status deployment/anomaly-detection-api -n anomaly-detection --timeout=900s
+        kubectl rollout status deployment/anomaly-detection-worker -n anomaly-detection --timeout=900s
+    
+    - name: Production health check
+      run: |
+        kubectl wait --for=condition=available --timeout=300s deployment/anomaly-detection-api -n anomaly-detection
+        API_URL="https://anomaly-detection.company.com"
+        curl -f "$API_URL/health" || exit 1
+        curl -f "$API_URL/api/v1/algorithms" || exit 1
+    
+    - name: Post-deployment monitoring
+      run: |
+        # Set up alerts and monitoring for the new deployment
+        echo "Deployment completed successfully at $(date)"
+        echo "Monitoring dashboard: https://grafana.company.com/d/anomaly-detection"
+
+  # Notification and Cleanup
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [deploy-dev, deploy-staging, deploy-production]
+    
+    steps:
+    - name: Notify on success
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#deployments'
+        text: |
+          ✅ Anomaly Detection Service deployment successful!
+          - Version: ${{ github.ref_name }}
+          - Commit: ${{ github.sha }}
+          - Environment: ${{ github.event_name == 'release' && 'production' || (github.ref == 'refs/heads/main' && 'staging' || 'development') }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Notify on failure
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#alerts'
+        text: |
+          ❌ Anomaly Detection Service deployment failed!
+          - Version: ${{ github.ref_name }}
+          - Commit: ${{ github.sha }}
+          - Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

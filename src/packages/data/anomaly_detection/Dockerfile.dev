@@ -1,0 +1,95 @@
+# Development Docker configuration for Anomaly Detection Service
+FROM python:3.11-slim
+
+# Set build arguments
+ARG BUILD_VERSION=dev
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Add metadata labels
+LABEL maintainer="anomaly-detection-team@company.com" \
+      version="${BUILD_VERSION}" \
+      description="Development environment for anomaly detection service" \
+      build-date="${BUILD_DATE}" \
+      vcs-ref="${VCS_REF}"
+
+# Install system dependencies including development tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    g++ \
+    libc6-dev \
+    libffi-dev \
+    libssl-dev \
+    curl \
+    git \
+    vim \
+    htop \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Python environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Create application user with sudo privileges for development
+RUN groupadd -r appuser && useradd -r -g appuser -s /bin/bash appuser \
+    && apt-get update && apt-get install -y sudo \
+    && echo "appuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt requirements-dev.txt ./
+
+# Install Python dependencies including development packages
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+# Install additional development tools
+RUN pip install --no-cache-dir \
+    ipython \
+    jupyter \
+    pytest-xdist \
+    pytest-cov \
+    black \
+    flake8 \
+    mypy \
+    pre-commit
+
+# Copy source code
+COPY . .
+
+# Install the package in development mode
+RUN pip install -e .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/models /app/notebooks \
+    && chown -R appuser:appuser /app
+
+# Set environment variables for development
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    ANOMALY_DETECTION_ENV=development \
+    ANOMALY_DETECTION_LOG_LEVEL=DEBUG \
+    ANOMALY_DETECTION_DATA_DIR=/app/data \
+    ANOMALY_DETECTION_MODEL_DIR=/app/models \
+    ANOMALY_DETECTION_LOG_DIR=/app/logs \
+    JUPYTER_ENABLE_LAB=yes
+
+# Switch to application user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose ports (API server, Jupyter, debugger)
+EXPOSE 8000 8888 5678
+
+# Start development server with hot reload
+CMD ["uvicorn", "anomaly_detection.server:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]

@@ -1,0 +1,67 @@
+# Development requirements (includes production requirements)
+-r requirements-prod.txt
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-xdist==3.5.0
+pytest-html==4.1.1
+pytest-benchmark==4.0.0
+factory-boy==3.3.0
+faker==20.1.0
+
+# Code quality
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0
+pre-commit==3.6.0
+mypy==1.7.1
+bandit==1.7.5
+safety==2.3.5
+
+# Documentation
+mkdocs==1.5.3
+mkdocs-material==9.4.8
+mkdocs-mermaid2-plugin==1.1.1
+mkdocstrings[python]==0.24.0
+
+# Development tools
+ipython==8.17.2
+jupyter==1.0.0
+jupyterlab==4.0.9
+notebook==7.0.6
+
+# API testing
+httpx==0.25.2
+requests==2.31.0
+responses==0.24.1
+
+# Performance profiling
+memory-profiler==0.61.0
+line-profiler==4.1.1
+py-spy==0.3.14
+
+# Database tools
+pgcli==4.0.1
+
+# Debugging
+pdb++==0.10.3
+ipdb==0.13.13
+pudb==2023.1
+
+# Type checking
+types-redis==4.6.0.11
+types-requests==2.31.0.10
+types-PyYAML==6.0.12.12
+
+# Load testing
+locust==2.17.0
+
+# Additional ML libraries for experimentation
+matplotlib==3.8.2
+seaborn==0.13.0
+plotly==5.17.0
+shap==0.43.0
+lime==0.2.0.1

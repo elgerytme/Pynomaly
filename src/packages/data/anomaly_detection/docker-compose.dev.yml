@@ -1,0 +1,155 @@
+# Development Docker Compose configuration
+version: '3.8'
+
+services:
+  # Development API Service
+  anomaly-detection-api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        BUILD_VERSION: dev
+        BUILD_DATE: ${BUILD_DATE}
+        VCS_REF: ${VCS_REF}
+    image: anomaly-detection:dev
+    container_name: anomaly-detection-api-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "8888:8888"  # Jupyter
+      - "5678:5678"  # Debugger
+    environment:
+      - ANOMALY_DETECTION_ENV=development
+      - ANOMALY_DETECTION_LOG_LEVEL=DEBUG
+      - ANOMALY_DETECTION_DATABASE_URL=postgresql://postgres:anomaly123@postgres-dev:5432/anomaly_detection_dev
+      - ANOMALY_DETECTION_REDIS_URL=redis://redis-dev:6379/0
+      - ANOMALY_DETECTION_RELOAD=true
+    volumes:
+      - .:/app
+      - anomaly_data_dev:/app/data
+      - anomaly_models_dev:/app/models
+      - anomaly_logs_dev:/app/logs
+      - /app/.venv  # Exclude virtual environment from mount
+    depends_on:
+      - postgres-dev
+      - redis-dev
+    networks:
+      - anomaly-network-dev
+    stdin_open: true
+    tty: true
+
+  # Development Database
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: anomaly-detection-postgres-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=anomaly_detection_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=anomaly123
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    networks:
+      - anomaly-network-dev
+
+  # Development Redis
+  redis-dev:
+    image: redis:7-alpine
+    container_name: anomaly-detection-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data_dev:/data
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    networks:
+      - anomaly-network-dev
+
+  # Jupyter Notebook Service
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: anomaly-detection:dev
+    container_name: anomaly-detection-jupyter
+    restart: unless-stopped
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''", "--NotebookApp.password=''"]
+    ports:
+      - "8889:8888"
+    environment:
+      - ANOMALY_DETECTION_ENV=development
+      - ANOMALY_DETECTION_LOG_LEVEL=DEBUG
+      - JUPYTER_ENABLE_LAB=yes
+    volumes:
+      - .:/app
+      - ./notebooks:/app/notebooks
+      - anomaly_data_dev:/app/data
+      - anomaly_models_dev:/app/models
+    depends_on:
+      - postgres-dev
+      - redis-dev
+    networks:
+      - anomaly-network-dev
+
+  # Development Testing Service
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: anomaly-detection:dev
+    container_name: anomaly-detection-tests
+    command: ["python", "-m", "pytest", "-v", "--cov=anomaly_detection", "--cov-report=html", "--cov-report=term"]
+    environment:
+      - ANOMALY_DETECTION_ENV=testing
+      - ANOMALY_DETECTION_LOG_LEVEL=DEBUG
+      - ANOMALY_DETECTION_DATABASE_URL=postgresql://postgres:anomaly123@postgres-dev:5432/anomaly_detection_test
+    volumes:
+      - .:/app
+      - test_results:/app/htmlcov
+    depends_on:
+      - postgres-dev
+      - redis-dev
+    networks:
+      - anomaly-network-dev
+    profiles:
+      - testing
+
+  # Development Documentation Server
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: anomaly-detection:dev
+    container_name: anomaly-detection-docs
+    command: ["mkdocs", "serve", "--dev-addr=0.0.0.0:8080"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - ./docs:/app/docs
+    networks:
+      - anomaly-network-dev
+    profiles:
+      - docs
+
+volumes:
+  anomaly_data_dev:
+    driver: local
+  anomaly_models_dev:
+    driver: local
+  anomaly_logs_dev:
+    driver: local
+  postgres_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local
+  test_results:
+    driver: local
+
+networks:
+  anomaly-network-dev:
+    driver: bridge

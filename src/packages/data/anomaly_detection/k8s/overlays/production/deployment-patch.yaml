@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-api
+spec:
+  template:
+    spec:
+      containers:
+      - name: api
+        env:
+        - name: ANOMALY_DETECTION_ENV
+          value: "production"
+        - name: ANOMALY_DETECTION_LOG_LEVEL
+          value: "INFO"
+        - name: UVICORN_WORKERS
+          value: "8"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-worker
+spec:
+  template:
+    spec:
+      containers:
+      - name: worker
+        env:
+        - name: ANOMALY_DETECTION_ENV
+          value: "production"
+        - name: ANOMALY_DETECTION_LOG_LEVEL
+          value: "INFO"
+        - name: ANOMALY_DETECTION_WORKER_CONCURRENCY
+          value: "8"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"

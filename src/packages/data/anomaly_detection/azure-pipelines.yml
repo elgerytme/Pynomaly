@@ -1,0 +1,427 @@
+# Azure DevOps Pipeline for Anomaly Detection Service
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - src/packages/data/anomaly_detection/*
+    exclude:
+      - src/packages/data/anomaly_detection/docs/*
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - src/packages/data/anomaly_detection/*
+    exclude:
+      - src/packages/data/anomaly_detection/docs/*
+
+variables:
+  pythonVersion: '3.11'
+  containerRegistry: 'anomalydetectionregistry'
+  imageRepository: 'anomaly-detection'
+  dockerfilePath: 'src/packages/data/anomaly_detection/Dockerfile'
+  tag: '$(Build.BuildId)'
+  vmImageName: 'ubuntu-latest'
+  workingDirectory: 'src/packages/data/anomaly_detection'
+
+stages:
+- stage: QualityChecks
+  displayName: 'Code Quality & Security'
+  jobs:
+  - job: CodeQuality
+    displayName: 'Code Quality Checks'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+      workingDirectory: $(workingDirectory)
+      displayName: 'Install dependencies'
+
+    - script: |
+        black --check --diff .
+      workingDirectory: $(workingDirectory)
+      displayName: 'Code formatting check (Black)'
+
+    - script: |
+        isort --check-only --diff .
+      workingDirectory: $(workingDirectory)
+      displayName: 'Import sorting check (isort)'
+
+    - script: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      workingDirectory: $(workingDirectory)
+      displayName: 'Linting (flake8)'
+
+    - script: |
+        mypy --config-file pyproject.toml .
+      workingDirectory: $(workingDirectory)
+      displayName: 'Type checking (mypy)'
+
+  - job: SecurityScan
+    displayName: 'Security Scanning'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+      workingDirectory: $(workingDirectory)
+      displayName: 'Install security tools'
+
+    - script: |
+        bandit -r . -f json -o bandit-report.json
+      workingDirectory: $(workingDirectory)
+      displayName: 'Security scan (bandit)'
+      continueOnError: true
+
+    - script: |
+        safety check --json --output safety-report.json
+      workingDirectory: $(workingDirectory)
+      displayName: 'Dependency vulnerability scan (safety)'
+      continueOnError: true
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/*security*.xml'
+        testRunTitle: 'Security Scan Results'
+      condition: always()
+
+- stage: Test
+  displayName: 'Testing'
+  dependsOn: QualityChecks
+  jobs:
+  - job: UnitTests
+    displayName: 'Unit Tests'
+    pool:
+      vmImage: $(vmImageName)
+    services:
+      postgres: postgres:15
+      redis: redis:7
+    variables:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: anomaly_detection_test
+      ANOMALY_DETECTION_DATABASE_URL: postgresql://postgres@localhost:5432/anomaly_detection_test
+      ANOMALY_DETECTION_REDIS_URL: redis://localhost:6379/0
+      ANOMALY_DETECTION_ENV: testing
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+      workingDirectory: $(workingDirectory)
+      displayName: 'Install dependencies'
+
+    - script: |
+        pytest tests/unit/ \
+          --cov=anomaly_detection \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term \
+          --cov-fail-under=85 \
+          --junit-xml=test-results.xml \
+          -v
+      workingDirectory: $(workingDirectory)
+      displayName: 'Run unit tests'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/test-results.xml'
+        testRunTitle: 'Unit Test Results'
+      condition: always()
+
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(workingDirectory)/coverage.xml'
+        reportDirectory: '$(workingDirectory)/htmlcov'
+      condition: always()
+
+  - job: IntegrationTests
+    displayName: 'Integration Tests'
+    pool:
+      vmImage: $(vmImageName)
+    services:
+      postgres: postgres:15
+      redis: redis:7
+    variables:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: anomaly_detection_test
+      ANOMALY_DETECTION_DATABASE_URL: postgresql://postgres@localhost:5432/anomaly_detection_test
+      ANOMALY_DETECTION_REDIS_URL: redis://localhost:6379/0
+      ANOMALY_DETECTION_ENV: testing
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+      workingDirectory: $(workingDirectory)
+      displayName: 'Install dependencies'
+
+    - script: |
+        pytest tests/integration/ \
+          --junit-xml=integration-test-results.xml \
+          -v
+      workingDirectory: $(workingDirectory)
+      displayName: 'Run integration tests'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/integration-test-results.xml'
+        testRunTitle: 'Integration Test Results'
+      condition: always()
+
+  - job: PerformanceTests
+    displayName: 'Performance Tests'
+    pool:
+      vmImage: $(vmImageName)
+    services:
+      postgres: postgres:15
+      redis: redis:7
+    variables:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: anomaly_detection_test
+      ANOMALY_DETECTION_DATABASE_URL: postgresql://postgres@localhost:5432/anomaly_detection_test
+      ANOMALY_DETECTION_REDIS_URL: redis://localhost:6379/0
+      ANOMALY_DETECTION_ENV: testing
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+      workingDirectory: $(workingDirectory)
+      displayName: 'Install dependencies'
+
+    - script: |
+        pytest tests/performance/ \
+          --benchmark-only \
+          --benchmark-json=benchmark-results.json \
+          -v
+      workingDirectory: $(workingDirectory)
+      displayName: 'Run performance tests'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(workingDirectory)/benchmark-results.json'
+        artifactName: 'performance-results'
+      condition: always()
+
+- stage: Build
+  displayName: 'Build and Push Image'
+  dependsOn: Test
+  jobs:
+  - job: BuildImage
+    displayName: 'Build Docker Image'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: 'Build and Push Docker Image'
+      inputs:
+        containerRegistry: $(containerRegistry)
+        repository: $(imageRepository)
+        command: 'buildAndPush'
+        Dockerfile: $(dockerfilePath)
+        buildContext: $(workingDirectory)
+        tags: |
+          $(tag)
+          latest
+        arguments: |
+          --build-arg BUILD_VERSION=$(Build.SourceBranchName)
+          --build-arg BUILD_DATE=$(Build.StartTime)
+          --build-arg VCS_REF=$(Build.SourceVersion)
+
+- stage: SecurityScan
+  displayName: 'Container Security Scan'
+  dependsOn: Build
+  jobs:
+  - job: ContainerScan
+    displayName: 'Scan Container'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: trivy@1
+      inputs:
+        image: '$(containerRegistry).azurecr.io/$(imageRepository):$(tag)'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: 'trivy-results.sarif'
+        artifactName: 'security-scan-results'
+
+- stage: DeployDev
+  displayName: 'Deploy to Development'
+  dependsOn: 
+    - Build
+    - SecurityScan
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: DeployToDevelopment
+    displayName: 'Deploy to Development'
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: 'Deploy to Kubernetes'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: 'dev-cluster'
+              namespace: 'anomaly-detection-dev'
+              manifests: '$(workingDirectory)/k8s/overlays/development'
+              containers: '$(containerRegistry).azurecr.io/$(imageRepository):$(tag)'
+
+          - task: Kubernetes@1
+            displayName: 'Wait for Deployment'
+            inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceEndpoint: 'dev-cluster'
+              namespace: 'anomaly-detection-dev'
+              command: 'rollout'
+              arguments: 'status deployment/anomaly-detection-api --timeout=600s'
+
+- stage: DeployStaging
+  displayName: 'Deploy to Staging'
+  dependsOn: 
+    - Build
+    - SecurityScan
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployToStaging
+    displayName: 'Deploy to Staging'
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: 'Deploy to Kubernetes'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: 'staging-cluster'
+              namespace: 'anomaly-detection-staging'
+              manifests: '$(workingDirectory)/k8s/overlays/staging'
+              containers: '$(containerRegistry).azurecr.io/$(imageRepository):$(tag)'
+
+          - task: Kubernetes@1
+            displayName: 'Wait for Deployment'
+            inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceEndpoint: 'staging-cluster'
+              namespace: 'anomaly-detection-staging'
+              command: 'rollout'
+              arguments: 'status deployment/anomaly-detection-api --timeout=600s'
+
+          # Run E2E tests in staging
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+
+          - script: |
+              pip install -r requirements-dev.txt
+              pytest tests/e2e/ --base-url="https://anomaly-detection-staging.company.com" -v
+            workingDirectory: $(workingDirectory)
+            displayName: 'Run E2E Tests'
+
+- stage: DeployProd
+  displayName: 'Deploy to Production'
+  dependsOn: 
+    - Build
+    - SecurityScan
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  jobs:
+  - deployment: DeployToProduction
+    displayName: 'Deploy to Production'
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: 'Deploy to Kubernetes'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: 'prod-cluster'
+              namespace: 'anomaly-detection'
+              manifests: '$(workingDirectory)/k8s/overlays/production'
+              containers: '$(containerRegistry).azurecr.io/$(imageRepository):$(tag)'
+
+          - task: Kubernetes@1
+            displayName: 'Wait for Deployment'
+            inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceEndpoint: 'prod-cluster'
+              namespace: 'anomaly-detection'
+              command: 'rollout'
+              arguments: 'status deployment/anomaly-detection-api --timeout=900s'
+
+          - script: |
+              # Production health check
+              curl -f "https://anomaly-detection.company.com/health"
+              curl -f "https://anomaly-detection.company.com/api/v1/algorithms"
+            displayName: 'Production Health Check'
+
+- stage: Notify
+  displayName: 'Notification'
+  dependsOn: 
+    - DeployDev
+    - DeployStaging
+    - DeployProd
+  condition: always()
+  jobs:
+  - job: SendNotification
+    displayName: 'Send Notification'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: InvokeRESTAPI@1
+      displayName: 'Send Slack Notification'
+      inputs:
+        connectionType: 'connectedServiceName'
+        serviceConnection: 'slack-webhook'
+        method: 'POST'
+        headers: |
+          Content-Type: application/json
+        body: |
+          {
+            "text": "🚀 Anomaly Detection Service Pipeline Completed\n- Build: $(Build.BuildNumber)\n- Branch: $(Build.SourceBranchName)\n- Status: $(Agent.JobStatus)"
+          }

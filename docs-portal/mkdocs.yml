@@ -1,0 +1,216 @@
+site_name: Anomaly Detection Platform Documentation
+site_description: Comprehensive documentation for the enterprise anomaly detection platform
+site_author: Anomaly Detection Platform Team
+site_url: https://anomaly-detection-platform.github.io/docs
+
+repo_name: anomaly-detection-platform/monorepo
+repo_url: https://github.com/anomaly-detection-platform/monorepo
+
+theme:
+  name: material
+  custom_dir: overrides/
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+    - toc.integrate
+  
+  font:
+    text: Roboto
+    code: Roboto Mono
+  
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/chart-line
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/anomaly-detection-platform/monorepo
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/anomaly-detection/
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/anomaly-detection/platform
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.tilde
+  - pymdownx.caret
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+plugins:
+  - search:
+      lang: en
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - minify:
+      minify_html: true
+  - social:
+      cards_layout_options:
+        background_color: "#1976d2"
+  - tags:
+      tags_file: tags.md
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../src]
+          options:
+            docstring_style: google
+            merge_init_into_class: true
+            show_source: false
+            show_bases: true
+            show_inheritance_diagram: true
+
+nav:
+  - Home: index.md
+  
+  - Getting Started:
+    - Platform Overview: getting-started/platform-overview.md
+    - Installation Guide: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Learning Paths: getting-started/learning-paths.md
+  
+  - Platform Packages:
+    - Overview: packages/index.md
+    - Anomaly Detection:
+      - Overview: packages/anomaly-detection/index.md
+      - Installation: packages/anomaly-detection/installation.md
+      - Quick Start: packages/anomaly-detection/quickstart.md
+      - Architecture: packages/anomaly-detection/architecture.md
+      - Algorithms: packages/anomaly-detection/algorithms.md
+      - API Reference: packages/anomaly-detection/api.md
+      - CLI Tools: packages/anomaly-detection/cli.md
+      - Configuration: packages/anomaly-detection/configuration.md
+      - Ensemble Methods: packages/anomaly-detection/ensemble.md
+      - Streaming: packages/anomaly-detection/streaming.md
+      - Explainability: packages/anomaly-detection/explainability.md
+      - Performance: packages/anomaly-detection/performance.md
+      - Deployment: packages/anomaly-detection/deployment.md
+      - Security: packages/anomaly-detection/security.md
+      - Troubleshooting: packages/anomaly-detection/troubleshooting.md
+    - Machine Learning:
+      - Overview: packages/machine-learning/index.md
+      - Model Management: packages/machine-learning/model-management.md
+      - Active Learning: packages/machine-learning/active-learning.md
+      - AutoML: packages/machine-learning/automl.md
+      - MLOps: packages/machine-learning/mlops.md
+    - Data Platform:
+      - Overview: packages/data-platform/index.md
+      - Data Engineering: packages/data-platform/data-engineering.md
+      - Data Architecture: packages/data-platform/data-architecture.md
+      - Streaming: packages/data-platform/streaming.md
+    - Enterprise:
+      - Overview: packages/enterprise/index.md
+      - Authentication: packages/enterprise/authentication.md
+      - Authorization: packages/enterprise/authorization.md
+      - Governance: packages/enterprise/governance.md
+      - Compliance: packages/enterprise/compliance.md
+    - Infrastructure:
+      - Overview: packages/infrastructure/index.md
+      - Monitoring: packages/infrastructure/monitoring.md
+      - Logging: packages/infrastructure/logging.md
+      - Deployment: packages/infrastructure/deployment.md
+  
+  - Integration Guides:
+    - Overview: guides/index.md
+    - Cross-Package Workflows: guides/cross-package-workflows.md
+    - Production Deployment: guides/production-deployment.md
+    - CI/CD Integration: guides/cicd-integration.md
+    - Monitoring & Observability: guides/monitoring.md
+    - Security Best Practices: guides/security.md
+    - Performance Optimization: guides/performance.md
+    - Troubleshooting: guides/troubleshooting.md
+  
+  - API Reference:
+    - Overview: api/index.md
+    - REST APIs: api/rest.md
+    - Python SDKs: api/python-sdk.md
+    - TypeScript SDKs: api/typescript-sdk.md
+    - Java SDKs: api/java-sdk.md
+    - CLI Tools: api/cli.md
+  
+  - Architecture:
+    - Platform Architecture: architecture/platform-architecture.md
+    - Domain Boundaries: architecture/domain-boundaries.md
+    - Technology Stack: architecture/technology-stack.md
+    - Design Patterns: architecture/design-patterns.md
+    - Security Architecture: architecture/security-architecture.md
+  
+  - Examples & Tutorials:
+    - Overview: examples/index.md
+    - Basic Examples: examples/basic.md
+    - Advanced Examples: examples/advanced.md
+    - Industry Use Cases: examples/industry-use-cases.md
+    - Integration Examples: examples/integrations.md
+    - Performance Examples: examples/performance.md
+  
+  - Resources:
+    - Overview: resources/index.md
+    - Code Templates: resources/templates.md
+    - Development Tools: resources/tools.md
+    - Community: resources/community.md
+    - Support: resources/support.md
+    - FAQ: resources/faq.md
+    - Glossary: resources/glossary.md
+  
+  - Tags: tags.md
+
+extra_css:
+  - assets/css/custom.css
+
+extra_javascript:
+  - assets/js/custom.js
