@@ -1,4 +1,11 @@
-# Enterprise Authentication & Authorization Package
+# 🔐 Enterprise Authentication & Authorization Package
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type checked: mypy](https://img.shields.io/badge/typed-mypy-blue.svg)](https://mypy-lang.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+[![Security](https://img.shields.io/badge/security-enterprise--grade-red.svg)](https://owasp.org/)
 
 This package provides enterprise-grade authentication and authorization capabilities for anomaly_detection, including SSO, SAML, OAuth2, RBAC, and multi-tenancy support.
 
@@ -468,7 +475,7 @@ spec:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/anomaly_detection.git
+git clone https://github.com/monorepo/anomaly-detection-platform.git
 cd anomaly_detection/src/packages/enterprise/enterprise_auth
 
 # Create virtual environment
@@ -494,7 +501,7 @@ This package is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 ## Support
 
 - **Documentation**: [https://docs.anomaly_detection.org/enterprise/auth](https://docs.anomaly_detection.org/enterprise/auth)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/anomaly_detection/issues)
+- **Issues**: [GitHub Issues](https://github.com/monorepo/anomaly-detection-platform/issues)
 - **Enterprise Support**: enterprise-support@anomaly_detection.org
 
 ---

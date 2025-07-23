@@ -1,4 +1,11 @@
-# Anomaly Detection Package
+# 🔍 Anomaly Detection Package
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type checked: mypy](https://img.shields.io/badge/typed-mypy-blue.svg)](https://mypy-lang.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
+[![PyOD](https://img.shields.io/badge/PyOD-2.0+-red.svg)](https://pyod.readthedocs.io/)
 
 A clean, domain-focused anomaly detection package that integrates with the broader anomaly_detection ML infrastructure.
 
@@ -219,6 +226,170 @@ This consolidated package replaces the previous complex structure with:
 2. MLOps features moved to `@src/packages/ai/machine_learning/mlops`
 3. Algorithm adapters consolidated and simplified
 4. Core detection logic streamlined
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### Installation Issues
+
+**Problem**: `ImportError` when importing anomaly detection components
+```bash
+# Solution: Ensure package is properly installed
+cd src/packages/data/anomaly_detection/
+pip install -e .
+
+# Verify installation
+python -c "import anomaly_detection; print('Package installed successfully')"
+```
+
+**Problem**: Missing ML dependencies
+```bash
+# Solution: Install with ML dependencies
+pip install -e ".[algorithms]"  # For additional ML algorithms
+pip install -e ".[all]"         # For all optional dependencies
+```
+
+#### Detection Issues
+
+**Problem**: Poor detection performance on your dataset
+```python
+# Solution: Use ensemble detection for better results
+from anomaly_detection.core.domain.services import EnsembleDetectionService
+
+detector = EnsembleDetectionService()
+detector.add_detector("isolation_forest", {"contamination": 0.1})
+detector.add_detector("one_class_svm", {"gamma": "scale"})
+detector.add_detector("local_outlier_factor", {"n_neighbors": 20})
+
+anomalies = detector.detect(X)
+```
+
+**Problem**: High false positive rate
+```python
+# Solution: Adjust contamination parameter and use threshold tuning
+from anomaly_detection.core.application.services import AnomalyDetectionService
+
+service = AnomalyDetectionService()
+results = service.detect_anomalies(
+    data=X,
+    algorithm="isolation_forest",
+    hyperparameters={
+        "contamination": 0.05,  # Lower contamination = fewer false positives
+        "n_estimators": 200,    # More trees = more stable results
+        "max_features": 1.0     # Use all features
+    }
+)
+```
+
+#### Streaming Detection Issues
+
+**Problem**: Memory issues with streaming detection
+```python
+# Solution: Configure streaming buffer size
+from anomaly_detection.core.domain.services import StreamingDetectionService
+
+detector = StreamingDetectionService(
+    buffer_size=1000,        # Smaller buffer for memory efficiency
+    update_frequency=100,    # Update model every 100 samples
+    drift_threshold=0.1      # Adjust drift sensitivity
+)
+```
+
+**Problem**: Concept drift not detected
+```python
+# Solution: Enable drift monitoring and adjust sensitivity
+from anomaly_detection.core.domain.services import StreamingDetectionService
+
+detector = StreamingDetectionService(
+    enable_drift_detection=True,
+    drift_threshold=0.05,    # More sensitive drift detection
+    drift_window_size=500,   # Larger window for drift calculation
+    adaptation_strategy="retrain"  # Retrain on drift detection
+)
+```
+
+#### Integration Issues
+
+**Problem**: ML integration not working
+```bash
+# Solution: Ensure machine_learning package is available
+cd ../ai/machine_learning/
+pip install -e .
+
+# Verify integration
+python -c "
+from anomaly_detection.core.application.services import AnomalyDetectionService
+from machine_learning.training import ModelTrainer
+print('Integration working')
+"
+```
+
+### Performance Optimization
+
+#### For Large Datasets
+```python
+# Use approximate algorithms for speed
+service = AnomalyDetectionService()
+results = service.detect_anomalies(
+    data=X,
+    algorithm="isolation_forest",
+    hyperparameters={
+        "n_estimators": 50,      # Fewer trees for speed
+        "max_samples": "auto",   # Auto-sample for efficiency
+        "n_jobs": -1            # Use all CPU cores
+    }
+)
+```
+
+#### For Real-time Detection
+```python
+# Configure for low latency
+detector = StreamingDetectionService(
+    algorithm="lof",          # Fast local outlier factor
+    buffer_size=100,          # Small buffer
+    update_frequency=50,      # Frequent updates
+    batch_processing=True     # Process in batches
+)
+```
+
+### FAQ
+
+**Q: Which algorithm should I use for my data?**
+A: Use the algorithm selection guide:
+- **Tabular data**: Isolation Forest or Local Outlier Factor
+- **High-dimensional data**: One-Class SVM or Elliptic Envelope
+- **Time series**: Streaming detection with concept drift monitoring
+- **Unsure**: Use EnsembleDetectionService with multiple algorithms
+
+**Q: How do I handle categorical features?**
+A: Preprocess categorical features before detection:
+```python
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+import pandas as pd
+
+# Example preprocessing
+df = pd.get_dummies(df, columns=['categorical_column'])
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(df)
+
+# Then use with anomaly detection
+results = service.detect_anomalies(X_scaled, algorithm="isolation_forest")
+```
+
+**Q: How do I tune hyperparameters?**
+A: Use the integrated ML optimization:
+```python
+from machine_learning.optimization import HyperparameterOptimizer
+
+optimizer = HyperparameterOptimizer()
+best_params = optimizer.optimize(
+    algorithm="isolation_forest",
+    X_train=X_train,
+    X_val=X_val,
+    metric="f1_score"
+)
+```
 
 ## Contributing
 
