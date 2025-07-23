@@ -1,0 +1,207 @@
+"""Process management utilities."""
+
+import asyncio
+import os
+import signal
+import subprocess
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import List, Optional
+
+import psutil
+from rich.console import Console
+
+from {{package_name}}.core.config import settings
+
+
+class ProcessStatus(Enum):
+    """Process status enum."""
+
+    RUNNING = "running"
+    STOPPED = "stopped"
+    FAILED = "failed"
+    RESTARTING = "restarting"
+
+
+@dataclass
+class ProcessInfo:
+    """Process information."""
+
+    name: str
+    pid: int
+    command: str
+    status: ProcessStatus
+    started_at: datetime
+    auto_restart: bool = False
+
+
+@dataclass
+class ProcessStats:
+    """Process statistics."""
+
+    cpu_percent: float
+    memory_mb: float
+    runtime: str
+
+
+class ProcessManager:
+    """Process manager."""
+
+    def __init__(self):
+        """Initialize process manager."""
+        self.process_dir = settings.data_dir / "processes"
+        self.process_dir.mkdir(parents=True, exist_ok=True)
+
+    def run_foreground(self, command: str) -> subprocess.CompletedProcess:
+        """Run process in foreground."""
+        return subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            text=True,
+        )
+
+    def start_background(
+        self,
+        command: str,
+        name: str,
+        auto_restart: bool = False,
+    ) -> int:
+        """Start process in background."""
+        log_file = self.process_dir / f"{name}.log"
+        pid_file = self.process_dir / f"{name}.pid"
+        info_file = self.process_dir / f"{name}.info"
+        
+        # Start process
+        with open(log_file, "w") as log:
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                preexec_fn=os.setsid,
+            )
+        
+        # Save process info
+        with open(pid_file, "w") as f:
+            f.write(str(process.pid))
+        
+        info = {
+            "name": name,
+            "pid": process.pid,
+            "command": command,
+            "started_at": datetime.now().isoformat(),
+            "auto_restart": auto_restart,
+        }
+        
+        with open(info_file, "w") as f:
+            json.dump(info, f)
+        
+        return process.pid
+
+    def list_processes(self) -> List[ProcessInfo]:
+        """List all managed processes."""
+        processes = []
+        
+        for info_file in self.process_dir.glob("*.info"):
+            try:
+                with open(info_file) as f:
+                    info = json.load(f)
+                
+                pid = info["pid"]
+                
+                # Check if process is running
+                try:
+                    psutil.Process(pid)
+                    status = ProcessStatus.RUNNING
+                except psutil.NoSuchProcess:
+                    status = ProcessStatus.STOPPED
+                
+                processes.append(
+                    ProcessInfo(
+                        name=info["name"],
+                        pid=pid,
+                        command=info["command"],
+                        status=status,
+                        started_at=datetime.fromisoformat(info["started_at"]),
+                        auto_restart=info.get("auto_restart", False),
+                    )
+                )
+            except Exception:
+                continue
+        
+        return processes
+
+    def stop_by_pid(self, pid: int, force: bool = False) -> bool:
+        """Stop process by PID."""
+        try:
+            if force:
+                os.kill(pid, signal.SIGKILL)
+            else:
+                os.kill(pid, signal.SIGTERM)
+            return True
+        except ProcessLookupError:
+            return False
+
+    def stop_by_name(self, name: str, force: bool = False) -> bool:
+        """Stop process by name."""
+        processes = self.list_processes()
+        for proc in processes:
+            if proc.name == name and proc.status == ProcessStatus.RUNNING:
+                return self.stop_by_pid(proc.pid, force)
+        return False
+
+    def get_log_file_by_name(self, name: str) -> Optional[Path]:
+        """Get log file path by process name."""
+        log_file = self.process_dir / f"{name}.log"
+        return log_file if log_file.exists() else None
+
+    def get_log_file_by_pid(self, pid: int) -> Optional[Path]:
+        """Get log file path by PID."""
+        processes = self.list_processes()
+        for proc in processes:
+            if proc.pid == pid:
+                return self.get_log_file_by_name(proc.name)
+        return None
+
+    async def tail_logs(self, log_file: Path, console: Console) -> None:
+        """Tail log file."""
+        with open(log_file) as f:
+            # Go to end of file
+            f.seek(0, 2)
+            
+            while True:
+                line = f.readline()
+                if line:
+                    console.print(line, end="")
+                else:
+                    await asyncio.sleep(0.1)
+
+    def get_process_stats(self, pid: int) -> Optional[ProcessStats]:
+        """Get process statistics."""
+        try:
+            proc = psutil.Process(pid)
+            
+            # Calculate runtime
+            create_time = datetime.fromtimestamp(proc.create_time())
+            runtime = datetime.now() - create_time
+            runtime_str = str(runtime).split(".")[0]
+            
+            return ProcessStats(
+                cpu_percent=proc.cpu_percent(interval=0.1),
+                memory_mb=proc.memory_info().rss / 1024 / 1024,
+                runtime=runtime_str,
+            )
+        except psutil.NoSuchProcess:
+            return None
+
+    def get_process_info(self, name: str) -> Optional[ProcessInfo]:
+        """Get process info by name."""
+        processes = self.list_processes()
+        for proc in processes:
+            if proc.name == name:
+                return proc
+        return None

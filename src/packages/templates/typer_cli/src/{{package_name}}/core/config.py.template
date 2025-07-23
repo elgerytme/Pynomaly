@@ -1,0 +1,74 @@
+"""Configuration management."""
+
+import json
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class AppConfig(BaseModel):
+    """Application configuration."""
+
+    api_key: Optional[str] = None
+    timeout: int = 30
+    max_retries: int = 3
+    output_format: str = "json"
+    extra_settings: Dict[str, Any] = Field(default_factory=dict)
+
+
+class Settings(BaseSettings):
+    """Application settings."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="{{PACKAGE_NAME_UPPER}}_",
+        case_sensitive=False,
+    )
+
+    config_dir: Path = Field(
+        default_factory=lambda: Path.home() / ".{{package_name}}"
+    )
+    data_dir: Path = Field(
+        default_factory=lambda: Path.home() / ".{{package_name}}" / "data"
+    )
+    log_level: str = "INFO"
+    
+    _config: Optional[AppConfig] = None
+
+    @property
+    def config_file(self) -> Path:
+        """Get config file path."""
+        return self.config_dir / "config.json"
+
+    def load_config(self) -> AppConfig:
+        """Load configuration from file."""
+        if self._config is None:
+            if self.config_file.exists():
+                with open(self.config_file) as f:
+                    data = json.load(f)
+                self._config = AppConfig(**data)
+            else:
+                self._config = AppConfig()
+        return self._config
+
+    def save_config(self, config: AppConfig) -> None:
+        """Save configuration to file."""
+        self.config_dir.mkdir(parents=True, exist_ok=True)
+        with open(self.config_file, "w") as f:
+            json.dump(config.model_dump(), f, indent=2)
+        self._config = config
+
+    def init_config(self) -> None:
+        """Initialize configuration with defaults."""
+        if not self.config_file.exists():
+            self.save_config(AppConfig())
+
+    @property
+    def config(self) -> AppConfig:
+        """Get current configuration."""
+        return self.load_config()
+
+
+settings = Settings()

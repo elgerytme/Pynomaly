@@ -1,0 +1,132 @@
+"""Configuration commands."""
+
+from typing import Optional
+
+import typer
+from rich import print
+from rich.console import Console
+from rich.prompt import Confirm, Prompt
+from rich.table import Table
+
+from {{package_name}}.core.config import AppConfig, settings
+
+console = Console()
+app = typer.Typer()
+
+
+@app.command()
+def show() -> None:
+    """Show current configuration."""
+    config = settings.config
+    
+    table = Table(title="Current Configuration")
+    table.add_column("Setting", style="cyan")
+    table.add_column("Value", style="green")
+    
+    table.add_row("API Key", config.api_key or "[dim]Not set[/dim]")
+    table.add_row("Timeout", str(config.timeout))
+    table.add_row("Max Retries", str(config.max_retries))
+    table.add_row("Output Format", config.output_format)
+    
+    if config.extra_settings:
+        table.add_row("Extra Settings", str(config.extra_settings))
+    
+    console.print(table)
+
+
+@app.command()
+def set(
+    key: str = typer.Argument(help="Configuration key to set"),
+    value: str = typer.Argument(help="Value to set"),
+) -> None:
+    """Set a configuration value."""
+    config = settings.config
+    
+    if key == "api_key":
+        config.api_key = value
+    elif key == "timeout":
+        config.timeout = int(value)
+    elif key == "max_retries":
+        config.max_retries = int(value)
+    elif key == "output_format":
+        if value not in ["json", "yaml", "table"]:
+            console.print(f"[red]Invalid output format: {value}[/red]")
+            raise typer.Exit(1)
+        config.output_format = value
+    else:
+        config.extra_settings[key] = value
+    
+    settings.save_config(config)
+    console.print(f"[green]✓[/green] Set {key} = {value}")
+
+
+@app.command()
+def get(
+    key: str = typer.Argument(help="Configuration key to get"),
+) -> None:
+    """Get a configuration value."""
+    config = settings.config
+    
+    if key == "api_key":
+        value = config.api_key
+    elif key == "timeout":
+        value = config.timeout
+    elif key == "max_retries":
+        value = config.max_retries
+    elif key == "output_format":
+        value = config.output_format
+    else:
+        value = config.extra_settings.get(key)
+    
+    if value is None:
+        console.print(f"[yellow]Configuration key '{key}' not found[/yellow]")
+    else:
+        console.print(f"{key} = {value}")
+
+
+@app.command()
+def reset() -> None:
+    """Reset configuration to defaults."""
+    if Confirm.ask("Are you sure you want to reset all configuration?"):
+        settings.save_config(AppConfig())
+        console.print("[green]✓[/green] Configuration reset to defaults")
+    else:
+        console.print("[yellow]Reset cancelled[/yellow]")
+
+
+@app.command()
+def interactive() -> None:
+    """Interactive configuration setup."""
+    console.print("[bold]Interactive Configuration Setup[/bold]\n")
+    
+    config = settings.config
+    
+    config.api_key = Prompt.ask(
+        "API Key",
+        default=config.api_key or "",
+        password=True,
+        show_default=False,
+    ) or None
+    
+    config.timeout = int(
+        Prompt.ask(
+            "Timeout (seconds)",
+            default=str(config.timeout),
+        )
+    )
+    
+    config.max_retries = int(
+        Prompt.ask(
+            "Max Retries",
+            default=str(config.max_retries),
+        )
+    )
+    
+    config.output_format = Prompt.ask(
+        "Output Format",
+        choices=["json", "yaml", "table"],
+        default=config.output_format,
+    )
+    
+    settings.save_config(config)
+    console.print("\n[green]✓[/green] Configuration saved successfully!")

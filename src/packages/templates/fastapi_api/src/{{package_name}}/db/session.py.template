@@ -1,0 +1,32 @@
+"""Database session management."""
+
+from typing import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from {{package_name}}.core.config import settings
+
+engine = create_async_engine(str(settings.DATABASE_URL), echo=False)
+AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+
+async def init_db() -> None:
+    """Initialize database."""
+    from {{package_name}}.db.base import Base
+    from {{package_name}}.models import item, user  # noqa: F401
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Get database session."""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
