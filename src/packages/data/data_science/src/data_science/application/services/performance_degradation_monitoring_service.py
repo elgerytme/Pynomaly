@@ -26,7 +26,9 @@ from uuid import uuid4
 # TODO: Implement within data platform science domain - from packages.data_science.domain.services.performance_history_service import (
     PerformanceHistoryService,
 )
-from packages.core.domain.entities.alert import (
+# TODO: Replace with shared domain entities
+# from packages.core.domain.entities.alert import (
+from shared.domain.entities import (
     Alert,
     AlertType,
     AlertSeverity,

@@ -3,7 +3,9 @@
 import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
-from packages.data.data.domain.entities.data_origin import DataOrigin, OriginType
+# TODO: Replace with proper relative imports or shared interfaces
+# from packages.data.data.domain.entities.data_origin import DataOrigin, OriginType
+from ....data.domain.entities.data_origin import DataOrigin, OriginType
 
 
 class TestDataOrigin:

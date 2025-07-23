@@ -7,7 +7,9 @@ from datetime import datetime, date
 from typing import Any, Optional, List, Dict
 from uuid import UUID
 
-from packages.core.domain.abstractions.repository_interface import RepositoryInterface
+# TODO: Replace with shared domain abstractions
+# from packages.core.domain.abstractions.repository_interface import RepositoryInterface
+from shared.domain.abstractions import RepositoryInterface
 from ..entities.governance_entity import (
     PolicyRegistry, WorkflowEngine, ComplianceManager, DataSteward,
     GovernanceCommittee, GovernanceDashboard

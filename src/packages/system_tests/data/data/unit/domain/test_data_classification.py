@@ -1,7 +1,9 @@
 """Tests for data classification value objects."""
 
 import pytest
-from packages.data.data.domain.value_objects.data_classification import (
+# TODO: Replace with proper relative imports or shared interfaces
+# from packages.data.data.domain.value_objects.data_classification import (
+from ....data.domain.value_objects.data_classification import (
     DataClassification,
     DataSensitivityLevel,
     DataComplianceTag,

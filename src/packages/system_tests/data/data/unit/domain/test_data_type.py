@@ -1,7 +1,9 @@
 """Tests for data type value objects."""
 
 import pytest
-from packages.data.data.domain.value_objects.data_type import DataType, PrimitiveDataType
+# TODO: Replace with proper relative imports or shared interfaces
+# from packages.data.data.domain.value_objects.data_type import DataType, PrimitiveDataType
+from ....data.domain.value_objects.data_type import DataType, PrimitiveDataType
 
 
 class TestDataType:

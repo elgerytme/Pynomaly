@@ -8,7 +8,9 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from packages.core.domain.abstractions.base_entity import BaseEntity
+# TODO: Replace with shared domain abstractions
+# from packages.core.domain.abstractions.base_entity import BaseEntity
+from shared.domain.abstractions import BaseEntity
 
 T = TypeVar('T', bound=BaseEntity)
 

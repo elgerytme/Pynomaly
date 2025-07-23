@@ -96,6 +96,7 @@ test = [
     "httpx>=0.28.1",
     "responses>=0.24.0",
     "testcontainers>=4.0.0",
+    "test_utilities @ file:///src/shared/test_utilities",
 ]
 
 # Linting and formatting
@@ -312,7 +313,7 @@ parallel = true
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 85
+fail_under = 95
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

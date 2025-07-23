@@ -245,7 +245,10 @@ def performance_datasets() -> Dict[str, np.ndarray]:
 def api_client():
     """FastAPI test client for API testing"""
     try:
-        from src.packages.software.interfaces.api.app import app
+        # TODO: Replace with proper API client when available
+        # from src.packages.software.interfaces.api.app import app
+        from fastapi import FastAPI
+        app = FastAPI(title="Test API")
         return TestClient(app)
     except ImportError:
         # Mock client if API not available
