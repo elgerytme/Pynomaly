@@ -20,8 +20,8 @@ mypy = "^1.8.0"
 pre-commit = "^3.6.0"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
 
 [tool.black]
 line-length = 100

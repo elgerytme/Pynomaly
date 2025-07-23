@@ -341,10 +341,14 @@ class DetectionService:
                         contamination=contamination,
                         data_samples=data.shape[0])
             
+            # Extract random_state to avoid duplicate keyword argument
+            model_kwargs = kwargs.copy()
+            random_state = model_kwargs.pop('random_state', 42)
+            
             model = IsolationForest(
                 contamination=contamination,
-                random_state=kwargs.get('random_state', 42),
-                **kwargs
+                random_state=random_state,
+                **model_kwargs
             )
             predictions = model.fit_predict(data)
             # Keep sklearn format: -1 for anomaly, 1 for normal
@@ -512,10 +516,14 @@ class DetectionService:
         try:
             from sklearn.ensemble import IsolationForest
             
+            # Extract random_state to avoid duplicate keyword argument
+            model_kwargs = kwargs.copy()
+            random_state = model_kwargs.pop('random_state', 42)
+            
             model = IsolationForest(
                 contamination=contamination,
-                random_state=kwargs.get('random_state', 42),
-                **kwargs
+                random_state=random_state,
+                **model_kwargs
             )
             model.fit(data)
             # Get anomaly scores (negative values are more anomalous)

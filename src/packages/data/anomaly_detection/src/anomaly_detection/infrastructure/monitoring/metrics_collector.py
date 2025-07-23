@@ -241,6 +241,29 @@ class MetricsCollector:
                     operation=operation,
                     duration_ms=duration_ms)
     
+    def record_model_metrics(
+        self,
+        model_id: str,
+        algorithm: str,
+        operation: str,
+        duration_ms: float,
+        success: bool,
+        samples_processed: int | None = None,
+        anomalies_detected: int | None = None,
+        **performance_metrics: float
+    ) -> None:
+        """Record model operation metrics (alias for record_model_metric for backward compatibility)."""
+        self.record_model_metric(
+            model_id=model_id,
+            algorithm=algorithm,
+            operation=operation,
+            duration_ms=duration_ms,
+            success=success,
+            samples_processed=samples_processed,
+            anomalies_detected=anomalies_detected,
+            **performance_metrics
+        )
+    
     def get_summary_stats(self) -> dict[str, Any]:
         """Get summary statistics for all metrics."""
         with self._lock:
