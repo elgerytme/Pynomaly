@@ -359,7 +359,7 @@ class ABTestingService:
             True if request should be included
         """
         # Use hash of request_id to get consistent assignment
-        hash_value = int(hashlib.md5(request_id.encode()).hexdigest(), 16)
+        hash_value = int(hashlib.sha256(request_id.encode()).hexdigest()[:8], 16)
         percentage = (hash_value % 10000) / 100.0  # Convert to 0-100 range
         
         return percentage < test.current_traffic_percentage
@@ -402,7 +402,7 @@ class ABTestingService:
             Variant ID
         """
         # Use hash for consistent assignment
-        hash_value = int(hashlib.md5(request_id.encode()).hexdigest(), 16)
+        hash_value = int(hashlib.sha256(request_id.encode()).hexdigest()[:8], 16)
         percentage = (hash_value % 10000) / 100.0
         
         cumulative_percentage = 0.0
@@ -437,7 +437,7 @@ class ABTestingService:
             Variant ID
         """
         # Simple feature-based assignment (can be made more sophisticated)
-        feature_hash = hashlib.md5(json.dumps(features, sort_keys=True).encode()).hexdigest()
+        feature_hash = hashlib.sha256(json.dumps(features, sort_keys=True).encode()).hexdigest()
         return self._random_assignment(test, feature_hash)
     
     def _time_based_assignment(self, test: ABTest) -> str:
