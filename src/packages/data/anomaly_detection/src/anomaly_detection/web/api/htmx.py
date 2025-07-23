@@ -1296,3 +1296,297 @@ async def stop_worker_htmx(
             {"request": request, "error": str(e)},
             status_code=500
         )
+
+
+# Health Monitoring HTMX Endpoints
+
+_health_service = None
+
+def get_health_service():
+    """Get or create health monitoring service instance."""
+    global _health_service
+    if _health_service is None:
+        from ...domain.services.health_monitoring_service import HealthMonitoringService
+        _health_service = HealthMonitoringService(check_interval=30)
+        logger.info("Created new health monitoring service instance for web interface")
+    return _health_service
+
+
+@router.get("/health/report", response_class=HTMLResponse)
+async def get_health_report_htmx(
+    request: Request
+):
+    """Get comprehensive health report for web interface."""
+    try:
+        health_service = get_health_service()
+        report = await health_service.get_health_report()
+        
+        # Calculate additional UI metrics
+        critical_metrics = [m for m in report.metrics if m.status.value == 'critical']
+        warning_metrics = [m for m in report.metrics if m.status.value == 'warning']
+        healthy_metrics = [m for m in report.metrics if m.status.value == 'healthy']
+        
+        context = {
+            "request": request,
+            "report": report,
+            "status_color": {
+                'healthy': 'success',
+                'warning': 'warning', 
+                'critical': 'danger',
+                'unknown': 'secondary'
+            }.get(report.overall_status.value, 'secondary'),
+            "critical_count": len(critical_metrics),
+            "warning_count": len(warning_metrics),
+            "healthy_count": len(healthy_metrics),
+            "uptime_hours": report.uptime_seconds / 3600,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/health_report.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get health report", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/health/status", response_class=HTMLResponse)
+async def get_health_status_htmx(
+    request: Request
+):
+    """Get simple health status for web interface."""
+    try:
+        health_service = get_health_service()
+        report = await health_service.get_health_report()
+        
+        context = {
+            "request": request,
+            "status": report.overall_status.value,
+            "score": report.overall_score,
+            "active_alerts": len(report.active_alerts),
+            "uptime_hours": report.uptime_seconds / 3600,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/health_status.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get health status", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/health/alerts", response_class=HTMLResponse)
+async def get_health_alerts_htmx(
+    request: Request,
+    severity: str = ""
+):
+    """Get active health alerts for web interface."""
+    try:
+        health_service = get_health_service()
+        
+        severity_filter = None
+        if severity:
+            from ...domain.services.health_monitoring_service import AlertSeverity
+            try:
+                severity_filter = AlertSeverity(severity.lower())
+            except ValueError:
+                pass
+        
+        alerts = await health_service.alert_manager.get_active_alerts(severity_filter)
+        
+        context = {
+            "request": request,
+            "alerts": alerts,
+            "severity_filter": severity,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/health_alerts.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get health alerts", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/health/alerts/{alert_id}/resolve", response_class=HTMLResponse)
+async def resolve_health_alert_htmx(
+    request: Request,
+    alert_id: str
+):
+    """Resolve a health alert via web interface."""
+    try:
+        health_service = get_health_service()
+        success = await health_service.alert_manager.resolve_alert(alert_id)
+        
+        context = {
+            "request": request,
+            "success": success,
+            "alert_id": alert_id,
+            "message": f"Alert {alert_id} resolved successfully" if success else f"Alert {alert_id} not found or already resolved",
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/alert_resolution.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to resolve health alert", alert_id=alert_id, error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/health/metrics", response_class=HTMLResponse)
+async def get_health_metrics_htmx(
+    request: Request
+):
+    """Get health metrics for web interface."""
+    try:
+        health_service = get_health_service()
+        report = await health_service.get_health_report()
+        
+        # Group metrics by status
+        metrics_by_status = {
+            'healthy': [],
+            'warning': [],
+            'critical': [],
+            'unknown': []
+        }
+        
+        for metric in report.metrics:
+            metrics_by_status[metric.status.value].append(metric)
+        
+        context = {
+            "request": request,
+            "metrics_by_status": metrics_by_status,
+            "total_metrics": len(report.metrics),
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/health_metrics.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get health metrics", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/health/performance", response_class=HTMLResponse)
+async def get_health_performance_htmx(
+    request: Request
+):
+    """Get performance metrics for web interface."""
+    try:
+        health_service = get_health_service()
+        summary = await health_service.performance_tracker.get_performance_summary()
+        
+        context = {
+            "request": request,
+            "performance_summary": summary,
+            "has_data": bool(summary.get('response_time_stats') or summary.get('error_stats')),
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/health_performance.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to get health performance", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/health/monitoring/start", response_class=HTMLResponse)
+async def start_health_monitoring_htmx(
+    request: Request
+):
+    """Start health monitoring via web interface."""
+    try:
+        health_service = get_health_service()
+        await health_service.start_monitoring()
+        
+        context = {
+            "request": request,
+            "success": True,
+            "message": "Health monitoring started successfully",
+            "check_interval": health_service.check_interval,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/monitoring_control_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to start health monitoring", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/health/monitoring/stop", response_class=HTMLResponse)
+async def stop_health_monitoring_htmx(
+    request: Request
+):
+    """Stop health monitoring via web interface."""
+    try:
+        health_service = get_health_service()
+        await health_service.stop_monitoring()
+        
+        context = {
+            "request": request,
+            "success": True,
+            "message": "Health monitoring stopped successfully",
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/monitoring_control_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Failed to stop health monitoring", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
