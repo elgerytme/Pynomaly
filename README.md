@@ -16,55 +16,68 @@ This is a comprehensive, production-ready open source platform for data intellig
 This repository demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages specialized for data intelligence, machine learning, shared infrastructure, and comprehensive development tooling.
 
 ```
-repository/
-├── src/packages/           # 🎯 Domain packages (clean architecture)
-│   ├── core/              # Shared domain logic & foundational patterns
-│   ├── anomaly_detection/ # Specialized analytics and statistical modeling domain
-│   ├── machine_learning/  # ML operations and model lifecycle management
-│   ├── people_ops/        # User management and authentication domain
-│   ├── mathematics/       # Mathematical computations and statistics
-│   ├── data_platform/     # Data processing and quality assurance
-│   ├── infrastructure/    # Cross-cutting infrastructure concerns
-│   ├── interfaces/        # Presentation layer (CLI, API, Web)
-│   ├── enterprise/        # Enterprise governance and compliance
-│   ├── services/          # Application service orchestration
-│   └── testing/           # Shared testing utilities and frameworks
-├── pkg/                   # 🔗 External dependencies
-│   ├── vendor_dependencies/ # Vendored third-party packages
-│   └── custom_forks/      # Customized package forks
-├── scripts/              # 🛠️ Automation and tooling
-│   ├── governance/       # Repository structure enforcement
-│   ├── analysis/         # Code analysis and metrics
-│   └── cleanup/          # Maintenance and cleanup automation
-├── templates/            # 📋 Code generation templates
-│   └── package/         # Standard package structure templates
-├── reports/             # 📊 Generated analysis reports
-│   └── analysis/        # Repository health and metrics
-├── deployment/          # 🚀 Infrastructure as code
-├── configs/            # ⚙️ Shared configuration files
-├── docs/               # 📚 Comprehensive documentation
-└── tests/              # 🧪 Cross-package integration tests
+src/packages/
+├── ai/                             # AI/ML business domain
+│   ├── anomaly_detection/          # Anomaly detection domain logic
+│   ├── machine_learning/           # General ML domain logic
+│   ├── mlops/                      # MLOps domain logic
+│   └── data_science/               # Data science domain logic
+├── data/                           # Data business domain
+│   ├── quality/                    # Data quality domain logic
+│   ├── observability/              # Data observability domain logic
+│   ├── profiling/                  # Data profiling domain logic
+│   ├── transformation/             # Data transformation domain logic
+│   └── lineage/                    # Data lineage domain logic
+│
+├── enterprise/                     # Cross-cutting enterprise services
+│   ├── auth/                      # Authentication & authorization
+│   ├── multi_tenancy/             # Multi-tenant architecture
+│   ├── operations/                # Monitoring, alerting, SRE
+│   ├── scalability/               # Distributed computing
+│   ├── governance/                # Audit, compliance
+│   └── security/                  # Enterprise security
+│
+├── integrations/                   # External platform connectors
+│   ├── mlops/                     # MLOps platforms
+│   │   ├── mlflow_integration.py  # MLflow connector
+│   │   ├── kubeflow_integration.py # Kubeflow connector
+│   │   └── wandb_integration.py   # W&B connector
+│   ├── monitoring/                # Monitoring platforms
+│   │   ├── datadog_integration.py # Datadog connector
+│   │   └── newrelic_integration.py # New Relic connector
+│   └── cloud/                     # Cloud providers
+│       ├── aws/                   # AWS services
+│       ├── azure/                 # Azure services
+│       └── gcp/                   # GCP services
+│
+└── configurations/                 # Application composition
+    ├── basic/                     # Open source configs
+    │   ├── mlops_basic/           # Basic MLOps
+    │   └── anomaly_detection_basic/
+    ├── enterprise/                # Enterprise configs
+    │   ├── mlops_enterprise/      # Enterprise MLOps
+    │   └── anomaly_detection_enterprise/
+    └── custom/                    # Custom deployments
+        ├── mlops_aws_production/
+        └── mlops_k8s_staging/
 ```
 
 ### 📦 Package Organization Principles
 
 All packages follow **Domain-Driven Design** and **Clean Architecture** principles for maximum maintainability and testability:
 
-#### 🏢 **Domain Layer** (Pure Business Logic)
-- **`core/`**: Shared domain entities, value objects, and foundational patterns
-- **`anomaly_detection/`**: Data analysis domain with detection algorithms and models
-- **`mathematics/`**: Mathematical domain with statistical computations and utilities
+#### 🏢 **Domain Packages** (ai/, data/)
+- Contain only business logic for that domain.
+- No enterprise features, platform integrations, or cross-domain dependencies.
 
-#### 🚀 **Application Layer** (Use Cases and Orchestration)
-- **`machine_learning/`**: ML workflow orchestration and model lifecycle management
-- **`people_ops/`**: User management, authentication, and authorization workflows
-- **`data_platform/`**: Data processing pipelines and quality assurance workflows
-- **`enterprise/`**: Governance, compliance, and multi-tenancy orchestration
-- **`services/`**: Cross-domain application services and integration logic
+#### 🚀 **Enterprise Services**
+- Handle cross-cutting concerns like authentication, multi-tenancy, monitoring, and security.
 
-#### 🔧 **Infrastructure Layer** (External Concerns)
-- **`infrastructure/`**: Database, messaging, monitoring, and deployment adapters
-- **`interfaces/`**: User interfaces (CLI, REST API, Web UI) and external integrations
+#### 🔧 **Platform Integrations**
+- Connect to external platforms such as MLOps platforms, monitoring services, and cloud providers.
+
+#### 📋 **Configurations**
+- Compose the application by wiring services together, defining deployment modes, and managing dependencies.
 
 #### 📋 **Standard Package Structure**
 Each package maintains consistent organization:
@@ -122,17 +135,17 @@ python scripts/governance/root_directory_checker.py
 ### Working with Packages
 
 ```python
-# Example: Using the core domain patterns
-from src.packages.core.domain.entities import BaseEntity
-from src.packages.core.domain.value_objects import Identifier
+# Example: Using an AI/ML domain package
+from src.packages.ai.machine_learning.src.machine_learning.domain.entities.model import Model
 
-# Example: Data platform usage
-from src.packages.data_platform.application.services import DataQualityService
-from src.packages.data_platform.domain.entities import Dataset
+# Example: Using a Data domain package
+from src.packages.data.data_quality.src.data_quality.domain.entities.data_profile import DataProfile
 
-# Example: Infrastructure patterns
-from src.packages.infrastructure.persistence import Repository
-from src.packages.infrastructure.monitoring import MetricsCollector
+# Example: Using an Enterprise service
+from src.packages.enterprise.auth.src.auth.domain.entities.user import User
+
+# Example: Using a Configuration package
+from src.packages.configurations.basic.mlops_basic import create_basic_mlops_config
 ```
 
 ## 🏢 Enterprise Architecture Features
@@ -457,28 +470,50 @@ uvicorn src.packages.interfaces.api.app:app --reload --port 8000
 This monorepo implements **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports & Adapters)** across all packages:
 
 ```
-src/packages/{package_name}/
-├── domain/              # Pure business logic (no external dependencies)
-│   ├── entities/        # Business entities and aggregate roots
-│   ├── value_objects/   # Immutable value objects
-│   ├── services/        # Domain services and business rules
-│   ├── repositories/    # Repository interfaces (not implementations)
-│   └── exceptions/      # Domain-specific exception hierarchy
-├── application/         # Orchestrate use cases without implementation details
-│   ├── use_cases/       # Application use cases and workflows
-│   ├── services/        # Application services
-│   ├── dto/             # Data transfer objects
-│   └── ports/           # Output port interfaces
-├── infrastructure/      # All external integrations and adapters
-│   ├── adapters/        # External service adapters (databases, APIs, etc.)
-│   ├── persistence/     # Repository implementations
-│   ├── config/          # Configuration and dependency injection
-│   └── monitoring/      # Observability and health checks
-└── presentation/        # User interfaces and external APIs
-    ├── api/             # REST API controllers
-    ├── cli/             # Command-line interface
-    ├── web/             # Web interface (if applicable)
-    └── serializers/     # Data serialization/deserialization
+src/packages/
+├── ai/                             # AI/ML business domain
+│   ├── anomaly_detection/          # Anomaly detection domain logic
+│   ├── machine_learning/           # General ML domain logic
+│   ├── mlops/                      # MLOps domain logic
+│   └── data_science/               # Data science domain logic
+├── data/                           # Data business domain
+│   ├── quality/                    # Data quality domain logic
+│   ├── observability/              # Data observability domain logic
+│   ├── profiling/                  # Data profiling domain logic
+│   ├── transformation/             # Data transformation domain logic
+│   └── lineage/                    # Data lineage domain logic
+│
+├── enterprise/                     # Cross-cutting enterprise services
+│   ├── auth/                      # Authentication & authorization
+│   ├── multi_tenancy/             # Multi-tenant architecture
+│   ├── operations/                # Monitoring, alerting, SRE
+│   ├── scalability/               # Distributed computing
+│   ├── governance/                # Audit, compliance
+│   └── security/                  # Enterprise security
+│
+├── integrations/                   # External platform connectors
+│   ├── mlops/                     # MLOps platforms
+│   │   ├── mlflow_integration.py  # MLflow connector
+│   │   ├── kubeflow_integration.py # Kubeflow connector
+│   │   └── wandb_integration.py   # W&B connector
+│   ├── monitoring/                # Monitoring platforms
+│   │   ├── datadog_integration.py # Datadog connector
+│   │   └── newrelic_integration.py # New Relic connector
+│   └── cloud/                     # Cloud providers
+│       ├── aws/                   # AWS services
+│       ├── azure/                 # Azure services
+│       └── gcp/                   # GCP services
+│
+└── configurations/                 # Application composition
+    ├── basic/                     # Open source configs
+    │   ├── mlops_basic/           # Basic MLOps
+    │   └── anomaly_detection_basic/
+    ├── enterprise/                # Enterprise configs
+    │   ├── mlops_enterprise/      # Enterprise MLOps
+    │   └── anomaly_detection_enterprise/
+    └── custom/                    # Custom deployments
+        ├── mlops_aws_production/
+        └── mlops_k8s_staging/
 ```
 
 ### Design Patterns Implemented
