@@ -1,0 +1,147 @@
+[tool.poetry]
+name = "system-tests"
+version = "0.1.0"
+description = "Comprehensive system-wide integration, performance, and security tests"
+authors = ["System Test Team <system-tests@company.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^7.4.4"
+pytest-asyncio = "^0.23.3"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+pytest-benchmark = "^4.0.0"
+pytest-xdist = "^3.5.0"
+pytest-html = "^4.1.1"
+pytest-security = "^0.2.0"
+test_utilities = { path = "../shared/test_utilities" }
+aiohttp = "^3.9.1"
+requests = "^2.31.0"
+locust = "^2.17.0"
+faker = "^22.2.0"
+factory-boy = "^3.3.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+ruff = "^0.1.11"
+mypy = "^1.8.0"
+pre-commit = "^3.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "N", "W", "D", "UP", "S", "B", "A", "C4", "T20", "SIM", "RET"]
+ignore = ["D100", "D104", "D107", "D212", "D213"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+addopts = "-ra -q --strict-markers --cov=system_tests --cov-report=term-missing --cov-report=xml --cov-report=html --html=reports/system_test_report.html --self-contained-html"
+testpaths = ["integration", "performance", "security", "e2e"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+markers = [
+    "integration: Integration tests across multiple domains",
+    "performance: Performance and load tests",
+    "security: Security and vulnerability tests",
+    "e2e: End-to-end workflow tests",
+    "slow: Slow running tests (>30 seconds)",
+    "stress: Stress tests that may impact system performance",
+    "load: Load tests with multiple concurrent users",
+    "benchmark: Performance benchmark tests",
+    "vulnerability: Security vulnerability tests",
+    "cross_domain: Tests spanning multiple domain boundaries",
+    "enterprise: Enterprise-level integration tests",
+    "data_workflow: Data processing workflow tests",
+    "ml_workflow: Machine learning workflow tests",
+    "auth_security: Authentication and authorization security tests",
+    "data_protection: Data protection and privacy tests",
+    "network_security: Network-level security tests",
+    "injection: Injection attack protection tests",
+    "compliance: Compliance and regulatory tests"
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::UserWarning"
+]
+timeout = 300  # 5 minutes default timeout for system tests
+
+[tool.coverage.run]
+source = ["../"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+    "*/.pytest_cache/*",
+    "*/conftest.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod"
+]
+fail_under = 95
+precision = 2
+show_missing = true
+skip_covered = false
+skip_empty = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "System Tests Coverage Report"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+# Performance testing configuration
+[tool.pytest_benchmark]
+min_rounds = 5
+max_time = 2.0
+min_time = 0.000005
+timer = "time.perf_counter"
+calibration_precision = 10
+warmup = false
+warmup_iterations = 100000
+disable_gc = false
+json = "reports/benchmark.json"
+histogram = true
+
+# Security testing configuration
+[tool.bandit]
+exclude_dirs = ["tests", "venv", "build"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection_subprocess for tests

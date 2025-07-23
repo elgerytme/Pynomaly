@@ -3,6 +3,8 @@
 import re
 import time
 import traceback
+import ast
+import operator
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -549,15 +551,11 @@ class ValidationEngine:
             return 0, len(df), [ValidationError(error_message=str(e))]
     
     def _evaluate_expression(self, df: pd.DataFrame, expression: str) -> pd.Series:
-        """Safely evaluate pandas expression."""
+        """Safely evaluate pandas expression using pandas.eval()."""
         try:
-            # Simple expression evaluation - in production, use a proper expression parser
-            # This is a simplified version for demonstration
-            namespace = {'df': df}
-            for col in df.columns:
-                namespace[col] = df[col]
-            
-            return eval(expression, {"__builtins__": {}}, namespace)
+            # Use pandas.eval() which is safer than builtin eval()
+            # It only allows mathematical/logical operations on DataFrame columns
+            return pd.eval(expression, local_dict={'df': df}, global_dict=df.to_dict('series'))
             
         except Exception as e:
             logger.error(f"Expression evaluation failed: {str(e)}")
