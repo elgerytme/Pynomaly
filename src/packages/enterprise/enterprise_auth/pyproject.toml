@@ -91,6 +91,7 @@ test = [
     "faker>=33.1.0",
     "httpx>=0.28.1",
     "responses>=0.24.0",
+    "test_utilities @ file:///src/shared/test_utilities",
 ]
 
 # Linting and formatting

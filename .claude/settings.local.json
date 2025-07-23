@@ -349,7 +349,8 @@
       "Bash(git push:*)",
       "Bash(ls:*)",
       "Bash(git fetch:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(LOG_OUTPUT=console LOG_FILE_ENABLED=false python3 -c \"import sys; sys.path.append(''src''); from anomaly_detection.server import app; print(''Server app loaded successfully'')\")"
     ],
     "deny": []
   }

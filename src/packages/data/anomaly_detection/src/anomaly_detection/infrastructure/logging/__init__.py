@@ -1,7 +1,7 @@
 """Logging configuration and utilities."""
 
 from .structured_logger import StructuredLogger
-from .log_decorator import log_decorator, timing_decorator
+from .log_decorator import log_decorator, timing_decorator, async_log_decorator
 from .error_handler import ErrorHandler, AnomalyDetectionError
 
 # Create convenience function for getting logger
@@ -13,6 +13,7 @@ __all__ = [
     "StructuredLogger",
     "log_decorator", 
     "timing_decorator",
+    "async_log_decorator",
     "ErrorHandler",
     "AnomalyDetectionError",
     "get_logger"

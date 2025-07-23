@@ -1,0 +1,184 @@
+site_name: Anomaly Detection Documentation
+site_description: Comprehensive documentation for the Anomaly Detection package - a production-ready, enterprise-grade solution for detecting anomalies in various types of data.
+site_author: Anomaly Detection Team
+site_url: https://anomaly-detection.docs
+
+repo_name: anomaly-detection
+repo_url: https://github.com/organization/anomaly-detection
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2024 Anomaly Detection Team
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - navigation.footer
+    - navigation.tracking
+    - navigation.instant
+    - navigation.instant.prefetch
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../src]
+          options:
+            docstring_style: google
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: false
+  - mermaid2:
+      arguments:
+        theme: 'base'
+        themeVariables:
+          primaryColor: '#2196F3'
+          primaryTextColor: '#ffffff'
+          primaryBorderColor: '#1976D2'
+          lineColor: '#757575'
+          sectionBkColor: '#E3F2FD'
+          altSectionBkColor: '#BBDEFB'
+          gridColor: '#BDBDBD'
+          secondaryColor: '#FFC107'
+          tertiaryColor: '#4CAF50'
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: organization
+      repo: anomaly-detection
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/organization/anomaly-detection
+      name: GitHub Repository
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/anomaly-detection/
+      name: PyPI Package
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/extra.js
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Quick Start: getting-started/index.md
+    - Installation: installation.md
+    - First Detection: getting-started/first-detection.md
+    - Basic Examples: getting-started/examples.md
+  - User Guides:
+    - CLI Reference: cli.md
+    - API Overview: api.md
+    - Model Management: model_management.md
+    - Ensemble Methods: ensemble.md
+    - Explainability: explainability.md
+  - Advanced Topics:
+    - Streaming Detection: streaming.md
+    - Performance Optimization: performance.md
+    - Integration Patterns: integration.md
+    - Security & Privacy: security.md
+  - Production:
+    - Deployment Guide: deployment.md
+    - Configuration: configuration.md
+    - Monitoring: monitoring.md
+    - Troubleshooting: troubleshooting.md
+  - Reference:
+    - Architecture: architecture.md
+    - Algorithms: algorithms.md
+    - API Reference: reference/
+    - Examples: examples/
+  - Development:
+    - Contributing: contributing.md
+    - Development Setup: development.md
+    - Testing: testing.md
+    - Release Notes: changelog.md
