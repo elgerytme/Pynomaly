@@ -1,0 +1,174 @@
+{% extends "layouts/base.html" %}
+
+{% block page_title %}Welcome to Anomaly Detection{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Hero section -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="text-center">
+                <div class="mx-auto h-12 w-12 text-4xl mb-4">🔍</div>
+                <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">
+                    ML-Powered Anomaly Detection
+                </h2>
+                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+                    Detect outliers and anomalies in your data using state-of-the-art machine learning algorithms. 
+                    Run single algorithms or ensemble methods, manage models, and monitor performance in real-time.
+                </p>
+                <div class="mt-8 flex justify-center space-x-4">
+                    <a href="/dashboard" class="btn btn-primary">
+                        Go to Dashboard
+                    </a>
+                    <a href="/detection" class="btn btn-outline">
+                        Run Detection
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Detection Algorithms -->
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">🧠</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Multiple Algorithms</h3>
+                <p class="text-gray-600 text-sm">
+                    Choose from Isolation Forest, One-Class SVM, Local Outlier Factor, and deep learning approaches.
+                </p>
+                <div class="mt-4">
+                    <a href="/detection" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Try Detection →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ensemble Methods -->
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">⚙️</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Ensemble Methods</h3>
+                <p class="text-gray-600 text-sm">
+                    Combine multiple algorithms using majority vote, averaging, or weighted combinations for better accuracy.
+                </p>
+                <div class="mt-4">
+                    <a href="/detection" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Try Ensemble →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Management -->
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">💾</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Model Management</h3>
+                <p class="text-gray-600 text-sm">
+                    Save, load, and manage trained models. Track performance metrics and model versioning.
+                </p>
+                <div class="mt-4">
+                    <a href="/models" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Manage Models →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Monitoring -->
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">📊</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Real-time Monitoring</h3>
+                <p class="text-gray-600 text-sm">
+                    Monitor system performance, resource usage, and detection metrics with live dashboards.
+                </p>
+                <div class="mt-4">
+                    <a href="/monitoring" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        View Monitoring →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Access -->
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">🔌</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">REST API</h3>
+                <p class="text-gray-600 text-sm">
+                    Integrate with your applications using our comprehensive REST API with OpenAPI documentation.
+                </p>
+                <div class="mt-4">
+                    <a href="/docs" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        API Docs →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLI Tools -->
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">💻</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Command Line</h3>
+                <p class="text-gray-600 text-sm">
+                    Use our powerful CLI tools for batch processing, model training, and automated workflows.
+                </p>
+                <div class="mt-4">
+                    <a href="/about" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start -->
+    <div class="mt-8 bg-blue-50 overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Start</h3>
+            <div class="space-y-4">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">1</div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-700">
+                            <strong>Upload your data</strong> - Provide your dataset in CSV or JSON format
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">2</div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-700">
+                            <strong>Choose algorithm</strong> - Select from multiple detection algorithms or use ensemble methods
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">3</div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-700">
+                            <strong>Run detection</strong> - Get results with anomaly scores and visualizations
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6">
+                <a href="/detection" class="btn btn-primary">
+                    Start Detecting Anomalies
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

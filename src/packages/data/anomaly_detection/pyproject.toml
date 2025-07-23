@@ -28,9 +28,12 @@ dependencies = [
     "typing-extensions>=4.0.0",
     "structlog>=23.0.0",
     "click>=8.0.0",
+    "typer[all]>=0.9.0",
+    "rich>=13.0.0",
     "httpx>=0.25.0",
     "uvicorn[standard]>=0.24.0",
     "fastapi>=0.104.0",
+    "jinja2>=3.1.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",
     "scikit-learn>=1.3.0",
@@ -125,8 +128,16 @@ Repository = "https://github.com/monorepo/anomaly_detection"
 Changelog = "https://github.com/monorepo/anomaly_detection/blob/main/docs/CHANGELOG.md"
 
 [project.scripts]
-anomaly_detection = "anomaly_detection.cli:main"
+# Legacy CLI (click-based)
+anomaly_detection_legacy = "anomaly_detection.cli:main"
+# New CLI (typer-based)
+anomaly_detection = "anomaly_detection.cli_new.main:app"
+# API server
+anomaly_detection-api = "anomaly_detection.main:main"
 anomaly_detection-server = "anomaly_detection.server:main"
+# Web dashboard
+anomaly_detection-web = "anomaly_detection.web.main:main"
+# Worker
 anomaly_detection-worker = "anomaly_detection.worker:main"
 
 [tool.hatch.build.targets.wheel]

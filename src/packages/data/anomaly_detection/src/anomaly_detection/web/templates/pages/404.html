@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+
+{% block page_title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="min-h-[60vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-md w-full space-y-8">
+        <div class="text-center">
+            <div class="text-9xl">🔍</div>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                Page not found
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Sorry, we couldn't find the page you're looking for.
+            </p>
+        </div>
+        <div class="text-center">
+            <a href="/" class="btn btn-primary">
+                Go back home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

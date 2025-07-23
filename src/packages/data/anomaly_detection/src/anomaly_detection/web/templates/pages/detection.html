@@ -1,0 +1,201 @@
+{% extends "layouts/base.html" %}
+
+{% block page_title %}Run Detection{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Detection Form -->
+        <div class="space-y-6">
+            <!-- Single Algorithm Detection -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Single Algorithm Detection</h3>
+                </div>
+                <form hx-post="/htmx/detect" 
+                      hx-target="#detection-results" 
+                      hx-swap="innerHTML"
+                      data-validate>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="algorithm" class="form-label">Algorithm</label>
+                            <select id="algorithm" name="algorithm" class="form-input" required>
+                                {% for algo in algorithms %}
+                                <option value="{{ algo.value }}">{{ algo.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="contamination" class="form-label">Contamination Rate</label>
+                            <input type="number" 
+                                   id="contamination" 
+                                   name="contamination" 
+                                   value="0.1" 
+                                   min="0.001" 
+                                   max="0.5" 
+                                   step="0.001" 
+                                   class="form-input" 
+                                   required>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Expected proportion of anomalies (0.001 - 0.5)
+                            </p>
+                        </div>
+
+                        <div>
+                            <label for="sample_data" class="form-label">Sample Data (JSON)</label>
+                            <textarea id="sample_data" 
+                                      name="sample_data" 
+                                      rows="6" 
+                                      class="form-input font-mono text-sm" 
+                                      placeholder="[[1.2, 3.4, 2.1], [2.3, 1.8, 3.2], ...]"
+                                      data-auto-resize></textarea>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Leave empty to use generated sample data. Upload file or paste JSON array.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label for="data_file" class="form-label">Or Upload Data File</label>
+                            <input type="file" 
+                                   id="data_file" 
+                                   accept=".json,.csv" 
+                                   class="form-input">
+                            <p class="text-sm text-gray-500 mt-1">
+                                Upload CSV or JSON file containing your data
+                            </p>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="htmx-indicator loading-spinner mr-2"></span>
+                                Run Detection
+                            </button>
+                            <button type="button" 
+                                    onclick="document.getElementById('sample_data').value = ''; document.getElementById('data_file').value = '';"
+                                    class="btn btn-outline">
+                                Clear Data
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Ensemble Detection -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Ensemble Detection</h3>
+                </div>
+                <form hx-post="/htmx/ensemble" 
+                      hx-target="#detection-results" 
+                      hx-swap="innerHTML"
+                      data-validate>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="form-label">Algorithms</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                {% for algo in algorithms %}
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="algorithms" 
+                                           value="{{ algo.value }}" 
+                                           {% if loop.index <= 3 %}checked{% endif %}
+                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-700">{{ algo.label }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="ensemble_method" class="form-label">Combination Method</label>
+                            <select id="ensemble_method" name="method" class="form-input" required>
+                                {% for method in ensemble_methods %}
+                                <option value="{{ method.value }}">{{ method.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="ensemble_contamination" class="form-label">Contamination Rate</label>
+                            <input type="number" 
+                                   id="ensemble_contamination" 
+                                   name="contamination" 
+                                   value="0.1" 
+                                   min="0.001" 
+                                   max="0.5" 
+                                   step="0.001" 
+                                   class="form-input" 
+                                   required>
+                        </div>
+
+                        <div>
+                            <label for="ensemble_sample_data" class="form-label">Sample Data (JSON)</label>
+                            <textarea id="ensemble_sample_data" 
+                                      name="sample_data" 
+                                      rows="4" 
+                                      class="form-input font-mono text-sm" 
+                                      placeholder="[[1.2, 3.4, 2.1], [2.3, 1.8, 3.2], ...]"
+                                      data-auto-resize></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <button type="submit" class="btn btn-success">
+                                <span class="htmx-indicator loading-spinner mr-2"></span>
+                                Run Ensemble
+                            </button>
+                            <button type="button" 
+                                    onclick="document.getElementById('ensemble_sample_data').value = '';"
+                                    class="btn btn-outline">
+                                Clear Data
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="space-y-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Detection Results</h3>
+                </div>
+                <div id="detection-results" class="min-h-[200px] flex items-center justify-center text-gray-500">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">📊</div>
+                        <p>Run a detection to see results here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help and Tips -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 class="text-sm font-semibold text-blue-900 mb-2">💡 Tips</h4>
+                <ul class="text-sm text-blue-800 space-y-1">
+                    <li>• Leave data field empty to use generated sample data for testing</li>
+                    <li>• Ensemble methods typically provide better accuracy than single algorithms</li>
+                    <li>• Lower contamination rates are more sensitive to anomalies</li>
+                    <li>• Upload CSV files with numerical data only</li>
+                </ul>
+            </div>
+
+            <!-- Algorithm Info -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h4 class="text-sm font-semibold text-gray-900 mb-2">🔍 Algorithms</h4>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <div>
+                        <strong>Isolation Forest:</strong> Fast, effective for high-dimensional data
+                    </div>
+                    <div>
+                        <strong>One-Class SVM:</strong> Good for complex decision boundaries
+                    </div>
+                    <div>
+                        <strong>Local Outlier Factor:</strong> Detects local anomalies based on density
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

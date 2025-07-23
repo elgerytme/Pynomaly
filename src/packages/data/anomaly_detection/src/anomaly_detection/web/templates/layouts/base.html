@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title | default("Anomaly Detection Dashboard") }}{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="/" class="text-xl font-bold text-gray-900">
+                                🔍 Anomaly Detection
+                            </a>
+                        </div>
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a href="/dashboard" class="nav-link {% if request.url.path == '/dashboard' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
+                                Dashboard
+                            </a>
+                            <a href="/detection" class="nav-link {% if request.url.path == '/detection' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
+                                Run Detection
+                            </a>
+                            <a href="/models" class="nav-link {% if request.url.path == '/models' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
+                                Models
+                            </a>
+                            <a href="/monitoring" class="nav-link {% if request.url.path == '/monitoring' %}nav-link-active{% else %}nav-link-inactive{% endif %}">
+                                Monitoring
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                        <div class="ml-3 relative">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-500">Status:</span>
+                                <span class="badge badge-success">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mobile menu button -->
+                    <div class="sm:hidden flex items-center">
+                        <button type="button" class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">Open main menu</span>
+                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile menu -->
+            <div class="mobile-menu hidden sm:hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a href="/dashboard" class="nav-link-mobile {% if request.url.path == '/dashboard' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        Dashboard
+                    </a>
+                    <a href="/detection" class="nav-link-mobile {% if request.url.path == '/detection' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        Run Detection
+                    </a>
+                    <a href="/models" class="nav-link-mobile {% if request.url.path == '/models' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        Models
+                    </a>
+                    <a href="/monitoring" class="nav-link-mobile {% if request.url.path == '/monitoring' %}bg-blue-50 border-blue-500 text-blue-700{% else %}border-transparent text-gray-600 hover:bg-gray-50{% endif %} block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                        Monitoring
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page header -->
+        {% block header %}
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold text-gray-900">
+                    {% block page_title %}{{ title | default("Dashboard") }}{% endblock %}
+                </h1>
+            </div>
+        </header>
+        {% endblock %}
+
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading-overlay" class="htmx-indicator fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+            <div class="loading-spinner"></div>
+            <span class="text-gray-700">Processing...</span>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', path='/js/app.js') }}"></script>
+    
+    <!-- Mobile menu toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
