@@ -1,14 +1,20 @@
 """Model management endpoints."""
 
 import numpy as np
+import pandas as pd
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from ...infrastructure.repositories.model_repository import ModelRepository
+from ...domain.entities.model import Model, ModelMetadata, ModelStatus, SerializationFormat
+from ...domain.entities.dataset import Dataset, DatasetType, DatasetMetadata
+from ...domain.services.detection_service import DetectionService
 from ...infrastructure.logging import get_logger
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -38,6 +44,35 @@ class PredictionResponse(BaseModel):
     anomaly_rate: float = Field(..., description="Ratio of anomalies to total samples")
     timestamp: str = Field(..., description="Prediction timestamp")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
+
+
+class TrainingRequest(BaseModel):
+    """Request model for training a new model."""
+    model_name: str = Field(..., description="Name for the trained model")
+    algorithm: str = Field("isolation_forest", description="Algorithm to train (isolation_forest, one_class_svm, lof)")
+    contamination: float = Field(0.1, ge=0.0, le=0.5, description="Contamination rate (0.0-0.5)")
+    data: List[List[float]] = Field(..., description="Training data as list of feature vectors")
+    labels: Optional[List[int]] = Field(None, description="Ground truth labels (-1 for anomaly, 1 for normal)")
+    feature_names: Optional[List[str]] = Field(None, description="Names of features")
+    description: Optional[str] = Field(None, description="Model description")
+    hyperparameters: Optional[Dict[str, Any]] = Field(None, description="Additional hyperparameters")
+
+
+class TrainingResponse(BaseModel):
+    """Response model for model training."""
+    success: bool = Field(..., description="Whether training completed successfully")
+    model_id: str = Field(..., description="ID of the trained model")
+    model_name: str = Field(..., description="Name of the trained model")
+    algorithm: str = Field(..., description="Algorithm used for training")
+    training_samples: int = Field(..., description="Number of training samples")
+    training_features: int = Field(..., description="Number of features")
+    contamination_rate: float = Field(..., description="Contamination rate used")
+    training_duration_seconds: float = Field(..., description="Training time in seconds")
+    accuracy: Optional[float] = Field(None, description="Model accuracy (if labels provided)")
+    precision: Optional[float] = Field(None, description="Model precision (if labels provided)")
+    recall: Optional[float] = Field(None, description="Model recall (if labels provided)")
+    f1_score: Optional[float] = Field(None, description="Model F1-score (if labels provided)")
+    timestamp: str = Field(..., description="Training completion timestamp")
 
 
 # Dependency injection for model repository
@@ -229,4 +264,157 @@ async def get_repository_stats(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get repository stats: {str(e)}"
+        )
+
+
+@router.post("/train", response_model=TrainingResponse)
+async def train_model(
+    request: TrainingRequest,
+    model_repository: ModelRepository = Depends(get_model_repository)
+) -> TrainingResponse:
+    """Train and save a new anomaly detection model."""
+    start_time = datetime.utcnow()
+    
+    logger.info("Starting model training",
+                model_name=request.model_name,
+                algorithm=request.algorithm,
+                samples=len(request.data))
+    
+    try:
+        # Validate input data
+        if not request.data or not request.data[0]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Training data cannot be empty"
+            )
+        
+        # Convert to numpy array
+        data_array = np.array(request.data, dtype=np.float64)
+        labels_array = np.array(request.labels) if request.labels else None
+        
+        # Validate data dimensions
+        if len(data_array.shape) != 2:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Training data must be a 2D array"
+            )
+        
+        # Validate labels if provided
+        if labels_array is not None and len(labels_array) != len(data_array):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Labels length must match data length"
+            )
+        
+        # Create dataset entity
+        df = pd.DataFrame(data_array, columns=request.feature_names or [f"feature_{i}" for i in range(data_array.shape[1])])
+        dataset = Dataset(
+            data=df,
+            dataset_type=DatasetType.TRAINING,
+            labels=labels_array,
+            metadata=DatasetMetadata(
+                name=f"{request.model_name}_training_data",
+                source="api_upload",
+                description=request.description or f"Training dataset for {request.model_name}"
+            )
+        )
+        
+        # Validate dataset
+        validation_issues = dataset.validate()
+        if validation_issues:
+            logger.warning("Dataset validation issues", issues=validation_issues)
+        
+        # Initialize detection service and train model
+        service = DetectionService()
+        
+        # Algorithm mapping
+        algorithm_map = {
+            'isolation_forest': 'iforest',
+            'one_class_svm': 'ocsvm',
+            'lof': 'lof'
+        }
+        
+        mapped_algorithm = algorithm_map.get(request.algorithm, request.algorithm)
+        
+        # Fit the model
+        service.fit(data_array, mapped_algorithm, contamination=request.contamination)
+        
+        # Get predictions for evaluation
+        detection_result = service.detect_anomalies(
+            data=data_array,
+            algorithm=mapped_algorithm,
+            contamination=request.contamination
+        )
+        
+        end_time = datetime.utcnow()
+        training_duration = (end_time - start_time).total_seconds()
+        
+        # Calculate metrics if labels available
+        accuracy, precision, recall, f1_score_val = None, None, None, None
+        if labels_array is not None:
+            pred_labels = detection_result.predictions
+            accuracy = float(accuracy_score(labels_array, pred_labels))
+            precision = float(precision_score(labels_array, pred_labels, pos_label=-1, zero_division=0, average='binary'))
+            recall = float(recall_score(labels_array, pred_labels, pos_label=-1, zero_division=0, average='binary'))
+            f1_score_val = float(f1_score(labels_array, pred_labels, pos_label=-1, zero_division=0, average='binary'))
+        
+        # Create model entity
+        model_id = str(uuid.uuid4())
+        metadata = ModelMetadata(
+            model_id=model_id,
+            name=request.model_name,
+            algorithm=request.algorithm,
+            status=ModelStatus.TRAINED,
+            training_samples=dataset.n_samples,
+            training_features=dataset.n_features,
+            contamination_rate=request.contamination,
+            training_duration_seconds=training_duration,
+            accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1_score=f1_score_val,
+            feature_names=dataset.feature_names,
+            hyperparameters=request.hyperparameters or {'contamination': request.contamination},
+            description=request.description or f"Trained {request.algorithm} model via API",
+        )
+        
+        # Get the trained model object from the service
+        trained_model_obj = service._fitted_models.get(mapped_algorithm)
+        
+        model = Model(
+            metadata=metadata,
+            model_object=trained_model_obj
+        )
+        
+        # Save model using repository
+        saved_model_id = model_repository.save(model, SerializationFormat.PICKLE)
+        
+        logger.info("Model training completed",
+                   model_id=saved_model_id,
+                   duration_seconds=training_duration,
+                   accuracy=accuracy)
+        
+        return TrainingResponse(
+            success=True,
+            model_id=saved_model_id,
+            model_name=request.model_name,
+            algorithm=request.algorithm,
+            training_samples=dataset.n_samples,
+            training_features=dataset.n_features,
+            contamination_rate=request.contamination,
+            training_duration_seconds=training_duration,
+            accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1_score=f1_score_val,
+            timestamp=end_time.isoformat()
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Model training error", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Training failed: {str(e)}"
         )

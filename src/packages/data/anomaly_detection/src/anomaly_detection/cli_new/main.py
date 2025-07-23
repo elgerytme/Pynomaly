@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .. import __version__
-from .commands import detection, models, data, worker
+from .commands import detection, models, data, worker, streaming, explain
 from ..infrastructure.config.settings import get_settings
 from ..infrastructure.logging import setup_logging
 
@@ -26,6 +26,8 @@ app.add_typer(detection.app, name="detect", help="Anomaly detection commands")
 app.add_typer(models.app, name="models", help="Model management commands") 
 app.add_typer(data.app, name="data", help="Data generation and management commands")
 app.add_typer(worker.app, name="worker", help="Background worker management commands")
+app.add_typer(streaming.app, name="streaming", help="Real-time streaming detection commands")
+app.add_typer(explain.app, name="explain", help="Model explainability and interpretability commands")
 
 
 def version_callback(value: bool) -> None:

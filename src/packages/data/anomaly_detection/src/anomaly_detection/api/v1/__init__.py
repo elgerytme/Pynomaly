@@ -2,9 +2,11 @@
 
 from fastapi import APIRouter
 
-from . import detection, models, monitoring
+from . import detection, models, monitoring, streaming, explainability
 
 api_router = APIRouter()
 api_router.include_router(detection.router, prefix="/detection", tags=["detection"])
 api_router.include_router(models.router, prefix="/models", tags=["models"])
 api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
+api_router.include_router(streaming.router, prefix="/streaming", tags=["streaming"])
+api_router.include_router(explainability.router, prefix="/explainability", tags=["explainability"])

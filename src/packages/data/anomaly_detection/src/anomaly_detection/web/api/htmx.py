@@ -2,6 +2,8 @@
 
 import json
 import numpy as np
+import pandas as pd
+import uuid
 from pathlib import Path
 from typing import List, Dict, Any
 from datetime import datetime
@@ -9,10 +11,15 @@ from datetime import datetime
 from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 from ...domain.services.detection_service import DetectionService
 from ...domain.services.ensemble_service import EnsembleService
+from ...domain.services.streaming_service import StreamingService
+from ...domain.services.explainability_service import ExplainabilityService, ExplainerType
 from ...infrastructure.repositories.model_repository import ModelRepository
+from ...domain.entities.model import Model, ModelMetadata, ModelStatus, SerializationFormat
+from ...domain.entities.dataset import Dataset, DatasetType, DatasetMetadata
 from ...infrastructure.logging import get_logger
 
 router = APIRouter()
@@ -25,6 +32,8 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 # Dependency injection
 _detection_service: DetectionService = None
 _ensemble_service: EnsembleService = None
+_streaming_service: StreamingService = None
+_explainability_service: ExplainabilityService = None
 _model_repository: ModelRepository = None
 
 
@@ -42,6 +51,24 @@ def get_ensemble_service() -> EnsembleService:
     if _ensemble_service is None:
         _ensemble_service = EnsembleService()
     return _ensemble_service
+
+
+def get_streaming_service() -> StreamingService:
+    """Get streaming service instance."""
+    global _streaming_service
+    if _streaming_service is None:
+        _streaming_service = StreamingService()
+    return _streaming_service
+
+
+def get_explainability_service() -> ExplainabilityService:
+    """Get explainability service instance."""
+    global _explainability_service, _detection_service
+    if _explainability_service is None:
+        if _detection_service is None:
+            _detection_service = DetectionService()
+        _explainability_service = ExplainabilityService(_detection_service)
+    return _explainability_service
 
 
 def get_model_repository() -> ModelRepository:
@@ -315,6 +342,468 @@ async def get_dashboard_stats(
         
     except Exception as e:
         logger.error("Error getting dashboard stats", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/train", response_class=HTMLResponse)
+async def train_model_htmx(
+    request: Request,
+    model_name: str = Form(...),
+    algorithm: str = Form("isolation_forest"),
+    contamination: float = Form(0.1),
+    training_data: str = Form(""),
+    has_labels: bool = Form(False),
+    detection_service: DetectionService = Depends(get_detection_service),
+    model_repository: ModelRepository = Depends(get_model_repository)
+):
+    """Train a new model via web interface."""
+    try:
+        start_time = datetime.utcnow()
+        
+        # Parse training data
+        if not training_data.strip():
+            # Generate sample training data
+            np.random.seed(42)
+            normal_data = np.random.normal(0, 1, (200, 5))
+            anomaly_data = np.random.normal(3, 1, (20, 5))
+            data_array = np.vstack([normal_data, anomaly_data])
+            labels_array = np.array([1] * 200 + [-1] * 20) if has_labels else None
+        else:
+            try:
+                data_parsed = json.loads(training_data)
+                if isinstance(data_parsed, dict) and 'data' in data_parsed:
+                    data_array = np.array(data_parsed['data'], dtype=np.float64)
+                    labels_array = np.array(data_parsed.get('labels')) if has_labels and 'labels' in data_parsed else None
+                else:
+                    data_array = np.array(data_parsed, dtype=np.float64)
+                    labels_array = None
+            except (json.JSONDecodeError, ValueError) as e:
+                raise HTTPException(status_code=400, detail=f"Invalid training data format: {str(e)}")
+        
+        # Validate data
+        if len(data_array.shape) != 2:
+            raise HTTPException(status_code=400, detail="Training data must be a 2D array")
+        
+        # Create dataset entity
+        df = pd.DataFrame(data_array, columns=[f"feature_{i}" for i in range(data_array.shape[1])])
+        dataset = Dataset(
+            data=df,
+            dataset_type=DatasetType.TRAINING,
+            labels=labels_array,
+            metadata=DatasetMetadata(
+                name=f"{model_name}_training_data",
+                source="web_interface",
+                description=f"Training dataset for {model_name} via web interface"
+            )
+        )
+        
+        # Algorithm mapping
+        algorithm_map = {
+            'isolation_forest': 'iforest',
+            'one_class_svm': 'ocsvm',
+            'lof': 'lof'
+        }
+        
+        mapped_algorithm = algorithm_map.get(algorithm, algorithm)
+        
+        # Fit the model
+        detection_service.fit(data_array, mapped_algorithm, contamination=contamination)
+        
+        # Get predictions for evaluation
+        detection_result = detection_service.detect_anomalies(
+            data=data_array,
+            algorithm=mapped_algorithm,
+            contamination=contamination
+        )
+        
+        end_time = datetime.utcnow()
+        training_duration = (end_time - start_time).total_seconds()
+        
+        # Calculate metrics if labels available
+        accuracy, precision, recall, f1_score_val = None, None, None, None
+        if has_labels and labels_array is not None:
+            pred_labels = detection_result.predictions
+            accuracy = float(accuracy_score(labels_array, pred_labels))
+            precision = float(precision_score(labels_array, pred_labels, pos_label=-1, zero_division=0, average='binary'))
+            recall = float(recall_score(labels_array, pred_labels, pos_label=-1, zero_division=0, average='binary'))
+            f1_score_val = float(f1_score(labels_array, pred_labels, pos_label=-1, zero_division=0, average='binary'))
+        
+        # Create and save model
+        model_id = str(uuid.uuid4())
+        metadata = ModelMetadata(
+            model_id=model_id,
+            name=model_name,
+            algorithm=algorithm,
+            status=ModelStatus.TRAINED,
+            training_samples=dataset.n_samples,
+            training_features=dataset.n_features,
+            contamination_rate=contamination,
+            training_duration_seconds=training_duration,
+            accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1_score=f1_score_val,
+            feature_names=dataset.feature_names,
+            hyperparameters={'contamination': contamination},
+            description=f"Trained {algorithm} model via web interface",
+        )
+        
+        # Get the trained model object from the service
+        trained_model_obj = detection_service._fitted_models.get(mapped_algorithm)
+        
+        model = Model(
+            metadata=metadata,
+            model_object=trained_model_obj
+        )
+        
+        # Save model
+        saved_model_id = model_repository.save(model, SerializationFormat.PICKLE)
+        
+        # Prepare results
+        results = {
+            "success": True,
+            "model_id": saved_model_id,
+            "model_name": model_name,
+            "algorithm": algorithm,
+            "training_samples": dataset.n_samples,
+            "training_features": dataset.n_features,
+            "contamination": contamination,
+            "training_duration": f"{training_duration:.2f}",
+            "accuracy": f"{accuracy:.3f}" if accuracy is not None else "N/A",
+            "precision": f"{precision:.3f}" if precision is not None else "N/A",
+            "recall": f"{recall:.3f}" if recall is not None else "N/A",
+            "f1_score": f"{f1_score_val:.3f}" if f1_score_val is not None else "N/A",
+            "timestamp": end_time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/training_results.html",
+            {"request": request, "results": results}
+        )
+        
+    except Exception as e:
+        logger.error("Model training failed", error=str(e))
+        error_context = {
+            "request": request,
+            "error": str(e),
+            "model_name": model_name,
+            "algorithm": algorithm
+        }
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            error_context,
+            status_code=500
+        )
+
+
+@router.post("/streaming/start", response_class=HTMLResponse)
+async def start_streaming_monitor(
+    request: Request,
+    algorithm: str = Form("isolation_forest"),
+    window_size: int = Form(1000),
+    update_frequency: int = Form(100),
+    streaming_service: StreamingService = Depends(get_streaming_service)
+):
+    """Start streaming detection monitoring."""
+    try:
+        # Reset the streaming service
+        streaming_service.reset_stream()
+        streaming_service.set_window_size(window_size)
+        streaming_service.set_update_frequency(update_frequency)
+        
+        # Initialize with sample data
+        np.random.seed(42)
+        initial_data = np.random.normal(0, 1, (50, 5))
+        
+        algorithm_map = {
+            'isolation_forest': 'iforest',
+            'one_class_svm': 'ocsvm',
+            'lof': 'lof'
+        }
+        mapped_algorithm = algorithm_map.get(algorithm, algorithm)
+        
+        # Process initial batch to fit model
+        streaming_service.process_batch(initial_data, mapped_algorithm)
+        
+        # Get initial stats
+        stats = streaming_service.get_streaming_stats()
+        
+        context = {
+            "request": request,
+            "status": "started",
+            "algorithm": algorithm,
+            "window_size": window_size,
+            "update_frequency": update_frequency,
+            "stats": stats
+        }
+        
+        return templates.TemplateResponse(
+            "components/streaming_status.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Streaming start error", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/streaming/sample", response_class=HTMLResponse)
+async def process_streaming_sample(
+    request: Request,
+    sample_data: str = Form(""),
+    algorithm: str = Form("isolation_forest"),
+    streaming_service: StreamingService = Depends(get_streaming_service)
+):
+    """Process a single streaming sample."""
+    try:
+        # Parse or generate sample data
+        if not sample_data.strip():
+            # Generate random sample (with 20% chance of anomaly)
+            if np.random.random() < 0.2:
+                sample = np.random.normal(3, 1, 5)  # Anomalous sample
+            else:
+                sample = np.random.normal(0, 1, 5)  # Normal sample
+        else:
+            try:
+                sample = np.array(json.loads(sample_data), dtype=np.float64)
+            except (json.JSONDecodeError, ValueError):
+                raise HTTPException(status_code=400, detail="Invalid sample data format")
+        
+        # Algorithm mapping
+        algorithm_map = {
+            'isolation_forest': 'iforest',
+            'one_class_svm': 'ocsvm',
+            'lof': 'lof'
+        }
+        mapped_algorithm = algorithm_map.get(algorithm, algorithm)
+        
+        # Process sample
+        result = streaming_service.process_sample(sample, mapped_algorithm)
+        stats = streaming_service.get_streaming_stats()
+        
+        # Prepare response
+        context = {
+            "request": request,
+            "success": result.success,
+            "is_anomaly": bool(result.predictions[0] == -1),
+            "confidence_score": float(result.confidence_scores[0]) if result.confidence_scores is not None else None,
+            "algorithm": algorithm,
+            "sample_data": sample.tolist(),
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+            "buffer_size": stats['buffer_size'],
+            "model_fitted": stats['model_fitted'],
+            "samples_processed": stats['total_samples']
+        }
+        
+        return templates.TemplateResponse(
+            "components/streaming_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Streaming sample processing error", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/streaming/stats", response_class=HTMLResponse)
+async def get_streaming_stats(
+    request: Request,
+    streaming_service: StreamingService = Depends(get_streaming_service)
+):
+    """Get current streaming statistics."""
+    try:
+        stats = streaming_service.get_streaming_stats()
+        
+        # Check for concept drift
+        drift_result = streaming_service.detect_concept_drift()
+        
+        context = {
+            "request": request,
+            "stats": stats,
+            "drift": drift_result,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/streaming_stats.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Error getting streaming stats", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/streaming/reset", response_class=HTMLResponse)
+async def reset_streaming(
+    request: Request,
+    streaming_service: StreamingService = Depends(get_streaming_service)
+):
+    """Reset streaming service state."""
+    try:
+        streaming_service.reset_stream()
+        
+        context = {
+            "request": request,
+            "message": "Streaming service reset successfully",
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/streaming_reset.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Streaming reset error", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/explain", response_class=HTMLResponse)
+async def explain_prediction_htmx(
+    request: Request,
+    sample_data: str = Form(...),
+    algorithm: str = Form("isolation_forest"),
+    explainer_type: str = Form("feature_importance"),
+    feature_names: str = Form(""),
+    detection_service: DetectionService = Depends(get_detection_service),
+    explainability_service: ExplainabilityService = Depends(get_explainability_service)
+):
+    """Explain a prediction via web interface."""
+    try:
+        # Parse sample data
+        try:
+            sample_array = np.array(json.loads(sample_data), dtype=np.float64)
+        except (json.JSONDecodeError, ValueError):
+            raise HTTPException(status_code=400, detail="Invalid sample data format")
+        
+        # Parse feature names
+        if feature_names.strip():
+            try:
+                feature_names_list = json.loads(feature_names)
+            except (json.JSONDecodeError, ValueError):
+                feature_names_list = feature_names.split(',')
+        else:
+            feature_names_list = [f"feature_{i}" for i in range(len(sample_array))]
+        
+        # Algorithm mapping
+        algorithm_map = {
+            'isolation_forest': 'iforest',
+            'one_class_svm': 'ocsvm',
+            'lof': 'lof'
+        }
+        mapped_algorithm = algorithm_map.get(algorithm, algorithm)
+        
+        # Fit model if not already fitted
+        if mapped_algorithm not in detection_service._fitted_models:
+            # Generate training data for demo
+            np.random.seed(42)
+            training_data = np.random.normal(0, 1, (100, len(sample_array)))
+            detection_service.fit(training_data, mapped_algorithm)
+        
+        # Map explainer type
+        explainer_type_map = {
+            'shap': ExplainerType.SHAP,
+            'lime': ExplainerType.LIME,
+            'permutation': ExplainerType.PERMUTATION,
+            'feature_importance': ExplainerType.FEATURE_IMPORTANCE
+        }
+        explainer_enum = explainer_type_map.get(explainer_type, ExplainerType.FEATURE_IMPORTANCE)
+        
+        # Generate explanation
+        explanation = explainability_service.explain_prediction(
+            sample=sample_array,
+            algorithm=mapped_algorithm,
+            explainer_type=explainer_enum,
+            feature_names=feature_names_list
+        )
+        
+        # Prepare context
+        context = {
+            "request": request,
+            "success": True,
+            "algorithm": algorithm,
+            "explainer_type": explainer_type,
+            "is_anomaly": explanation.is_anomaly,
+            "confidence": explanation.prediction_confidence,
+            "base_value": explanation.base_value,
+            "top_features": explanation.top_features,
+            "feature_importance": explanation.feature_importance,
+            "sample_data": dict(zip(feature_names_list, explanation.data_sample)),
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/explanation_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Explanation failed", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.get("/explain/available", response_class=HTMLResponse)
+async def get_available_explainers_htmx(
+    request: Request,
+    explainability_service: ExplainabilityService = Depends(get_explainability_service)
+):
+    """Get available explainer types for web interface."""
+    try:
+        available_explainers = explainability_service.get_available_explainers()
+        
+        descriptions = {
+            'shap': 'SHAP - Advanced model explanations',
+            'lime': 'LIME - Local linear approximations', 
+            'permutation': 'Permutation - Feature importance via testing',
+            'feature_importance': 'Simple - Based on feature magnitude'
+        }
+        
+        explainers_info = []
+        for explainer in available_explainers:
+            explainers_info.append({
+                'name': explainer,
+                'description': descriptions.get(explainer, 'Feature importance method'),
+                'available': True
+            })
+        
+        context = {
+            "request": request,
+            "explainers": explainers_info,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/explainers_list.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Error getting available explainers", error=str(e))
         return templates.TemplateResponse(
             "components/error_message.html",
             {"request": request, "error": str(e)},
