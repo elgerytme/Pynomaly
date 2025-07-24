@@ -553,3 +553,68 @@ async def load_model(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Load failed: {str(e)}"
         )
+
+
+# Export functions for direct import
+async def train_model_function(
+    model_name: str,
+    algorithm: str,
+    data: List[List[float]],
+    contamination: float = 0.1,
+    labels: Optional[List[int]] = None,
+    feature_names: Optional[List[str]] = None,
+    description: Optional[str] = None,
+    hyperparameters: Optional[Dict[str, Any]] = None
+) -> TrainingResponse:
+    """Standalone function for training models."""
+    request = TrainingRequest(
+        model_name=model_name,
+        algorithm=algorithm,
+        data=data,
+        contamination=contamination,
+        labels=labels,
+        feature_names=feature_names,
+        description=description,
+        hyperparameters=hyperparameters
+    )
+    return await train_model(request, get_model_repository())
+
+
+async def load_model_function(model_id: str) -> LoadModelResponse:
+    """Standalone function for loading models."""
+    request = LoadModelRequest(model_id=model_id)
+    return await load_model(request, get_model_repository())
+
+
+async def save_model_function(
+    model_id: str,
+    model_name: str,
+    description: Optional[str] = None
+) -> SaveModelResponse:
+    """Standalone function for saving models."""
+    request = SaveModelRequest(
+        model_id=model_id,
+        model_name=model_name,
+        description=description
+    )
+    return await save_model(request, get_model_repository())
+
+
+# Export all functions
+__all__ = [
+    "router",
+    "train_model",
+    "load_model", 
+    "save_model",
+    "train_model_function",
+    "load_model_function",
+    "save_model_function",
+    "TrainingRequest",
+    "TrainingResponse",
+    "LoadModelRequest", 
+    "LoadModelResponse",
+    "SaveModelRequest",
+    "SaveModelResponse",
+    "ModelPredictionRequest",
+    "PredictionResponse"
+]

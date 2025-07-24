@@ -53,6 +53,8 @@ global_detection_service: Optional[DetectionService] = None
 global_ensemble_service: Optional[EnsembleService] = None
 global_streaming_service: Optional[StreamingService] = None
 global_explainability_service: Optional[ExplainabilityService] = None
+global_health_service: Optional[Any] = None  # Health monitoring service
+global_error_handler: Optional[ErrorHandler] = None  # Global error handler
 global_model_repository: Optional[ModelRepository] = None
 
 
@@ -126,11 +128,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _app_start_time = datetime.utcnow()
     
     # Initialize services
-    global global_detection_service, global_ensemble_service, global_streaming_service, global_explainability_service, global_model_repository
+    global global_detection_service, global_ensemble_service, global_streaming_service, global_explainability_service, global_health_service, global_error_handler, global_model_repository
     global_detection_service = DetectionService()
     global_ensemble_service = EnsembleService()
     global_streaming_service = StreamingService()
     global_explainability_service = ExplainabilityService()
+    # Initialize health service
+    from .domain.services.health_monitoring_service import get_health_monitoring_service
+    global_health_service = get_health_monitoring_service()
+    # Initialize global error handler
+    global_error_handler = ErrorHandler(logger._logger)
     global_model_repository = ModelRepository()
     
     # Keep local references for backward compatibility

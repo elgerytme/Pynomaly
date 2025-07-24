@@ -19,8 +19,24 @@ except ImportError:
         @classmethod
         def create(cls, **kwargs):
             if hasattr(cls.Meta, 'model') and cls.Meta.model:
-                # Create a simple instance with default values
-                return cls.Meta.model()
+                # Create a simple instance with default values for common models
+                model_class = cls.Meta.model
+                if hasattr(model_class, '__name__'):
+                    if 'ModelMetadata' in model_class.__name__:
+                        return model_class(
+                            model_id=f"test_{np.random.randint(1000, 9999)}",
+                            name="test_model",
+                            algorithm="iforest"
+                        )
+                    elif 'Model' in model_class.__name__:
+                        return model_class()
+                    elif 'DetectionResult' in model_class.__name__:
+                        return model_class()
+                    elif 'Anomaly' in model_class.__name__:
+                        return model_class()
+                    elif 'Dataset' in model_class.__name__:
+                        return model_class()
+                return model_class()
             return None
         
         @staticmethod

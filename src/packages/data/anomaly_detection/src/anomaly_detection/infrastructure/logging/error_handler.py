@@ -129,6 +129,32 @@ class ConfigurationError(AnomalyDetectionError):
         )
 
 
+class SystemError(AnomalyDetectionError):
+    """System-level error."""
+    
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None, original_error: Optional[Exception] = None):
+        super().__init__(
+            message=message,
+            category=ErrorCategory.SYSTEM,
+            details=details,
+            original_error=original_error,
+            recoverable=False
+        )
+
+
+class ExternalServiceError(AnomalyDetectionError):
+    """Error communicating with external services."""
+    
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None, original_error: Optional[Exception] = None):
+        super().__init__(
+            message=message,
+            category=ErrorCategory.EXTERNAL,
+            details=details,
+            original_error=original_error,
+            recoverable=True
+        )
+
+
 class ErrorHandler:
     """Centralized error handling with structured logging."""
     
@@ -294,6 +320,8 @@ __all__ = [
     "AlgorithmError",
     "PersistenceError",
     "ConfigurationError",
+    "SystemError",
+    "ExternalServiceError",
     "ErrorCategory",
     "default_error_handler"
 ]
