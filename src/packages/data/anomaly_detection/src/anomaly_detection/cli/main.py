@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .. import __version__
-from .commands import detection, models, data, worker, streaming, explain, health, batch, optimize, reports, monitor
+from .commands import detection, models, worker, streaming, explain, batch, optimize, reports, monitor
 from ..infrastructure.config.settings import get_settings
 from ..infrastructure.logging import setup_logging
 
@@ -24,11 +24,9 @@ app = typer.Typer(
 # Add command groups
 app.add_typer(detection.app, name="detect", help="Anomaly detection commands")
 app.add_typer(models.app, name="models", help="Model management commands") 
-app.add_typer(data.app, name="data", help="Data generation and management commands")
 app.add_typer(worker.app, name="worker", help="Background worker management commands")
 app.add_typer(streaming.app, name="streaming", help="Real-time streaming detection commands")
 app.add_typer(explain.app, name="explain", help="Model explainability and interpretability commands")
-app.add_typer(health.app, name="health", help="System health monitoring and diagnostics")
 app.add_typer(batch.app, name="batch", help="Batch processing for large-scale data operations")
 app.add_typer(optimize.app, name="optimize", help="Threshold optimization and performance tuning")
 app.add_typer(reports.app, name="reports", help="Report generation and documentation")
