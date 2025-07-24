@@ -12,7 +12,10 @@ import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
 
-from anomaly_detection.domain.entities.dataset_entity import DatasetEntity
+try:
+    from data.processing.domain.entities.dataset_entity import DatasetEntity
+except ImportError:
+    from anomaly_detection.domain.entities.dataset_entity import DatasetEntity
 
 
 class FeatureType(Enum):

@@ -18,11 +18,11 @@ from pydantic import BaseModel, Field
 from ...domain.services.streaming_service import StreamingService
 from ...domain.services.detection_service import DetectionService
 from ...infrastructure.logging import get_logger
-from ...infrastructure.monitoring import MetricsCollector
+from ...infrastructure.monitoring import get_metrics_collector
 
 router = APIRouter()
 logger = get_logger(__name__)
-metrics = MetricsCollector()
+metrics = get_metrics_collector()
 
 
 class MessageType(str, Enum):
@@ -274,9 +274,21 @@ class EnhancedStreamingService:
         self.alert_rules: Dict[str, Dict[str, Any]] = {}
         self.performance_metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         
-        # Start background tasks
-        asyncio.create_task(self._cleanup_inactive_connections())
-        asyncio.create_task(self._monitor_performance())
+        # Background tasks will be started when needed
+        self._background_tasks_started = False
+        self._cleanup_task = None
+        self._monitor_task = None
+    
+    def _start_background_tasks(self) -> None:
+        """Start background tasks if not already started."""
+        if not self._background_tasks_started:
+            try:
+                self._cleanup_task = asyncio.create_task(self._cleanup_inactive_connections())
+                self._monitor_task = asyncio.create_task(self._monitor_performance())
+                self._background_tasks_started = True
+            except RuntimeError:
+                # No event loop running, tasks will be started later
+                pass
     
     def get_streaming_service(self, session_id: str, **kwargs) -> StreamingService:
         """Get or create streaming service for session."""
@@ -375,8 +387,15 @@ class EnhancedStreamingService:
         await self.connection_manager.broadcast_to_subscribers(alert_message, "alerts")
 
 
-# Global enhanced streaming service
-enhanced_streaming_service = EnhancedStreamingService()
+# Global enhanced streaming service - initialized lazily
+enhanced_streaming_service = None
+
+def get_enhanced_streaming_service() -> EnhancedStreamingService:
+    """Get or create the enhanced streaming service instance."""
+    global enhanced_streaming_service
+    if enhanced_streaming_service is None:
+        enhanced_streaming_service = EnhancedStreamingService()
+    return enhanced_streaming_service
 
 
 @router.websocket("/enhanced/{session_id}")
@@ -385,13 +404,17 @@ async def enhanced_websocket_streaming(websocket: WebSocket, session_id: str, cl
     connection_info = None
     
     try:
+        # Get service instance and start background tasks if needed
+        service = get_enhanced_streaming_service()
+        service._start_background_tasks()
+        
         # Establish connection
-        connection_info = await enhanced_streaming_service.connection_manager.connect(
+        connection_info = await service.connection_manager.connect(
             websocket, session_id, client_id
         )
         
         # Get streaming service
-        streaming_service = enhanced_streaming_service.get_streaming_service(session_id)
+        streaming_service = service.get_streaming_service(session_id)
         
         # Send welcome message
         welcome_message = StreamingResponse(
@@ -406,7 +429,7 @@ async def enhanced_websocket_streaming(websocket: WebSocket, session_id: str, cl
                 "processing_modes": ["realtime", "batch", "adaptive"]
             }
         )
-        await enhanced_streaming_service.connection_manager.send_personal_message(
+        await service.connection_manager.send_personal_message(
             welcome_message, connection_info.client_id
         )
         
@@ -427,14 +450,14 @@ async def enhanced_websocket_streaming(websocket: WebSocket, session_id: str, cl
                         error=f"Invalid message format: {str(e)}",
                         error_code="INVALID_FORMAT"
                     )
-                    await enhanced_streaming_service.connection_manager.send_personal_message(
+                    await service.connection_manager.send_personal_message(
                         error_response, connection_info.client_id
                     )
                     continue
                 
                 # Update last activity
                 connection_info.last_activity = datetime.utcnow()
-                enhanced_streaming_service.connection_manager.connection_stats["messages_received"] += 1
+                service.connection_manager.connection_stats["messages_received"] += 1
                 
                 # Process message based on type
                 await _process_message(message, connection_info, streaming_service)
@@ -446,7 +469,7 @@ async def enhanced_websocket_streaming(websocket: WebSocket, session_id: str, cl
                     success=True,
                     timestamp=datetime.utcnow().isoformat()
                 )
-                await enhanced_streaming_service.connection_manager.send_personal_message(
+                await service.connection_manager.send_personal_message(
                     ping_message, connection_info.client_id
                 )
                 
@@ -463,14 +486,14 @@ async def enhanced_websocket_streaming(websocket: WebSocket, session_id: str, cl
                 error_code="INTERNAL_ERROR"
             )
             try:
-                await enhanced_streaming_service.connection_manager.send_personal_message(
+                await service.connection_manager.send_personal_message(
                     error_response, connection_info.client_id
                 )
             except:
                 pass
     finally:
         if connection_info:
-            enhanced_streaming_service.connection_manager.disconnect(connection_info.client_id)
+            service.connection_manager.disconnect(connection_info.client_id)
 
 
 async def _process_message(
@@ -505,7 +528,7 @@ async def _process_message(
                 error_code="UNKNOWN_MESSAGE_TYPE",
                 request_id=message.request_id
             )
-            await enhanced_streaming_service.connection_manager.send_personal_message(
+            await get_enhanced_streaming_service().connection_manager.send_personal_message(
                 error_response, connection_info.client_id
             )
             
@@ -523,7 +546,7 @@ async def _process_message(
             error_code="PROCESSING_ERROR",
             request_id=message.request_id
         )
-        await enhanced_streaming_service.connection_manager.send_personal_message(
+        await get_enhanced_streaming_service().connection_manager.send_personal_message(
             error_response, connection_info.client_id
         )
 
@@ -578,7 +601,7 @@ async def _process_sample_message(
     metrics.record_metric('streaming.sample_processing_time', processing_time)
     metrics.record_metric('streaming.samples_processed', 1)
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -645,7 +668,7 @@ async def _process_batch_message(
     metrics.record_metric('streaming.batch_processing_time', processing_time)
     metrics.record_metric('streaming.batch_size', len(message.batch_data))
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -657,7 +680,7 @@ async def _process_stats_message(
 ):
     """Process statistics request message."""
     stats = streaming_service.get_streaming_stats()
-    connection_stats = enhanced_streaming_service.connection_manager.get_stats()
+    connection_stats = get_enhanced_streaming_service().connection_manager.get_stats()
     
     response = StreamingResponse(
         type=MessageType.STATS,
@@ -674,7 +697,7 @@ async def _process_stats_message(
         }
     )
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -698,7 +721,7 @@ async def _process_drift_message(
         drift_details=drift_result
     )
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -709,7 +732,7 @@ async def _process_subscribe_message(message: EnhancedStreamingMessage, connecti
     if not topic:
         raise ValueError("Topic is required for subscription")
     
-    enhanced_streaming_service.connection_manager.subscribe(connection_info.client_id, topic)
+    get_enhanced_streaming_service().connection_manager.subscribe(connection_info.client_id, topic)
     
     response = StreamingResponse(
         type=MessageType.SUBSCRIBE,
@@ -719,7 +742,7 @@ async def _process_subscribe_message(message: EnhancedStreamingMessage, connecti
         metadata={"topic": topic, "subscribed": True}
     )
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -730,7 +753,7 @@ async def _process_unsubscribe_message(message: EnhancedStreamingMessage, connec
     if not topic:
         raise ValueError("Topic is required for unsubscription")
     
-    enhanced_streaming_service.connection_manager.unsubscribe(connection_info.client_id, topic)
+    get_enhanced_streaming_service().connection_manager.unsubscribe(connection_info.client_id, topic)
     
     response = StreamingResponse(
         type=MessageType.UNSUBSCRIBE,
@@ -740,7 +763,7 @@ async def _process_unsubscribe_message(message: EnhancedStreamingMessage, connec
         metadata={"topic": topic, "subscribed": False}
     )
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -755,7 +778,7 @@ async def _process_ping_message(message: EnhancedStreamingMessage, connection_in
         metadata={"server_time": datetime.utcnow().isoformat()}
     )
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -789,7 +812,7 @@ async def _process_config_message(message: EnhancedStreamingMessage, connection_
         }
     )
     
-    await enhanced_streaming_service.connection_manager.send_personal_message(
+    await get_enhanced_streaming_service().connection_manager.send_personal_message(
         response, connection_info.client_id
     )
 
@@ -798,7 +821,7 @@ async def _process_config_message(message: EnhancedStreamingMessage, connection_
 @router.get("/health")
 async def streaming_health():
     """Health check for streaming service."""
-    stats = enhanced_streaming_service.connection_manager.get_stats()
+    stats = get_enhanced_streaming_service().connection_manager.get_stats()
     
     return {
         "status": "healthy",
@@ -826,12 +849,12 @@ async def streaming_health():
 @router.get("/stats")
 async def get_streaming_service_stats():
     """Get comprehensive streaming service statistics."""
-    connection_stats = enhanced_streaming_service.connection_manager.get_stats()
+    connection_stats = get_enhanced_streaming_service().connection_manager.get_stats()
     
     return {
         "timestamp": datetime.utcnow().isoformat(),
         "connections": connection_stats,
-        "streaming_services": len(enhanced_streaming_service.streaming_services),
+        "streaming_services": len(get_enhanced_streaming_service().streaming_services),
         "performance": {
             "avg_processing_time_ms": metrics.get_average_metric('streaming.sample_processing_time') * 1000,
             "samples_per_second": metrics.get_rate_metric('streaming.samples_processed'),

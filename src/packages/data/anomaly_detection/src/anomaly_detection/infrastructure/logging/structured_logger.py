@@ -246,3 +246,19 @@ class RequestContext:
     
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.logger.clear_request_context()
+
+
+def configure_logging(settings: Optional[Any] = None) -> None:
+    """Configure global logging settings."""
+    LoggerFactory.configure_logging(settings)
+
+
+# Export common functions
+__all__ = [
+    "configure_logging",
+    "get_logger",
+    "StructuredLogger",
+    "LoggerFactory", 
+    "RequestLoggingMiddleware",
+    "RequestContext"
+]

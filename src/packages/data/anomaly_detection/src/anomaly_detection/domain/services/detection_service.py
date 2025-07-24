@@ -111,18 +111,20 @@ class DetectionService:
                        anomaly_rate=result.anomaly_rate)
             
             # Record metrics
-            operation_id = metrics_collector.start_operation(f"detection_{algorithm}")
-            duration_ms = metrics_collector.end_operation(operation_id, success=True)
-            
-            metrics_collector.record_model_metric(
-                model_id="realtime",
-                algorithm=algorithm,
-                operation="detect",
-                duration_ms=duration_ms,
-                success=True,
-                samples_processed=result.total_samples,
-                anomalies_detected=result.anomaly_count
-            )
+            operation_id = None
+            if metrics_collector:
+                operation_id = metrics_collector.start_operation(f"detection_{algorithm}")
+                duration_ms = metrics_collector.end_operation(operation_id, success=True)
+                
+                metrics_collector.record_model_metric(
+                    model_id="realtime",
+                    algorithm=algorithm,
+                    operation="detect",
+                    duration_ms=duration_ms,
+                    success=True,
+                    samples_processed=result.total_samples,
+                    anomalies_detected=result.anomaly_count
+                )
             
             # Log data quality metrics
             logger.log_data_quality(

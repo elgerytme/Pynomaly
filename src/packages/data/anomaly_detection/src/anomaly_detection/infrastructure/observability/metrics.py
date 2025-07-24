@@ -35,6 +35,16 @@ logger = logging.getLogger(__name__)
 class MetricConfig:
     """Configuration for metrics collection."""
     service_name: str = "anomaly_detection"
+
+@dataclass
+class ModelMetrics:
+    """Model performance metrics."""
+    accuracy: float = 0.0
+    precision: float = 0.0
+    recall: float = 0.0
+    f1_score: float = 0.0
+    auc_roc: float = 0.0
+    inference_time: float = 0.0
     service_version: str = "1.0.0"
     environment: str = "production"
     enable_system_metrics: bool = True
@@ -44,6 +54,20 @@ class MetricConfig:
     metrics_path: str = "/metrics"
     collection_interval: float = 15.0
     custom_labels: Optional[Dict[str, str]] = None
+
+@dataclass 
+class MetricPoint:
+    """A single metric data point."""
+    name: str
+    value: Union[int, float]
+    labels: Optional[Dict[str, str]] = None
+    timestamp: Optional[float] = None
+    
+    def __post_init__(self):
+        if self.timestamp is None:
+            self.timestamp = time.time()
+        if self.labels is None:
+            self.labels = {}
 
 
 class MetricsCollector:

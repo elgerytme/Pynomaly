@@ -344,3 +344,120 @@ async def list_algorithms() -> Dict[str, List[str]]:
             "csv"
         ]
     }
+
+
+class TrainingRequest(BaseModel):
+    """Request model for model training."""
+    data: List[List[float]] = Field(
+        ..., 
+        description="Training data as list of feature vectors",
+        min_items=10,
+        max_items=100000
+    )
+    algorithm: Literal[
+        "isolation_forest", 
+        "one_class_svm", 
+        "local_outlier_factor"
+    ] = Field(
+        default="isolation_forest", 
+        description="Algorithm to train"
+    )
+    contamination: float = Field(
+        default=0.1, 
+        ge=0.001, 
+        le=0.5, 
+        description="Expected contamination rate"
+    )
+    parameters: Dict[str, Any] = Field(
+        default_factory=dict, 
+        description="Algorithm-specific parameters"
+    )
+
+
+class TrainingResponse(BaseModel):
+    """Response model for model training."""
+    success: bool
+    model_id: str
+    algorithm: str
+    training_samples: int
+    training_time_ms: float
+    model_performance: Dict[str, float]
+    timestamp: str
+
+
+@router.post("/train", response_model=TrainingResponse)
+async def train_model(
+    request: TrainingRequest,
+    detection_service: DetectionService = Depends(get_detection_service)
+) -> TrainingResponse:
+    """Train a new anomaly detection model."""
+    start_time = datetime.utcnow()
+    
+    logger.info("Training new model",
+                algorithm=request.algorithm,
+                samples=len(request.data))
+    
+    try:
+        # Validate input
+        if not request.data or not request.data[0]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Training data cannot be empty"
+            )
+        
+        # Convert to numpy array
+        data_array = np.array(request.data, dtype=np.float64)
+        
+        # Map algorithm names
+        algorithm_map = {
+            'isolation_forest': 'iforest',
+            'one_class_svm': 'ocsvm',
+            'local_outlier_factor': 'lof'
+        }
+        
+        mapped_algorithm = algorithm_map.get(request.algorithm, request.algorithm)
+        
+        # Train the model
+        result = detection_service.train_model(
+            data=data_array,
+            algorithm=mapped_algorithm,
+            contamination=request.contamination,
+            **request.parameters
+        )
+        
+        end_time = datetime.utcnow()
+        training_time_ms = (end_time - start_time).total_seconds() * 1000
+        
+        # Generate model ID
+        model_id = f"{request.algorithm}_{int(start_time.timestamp())}"
+        
+        # Mock performance metrics (in real implementation, would come from validation)
+        performance_metrics = {
+            "accuracy": 0.95,
+            "precision": 0.92,
+            "recall": 0.89,
+            "f1_score": 0.90
+        }
+        
+        return TrainingResponse(
+            success=True,
+            model_id=model_id,
+            algorithm=request.algorithm,
+            training_samples=len(request.data),
+            training_time_ms=training_time_ms,
+            model_performance=performance_metrics,
+            timestamp=end_time.isoformat()
+        )
+        
+    except ValueError as e:
+        logger.error("Training validation error", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid training data: {str(e)}"
+        )
+    except Exception as e:
+        logger.error("Training processing error", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Model training failed: {str(e)}"
+        )

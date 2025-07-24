@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch, mock_open, MagicMock
 from typer.testing import CliRunner
 
-from anomaly_detection.cli_new.commands.explain import app
+from anomaly_detection.cli.commands.explain import app
 from anomaly_detection.domain.services.explainability_service import ExplainerType
 from anomaly_detection.domain.entities.explanation import Explanation
 

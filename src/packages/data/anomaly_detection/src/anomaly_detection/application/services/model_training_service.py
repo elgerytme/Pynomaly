@@ -21,8 +21,15 @@ from anomaly_detection.domain.interfaces.mlops_operations import (
     MLOpsModelRegistryPort,
     RunStatus,
 )
-from anomaly_detection.domain.entities.dataset import Dataset
-from anomaly_detection.domain.entities.detection_result import DetectionResult
+try:
+    from data.processing.domain.entities.dataset import Dataset
+except ImportError:
+    from anomaly_detection.domain.entities.dataset import Dataset
+
+try:
+    from data.processing.domain.entities.detection_result import DetectionResult
+except ImportError:
+    from anomaly_detection.domain.entities.detection_result import DetectionResult
 
 
 class ModelTrainingApplicationService:

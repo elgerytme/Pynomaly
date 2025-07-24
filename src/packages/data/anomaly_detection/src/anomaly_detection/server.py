@@ -15,7 +15,10 @@ import uuid
 
 from .domain.services.detection_service import DetectionService
 from .domain.services.ensemble_service import EnsembleService
-from .domain.entities.model import Model
+try:
+    from data.processing.domain.entities.model import Model
+except ImportError:
+    from .domain.entities.model import Model
 from .infrastructure.repositories.model_repository import ModelRepository
 from .infrastructure.config.settings import get_settings
 from .infrastructure.logging import get_logger, async_log_decorator
@@ -32,7 +35,7 @@ from .infrastructure.monitoring import (
     get_health_checker,
     get_performance_monitor
 )
-from .infrastructure.monitoring.dashboard import get_monitoring_dashboard
+from .infrastructure.monitoring import get_monitoring_dashboard
 from .infrastructure.middleware.rate_limiting import create_rate_limit_middleware
 
 logger = get_logger(__name__)
@@ -630,7 +633,10 @@ async def list_models(
 ) -> ModelListResponse:
     """List available trained models with optional filtering."""
     try:
-        from .domain.entities.model import ModelStatus
+        try:
+            from data.processing.domain.entities.model import ModelStatus
+        except ImportError:
+            from .domain.entities.model import ModelStatus
         
         status_filter = None
         if status:

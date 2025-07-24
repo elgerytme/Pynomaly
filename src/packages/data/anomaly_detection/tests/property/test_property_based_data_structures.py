@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from unittest.mock import Mock
 
 from anomaly_detection.domain.entities.detection_result import DetectionResult
-from anomaly_detection.domain.entities.model_entity import ModelEntity
+from anomaly_detection.domain.entities.model import Model as ModelEntity
 from anomaly_detection.domain.value_objects.algorithm_config import AlgorithmConfig
 from anomaly_detection.domain.value_objects.detection_metrics import DetectionMetrics
 

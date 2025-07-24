@@ -12,8 +12,8 @@ from unittest.mock import Mock, patch
 from anomaly_detection.domain.services.detection_service import DetectionService
 from anomaly_detection.domain.services.ensemble_service import EnsembleService
 from anomaly_detection.domain.services.streaming_service import StreamingService
-from anomaly_detection.adapters.sklearn_adapter import SklearnAdapter
-from anomaly_detection.adapters.pyod_adapter import PyODAdapter
+from anomaly_detection.infrastructure.adapters.algorithms.adapters.sklearn_adapter import SklearnAdapter
+from anomaly_detection.infrastructure.adapters.algorithms.adapters.pyod_adapter import PyODAdapter
 
 
 @dataclass

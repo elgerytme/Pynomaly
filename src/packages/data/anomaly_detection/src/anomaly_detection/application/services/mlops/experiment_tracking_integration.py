@@ -14,13 +14,21 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 
 # Anomaly detection imports
-from anomaly_detection.domain.services.mlops_service import MLOpsService, ExperimentRun
-from anomaly_detection.domain.entities.detection_result import DetectionResult
+try:
+    from ai.mlops.domain.services.mlops_service import MLOpsService
+    from ai.mlops.domain.entities.experiment import ExperimentRun
+except ImportError:
+    from anomaly_detection.domain.services.mlops_service import MLOpsService, ExperimentRun
+
+try:
+    from data.processing.domain.entities.detection_result import DetectionResult
+except ImportError:
+    from anomaly_detection.domain.entities.detection_result import DetectionResult
 
 # Type stub for MLOps integration (to avoid hard dependency)
 try:
-    from mlops.domain.services.experiment_tracking_service import ExperimentTrackingService
-    from mlops.domain.entities.experiment import Experiment as MLOpsExperiment
+    from ai.mlops.domain.services.experiment_tracking_service import ExperimentTrackingService
+    from ai.mlops.domain.entities.experiment import Experiment as MLOpsExperiment
     MLOPS_AVAILABLE = True
 except ImportError:
     MLOPS_AVAILABLE = False

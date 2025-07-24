@@ -9,8 +9,8 @@ from typing import Dict, Any, List
 from unittest.mock import patch, Mock, MagicMock
 from collections import deque
 
-from anomaly_detection.domain.services.analytics_service import (
-    AnalyticsService,
+from anomaly_detection.domain.services.enhanced_analytics_service import (
+    EnhancedAnalyticsService as AnalyticsService,
     PerformanceMetrics,
     AlgorithmStats,
     DataQualityMetrics

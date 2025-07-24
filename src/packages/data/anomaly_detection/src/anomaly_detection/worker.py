@@ -18,12 +18,16 @@ import structlog
 from anomaly_detection.domain.services.detection_service import DetectionService
 from anomaly_detection.domain.services.ensemble_service import EnsembleService
 from anomaly_detection.domain.entities.dataset import Dataset, DatasetType
-from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
+try:
+    from ai.mlops.infrastructure.repositories.model_repository import ModelRepository
+except ImportError:
+    # Fallback to local copy
+    from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
 from anomaly_detection.infrastructure.monitoring import (
     get_metrics_collector, get_performance_monitor, get_monitoring_dashboard
 )
 from anomaly_detection.infrastructure.logging.error_handler import (
-    AnomalyDetectionError, ErrorCategory, handle_error
+    AnomalyDetectionError, ErrorCategory, ErrorHandler
 )
 
 logger = structlog.get_logger()
@@ -492,7 +496,10 @@ class AnomalyDetectionWorker:
         await self.job_queue.update_job(job)
         
         # Save model
-        from anomaly_detection.domain.entities.model import Model, ModelMetadata, ModelStatus
+        try:
+            from data.processing.domain.entities.model import Model, ModelMetadata, ModelStatus
+        except ImportError:
+            from anomaly_detection.domain.entities.model import Model, ModelMetadata, ModelStatus
         
         metadata = ModelMetadata(
             model_id=f"batch-{job.job_id}",

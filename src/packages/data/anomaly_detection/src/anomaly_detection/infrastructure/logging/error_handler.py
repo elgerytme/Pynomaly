@@ -257,3 +257,29 @@ class ErrorHandler:
 
 # Global error handler instance
 default_error_handler = ErrorHandler()
+
+
+def handle_error(
+    error: Exception,
+    context: Optional[Dict[str, Any]] = None,
+    operation: str = "unknown",
+    reraise: bool = True
+) -> Optional[AnomalyDetectionError]:
+    """Global convenience function for error handling."""
+    return default_error_handler.handle_error(error, context, operation, reraise)
+
+
+# Export common functions
+__all__ = [
+    "handle_error",
+    "ErrorHandler", 
+    "AnomalyDetectionError",
+    "InputValidationError",
+    "DataProcessingError", 
+    "ModelOperationError",
+    "AlgorithmError",
+    "PersistenceError",
+    "ConfigurationError",
+    "ErrorCategory",
+    "default_error_handler"
+]

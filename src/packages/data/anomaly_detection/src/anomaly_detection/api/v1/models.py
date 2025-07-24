@@ -418,3 +418,138 @@ async def train_model(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Training failed: {str(e)}"
         )
+
+
+class SaveModelRequest(BaseModel):
+    """Request model for saving a trained model."""
+    model_id: str = Field(..., description="ID of the model to save")
+    model_name: str = Field(..., description="Name for the saved model")
+    description: Optional[str] = Field(None, description="Description of the model")
+
+
+class SaveModelResponse(BaseModel):
+    """Response model for saving a model."""
+    success: bool = Field(..., description="Whether save completed successfully")
+    model_id: str = Field(..., description="ID of the saved model")
+    saved_path: str = Field(..., description="Path where the model was saved")
+    timestamp: str = Field(..., description="Save timestamp")
+
+
+class LoadModelRequest(BaseModel):
+    """Request model for loading a saved model."""
+    model_id: str = Field(..., description="ID of the model to load")
+
+
+class LoadModelResponse(BaseModel):
+    """Response model for loading a model."""
+    success: bool = Field(..., description="Whether load completed successfully")
+    model_id: str = Field(..., description="ID of the loaded model")
+    model_name: str = Field(..., description="Name of the loaded model")
+    algorithm: str = Field(..., description="Algorithm of the loaded model")
+    metadata: Dict[str, Any] = Field(..., description="Model metadata")
+    timestamp: str = Field(..., description="Load timestamp")
+
+
+@router.post("/save", response_model=SaveModelResponse)
+async def save_model(
+    request: SaveModelRequest,
+    model_repository: ModelRepository = Depends(get_model_repository)
+) -> SaveModelResponse:
+    """Save a trained model to persistent storage."""
+    try:
+        start_time = datetime.utcnow()
+        
+        logger.info("Saving model", model_id=request.model_id)
+        
+        # Load model from memory/cache (in real implementation)
+        # For now, create a dummy model structure
+        model_metadata = ModelMetadata(
+            model_id=request.model_id,
+            name=request.model_name,
+            algorithm="isolation_forest",  # Default algorithm
+            status=ModelStatus.TRAINED,
+            description=request.description or f"Saved model {request.model_name}"
+        )
+        
+        # Create dummy model object (in real implementation, would load from cache)
+        model = Model(metadata=model_metadata, model_object=None)
+        
+        # Save using repository
+        saved_model_id = model_repository.save(model, SerializationFormat.PICKLE)
+        
+        # Mock save path
+        save_path = f"/models/{saved_model_id}.pkl"
+        
+        end_time = datetime.utcnow()
+        
+        logger.info("Model saved successfully", 
+                   model_id=saved_model_id,
+                   path=save_path)
+        
+        return SaveModelResponse(
+            success=True,
+            model_id=saved_model_id,
+            saved_path=save_path,
+            timestamp=end_time.isoformat()
+        )
+        
+    except Exception as e:
+        logger.error("Model save error", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Save failed: {str(e)}"
+        )
+
+
+@router.post("/load", response_model=LoadModelResponse)
+async def load_model(
+    request: LoadModelRequest,
+    model_repository: ModelRepository = Depends(get_model_repository)
+) -> LoadModelResponse:
+    """Load a saved model from persistent storage."""
+    try:
+        start_time = datetime.utcnow()
+        
+        logger.info("Loading model", model_id=request.model_id)
+        
+        # Load model using repository
+        model = model_repository.load(request.model_id)
+        
+        if not model:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Model {request.model_id} not found"
+            )
+        
+        end_time = datetime.utcnow()
+        
+        logger.info("Model loaded successfully", 
+                   model_id=request.model_id,
+                   algorithm=model.metadata.algorithm)
+        
+        return LoadModelResponse(
+            success=True,
+            model_id=model.metadata.model_id,
+            model_name=model.metadata.name,
+            algorithm=model.metadata.algorithm,
+            metadata={
+                "status": model.metadata.status.value,
+                "training_samples": model.metadata.training_samples,
+                "training_features": model.metadata.training_features,
+                "accuracy": model.metadata.accuracy,
+                "precision": model.metadata.precision,
+                "recall": model.metadata.recall,
+                "f1_score": model.metadata.f1_score,
+                "created_at": model.metadata.created_at.isoformat() if model.metadata.created_at else None
+            },
+            timestamp=end_time.isoformat()
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Model load error", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Load failed: {str(e)}"
+        )

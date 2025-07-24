@@ -12,8 +12,15 @@ from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
 
-from anomaly_detection.domain.entities.dataset import Dataset
-from anomaly_detection.domain.entities.model import Model
+try:
+    from data.processing.domain.entities.dataset import Dataset
+except ImportError:
+    from anomaly_detection.domain.entities.dataset import Dataset
+
+try:
+    from data.processing.domain.entities.model import Model
+except ImportError:
+    from anomaly_detection.domain.entities.model import Model
 
 
 class ModelStatus(Enum):

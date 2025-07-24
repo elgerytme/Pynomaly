@@ -9,9 +9,9 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from ...domain.services.enhanced_analytics_service import EnhancedEnhancedAnalyticsService
+from ...domain.services.enhanced_analytics_service import EnhancedAnalyticsService
 from ...domain.services.detection_service import DetectionService
-from ...infrastructure.monitoring.metrics_collector import get_metrics_collector
+from ...infrastructure.monitoring import get_metrics_collector
 from ...infrastructure.logging import get_logger
 
 router = APIRouter()

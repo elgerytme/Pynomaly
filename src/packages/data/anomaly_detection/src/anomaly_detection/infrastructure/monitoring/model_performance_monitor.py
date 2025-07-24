@@ -16,7 +16,8 @@ import warnings
 from contextlib import contextmanager
 
 from ..logging import get_logger
-from .metrics_collector import get_metrics_collector, ModelMetrics
+from . import get_metrics_collector
+from ..observability.metrics import ModelMetrics
 from ...domain.entities.detection_result import DetectionResult
 
 logger = get_logger(__name__)

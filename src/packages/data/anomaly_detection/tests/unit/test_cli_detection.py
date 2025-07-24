@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch, mock_open, MagicMock
 from typer.testing import CliRunner
 
-from anomaly_detection.cli_new.commands.detection import app
+from anomaly_detection.cli.commands.detection import app
 from anomaly_detection.domain.entities.detection_result import DetectionResult
 from anomaly_detection.domain.entities.dataset import Dataset, DatasetType, DatasetMetadata
 

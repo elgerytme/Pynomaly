@@ -8,8 +8,8 @@ from fastapi.testclient import TestClient
 from fastapi import Request
 
 from anomaly_detection.web.api.analytics import router, get_analytics_service
-from anomaly_detection.domain.services.analytics_service import (
-    AnalyticsService,
+from anomaly_detection.domain.services.enhanced_analytics_service import (
+    EnhancedAnalyticsService as AnalyticsService,
     PerformanceMetrics,
     AlgorithmStats,
     DataQualityMetrics

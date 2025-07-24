@@ -1,0 +1,1 @@
+"""Monitoring adapters for external monitoring systems."""

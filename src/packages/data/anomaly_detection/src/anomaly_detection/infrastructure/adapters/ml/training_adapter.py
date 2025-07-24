@@ -27,9 +27,19 @@ from anomaly_detection.domain.interfaces.ml_operations import (
     PredictionError,
     UnsupportedAlgorithmError,
 )
-from anomaly_detection.domain.entities.model import Model
-from anomaly_detection.domain.entities.dataset import Dataset
-from anomaly_detection.domain.entities.detection_result import DetectionResult
+try:
+    from data.processing.domain.entities.model import Model
+except ImportError:
+    from anomaly_detection.domain.entities.model import Model
+try:
+    from data.processing.domain.entities.dataset import Dataset
+except ImportError:
+    from anomaly_detection.domain.entities.dataset import Dataset
+
+try:
+    from data.processing.domain.entities.detection_result import DetectionResult
+except ImportError:
+    from anomaly_detection.domain.entities.detection_result import DetectionResult
 
 # Machine learning package imports
 try:

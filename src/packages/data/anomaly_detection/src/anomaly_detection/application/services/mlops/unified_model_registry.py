@@ -15,16 +15,32 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 # Anomaly detection imports
-from anomaly_detection.domain.entities.model import Model as AnomalyModel
-from anomaly_detection.domain.entities.detection_result import DetectionResult
-from anomaly_detection.domain.services.mlops_service import MLOpsService, ModelVersion as AnomalyModelVersion
-from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
+try:
+    from data.processing.domain.entities.model import Model as AnomalyModel
+except ImportError:
+    from anomaly_detection.domain.entities.model import Model as AnomalyModel
+
+try:
+    from data.processing.domain.entities.detection_result import DetectionResult
+except ImportError:
+    from anomaly_detection.domain.entities.detection_result import DetectionResult
+
+try:
+    from ai.mlops.domain.services.mlops_service import MLOpsService
+    from ai.mlops.domain.value_objects.model_value_objects import ModelVersion as AnomalyModelVersion
+except ImportError:
+    from anomaly_detection.domain.services.mlops_service import MLOpsService, ModelVersion as AnomalyModelVersion
+
+try:
+    from ai.mlops.infrastructure.repositories.model_repository import ModelRepository
+except ImportError:
+    from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
 
 # Type stub for MLOps integration (to avoid hard dependency)
 try:
-    from mlops.domain.entities.model import Model as MLOpsModel, ModelStage
-    from mlops.domain.value_objects.model_value_objects import ModelType, PerformanceMetrics, ModelStorageInfo
-    from mlops.domain.services.model_management_service import ModelManagementService
+    from ai.mlops.domain.entities.model import Model as MLOpsModel, ModelStage
+    from ai.mlops.domain.value_objects.model_value_objects import ModelType, PerformanceMetrics, ModelStorageInfo
+    from ai.mlops.domain.services.model_management_service import ModelManagementService
     MLOPS_AVAILABLE = True
 except ImportError:
     # Create type stubs when MLOps is not available
@@ -305,7 +321,10 @@ class UnifiedModelRegistry:
             )
             
             # Create model version
-            from mlops.domain.value_objects.model_value_objects import ModelVersion as SemanticVersion
+            try:
+                from ai.mlops.domain.value_objects.model_value_objects import ModelVersion as SemanticVersion
+            except ImportError:
+                from anomaly_detection.domain.value_objects.model_value_objects import ModelVersion as SemanticVersion
             semantic_version = SemanticVersion(major=1, minor=0, patch=0)
             
             model_version = await self.mlops_model_service.create_model_version(

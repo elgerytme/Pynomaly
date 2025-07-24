@@ -6,7 +6,10 @@ from unittest.mock import Mock, patch, MagicMock
 from typing import Any, Dict
 
 from anomaly_detection.domain.services.detection_service import DetectionService, AlgorithmAdapter
-from anomaly_detection.domain.entities.detection_result import DetectionResult
+try:
+    from data.processing.domain.entities.detection_result import DetectionResult
+except ImportError:
+    from anomaly_detection.domain.entities.detection_result import DetectionResult
 from anomaly_detection.infrastructure.logging.error_handler import (
     InputValidationError, 
     AlgorithmError

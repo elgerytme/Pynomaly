@@ -12,9 +12,18 @@ from enum import Enum
 import subprocess
 import tempfile
 
-from anomaly_detection.domain.services.mlops_service import MLOpsService, ModelVersion
+try:
+    from ai.mlops.domain.services.mlops_service import MLOpsService
+    from ai.mlops.domain.value_objects.model_value_objects import ModelVersion
+except ImportError:
+    from anomaly_detection.domain.services.mlops_service import MLOpsService, ModelVersion
+
 from anomaly_detection.domain.services.detection_service import DetectionService
-from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
+
+try:
+    from ai.mlops.infrastructure.repositories.model_repository import ModelRepository
+except ImportError:
+    from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
 
 
 class DeploymentStatus(Enum):
