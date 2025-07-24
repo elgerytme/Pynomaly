@@ -34,15 +34,9 @@ def mock_detection_service():
     
     # Mock successful detection result
     result = DetectionResult(
-        success=True,
         predictions=np.array([1, -1, 1, -1]),
         confidence_scores=np.array([0.2, 0.8, 0.3, 0.9]),
-        anomalies=[1, 3],
-        algorithm="iforest",
-        total_samples=4,
-        anomaly_count=2,
-        anomaly_rate=0.5,
-        execution_time_ms=150.0
+        algorithm="iforest"
     )
     
     service.detect_anomalies.return_value = result
@@ -91,6 +85,8 @@ class TestDetectionEndpoints:
             
             assert response.status_code == 200
             data = response.json()
+            
+            print("DEBUG: Response data:", data)
             
             assert data["success"] is True
             assert data["algorithm"] == "isolation_forest"
@@ -202,16 +198,14 @@ class TestDetectionEndpoints:
         # Mock individual detection results
         mock_detection_service = Mock()
         result1 = DetectionResult(
-            success=True, predictions=np.array([1, -1, 1, -1]),
+            predictions=np.array([1, -1, 1, -1]),
             confidence_scores=np.array([0.2, 0.8, 0.3, 0.9]),
-            anomalies=[1, 3], algorithm="iforest",
-            total_samples=4, anomaly_count=2, anomaly_rate=0.5
+            algorithm="iforest"
         )
         result2 = DetectionResult(
-            success=True, predictions=np.array([1, 1, -1, -1]),
+            predictions=np.array([1, 1, -1, -1]),
             confidence_scores=np.array([0.3, 0.1, 0.7, 0.85]),
-            anomalies=[2, 3], algorithm="ocsvm",
-            total_samples=4, anomaly_count=2, anomaly_rate=0.5
+            algorithm="ocsvm"
         )
         
         mock_detection_service.detect_anomalies.side_effect = [result1, result2]
@@ -247,10 +241,9 @@ class TestDetectionEndpoints:
         """Test ensemble detection with average method."""
         mock_detection_service = Mock()
         result = DetectionResult(
-            success=True, predictions=np.array([1, -1, 1, -1]),
+            predictions=np.array([1, -1, 1, -1]),
             confidence_scores=np.array([0.2, 0.8, 0.3, 0.9]),
-            anomalies=[1, 3], algorithm="iforest",
-            total_samples=4, anomaly_count=2, anomaly_rate=0.5
+            algorithm="iforest"
         )
         mock_detection_service.detect_anomalies.return_value = result
         
@@ -280,10 +273,9 @@ class TestDetectionEndpoints:
         """Test ensemble detection with weighted average."""
         mock_detection_service = Mock()
         result = DetectionResult(
-            success=True, predictions=np.array([1, -1, 1, -1]),
+            predictions=np.array([1, -1, 1, -1]),
             confidence_scores=np.array([0.2, 0.8, 0.3, 0.9]),
-            anomalies=[1, 3], algorithm="iforest",
-            total_samples=4, anomaly_count=2, anomaly_rate=0.5
+            algorithm="iforest"
         )
         mock_detection_service.detect_anomalies.return_value = result
         
@@ -376,10 +368,9 @@ class TestDetectionEndpoints:
         """Test ensemble detection with algorithm-specific parameters."""
         mock_detection_service = Mock()
         result = DetectionResult(
-            success=True, predictions=np.array([1, -1, 1, -1]),
+            predictions=np.array([1, -1, 1, -1]),
             confidence_scores=np.array([0.2, 0.8, 0.3, 0.9]),
-            anomalies=[1, 3], algorithm="iforest",
-            total_samples=4, anomaly_count=2, anomaly_rate=0.5
+            algorithm="iforest"
         )
         mock_detection_service.detect_anomalies.return_value = result
         

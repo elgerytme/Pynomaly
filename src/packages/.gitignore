@@ -9,7 +9,6 @@
 */output/
 
 # Package build artifacts
-*/build/
 */dist/
 */*.egg-info/
 */*.dist-info/
@@ -43,7 +42,7 @@ creative/*/temp/
 
 # Package documentation temporary
 */docs/temp/
-*/docs/build/
+# */docs/build/
 */README.tmp.md
 
 # Package profiling and debugging

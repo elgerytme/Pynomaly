@@ -1,1 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="29.632" timestamp="2025-07-24T15:44:23.881935-04:00" hostname="rocm-socm"><testcase classname="tests.performance.test_optimization_validation.TestOptimizationValidation" name="test_memory_optimization" time="2.100" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="22.961" timestamp="2025-07-24T15:50:02.445829-04:00" hostname="rocm-socm"><testcase classname="tests.unit.test_api_detection.TestDetectionEndpoints" name="test_detect_anomalies_success" time="0.166"><failure message="assert 1 == 2">tests/unit/test_api_detection.py:94: in test_detect_anomalies_success
+    assert data["anomalies_detected"] == 2
+E   assert 1 == 2</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,1 @@
+"""Domain interfaces (ports) for MLOps hexagonal architecture."""

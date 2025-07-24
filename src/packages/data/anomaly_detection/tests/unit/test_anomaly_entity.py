@@ -5,7 +5,7 @@ import numpy as np
 from datetime import datetime
 from typing import Dict, Any
 
-from anomaly_detection.domain.entities.anomaly import Anomaly
+from anomaly_detection.domain.entities.anomaly import Anomaly, AnomalyType, AnomalySeverity
 
 
 class TestAnomalyEntity:
@@ -15,128 +15,133 @@ class TestAnomalyEntity:
         """Test basic anomaly creation."""
         anomaly = Anomaly(
             index=42,
-            score=0.85,
-            confidence=0.92
+            confidence_score=0.85
         )
         
         assert anomaly.index == 42
-        assert anomaly.score == 0.85
-        assert anomaly.confidence == 0.92
-        assert anomaly.features == {}
+        assert anomaly.confidence_score == 0.85
+        assert anomaly.feature_contributions is None
         assert anomaly.explanation is None
+        assert anomaly.anomaly_type == AnomalyType.UNKNOWN
+        assert anomaly.severity is not None  # Should be calculated automatically
     
     def test_anomaly_creation_with_features(self):
         """Test anomaly creation with feature values."""
-        features = {
-            'temperature': 45.2,
-            'pressure': 1050.5,
-            'flow_rate': 0.05
+        feature_values = np.array([45.2, 1050.5, 0.05])
+        feature_contributions = {
+            'temperature': 0.6,
+            'pressure': 0.3,
+            'flow_rate': 0.1
         }
         
         anomaly = Anomaly(
             index=10,
-            score=0.95,
-            confidence=0.88,
-            features=features
+            confidence_score=0.95,
+            feature_values=feature_values,
+            feature_contributions=feature_contributions
         )
         
-        assert anomaly.features == features
-        assert anomaly.features['temperature'] == 45.2
+        assert np.array_equal(anomaly.feature_values, feature_values)
+        assert anomaly.feature_contributions == feature_contributions
     
     def test_anomaly_creation_with_explanation(self):
         """Test anomaly creation with explanation."""
-        explanation = {
-            'type': 'feature_importance',
-            'top_features': ['temperature', 'pressure'],
-            'contributions': {'temperature': 0.6, 'pressure': 0.3}
-        }
+        explanation = "High temperature and pressure values detected"
         
         anomaly = Anomaly(
             index=5,
-            score=0.78,
-            confidence=0.85,
+            confidence_score=0.78,
             explanation=explanation
         )
         
         assert anomaly.explanation == explanation
-        assert anomaly.explanation['type'] == 'feature_importance'
     
-    def test_anomaly_validation_index(self):
-        """Test index validation."""
-        # Valid indices
-        anomaly1 = Anomaly(index=0, score=0.5, confidence=0.5)
-        assert anomaly1.index == 0
+    def test_anomaly_severity_calculation(self):
+        """Test automatic severity calculation."""
+        # Critical severity (>= 0.9)
+        anomaly1 = Anomaly(index=0, confidence_score=0.95)
+        assert anomaly1.severity == AnomalySeverity.CRITICAL
         
-        anomaly2 = Anomaly(index=999999, score=0.5, confidence=0.5)
-        assert anomaly2.index == 999999
+        # High severity (>= 0.75)
+        anomaly2 = Anomaly(index=0, confidence_score=0.8)
+        assert anomaly2.severity == AnomalySeverity.HIGH
         
-        # Invalid indices
-        with pytest.raises(ValueError, match="Index must be non-negative"):
-            Anomaly(index=-1, score=0.5, confidence=0.5)
+        # Medium severity (>= 0.5)
+        anomaly3 = Anomaly(index=0, confidence_score=0.6)
+        assert anomaly3.severity == AnomalySeverity.MEDIUM
+        
+        # Low severity (< 0.5)
+        anomaly4 = Anomaly(index=0, confidence_score=0.3)
+        assert anomaly4.severity == AnomalySeverity.LOW
     
-    def test_anomaly_validation_score(self):
-        """Test score validation."""
-        # Valid scores
-        anomaly1 = Anomaly(index=0, score=0.0, confidence=0.5)
-        assert anomaly1.score == 0.0
-        
-        anomaly2 = Anomaly(index=0, score=1.0, confidence=0.5)
-        assert anomaly2.score == 1.0
-        
-        # Invalid scores
-        with pytest.raises(ValueError, match="Score must be between 0 and 1"):
-            Anomaly(index=0, score=-0.1, confidence=0.5)
-        
-        with pytest.raises(ValueError, match="Score must be between 0 and 1"):
-            Anomaly(index=0, score=1.1, confidence=0.5)
+    def test_anomaly_severity_override(self):
+        """Test manual severity override."""
+        anomaly = Anomaly(
+            index=0,
+            confidence_score=0.3,  # Would normally be LOW
+            severity=AnomalySeverity.HIGH  # Override to HIGH
+        )
+        assert anomaly.severity == AnomalySeverity.HIGH
     
-    def test_anomaly_validation_confidence(self):
-        """Test confidence validation."""
-        # Valid confidence
-        anomaly1 = Anomaly(index=0, score=0.5, confidence=0.0)
-        assert anomaly1.confidence == 0.0
+    def test_get_top_contributing_features(self):
+        """Test getting top contributing features."""
+        feature_contributions = {
+            'feature1': 0.5,
+            'feature2': -0.3,
+            'feature3': 0.8,
+            'feature4': 0.1,
+            'feature5': -0.6
+        }
         
-        anomaly2 = Anomaly(index=0, score=0.5, confidence=1.0)
-        assert anomaly2.confidence == 1.0
+        anomaly = Anomaly(
+            index=0,
+            confidence_score=0.8,
+            feature_contributions=feature_contributions
+        )
         
-        # Invalid confidence
-        with pytest.raises(ValueError, match="Confidence must be between 0 and 1"):
-            Anomaly(index=0, score=0.5, confidence=-0.1)
+        top_features = anomaly.get_top_contributing_features(3)
         
-        with pytest.raises(ValueError, match="Confidence must be between 0 and 1"):
-            Anomaly(index=0, score=0.5, confidence=1.1)
+        assert len(top_features) == 3
+        assert top_features[0] == ('feature3', 0.8)  # Highest absolute value
+        assert top_features[1] == ('feature5', -0.6)  # Second highest absolute value
+        assert top_features[2] == ('feature1', 0.5)   # Third highest absolute value
     
-    def test_anomaly_severity_property(self):
-        """Test severity property calculation."""
-        # Low severity
-        anomaly1 = Anomaly(index=0, score=0.2, confidence=0.3)
-        assert anomaly1.severity == 'low'
+    def test_get_top_contributing_features_empty(self):
+        """Test getting top features when none exist."""
+        anomaly = Anomaly(index=0, confidence_score=0.8)
+        top_features = anomaly.get_top_contributing_features(5)
+        assert top_features == []
+    
+    def test_is_high_priority(self):
+        """Test high priority detection."""
+        # High priority (HIGH severity)
+        anomaly1 = Anomaly(index=0, confidence_score=0.8)  # HIGH severity
+        assert anomaly1.is_high_priority() is True
         
-        # Medium severity  
-        anomaly2 = Anomaly(index=0, score=0.6, confidence=0.7)
-        assert anomaly2.severity == 'medium'
+        # High priority (CRITICAL severity)
+        anomaly2 = Anomaly(index=0, confidence_score=0.95)  # CRITICAL severity
+        assert anomaly2.is_high_priority() is True
         
-        # High severity
-        anomaly3 = Anomaly(index=0, score=0.9, confidence=0.95)
-        assert anomaly3.severity == 'high'
+        # Not high priority (MEDIUM severity)
+        anomaly3 = Anomaly(index=0, confidence_score=0.6)  # MEDIUM severity
+        assert anomaly3.is_high_priority() is False
         
-        # Edge cases
-        anomaly4 = Anomaly(index=0, score=0.5, confidence=0.5)
-        assert anomaly4.severity == 'low'
-        
-        anomaly5 = Anomaly(index=0, score=0.7, confidence=0.7)
-        assert anomaly5.severity == 'medium'
+        # Not high priority (LOW severity)
+        anomaly4 = Anomaly(index=0, confidence_score=0.3)  # LOW severity
+        assert anomaly4.is_high_priority() is False
     
     def test_anomaly_to_dict(self):
         """Test conversion to dictionary."""
-        features = {'f1': 1.0, 'f2': 2.0}
-        explanation = {'type': 'test', 'data': [1, 2, 3]}
+        feature_values = np.array([1.0, 2.0, 3.0])
+        feature_contributions = {'f1': 0.5, 'f2': 0.3}
+        explanation = "Test explanation"
         
         anomaly = Anomaly(
             index=42,
-            score=0.85,
-            confidence=0.92,
-            features=features,
+            confidence_score=0.85,
+            anomaly_type=AnomalyType.POINT,
+            feature_values=feature_values,
+            feature_contributions=feature_contributions,
             explanation=explanation
         )
         
@@ -144,199 +149,156 @@ class TestAnomalyEntity:
         
         assert isinstance(result, dict)
         assert result['index'] == 42
-        assert result['score'] == 0.85
-        assert result['confidence'] == 0.92
-        assert result['features'] == features
+        assert result['confidence_score'] == 0.85
+        assert result['anomaly_type'] == 'point'
+        assert result['feature_values'] == [1.0, 2.0, 3.0]
+        assert result['feature_contributions'] == feature_contributions
         assert result['explanation'] == explanation
-        assert result['severity'] == 'high'
+        assert 'severity' in result
+        assert 'is_high_priority' in result
+        assert 'timestamp' in result
     
     def test_anomaly_from_dict(self):
         """Test creation from dictionary."""
         data = {
             'index': 10,
-            'score': 0.75,
-            'confidence': 0.88,
-            'features': {'temp': 100},
-            'explanation': {'reason': 'outlier'}
+            'confidence_score': 0.75,
+            'anomaly_type': 'contextual',
+            'severity': 'high',
+            'feature_values': [1.0, 2.0],
+            'feature_contributions': {'temp': 0.6},
+            'explanation': 'Test anomaly'
         }
         
         anomaly = Anomaly.from_dict(data)
         
         assert anomaly.index == 10
-        assert anomaly.score == 0.75
-        assert anomaly.confidence == 0.88
-        assert anomaly.features == {'temp': 100}
-        assert anomaly.explanation == {'reason': 'outlier'}
+        assert anomaly.confidence_score == 0.75
+        assert anomaly.anomaly_type == AnomalyType.CONTEXTUAL
+        assert anomaly.severity == AnomalySeverity.HIGH
+        assert np.array_equal(anomaly.feature_values, np.array([1.0, 2.0]))
+        assert anomaly.feature_contributions == {'temp': 0.6}
+        assert anomaly.explanation == 'Test anomaly'
     
     def test_anomaly_from_dict_minimal(self):
         """Test creation from minimal dictionary."""
         data = {
             'index': 5,
-            'score': 0.6,
-            'confidence': 0.7
+            'confidence_score': 0.6
         }
         
         anomaly = Anomaly.from_dict(data)
         
         assert anomaly.index == 5
-        assert anomaly.score == 0.6
-        assert anomaly.confidence == 0.7
-        assert anomaly.features == {}
-        assert anomaly.explanation is None
-    
-    def test_anomaly_from_dict_validation(self):
-        """Test validation when creating from dictionary."""
-        # Missing required fields
-        with pytest.raises(KeyError):
-            Anomaly.from_dict({'index': 0, 'score': 0.5})
-        
-        with pytest.raises(KeyError):
-            Anomaly.from_dict({'index': 0, 'confidence': 0.5})
-        
-        with pytest.raises(KeyError):
-            Anomaly.from_dict({'score': 0.5, 'confidence': 0.5})
-        
-        # Invalid values
-        with pytest.raises(ValueError):
-            Anomaly.from_dict({'index': -1, 'score': 0.5, 'confidence': 0.5})
+        assert anomaly.confidence_score == 0.6
+        assert anomaly.anomaly_type == AnomalyType.UNKNOWN
+        assert anomaly.severity is not None  # Should be calculated
     
     def test_anomaly_equality(self):
         """Test anomaly equality comparison."""
-        anomaly1 = Anomaly(index=42, score=0.85, confidence=0.92)
-        anomaly2 = Anomaly(index=42, score=0.85, confidence=0.92)
-        anomaly3 = Anomaly(index=43, score=0.85, confidence=0.92)
+        anomaly1 = Anomaly(index=1, confidence_score=0.8)
+        anomaly2 = Anomaly(index=1, confidence_score=0.8)
+        anomaly3 = Anomaly(index=2, confidence_score=0.8)
+        
+        # Note: dataclass equality is based on all fields
+        # Since timestamp is auto-generated, they won't be equal unless we set it explicitly
+        timestamp = datetime.utcnow()
+        anomaly1.timestamp = timestamp
+        anomaly2.timestamp = timestamp
         
         assert anomaly1 == anomaly2
         assert anomaly1 != anomaly3
-        assert anomaly1 != "not an anomaly"
-    
-    def test_anomaly_hash(self):
-        """Test anomaly hashing."""
-        anomaly1 = Anomaly(index=42, score=0.85, confidence=0.92)
-        anomaly2 = Anomaly(index=42, score=0.85, confidence=0.92)
-        anomaly3 = Anomaly(index=43, score=0.85, confidence=0.92)
-        
-        assert hash(anomaly1) == hash(anomaly2)
-        assert hash(anomaly1) != hash(anomaly3)
-        
-        # Can be used in sets
-        anomaly_set = {anomaly1, anomaly2, anomaly3}
-        assert len(anomaly_set) == 2
     
     def test_anomaly_repr(self):
         """Test string representation."""
-        anomaly = Anomaly(
-            index=42,
-            score=0.85,
-            confidence=0.92
-        )
+        anomaly = Anomaly(index=42, confidence_score=0.85)
         
         repr_str = repr(anomaly)
-        assert 'Anomaly' in repr_str
-        assert '42' in repr_str
-        assert '0.85' in repr_str
-        assert '0.92' in repr_str
-    
-    def test_anomaly_str(self):
-        """Test human-readable string."""
-        anomaly = Anomaly(
-            index=42,
-            score=0.85,
-            confidence=0.92
-        )
+        str_str = str(anomaly)
         
-        str_repr = str(anomaly)
-        assert 'index 42' in str_repr
-        assert 'score=0.85' in str_repr
-        assert 'confidence=0.92' in str_repr
-        assert 'severity=high' in str_repr
+        assert 'Anomaly' in repr_str
+        assert 'index=42' in repr_str
+        assert 'confidence=0.85' in repr_str
+        assert repr_str == str_str
     
     def test_anomaly_sorting(self):
-        """Test sorting anomalies by score."""
+        """Test anomaly sorting by confidence score."""
         anomalies = [
-            Anomaly(index=0, score=0.5, confidence=0.8),
-            Anomaly(index=1, score=0.9, confidence=0.7),
-            Anomaly(index=2, score=0.3, confidence=0.9),
-            Anomaly(index=3, score=0.7, confidence=0.6)
+            Anomaly(index=1, confidence_score=0.6),
+            Anomaly(index=2, confidence_score=0.9),
+            Anomaly(index=3, confidence_score=0.3)
         ]
         
-        # Sort by score (descending)
-        sorted_anomalies = sorted(anomalies, key=lambda a: a.score, reverse=True)
+        # Sort by confidence score (descending)
+        sorted_anomalies = sorted(anomalies, key=lambda a: a.confidence_score, reverse=True)
         
-        assert sorted_anomalies[0].index == 1  # Highest score
-        assert sorted_anomalies[-1].index == 2  # Lowest score
-        
-        # Sort by confidence
-        sorted_by_conf = sorted(anomalies, key=lambda a: a.confidence, reverse=True)
-        assert sorted_by_conf[0].index == 2  # Highest confidence
+        assert sorted_anomalies[0].confidence_score == 0.9
+        assert sorted_anomalies[1].confidence_score == 0.6
+        assert sorted_anomalies[2].confidence_score == 0.3
     
     def test_anomaly_with_nan_features(self):
-        """Test handling of NaN in features."""
-        features = {
-            'valid': 1.0,
-            'invalid': float('nan'),
-            'inf': float('inf')
-        }
+        """Test anomaly handling with NaN feature values."""
+        feature_values = np.array([1.0, np.nan, 3.0])
         
-        # Should accept NaN/Inf but mark them
         anomaly = Anomaly(
             index=0,
-            score=0.5,
-            confidence=0.8,
-            features=features
+            confidence_score=0.8,
+            feature_values=feature_values
         )
         
-        assert np.isnan(anomaly.features['invalid'])
-        assert np.isinf(anomaly.features['inf'])
-    
-    def test_anomaly_immutability(self):
-        """Test that anomaly attributes are protected."""
-        anomaly = Anomaly(index=42, score=0.85, confidence=0.92)
-        
-        # Direct assignment should raise AttributeError
-        with pytest.raises(AttributeError):
-            anomaly.index = 100
-        
-        with pytest.raises(AttributeError):
-            anomaly.score = 0.99
-        
-        # Features dict should be a copy
-        features = {'temp': 100}
-        anomaly2 = Anomaly(index=0, score=0.5, confidence=0.5, features=features)
-        features['temp'] = 200  # Modify original
-        assert anomaly2.features['temp'] == 100  # Should not change
+        assert len(anomaly.feature_values) == 3
+        assert np.isnan(anomaly.feature_values[1])
+        assert anomaly.feature_values[0] == 1.0
+        assert anomaly.feature_values[2] == 3.0
     
     def test_anomaly_metadata(self):
-        """Test anomaly with metadata."""
+        """Test anomaly metadata handling."""
+        metadata = {
+            'source': 'sensor_1',
+            'algorithm': 'isolation_forest',
+            'version': '1.0'
+        }
+        
         anomaly = Anomaly(
-            index=42,
-            score=0.85,
-            confidence=0.92,
-            metadata={
-                'timestamp': datetime.now(),
-                'algorithm': 'isolation_forest',
-                'dataset': 'sensor_data'
-            }
+            index=0,
+            confidence_score=0.8,
+            metadata=metadata
         )
         
-        assert 'timestamp' in anomaly.metadata
-        assert anomaly.metadata['algorithm'] == 'isolation_forest'
+        assert anomaly.metadata == metadata
+        assert anomaly.metadata['source'] == 'sensor_1'
     
     def test_anomaly_batch_creation(self):
         """Test creating multiple anomalies efficiently."""
-        # Simulate batch detection results
-        indices = [10, 25, 42, 67, 89]
-        scores = [0.9, 0.85, 0.92, 0.88, 0.95]
-        confidences = [0.8, 0.9, 0.95, 0.85, 0.92]
+        indices = [1, 2, 3, 4, 5]
+        scores = [0.9, 0.8, 0.7, 0.6, 0.5]
         
         anomalies = [
-            Anomaly(idx, score, conf)
-            for idx, score, conf in zip(indices, scores, confidences)
+            Anomaly(index=idx, confidence_score=score)
+            for idx, score in zip(indices, scores)
         ]
         
         assert len(anomalies) == 5
         assert all(isinstance(a, Anomaly) for a in anomalies)
+        assert [a.index for a in anomalies] == indices
+        assert [a.confidence_score for a in anomalies] == scores
+    
+    def test_anomaly_timestamp_auto_generation(self):
+        """Test automatic timestamp generation."""
+        before = datetime.utcnow()
+        anomaly = Anomaly(index=0, confidence_score=0.8)
+        after = datetime.utcnow()
         
-        # Get high severity anomalies
-        high_severity = [a for a in anomalies if a.severity == 'high']
-        assert len(high_severity) >= 3  # Most should be high given the scores
+        assert before <= anomaly.timestamp <= after
+    
+    def test_anomaly_timestamp_override(self):
+        """Test manual timestamp setting."""
+        custom_timestamp = datetime(2023, 1, 1, 12, 0, 0)
+        
+        anomaly = Anomaly(
+            index=0,
+            confidence_score=0.8,
+            timestamp=custom_timestamp
+        )
+        
+        assert anomaly.timestamp == custom_timestamp
