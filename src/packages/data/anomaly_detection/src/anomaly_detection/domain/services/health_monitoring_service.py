@@ -11,6 +11,17 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
+# Import AlertSeverity from alerting system for backward compatibility
+try:
+    from ...infrastructure.monitoring.alerting_system import AlertSeverity
+except ImportError:
+    # Define minimal AlertSeverity if not available
+    class AlertSeverity(str, Enum):
+        LOW = "low"
+        MEDIUM = "medium"
+        HIGH = "high"
+        CRITICAL = "critical"
+
 logger = logging.getLogger(__name__)
 
 
@@ -318,6 +329,7 @@ def get_health_monitoring_service() -> HealthMonitoringService:
 # Export classes for external use
 __all__ = [
     "HealthStatus",
+    "AlertSeverity",  # For backward compatibility
     "HealthCheck", 
     "SystemHealth",
     "HealthMonitoringService",

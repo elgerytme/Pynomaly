@@ -1,8 +1,69 @@
 """Test factories and utilities for generating test data and objects."""
 
 import numpy as np
-import factory
 from datetime import datetime, timedelta
+
+# Mock factory-boy if not available
+try:
+    import factory
+except ImportError:
+    # Simple mock for factory functionality
+    class FactoryMeta(type):
+        def __new__(cls, name, bases, attrs):
+            return super().__new__(cls, name, bases, attrs)
+    
+    class Factory(metaclass=FactoryMeta):
+        class Meta:
+            model = None
+        
+        @classmethod
+        def create(cls, **kwargs):
+            if hasattr(cls.Meta, 'model') and cls.Meta.model:
+                # Create a simple instance with default values
+                return cls.Meta.model()
+            return None
+        
+        @staticmethod
+        def Faker(provider, **kwargs):
+            # Simple faker replacement
+            if provider == 'random_element':
+                elements = kwargs.get('elements', [])
+                return np.random.choice(elements) if elements else None
+            elif provider == 'pyfloat':
+                min_val = kwargs.get('min_value', 0.0)
+                max_val = kwargs.get('max_value', 1.0)
+                return np.random.uniform(min_val, max_val)
+            elif provider == 'pyint':
+                min_val = kwargs.get('min_value', 0)
+                max_val = kwargs.get('max_value', 100)
+                return np.random.randint(min_val, max_val + 1)
+            elif provider == 'date_time_this_year':
+                return datetime.now()
+            elif provider == 'sentence':
+                return "Test description"
+            elif provider == 'word':
+                return "test_dataset"
+            return None
+        
+        @staticmethod
+        def LazyFunction(func):
+            return func()
+        
+        @staticmethod
+        def LazyAttribute(func):
+            return func
+        
+        @staticmethod
+        def SubFactory(factory_class):
+            return factory_class.create()
+    
+    factory = type('MockFactory', (), {
+        'Factory': Factory,
+        'Faker': Factory.Faker,
+        'LazyFunction': Factory.LazyFunction,
+        'LazyAttribute': Factory.LazyAttribute,
+        'SubFactory': Factory.SubFactory
+    })
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
 import uuid

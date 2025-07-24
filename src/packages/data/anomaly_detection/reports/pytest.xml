@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="0" skipped="0" tests="6" time="11.519" timestamp="2025-07-24T15:01:11.286390-04:00" hostname="rocm-socm"><testcase classname="" name="tests.security.test_security_input_validation" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_input_validation.py'.
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="12.008" timestamp="2025-07-24T15:02:21.834775-04:00" hostname="rocm-socm"><testcase classname="" name="tests.security.test_security_input_validation" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_input_validation.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module
@@ -6,25 +6,28 @@ Traceback:
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/security/test_security_input_validation.py:15: in &lt;module&gt;
     from anomaly_detection.web.api.htmx import detection_endpoint, upload_data
-E   ImportError: cannot import name 'detection_endpoint' from 'anomaly_detection.web.api.htmx' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/web/api/htmx.py)</error></testcase><testcase classname="" name="tests.test_runner" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/test_runner.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/test_runner.py:18: in &lt;module&gt;
+E   ImportError: cannot import name 'detection_endpoint' from 'anomaly_detection.web.api.htmx' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/web/api/htmx.py)</error></testcase><testcase classname="" name="tests.test_runner" time="0.000"><error message="collection failure">tests/test_runner.py:18: in &lt;module&gt;
     from tests.utils.test_factories import (
-tests/utils/test_factories.py:4: in &lt;module&gt;
-    import factory
-E   ModuleNotFoundError: No module named 'factory'</error></testcase><testcase classname="" name="tests.unit.test_api_health" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/unit/test_api_health.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/unit/test_api_health.py:13: in &lt;module&gt;
-    from anomaly_detection.domain.services.health_monitoring_service import (
-E   ImportError: cannot import name 'AlertSeverity' from 'anomaly_detection.domain.services.health_monitoring_service' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/domain/services/health_monitoring_service.py)</error></testcase><testcase classname="" name="tests.unit.test_entry_server" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/unit/test_entry_server.py'.
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests/utils/test_factories.py:305: in &lt;module&gt;
+    class ModelFactory(factory.Factory):
+tests/utils/test_factories.py:312: in ModelFactory
+    metadata = factory.SubFactory(ModelMetadataFactory)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/utils/test_factories.py:58: in SubFactory
+    return factory_class.create()
+           ^^^^^^^^^^^^^^^^^^^^^^
+tests/utils/test_factories.py:23: in create
+    return cls.Meta.model()
+           ^^^^^^^^^^^^^^^^
+E   TypeError: ModelMetadata.__init__() missing 3 required positional arguments: 'model_id', 'name', and 'algorithm'</error></testcase><testcase classname="" name="tests.unit.test_entry_server" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/unit/test_entry_server.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module
@@ -40,12 +43,15 @@ Traceback:
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/unit/test_infrastructure_logging.py:18: in &lt;module&gt;
     from anomaly_detection.infrastructure.logging.error_handler import (
-E   ImportError: cannot import name 'SystemError' from 'anomaly_detection.infrastructure.logging.error_handler' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/infrastructure/logging/error_handler.py)</error></testcase><testcase classname="" name="tests.utils.test_factories" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/utils/test_factories.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/utils/test_factories.py:4: in &lt;module&gt;
-    import factory
-E   ModuleNotFoundError: No module named 'factory'</error></testcase></testsuite></testsuites>
+E   ImportError: cannot import name 'SystemError' from 'anomaly_detection.infrastructure.logging.error_handler' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/infrastructure/logging/error_handler.py)</error></testcase><testcase classname="" name="tests.utils.test_factories" time="0.000"><error message="collection failure">tests/utils/test_factories.py:305: in &lt;module&gt;
+    class ModelFactory(factory.Factory):
+tests/utils/test_factories.py:312: in ModelFactory
+    metadata = factory.SubFactory(ModelMetadataFactory)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/utils/test_factories.py:58: in SubFactory
+    return factory_class.create()
+           ^^^^^^^^^^^^^^^^^^^^^^
+tests/utils/test_factories.py:23: in create
+    return cls.Meta.model()
+           ^^^^^^^^^^^^^^^^
+E   TypeError: ModelMetadata.__init__() missing 3 required positional arguments: 'model_id', 'name', and 'algorithm'</error></testcase></testsuite></testsuites>

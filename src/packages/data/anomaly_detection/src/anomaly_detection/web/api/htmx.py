@@ -1590,3 +1590,116 @@ async def stop_health_monitoring_htmx(
             {"request": request, "error": str(e)},
             status_code=500
         )
+
+
+@router.post("/detect")
+async def detection_endpoint(
+    request: Request,
+    data: str = Form(...),
+    algorithm: str = Form("isolation_forest")
+):
+    """HTMX endpoint for anomaly detection."""
+    try:
+        import json
+        import numpy as np
+        
+        # Parse input data
+        try:
+            data_list = json.loads(data)
+            data_array = np.array(data_list, dtype=np.float64)
+        except (json.JSONDecodeError, ValueError) as e:
+            return templates.TemplateResponse(
+                "components/error_message.html",
+                {"request": request, "error": f"Invalid data format: {str(e)}"}
+            )
+        
+        # Get detection service
+        detection_service = get_detection_service()
+        
+        # Perform detection
+        result = detection_service.detect_anomalies(
+            data=data_array,
+            algorithm=algorithm.replace('_', ''),  # Convert to internal format
+            contamination=0.1
+        )
+        
+        # Format results
+        anomaly_indices = [i for i, pred in enumerate(result.predictions) if pred == -1]
+        
+        context = {
+            "request": request,
+            "success": result.success,
+            "total_samples": len(data_array),
+            "anomalies_detected": len(anomaly_indices),
+            "anomaly_rate": f"{len(anomaly_indices) / len(data_array) * 100:.1f}%",
+            "algorithm": algorithm,
+            "anomaly_indices": anomaly_indices[:10],  # Show first 10
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        }
+        
+        return templates.TemplateResponse(
+            "components/detection_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Detection endpoint error", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/upload")
+async def upload_data(
+    request: Request,
+    file: bytes = File(...)
+):
+    """HTMX endpoint for data upload."""
+    try:
+        import io
+        import pandas as pd
+        
+        # Parse uploaded file
+        try:
+            data_io = io.BytesIO(file)
+            df = pd.read_csv(data_io)
+        except Exception as e:
+            return templates.TemplateResponse(
+                "components/error_message.html",
+                {"request": request, "error": f"Failed to parse CSV: {str(e)}"}
+            )
+        
+        # Validate data
+        if df.empty:
+            return templates.TemplateResponse(
+                "components/error_message.html",
+                {"request": request, "error": "Uploaded file is empty"}
+            )
+        
+        # Convert to JSON for frontend
+        data_json = df.to_json(orient='values')
+        
+        context = {
+            "request": request,
+            "success": True,
+            "message": f"Data uploaded successfully: {len(df)} rows, {len(df.columns)} columns",
+            "data": data_json,
+            "rows": len(df),
+            "columns": len(df.columns),
+            "preview": df.head(5).to_html(classes="table table-sm", table_id="data-preview")
+        }
+        
+        return templates.TemplateResponse(
+            "components/upload_result.html",
+            context
+        )
+        
+    except Exception as e:
+        logger.error("Upload endpoint error", error=str(e))
+        return templates.TemplateResponse(
+            "components/error_message.html",
+            {"request": request, "error": str(e)},
+            status_code=500
+        )
