@@ -1,4 +1,4 @@
-# Multi-stage production Docker build for Anomaly Detection Service
+# Optimized Multi-stage Docker build for Domain-Driven Anomaly Detection Service
 FROM python:3.11-slim as builder
 
 # Set build arguments
@@ -9,9 +9,10 @@ ARG VCS_REF
 # Add metadata labels
 LABEL maintainer="anomaly-detection-team@company.com" \
       version="${BUILD_VERSION}" \
-      description="Production-ready anomaly detection service" \
+      description="Domain-driven anomaly detection service" \
       build-date="${BUILD_DATE}" \
-      vcs-ref="${VCS_REF}"
+      vcs-ref="${VCS_REF}" \
+      architecture="domain-driven-design"
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -36,13 +37,16 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt requirements-prod.txt ./
+# Copy only requirements first for better Docker layer caching
+COPY requirements-prod.txt ./
 RUN pip install --no-cache-dir -r requirements-prod.txt
 
-# Copy source code with optimized layer structure for domain architecture
+# Copy pyproject.toml for package configuration
+COPY pyproject.toml ./
+
+# Copy source code in domain-optimized structure
 COPY src/ ./src/
-COPY pyproject.toml README.md LICENSE ./
+COPY README.md LICENSE ./
 
 # Install the package in development mode for better domain import resolution
 RUN pip install -e . --no-deps
@@ -66,11 +70,12 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy application code
-COPY --from=builder --chown=appuser:appuser /app .
+# Copy application code in optimized structure
+COPY --from=builder --chown=appuser:appuser /app/src ./src
+COPY --from=builder --chown=appuser:appuser /app/pyproject.toml ./
 
-# Create necessary directories
-RUN mkdir -p /app/logs /app/data /app/models \
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/logs /app/data /app/models /app/cache \
     && chown -R appuser:appuser /app
 
 # Set environment variables optimized for domain architecture
@@ -82,17 +87,25 @@ ENV PYTHONPATH=/app/src:/app \
     ANOMALY_DETECTION_DATA_DIR=/app/data \
     ANOMALY_DETECTION_MODEL_DIR=/app/models \
     ANOMALY_DETECTION_LOG_DIR=/app/logs \
-    ANOMALY_DETECTION_DOMAIN_MODE=enabled
+    ANOMALY_DETECTION_CACHE_DIR=/app/cache \
+    ANOMALY_DETECTION_DOMAIN_MODE=enabled \
+    ANOMALY_DETECTION_FALLBACK_IMPORTS=enabled
 
 # Switch to non-root user
 USER appuser
 
-# Health check
+# Health check optimized for domain services
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8000/health/detailed || exit 1
 
 # Expose port
 EXPOSE 8000
 
-# Default command (can be overridden)
-CMD ["uvicorn", "anomaly_detection.server:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Default command with domain-optimized settings
+CMD ["uvicorn", "anomaly_detection.server:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--workers", "4", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--access-log", \
+     "--log-config", "/app/src/anomaly_detection/infrastructure/logging/logging_config.json"]

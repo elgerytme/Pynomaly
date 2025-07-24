@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from anomaly_detection.main import create_app, main, lifespan
 from anomaly_detection.cli import main as cli_main
-from anomaly_detection.cli_new.main import app as cli_app
+from anomaly_detection.cli.main import app as cli_app
 from anomaly_detection.web.main import create_web_app, main as web_main
 
 

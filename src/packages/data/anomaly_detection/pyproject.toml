@@ -249,7 +249,8 @@ addopts = [
     "--cov-fail-under=95",
     "--junit-xml=reports/pytest.xml",
 ]
-testpaths = ["tests"]
+testpaths = ["tests", "src/anomaly_detection"]
+pythonpath = ["src"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Tests"]
 python_functions = ["test_*"]
