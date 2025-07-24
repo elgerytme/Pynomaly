@@ -262,6 +262,8 @@ markers = [
     "security: Security tests",
     "slow: Slow running tests",
     "load: Load testing",
+    "advanced_load: Advanced load testing scenarios",
+    "benchmark: Performance benchmarking suite",
     "memory: Memory testing",
     "property: Property-based testing",
 ]
