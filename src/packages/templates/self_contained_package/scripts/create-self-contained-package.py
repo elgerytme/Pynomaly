@@ -30,6 +30,7 @@ class PackageConfig:
     package_version: str = "0.1.0"
     python_version: str = "3.11"
     license: str = "MIT"
+    domain: str = "data"  # Buck2 domain: "ai", "data", "enterprise", or "core"
     
     # Feature flags
     use_database: bool = True

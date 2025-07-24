@@ -1,0 +1,355 @@
+name: Advanced Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  semgrep:
+    name: Semgrep SAST Scanning
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: |
+          semgrep --config=auto --json --output=semgrep-results.json .
+          semgrep --config=auto --sarif --output=semgrep-results.sarif .
+
+      - name: Upload Semgrep results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep-results.sarif
+
+      - name: Upload Semgrep results as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-results
+          path: |
+            semgrep-results.json
+            semgrep-results.sarif
+
+  codeql:
+    name: CodeQL Advanced Security
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python', 'javascript' ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  checkov:
+    name: Checkov IaC Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: terraform,kubernetes,dockerfile,secrets
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+          download_external_modules: true
+          quiet: true
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov-results.sarif
+
+      - name: Upload Checkov results as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkov-results
+          path: checkov-results.sarif
+
+  dast-scan:
+    name: DAST Security Scanning
+    runs-on: ubuntu-latest
+    services:
+      app:
+        image: python:3.11-slim
+        ports:
+          - 8000:8000
+        env:
+          ENVIRONMENT: testing
+        options: >-
+          --health-cmd "curl -f http://localhost:8000/api/health/ready || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-prod.txt
+
+      - name: Start application for DAST
+        run: |
+          python -m uvicorn anomaly_detection.api.main:app --host 0.0.0.0 --port 8000 &
+          sleep 30
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'http://localhost:8000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Run OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'http://localhost:8000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+  license-scanning:
+    name: License Compliance Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install pip-licenses
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-licenses
+
+      - name: Generate license report
+        run: |
+          pip-licenses --format=json --output-file=licenses.json
+          pip-licenses --format=csv --output-file=licenses.csv
+          pip-licenses --format=html --output-file=licenses.html
+
+      - name: Check for prohibited licenses
+        run: |
+          python -c "
+          import json
+          with open('licenses.json') as f:
+              licenses = json.load(f)
+          
+          prohibited = ['GPL-3.0', 'AGPL-3.0', 'LGPL-3.0']
+          violations = []
+          
+          for pkg in licenses:
+              if pkg['License'] in prohibited:
+                  violations.append(f\"{pkg['Name']} ({pkg['License']})\")
+          
+          if violations:
+              print('❌ Prohibited licenses found:')
+              for v in violations:
+                  print(f'  - {v}')
+              exit(1)
+          else:
+              print('✅ No prohibited licenses found')
+          "
+
+      - name: Upload license reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-reports
+          path: |
+            licenses.json
+            licenses.csv
+            licenses.html
+
+  sbom-generation:
+    name: Software Bill of Materials
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Generate SBOM
+        run: |
+          syft . -o spdx-json=sbom.spdx.json
+          syft . -o cyclonedx-json=sbom.cyclonedx.json
+          syft . -o syft-json=sbom.syft.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-reports
+          path: |
+            sbom.spdx.json
+            sbom.cyclonedx.json
+            sbom.syft.json
+
+  secrets-advanced:
+    name: Advanced Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  security-scorecards:
+    name: OpenSSF Scorecard
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run analysis
+        uses: ossf/scorecard-action@v2.3.1
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload to code-scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+  security-summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [semgrep, codeql, checkov, dast-scan, license-scanning, sbom-generation, secrets-advanced, security-scorecards]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate security summary
+        run: |
+          echo "# 🔒 Security Scan Summary" > security-summary.md
+          echo "" >> security-summary.md
+          echo "**Scan Date:** $(date)" >> security-summary.md
+          echo "**Commit:** ${{ github.sha }}" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          echo "## 📊 Scan Results" >> security-summary.md
+          echo "" >> security-summary.md
+          echo "| Tool | Status | Results |" >> security-summary.md
+          echo "|------|--------|---------|" >> security-summary.md
+          
+          # Add results for each tool
+          echo "| Semgrep | ${{ needs.semgrep.result }} | SAST Analysis |" >> security-summary.md
+          echo "| CodeQL | ${{ needs.codeql.result }} | Advanced Security |" >> security-summary.md
+          echo "| Checkov | ${{ needs.checkov.result }} | IaC Security |" >> security-summary.md
+          echo "| OWASP ZAP | ${{ needs.dast-scan.result }} | DAST Analysis |" >> security-summary.md
+          echo "| License Check | ${{ needs.license-scanning.result }} | Compliance |" >> security-summary.md
+          echo "| SBOM | ${{ needs.sbom-generation.result }} | Supply Chain |" >> security-summary.md
+          echo "| Secret Detection | ${{ needs.secrets-advanced.result }} | Secrets |" >> security-summary.md
+          echo "| Scorecard | ${{ needs.security-scorecards.result }} | OpenSSF |" >> security-summary.md
+          
+          echo "" >> security-summary.md
+          echo "## 🎯 Security Score" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          # Calculate overall security score
+          PASSED_SCANS=0
+          TOTAL_SCANS=8
+          
+          [ "${{ needs.semgrep.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.codeql.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.checkov.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.dast-scan.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.license-scanning.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.sbom-generation.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.secrets-advanced.result }}" == "success" ] && ((PASSED_SCANS++))
+          [ "${{ needs.security-scorecards.result }}" == "success" ] && ((PASSED_SCANS++))
+          
+          SCORE=$((PASSED_SCANS * 100 / TOTAL_SCANS))
+          
+          echo "**Overall Security Score:** ${SCORE}% (${PASSED_SCANS}/${TOTAL_SCANS} scans passed)" >> security-summary.md
+          
+          if [ $SCORE -ge 90 ]; then
+            echo "🟢 **Status:** Excellent Security Posture" >> security-summary.md
+          elif [ $SCORE -ge 70 ]; then
+            echo "🟡 **Status:** Good Security Posture (some improvements needed)" >> security-summary.md
+          else
+            echo "🔴 **Status:** Security Improvements Required" >> security-summary.md
+          fi
+
+      - name: Upload security summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-summary
+          path: security-summary.md
+
+      - name: Comment PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('security-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });

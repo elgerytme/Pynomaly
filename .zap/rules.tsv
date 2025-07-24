@@ -1,0 +1,71 @@
+# ZAP Scanning Rules Configuration
+# Format: RULEID	WARN/IGNORE	REASON
+# Use IGNORE to suppress false positives, WARN for informational issues
+
+# Authentication bypass rules
+10012	WARN	Authentication bypass attempt detected
+10015	WARN	Incomplete/No cache-control header
+
+# Cross-Site Scripting (XSS) rules
+40012	WARN	Cross Site Scripting (Reflected)
+40013	WARN	Cross Site Scripting (Persistent)
+40014	WARN	Cross Site Scripting (Persistent - Prime)
+40016	WARN	Cross Site Scripting (Persistent - Spider)
+40017	WARN	Cross Site Scripting (Persistent - JSON)
+
+# SQL Injection rules
+40018	WARN	SQL Injection
+40019	WARN	SQL Injection - MySQL
+40020	WARN	SQL Injection - Hypersonic SQL
+40021	WARN	SQL Injection - Oracle
+40022	WARN	SQL Injection - PostgreSQL
+
+# Directory traversal rules
+6	WARN	Path Traversal
+7	WARN	Remote File Inclusion
+
+# Information disclosure rules
+10016	WARN	Web Browser XSS Protection Not Enabled
+10017	WARN	Cross-Domain JavaScript Source File Inclusion
+10023	WARN	Information Disclosure - Debug Error Messages
+10024	WARN	Information Disclosure - Sensitive Information in URL
+10025	WARN	Information Disclosure - Sensitive Information in HTTP Referrer Header
+
+# Security headers rules
+10020	WARN	X-Frame-Options Header Not Set
+10021	WARN	X-Content-Type-Options Header Missing
+10035	WARN	Strict-Transport-Security Header Not Set
+10038	WARN	Content Security Policy (CSP) Header Not Set
+
+# Session management rules
+10010	WARN	Cookie No HttpOnly Flag
+10011	WARN	Cookie Without Secure Flag
+10054	WARN	Cookie Without SameSite Attribute
+
+# API security rules
+10105	WARN	Weak Authentication Method
+10108	WARN	Reverse Tabnabbing
+
+# Health check endpoints - reduce noise
+10049	IGNORE	Storable but Non-Cacheable Content	Health check endpoints don't need caching
+10010	IGNORE	Cookie No HttpOnly Flag	Health endpoints may not use cookies
+
+# Development/testing endpoints that should be secure in production
+90001	WARN	Insecure HTTP Methods	Development endpoints exposed
+90020	WARN	Source Code Disclosure	Development files accessible
+
+# Rate limiting and DoS protection
+10110	WARN	Dangerous JS Functions
+30001	WARN	Buffer Overflow
+
+# Content type validation
+10040	WARN	Secure Pages Include Mixed Content
+10041	WARN	HTTP to HTTPS Insecure Transition in Form Post
+10042	WARN	HTTPS to HTTP Insecure Transition in Form Post
+10043	WARN	User Controllable JavaScript Event (XSS)
+
+# Server configuration issues
+10027	WARN	Information Disclosure - Suspicious Comments
+10028	WARN	Open Redirect
+10029	WARN	Cookie Poisoning
+10030	WARN	User Controllable Charset

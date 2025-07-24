@@ -1,0 +1,15 @@
+# BUCK file for {package_name} package
+# Generated using Pynomaly standardized Buck2 templates
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+pynomaly_python_package(
+    name = "{package_name}",
+    domain = "{domain}",  # Specify domain: "ai", "data", "enterprise", or "core"
+    visibility = ["PUBLIC"],
+    cli_entry_points = {{
+        "{package_name}": "src/{package_name}.cli:main",
+        "{package_name}-server": "src/{package_name}.server:main", 
+        "{package_name}-worker": "src/{package_name}.worker:main",
+    }},
+)

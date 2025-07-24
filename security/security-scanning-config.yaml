@@ -1,0 +1,226 @@
+# Security Scanning Configuration
+# Centralized configuration for all security scanning tools
+
+security_policy:
+  version: "1.0"
+  last_updated: "2025-01-24"
+  
+  # Risk tolerance levels
+  risk_tolerance:
+    critical: 0      # No critical vulnerabilities allowed
+    high: 2          # Maximum 2 high severity vulnerabilities
+    medium: 10       # Maximum 10 medium severity vulnerabilities
+    low: 50          # Maximum 50 low severity vulnerabilities
+
+  # Tool configurations
+  tools:
+    bandit:
+      enabled: true
+      config_file: ".bandit"
+      severity_threshold: "medium"
+      confidence_threshold: "medium"
+      excluded_paths:
+        - "tests/"
+        - "migrations/"
+        - "docs/"
+      
+    safety:
+      enabled: true
+      ignore_vulnerabilities: []  # Specific CVE IDs to ignore
+      exclude_packages: []        # Packages to exclude from scanning
+      
+    semgrep:
+      enabled: true
+      config: "auto"
+      rules: 
+        - "p/security-audit"
+        - "p/owasp-security"
+        - "p/python-security"
+      severity_threshold: "WARNING"
+      
+    codeql:
+      enabled: true
+      languages: ["python", "javascript"]
+      queries: "security-extended,security-and-quality"
+      
+    checkov:
+      enabled: true
+      frameworks:
+        - "terraform"
+        - "kubernetes"
+        - "dockerfile"
+        - "secrets"
+      skip_checks: []
+      
+    trivy:
+      enabled: true
+      vulnerability_types: ["os", "library"]
+      severity_levels: ["CRITICAL", "HIGH", "MEDIUM"]
+      exit_code: 1
+      
+    hadolint:
+      enabled: true
+      ignored_rules: []
+      
+    detect_secrets:
+      enabled: true
+      baseline_file: ".secrets.baseline"
+      plugins:
+        - "AWSKeyDetector"
+        - "AzureStorageKeyDetector"
+        - "Base64HighEntropyString"
+        - "BasicAuthDetector"
+        - "CloudantDetector"
+        - "HexHighEntropyString"
+        - "IbmCloudIamDetector"
+        - "IbmCosHmacDetector"
+        - "JwtTokenDetector"
+        - "KeywordDetector"
+        - "MailchimpDetector"
+        - "PrivateKeyDetector"
+        - "SlackDetector"
+        - "SoftlayerDetector"
+        - "SquareOAuthDetector"
+        - "StripeDetector"
+        - "TwilioKeyDetector"
+
+# License compliance configuration
+license_policy:
+  allowed_licenses:
+    - "MIT"
+    - "Apache-2.0"
+    - "BSD-2-Clause"
+    - "BSD-3-Clause"
+    - "ISC"
+    - "Python Software Foundation License"
+    - "Mozilla Public License 2.0 (MPL 2.0)"
+    
+  prohibited_licenses:
+    - "GPL-3.0"
+    - "AGPL-3.0"
+    - "LGPL-3.0"
+    - "GPL-2.0"
+    - "AGPL-1.0"
+    - "LGPL-2.1"
+    
+  requires_review:
+    - "LGPL-2.0"
+    - "EPL-1.0"
+    - "EPL-2.0"
+    - "CDDL-1.0"
+
+# DAST configuration
+dast_config:
+  target_urls:
+    - "http://localhost:8000"
+  
+  authentication:
+    type: "none"  # Options: none, basic, oauth, custom
+    
+  scan_policies:
+    baseline:
+      passive_scan: true
+      active_scan: false
+      max_duration: "10m"
+      
+    full:
+      passive_scan: true
+      active_scan: true
+      max_duration: "30m"
+      
+  excluded_urls:
+    - "*/logout"
+    - "*/admin/*"
+    - "*/static/*"
+    - "*/metrics"
+
+# Supply chain security
+supply_chain:
+  sbom_formats:
+    - "spdx-json"
+    - "cyclonedx-json"
+    - "syft-json"
+    
+  dependency_check:
+    enabled: true
+    check_updates: true
+    check_vulnerabilities: true
+    
+  provenance_verification:
+    enabled: false  # Enable when available
+    
+# Compliance frameworks
+compliance:
+  frameworks:
+    owasp_top10:
+      enabled: true
+      version: "2021"
+      
+    cis_controls:
+      enabled: true
+      version: "8"
+      
+    nist_csf:
+      enabled: true
+      version: "1.1"
+      
+    pci_dss:
+      enabled: false
+      
+    sox:
+      enabled: false
+      
+    gdpr:
+      enabled: true
+
+# Reporting configuration
+reporting:
+  formats:
+    - "json"
+    - "sarif"
+    - "html"
+    - "csv"
+    
+  destinations:
+    - "github_security_tab"
+    - "artifacts"
+    
+  retention:
+    days: 90
+    
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: ""
+      channel: "#security"
+      
+    email:
+      enabled: false
+      recipients: []
+      
+    github_issues:
+      enabled: true
+      labels: ["security", "vulnerability"]
+      
+# Quality gates
+quality_gates:
+  block_deployment:
+    critical_vulnerabilities: true
+    high_vulnerabilities_threshold: 2
+    license_violations: true
+    secrets_detected: true
+    
+  require_approval:
+    medium_vulnerabilities_threshold: 10
+    new_dependencies: false
+    
+# Scanning schedule
+schedule:
+  full_scan:
+    cron: "0 2 * * 1"  # Weekly on Monday at 2 AM
+    
+  dependency_scan:
+    cron: "0 8 * * *"  # Daily at 8 AM
+    
+  license_scan:
+    cron: "0 10 * * 1"  # Weekly on Monday at 10 AM

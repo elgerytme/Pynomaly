@@ -1,0 +1,106 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: anomaly-detection-alerts
+  namespace: monitoring
+  labels:
+    app: anomaly-detection
+    tier: monitoring
+spec:
+  groups:
+  - name: anomaly-detection.rules
+    rules:
+    - alert: AnomalyDetectionAPIDown
+      expr: up{job="anomaly-detection-api"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: anomaly-detection
+        component: api
+      annotations:
+        summary: "Anomaly Detection API is down"
+        description: "The Anomaly Detection API has been down for more than 1 minute."
+        runbook_url: "https://docs.company.com/runbooks/anomaly-detection-api-down"
+
+    - alert: HighErrorRate
+      expr: rate(http_requests_total{job="anomaly-detection-api",status=~"5.."}[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        service: anomaly-detection
+        component: api
+      annotations:
+        summary: "High error rate detected"
+        description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes."
+        runbook_url: "https://docs.company.com/runbooks/high-error-rate"
+
+    - alert: HighResponseTime
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="anomaly-detection-api"}[5m])) > 1
+      for: 5m
+      labels:
+        severity: warning
+        service: anomaly-detection
+        component: api
+      annotations:
+        summary: "High response time detected"
+        description: "95th percentile response time is {{ $value | humanizeDuration }} for the last 5 minutes."
+        runbook_url: "https://docs.company.com/runbooks/high-response-time"
+
+    - alert: ModelInferenceSlowdown
+      expr: model_inference_duration_seconds > 5
+      for: 2m
+      labels:
+        severity: warning
+        service: anomaly-detection
+        component: ml-model
+      annotations:
+        summary: "Model inference is slow"
+        description: "Model inference time is {{ $value | humanizeDuration }}, which is above the 5-second threshold."
+        runbook_url: "https://docs.company.com/runbooks/model-inference-slow"
+
+    - alert: LowModelAccuracy
+      expr: model_accuracy_score < 0.8
+      for: 10m
+      labels:
+        severity: critical
+        service: anomaly-detection
+        component: ml-model
+      annotations:
+        summary: "Model accuracy has dropped"
+        description: "Model accuracy is {{ $value | humanizePercentage }}, which is below the 80% threshold."
+        runbook_url: "https://docs.company.com/runbooks/low-model-accuracy"
+
+    - alert: HighMemoryUsage
+      expr: (container_memory_usage_bytes{pod=~"anomaly-detection-.*"} / container_spec_memory_limit_bytes{pod=~"anomaly-detection-.*"}) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        service: anomaly-detection
+      annotations:
+        summary: "High memory usage"
+        description: "Pod {{ $labels.pod }} memory usage is {{ $value | humanizePercentage }} of the limit."
+        runbook_url: "https://docs.company.com/runbooks/high-memory-usage"
+
+    - alert: DatabaseConnectionsHigh
+      expr: pg_stat_database_numbackends{datname="anomaly_detection"} > 80
+      for: 5m
+      labels:
+        severity: warning
+        service: anomaly-detection
+        component: database
+      annotations:
+        summary: "High number of database connections"
+        description: "Database has {{ $value }} active connections, which is above the warning threshold."
+        runbook_url: "https://docs.company.com/runbooks/high-db-connections"
+
+    - alert: RedisMemoryHigh
+      expr: (redis_memory_used_bytes / redis_memory_max_bytes) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        service: anomaly-detection
+        component: cache
+      annotations:
+        summary: "Redis memory usage is high"
+        description: "Redis memory usage is {{ $value | humanizePercentage }} of the maximum."
+        runbook_url: "https://docs.company.com/runbooks/redis-memory-high"

@@ -1,0 +1,96 @@
+# Staging environment values
+# Production-like settings with reduced resources
+
+image:
+  tag: "staging"
+  pullPolicy: Always
+
+replicaCount: 2
+
+resources:
+  limits:
+    cpu: 750m
+    memory: 768Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  hosts:
+    - host: staging.anomaly-detection.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: anomaly-detection-staging-tls
+      hosts:
+        - staging.anomaly-detection.io
+
+env:
+  - name: ENVIRONMENT
+    value: "staging"
+  - name: LOG_LEVEL
+    value: "INFO"
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+networkPolicy:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+# Staging database settings
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "staging-secure-password"
+    database: "anomaly_detection_staging"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 150m
+      limits:
+        memory: 512Mi
+        cpu: 300m
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "redis-staging-password"
+  master:
+    persistence:
+      enabled: true
+      size: 4Gi
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m

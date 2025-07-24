@@ -1,0 +1,141 @@
+version: 2
+updates:
+  # Python dependencies in main requirements files
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    reviewers:
+      - "platform-team"
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Python dependencies in anomaly detection package
+  - package-ecosystem: "pip"
+    directory: "/src/packages/data/anomaly_detection"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:30"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    reviewers:
+      - "platform-team"
+    labels:
+      - "dependencies"
+      - "anomaly-detection"
+    commit-message:
+      prefix: "deps(anomaly-detection)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "08:00"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    reviewers:
+      - "platform-team"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci/cd"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "08:00"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    reviewers:
+      - "platform-team"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "docker"
+
+  # JavaScript/TypeScript dependencies (if any)
+  - package-ecosystem: "npm"
+    directory: "/src/workspace_configs"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "08:00"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    reviewers:
+      - "platform-team"
+    labels:
+      - "dependencies"
+      - "javascript"
+    commit-message:
+      prefix: "deps(js)"
+
+  # Terraform dependencies (if any)
+  - package-ecosystem: "terraform"
+    directory: "/deploy/terraform"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "08:00"
+    open-pull-requests-limit: 3
+    target-branch: "develop"
+    reviewers:
+      - "platform-team"
+    labels:
+      - "dependencies"
+      - "terraform"
+      - "infrastructure"
+    commit-message:
+      prefix: "infra"
+
+# Security updates
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 3
+    target-branch: "develop"
+    labels:
+      - "security"
+      - "dependencies"
+    commit-message:
+      prefix: "security"
+    # Only security updates in daily schedule
+    allow:
+      - dependency-type: "all"
+        update-type: "security"
+
+# Global ignore list for dependencies that cause issues
+ignore:
+  # Ignore major version updates for critical dependencies
+  - dependency-name: "python"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "fastapi"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "sqlalchemy"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "pandas"
+    update-types: ["version-update:semver-major"]
+  - dependency-name: "numpy"
+    update-types: ["version-update:semver-major"]
+  
+  # Temporarily ignore problematic packages
+  # Add packages here that are causing CI failures

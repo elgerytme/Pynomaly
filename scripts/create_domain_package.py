@@ -244,25 +244,18 @@ def create_directory_structure(package_name: str, base_path: str = "src/packages
     
     # Standard domain package structure
     directories = [
-        "core/domain/entities",
-        "core/domain/services", 
-        "core/domain/value_objects",
-        "core/domain/repositories",
-        "core/domain/exceptions",
-        "core/application/services",
-        "core/application/use_cases",
-        "core/dto",
-        "infrastructure/adapters",
-        "infrastructure/persistence",
-        "infrastructure/external",
-        "interfaces/api/endpoints",
-        "interfaces/cli/commands",
-        "interfaces/web/handlers",
-        "interfaces/python_sdk/examples",
+        f"src/{package_name}/application",
+        f"src/{package_name}/domain",
+        f"src/{package_name}/infrastructure", 
+        f"src/{package_name}/presentation",
         "tests/unit",
         "tests/integration",
         "tests/e2e",
-        "docs"
+        "docs",
+        "build",
+        "deploy",
+        "examples",
+        "scripts"
     ]
     
     # Create directories
@@ -270,12 +263,94 @@ def create_directory_structure(package_name: str, base_path: str = "src/packages
         full_path = package_path / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
         
-        # Create __init__.py files for Python directories
-        if not dir_path.startswith(("tests", "docs")):
+        # Create __init__.py files for Python directories  
+        if 'src' in str(full_path) and not dir_path.startswith(("tests", "docs")):
             init_file = full_path / "__init__.py"
             if not init_file.exists():
                 init_file.touch()
     
+    # Create main package files
+    package_src = package_path / "src" / package_name
+    (package_src / "__init__.py").write_text(f'''"""{package_name.replace('_', ' ').title()} Package
+
+{package_name.replace('_', ' ').title()} domain package.
+"""
+
+__version__ = "0.1.0"
+''')
+    (package_src / "cli.py").write_text(f'''"""CLI interface for {package_name}"""
+
+import click
+
+@click.group()
+def cli():
+    """{package_name.replace('_', ' ').title()} CLI"""
+    pass
+
+@cli.command()
+def status():
+    """Check {package_name} status"""
+    click.echo("{package_name.replace('_', ' ').title()} Status: OK")
+
+if __name__ == "__main__":
+    cli()
+''')
+    (package_src / "server.py").write_text(f'''"""Server for {package_name}"""
+
+from fastapi import FastAPI
+
+app = FastAPI(title="{package_name.replace('_', ' ').title()} Service")
+
+@app.get("/health")
+async def health_check():
+    return {{"status": "healthy", "service": "{package_name}"}}
+
+@app.get("/")
+async def root():
+    return {{"message": "{package_name.replace('_', ' ').title()} Service"}}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+''')
+    (package_src / "worker.py").write_text(f'''"""Worker for {package_name}"""
+
+import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class {package_name.title().replace('_', '')}Worker:
+    """Background worker for {package_name} tasks"""
+    
+    def __init__(self):
+        self.running = False
+    
+    async def start(self):
+        """Start the worker"""
+        self.running = True
+        logger.info("{package_name.replace('_', ' ').title()} Worker started")
+        
+        while self.running:
+            await self.process_tasks()
+            await asyncio.sleep(10)
+    
+    async def process_tasks(self):
+        """Process pending tasks"""
+        # TODO: Implement task processing logic
+        pass
+    
+    def stop(self):
+        """Stop the worker"""
+        self.running = False
+        logger.info("{package_name.replace('_', ' ').title()} Worker stopped")
+
+if __name__ == "__main__":
+    worker = {package_name.title().replace('_', '')}Worker()
+    asyncio.run(worker.start())
+''')
+
     print(f"✅ Created directory structure for {package_name}")
     return package_path
 
@@ -301,105 +376,12 @@ def create_pyproject_toml(package_path: Path, package_name: str, description: st
     deps_str = ',\n    '.join([f'"{dep}"' for dep in dependencies])
     dev_deps_str = ',\n    '.join([f'"{dep}"' for dep in dev_dependencies])
     
-    content = f'''[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "{package_name}"
+    content = f'''[project]
+name = "{package_name}"  
 version = "0.1.0"
-description = "{description}"
-authors = [{{name = "Domain Team", email = "team@{package_name.replace('_', '-')}.io"}}]
-license = {{text = "MIT"}}
-readme = "README.md"
-requires-python = ">=3.11"
-keywords = ["{package_name}", "domain", "architecture"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Typing :: Typed",
-]
-
-dependencies = [
-    {deps_str}
-]
-
-[project.optional-dependencies]
-dev = [
-    {dev_deps_str}
-]
-
-test = [
-    {dev_deps_str}
-]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
-
-[tool.ruff]
-target-version = "py311"
-line-length = 88
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["B008"]
-
-[tool.mypy]
-python_version = "3.11"
-strict = true
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-
-[tool.pytest.ini_options]
-minversion = "8.0"
-addopts = [
-    "--strict-markers",
-    "--strict-config",
-    "--verbose",
-    "--tb=short",
-    "--disable-warnings",
-    "--color=yes",
-    "--cov=src",
-    "--cov-report=html",
-    "--cov-report=term-missing",
-    "--cov-fail-under=80",
-]
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*", "*Tests"]
-python_functions = ["test_*"]
-
-[tool.coverage.run]
-source = ["src"]
-branch = true
-omit = [
-    "*/tests/*",
-    "*/test_*",
-    "*/__pycache__/*",
-    "*/site-packages/*",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if 0:",
-    "if __name__ == .__main__.:",
-    "class .*\\bProtocol\\):",
-    "@(abc\\.)?abstractmethod",
-]
+packages = ["src/{package_name}"]
 '''
     
     pyproject_path = package_path / "pyproject.toml"
@@ -546,6 +528,31 @@ MIT License - see LICENSE file for details.
         f.write(content)
     
     print(f"✅ Created README.md for {package_name}")
+
+def create_buck_file(package_path: Path, package_name: str):
+    """Create BUCK file for the domain package"""
+    
+    content = f'''# BUCK file for {package_name} package
+# Generated using Pynomaly standardized Buck2 templates
+
+load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+
+pynomaly_python_package(
+    name = "{package_name}",
+    domain = "data",  # Default to data domain - adjust as needed
+    visibility = ["PUBLIC"],
+    cli_entry_points = {{
+        "{package_name}": "src/{package_name}.cli:main",
+        "{package_name}-server": "src/{package_name}.server:main", 
+        "{package_name}-worker": "src/{package_name}.worker:main",
+    }},
+)'''
+    
+    buck_path = package_path / "BUCK"
+    with open(buck_path, 'w') as f:
+        f.write(content)
+    
+    print(f"✅ Created BUCK file for {package_name}")
 
 def create_license(package_path: Path):
     """Create LICENSE file for the domain package"""
@@ -1173,6 +1180,7 @@ def main():
     package_path = create_directory_structure(args.name, args.base_path)
     create_pyproject_toml(package_path, args.name, description, intelligent_suggestions)
     create_readme(package_path, args.name, description)
+    create_buck_file(package_path, args.name)
     create_license(package_path)
     
     # Create intelligent or sample files
