@@ -33,6 +33,7 @@ from .infrastructure.monitoring import (
     get_performance_monitor
 )
 from .infrastructure.monitoring.dashboard import get_monitoring_dashboard
+from .infrastructure.middleware.rate_limiting import create_rate_limit_middleware
 
 logger = get_logger(__name__)
 settings = get_settings()
@@ -127,13 +128,101 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_app() -> FastAPI:
     """Create FastAPI application instance."""
     app = FastAPI(
-        title="Anomaly Detection API",
-        description="Production-ready API for ML-based anomaly detection with ensemble methods and model management",
-        version="0.3.0",
+        title="🔍 Anomaly Detection Platform API",
+        description="""
+        ## Enterprise-Grade Anomaly Detection Platform
+        
+        A comprehensive REST API for machine learning-based anomaly detection with advanced features:
+        
+        ### 🚀 Key Features
+        - **Multiple Algorithms**: Isolation Forest, One-Class SVM, Local Outlier Factor, Ensemble Methods
+        - **Real-time Processing**: Streaming detection with WebSocket support
+        - **Model Management**: Training, versioning, deployment, and performance monitoring
+        - **Health Monitoring**: System health checks and performance metrics
+        - **Batch Processing**: Efficient processing of large datasets
+        
+        ### 🔧 API Capabilities
+        - **Async Processing**: High-performance async endpoints
+        - **Input Validation**: Comprehensive request validation with Pydantic
+        - **Error Handling**: Structured error responses with detailed context
+        - **Rate Limiting**: Production-ready request throttling
+        - **Monitoring**: Built-in metrics collection and health checks
+        
+        ### 📊 Supported Algorithms
+        - `isolation_forest`: Isolation Forest (default)
+        - `one_class_svm`: One-Class Support Vector Machine
+        - `local_outlier_factor`: Local Outlier Factor
+        - `ensemble`: Ensemble of multiple algorithms
+        
+        ### 🏗️ Architecture
+        Built with Domain-Driven Design principles using FastAPI, Pydantic, and modern Python patterns.
+        
+        ---
+        
+        **Version**: 2.0.0 | **Environment**: Production Ready | **License**: MIT
+        """,
+        version="2.0.0",
         lifespan=lifespan,
         docs_url="/docs",
         redoc_url="/redoc",
-        openapi_url="/openapi.json"
+        openapi_url="/openapi.json",
+        contact={
+            "name": "Anomaly Detection Platform Team",
+            "email": "support@anomaly-detection.io",
+            "url": "https://github.com/monorepo/anomaly_detection"
+        },
+        license_info={
+            "name": "MIT License",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        servers=[
+            {
+                "url": "http://localhost:8000",
+                "description": "Development server"
+            },
+            {
+                "url": "https://api.anomaly-detection.io",
+                "description": "Production server"
+            }
+        ],
+        tags_metadata=[
+            {
+                "name": "detection",
+                "description": "Anomaly detection operations. Core functionality for detecting anomalies in datasets.",
+                "externalDocs": {
+                    "description": "Detection Documentation",
+                    "url": "https://docs.anomaly-detection.io/detection"
+                }
+            },
+            {
+                "name": "models",
+                "description": "Model management operations. Train, deploy, and manage anomaly detection models.",
+                "externalDocs": {
+                    "description": "Model Management Guide",
+                    "url": "https://docs.anomaly-detection.io/models"
+                }
+            },
+            {
+                "name": "streaming",
+                "description": "Real-time streaming detection. Process data streams with concept drift monitoring.",
+                "externalDocs": {
+                    "description": "Streaming Guide",
+                    "url": "https://docs.anomaly-detection.io/streaming"
+                }
+            },
+            {
+                "name": "health",
+                "description": "Health checks and system monitoring. Monitor API health and performance metrics."
+            },
+            {
+                "name": "workers",
+                "description": "Background job management. Manage and monitor background processing tasks."
+            },
+            {
+                "name": "monitoring",
+                "description": "Performance monitoring and metrics. Real-time system and model performance tracking."
+            }
+        ]
     )
     
     # Add CORS middleware
@@ -144,6 +233,15 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Add rate limiting middleware
+    rate_limit_middleware = create_rate_limit_middleware(
+        requests_per_minute=60,  # 60 requests per minute per IP
+        requests_per_hour=1000,  # 1000 requests per hour per IP  
+        burst_limit=10,          # 10 burst requests
+        exempt_paths=["/docs", "/redoc", "/openapi.json", "/health", "/"]
+    )
+    app.middleware("http")(rate_limit_middleware)
     
     # Add error handling middleware
     @app.middleware("http")

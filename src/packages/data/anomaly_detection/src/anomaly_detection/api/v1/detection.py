@@ -5,7 +5,8 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, root_validator
+from typing_extensions import Literal
 
 from ...domain.services.detection_service import DetectionService
 from ...domain.services.ensemble_service import EnsembleService
@@ -16,11 +17,84 @@ logger = get_logger(__name__)
 
 
 class DetectionRequest(BaseModel):
-    """Request model for anomaly detection."""
-    data: List[List[float]] = Field(..., description="Input data as list of feature vectors")
-    algorithm: str = Field(default="isolation_forest", description="Detection algorithm to use")
-    contamination: float = Field(default=0.1, ge=0.001, le=0.5, description="Expected contamination rate")
-    parameters: Dict[str, Any] = Field(default_factory=dict, description="Algorithm-specific parameters")
+    """Request model for anomaly detection with comprehensive validation."""
+    data: List[List[float]] = Field(
+        ..., 
+        description="Input data as list of feature vectors",
+        min_items=1,
+        max_items=10000
+    )
+    algorithm: Literal[
+        "isolation_forest", 
+        "one_class_svm", 
+        "local_outlier_factor",
+        "lof",
+        "ocsvm",
+        "iforest"
+    ] = Field(
+        default="isolation_forest", 
+        description="Detection algorithm to use"
+    )
+    contamination: float = Field(
+        default=0.1, 
+        ge=0.001, 
+        le=0.5, 
+        description="Expected contamination rate (0.1% to 50%)"
+    )
+    parameters: Dict[str, Any] = Field(
+        default_factory=dict, 
+        description="Algorithm-specific parameters"
+    )
+    
+    @validator('data')
+    def validate_data_structure(cls, v):
+        if not v:
+            raise ValueError("Data cannot be empty")
+        
+        # Check that all rows have the same number of features
+        feature_count = len(v[0]) if v else 0
+        if feature_count == 0:
+            raise ValueError("Data must have at least one feature")
+        if feature_count > 1000:
+            raise ValueError("Maximum 1000 features supported")
+            
+        for i, row in enumerate(v):
+            if len(row) != feature_count:
+                raise ValueError(f"Row {i} has {len(row)} features, expected {feature_count}")
+            if not all(isinstance(x, (int, float)) and not np.isnan(x) and np.isfinite(x) for x in row):
+                raise ValueError(f"Row {i} contains invalid values (NaN or infinite)")
+        
+        return v
+    
+    @validator('algorithm')
+    def normalize_algorithm_name(cls, v):
+        # Normalize algorithm names
+        algorithm_mapping = {
+            "iforest": "isolation_forest",
+            "lof": "local_outlier_factor", 
+            "ocsvm": "one_class_svm"
+        }
+        return algorithm_mapping.get(v, v)
+    
+    @validator('parameters')
+    def validate_parameters(cls, v, values):
+        if 'algorithm' not in values:
+            return v
+            
+        algorithm = values['algorithm']
+        
+        # Algorithm-specific parameter validation
+        if algorithm == "isolation_forest":
+            if 'n_estimators' in v and (v['n_estimators'] < 1 or v['n_estimators'] > 1000):
+                raise ValueError("n_estimators must be between 1 and 1000")
+        elif algorithm == "local_outlier_factor":
+            if 'n_neighbors' in v and (v['n_neighbors'] < 1 or v['n_neighbors'] > 100):
+                raise ValueError("n_neighbors must be between 1 and 100")
+        elif algorithm == "one_class_svm":
+            if 'gamma' in v and v['gamma'] not in ['scale', 'auto'] and (v['gamma'] <= 0):
+                raise ValueError("gamma must be 'scale', 'auto', or a positive number")
+        
+        return v
 
 
 class EnsembleRequest(BaseModel):
