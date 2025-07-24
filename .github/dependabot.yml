@@ -18,7 +18,7 @@ updates:
       prefix: "deps"
       include: "scope"
 
-  # Python dependencies in anomaly detection package
+  # Python dependencies in detection package
   - package-ecosystem: "pip"
     directory: "/src/packages/data/anomaly_detection"
     schedule:
@@ -31,9 +31,9 @@ updates:
       - "platform-team"
     labels:
       - "dependencies"
-      - "anomaly-detection"
+      - "detection-platform"
     commit-message:
-      prefix: "deps(anomaly-detection)"
+      prefix: "deps(detection-platform)"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

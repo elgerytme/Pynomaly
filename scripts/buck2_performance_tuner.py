@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Buck2 Performance Tuning and Optimization Script
-Analyzes and optimizes Buck2 build performance for the Pynomaly monorepo
+Analyzes and optimizes Buck2 build performance for the Monorepo monorepo
 """
 
 import argparse

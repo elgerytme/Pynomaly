@@ -652,4 +652,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Note**: This monorepo demonstrates enterprise software engineering practices. The specific domain implementations (anomaly detection, etc.) serve as examples of how to structure complex business logic using clean architecture principles.
+**Note**: This monorepo demonstrates enterprise software engineering practices. The specific domain implementations (detection, etc.) serve as examples of how to structure complex business logic using clean architecture principles.

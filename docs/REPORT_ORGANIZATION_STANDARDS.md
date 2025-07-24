@@ -1,6 +1,6 @@
 # Report Organization Standards
 
-This document defines the standardized approach for organizing reports within the Pynomaly repository.
+This document defines the standardized approach for organizing reports within the Monorepo repository.
 
 ## Overview
 

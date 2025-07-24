@@ -129,7 +129,7 @@ docker-compose exec anomaly_detection-api bash
    git add .
    git commit -m "feat: add LSTM-based anomaly detector
    
-   - Implement LSTM autoencoder for time series anomaly detection
+   - Implement LSTM autoencoder for time series detection
    - Add comprehensive unit tests
    - Update documentation with usage examples"
    ```
@@ -184,7 +184,7 @@ docker-compose exec anomaly_detection-api bash
   - End-to-end tests
 
 ### 🌍 Algorithms
-- **What**: Implement new anomaly detection algorithms
+- **What**: Implement new detection algorithms
 - **Requirements**:
   - Literature review and references
   - Comparison with existing algorithms
@@ -378,7 +378,7 @@ class AnomalyDetector:
         """Detect anomalies in the provided dataset.
         
         Args:
-            data: Input dataset for anomaly detection
+            data: Input dataset for detection
             
         Returns:
             List of boolean values indicating anomalies
@@ -386,7 +386,7 @@ class AnomalyDetector:
         Raises:
             ValueError: If data is invalid
         """
-        logger.info(f"Running anomaly detection with {self.algorithm}")
+        logger.info(f"Running detection with {self.algorithm}")
         # Implementation here
         return []
 ```

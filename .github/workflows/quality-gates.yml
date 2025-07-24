@@ -358,7 +358,7 @@ jobs:
             </style>
         </head>
         <body>
-            <h1>Pynomaly Quality Gate Report</h1>
+            <h1>Monorepo Quality Gate Report</h1>
             <p><strong>Generated:</strong> {report['timestamp']}</p>
             
             <div class="metric">

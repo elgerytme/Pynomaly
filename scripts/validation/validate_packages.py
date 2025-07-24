@@ -2,7 +2,7 @@
 """
 Comprehensive Package Validation Script
 
-This script validates all packages in the Pynomaly monorepo to ensure they achieve 100% compliance
+This script validates all packages in the Monorepo monorepo to ensure they achieve 100% compliance
 with the required structure, domain-driven design patterns, and entry points.
 
 Requirements checked:
@@ -459,7 +459,7 @@ class PackageValidator:
     def _generate_markdown_report(self) -> str:
         """Generate markdown-formatted report."""
         report = []
-        report.append("# Pynomaly Monorepo - Comprehensive Package Validation Report")
+        report.append("# Monorepo Monorepo - Comprehensive Package Validation Report")
         report.append("")
         report.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         report.append(f"**Total packages validated:** {len(self.validation_results)}")

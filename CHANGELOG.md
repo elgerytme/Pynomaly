@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of data intelligence platform
 - Clean Architecture implementation with Domain-Driven Design
-- PyOD integration with 40+ anomaly detection algorithms
+- PyOD integration with 40+ detection algorithms
 - FastAPI REST API with 65+ endpoints
 - Progressive Web Application with HTMX and Tailwind CSS
 - Command-line interface with Typer and Rich formatting
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Neural Networks: AutoEncoder, Variational AutoEncoder, Deep SVDD
 - Ensemble Methods: Feature Bagging, Model Combination
 - Time Series: Seasonal Decomposition, Change Point Detection
-- Graph-based: PyGOD integration for network anomaly detection
+- Graph-based: PyGOD integration for network detection
 
 ### Infrastructure
 - Clean monorepo structure with package organization

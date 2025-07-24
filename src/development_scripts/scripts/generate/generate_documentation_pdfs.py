@@ -422,7 +422,7 @@ class DocumentationPDFGenerator:
                 results["failed"] += 1
 
         # Generate combined PDF
-        combined_output = self.output_dir / "Pynomaly_Complete_Documentation.pdf"
+        combined_output = self.output_dir / "Monorepo_Complete_Documentation.pdf"
         if self.generate_combined_pdf(markdown_files, combined_output):
             results["combined_pdf"] = str(combined_output)
 

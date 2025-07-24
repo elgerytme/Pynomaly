@@ -67,7 +67,7 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of '\bpynomaly\b' with 'anomaly_detection'
 
 ### scripts/priority_violation_fixes.py
-- Replaced 1 occurrences of '\bPynomaly\b' with 'Anomaly Detection Platform'
+- Replaced 1 occurrences of '\bMonorepo\b' with 'Anomaly Detection Platform'
 - Replaced 1 occurrences of '\bpynomaly\b' with 'anomaly_detection'
 
 ### scripts/replace_anomaly_detection_terminology.py
@@ -109,7 +109,7 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### scripts/targeted_priority_fixes.py
-- Replaced 1 occurrences of '\bPynomaly\b' with 'Anomaly Detection Platform'
+- Replaced 1 occurrences of '\bMonorepo\b' with 'Anomaly Detection Platform'
 - Replaced 1 occurrences of '\bpynomaly\b' with 'anomaly_detection'
 
 ### .github/workflows/docs-deploy.yml

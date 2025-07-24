@@ -5,13 +5,13 @@ version: "1.0"
 description: "Domain boundary rules enforcing clean architecture and domain isolation"
 
 # Core principle: Domain isolation for detection algorithms
-# Only the anomaly_detection package contains anomaly detection logic
+# Only the anomaly_detection package contains detection-specific logic
 # Other packages use generic interfaces and abstractions
 
 isolation_rules:
   description: "Packages that are completely isolated - no other packages can import from them"
   isolated_packages:
-    - anomaly_detection  # Anomaly detection domain - completely isolated
+    - anomaly_detection  # Detection domain - completely isolated
     - fraud_detection    # Future: Fraud detection domain
     - intrusion_detection # Future: Intrusion detection domain
   

@@ -39,7 +39,7 @@ docs-portal/
 │   │   └── learning-paths.md
 │   ├── packages/             # Package-specific documentation
 │   │   ├── index.md
-│   │   ├── anomaly-detection/
+│   │   ├── detection-platform/
 │   │   ├── machine-learning/
 │   │   ├── data-platform/
 │   │   ├── enterprise/
@@ -65,7 +65,7 @@ docs-portal/
 #### **Interactive Features:**
 - **Code Copy Buttons** - One-click code copying with feedback
 - **Executable Examples** - Simulated code execution with results
-- **Interactive Demos** - Hands-on anomaly detection demonstrations
+- **Interactive Demos** - Hands-on detection demonstrations
 - **Progress Tracking** - Learning path progress with local storage
 - **Contextual Search** - Page-aware search suggestions
 - **Mobile Optimization** - Touch gestures and responsive design
@@ -212,7 +212,7 @@ graph TB
 - **Hands-on Examples** - Executable code demonstrations
 - **Progress Tracking** - Saves learning progress locally
 - **Contextual Help** - Page-specific search suggestions
-- **Demo Integration** - Interactive anomaly detection demos
+- **Demo Integration** - Interactive detection demos
 - **Mobile Support** - Touch gestures and responsive layouts
 
 ---
@@ -288,7 +288,7 @@ python setup.py --deploy
 ### **Development Workflow**
 ```bash
 # Make changes to documentation
-vim docs/packages/anomaly-detection/algorithms.md
+vim docs/packages/detection-platform/algorithms.md
 
 # Test locally
 mkdocs serve --dev-addr localhost:8000
@@ -422,4 +422,4 @@ jobs:
 **✅ Unified Documentation Portal: COMPLETE**  
 **🎉 Result: Comprehensive Platform Documentation System**
 
-The anomaly detection platform now has a world-class documentation portal that provides unified access to all platform capabilities, with role-based learning paths, interactive features, and production-ready deployment. Users can efficiently discover, learn, and implement platform features through a single, cohesive interface.
+The detection platform now has a world-class documentation portal that provides unified access to all platform capabilities, with role-based learning paths, interactive features, and production-ready deployment. Users can efficiently discover, learn, and implement platform features through a single, cohesive interface.

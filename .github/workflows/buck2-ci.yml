@@ -154,7 +154,7 @@ jobs:
       matrix:
         cli-target:
           - data-engineering-cli
-          - anomaly-detection-cli
+          - detection-platform-cli
       fail-fast: false
     
     steps:
@@ -218,8 +218,8 @@ jobs:
 
     - name: Build complete monorepo
       run: |
-        echo "🏗️ Building complete anomaly detection monorepo..."
-        buck2 build //:anomaly-detection \
+        echo "🏗️ Building complete detection monorepo..."
+        buck2 build //:detection-platform \
           --config python.toolchain=system
 
     - name: Run all tests
@@ -231,7 +231,7 @@ jobs:
     - name: Validate dependency graph
       run: |
         echo "📊 Validating dependency relationships..."
-        buck2 cquery "deps(//:anomaly-detection)" --output-attribute buck.type
+        buck2 cquery "deps(//:detection-platform)" --output-attribute buck.type
 
     - name: Generate build report
       run: |

@@ -78,7 +78,7 @@ jobs:
           
           # Direct prompt for automated review
           direct_prompt: |
-            Please review this pull request for the anomaly_detection anomaly detection platform and provide feedback on:
+            Please review this pull request for the anomaly_detection detection platform and provide feedback on:
             - Python code quality and PEP 8 compliance
             - Clean Architecture pattern adherence
             - Type hints and documentation
@@ -277,7 +277,7 @@ jobs:
           
           # Custom instructions for Claude to customize its behavior for this project
           custom_instructions: |
-            This is the anomaly_detection anomaly detection platform repository.
+            This is the anomaly_detection detection platform repository.
             - Follow Python coding standards (PEP 8)
             - Ensure all new code has tests
             - Use type hints for function signatures

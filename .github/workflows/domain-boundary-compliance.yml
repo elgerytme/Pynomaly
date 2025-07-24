@@ -96,7 +96,7 @@ jobs:
           1. Review the [Domain Boundary Rules](DOMAIN_BOUNDARY_RULES.md)
           2. Follow the [Domain Compliance Plan](DOMAIN_COMPLIANCE_PLAN.md)
           3. Move domain-specific code to appropriate packages:
-             - \`anomaly_detection/\` for anomaly detection logic
+             - \`anomaly_detection/\` for detection logic
              - \`machine_learning/\` for ML infrastructure
              - \`data_science/\` for data science workflows
           4. Use generic abstractions in the \`software/\` package

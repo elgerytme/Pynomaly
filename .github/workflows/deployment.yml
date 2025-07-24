@@ -167,11 +167,11 @@ jobs:
       run: |
         echo "Creating staging deployment backup..."
         BACKUP_FILE="staging-backup-$(date +%Y%m%d-%H%M%S).yaml"
-        kubectl get deployment anomaly-detection-staging -o yaml > "$BACKUP_FILE" || echo "No existing deployment found"
+        kubectl get deployment detection-platform-staging -o yaml > "$BACKUP_FILE" || echo "No existing deployment found"
         
         # Also backup services and ingress
-        kubectl get service anomaly-detection-staging -o yaml >> "$BACKUP_FILE" 2>/dev/null || echo "No service found"
-        kubectl get ingress anomaly-detection-staging -o yaml >> "$BACKUP_FILE" 2>/dev/null || echo "No ingress found"
+        kubectl get service detection-platform-staging -o yaml >> "$BACKUP_FILE" 2>/dev/null || echo "No service found"
+        kubectl get ingress detection-platform-staging -o yaml >> "$BACKUP_FILE" 2>/dev/null || echo "No ingress found"
 
     - name: Deploy to staging
       run: |
@@ -183,15 +183,15 @@ jobs:
         fi
         
         # Update deployment with new image
-        kubectl set image deployment/anomaly-detection-staging \
-          anomaly-detection=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }} \
+        kubectl set image deployment/detection-platform-staging \
+          detection-platform=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }} \
           --context=staging
         
         # Wait for rollout to complete
-        kubectl rollout status deployment/anomaly-detection-staging --timeout=600s --context=staging
+        kubectl rollout status deployment/detection-platform-staging --timeout=600s --context=staging
         
         # Verify pods are running
-        kubectl get pods -l app=anomaly-detection --context=staging
+        kubectl get pods -l app=detection-platform --context=staging
         
         echo "Staging deployment completed successfully"
 
@@ -204,7 +204,7 @@ jobs:
         # Health check endpoints with retries
         echo "Checking application health..."
         for i in {1..5}; do
-          if curl -f -s https://staging.anomaly-detection.io/api/health/ready; then
+          if curl -f -s https://staging.detection-platform.io/api/health/ready; then
             echo "Ready check passed"
             break
           elif [ $i -eq 5 ]; then
@@ -217,11 +217,11 @@ jobs:
         done
         
         # Liveness check
-        curl -f -s https://staging.anomaly-detection.io/api/health/live || exit 1
+        curl -f -s https://staging.detection-platform.io/api/health/live || exit 1
         echo "Liveness check passed"
         
         # Application-specific health checks
-        curl -f -s https://staging.anomaly-detection.io/api/v1/health/ || exit 1
+        curl -f -s https://staging.detection-platform.io/api/v1/health/ || exit 1
         echo "Application health check passed"
         
         echo "All staging health checks passed"
@@ -237,7 +237,7 @@ jobs:
         # Run smoke tests against staging if they exist
         if [ -d "tests/smoke" ]; then
           pytest tests/smoke/ -v \
-            --base-url=https://staging.anomaly-detection.io \
+            --base-url=https://staging.detection-platform.io \
             --junitxml=staging-smoke-results.xml \
             --tb=short \
             --disable-warnings
@@ -247,7 +247,7 @@ jobs:
 import requests
 import sys
 try:
-    response = requests.get('https://staging.anomaly-detection.io/api/v1/health/', timeout=30)
+    response = requests.get('https://staging.detection-platform.io/api/v1/health/', timeout=30)
     response.raise_for_status()
     print('✅ Basic smoke test passed')
 except Exception as e:
@@ -316,22 +316,22 @@ except Exception as e:
         BACKUP_TIMESTAMP=$(date +%Y%m%d-%H%M%S)
         
         # Database backup (if PostgreSQL exists)
-        if kubectl get deployment anomaly-detection-postgres --context=production >/dev/null 2>&1; then
-          kubectl exec deployment/anomaly-detection-postgres --context=production -- \
+        if kubectl get deployment detection-platform-postgres --context=production >/dev/null 2>&1; then
+          kubectl exec deployment/detection-platform-postgres --context=production -- \
             pg_dump anomaly_detection > "prod-db-backup-$BACKUP_TIMESTAMP.sql"
           echo "Database backup created"
         fi
         
         # Deployment backup
-        kubectl get deployment anomaly-detection-production -o yaml \
+        kubectl get deployment detection-platform-production -o yaml \
           --context=production > "prod-deployment-backup-$BACKUP_TIMESTAMP.yaml" || \
           echo "No existing production deployment found"
         
         # Service and ingress backup
-        kubectl get service anomaly-detection-production -o yaml \
+        kubectl get service detection-platform-production -o yaml \
           --context=production >> "prod-deployment-backup-$BACKUP_TIMESTAMP.yaml" 2>/dev/null || \
           echo "No production service found"
-        kubectl get ingress anomaly-detection-production -o yaml \
+        kubectl get ingress detection-platform-production -o yaml \
           --context=production >> "prod-deployment-backup-$BACKUP_TIMESTAMP.yaml" 2>/dev/null || \
           echo "No production ingress found"
         
@@ -374,20 +374,20 @@ except Exception as e:
         fi
         
         # Rolling update with zero downtime
-        kubectl set image deployment/anomaly-detection-production \
-          anomaly-detection=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }} \
+        kubectl set image deployment/detection-platform-production \
+          detection-platform=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.deployment-strategy.outputs.image-tag }} \
           --context=production
         
         # Wait for rollout with extended timeout for production
-        kubectl rollout status deployment/anomaly-detection-production \
+        kubectl rollout status deployment/detection-platform-production \
           --timeout=900s --context=production
         
         # Verify deployment health
-        kubectl get pods -l app=anomaly-detection --context=production
-        kubectl get deployment anomaly-detection-production --context=production
+        kubectl get pods -l app=detection-platform --context=production
+        kubectl get deployment detection-platform-production --context=production
         
         # Check resource utilization after deployment
-        kubectl top pods -l app=anomaly-detection --context=production || echo "Metrics not available"
+        kubectl top pods -l app=detection-platform --context=production || echo "Metrics not available"
         
         echo "✅ Production deployment completed successfully"
 
@@ -402,7 +402,7 @@ except Exception as e:
         
         # Ready check with retries
         for i in {1..10}; do
-          if curl -f -s https://anomaly-detection.io/api/health/ready; then
+          if curl -f -s https://detection-platform.io/api/health/ready; then
             echo "✅ Ready check passed"
             break
           elif [ $i -eq 10 ]; then
@@ -415,16 +415,16 @@ except Exception as e:
         done
         
         # Liveness check
-        curl -f -s https://anomaly-detection.io/api/health/live || exit 1
+        curl -f -s https://detection-platform.io/api/health/live || exit 1
         echo "✅ Liveness check passed"
         
         # Application health check
-        curl -f -s https://anomaly-detection.io/api/v1/health/ || exit 1
+        curl -f -s https://detection-platform.io/api/v1/health/ || exit 1
         echo "✅ Application health check passed"
         
         # Database connectivity check (if deployment exists)
-        if kubectl get deployment anomaly-detection-production --context=production >/dev/null 2>&1; then
-          kubectl exec deployment/anomaly-detection-production --context=production -- \
+        if kubectl get deployment detection-platform-production --context=production >/dev/null 2>&1; then
+          kubectl exec deployment/detection-platform-production --context=production -- \
             python -c "
 try:
     from anomaly_detection.infrastructure.database import get_session
@@ -453,7 +453,7 @@ except Exception as e:
           [ ! -d "$TEST_DIR" ] && TEST_DIR="tests/smoke"
           
           pytest "$TEST_DIR" -v \
-            --base-url=https://anomaly-detection.io \
+            --base-url=https://detection-platform.io \
             --junitxml=production-smoke-results.xml \
             --tb=short \
             --disable-warnings \
@@ -472,7 +472,7 @@ def test_critical_endpoints():
         '/api/health/live'
     ]
     
-    base_url = 'https://anomaly-detection.io'
+    base_url = 'https://detection-platform.io'
     
     for endpoint in endpoints:
         try:

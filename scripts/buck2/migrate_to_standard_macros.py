@@ -356,7 +356,7 @@ class BuckMacroMigrator:
 
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description="Migrate BUCK files to use standardized Pynomaly macros")
+    parser = argparse.ArgumentParser(description="Migrate BUCK files to use standardized Monorepo macros")
     parser = argparse.ArgumentParser(description="Migrate BUCK files to use standardized Anomaly Detection macros")
     parser.add_argument('--repository-root', type=str, default=".", help="Repository root directory")
     parser.add_argument('--dry-run', action='store_true', help="Show what would be changed without making changes")

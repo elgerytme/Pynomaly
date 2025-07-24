@@ -1,6 +1,6 @@
 # Testing Configuration
 
-This directory contains testing configurations for the Pynomaly monorepo.
+This directory contains testing configurations for the Monorepo monorepo.
 
 ## Files
 

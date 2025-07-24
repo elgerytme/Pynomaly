@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production Load Testing Framework for Pynomaly.
+Production Load Testing Framework for Monorepo.
 Tests system performance under production-scale loads with comprehensive metrics.
 """
 

@@ -285,11 +285,11 @@ class PackageValidator:
         return "\n".join(report)
 
 if __name__ == "__main__":
-    validator = PackageValidator("/mnt/c/Users/andre/Pynomaly/src/packages")
+    validator = PackageValidator("/mnt/c/Users/andre/Monorepo/src/packages")
     report = validator.generate_report()
     
     # Save report
-    with open("/mnt/c/Users/andre/Pynomaly/PACKAGE_VALIDATION_REPORT.md", "w") as f:
+    with open("/mnt/c/Users/andre/Monorepo/PACKAGE_VALIDATION_REPORT.md", "w") as f:
         f.write(report)
     
     print("\n" + "=" * 50)

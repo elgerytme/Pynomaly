@@ -316,7 +316,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install k6
     
-    - name: Start anomaly detection API
+    - name: Start detection API
       run: |
         export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/anomaly_detection_test
         export REDIS_URL=redis://localhost:6379

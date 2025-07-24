@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Buck2 Remote Caching Setup Script
-Configures Buck2 remote caching for the Pynomaly monorepo
+Configures Buck2 remote caching for the Monorepo monorepo
 """
 
 import argparse
@@ -187,7 +187,7 @@ http {
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Setup Buck2 remote caching for Pynomaly monorepo"
+        description="Setup Buck2 remote caching for Monorepo monorepo"
     )
     parser.add_argument(
         "--type", 

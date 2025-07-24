@@ -1,6 +1,6 @@
 schemaVersion: 2.0.0
 
-# Container Structure Tests for anomaly_detection Docker Images
+# Container Structure Tests for Detection Service Docker Images
 # Validates security, configuration, and functionality
 
 commandTests:
