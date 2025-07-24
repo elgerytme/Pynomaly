@@ -1,0 +1,372 @@
+# Production Kubernetes Services for MLOps Platform
+
+# Model Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-server
+  namespace: mlops-production
+  labels:
+    app: model-server
+    component: inference
+spec:
+  selector:
+    app: model-server
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+  type: ClusterIP
+---
+# Feature Store Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: feature-store
+  namespace: mlops-production
+  labels:
+    app: feature-store
+    component: data
+spec:
+  selector:
+    app: feature-store
+  ports:
+  - name: http
+    port: 8082
+    targetPort: 8082
+    protocol: TCP
+  - name: metrics
+    port: 8083
+    targetPort: 8083
+    protocol: TCP
+  type: ClusterIP
+---
+# Inference Engine Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-engine
+  namespace: mlops-production
+  labels:
+    app: inference-engine
+    component: inference
+spec:
+  selector:
+    app: inference-engine
+  ports:
+  - name: http
+    port: 8084
+    targetPort: 8084
+    protocol: TCP
+  - name: metrics
+    port: 8085
+    targetPort: 8085
+    protocol: TCP
+  type: ClusterIP
+---
+# A/B Testing Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ab-testing-service
+  namespace: mlops-production
+  labels:
+    app: ab-testing-service
+    component: experimentation
+spec:
+  selector:
+    app: ab-testing-service
+  ports:
+  - name: http
+    port: 8086
+    targetPort: 8086
+    protocol: TCP
+  - name: metrics
+    port: 8087
+    targetPort: 8087
+    protocol: TCP
+  type: ClusterIP
+---
+# Model Governance Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-governance
+  namespace: mlops-production
+  labels:
+    app: model-governance
+    component: governance
+spec:
+  selector:
+    app: model-governance
+  ports:
+  - name: http
+    port: 8088
+    targetPort: 8088
+    protocol: TCP
+  - name: metrics
+    port: 8089
+    targetPort: 8089
+    protocol: TCP
+  type: ClusterIP
+---
+# AutoML Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: automl-service
+  namespace: mlops-production
+  labels:
+    app: automl-service
+    component: automation
+spec:
+  selector:
+    app: automl-service
+  ports:
+  - name: http
+    port: 8090
+    targetPort: 8090
+    protocol: TCP
+  - name: metrics
+    port: 8091
+    targetPort: 8091
+    protocol: TCP
+  type: ClusterIP
+---
+# Explainability Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: explainability-service
+  namespace: mlops-production
+  labels:
+    app: explainability-service
+    component: explainability
+spec:
+  selector:
+    app: explainability-service
+  ports:
+  - name: http
+    port: 8092
+    targetPort: 8092
+    protocol: TCP
+  - name: metrics
+    port: 8093
+    targetPort: 8093
+    protocol: TCP
+  type: ClusterIP
+---
+# API Gateway Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: mlops-production
+  labels:
+    app: api-gateway
+    component: gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  - name: metrics
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  type: ClusterIP
+---
+# Load Balancer Service for API Gateway (External Access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-external
+  namespace: mlops-production
+  labels:
+    app: api-gateway
+    component: gateway
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "alb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-west-2:123456789:certificate/certificate-id"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/health"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval-seconds: "15"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout-seconds: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthy-threshold-count: "2"
+    service.beta.kubernetes.io/aws-load-balancer-unhealthy-threshold-count: "3"
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 8000
+    protocol: TCP
+  type: LoadBalancer
+---
+# Monitoring Services for Prometheus
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-metrics
+  namespace: mlops-production
+  labels:
+    app: prometheus-metrics
+    component: monitoring
+spec:
+  selector:
+    app: model-server
+  ports:
+  - name: model-server-metrics
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+  clusterIP: None
+---
+# Service for Feature Store Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: feature-store-metrics
+  namespace: mlops-production
+  labels:
+    app: feature-store-metrics
+    component: monitoring
+spec:
+  selector:
+    app: feature-store
+  ports:
+  - name: metrics
+    port: 8083
+    targetPort: 8083
+    protocol: TCP
+  clusterIP: None
+---
+# Service for Inference Engine Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-engine-metrics
+  namespace: mlops-production
+  labels:
+    app: inference-engine-metrics
+    component: monitoring
+spec:
+  selector:
+    app: inference-engine
+  ports:
+  - name: metrics
+    port: 8085
+    targetPort: 8085
+    protocol: TCP
+  clusterIP: None
+---
+# Service for A/B Testing Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: ab-testing-metrics
+  namespace: mlops-production
+  labels:
+    app: ab-testing-metrics
+    component: monitoring
+spec:
+  selector:
+    app: ab-testing-service
+  ports:
+  - name: metrics
+    port: 8087
+    targetPort: 8087
+    protocol: TCP
+  clusterIP: None
+---
+# Service for Model Governance Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-governance-metrics
+  namespace: mlops-production
+  labels:
+    app: model-governance-metrics
+    component: monitoring
+spec:
+  selector:
+    app: model-governance
+  ports:
+  - name: metrics
+    port: 8089
+    targetPort: 8089
+    protocol: TCP
+  clusterIP: None
+---
+# Service for AutoML Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: automl-metrics
+  namespace: mlops-production
+  labels:
+    app: automl-metrics
+    component: monitoring
+spec:
+  selector:
+    app: automl-service
+  ports:
+  - name: metrics
+    port: 8091
+    targetPort: 8091
+    protocol: TCP
+  clusterIP: None
+---
+# Service for Explainability Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: explainability-metrics
+  namespace: mlops-production
+  labels:
+    app: explainability-metrics
+    component: monitoring
+spec:
+  selector:
+    app: explainability-service
+  ports:
+  - name: metrics
+    port: 8093
+    targetPort: 8093
+    protocol: TCP
+  clusterIP: None
+---
+# Service for API Gateway Metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-metrics
+  namespace: mlops-production
+  labels:
+    app: api-gateway-metrics
+    component: monitoring
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - name: metrics
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  clusterIP: None

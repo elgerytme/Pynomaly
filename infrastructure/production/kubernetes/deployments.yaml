@@ -1,0 +1,830 @@
+# Production Kubernetes Deployments for MLOps Platform
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-production
+  labels:
+    name: mlops-production
+    environment: production
+---
+# Model Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-server
+  namespace: mlops-production
+  labels:
+    app: model-server
+    component: inference
+    version: v1.0.0
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: model-server
+  template:
+    metadata:
+      labels:
+        app: model-server
+        component: inference
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: cpu-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: cpu-optimized
+        effect: NoSchedule
+      containers:
+      - name: model-server
+        image: mlops/model-server:v1.0.0
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8081
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: host
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        - name: S3_MODELS_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: s3-models-bucket
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: model-cache
+          mountPath: /app/cache
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: model-cache
+        emptyDir:
+          sizeLimit: 10Gi
+---
+# Feature Store Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-store
+  namespace: mlops-production
+  labels:
+    app: feature-store
+    component: data
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: feature-store
+  template:
+    metadata:
+      labels:
+        app: feature-store
+        component: data
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: memory-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: memory-optimized
+        effect: NoSchedule
+      containers:
+      - name: feature-store
+        image: mlops/feature-store:v1.0.0
+        ports:
+        - containerPort: 8082
+          name: http
+        - containerPort: 8083
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: host
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        - name: S3_DATA_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: s3-data-bucket
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "1500m"
+          limits:
+            memory: "8Gi"
+            cpu: "3000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 45
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8082
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: feature-cache
+          mountPath: /app/cache
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: feature-cache
+        emptyDir:
+          sizeLimit: 20Gi
+---
+# Inference Engine Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-engine
+  namespace: mlops-production
+  labels:
+    app: inference-engine
+    component: inference
+    version: v1.0.0
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: inference-engine
+  template:
+    metadata:
+      labels:
+        app: inference-engine
+        component: inference
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: cpu-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: cpu-optimized
+        effect: NoSchedule
+      containers:
+      - name: inference-engine
+        image: mlops/inference-engine:v1.0.0
+        ports:
+        - containerPort: 8084
+          name: http
+        - containerPort: 8085
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MODEL_SERVER_URL
+          value: "http://model-server:8080"
+        - name: FEATURE_STORE_URL
+          value: "http://feature-store:8082"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8084
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+# A/B Testing Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ab-testing-service
+  namespace: mlops-production
+  labels:
+    app: ab-testing-service
+    component: experimentation
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ab-testing-service
+  template:
+    metadata:
+      labels:
+        app: ab-testing-service
+        component: experimentation
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: cpu-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: cpu-optimized
+        effect: NoSchedule
+      containers:
+      - name: ab-testing-service
+        image: mlops/ab-testing-service:v1.0.0
+        ports:
+        - containerPort: 8086
+          name: http
+        - containerPort: 8087
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: host
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8086
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8086
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+# Model Governance Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-governance
+  namespace: mlops-production
+  labels:
+    app: model-governance
+    component: governance
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: model-governance
+  template:
+    metadata:
+      labels:
+        app: model-governance
+        component: governance
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: cpu-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: cpu-optimized
+        effect: NoSchedule
+      containers:
+      - name: model-governance
+        image: mlops/model-governance:v1.0.0
+        ports:
+        - containerPort: 8088
+          name: http
+        - containerPort: 8089
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: host
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8088
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8088
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+# AutoML Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: automl-service
+  namespace: mlops-production
+  labels:
+    app: automl-service
+    component: automation
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: automl-service
+  template:
+    metadata:
+      labels:
+        app: automl-service
+        component: automation
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: gpu-enabled
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+      containers:
+      - name: automl-service
+        image: mlops/automl-service:v1.0.0
+        ports:
+        - containerPort: 8090
+          name: http
+        - containerPort: 8091
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: host
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+        - name: S3_MODELS_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: s3-models-bucket
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "16Gi"
+            cpu: "4000m"
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8090
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: model-workspace
+          mountPath: /app/workspace
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: model-workspace
+        emptyDir:
+          sizeLimit: 50Gi
+---
+# Explainability Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explainability-service
+  namespace: mlops-production
+  labels:
+    app: explainability-service
+    component: explainability
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: explainability-service
+  template:
+    metadata:
+      labels:
+        app: explainability-service
+        component: explainability
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: memory-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: memory-optimized
+        effect: NoSchedule
+      containers:
+      - name: explainability-service
+        image: mlops/explainability-service:v1.0.0
+        ports:
+        - containerPort: 8092
+          name: http
+        - containerPort: 8093
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MODEL_SERVER_URL
+          value: "http://model-server:8080"
+        - name: FEATURE_STORE_URL
+          value: "http://feature-store:8082"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "1000m"
+          limits:
+            memory: "8Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8092
+          initialDelaySeconds: 45
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8092
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: explanation-cache
+          mountPath: /app/cache
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: explanation-cache
+        emptyDir:
+          sizeLimit: 15Gi
+---
+# API Gateway Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: mlops-production
+  labels:
+    app: api-gateway
+    component: gateway
+    version: v1.0.0
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        component: gateway
+        version: v1.0.0
+    spec:
+      nodeSelector:
+        node-type: cpu-optimized
+      tolerations:
+      - key: node-type
+        operator: Equal
+        value: cpu-optimized
+        effect: NoSchedule
+      containers:
+      - name: api-gateway
+        image: mlops/api-gateway:v1.0.0
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8001
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MODEL_SERVER_URL
+          value: "http://model-server:8080"
+        - name: FEATURE_STORE_URL
+          value: "http://feature-store:8082"
+        - name: INFERENCE_ENGINE_URL
+          value: "http://inference-engine:8084"
+        - name: AB_TESTING_URL
+          value: "http://ab-testing-service:8086"
+        - name: GOVERNANCE_URL
+          value: "http://model-governance:8088"
+        - name: AUTOML_URL
+          value: "http://automl-service:8090"
+        - name: EXPLAINABILITY_URL
+          value: "http://explainability-service:8092"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+# ConfigMap for Application Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: mlops-production
+data:
+  s3-data-bucket: "production-mlops-data"
+  s3-models-bucket: "production-mlops-models"
+  s3-artifacts-bucket: "production-mlops-artifacts"
+  log-level: "INFO"
+  environment: "production"
+  metrics-enabled: "true"
+  tracing-enabled: "true"
+  cache-ttl: "3600"
+  max-request-size: "10MB"
+  request-timeout: "30s"
+---
+# Secret for Database Credentials (values should be injected via external secret management)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-credentials
+  namespace: mlops-production
+type: Opaque
+data:
+  host: cG9zdGdyZXMtZW5kcG9pbnQ=  # base64 encoded placeholder
+  username: bWxvcHNfYWRtaW4=  # base64 encoded placeholder
+  password: cGFzc3dvcmQ=  # base64 encoded placeholder
+---
+# Secret for Redis Credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-credentials
+  namespace: mlops-production
+type: Opaque
+data:
+  url: cmVkaXM6Ly9yZWRpcy1lbmRwb2ludDo2Mzc5  # base64 encoded placeholder

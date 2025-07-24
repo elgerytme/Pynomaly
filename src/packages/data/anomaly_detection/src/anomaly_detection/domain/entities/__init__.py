@@ -4,6 +4,7 @@ from .detection_result import DetectionResult
 from .anomaly import Anomaly, AnomalyType, AnomalySeverity
 from .dataset import Dataset, DatasetType, DataFormat, DatasetMetadata
 from .model import Model, ModelMetadata, ModelStatus, ModelType, SerializationFormat
+from .explanation import Explanation, ExplanationType, ExplanationMethod, FeatureContribution
 
 __all__ = [
     "DetectionResult",
@@ -18,5 +19,9 @@ __all__ = [
     "ModelMetadata",
     "ModelStatus",
     "ModelType", 
-    "SerializationFormat"
+    "SerializationFormat",
+    "Explanation",
+    "ExplanationType",
+    "ExplanationMethod",
+    "FeatureContribution"
 ]
