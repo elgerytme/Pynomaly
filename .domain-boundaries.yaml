@@ -18,7 +18,7 @@ domains:
     description: "Data processing, analytics, and management"
     packages:
       - data/analytics
-      - data/anomaly_detection
+      - data/detection_service
       - data/data
       - data/data_analytics
       - data/data_architecture

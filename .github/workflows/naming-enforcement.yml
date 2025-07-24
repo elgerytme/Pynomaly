@@ -1,0 +1,97 @@
+name: Naming Convention Enforcement
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  naming-enforcement:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Run naming convention checks
+      run: |
+        echo "🔍 Checking naming conventions..."
+        python tools/naming_enforcement/naming_rules.py --validate-ci
+      
+    - name: Generate violation report (on failure)
+      if: failure()
+      run: |
+        echo "📄 Generating detailed violation report..."
+        python tools/naming_enforcement/naming_rules.py --check
+      
+    - name: Upload violation report
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: naming-violations-report
+        path: tools/naming_enforcement/naming_enforcement_report.md
+        retention-days: 30
+
+  pre-commit-hooks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install pre-commit
+      run: |
+        pip install pre-commit
+        
+    - name: Set up pre-commit naming hooks
+      run: |
+        # Add naming enforcement to pre-commit hooks
+        cat >> .pre-commit-config.yaml << 'EOF'
+        
+        # Naming Convention Enforcement
+        - repo: local
+          hooks:
+          - id: naming-conventions
+            name: Naming Convention Enforcement
+            entry: python tools/naming_enforcement/naming_rules.py --validate-ci
+            language: system
+            files: '\\.(py|bzl|md|rst|txt|toml|yaml|yml|json|sh|bash|js|ts)$'
+            pass_filenames: false
+            always_run: true
+            
+          - id: no-pynomaly
+            name: Prevent 'pynomaly' usage
+            entry: 'Forbidden term "pynomaly" found. Use generic terms instead.'
+            language: pygrep
+            args: ['--ignore-case']
+            files: '\\.(py|bzl|md|rst|txt|toml|yaml|yml|json|sh|bash|js|ts)$'
+            types: [text]
+            
+          - id: anomaly-restriction
+            name: Restrict 'anomaly' to anomaly_detection package
+            entry: 'Term "anomaly" found outside anomaly_detection package. Use "outlier" or "detection" instead.'
+            language: pygrep
+            args: ['--ignore-case']
+            files: '^(?!.*anomaly_detection).*\\.(py|bzl|md|rst|txt|toml|yaml|yml|json|sh|bash|js|ts)$'
+            types: [text]
+        EOF
+        
+    - name: Test pre-commit hooks
+      run: |
+        echo "🧪 Testing pre-commit naming hooks..."
+        pre-commit run naming-conventions --all-files || true
+        pre-commit run no-pynomaly --all-files || true

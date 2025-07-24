@@ -1,10 +1,15 @@
 # BUCK file for data package
+# Generated using standardized Buck2 templates
 
-python_library(
+load("//tools/buck:monorepo_python_package.bzl", "monorepo_python_package")
+
+monorepo_python_package(
     name = "data",
-    srcs = glob(["src/**/*.py"]),
+    domain = "core",  # Core data abstractions
     visibility = ["PUBLIC"],
-    deps = [
-        # Add dependencies here
-    ],
+    cli_entry_points = {
+        "data": "src/data.cli:main",
+        "data-server": "src/data.server:main", 
+        "data-worker": "src/data.worker:main",
+    },
 )

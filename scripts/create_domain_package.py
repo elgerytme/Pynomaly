@@ -533,11 +533,11 @@ def create_buck_file(package_path: Path, package_name: str):
     """Create BUCK file for the domain package"""
     
     content = f'''# BUCK file for {package_name} package
-# Generated using Pynomaly standardized Buck2 templates
+# Generated using standardized Buck2 templates
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:monorepo_python_package.bzl", "monorepo_python_package")
 
-pynomaly_python_package(
+monorepo_python_package(
     name = "{package_name}",
     domain = "data",  # Default to data domain - adjust as needed
     visibility = ["PUBLIC"],

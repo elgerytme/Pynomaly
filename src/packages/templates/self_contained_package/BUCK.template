@@ -1,9 +1,9 @@
 # BUCK file for {package_name} package
-# Generated using Pynomaly standardized Buck2 templates
+# Generated using standardized Buck2 templates
 
-load("//tools/buck:pynomaly_python_package.bzl", "pynomaly_python_package")
+load("//tools/buck:monorepo_python_package.bzl", "monorepo_python_package")
 
-pynomaly_python_package(
+monorepo_python_package(
     name = "{package_name}",
     domain = "{domain}",  # Specify domain: "ai", "data", "enterprise", or "core"
     visibility = ["PUBLIC"],

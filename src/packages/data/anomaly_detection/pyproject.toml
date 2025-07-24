@@ -78,7 +78,6 @@ test = [
     "faker>=33.1.0",
     "httpx>=0.25.0",
     "testcontainers>=3.7.0",
-    "test_utilities @ file:///src/shared/test_utilities",
 ]
 
 # Documentation dependencies

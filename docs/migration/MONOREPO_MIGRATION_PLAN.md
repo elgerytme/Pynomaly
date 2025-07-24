@@ -2,14 +2,14 @@
 
 ## Overview
 
-This document outlines the migration from the current hybrid structure to a Buck2-first monorepo with selective Nx integration for developer experience.
+This document outlines the migration from the current hybrid structure to a Buck2-first monorepo architecture.
 
 ## Current State Assessment
 
 ### Existing Structure
 - **Dual package system**: `src/anomaly_detection/` (monolithic) + `src/packages/` (monorepo)
 - **17 packages** in the current workspace
-- **Mixed build systems**: Hatch + Buck2 + Nx configurations
+- **Mixed build systems**: Hatch + Buck2 configurations
 - **Complex dependencies** with some circular references
 
 ### Issues Identified
@@ -26,11 +26,11 @@ This document outlines the migration from the current hybrid structure to a Buck
 - [x] Created comprehensive testing framework (`tools/buck/testing.bzl`)
 - [x] Set up package-specific BUCK files for core packages
 
-### Phase 2: Nx Integration for Developer Experience ✅ COMPLETED
-- [x] Created Nx configuration (`nx.json`) for visualization and scaffolding
-- [x] Implemented Buck2-Nx synchronization tool (`tools/nx/sync-nx-buck2.py`)
-- [x] Created package generator with Buck2 integration (`tools/nx/generators/package-generator.py`)
-- [x] Set up Nx project configurations for existing packages
+### Phase 2: Package Template System ✅ COMPLETED
+- [x] Created standardized package templates with Buck2 integration
+- [x] Implemented advanced Buck2 macros (`tools/buck/monorepo_python_package.bzl`)
+- [x] Created package generators with Buck2-native configurations
+- [x] Set up domain-specific build configurations for all packages
 
 ### Phase 3: Package Structure Consolidation 🚧 IN PROGRESS
 
@@ -156,46 +156,46 @@ buck2 build //:build-all            # Complete monorepo
 buck2 test //:test-all              # All test suites
 ```
 
-## Nx Integration (Selective)
+## Developer Experience Features
 
-### Developer Experience Features
-1. **Dependency visualization**: `nx graph`
-2. **Affected package detection**: `nx affected:test`
-3. **Package scaffolding**: `nx generate package`
-4. **Workspace management**: Project templates and generators
+### Buck2-Native Developer Tools
+1. **Dependency visualization**: `buck2 uquery deps(...)`
+2. **Affected package detection**: `buck2 build @mode/dev` with incremental builds
+3. **Package scaffolding**: Standardized package templates and generators
+4. **Workspace management**: Buck2 macros and domain-specific configurations
 
-### Nx Commands
+### Developer Commands
 ```bash
 # Visualize dependencies
-nx graph
+buck2 uquery "deps(//src/packages/...)"
 
-# Test only affected packages
-nx affected:test
+# Build only affected packages (incremental)
+buck2 build @mode/dev //src/packages/...
 
-# Generate new package
-nx generate package --name=new-feature --type=application
+# Generate new package using templates
+python scripts/create_domain_package.py --name=new-feature --domain=data
 
-# Sync Nx with Buck2
-nx run workspace-tools:buck2-sync
+# Sync and validate Buck2 configuration
+buck2 audit rules
 ```
 
 ## Migration Commands
 
-### Automated Migration
+### Automated Package Setup
 ```bash
-# 1. Sync current state
-python tools/nx/sync-nx-buck2.py
-
-# 2. Test current Buck2 setup
+# 1. Validate current Buck2 setup
 buck2 build //:build-all
 buck2 test //:test-all
 
-# 3. Generate missing package configurations
+# 2. Generate missing BUCK files for packages
 for package in src/packages/*/; do
   if [ ! -f "$package/BUCK" ]; then
-    nx generate package --name=$(basename $package) --type=library
+    python scripts/create_domain_package.py --name=$(basename $package) --domain=data
   fi
 done
+
+# 3. Update existing packages to use standardized macros
+python scripts/migrate_package_structure.py --update-buck-files
 ```
 
 ### Manual Verification
@@ -270,7 +270,8 @@ buck2 build //:build-all --show-output
 If issues arise, revert using:
 ```bash
 git checkout main -- .buckconfig BUCK src/packages/*/BUCK
-rm -rf tools/buck tools/nx
+# Clean up any temporary migration files if needed
+rm -rf tmp/migration
 ```
 
 The existing Hatch-based build system remains functional as fallback.
