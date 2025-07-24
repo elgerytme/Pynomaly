@@ -1,31 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="1" skipped="0" tests="8" time="24.599" timestamp="2025-07-24T13:39:14.401012-04:00" hostname="rocm-socm"><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_dependency_injection_container" time="0.006"><error message="failed on setup with &quot;TypeError: Model.__init__() got an unexpected keyword argument 'id'&quot;">tests/integration/test_hexagonal_architecture.py:55: in mock_ml_training
-    mock_model = Model(
-E   TypeError: Model.__init__() got an unexpected keyword argument 'id'</error></testcase><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_interface_based_architecture" time="0.001"><error message="failed on setup with &quot;TypeError: Model.__init__() got an unexpected keyword argument 'id'&quot;">tests/integration/test_hexagonal_architecture.py:55: in mock_ml_training
-    mock_model = Model(
-E   TypeError: Model.__init__() got an unexpected keyword argument 'id'</error></testcase><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_experiment_tracking_integration" time="0.001"><error message="failed on setup with &quot;TypeError: Model.__init__() got an unexpected keyword argument 'id'&quot;">tests/integration/test_hexagonal_architecture.py:55: in mock_ml_training
-    mock_model = Model(
-E   TypeError: Model.__init__() got an unexpected keyword argument 'id'</error></testcase><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_model_registry_integration" time="0.001"><error message="failed on setup with &quot;TypeError: Model.__init__() got an unexpected keyword argument 'id'&quot;">tests/integration/test_hexagonal_architecture.py:55: in mock_ml_training
-    mock_model = Model(
-E   TypeError: Model.__init__() got an unexpected keyword argument 'id'</error></testcase><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_error_handling" time="0.001"><error message="failed on setup with &quot;TypeError: Model.__init__() got an unexpected keyword argument 'id'&quot;">tests/integration/test_hexagonal_architecture.py:55: in mock_ml_training
-    mock_model = Model(
-E   TypeError: Model.__init__() got an unexpected keyword argument 'id'</error></testcase><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_domain_service_refactoring" time="0.027"><failure message="AssertionError: Regex pattern did not match.&#10; Regex: 'Model version 1 not found'&#10; Input: 'Variant percentages must sum to 100%, got 50.0%'">tests/integration/test_hexagonal_architecture.py:307: in test_domain_service_refactoring
-    await ab_service.create_test(config, created_by="test_user")
-src/anomaly_detection/domain/services/ab_testing_service.py:215: in create_test
-    await self._validate_test_config(config)
-src/anomaly_detection/domain/services/ab_testing_service.py:244: in _validate_test_config
-    raise ValueError(f"Variant percentages must sum to 100%, got {total_percentage}%")
-E   ValueError: Variant percentages must sum to 100%, got 50.0%
-
-During handling of the above exception, another exception occurred:
-tests/integration/test_hexagonal_architecture.py:306: in test_domain_service_refactoring
-    with pytest.raises(ValueError, match="Model version 1 not found"):
-E   AssertionError: Regex pattern did not match.
-E    Regex: 'Model version 1 not found'
-E    Input: 'Variant percentages must sum to 100%, got 50.0%'</failure></testcase><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_stub_implementations_available" time="0.092" /><testcase classname="tests.integration.test_hexagonal_architecture.TestHexagonalArchitecture" name="test_stub_functionality" time="0.001"><error message="failed on setup with &quot;AttributeError: 'dict' object has no attribute 'feature_names'&quot;">tests/integration/test_hexagonal_architecture.py:43: in sample_dataset
-    return Dataset(
-&lt;string&gt;:8: in __init__
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.764" timestamp="2025-07-24T13:42:31.368198-04:00" hostname="rocm-socm"><testcase classname="" name="tests.integration.test_hexagonal_architecture" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/integration/test_hexagonal_architecture.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/python.py:498: in importtestmodule
+    mod = import_path(
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
     ???
-src/anomaly_detection/domain/entities/dataset.py:75: in __post_init__
-    if self.metadata.feature_names is None:
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   AttributeError: 'dict' object has no attribute 'feature_names'</error></testcase></testsuite></testsuites>
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests/integration/test_hexagonal_architecture.py:12: in &lt;module&gt;
+    from anomaly_detection.infrastructure.container.container import Container
+src/anomaly_detection/infrastructure/container/container.py:13: in &lt;module&gt;
+    from anomaly_detection.domain.interfaces.ml_operations import (
+src/anomaly_detection/domain/interfaces/__init__.py:10: in &lt;module&gt;
+    from .ml_operations import (
+E   ModuleNotFoundError: No module named 'anomaly_detection.domain.interfaces.ml_operations'</error></testcase></testsuite></testsuites>

@@ -40,10 +40,19 @@ class TestHexagonalArchitecture:
         np.random.seed(42)
         data = np.random.normal(0, 1, (100, 3))
         
+        from anomaly_detection.domain.entities.dataset import DatasetMetadata
+        
+        metadata = DatasetMetadata(
+            name="test_dataset",
+            description="Test dataset for integration tests",
+            source="test",
+            feature_names=["feature_1", "feature_2", "feature_3"]
+        )
+        
         return Dataset(
             data=data,
             feature_names=["feature_1", "feature_2", "feature_3"],
-            metadata={"source": "test", "samples": 100}
+            metadata=metadata
         )
     
     @pytest.fixture
@@ -52,16 +61,25 @@ class TestHexagonalArchitecture:
         mock = AsyncMock(spec=MLModelTrainingPort)
         
         # Mock training result
-        mock_model = Model(
-            id="test_model_123",
+        from anomaly_detection.domain.entities.model import ModelMetadata, ModelStatus
+        
+        mock_metadata = ModelMetadata(
+            model_id="test_model_123",
             name="test_isolation_forest",
             algorithm="isolation_forest",
-            parameters={"contamination": 0.1},
-            model_object=Mock(),
-            created_at=datetime.now(),
             version="1.0.0",
-            metrics={"accuracy": 0.85, "precision": 0.80, "recall": 0.90},
-            metadata={"test": True}
+            status=ModelStatus.TRAINED,
+            hyperparameters={"contamination": 0.1},
+            accuracy=0.85,
+            precision=0.80,
+            recall=0.90,
+            f1_score=0.85,
+            description="Test model"
+        )
+        
+        mock_model = Model(
+            metadata=mock_metadata,
+            model_object=Mock()
         )
         
         mock_result = TrainingResult(
@@ -284,7 +302,7 @@ class TestHexagonalArchitecture:
             model_registry=mock_model_registry
         )
         
-        # Create test configuration
+        # Create test configuration with 2 variants to satisfy validation
         config = ABTestConfig(
             test_name="test_ab_experiment",
             description="Test A/B experiment",
@@ -293,6 +311,13 @@ class TestHexagonalArchitecture:
                     variant_id="variant_a",
                     name="Variant A",
                     model_id="model_a",
+                    model_version=1,
+                    traffic_percentage=50.0
+                ),
+                TestVariant(
+                    variant_id="variant_b",
+                    name="Variant B",
+                    model_id="model_b",
                     model_version=1,
                     traffic_percentage=50.0
                 )

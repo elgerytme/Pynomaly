@@ -1,65 +1,74 @@
-"""Machine Learning Operations Interfaces (Ports).
+"""ML Operations interfaces for the anomaly detection domain.
 
-This module defines the abstract interfaces for machine learning operations
-that the anomaly detection domain requires. These interfaces represent the
-"ports" in hexagonal architecture, defining contracts for external ML services
-without coupling to specific implementations.
-
-Following DDD principles, these interfaces belong to the domain layer and
-define what the domain needs from external ML capabilities.
+This module defines the interfaces (ports) that the domain layer uses to
+interact with machine learning operations like training, evaluation, and
+model management. These interfaces decouple the domain from specific
+ML library implementations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
 
-from ..entities.model import Model
-from ..entities.dataset import Dataset
-from ..entities.detection_result import DetectionResult
+from anomaly_detection.domain.entities.dataset import Dataset
+from anomaly_detection.domain.entities.model import Model
 
 
 class ModelStatus(Enum):
-    """Status of a machine learning model."""
+    """Status of a model operation."""
+    PENDING = "pending"
     TRAINING = "training"
     TRAINED = "trained"
+    EVALUATING = "evaluating"
+    EVALUATED = "evaluated"
+    FAILED = "failed"
     DEPLOYED = "deployed"
     DEPRECATED = "deprecated"
-    FAILED = "failed"
 
 
 class OptimizationObjective(Enum):
-    """Objective for hyperparameter optimization."""
-    MAXIMIZE_F1 = "maximize_f1"
+    """Optimization objectives for hyperparameter tuning."""
+    MAXIMIZE_ACCURACY = "maximize_accuracy"
     MAXIMIZE_PRECISION = "maximize_precision"
     MAXIMIZE_RECALL = "maximize_recall"
+    MAXIMIZE_F1 = "maximize_f1"
     MINIMIZE_FALSE_POSITIVES = "minimize_false_positives"
-    MINIMIZE_TRAINING_TIME = "minimize_training_time"
+    MINIMIZE_FALSE_NEGATIVES = "minimize_false_negatives"
+    CUSTOM = "custom"
 
 
 @dataclass
 class TrainingRequest:
-    """Request for training a machine learning model."""
+    """Request for model training."""
     algorithm_name: str
     training_data: Dataset
-    parameters: Dict[str, Any]
     validation_data: Optional[Dataset] = None
+    parameters: Dict[str, Any] = None
     optimization_objective: Optional[OptimizationObjective] = None
     max_training_time_seconds: Optional[int] = None
     created_by: str = "system"
+    
+    def __post_init__(self):
+        if self.parameters is None:
+            self.parameters = {}
 
 
 @dataclass
 class TrainingResult:
-    """Result of model training operation."""
+    """Result of model training."""
     model: Model
     training_metrics: Dict[str, float]
-    validation_metrics: Optional[Dict[str, float]]
-    training_duration_seconds: float
-    feature_importance: Optional[Dict[str, float]]
-    model_artifacts: Dict[str, Any]
-    status: ModelStatus
+    validation_metrics: Optional[Dict[str, float]] = None
+    training_duration_seconds: float = 0.0
+    feature_importance: Optional[Dict[str, float]] = None
+    model_artifacts: Dict[str, Any] = None
+    status: ModelStatus = ModelStatus.TRAINED
+    
+    def __post_init__(self):
+        if self.model_artifacts is None:
+            self.model_artifacts = {}
 
 
 @dataclass
@@ -67,12 +76,16 @@ class HyperparameterOptimizationRequest:
     """Request for hyperparameter optimization."""
     algorithm_name: str
     training_data: Dataset
-    validation_data: Dataset
-    parameter_space: Dict[str, Any]
-    optimization_objective: OptimizationObjective
-    max_trials: int = 100
+    validation_data: Optional[Dataset] = None
+    parameter_space: Dict[str, Any] = None
+    optimization_objective: OptimizationObjective = OptimizationObjective.MAXIMIZE_F1
+    max_evaluations: int = 50
     max_time_seconds: Optional[int] = None
     created_by: str = "system"
+    
+    def __post_init__(self):
+        if self.parameter_space is None:
+            self.parameter_space = {}
 
 
 @dataclass
@@ -80,9 +93,11 @@ class OptimizationResult:
     """Result of hyperparameter optimization."""
     best_parameters: Dict[str, Any]
     best_score: float
+    best_model: Model
     optimization_history: List[Dict[str, Any]]
-    total_trials: int
+    total_evaluations: int
     optimization_duration_seconds: float
+    status: ModelStatus = ModelStatus.TRAINED
 
 
 @dataclass
@@ -90,31 +105,34 @@ class ModelEvaluationRequest:
     """Request for model evaluation."""
     model: Model
     test_data: Dataset
-    evaluation_metrics: List[str]
-    generate_explanations: bool = False
+    evaluation_metrics: List[str] = None
+    created_by: str = "system"
+    
+    def __post_init__(self):
+        if self.evaluation_metrics is None:
+            self.evaluation_metrics = ["accuracy", "precision", "recall", "f1_score"]
 
 
 @dataclass
 class EvaluationResult:
     """Result of model evaluation."""
     metrics: Dict[str, float]
-    confusion_matrix: Optional[List[List[int]]]
-    feature_importance: Optional[Dict[str, float]]
-    prediction_explanations: Optional[List[Dict[str, Any]]]
-    evaluation_duration_seconds: float
+    confusion_matrix: Optional[List[List[int]]] = None
+    roc_curve: Optional[Dict[str, List[float]]] = None
+    precision_recall_curve: Optional[Dict[str, List[float]]] = None
+    feature_importance: Optional[Dict[str, float]] = None
+    evaluation_duration_seconds: float = 0.0
+    status: ModelStatus = ModelStatus.EVALUATED
 
+
+# ML Operations Interfaces (Ports)
 
 class MLModelTrainingPort(ABC):
-    """Port for machine learning model training operations.
+    """Interface for ML model training operations."""
     
-    This interface defines the contract for training anomaly detection models
-    using external ML libraries and frameworks. Implementations should handle
-    the translation between domain concepts and specific ML library APIs.
-    """
-
     @abstractmethod
     async def train_model(self, request: TrainingRequest) -> TrainingResult:
-        """Train a machine learning model for anomaly detection.
+        """Train a model with the given parameters.
         
         Args:
             request: Training request with algorithm, data, and parameters
@@ -124,28 +142,27 @@ class MLModelTrainingPort(ABC):
             
         Raises:
             TrainingError: If training fails
-            ValidationError: If request parameters are invalid
         """
         pass
-
+    
     @abstractmethod
     async def optimize_hyperparameters(
         self, 
         request: HyperparameterOptimizationRequest
     ) -> OptimizationResult:
-        """Optimize hyperparameters for a given algorithm.
+        """Optimize hyperparameters for the given algorithm.
         
         Args:
             request: Optimization request with search space and objective
             
         Returns:
-            Optimization result with best parameters and history
+            Optimization result with best parameters and model
             
         Raises:
             OptimizationError: If optimization fails
         """
         pass
-
+    
     @abstractmethod
     async def evaluate_model(self, request: ModelEvaluationRequest) -> EvaluationResult:
         """Evaluate a trained model on test data.
@@ -154,45 +171,25 @@ class MLModelTrainingPort(ABC):
             request: Evaluation request with model and test data
             
         Returns:
-            Evaluation result with metrics and optional explanations
+            Evaluation result with metrics and analysis
             
         Raises:
             EvaluationError: If evaluation fails
         """
         pass
-
-    @abstractmethod
-    async def predict_batch(
-        self, 
-        model: Model, 
-        data: Dataset
-    ) -> DetectionResult:
-        """Make batch predictions using a trained model.
-        
-        Args:
-            model: Trained model to use for predictions
-            data: Input data for predictions
-            
-        Returns:
-            Detection result with predictions and scores
-            
-        Raises:
-            PredictionError: If prediction fails
-        """
-        pass
-
+    
     @abstractmethod
     async def get_supported_algorithms(self) -> List[str]:
         """Get list of supported algorithms.
         
         Returns:
-            List of algorithm names supported by this implementation
+            List of algorithm names
         """
         pass
-
+    
     @abstractmethod
     async def get_algorithm_parameters(self, algorithm_name: str) -> Dict[str, Any]:
-        """Get parameter schema for a specific algorithm.
+        """Get parameter schema for an algorithm.
         
         Args:
             algorithm_name: Name of the algorithm
@@ -207,139 +204,94 @@ class MLModelTrainingPort(ABC):
 
 
 class MLModelRegistryPort(ABC):
-    """Port for machine learning model registry operations.
+    """Interface for ML model registry operations."""
     
-    This interface defines the contract for storing, retrieving, and managing
-    trained models. It provides model versioning and metadata management
-    capabilities.
-    """
-
     @abstractmethod
     async def register_model(
         self, 
         model: Model, 
-        metadata: Dict[str, Any]
+        tags: Optional[Dict[str, str]] = None
     ) -> str:
-        """Register a new model in the registry.
+        """Register a trained model in the registry.
         
         Args:
             model: Trained model to register
-            metadata: Additional metadata for the model
+            tags: Optional tags for the model
             
         Returns:
-            Unique model ID assigned by the registry
+            Model ID in the registry
             
         Raises:
-            RegistrationError: If model registration fails
+            RegistrationError: If registration fails
         """
         pass
-
+    
     @abstractmethod
-    async def get_model(self, model_id: str) -> Optional[Model]:
-        """Retrieve a model by its ID.
+    async def retrieve_model(self, model_id: str) -> Model:
+        """Retrieve a model from the registry.
         
         Args:
-            model_id: Unique identifier of the model
+            model_id: ID of the model to retrieve
             
         Returns:
-            Model if found, None otherwise
+            Retrieved model
             
         Raises:
-            RetrievalError: If model retrieval fails
+            RetrievalError: If model not found or retrieval fails
         """
         pass
-
+    
     @abstractmethod
-    async def list_models(
+    async def query_models(
         self, 
         filters: Optional[Dict[str, Any]] = None
-    ) -> List[Model]:
-        """List models with optional filtering.
+    ) -> List[Dict[str, Any]]:
+        """Query models in the registry.
         
         Args:
-            filters: Optional filters (algorithm, status, created_by, etc.)
+            filters: Optional filters for the query
             
         Returns:
-            List of models matching the filters
+            List of model metadata
             
         Raises:
-            QueryError: If listing operation fails
+            QueryError: If query fails
         """
         pass
-
+    
     @abstractmethod
-    async def update_model_status(self, model_id: str, status: ModelStatus) -> None:
-        """Update the status of a model.
+    async def update_model(
+        self, 
+        model_id: str, 
+        updates: Dict[str, Any]
+    ) -> None:
+        """Update model metadata.
         
         Args:
-            model_id: Unique identifier of the model
-            status: New status to set
+            model_id: ID of the model to update
+            updates: Updates to apply
             
         Raises:
-            UpdateError: If status update fails
+            UpdateError: If update fails
         """
         pass
-
+    
     @abstractmethod
     async def delete_model(self, model_id: str) -> None:
         """Delete a model from the registry.
         
         Args:
-            model_id: Unique identifier of the model to delete
+            model_id: ID of the model to delete
             
         Raises:
-            DeletionError: If model deletion fails
-        """
-        pass
-
-    @abstractmethod
-    async def create_model_version(
-        self, 
-        model_id: str, 
-        version_metadata: Dict[str, Any]
-    ) -> str:
-        """Create a new version of an existing model.
-        
-        Args:
-            model_id: Base model identifier
-            version_metadata: Metadata for the new version
-            
-        Returns:
-            Version identifier
-            
-        Raises:
-            VersionCreationError: If version creation fails
+            DeletionError: If deletion fails
         """
         pass
 
 
 class MLFeatureEngineeringPort(ABC):
-    """Port for feature engineering and data preprocessing operations.
+    """Interface for feature engineering operations."""
     
-    This interface defines the contract for data preprocessing, feature
-    extraction, and transformation operations required for anomaly detection.
-    """
-
-    @abstractmethod
-    async def preprocess_data(
-        self, 
-        data: Dataset, 
-        preprocessing_config: Dict[str, Any]
-    ) -> Dataset:
-        """Preprocess raw data for anomaly detection.
-        
-        Args:
-            data: Raw input data
-            preprocessing_config: Configuration for preprocessing steps
-            
-        Returns:
-            Preprocessed dataset ready for training/inference
-            
-        Raises:
-            PreprocessingError: If preprocessing fails
-        """
-        pass
-
     @abstractmethod
     async def extract_features(
         self, 
@@ -349,8 +301,8 @@ class MLFeatureEngineeringPort(ABC):
         """Extract features from raw data.
         
         Args:
-            data: Input data for feature extraction
-            feature_config: Configuration for feature extraction
+            data: Input dataset
+            feature_config: Feature extraction configuration
             
         Returns:
             Dataset with extracted features
@@ -359,39 +311,41 @@ class MLFeatureEngineeringPort(ABC):
             FeatureExtractionError: If feature extraction fails
         """
         pass
-
+    
     @abstractmethod
-    async def validate_data_quality(
+    async def validate_features(
         self, 
-        data: Dataset
+        data: Dataset, 
+        reference_data: Dataset
     ) -> Dict[str, Any]:
-        """Validate the quality of input data.
+        """Validate features against reference data.
         
         Args:
-            data: Dataset to validate
+            data: Data to validate
+            reference_data: Reference data for validation
             
         Returns:
-            Data quality report with metrics and recommendations
+            Validation results
             
         Raises:
             ValidationError: If validation fails
         """
         pass
-
+    
     @abstractmethod
-    async def detect_data_drift(
+    async def detect_feature_drift(
         self, 
-        reference_data: Dataset, 
-        current_data: Dataset
+        current_data: Dataset, 
+        reference_data: Dataset
     ) -> Dict[str, Any]:
-        """Detect data drift between reference and current data.
+        """Detect feature drift between datasets.
         
         Args:
-            reference_data: Reference dataset (e.g., training data)
-            current_data: Current dataset to compare
+            current_data: Current dataset
+            reference_data: Reference dataset
             
         Returns:
-            Drift detection results with metrics and recommendations
+            Drift detection results
             
         Raises:
             DriftDetectionError: If drift detection fails
@@ -400,68 +354,66 @@ class MLFeatureEngineeringPort(ABC):
 
 
 class MLModelExplainabilityPort(ABC):
-    """Port for model explainability and interpretability operations.
+    """Interface for model explainability operations."""
     
-    This interface defines the contract for generating explanations of
-    anomaly detection model predictions and behaviors.
-    """
-
     @abstractmethod
     async def explain_prediction(
         self, 
         model: Model, 
-        instance: Dict[str, Any],
+        data: Dataset, 
         explanation_type: str = "shap"
     ) -> Dict[str, Any]:
-        """Generate explanation for a single prediction.
+        """Explain model predictions.
         
         Args:
-            model: Trained model to explain
-            instance: Input instance to explain
-            explanation_type: Type of explanation (shap, lime, etc.)
+            model: Model to explain
+            data: Data for explanation
+            explanation_type: Type of explanation to generate
             
         Returns:
-            Explanation with feature contributions and metadata
+            Explanation results
             
         Raises:
             ExplanationError: If explanation generation fails
         """
         pass
-
+    
     @abstractmethod
-    async def explain_model_behavior(
+    async def generate_feature_importance(
         self, 
         model: Model, 
-        sample_data: Dataset
-    ) -> Dict[str, Any]:
-        """Generate global explanation of model behavior.
+        data: Dataset
+    ) -> Dict[str, float]:
+        """Generate feature importance for the model.
         
         Args:
-            model: Trained model to explain
-            sample_data: Representative sample for global explanation
+            model: Model to analyze
+            data: Data for analysis
             
         Returns:
-            Global explanation with feature importance and patterns
+            Feature importance scores
             
         Raises:
-            ExplanationError: If explanation generation fails
+            ExplanationError: If importance generation fails
         """
         pass
-
+    
     @abstractmethod
-    async def generate_model_report(
+    async def generate_explanation_report(
         self, 
         model: Model, 
-        test_data: Dataset
-    ) -> Dict[str, Any]:
-        """Generate comprehensive model analysis report.
+        data: Dataset, 
+        report_format: str = "html"
+    ) -> str:
+        """Generate an explanation report.
         
         Args:
-            model: Trained model to analyze
-            test_data: Test data for analysis
+            model: Model to explain
+            data: Data for explanation
+            report_format: Format of the report (html, pdf, json)
             
         Returns:
-            Comprehensive report with performance, fairness, and interpretability
+            Report content or path
             
         Raises:
             ReportGenerationError: If report generation fails
@@ -469,7 +421,7 @@ class MLModelExplainabilityPort(ABC):
         pass
 
 
-# Custom exceptions for ML operations
+# Exceptions
 class MLOperationError(Exception):
     """Base exception for ML operation errors."""
     pass
@@ -506,22 +458,22 @@ class RetrievalError(MLOperationError):
 
 
 class QueryError(MLOperationError):
-    """Exception raised during query operations."""
+    """Exception raised during model query."""
     pass
 
 
 class UpdateError(MLOperationError):
-    """Exception raised during update operations."""
+    """Exception raised during model update."""
     pass
 
 
 class DeletionError(MLOperationError):
-    """Exception raised during deletion operations."""
+    """Exception raised during model deletion."""
     pass
 
 
 class VersionCreationError(MLOperationError):
-    """Exception raised during version creation."""
+    """Exception raised during model version creation."""
     pass
 
 
@@ -546,7 +498,7 @@ class DriftDetectionError(MLOperationError):
 
 
 class ExplanationError(MLOperationError):
-    """Exception raised during explanation generation."""
+    """Exception raised during model explanation."""
     pass
 
 
@@ -556,5 +508,5 @@ class ReportGenerationError(MLOperationError):
 
 
 class UnsupportedAlgorithmError(MLOperationError):
-    """Exception raised for unsupported algorithms."""
+    """Exception raised when algorithm is not supported."""
     pass

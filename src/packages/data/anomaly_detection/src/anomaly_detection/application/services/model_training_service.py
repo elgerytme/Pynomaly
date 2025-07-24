@@ -162,7 +162,7 @@ class ModelTrainingApplicationService:
                         model_id=model_id,
                         version="1.0.0",
                         run_id=run_id,
-                        source_path=f"/models/{training_result.model.id}",
+                        source_path=f"/models/{training_result.model.metadata.model_id}",
                         description="Initial version from training",
                         performance_metrics=training_result.training_metrics,
                         deployment_config={
@@ -189,10 +189,10 @@ class ModelTrainingApplicationService:
             return {
                 "success": True,
                 "model": {
-                    "id": training_result.model.id,
-                    "name": training_result.model.name,
-                    "algorithm": training_result.model.algorithm,
-                    "version": training_result.model.version,
+                    "id": training_result.model.metadata.model_id,
+                    "name": training_result.model.metadata.name,
+                    "algorithm": training_result.model.metadata.algorithm,
+                    "version": training_result.model.metadata.version,
                     "status": training_result.status.value,
                 },
                 "training": {

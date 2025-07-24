@@ -13,8 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
 
-from anomaly_detection.domain.services.mlops_service import MLOpsService
-from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
+from ai.mlops.domain.services.mlops_service import MLOpsService
+from ai.mlops.infrastructure.repositories.model_repository import ModelRepository
 from anomaly_detection.application.services.mlops import (
     UnifiedModelRegistry,
     ExperimentTrackingIntegration,
@@ -438,8 +438,8 @@ if __name__ == "__main__":
     # Quick smoke test
     try:
         from anomaly_detection.application.services.mlops import UnifiedModelRegistry
-        from anomaly_detection.domain.services.mlops_service import MLOpsService
-        from anomaly_detection.infrastructure.repositories.model_repository import ModelRepository
+        from ai.mlops.domain.services.mlops_service import MLOpsService
+        from ai.mlops.infrastructure.repositories.model_repository import ModelRepository
         
         print("✓ All imports successful")
         

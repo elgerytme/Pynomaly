@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from anomaly_detection.domain.interfaces.mlops_operations import (
+from ai.mlops.domain.interfaces.mlops_operations import (
     MLOpsExperimentTrackingPort,
     MLOpsModelRegistryPort,
     ExperimentMetadata,

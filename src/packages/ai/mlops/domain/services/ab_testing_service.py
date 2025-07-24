@@ -11,7 +11,7 @@ from enum import Enum
 import numpy as np
 from scipy import stats
 
-from anomaly_detection.domain.interfaces.mlops_operations import (
+from ai.mlops.domain.interfaces.mlops_operations import (
     MLOpsExperimentTrackingPort,
     MLOpsModelRegistryPort,
     ExperimentStatus,
@@ -24,7 +24,7 @@ from anomaly_detection.domain.interfaces.analytics_operations import (
     TestResult,
     StatisticalSignificance,
 )
-from anomaly_detection.domain.entities.detection_result import DetectionResult
+from core.anomaly_detection.domain.entities.detection_result import DetectionResult
 
 
 class TestStatus(Enum):

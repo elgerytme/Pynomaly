@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from anomaly_detection.domain.interfaces.ml_operations import (
+from ai.machine_learning.domain.interfaces.ml_operations import (
     MLModelTrainingPort,
     TrainingRequest,
     TrainingResult,
@@ -20,9 +20,9 @@ from anomaly_detection.domain.interfaces.ml_operations import (
     ModelStatus,
     TrainingError,
 )
-from anomaly_detection.domain.entities.model import Model
-from anomaly_detection.domain.entities.dataset import Dataset
-from anomaly_detection.domain.entities.detection_result import DetectionResult
+from core.anomaly_detection.domain.entities.model import Model
+from core.anomaly_detection.domain.entities.dataset import Dataset
+from core.anomaly_detection.domain.entities.detection_result import DetectionResult
 
 
 class MLTrainingStub(MLModelTrainingPort):
@@ -48,19 +48,22 @@ class MLTrainingStub(MLModelTrainingPort):
         )
         
         # Create a dummy model
-        model = Model(
-            id=str(uuid.uuid4()),
+        from core.anomaly_detection.domain.entities.model import ModelMetadata, ModelStatus
+        
+        model_id = str(uuid.uuid4())
+        metadata = ModelMetadata(
+            model_id=model_id,
             name=f"stub_{request.algorithm_name}_model",
             algorithm=request.algorithm_name,
-            parameters=request.parameters,
-            model_object=None,  # No actual model
-            created_at=datetime.now(),
             version="1.0.0-stub",
-            metrics={"accuracy": 0.5, "precision": 0.5, "recall": 0.5, "f1_score": 0.5},  # Dummy metrics
-            metadata={
-                "stub": True,
-                "warning": "This is a stub model with no actual functionality"
-            }
+            status=ModelStatus.TRAINED,
+            hyperparameters=request.parameters,
+            description="Stub model - not reliable for production use"
+        )
+        
+        model = Model(
+            metadata=metadata,
+            model_object=None  # No actual model
         )
         
         return TrainingResult(
@@ -94,7 +97,7 @@ class MLTrainingStub(MLModelTrainingPort):
     async def evaluate_model(self, request: ModelEvaluationRequest) -> EvaluationResult:
         """Stub implementation of model evaluation."""
         self._logger.warning(
-            f"Stub evaluation for model: {request.model.id}. "
+            f"Stub evaluation for model: {request.model.metadata.model_id}. "
             "No actual evaluation performed."
         )
         
@@ -109,7 +112,7 @@ class MLTrainingStub(MLModelTrainingPort):
     async def predict_batch(self, model: Model, data: Dataset) -> DetectionResult:
         """Stub implementation of batch prediction."""
         self._logger.warning(
-            f"Stub prediction for model: {model.id}. "
+            f"Stub prediction for model: {model.metadata.model_id}. "
             "Returning random predictions."
         )
         
@@ -121,7 +124,7 @@ class MLTrainingStub(MLModelTrainingPort):
         scores = [random.uniform(-1, 1) for _ in range(n_samples)]
         
         # Create dummy anomalies for negative predictions
-        from anomaly_detection.domain.entities.anomaly import Anomaly
+        from core.anomaly_detection.domain.entities.anomaly import Anomaly
         anomalies = []
         for i, (pred, score) in enumerate(zip(predictions, scores)):
             if pred == -1:
@@ -139,12 +142,12 @@ class MLTrainingStub(MLModelTrainingPort):
             predictions=predictions,
             scores=scores,
             anomalies=anomalies,
-            algorithm=model.algorithm,
-            parameters=model.parameters,
+            algorithm=model.metadata.algorithm,
+            parameters=model.metadata.hyperparameters,
             metadata={
                 "stub": True,
                 "warning": "Stub predictions - not reliable for production use",
-                "model_id": model.id,
+                "model_id": model.metadata.model_id,
                 "prediction_timestamp": datetime.now().isoformat(),
             }
         )
