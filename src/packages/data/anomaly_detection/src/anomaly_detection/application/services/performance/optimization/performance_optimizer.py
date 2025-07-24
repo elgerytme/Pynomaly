@@ -14,7 +14,7 @@ import numpy.typing as npt
 
 from .....domain.entities.detection_result import DetectionResult
 from .....infrastructure.logging import get_logger
-from .....infrastructure.monitoring.metrics_collector import get_metrics_collector
+from .....infrastructure.monitoring import get_metrics_collector
 
 logger = get_logger(__name__)
 
