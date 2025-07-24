@@ -2,13 +2,29 @@
 import click
 
 from src.packages.data.data_quality.src.data_quality.application.use_cases.create_data_profile import CreateDataProfileUseCase
-from src.packages.data.data_quality.src.data_quality.di import data_profiling_service
+from src.packages.data.data_quality.src.data_quality.di import get_data_profiling_service
+from src.packages.data.data_quality.src.data_quality.infrastructure.adapters.pandas_csv_adapter import PandasCSVAdapter
 
 
-@click.command()
+@click.group()
+def profile():
+    """Manage data profiles."""
+    pass
+
+
+@profile.command()
 @click.argument("dataset_name")
-def profile(dataset_name: str):
+@click.option("--file-path", required=True, help="Path to the CSV file to profile.")
+def create(dataset_name: str, file_path: str):
     """Create a data profile for a dataset."""
-    use_case = CreateDataProfileUseCase(data_profiling_service)
-    profile = use_case.execute(dataset_name)
+    use_case = CreateDataProfileUseCase(get_data_profiling_service())
+    adapter = PandasCSVAdapter()
+    profile = use_case.execute(dataset_name, adapter, {"file_path": file_path})
     click.echo(f"Successfully created data profile for {profile.dataset_name}")
+
+
+@profile.command()
+def list():
+    """List all data profiles."""
+    # This will require a new use case to list all profiles
+    click.echo("Listing all data profiles (not yet implemented).")
