@@ -586,3 +586,4 @@ scratch_*/
 **/config_temp/
 **/settings_temp/
 **/backup_temp/
+src/packages/data/anomaly_detection/reports/pytest.xml

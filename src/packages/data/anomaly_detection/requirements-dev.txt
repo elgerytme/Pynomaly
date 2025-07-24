@@ -18,8 +18,7 @@ flake8==6.1.0
 isort==5.12.0
 pre-commit==3.6.0
 mypy==1.7.1
-bandit==1.7.5
-safety==2.3.5
+
 
 # Documentation
 mkdocs==1.5.3
@@ -40,14 +39,14 @@ responses==0.24.1
 
 # Performance profiling
 memory-profiler==0.61.0
-line-profiler==4.1.1
+
 py-spy==0.3.14
 
 # Database tools
 pgcli==4.0.1
 
 # Debugging
-pdb++==0.10.3
+pdbpp==0.10.3
 ipdb==0.13.13
 pudb==2023.1
 

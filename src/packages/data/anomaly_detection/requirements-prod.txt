@@ -6,14 +6,13 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # Scientific computing
-numpy==1.24.3
-pandas==2.1.4
+
 scikit-learn==1.3.2
 scipy==1.11.4
 
 # Machine learning libraries
 joblib==1.3.2
-pickle5==0.0.12
+
 
 # Database
 sqlalchemy==2.0.23
@@ -36,7 +35,7 @@ httpx==0.25.2
 aiohttp==3.9.1
 
 # Security
-cryptography==41.0.8
+cryptography==42.0.5
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 
