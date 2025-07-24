@@ -264,6 +264,7 @@ markers = [
     "load: Load testing",
     "advanced_load: Advanced load testing scenarios",
     "benchmark: Performance benchmarking suite",
+    "optimization: Performance optimization validation",
     "memory: Memory testing",
     "property: Property-based testing",
 ]
