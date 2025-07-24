@@ -1,0 +1,228 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anomaly-detection-config
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: config
+data:
+  # Application configuration
+  app.yml: |
+    server:
+      host: "0.0.0.0"
+      port: 8000
+      workers: 4
+      log_level: "info"
+      reload: false
+      
+    web:
+      host: "0.0.0.0"
+      port: 8080
+      workers: 2
+      
+    worker:
+      concurrency: 4
+      log_level: "info"
+      max_tasks_per_child: 1000
+      
+    security:
+      secret_key: "${SECRET_KEY}"
+      algorithm: "HS256"
+      access_token_expire_minutes: 30
+      refresh_token_expire_days: 7
+      require_https: true
+      
+    database:
+      url: "${DATABASE_URL}"
+      pool_size: 20
+      max_overflow: 30
+      pool_timeout: 30
+      pool_recycle: 3600
+      
+    redis:
+      url: "${REDIS_URL}"
+      max_connections: 100
+      
+    monitoring:
+      enable_metrics: true
+      enable_tracing: true
+      metrics_port: 9090
+      jaeger_endpoint: "${JAEGER_ENDPOINT}"
+      
+    models:
+      storage_path: "/app/data/models"
+      cache_size: 100
+      auto_load_defaults: true
+      
+    processing:
+      batch_size: 1000
+      max_workers: 8
+      enable_gpu: false
+      enable_distributed: true
+      
+    logging:
+      level: "INFO"
+      format: "json"
+      output: "stdout"
+      
+  # Logging configuration
+  logging.yml: |
+    version: 1
+    disable_existing_loggers: false
+    
+    formatters:
+      standard:
+        format: '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+      json:
+        format: '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "message": "%(message)s"}'
+    
+    handlers:
+      console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: json
+        stream: ext://sys.stdout
+        
+      file:
+        class: logging.handlers.RotatingFileHandler
+        level: DEBUG
+        formatter: standard
+        filename: /app/logs/app.log
+        maxBytes: 10485760  # 10MB
+        backupCount: 5
+        
+    loggers:
+      anomaly_detection:
+        level: INFO
+        handlers: [console, file]
+        propagate: false
+        
+      uvicorn:
+        level: INFO
+        handlers: [console]
+        propagate: false
+        
+      ray:
+        level: WARNING
+        handlers: [console]
+        propagate: false
+        
+    root:
+      level: INFO
+      handlers: [console]
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anomaly-detection-nginx
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: nginx-config
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream api_backend {
+            server anomaly-detection-api:8000;
+        }
+        
+        upstream web_backend {
+            server anomaly-detection-web:8080;
+        }
+        
+        # Rate limiting
+        limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+        limit_req_zone $binary_remote_addr zone=web_limit:10m rate=5r/s;
+        
+        # API Gateway
+        server {
+            listen 80;
+            server_name api.anomaly-detection.local;
+            
+            # Security headers
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "no-referrer-when-downgrade" always;
+            add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+            
+            # Rate limiting
+            limit_req zone=api_limit burst=20 nodelay;
+            
+            location /health {
+                proxy_pass http://api_backend/health;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # Health check shouldn't be rate limited
+                limit_req off;
+            }
+            
+            location /metrics {
+                proxy_pass http://api_backend/metrics;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # Restrict access to monitoring systems
+                allow 10.0.0.0/8;
+                allow 172.16.0.0/12;
+                allow 192.168.0.0/16;
+                deny all;
+            }
+            
+            location / {
+                proxy_pass http://api_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # Timeouts
+                proxy_connect_timeout 30s;
+                proxy_send_timeout 30s;
+                proxy_read_timeout 30s;
+                
+                # Buffering
+                proxy_buffering on;
+                proxy_buffer_size 4k;
+                proxy_buffers 8 4k;
+            }
+        }
+        
+        # Web Interface
+        server {
+            listen 80;
+            server_name anomaly-detection.local;
+            
+            # Security headers
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            
+            # Rate limiting
+            limit_req zone=web_limit burst=10 nodelay;
+            
+            location / {
+                proxy_pass http://web_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # WebSocket support
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+            }
+        }
+    }
