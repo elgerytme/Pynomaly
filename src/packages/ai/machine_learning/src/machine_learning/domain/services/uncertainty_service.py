@@ -13,9 +13,18 @@ from typing import Protocol
 import numpy as np
 from scipy import stats
 
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.value_objects.anomaly_score import AnomalyScore
-from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
+# Use protocol for cross-domain dependency
+from typing import Protocol
+from ..value_objects.anomaly_score import AnomalyScore, AnomalyScoreProtocol
+from ..value_objects.confidence_interval import ConfidenceInterval
+
+class DetectionResultProtocol(Protocol):
+    """Protocol for detection results from any domain."""
+    score: AnomalyScoreProtocol
+    is_anomaly: bool
+
+# Type alias for backward compatibility
+DetectionResult = DetectionResultProtocol
 
 
 class UncertaintyQuantificationProtocol(Protocol):

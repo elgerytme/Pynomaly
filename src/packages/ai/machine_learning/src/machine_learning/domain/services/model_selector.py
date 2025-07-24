@@ -13,8 +13,28 @@ from typing import Any
 import numpy as np
 from scipy.stats import ttest_ind
 
-from monorepo.domain.entities.model_performance import ModelPerformanceMetrics
-from monorepo.domain.services.metrics_calculator import MetricsCalculator
+# Use local entities and create protocols for missing services
+from ..entities.model_performance import ModelPerformanceMetrics
+from typing import Protocol, Dict, Any
+
+class MetricsCalculatorProtocol(Protocol):
+    """Protocol for metrics calculation service."""
+    def calculate_metrics(self, predictions: Any, ground_truth: Any) -> Dict[str, float]:
+        """Calculate performance metrics."""
+        ...
+
+# Create a simple local implementation for now
+class MetricsCalculator:
+    """Basic metrics calculator implementation."""
+    
+    def calculate_metrics(self, predictions: Any, ground_truth: Any) -> Dict[str, float]:
+        """Calculate basic performance metrics."""
+        # Simple accuracy calculation for now
+        if hasattr(predictions, '__len__') and hasattr(ground_truth, '__len__'):
+            correct = sum(p == g for p, g in zip(predictions, ground_truth))
+            accuracy = correct / len(predictions) if len(predictions) > 0 else 0.0
+            return {"accuracy": accuracy}
+        return {"accuracy": 0.0}
 
 
 class ParetoOptimizer:

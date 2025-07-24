@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from monorepo.application.services.automl_service import (
+from ...domain.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
 )

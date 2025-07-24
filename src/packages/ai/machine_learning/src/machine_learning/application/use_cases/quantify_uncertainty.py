@@ -11,17 +11,24 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from monorepo.application.dto.uncertainty_dto import (
+from ...domain.dto.uncertainty_dto import (
     EnsembleUncertaintyRequest,
     EnsembleUncertaintyResponse,
     UncertaintyRequest,
     UncertaintyResponse,
 )
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.services.uncertainty_service import (
+from ...domain.services.uncertainty_service import (
     UncertaintyQuantificationService,
 )
-from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
+from ...domain.value_objects.confidence_interval import ConfidenceInterval
+
+# For cross-domain dependency, use a shared interface
+from typing import Protocol
+
+class DetectionResult(Protocol):
+    """Protocol for detection results from any domain."""
+    score: float
+    is_anomaly: bool
 
 
 @dataclass

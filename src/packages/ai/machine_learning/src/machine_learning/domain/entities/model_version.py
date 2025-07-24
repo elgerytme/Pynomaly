@@ -8,9 +8,21 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from monorepo.domain.value_objects.model_storage_info import ModelStorageInfo
-from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
-from monorepo.domain.value_objects.semantic_version import SemanticVersion
+from ..value_objects.model_storage_info import ModelStorageInfo
+from ..value_objects.performance_metrics import PerformanceMetrics
+
+# Create semantic version locally if needed
+from dataclasses import dataclass
+
+@dataclass
+class SemanticVersion:
+    """Semantic version representation."""
+    major: int
+    minor: int
+    patch: int
+    
+    def __str__(self) -> str:
+        return f"{self.major}.{self.minor}.{self.patch}"
 
 
 class ModelStatus(Enum):

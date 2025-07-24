@@ -13,13 +13,13 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from monorepo.application.services.automl_service import (
+from ...domain.services.automl_service import (
     AutoMLResult,
     AutoMLService,
     OptimizationObjective,
 )
-# TODO: Create local Dataset entity
-from monorepo.domain.exceptions import AutoMLError, DomainError
+# Local domain exceptions
+from ...domain.exceptions import AutoMLError, DomainError
 
 logger = logging.getLogger(__name__)
 

@@ -10,8 +10,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from monorepo.application.dto.training_dto import TrainingConfigDTO
-from monorepo.domain.value_objects.hyperparameters import HyperparameterSet
+from ..dto.training_dto import TrainingConfigDTO
+from ..value_objects.hyperparameters import HyperparameterSet
 
 
 class TrainingStatus(Enum):
