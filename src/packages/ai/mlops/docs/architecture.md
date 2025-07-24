@@ -298,7 +298,7 @@ class DriftDetectedEvent:
 Provides Python SDK for programmatic access:
 
 ```python
-from monorepo.mlops import MLOpsClient
+from mlops import MLOpsClient
 
 client = MLOpsClient(base_url="http://mlops-api:8000")
 models = client.models.list()
@@ -443,7 +443,7 @@ deployment = client.deployments.create(model_id="123")
 ### 1. Custom Algorithms
 
 ```python
-from monorepo.mlops.base import BaseAlgorithm
+from mlops.base import BaseAlgorithm
 
 class CustomDetector(BaseAlgorithm):
     def fit(self, X):
@@ -458,7 +458,7 @@ class CustomDetector(BaseAlgorithm):
 ### 2. Custom Deployments
 
 ```python
-from monorepo.mlops.base import BaseDeployment
+from mlops.base import BaseDeployment
 
 class CustomDeployment(BaseDeployment):
     def deploy(self, model_version):
@@ -473,7 +473,7 @@ class CustomDeployment(BaseDeployment):
 ### 3. Custom Monitoring
 
 ```python
-from monorepo.mlops.base import BaseMonitor
+from mlops.base import BaseMonitor
 
 class CustomMonitor(BaseMonitor):
     def start_monitoring(self):

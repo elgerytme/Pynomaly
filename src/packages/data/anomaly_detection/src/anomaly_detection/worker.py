@@ -889,5 +889,9 @@ def main() -> None:
         logger.info("Anomaly Detection Worker Demo completed")
 
 
+# Export aliases for backward compatibility
+Job = WorkerJob
+
+
 if __name__ == "__main__":
     main()

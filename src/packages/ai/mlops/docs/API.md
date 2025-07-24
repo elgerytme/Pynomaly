@@ -11,7 +11,7 @@ The MLOps package provides a comprehensive set of APIs for managing machine lear
 The main class for tracking machine learning experiments.
 
 ```python
-from monorepo.mlops.experiments import ExperimentTracker
+from mlops.experiments import ExperimentTracker
 
 tracker = ExperimentTracker(backend="mlflow", tracking_uri="http://localhost:5000")
 ```
@@ -58,7 +58,7 @@ List all experiments.
 Central registry for managing model versions and metadata.
 
 ```python
-from monorepo.mlops.models import ModelRegistry
+from mlops.models import ModelRegistry
 
 registry = ModelRegistry(backend="mlflow")
 ```
@@ -111,7 +111,7 @@ List all models with optional filtering.
 Real-time monitoring for deployed models.
 
 ```python
-from monorepo.mlops.monitoring import ModelMonitor
+from mlops.monitoring import ModelMonitor
 
 monitor = ModelMonitor(model_version="anomaly_detector_v1")
 ```
@@ -144,7 +144,7 @@ Configure alert thresholds.
 Detect data and concept drift in production models.
 
 ```python
-from monorepo.mlops.monitoring import DriftDetector
+from mlops.monitoring import DriftDetector
 
 detector = DriftDetector(reference_data=reference_dataset)
 ```
@@ -174,7 +174,7 @@ Set the detection window size.
 Automated training pipeline for ML models.
 
 ```python
-from monorepo.mlops.pipelines import TrainingPipeline
+from mlops.pipelines import TrainingPipeline
 
 pipeline = TrainingPipeline(
     name="anomaly_detection_training",
@@ -202,7 +202,7 @@ Set pipeline configuration.
 Automated deployment pipeline for ML models.
 
 ```python
-from monorepo.mlops.pipelines import DeploymentPipeline
+from mlops.pipelines import DeploymentPipeline
 
 pipeline = DeploymentPipeline(
     model_version="anomaly_detector_v1",
@@ -231,7 +231,7 @@ Rollback to previous deployment.
 Ensemble serving for multiple models.
 
 ```python
-from monorepo.mlops.models.serving import ModelEnsemble
+from mlops.models.serving import ModelEnsemble
 
 ensemble = ModelEnsemble({
     "model_a": model_a,
@@ -274,7 +274,7 @@ Remove a model from the ensemble.
 Feature storage and serving infrastructure.
 
 ```python
-from monorepo.mlops.features import FeatureStore
+from mlops.features import FeatureStore
 
 store = FeatureStore(
     backend="feast",
@@ -324,7 +324,7 @@ Get features from offline store.
 Framework for A/B testing models.
 
 ```python
-from monorepo.mlops.experiments import ABTestFramework
+from mlops.experiments import ABTestFramework
 
 ab_test = ABTestFramework(
     name="model_comparison",
@@ -357,7 +357,7 @@ Get current A/B test results.
 Kubernetes-based model deployment.
 
 ```python
-from monorepo.mlops.models.deployment import KubernetesDeployment
+from mlops.models.deployment import KubernetesDeployment
 
 deployment = KubernetesDeployment(
     model_version="anomaly_detector_v1",
@@ -396,7 +396,7 @@ Check deployment health.
 ML governance and compliance framework.
 
 ```python
-from monorepo.mlops.governance import MLGovernance
+from mlops.governance import MLGovernance
 
 governance = MLGovernance(
     compliance_rules=["data_privacy", "model_explainability"],
@@ -537,7 +537,7 @@ class MonitoringError(MLOpsError):
 Configuration class for MLOps components.
 
 ```python
-from monorepo.mlops.config import MLOpsConfig
+from mlops.config import MLOpsConfig
 
 config = MLOpsConfig(
     experiment_tracking={
@@ -562,7 +562,7 @@ config = MLOpsConfig(
 Factory function to create MLOps stack.
 
 ```python
-from monorepo.mlops.factory import create_mlops_stack
+from mlops.factory import create_mlops_stack
 
 stack = create_mlops_stack(config)
 await stack.initialize()
@@ -573,7 +573,7 @@ await stack.initialize()
 Enable debug mode for MLOps operations.
 
 ```python
-from monorepo.mlops.config import enable_debug_mode
+from mlops.config import enable_debug_mode
 
 enable_debug_mode(
     experiment_tracking=True,
@@ -587,7 +587,7 @@ enable_debug_mode(
 The package provides comprehensive type hints for all public APIs. Import types from:
 
 ```python
-from monorepo.mlops.types import (
+from mlops.types import (
     ExperimentContext,
     ModelVersion,
     MonitoringStatus,

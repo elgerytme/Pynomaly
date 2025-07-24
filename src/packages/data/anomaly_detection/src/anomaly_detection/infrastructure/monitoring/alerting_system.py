@@ -24,6 +24,14 @@ class AlertStatus(str, Enum):
     RESOLVED = "resolved"
 
 
+class AlertChannel(str, Enum):
+    """Alert delivery channels."""
+    EMAIL = "email"
+    SLACK = "slack"
+    WEBHOOK = "webhook"
+    LOG = "log"
+
+
 @dataclass
 class Alert:
     """Alert data structure."""

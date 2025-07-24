@@ -36,12 +36,34 @@ from interfaces.application.services.training_automation_service import (
     TrainingConfiguration,
     TrainingStatus,
 )
-from monorepo.infrastructure.adapters.model_trainer_adapter import (
-    create_model_trainer_adapter,
-)
-from monorepo.infrastructure.persistence.training_job_repository import (
-    create_training_job_repository,
-)
+# Create local placeholders for missing infrastructure
+from typing import Any, Protocol
+
+class ModelTrainerAdapter(Protocol):
+    """Protocol for model training adapters."""
+    def train(self, data: Any, config: Any) -> Any:
+        """Train a model."""
+        ...
+
+class TrainingJobRepository(Protocol):
+    """Protocol for training job persistence."""
+    def save(self, job: Any) -> None:
+        """Save a training job.""" 
+        ...
+
+def create_model_trainer_adapter() -> ModelTrainerAdapter:
+    """Create a model trainer adapter placeholder."""
+    class PlaceholderTrainer:
+        def train(self, data: Any, config: Any) -> Any:
+            return {"status": "placeholder"}
+    return PlaceholderTrainer()
+
+def create_training_job_repository() -> TrainingJobRepository:
+    """Create a training job repository placeholder."""
+    class PlaceholderRepository:
+        def save(self, job: Any) -> None:
+            pass
+    return PlaceholderRepository()
 
 # Create CLI app
 app = typer.Typer(name="training", help="Training automation and optimization commands")

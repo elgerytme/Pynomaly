@@ -40,8 +40,8 @@ pip install monorepo-mlops[mlflow,kubeflow,monitoring]
 Start with simple experiment tracking to understand the core concepts:
 
 ```python
-from monorepo.mlops.experiments import ExperimentTracker
-from monorepo.mlops.models import ModelRegistry
+from mlops.experiments import ExperimentTracker
+from mlops.models import ModelRegistry
 import numpy as np
 from sklearn.ensemble import IsolationForest
 
@@ -84,7 +84,7 @@ with tracker.start_experiment("my_first_experiment") as experiment:
 Deploy your trained model to production:
 
 ```python
-from monorepo.mlops.models.deployment import KubernetesDeployment
+from mlops.models.deployment import KubernetesDeployment
 
 # Create deployment configuration
 deployment = KubernetesDeployment(
@@ -104,7 +104,7 @@ print(f"Model deployed at: {result.endpoint_url}")
 Set up monitoring for your deployed model:
 
 ```python
-from monorepo.mlops.monitoring import ModelMonitor, DriftDetector
+from mlops.monitoring import ModelMonitor, DriftDetector
 
 # Initialize monitoring
 monitor = ModelMonitor(model_version=model_version)
@@ -178,7 +178,7 @@ if staging_results.accuracy > 0.9:
 Automate your ML workflows with pipelines:
 
 ```python
-from monorepo.mlops.pipelines import TrainingPipeline
+from mlops.pipelines import TrainingPipeline
 
 # Create automated training pipeline
 pipeline = TrainingPipeline(
@@ -205,8 +205,8 @@ print(f"Pipeline completed. Best model: {result.best_model.name}")
 Test different models in production:
 
 ```python
-from monorepo.mlops.experiments import ABTestFramework
-from monorepo.mlops.models.serving import ModelEnsemble
+from mlops.experiments import ABTestFramework
+from mlops.models.serving import ModelEnsemble
 
 # Setup A/B test
 ab_test = ABTestFramework(
@@ -241,7 +241,7 @@ print(f"Confidence: {test_results.confidence:.2f}")
 Manage features across your ML pipeline:
 
 ```python
-from monorepo.mlops.features import FeatureStore
+from mlops.features import FeatureStore
 
 # Initialize feature store
 feature_store = FeatureStore(
@@ -270,7 +270,7 @@ features = await feature_store.get_online_features(
 Implement ML governance for production systems:
 
 ```python
-from monorepo.mlops.governance import MLGovernance
+from mlops.governance import MLGovernance
 
 # Initialize governance
 governance = MLGovernance(
@@ -317,7 +317,7 @@ export GRAFANA_URL=http://localhost:3000
 Create a comprehensive configuration:
 
 ```python
-from monorepo.mlops.config import MLOpsConfig
+from mlops.config import MLOpsConfig
 
 config = MLOpsConfig(
     experiment_tracking={
@@ -431,8 +431,8 @@ monitor_config = {
 ### 1. Daily Model Retraining
 
 ```python
-from monorepo.mlops.pipelines import TrainingPipeline
-from monorepo.mlops.data import DataLoader
+from mlops.pipelines import TrainingPipeline
+from mlops.data import DataLoader
 
 # Automated daily retraining
 async def daily_retraining():
@@ -517,7 +517,7 @@ async def monitor_model_performance():
 
 ```python
 # Enable debug logging
-from monorepo.mlops.config import enable_debug_mode
+from mlops.config import enable_debug_mode
 
 enable_debug_mode(
     experiment_tracking=True,

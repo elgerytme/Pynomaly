@@ -26,7 +26,7 @@ mlflow server --host 0.0.0.0 --port 5000
 
 2. **Verify connection configuration:**
 ```python
-from monorepo.mlops.experiments import ExperimentTracker
+from mlops.experiments import ExperimentTracker
 
 # Check current tracking URI
 import mlflow
@@ -70,7 +70,7 @@ experiment.log_metrics(metrics_batch)
 2. **Use async logging:**
 ```python
 import asyncio
-from monorepo.mlops.experiments import AsyncExperimentTracker
+from mlops.experiments import AsyncExperimentTracker
 
 async def log_metrics_async():
     tracker = AsyncExperimentTracker()
@@ -136,7 +136,7 @@ du -sh /path/to/mlflow/artifacts
 
 1. **Use proper versioning:**
 ```python
-from monorepo.mlops.models import ModelRegistry
+from mlops.models import ModelRegistry
 
 registry = ModelRegistry()
 
@@ -191,7 +191,7 @@ docker history your-model-image:latest
 
 3. **Review deployment configuration:**
 ```python
-from monorepo.mlops.models.deployment import KubernetesDeployment
+from mlops.models.deployment import KubernetesDeployment
 
 deployment = KubernetesDeployment(
     model_version="model_v1",
@@ -215,7 +215,7 @@ deployment = KubernetesDeployment(
 1. **Check model loading:**
 ```python
 # Test model loading locally
-from monorepo.mlops.models import ModelRegistry
+from mlops.models import ModelRegistry
 
 registry = ModelRegistry()
 model = registry.get_model("model_name", "latest")
@@ -242,7 +242,7 @@ kubectl exec <pod-name> -- df -h
 3. **Optimize model serving:**
 ```python
 # Use model batching
-from monorepo.mlops.models.serving import BatchedModelServing
+from mlops.models.serving import BatchedModelServing
 
 serving = BatchedModelServing(
     model=model,
@@ -264,7 +264,7 @@ serving = BatchedModelServing(
 
 1. **Adjust detection thresholds:**
 ```python
-from monorepo.mlops.monitoring import DriftDetector
+from mlops.monitoring import DriftDetector
 
 detector = DriftDetector(
     reference_data=reference_data,
@@ -299,7 +299,7 @@ detector.update_reference_data(new_reference_data)
 
 1. **Check monitoring pipeline:**
 ```python
-from monorepo.mlops.monitoring import PerformanceMonitor
+from mlops.monitoring import PerformanceMonitor
 
 monitor = PerformanceMonitor(
     model_version="model_v1",
@@ -328,7 +328,7 @@ tail -f /var/log/mlops/monitoring.log
 
 1. **Check pipeline configuration:**
 ```python
-from monorepo.mlops.pipelines import TrainingPipeline
+from mlops.pipelines import TrainingPipeline
 
 pipeline = TrainingPipeline(
     name="training_pipeline",
@@ -371,7 +371,7 @@ pipeline.add_step("model_training", depends_on=["data_preprocessing", "feature_e
 
 1. **Check feature store connection:**
 ```python
-from monorepo.mlops.features import FeatureStore
+from mlops.features import FeatureStore
 
 store = FeatureStore(
     backend="feast",
@@ -404,7 +404,7 @@ print(f"Feature freshness: {freshness}")
 
 ```python
 import logging
-from monorepo.mlops.config import enable_debug_mode
+from mlops.config import enable_debug_mode
 
 # Enable debug mode
 enable_debug_mode(
@@ -421,7 +421,7 @@ logging.basicConfig(level=logging.DEBUG)
 ### Debug-Specific Tools
 
 ```python
-from monorepo.mlops.debug import DebugTools
+from mlops.debug import DebugTools
 
 debug_tools = DebugTools()
 
@@ -443,7 +443,7 @@ debug_tools.validate_model(model, test_data)
 ```python
 # Use memory-efficient data structures
 import numpy as np
-from monorepo.mlops.utils import MemoryOptimizer
+from mlops.utils import MemoryOptimizer
 
 optimizer = MemoryOptimizer()
 
@@ -488,7 +488,7 @@ async def async_data_loading():
 ### Health Checks
 
 ```python
-from monorepo.mlops.monitoring import HealthChecker
+from mlops.monitoring import HealthChecker
 
 health_checker = HealthChecker()
 
@@ -503,7 +503,7 @@ health_checker.schedule_health_checks(interval=300)  # Every 5 minutes
 ### Custom Alerts
 
 ```python
-from monorepo.mlops.monitoring import AlertManager
+from mlops.monitoring import AlertManager
 
 alert_manager = AlertManager()
 
@@ -549,7 +549,7 @@ alert_manager.add_alert(
 ### Collecting Debug Information
 
 ```python
-from monorepo.mlops.debug import collect_debug_info
+from mlops.debug import collect_debug_info
 
 # Collect comprehensive debug information
 debug_info = collect_debug_info()
@@ -621,7 +621,7 @@ If you've solved a problem not covered in this guide:
 ### Monitoring Setup
 
 ```python
-from monorepo.mlops.monitoring import ProactiveMonitoring
+from mlops.monitoring import ProactiveMonitoring
 
 monitor = ProactiveMonitoring()
 

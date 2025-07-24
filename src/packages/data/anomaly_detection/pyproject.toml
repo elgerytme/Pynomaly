@@ -261,6 +261,9 @@ markers = [
     "performance: Performance tests",
     "security: Security tests",
     "slow: Slow running tests",
+    "load: Load testing",
+    "memory: Memory testing",
+    "property: Property-based testing",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",

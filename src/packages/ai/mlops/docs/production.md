@@ -1101,7 +1101,7 @@ rules:
 
 ```python
 # data-governance.py
-from monorepo.mlops.governance import DataGovernance
+from mlops.governance import DataGovernance
 
 governance = DataGovernance()
 

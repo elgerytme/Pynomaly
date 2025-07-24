@@ -117,10 +117,20 @@ def optimize(
                 return
         else:
             # Configure enhanced AutoML
-            from monorepo.infrastructure.automl import (
-                AcquisitionFunction,
-                OptimizationStrategy,
-            )
+            # Create local AutoML enums for CLI use
+            from enum import Enum
+            
+            class OptimizationStrategy(Enum):
+                """Local optimization strategy enum."""
+                BAYESIAN = "bayesian"
+                GRID_SEARCH = "grid_search"
+                RANDOM_SEARCH = "random_search"
+                
+            class AcquisitionFunction(Enum):
+                """Local acquisition function enum."""
+                EI = "expected_improvement"
+                UCB = "upper_confidence_bound"
+                PI = "probability_improvement"
 
             strategy_enum = OptimizationStrategy(strategy)
             acquisition_enum = AcquisitionFunction(acquisition)
@@ -233,7 +243,14 @@ def auto_optimize(
                 return
         else:
             # Configure enhanced AutoML
-            from monorepo.infrastructure.automl import OptimizationStrategy
+            # Use local optimization strategy enum
+            from enum import Enum
+            
+            class OptimizationStrategy(Enum):
+                """Local optimization strategy enum."""
+                BAYESIAN = "bayesian"
+                GRID_SEARCH = "grid_search"
+                RANDOM_SEARCH = "random_search"
 
             strategy_enum = OptimizationStrategy(strategy)
 

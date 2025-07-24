@@ -22,7 +22,16 @@ class ErrorCategory(Enum):
     EXTERNAL = "external"
 
 
-class AnomalyDetectionError(Exception):
+class BaseApplicationError(Exception):
+    """Base application error class."""
+    
+    def __init__(self, message: str, error_code: Optional[str] = None):
+        super().__init__(message)
+        self.message = message
+        self.error_code = error_code
+
+
+class AnomalyDetectionError(BaseApplicationError):
     """Base exception for anomaly detection errors."""
     
     def __init__(
@@ -31,10 +40,10 @@ class AnomalyDetectionError(Exception):
         category: ErrorCategory = ErrorCategory.SYSTEM,
         details: Optional[Dict[str, Any]] = None,
         original_error: Optional[Exception] = None,
-        recoverable: bool = False
+        recoverable: bool = False,
+        error_code: Optional[str] = None
     ):
-        super().__init__(message)
-        self.message = message
+        super().__init__(message, error_code)
         self.category = category
         self.details = details or {}
         self.original_error = original_error
@@ -273,6 +282,7 @@ def handle_error(
 __all__ = [
     "handle_error",
     "ErrorHandler", 
+    "BaseApplicationError",
     "AnomalyDetectionError",
     "InputValidationError",
     "DataProcessingError", 
