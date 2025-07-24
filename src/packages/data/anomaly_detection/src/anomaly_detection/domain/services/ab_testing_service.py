@@ -11,7 +11,19 @@ from enum import Enum
 import numpy as np
 from scipy import stats
 
-from anomaly_detection.domain.services.mlops_service import MLOpsService, ModelVersion
+from anomaly_detection.domain.interfaces.mlops_operations import (
+    MLOpsExperimentTrackingPort,
+    MLOpsModelRegistryPort,
+    ExperimentStatus,
+    RunStatus,
+)
+from anomaly_detection.domain.interfaces.analytics_operations import (
+    AnalyticsABTestingPort,
+    AnalyticsPerformancePort,
+    TestStatus as AnalyticsTestStatus,
+    TestResult,
+    StatisticalSignificance,
+)
 from anomaly_detection.domain.entities.detection_result import DetectionResult
 
 
@@ -153,23 +165,41 @@ class TestResult:
 
 
 class ABTestingService:
-    """Service for A/B testing models in production."""
+    """Service for A/B testing models in production.
     
-    def __init__(self, mlops_service: MLOpsService):
+    This service now follows hexagonal architecture principles by depending
+    on interfaces rather than concrete implementations. It uses MLOps
+    interfaces for experiment tracking and model management, and analytics
+    interfaces for A/B testing operations.
+    """
+    
+    def __init__(
+        self, 
+        experiment_tracking: MLOpsExperimentTrackingPort,
+        model_registry: MLOpsModelRegistryPort,
+        ab_testing: Optional[AnalyticsABTestingPort] = None,
+        performance_analytics: Optional[AnalyticsPerformancePort] = None
+    ):
         """Initialize A/B testing service.
         
         Args:
-            mlops_service: MLOps service for model management
+            experiment_tracking: MLOps experiment tracking interface
+            model_registry: MLOps model registry interface
+            ab_testing: Optional analytics A/B testing interface
+            performance_analytics: Optional performance analytics interface
         """
-        self.mlops_service = mlops_service
+        self._experiment_tracking = experiment_tracking
+        self._model_registry = model_registry
+        self._ab_testing = ab_testing
+        self._performance_analytics = performance_analytics
         self.logger = logging.getLogger(__name__)
         
-        # Storage for tests and data
+        # Storage for tests and data (in production, this would be persisted)
         self._tests: Dict[str, ABTest] = {}
         self._test_data: Dict[str, List[Dict[str, Any]]] = {}  # test_id -> list of requests
         self._variant_assignments: Dict[str, str] = {}  # request_id -> variant_id
         
-    def create_test(self,
+    async def create_test(self,
                    config: ABTestConfig,
                    created_by: str = "system") -> str:
         """Create a new A/B test.
@@ -182,7 +212,7 @@ class ABTestingService:
             Test ID
         """
         # Validate configuration
-        self._validate_test_config(config)
+        await self._validate_test_config(config)
         
         test_id = str(uuid.uuid4())
         
@@ -202,7 +232,7 @@ class ABTestingService:
         self.logger.info(f"Created A/B test '{config.test_name}' with ID: {test_id}")
         return test_id
     
-    def _validate_test_config(self, config: ABTestConfig):
+    async def _validate_test_config(self, config: ABTestConfig):
         """Validate A/B test configuration.
         
         Args:
@@ -224,11 +254,18 @@ class ABTestingService:
         
         # Validate models exist
         for variant in config.variants:
-            model_versions = self.mlops_service.get_model_versions(variant.model_id)
-            if not any(v.version == variant.model_version for v in model_versions):
+            try:
+                # Use the model registry interface to validate model versions
+                model_versions = await self._model_registry.list_model_versions(variant.model_id)
+                if not any(str(v.version) == str(variant.model_version) for v in model_versions):
+                    raise ValueError(
+                        f"Model version {variant.model_version} not found for model {variant.model_id}"
+                    )
+            except Exception as e:
+                self.logger.error(f"Failed to validate model {variant.model_id}: {str(e)}")
                 raise ValueError(
-                    f"Model version {variant.model_version} not found for model {variant.model_id}"
-                )
+                    f"Failed to validate model {variant.model_id}: {str(e)}"
+                ) from e
     
     def start_test(self, test_id: str, initial_traffic_percentage: float = 10.0):
         """Start an A/B test.
