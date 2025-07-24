@@ -1,0 +1,1 @@
+"""Stub implementations for external service interfaces."""

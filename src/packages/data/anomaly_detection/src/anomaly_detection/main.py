@@ -7,7 +7,6 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import health
 from .api.v1 import api_router
 from .infrastructure.config.settings import get_settings
 from .infrastructure.logging import setup_logging
@@ -53,7 +52,6 @@ def create_app() -> FastAPI:
     )
 
     # Include routers
-    app.include_router(health.router, tags=["health"])
     app.include_router(api_router, prefix="/api/v1")
 
     return app

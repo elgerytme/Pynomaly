@@ -297,7 +297,7 @@ class TestCLIIntegration:
     def test_error_handling_invalid_contamination(self, runner: CliRunner, sample_csv_file: Path):
         """Test CLI error handling with invalid contamination rate."""
         result = runner.invoke(main, [
-            'detect', run',
+            'detect', 'run',
             '--input', str(sample_csv_file),
             '--algorithm', 'isolation_forest',
             '--contamination', '1.5'  # Invalid

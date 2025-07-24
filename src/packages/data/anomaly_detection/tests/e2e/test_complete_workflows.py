@@ -368,7 +368,7 @@ class TestCompleteWorkflows:
         success = model_repo.delete(model_id)
         assert success is True
     
-    def test_monitoring_integration_workflow(self, sample_dataset: Dict[str, Any]):
+    async def test_monitoring_integration_workflow(self, sample_dataset: Dict[str, Any]):
         """Test complete workflow with monitoring integration."""
         from anomaly_detection.infrastructure.monitoring import (
             get_metrics_collector, get_performance_monitor, get_monitoring_dashboard

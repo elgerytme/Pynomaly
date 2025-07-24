@@ -409,7 +409,7 @@ class TestWorkerServiceIntegration:
             },
             priority=JobPriority.HIGH
         )
-        job_ids.append(("detection", detection_job_id))\n        
+        job_ids.append(("detection", detection_job_id))
         # Explanation job
         explanation_job_id = await worker.submit_job(
             JobType.EXPLANATION_GENERATION,
