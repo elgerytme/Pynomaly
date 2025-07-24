@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 # TODO: Create local Dataset entity
-from monorepo.domain.exceptions import DataTypeError, FeatureMismatchError
+from ..exceptions import DataTypeError, FeatureMismatchError
 
 
 class FeatureValidator:

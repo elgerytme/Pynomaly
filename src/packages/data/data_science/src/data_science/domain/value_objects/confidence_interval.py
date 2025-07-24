@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from monorepo.domain.exceptions import InvalidValueError
+from ..exceptions import InvalidValueError
 
 
 @dataclass(frozen=True)

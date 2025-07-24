@@ -15,6 +15,7 @@ import uuid
 
 from .domain.services.detection_service import DetectionService
 from .domain.services.ensemble_service import EnsembleService
+from .domain.services.streaming_service import StreamingService
 try:
     from data.processing.domain.entities.model import Model
 except ImportError:
@@ -49,6 +50,7 @@ monitoring_dashboard = get_monitoring_dashboard()
 # Global service instances - initialized during startup
 global_detection_service: Optional[DetectionService] = None
 global_ensemble_service: Optional[EnsembleService] = None
+global_streaming_service: Optional[StreamingService] = None
 global_model_repository: Optional[ModelRepository] = None
 
 
@@ -108,6 +110,7 @@ class HealthResponse(BaseModel):
 # Global variables for service instances
 _detection_service: Optional[DetectionService] = None
 _ensemble_service: Optional[EnsembleService] = None
+_streaming_service: Optional[StreamingService] = None
 _model_repository: Optional[ModelRepository] = None
 _app_start_time: Optional[datetime] = None
 

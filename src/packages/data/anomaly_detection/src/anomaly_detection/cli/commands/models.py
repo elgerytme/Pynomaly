@@ -476,3 +476,157 @@ def train(
         console.print(metrics_table)
     
     print(f"[green]✅[/green] Model training completed successfully!")
+
+
+@app.command()
+def predict(
+    model_id: str = typer.Argument(..., help="Model ID to use for prediction"),
+    input_file: Path = typer.Option(..., "--input", "-i", help="Input dataset file path"),
+    output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file path for predictions"),
+    models_dir: Path = typer.Option(Path("models"), "--models-dir", "-d", help="Models directory"),
+    threshold: Optional[float] = typer.Option(None, "--threshold", "-t", help="Detection threshold"),
+) -> None:
+    """Make predictions using a trained model."""
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        
+        # Load model
+        load_model_task = progress.add_task("Loading trained model...", total=None)
+        
+        try:
+            repo = ModelRepository(str(models_dir))
+            model = repo.load(model_id)
+            
+            progress.update(load_model_task, completed=True)
+            print(f"[green]✓[/green] Loaded model '{model.metadata.name}' ({model.metadata.algorithm})")
+            
+        except FileNotFoundError:
+            print(f"[red]✗[/red] Model with ID '{model_id}' not found")
+            raise typer.Exit(1)
+        except Exception as e:
+            print(f"[red]✗[/red] Failed to load model: {e}")
+            raise typer.Exit(1)
+        
+        # Load dataset
+        load_data_task = progress.add_task("Loading input dataset...", total=None)
+        
+        try:
+            if not input_file.exists():
+                print(f"[red]✗[/red] Input file '{input_file}' not found")
+                raise typer.Exit(1)
+            
+            # Load data based on file extension
+            if input_file.suffix.lower() == '.csv':
+                df = pd.read_csv(input_file)
+            elif input_file.suffix.lower() == '.json':
+                df = pd.read_json(input_file)
+            elif input_file.suffix.lower() == '.parquet':
+                df = pd.read_parquet(input_file)
+            else:
+                print(f"[red]✗[/red] Unsupported file format '{input_file.suffix}'")
+                raise typer.Exit(1)
+            
+            progress.update(load_data_task, completed=True)
+            print(f"[green]✓[/green] Loaded input dataset with {len(df)} samples, {len(df.columns)} features")
+            
+        except Exception as e:
+            print(f"[red]✗[/red] Failed to load dataset: {e}")
+            raise typer.Exit(1)
+        
+        # Make predictions
+        predict_task = progress.add_task("Making predictions...", total=None)
+        
+        try:
+            # Convert to numpy array
+            data_array = df.to_numpy()
+            
+            # Use the model object for prediction
+            predictions = model.model_object.predict(data_array)
+            scores = model.model_object.decision_function(data_array)
+            
+            progress.update(predict_task, completed=True)
+            
+        except Exception as e:
+            print(f"[red]✗[/red] Prediction failed: {e}")
+            raise typer.Exit(1)
+        
+        # Process results
+        results_df = df.copy()
+        results_df['anomaly_score'] = scores
+        results_df['is_anomaly'] = predictions == -1  # Scikit-learn convention: -1 = anomaly
+        results_df['prediction'] = predictions
+        
+        # Apply threshold if provided
+        if threshold is not None:
+            results_df['is_anomaly'] = results_df['anomaly_score'] > threshold
+        
+        # Count anomalies
+        n_anomalies = results_df['is_anomaly'].sum()
+        anomaly_rate = n_anomalies / len(results_df)
+        
+        # Display results
+        results_table = Table(title="[bold blue]Prediction Results[/bold blue]")
+        results_table.add_column("Metric", style="cyan")
+        results_table.add_column("Value", style="green")
+        
+        results_table.add_row("Total Samples", str(len(results_df)))
+        results_table.add_row("Detected Anomalies", str(n_anomalies))
+        results_table.add_row("Anomaly Rate", f"{anomaly_rate:.1%}")
+        results_table.add_row("Model Algorithm", model.metadata.algorithm)
+        
+        if threshold is not None:
+            results_table.add_row("Applied Threshold", str(threshold))
+        
+        console.print(results_table)
+        
+        # Save output if specified
+        if output_file:
+            try:
+                if output_file.suffix.lower() == '.csv':
+                    results_df.to_csv(output_file, index=False)
+                elif output_file.suffix.lower() == '.json':
+                    results_df.to_json(output_file, orient='records', indent=2)
+                elif output_file.suffix.lower() == '.parquet':
+                    results_df.to_parquet(output_file, index=False)
+                else:
+                    print(f"[yellow]⚠[/yellow] Unsupported output format '{output_file.suffix}', using CSV")
+                    output_file = output_file.with_suffix('.csv')
+                    results_df.to_csv(output_file, index=False)
+                
+                print(f"[green]✅[/green] Predictions saved to: {output_file}")
+                
+            except Exception as e:
+                print(f"[red]✗[/red] Failed to save predictions: {e}")
+                raise typer.Exit(1)
+        else:
+            # Display sample predictions
+            sample_table = Table(title="[bold blue]Sample Predictions (first 10 rows)[/bold blue]")
+            
+            # Add original columns (limit to first few for display)
+            display_cols = df.columns[:3].tolist()  # Show first 3 original columns
+            for col in display_cols:
+                sample_table.add_column(col, style="dim")
+            
+            sample_table.add_column("Anomaly Score", style="blue", justify="right")
+            sample_table.add_column("Is Anomaly", style="red")
+            
+            for i in range(min(10, len(results_df))):
+                row_data = []
+                for col in display_cols:
+                    row_data.append(str(results_df[col].iloc[i]))
+                row_data.append(f"{results_df['anomaly_score'].iloc[i]:.3f}")
+                row_data.append("Yes" if results_df['is_anomaly'].iloc[i] else "No")
+                sample_table.add_row(*row_data)
+            
+            console.print(sample_table)
+    
+    print(f"[green]✅[/green] Prediction completed successfully!")
+
+
+# Export command functions for backward compatibility
+train_command = train
+predict_command = predict

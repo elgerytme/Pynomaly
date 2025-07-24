@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.exceptions import InvalidDataError
+from ..exceptions import InvalidDataError
 
 
 @dataclass
