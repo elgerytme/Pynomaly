@@ -20,10 +20,20 @@ import numpy as np
 from pydantic import BaseModel
 
 from ....infrastructure.logging import get_logger
-from ....infrastructure.monitoring import get_metrics_collector
 
 logger = get_logger(__name__)
-metrics_collector = get_metrics_collector()
+
+# Lazy import metrics collector to avoid None issues
+def get_safe_metrics_collector():
+    """Get metrics collector with safe fallback."""
+    try:
+        from ....infrastructure.monitoring import get_metrics_collector
+        return get_metrics_collector()
+    except Exception:
+        class MockMetricsCollector:
+            def record_metric(self, *args, **kwargs):
+                pass
+        return MockMetricsCollector()
 
 
 class ThreatType(Enum):
@@ -636,7 +646,8 @@ class ThreatDetectionSystem:
                 all_threats.extend(threats)
                 
                 # Record metrics
-                metrics_collector.record_metric(
+                metrics = get_safe_metrics_collector()
+                metrics.record_metric(
                     f"security.threats.{detector_name}.count",
                     len(threats),
                     {"detector": detector_name}
@@ -652,12 +663,13 @@ class ThreatDetectionSystem:
         alerts = await self._process_threats_into_alerts(all_threats)
         
         # Record overall metrics
-        metrics_collector.record_metric(
+        metrics = get_safe_metrics_collector()
+        metrics.record_metric(
             "security.threats.total_count",
             len(all_threats)
         )
         
-        metrics_collector.record_metric(
+        metrics.record_metric(
             "security.alerts.total_count",
             len(alerts)
         )

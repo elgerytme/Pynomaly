@@ -21,10 +21,20 @@ from passlib.hash import bcrypt, scrypt, argon2
 import jwt
 
 from ..logging import get_logger
-from ..monitoring import get_metrics_collector
 
 logger = get_logger(__name__)
-metrics_collector = get_metrics_collector()
+
+# Lazy import metrics collector to avoid None issues
+def get_safe_metrics_collector():
+    """Get metrics collector with safe fallback."""
+    try:
+        from ..monitoring import get_metrics_collector
+        return get_metrics_collector()
+    except Exception:
+        class MockMetricsCollector:
+            def record_metric(self, *args, **kwargs):
+                pass
+        return MockMetricsCollector()
 
 
 class AuthenticationMethod(Enum):
