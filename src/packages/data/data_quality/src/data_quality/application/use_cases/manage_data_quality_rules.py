@@ -1,8 +1,8 @@
 
 from uuid import UUID
 
-from src.packages.data.data_quality.src.data_quality.application.services.data_quality_rule_service import DataQualityRuleService
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule
+from ..services.data_quality_rule_service import DataQualityRuleService
+from ...domain.entities.data_quality_rule import DataQualityRule
 
 
 class ManageDataQualityRulesUseCase:

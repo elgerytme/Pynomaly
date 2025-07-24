@@ -3,9 +3,9 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_quality_rule_repository import DataQualityRuleRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleCondition, RuleOperator, RuleType, RuleSeverity
-from src.packages.data.data_quality.src.data_quality.infrastructure.database.models import DataQualityRuleModel
+from ...application.ports.data_quality_rule_repository import DataQualityRuleRepository
+from ...domain.entities.data_quality_rule import DataQualityRule, RuleCondition, RuleOperator, RuleType, RuleSeverity
+from ..database.models import DataQualityRuleModel
 
 
 class SQLAlchemyDataQualityRuleRepository(DataQualityRuleRepository):

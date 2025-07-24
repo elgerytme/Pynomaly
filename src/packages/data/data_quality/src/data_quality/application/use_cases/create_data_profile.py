@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
-from src.packages.data.data_quality.src.data_quality.application.services.data_profiling_service import DataProfilingService
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_profile import DataProfile
-from src.packages.data.data_quality.src.data_quality.infrastructure.adapters.data_source_adapter import DataSourceAdapter
+from ..services.data_profiling_service import DataProfilingService
+from ...domain.entities.data_profile import DataProfile
+from ...infrastructure.adapters.data_source_adapter import DataSourceAdapter
 
 
 class CreateDataProfileUseCase:

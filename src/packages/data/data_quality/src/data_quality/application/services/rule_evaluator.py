@@ -1,7 +1,7 @@
 
 from typing import Any, Dict
 
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleCondition, RuleOperator
+from ...domain.entities.data_quality_rule import DataQualityRule, RuleCondition, RuleOperator
 
 
 class RuleEvaluator:

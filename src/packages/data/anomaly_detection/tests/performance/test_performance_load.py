@@ -13,7 +13,6 @@ from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 
 from anomaly_detection.main import create_app
-from anomaly_detection.server import create_app as create_server_app
 from anomaly_detection.worker import AnomalyDetectionWorker, JobType, JobPriority
 from anomaly_detection.domain.services.detection_service import DetectionService
 from anomaly_detection.domain.services.ensemble_service import EnsembleService
@@ -151,42 +150,49 @@ class TestAPILoadTesting:
     
     def _detection_request(self):
         """Single detection API request."""
-        with patch('anomaly_detection.main.global_detection_service') as mock_service:
-            mock_service.detect_anomalies = Mock(return_value={
-                "anomalies": [0, 1, 0, 1, 0],
-                "scores": [0.1, 0.8, 0.2, 0.9, 0.15],
-                "algorithm": "isolation_forest"
-            })
+        # Mock the detection service at the module level
+        with patch('anomaly_detection.server._detection_service') as mock_service:
+            mock_result = Mock()
+            mock_result.success = True
+            mock_result.anomalies = [0, 2, 4]  # Sample anomaly indices
+            mock_result.confidence_scores = np.array([0.1, 0.8, 0.2, 0.9, 0.15])
+            mock_result.total_samples = 5
+            mock_result.anomaly_count = 3
+            mock_result.anomaly_rate = 0.6
             
-            response = self.client.post("/detect", json=self.test_data)
+            mock_service.detect_anomalies.return_value = mock_result
+            
+            response = self.client.post("/api/v1/detect", json=self.test_data)
             if response.status_code != 200:
-                raise Exception(f"API request failed: {response.status_code}")
+                raise Exception(f"API request failed: {response.status_code} - {response.text}")
     
     def _ensemble_request(self):
         """Single ensemble API request."""
-        with patch('anomaly_detection.main.global_ensemble_service') as mock_service:
-            mock_service.detect_with_ensemble = Mock(return_value={
-                "anomalies": [0, 1, 0, 1],
-                "ensemble_scores": [0.1, 0.8, 0.2, 0.9],
-                "individual_results": {},
-                "ensemble_method": "majority"
-            })
+        with patch('anomaly_detection.server._ensemble_service') as mock_ensemble_service, \
+             patch('anomaly_detection.domain.services.detection_service.DetectionService') as mock_detection_class:
             
-            response = self.client.post("/ensemble/detect", json=self.ensemble_data)
+            # Mock the detection service class constructor 
+            mock_detection_instance = Mock()
+            mock_detection_result = Mock()
+            mock_detection_result.success = True
+            mock_detection_result.predictions = np.array([-1, 1, 1, -1])  # -1 = anomaly, 1 = normal
+            mock_detection_result.confidence_scores = np.array([0.9, 0.2, 0.3, 0.8])
+            mock_detection_instance.detect_anomalies.return_value = mock_detection_result
+            mock_detection_class.return_value = mock_detection_instance
+            
+            # Mock ensemble service methods
+            mock_ensemble_service.majority_vote.return_value = np.array([-1, 1, 1, -1])
+            
+            response = self.client.post("/api/v1/ensemble", json=self.ensemble_data)
             if response.status_code != 200:
-                raise Exception(f"Ensemble API request failed: {response.status_code}")
+                raise Exception(f"Ensemble API request failed: {response.status_code} - {response.text}")
     
     def _health_request(self):
         """Single health check API request."""
-        with patch('anomaly_detection.main.global_health_service') as mock_service:
-            mock_service.get_health_summary = Mock(return_value={
-                "status": "healthy",
-                "services": {"detection": "healthy"}
-            })
-            
-            response = self.client.get("/health")
-            if response.status_code != 200:
-                raise Exception(f"Health API request failed: {response.status_code}")
+        # Health endpoint should work without mocking since it's simple
+        response = self.client.get("/health")
+        if response.status_code != 200:
+            raise Exception(f"Health API request failed: {response.status_code} - {response.text}")
     
     def test_detection_endpoint_load(self):
         """Load test for detection endpoint."""
@@ -844,29 +850,30 @@ class TestSystemIntegrationLoad:
     
     def test_end_to_end_system_load(self):
         """Test end-to-end system under load."""
-        # Mock all services
-        with patch('anomaly_detection.main.global_detection_service') as mock_detection, \
-             patch('anomaly_detection.main.global_ensemble_service') as mock_ensemble, \
-             patch('anomaly_detection.main.global_health_service') as mock_health:
+        # Mock services properly
+        with patch('anomaly_detection.server._detection_service') as mock_detection_service, \
+             patch('anomaly_detection.server._ensemble_service') as mock_ensemble_service, \
+             patch('anomaly_detection.domain.services.detection_service.DetectionService') as mock_detection_class:
             
-            # Setup service mocks
-            mock_detection.detect_anomalies = Mock(return_value={
-                "anomalies": [0, 1, 0, 1],
-                "scores": [0.1, 0.8, 0.2, 0.9],
-                "algorithm": "isolation_forest"
-            })
+            # Setup detection service mock
+            mock_detection_result = Mock()
+            mock_detection_result.success = True
+            mock_detection_result.anomalies = [0, 1]
+            mock_detection_result.confidence_scores = np.array([0.1, 0.8, 0.2, 0.9])
+            mock_detection_result.total_samples = 4
+            mock_detection_result.anomaly_count = 2
+            mock_detection_result.anomaly_rate = 0.5
+            mock_detection_service.detect_anomalies.return_value = mock_detection_result
             
-            mock_ensemble.detect_with_ensemble = Mock(return_value={
-                "anomalies": [0, 1, 0],
-                "ensemble_scores": [0.1, 0.8, 0.2],
-                "individual_results": {},
-                "ensemble_method": "majority"
-            })
+            # Setup ensemble service dependencies
+            mock_detection_instance = Mock()
+            mock_detection_instance.detect_anomalies.return_value = Mock(
+                predictions=np.array([-1, 1, 1]),
+                confidence_scores=np.array([0.8, 0.2, 0.3])
+            )
+            mock_detection_class.return_value = mock_detection_instance
             
-            mock_health.get_health_summary = Mock(return_value={
-                "status": "healthy",
-                "services": {"detection": "healthy"}
-            })
+            mock_ensemble_service.majority_vote.return_value = np.array([-1, 1, -1])
             
             # Run mixed load test
             runner = LoadTestRunner()
@@ -877,16 +884,16 @@ class TestSystemIntegrationLoad:
                 operation = random.choice(['detection', 'ensemble', 'health', 'health'])
                 
                 if operation == 'detection':
-                    response = self.client.post("/detect", json={
+                    response = self.client.post("/api/v1/detect", json={
                         "data": self.test_datasets["small"],
                         "algorithm": "isolation_forest",
                         "contamination": 0.1
                     })
                 elif operation == 'ensemble':
-                    response = self.client.post("/ensemble/detect", json={
+                    response = self.client.post("/api/v1/ensemble", json={
                         "data": self.test_datasets["small"],
                         "algorithms": ["isolation_forest", "one_class_svm"],
-                        "ensemble_method": "majority",
+                        "method": "majority",
                         "contamination": 0.1
                     })
                 else:  # health
@@ -925,10 +932,15 @@ class TestSystemIntegrationLoad:
         # Run sustained load
         resource_readings = []
         
-        with patch('anomaly_detection.main.global_detection_service') as mock_detection:
-            mock_detection.detect_anomalies = Mock(return_value={
-                "anomalies": [0, 1], "scores": [0.1, 0.8], "algorithm": "isolation_forest"
-            })
+        with patch('anomaly_detection.server._detection_service') as mock_detection_service:
+            mock_result = Mock()
+            mock_result.success = True
+            mock_result.anomalies = [0, 1]
+            mock_result.confidence_scores = np.array([0.1, 0.8])
+            mock_result.total_samples = 2
+            mock_result.anomaly_count = 2
+            mock_result.anomaly_rate = 1.0
+            mock_detection_service.detect_anomalies.return_value = mock_result
             
             start_time = time.time()
             request_count = 0
@@ -936,7 +948,7 @@ class TestSystemIntegrationLoad:
             # Run for specific duration
             while time.time() - start_time < 5.0:  # 5 second test
                 # Make API request
-                response = self.client.post("/detect", json={
+                response = self.client.post("/api/v1/detect", json={
                     "data": self.test_datasets["small"],
                     "algorithm": "isolation_forest"
                 })

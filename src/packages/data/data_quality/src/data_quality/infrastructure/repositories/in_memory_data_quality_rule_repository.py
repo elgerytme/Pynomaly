@@ -2,8 +2,8 @@
 from typing import Dict, Optional
 from uuid import UUID
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_quality_rule_repository import DataQualityRuleRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule
+from ...application.ports.data_quality_rule_repository import DataQualityRuleRepository
+from ...domain.entities.data_quality_rule import DataQualityRule
 
 
 class InMemoryDataQualityRuleRepository(DataQualityRuleRepository):

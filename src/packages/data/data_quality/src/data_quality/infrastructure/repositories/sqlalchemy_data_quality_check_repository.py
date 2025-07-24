@@ -3,9 +3,9 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_quality_check_repository import DataQualityCheckRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckStatus, CheckSeverity, CheckResult
-from src.packages.data.data_quality.src.data_quality.infrastructure.database.models import DataQualityCheckModel
+from ...application.ports.data_quality_check_repository import DataQualityCheckRepository
+from ...domain.entities.data_quality_check import DataQualityCheck, CheckStatus, CheckSeverity, CheckResult
+from ..database.models import DataQualityCheckModel
 
 
 class SQLAlchemyDataQualityCheckRepository(DataQualityCheckRepository):

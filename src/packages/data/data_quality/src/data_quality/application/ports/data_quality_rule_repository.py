@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from uuid import UUID
 
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule
+from ...domain.entities.data_quality_rule import DataQualityRule
 
 
 class DataQualityRuleRepository(ABC):

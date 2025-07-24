@@ -5,9 +5,9 @@ import numpy as np
 
 from sqlalchemy.orm import Session
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_profile_repository import DataProfileRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_profile import DataProfile, ColumnProfile, ProfileStatistics, DataType, ProfileStatus
-from src.packages.data.data_quality.src.data_quality.infrastructure.database.models import DataProfileModel
+from ...application.ports.data_profile_repository import DataProfileRepository
+from ...domain.entities.data_profile import DataProfile, ColumnProfile, ProfileStatistics, DataType, ProfileStatus
+from ..database.models import DataProfileModel
 
 
 class SQLAlchemyDataProfileRepository(DataProfileRepository):

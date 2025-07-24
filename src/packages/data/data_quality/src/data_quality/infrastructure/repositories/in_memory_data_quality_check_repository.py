@@ -2,8 +2,8 @@
 from typing import Dict, Optional
 from uuid import UUID
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_quality_check_repository import DataQualityCheckRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_check import DataQualityCheck
+from ...application.ports.data_quality_check_repository import DataQualityCheckRepository
+from ...domain.entities.data_quality_check import DataQualityCheck
 
 
 class InMemoryDataQualityCheckRepository(DataQualityCheckRepository):

@@ -1,9 +1,9 @@
 
 import click
 
-from src.packages.data.data_quality.src.data_quality.application.use_cases.create_data_profile import CreateDataProfileUseCase
-from src.packages.data.data_quality.src.data_quality.di import get_data_profiling_service
-from src.packages.data.data_quality.src.data_quality.infrastructure.adapters.pandas_csv_adapter import PandasCSVAdapter
+from ...application.use_cases.create_data_profile import CreateDataProfileUseCase
+from ...di import get_data_profiling_service
+from ...infrastructure.adapters.pandas_csv_adapter import PandasCSVAdapter
 
 
 @click.group()

@@ -1,9 +1,9 @@
 import click
 from uuid import UUID
 
-from src.packages.data.data_quality.src.data_quality.application.use_cases.manage_data_quality_rules import ManageDataQualityRulesUseCase
-from src.packages.data.data_quality.src.data_quality.di import get_data_quality_rule_service
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleType, RuleSeverity, RuleCondition, RuleOperator
+from ...application.use_cases.manage_data_quality_rules import ManageDataQualityRulesUseCase
+from ...di import get_data_quality_rule_service
+from ...domain.entities.data_quality_rule import DataQualityRule, RuleType, RuleSeverity, RuleCondition, RuleOperator
 
 
 @click.group()

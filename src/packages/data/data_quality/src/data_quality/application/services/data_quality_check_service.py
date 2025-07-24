@@ -4,12 +4,12 @@ from typing import Any, Dict
 import pandas as pd
 from datetime import datetime
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_quality_check_repository import DataQualityCheckRepository
-from src.packages.data.data_quality.src.data_quality.application.ports.data_quality_rule_repository import DataQualityRuleRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckResult, CheckStatus, CheckSeverity
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule
-from src.packages.data.data_quality.src.data_quality.infrastructure.adapters.data_source_adapter import DataSourceAdapter
-from src.packages.data.data_quality.src.data_quality.application.services.rule_evaluator import RuleEvaluator
+from ..ports.data_quality_check_repository import DataQualityCheckRepository
+from ..ports.data_quality_rule_repository import DataQualityRuleRepository
+from ...domain.entities.data_quality_check import DataQualityCheck, CheckResult, CheckStatus, CheckSeverity
+from ...domain.entities.data_quality_rule import DataQualityRule
+from ...infrastructure.adapters.data_source_adapter import DataSourceAdapter
+from .rule_evaluator import RuleEvaluator
 
 
 class DataQualityCheckService:

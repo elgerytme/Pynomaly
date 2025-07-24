@@ -2,8 +2,8 @@
 from uuid import UUID
 from typing import Any, Dict
 
-from src.packages.data.data_quality.src.data_quality.application.services.data_quality_check_service import DataQualityCheckService
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_check import DataQualityCheck
+from ..services.data_quality_check_service import DataQualityCheckService
+from ...domain.entities.data_quality_check import DataQualityCheck
 
 
 class RunDataQualityCheckUseCase:

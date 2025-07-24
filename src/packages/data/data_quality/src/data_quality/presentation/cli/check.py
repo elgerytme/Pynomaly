@@ -2,8 +2,8 @@
 import click
 from uuid import UUID
 
-from src.packages.data.data_quality.src.data_quality.application.use_cases.run_data_quality_check import RunDataQualityCheckUseCase
-from src.packages.data.data_quality.src.data_quality.di import get_data_quality_check_service
+from ...application.use_cases.run_data_quality_check import RunDataQualityCheckUseCase
+from ...di import get_data_quality_check_service
 
 
 @click.group()

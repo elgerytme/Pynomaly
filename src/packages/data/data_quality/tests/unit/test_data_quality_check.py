@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckType, CheckStatus, CheckSeverity, CheckResult
+from src.data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckType, CheckStatus, CheckSeverity, CheckResult
 
 
 class TestDataQualityCheck(unittest.TestCase):

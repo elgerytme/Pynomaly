@@ -2,9 +2,9 @@ from uuid import UUID
 from typing import Dict, Any
 import pandas as pd
 
-from src.packages.data.data_quality.src.data_quality.application.ports.data_profile_repository import DataProfileRepository
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_profile import DataProfile, ColumnProfile, ProfileStatistics, DataType
-from src.packages.data.data_quality.src.data_quality.infrastructure.adapters.data_source_adapter import DataSourceAdapter
+from ..ports.data_profile_repository import DataProfileRepository
+from ...domain.entities.data_profile import DataProfile, ColumnProfile, ProfileStatistics, DataType
+from ...infrastructure.adapters.data_source_adapter import DataSourceAdapter
 
 
 class DataProfilingService:

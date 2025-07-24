@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from src.packages.data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleType, RuleSeverity, RuleCondition, RuleOperator
+from src.data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleType, RuleSeverity, RuleCondition, RuleOperator
 
 
 class TestDataQualityRule(unittest.TestCase):

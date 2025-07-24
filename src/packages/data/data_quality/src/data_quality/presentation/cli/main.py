@@ -2,9 +2,9 @@
 import click
 
 
-from src.packages.data.data_quality.src.data_quality.presentation.cli.profile import profile
-from src.packages.data.data_quality.src.data_quality.presentation.cli.check import check
-from src.packages.data.data_quality.src.data_quality.presentation.cli.rule import rule
+from .profile import profile
+from .check import check
+from .rule import rule
 
 
 @click.group()

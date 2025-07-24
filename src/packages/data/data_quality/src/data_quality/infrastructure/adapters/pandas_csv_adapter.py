@@ -2,7 +2,7 @@
 import pandas as pd
 from typing import Any, Dict
 
-from src.packages.data.data_quality.src.data_quality.infrastructure.adapters.data_source_adapter import DataSourceAdapter
+from .data_source_adapter import DataSourceAdapter
 
 
 class PandasCSVAdapter(DataSourceAdapter):
