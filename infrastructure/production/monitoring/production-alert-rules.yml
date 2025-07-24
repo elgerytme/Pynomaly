@@ -1,0 +1,388 @@
+# Production Alert Rules for Scaled MLOps Platform
+# Enterprise-grade alerting with SLA monitoring and business impact assessment
+
+groups:
+  - name: critical-sla-violations
+    rules:
+      # Platform Availability SLA (99.9%)
+      - alert: PlatformAvailabilitySLAViolation
+        expr: mlops:model_availability_sla < 0.999
+        for: 2m
+        labels:
+          severity: critical
+          sla: availability
+          impact: high
+        annotations:
+          summary: "Platform availability SLA violation"
+          description: "Platform availability {{ $value | humanizePercentage }} is below 99.9% SLA"
+          runbook_url: "https://wiki.company.com/runbooks/sla-violation"
+          business_impact: "Customer-facing services degraded"
+          
+      # Model Latency SLA (95th percentile < 100ms)
+      - alert: ModelLatencySLAViolation
+        expr: mlops:model_latency_p95_sla > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          sla: latency
+          impact: high
+        annotations:
+          summary: "Model latency SLA violation for {{ $labels.model_id }}"
+          description: "95th percentile latency {{ $value }}s exceeds 100ms SLA"
+          runbook_url: "https://wiki.company.com/runbooks/latency-sla"
+          business_impact: "Poor user experience, potential revenue loss"
+          
+      # Revenue Impact Drop
+      - alert: RevenueImpactCriticalDrop
+        expr: |
+          (
+            mlops:revenue_impact_rate - 
+            mlops:revenue_impact_rate offset 24h
+          ) / mlops:revenue_impact_rate offset 24h < -0.2
+        for: 15m
+        labels:
+          severity: critical
+          type: business
+          impact: revenue
+        annotations:
+          summary: "Critical drop in ML-driven revenue impact"
+          description: "Revenue impact dropped {{ $value | humanizePercentage }} compared to 24h ago"
+          business_impact: "Significant revenue loss detected"
+
+  - name: model-performance-degradation
+    rules:
+      # Model Accuracy Drop
+      - alert: ModelAccuracyDegradation
+        expr: |
+          (
+            mlops:model_accuracy_current - 
+            avg_over_time(mlops:model_accuracy_current[7d] offset 1d)
+          ) / avg_over_time(mlops:model_accuracy_current[7d] offset 1d) < -0.05
+        for: 30m
+        labels:
+          severity: warning
+          type: model_performance
+          model: "{{ $labels.model_id }}"
+        annotations:
+          summary: "Model accuracy degradation detected for {{ $labels.model_id }}"
+          description: "Accuracy dropped {{ $value | humanizePercentage }} from 7-day baseline"
+          recommended_action: "Review model retraining schedule"
+          
+      # Data Drift Alert
+      - alert: SevereDataDrift
+        expr: mlops:data_drift_severity > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          type: data_quality
+          model: "{{ $labels.model_id }}"
+          feature_group: "{{ $labels.feature_group }}"
+        annotations:
+          summary: "Severe data drift detected"
+          description: "Data drift score {{ $value }} for {{ $labels.feature_group }} in {{ $labels.model_id }}"
+          recommended_action: "Investigate data source changes and consider model retraining"
+          
+      # Feature Staleness
+      - alert: FeatureDataStaleness
+        expr: mlops:feature_freshness_minutes > 60
+        for: 5m
+        labels:
+          severity: warning
+          type: data_quality
+          feature_group: "{{ $labels.feature_group }}"
+        annotations:
+          summary: "Feature data is stale"
+          description: "Features in {{ $labels.feature_group }} are {{ $value }} minutes old"
+          recommended_action: "Check feature pipeline health"
+
+  - name: capacity-and-scaling
+    rules:
+      # High CPU Utilization
+      - alert: HighServiceCPUUtilization
+        expr: mlops:service_cpu_utilization > 80
+        for: 10m
+        labels:
+          severity: warning
+          type: capacity
+          service: "{{ $labels.service }}"
+        annotations:
+          summary: "High CPU utilization on {{ $labels.service }}"
+          description: "CPU utilization {{ $value }}% on {{ $labels.pod }}"
+          recommended_action: "Consider horizontal scaling"
+          
+      # High Memory Utilization
+      - alert: HighServiceMemoryUtilization
+        expr: mlops:service_memory_utilization > 85
+        for: 10m
+        labels:
+          severity: warning
+          type: capacity
+          service: "{{ $labels.service }}"
+        annotations:
+          summary: "High memory utilization on {{ $labels.service }}"
+          description: "Memory utilization {{ $value }}% on {{ $labels.pod }}"
+          recommended_action: "Check for memory leaks or scale up"
+          
+      # Request Queue Backlog
+      - alert: ModelRequestQueueBacklog
+        expr: mlops:request_queue_depth > 100
+        for: 5m
+        labels:
+          severity: warning
+          type: capacity
+          model: "{{ $labels.model_id }}"
+        annotations:
+          summary: "Request queue backlog for {{ $labels.model_id }}"
+          description: "{{ $value }} requests queued for processing"
+          recommended_action: "Scale model serving replicas"
+          
+      # Throughput Saturation
+      - alert: ServiceThroughputSaturation
+        expr: mlops:throughput_utilization > 90
+        for: 5m
+        labels:
+          severity: critical
+          type: capacity
+          service: "{{ $labels.service }}"
+        annotations:
+          summary: "Service throughput saturation"
+          description: "{{ $labels.service }} at {{ $value }}% of max throughput"
+          recommended_action: "Immediate scaling required"
+
+  - name: fraud-detection-specific
+    rules:
+      # Fraud Detection Model Offline
+      - alert: FraudDetectionModelOffline
+        expr: up{job="fraud-detection-model"} == 0
+        for: 30s  # Very short tolerance for fraud detection
+        labels:
+          severity: critical
+          type: security
+          model: fraud_detection
+        annotations:
+          summary: "Fraud detection model is offline"
+          description: "Critical security service unavailable"
+          business_impact: "Transactions not being screened for fraud"
+          escalation: "immediate"
+          
+      # High Fraud Rate Detected
+      - alert: UnusualFraudRateSpike
+        expr: |
+          sum(rate(fraud_predictions_total{prediction="fraud"}[5m])) /
+          sum(rate(fraud_predictions_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          type: security
+          model: fraud_detection
+        annotations:
+          summary: "Unusual spike in fraud detection rate"
+          description: "Fraud rate {{ $value | humanizePercentage }} exceeds normal threshold"
+          recommended_action: "Investigate potential attack or model drift"
+          
+      # Fraud Detection Latency
+      - alert: FraudDetectionHighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            rate(fraud_detection_duration_seconds_bucket[5m])
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          type: latency
+          model: fraud_detection
+        annotations:
+          summary: "Fraud detection latency too high"
+          description: "95th percentile latency {{ $value }}s exceeds 50ms threshold"
+          business_impact: "Transaction processing delays"
+
+  - name: customer-analytics-models
+    rules:
+      # CLV Model Performance
+      - alert: CLVModelAccuracyDrop
+        expr: |
+          avg_over_time(model_mae_percentage{model_id="customer_lifetime_value"}[1h]) > 0.20
+        for: 30m
+        labels:
+          severity: warning
+          type: model_performance
+          model: customer_lifetime_value
+        annotations:
+          summary: "CLV model accuracy degraded"
+          description: "Mean Absolute Error {{ $value | humanizePercentage }} exceeds 20% threshold"
+          business_impact: "Marketing targeting accuracy reduced"
+          
+      # Churn Model Prediction Volume Drop
+      - alert: ChurnModelLowPredictionVolume
+        expr: |
+          sum(rate(model_predictions_total{model_id="customer_churn_prediction"}[1h])) <
+          sum(rate(model_predictions_total{model_id="customer_churn_prediction"}[1h] offset 24h)) * 0.5
+        for: 30m
+        labels:
+          severity: warning
+          type: usage
+          model: customer_churn_prediction
+        annotations:
+          summary: "Low prediction volume for churn model"
+          description: "Prediction volume 50% below yesterday's rate"
+          recommended_action: "Check integration and data pipeline health"
+
+  - name: business-impact-monitoring
+    rules:
+      # Cost Savings Target Miss
+      - alert: CostSavingsTargetMiss
+        expr: |
+          sum_over_time(mlops:cost_savings_rate[24h]) < 10000
+        for: 1h
+        labels:
+          severity: warning
+          type: business
+          kpi: cost_savings
+        annotations:
+          summary: "Daily cost savings target missed"
+          description: "24h cost savings ${{ $value }} below $10K target"
+          business_impact: "ROI targets at risk"
+          
+      # Model Deployment Failure Rate
+      - alert: HighModelDeploymentFailureRate
+        expr: |
+          sum(rate(model_deployment_failures_total[1h])) /
+          sum(rate(model_deployment_attempts_total[1h])) > 0.05
+        for: 30m
+        labels:
+          severity: warning
+          type: deployment
+        annotations:
+          summary: "High model deployment failure rate"
+          description: "Deployment failure rate {{ $value | humanizePercentage }} exceeds 5%"
+          recommended_action: "Review CI/CD pipeline and infrastructure"
+          
+      # Customer Satisfaction Impact
+      - alert: MLImpactOnCustomerSatisfaction
+        expr: |
+          avg_over_time(customer_satisfaction_score[24h]) < 4.0 and
+          avg_over_time(model_predictions_total[24h]) > 1000
+        for: 2h
+        labels:
+          severity: warning
+          type: customer_experience
+        annotations:
+          summary: "Customer satisfaction potentially impacted by ML models"
+          description: "CSAT {{ $value }}/5.0 while ML models active"
+          recommended_action: "Investigate correlation between model decisions and satisfaction"
+
+  - name: infrastructure-dependencies
+    rules:
+      # External API Dependency Failure
+      - alert: ExternalAPIDependencyDown
+        expr: up{job="external-apis"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          type: dependency
+          service: "{{ $labels.instance }}"
+        annotations:
+          summary: "External API dependency unavailable"
+          description: "{{ $labels.instance }} is not responding"
+          recommended_action: "Check with external service provider"
+          
+      # Database Connection Pool Exhaustion
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: |
+          sum(database_connections_active) by (database) /
+          sum(database_connections_max) by (database) > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          type: database
+          database: "{{ $labels.database }}"
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "{{ $value | humanizePercentage }} of connections in use"
+          recommended_action: "Investigate connection leaks or increase pool size"
+          
+      # Feature Store Cache Miss Rate
+      - alert: FeatureStoreCacheMissRateHigh
+        expr: |
+          sum(rate(feature_store_cache_misses[5m])) /
+          sum(rate(feature_store_requests[5m])) > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          type: performance
+          service: feature_store
+        annotations:
+          summary: "High cache miss rate in feature store"
+          description: "Cache miss rate {{ $value | humanizePercentage }} impacts performance"
+          recommended_action: "Review cache configuration and warming strategies"
+
+  - name: security-and-compliance
+    rules:
+      # Unauthorized Model Access Attempts
+      - alert: UnauthorizedModelAccess
+        expr: |
+          sum(rate(model_access_denied_total[5m])) > 10
+        for: 2m
+        labels:
+          severity: critical
+          type: security
+        annotations:
+          summary: "High rate of unauthorized model access attempts"
+          description: "{{ $value }} unauthorized access attempts per second"
+          security_impact: "Potential security breach attempt"
+          escalation: "security_team"
+          
+      # Model Bias Detection
+      - alert: ModelBiasDetected
+        expr: model_bias_score > 0.1
+        for: 15m
+        labels:
+          severity: warning
+          type: compliance
+          model: "{{ $labels.model_id }}"
+        annotations:
+          summary: "Model bias detected"
+          description: "Bias score {{ $value }} for {{ $labels.model_id }}"
+          compliance_impact: "Regulatory compliance risk"
+          recommended_action: "Review model fairness and retraining requirements"
+          
+      # Audit Log Processing Delays
+      - alert: AuditLogProcessingDelay
+        expr: |
+          time() - audit_log_last_processed_timestamp > 300
+        for: 5m
+        labels:
+          severity: warning
+          type: compliance
+        annotations:
+          summary: "Audit log processing delayed"
+          description: "Last processed {{ $value }} seconds ago"
+          compliance_impact: "Audit trail completeness at risk"
+
+# Notification routing and escalation
+routing_rules:
+  critical_alerts:
+    - PlatformAvailabilitySLAViolation
+    - ModelLatencySLAViolation
+    - RevenueImpactCriticalDrop
+    - FraudDetectionModelOffline
+    - ServiceThroughputSaturation
+    - UnauthorizedModelAccess
+    escalation:
+      immediate: ["pagerduty", "slack_critical", "email_oncall"]
+      
+  warning_alerts:
+    - ModelAccuracyDegradation
+    - SevereDataDrift
+    - HighServiceCPUUtilization
+    - CLVModelAccuracyDrop
+    escalation:
+      standard: ["slack_warnings", "email_team"]
+      
+  security_alerts:
+    - FraudDetectionModelOffline
+    - UnusualFraudRateSpike
+    - UnauthorizedModelAccess
+    - ModelBiasDetected
+    escalation:
+      security: ["security_team_pager", "slack_security", "email_security"]

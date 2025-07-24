@@ -1,0 +1,238 @@
+# Advanced Production Monitoring Configuration
+# Enhanced metrics collection for scaled MLOps platform
+
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    cluster: 'mlops-production'
+    environment: 'prod'
+    region: 'us-east-1'
+
+rule_files:
+  - "production-alert-rules.yml"
+  - "sla-monitoring-rules.yml"
+  - "business-metrics-rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager-prod:9093
+      timeout: 10s
+      api_version: v2
+
+scrape_configs:
+  # Core Platform Services
+  - job_name: 'model-server-prod'
+    static_configs:
+      - targets: ['model-server-prod:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    
+  - job_name: 'feature-store-prod'
+    static_configs:
+      - targets: ['feature-store-prod:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    
+  - job_name: 'inference-engine-prod'
+    static_configs:
+      - targets: ['inference-engine-prod:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Model-Specific Monitoring
+  - job_name: 'customer-churn-model'
+    static_configs:
+      - targets: ['churn-model-service:8010']
+    metrics_path: '/model/metrics'
+    scrape_interval: 10s
+    params:
+      model_id: ['customer_churn_prediction']
+      
+  - job_name: 'clv-model'
+    static_configs:
+      - targets: ['clv-model-service:8011']
+    metrics_path: '/model/metrics'
+    scrape_interval: 10s
+    params:
+      model_id: ['customer_lifetime_value']
+      
+  - job_name: 'fraud-detection-model'
+    static_configs:
+      - targets: ['fraud-model-service:8012']
+    metrics_path: '/model/metrics'
+    scrape_interval: 5s  # More frequent for fraud detection
+    params:
+      model_id: ['fraud_detection']
+
+  # Business Intelligence Metrics
+  - job_name: 'business-metrics-collector'
+    static_configs:
+      - targets: ['business-metrics:8090']
+    metrics_path: '/business/metrics'
+    scrape_interval: 60s  # Business metrics updated less frequently
+    
+  # Data Quality Monitoring
+  - job_name: 'data-quality-monitor'
+    static_configs:
+      - targets: ['data-quality-service:8091']
+    metrics_path: '/data/quality/metrics'
+    scrape_interval: 30s
+    
+  # Infrastructure Monitoring
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - mlops-production
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+        
+  - job_name: 'kubernetes-services'
+    kubernetes_sd_configs:
+      - role: service
+        namespaces:
+          names:
+            - mlops-production
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+
+  # External Dependencies
+  - job_name: 'external-apis'
+    static_configs:
+      - targets: 
+        - 'payment-gateway:443'
+        - 'external-data-source:443'
+        - 'third-party-service:443'
+    metrics_path: '/health/metrics'
+    scheme: https
+    scrape_interval: 30s
+    
+  # Custom ML Pipeline Metrics
+  - job_name: 'ml-pipeline-metrics'
+    static_configs:
+      - targets: ['ml-pipeline-monitor:8092']
+    metrics_path: '/pipeline/metrics'
+    scrape_interval: 15s
+
+  # Feature Store Performance
+  - job_name: 'feature-store-performance'
+    static_configs:
+      - targets: ['feature-store-prod:8001']
+    metrics_path: '/performance/metrics'
+    scrape_interval: 15s
+    params:
+      detailed: ['true']
+
+# Recording rules for complex metrics
+recording_rules:
+  - name: mlops.sla.rules
+    interval: 30s
+    rules:
+      # Model Availability SLA (99.9%)
+      - record: mlops:model_availability_sla
+        expr: |
+          (
+            sum(rate(model_requests_total[5m])) - 
+            sum(rate(model_requests_total{status=~"5.."}[5m]))
+          ) / sum(rate(model_requests_total[5m]))
+          
+      # Model Latency SLA (95th percentile < 100ms)
+      - record: mlops:model_latency_p95_sla
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(model_request_duration_seconds_bucket[5m])) 
+            by (le, model_id)
+          )
+          
+      # Business Impact Metrics
+      - record: mlops:revenue_impact_rate
+        expr: |
+          sum(rate(ml_revenue_impact_total[1h])) * 3600
+          
+      - record: mlops:cost_savings_rate
+        expr: |
+          sum(rate(ml_cost_savings_total[1h])) * 3600
+
+  - name: mlops.performance.rules
+    interval: 15s
+    rules:
+      # Request rate per model
+      - record: mlops:model_request_rate
+        expr: |
+          sum(rate(model_requests_total[5m])) by (model_id)
+          
+      # Error rate per model
+      - record: mlops:model_error_rate
+        expr: |
+          sum(rate(model_requests_total{status=~"5.."}[5m])) by (model_id) /
+          sum(rate(model_requests_total[5m])) by (model_id)
+          
+      # Model accuracy tracking
+      - record: mlops:model_accuracy_current
+        expr: |
+          avg_over_time(model_accuracy[10m]) by (model_id)
+          
+      # Feature freshness
+      - record: mlops:feature_freshness_minutes
+        expr: |
+          (time() - feature_last_updated_timestamp) / 60
+          
+      # Data drift severity
+      - record: mlops:data_drift_severity
+        expr: |
+          max(data_drift_score) by (model_id, feature_group)
+
+  - name: mlops.capacity.rules
+    interval: 60s
+    rules:
+      # CPU utilization per service
+      - record: mlops:service_cpu_utilization
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total[5m])) by (pod, service) * 100
+          
+      # Memory utilization per service
+      - record: mlops:service_memory_utilization
+        expr: |
+          sum(container_memory_working_set_bytes) by (pod, service) /
+          sum(container_spec_memory_limit_bytes) by (pod, service) * 100
+          
+      # Request queue depth
+      - record: mlops:request_queue_depth
+        expr: |
+          sum(model_request_queue_size) by (model_id, service)
+          
+      # Throughput capacity utilization
+      - record: mlops:throughput_utilization
+        expr: |
+          sum(rate(model_requests_total[5m])) by (service) /
+          sum(model_max_throughput) by (service) * 100
+
+# Remote storage configuration for long-term metrics retention
+remote_write:
+  - url: "https://prometheus-remote-storage.company.com/api/v1/write"
+    queue_config:
+      max_samples_per_send: 10000
+      max_shards: 200
+      capacity: 500000
+    write_relabel_configs:
+      # Only send important metrics to long-term storage
+      - source_labels: [__name__]
+        regex: 'mlops:.*|model_.*|business_.*'
+        action: keep
+
+remote_read:
+  - url: "https://prometheus-remote-storage.company.com/api/v1/read"
+    read_recent: true
