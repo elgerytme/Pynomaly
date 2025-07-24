@@ -118,20 +118,22 @@ _app_start_time: Optional[datetime] = None
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan management."""
-    global _detection_service, _ensemble_service, _model_repository, _app_start_time
+    global _detection_service, _ensemble_service, _streaming_service, _model_repository, _app_start_time
     
     logger.info("Starting Anomaly Detection API server")
     _app_start_time = datetime.utcnow()
     
     # Initialize services
-    global global_detection_service, global_ensemble_service, global_model_repository
+    global global_detection_service, global_ensemble_service, global_streaming_service, global_model_repository
     global_detection_service = DetectionService()
     global_ensemble_service = EnsembleService()
+    global_streaming_service = StreamingService()
     global_model_repository = ModelRepository()
     
     # Keep local references for backward compatibility
     _detection_service = global_detection_service
     _ensemble_service = global_ensemble_service
+    _streaming_service = global_streaming_service
     _model_repository = global_model_repository
     
     logger.info("Services initialized successfully")

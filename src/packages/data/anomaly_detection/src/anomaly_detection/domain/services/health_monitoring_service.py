@@ -313,3 +313,13 @@ def get_health_monitoring_service() -> HealthMonitoringService:
     if _health_service is None:
         _health_service = HealthMonitoringService()
     return _health_service
+
+
+# Export classes for external use
+__all__ = [
+    "HealthStatus",
+    "HealthCheck", 
+    "SystemHealth",
+    "HealthMonitoringService",
+    "get_health_monitoring_service"
+]

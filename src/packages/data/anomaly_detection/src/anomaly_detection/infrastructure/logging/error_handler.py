@@ -278,6 +278,9 @@ def handle_error(
     return default_error_handler.handle_error(error, context, operation, reraise)
 
 
+# Alias for backward compatibility
+ValidationError = InputValidationError
+
 # Export common functions
 __all__ = [
     "handle_error",
@@ -285,6 +288,7 @@ __all__ = [
     "BaseApplicationError",
     "AnomalyDetectionError",
     "InputValidationError",
+    "ValidationError",  # Alias for InputValidationError
     "DataProcessingError", 
     "ModelOperationError",
     "AlgorithmError",
