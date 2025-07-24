@@ -1,3 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="22.961" timestamp="2025-07-24T15:50:02.445829-04:00" hostname="rocm-socm"><testcase classname="tests.unit.test_api_detection.TestDetectionEndpoints" name="test_detect_anomalies_success" time="0.166"><failure message="assert 1 == 2">tests/unit/test_api_detection.py:94: in test_detect_anomalies_success
-    assert data["anomalies_detected"] == 2
-E   assert 1 == 2</failure></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="21.408" timestamp="2025-07-24T15:59:19.569254-04:00" hostname="rocm-socm"><testcase classname="tests.security.test_vulnerability_scanner.TestVulnerabilityScanner" name="test_comprehensive_scan" time="0.007"><failure message="AttributeError: 'NoneType' object has no attribute 'record_metric'">tests/security/test_vulnerability_scanner.py:77: in test_comprehensive_scan
+    result = await self.scanner.scan_all(target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/anomaly_detection/application/services/security/vulnerability_scanner.py:739: in scan_all
+    metrics_collector.record_metric(
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'record_metric'</failure></testcase></testsuite></testsuites>
