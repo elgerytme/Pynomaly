@@ -42,7 +42,7 @@ def configure_quality_logging(config: Optional[Dict[str, Any]] = None) -> None:
     log_format = config.get('log_format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     
     # Configure root logger for data quality
-    root_logger = logging.getLogger('src.packages.data_quality')
+    root_logger = logging.getLogger('quality')
     root_logger.setLevel(getattr(logging, log_level.upper()))
     
     # Create console handler if not exists

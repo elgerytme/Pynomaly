@@ -150,8 +150,9 @@ class TestAPILoadTesting:
     
     def _detection_request(self):
         """Single detection API request."""
-        # Mock the detection service at the module level
-        with patch('anomaly_detection.server._detection_service') as mock_service:
+        # Mock the detection service properly for server.py dependency injection
+        with patch('anomaly_detection.server.get_detection_service') as mock_get_service:
+            mock_service = Mock()
             mock_result = Mock()
             mock_result.success = True
             mock_result.anomalies = [0, 2, 4]  # Sample anomaly indices
@@ -161,6 +162,7 @@ class TestAPILoadTesting:
             mock_result.anomaly_rate = 0.6
             
             mock_service.detect_anomalies.return_value = mock_result
+            mock_get_service.return_value = mock_service
             
             response = self.client.post("/api/v1/detect", json=self.test_data)
             if response.status_code != 200:
@@ -168,10 +170,10 @@ class TestAPILoadTesting:
     
     def _ensemble_request(self):
         """Single ensemble API request."""
-        with patch('anomaly_detection.server._ensemble_service') as mock_ensemble_service, \
+        with patch('anomaly_detection.server.get_ensemble_service') as mock_get_ensemble_service, \
              patch('anomaly_detection.domain.services.detection_service.DetectionService') as mock_detection_class:
             
-            # Mock the detection service class constructor 
+            # Mock the detection service class constructor for ensemble endpoint
             mock_detection_instance = Mock()
             mock_detection_result = Mock()
             mock_detection_result.success = True
@@ -181,7 +183,9 @@ class TestAPILoadTesting:
             mock_detection_class.return_value = mock_detection_instance
             
             # Mock ensemble service methods
+            mock_ensemble_service = Mock()
             mock_ensemble_service.majority_vote.return_value = np.array([-1, 1, 1, -1])
+            mock_get_ensemble_service.return_value = mock_ensemble_service
             
             response = self.client.post("/api/v1/ensemble", json=self.ensemble_data)
             if response.status_code != 200:
@@ -851,11 +855,12 @@ class TestSystemIntegrationLoad:
     def test_end_to_end_system_load(self):
         """Test end-to-end system under load."""
         # Mock services properly
-        with patch('anomaly_detection.server._detection_service') as mock_detection_service, \
-             patch('anomaly_detection.server._ensemble_service') as mock_ensemble_service, \
+        with patch('anomaly_detection.server.get_detection_service') as mock_get_detection_service, \
+             patch('anomaly_detection.server.get_ensemble_service') as mock_get_ensemble_service, \
              patch('anomaly_detection.domain.services.detection_service.DetectionService') as mock_detection_class:
             
             # Setup detection service mock
+            mock_detection_service = Mock()
             mock_detection_result = Mock()
             mock_detection_result.success = True
             mock_detection_result.anomalies = [0, 1]
@@ -864,6 +869,7 @@ class TestSystemIntegrationLoad:
             mock_detection_result.anomaly_count = 2
             mock_detection_result.anomaly_rate = 0.5
             mock_detection_service.detect_anomalies.return_value = mock_detection_result
+            mock_get_detection_service.return_value = mock_detection_service
             
             # Setup ensemble service dependencies
             mock_detection_instance = Mock()
@@ -873,7 +879,9 @@ class TestSystemIntegrationLoad:
             )
             mock_detection_class.return_value = mock_detection_instance
             
+            mock_ensemble_service = Mock()
             mock_ensemble_service.majority_vote.return_value = np.array([-1, 1, -1])
+            mock_get_ensemble_service.return_value = mock_ensemble_service
             
             # Run mixed load test
             runner = LoadTestRunner()
@@ -932,7 +940,8 @@ class TestSystemIntegrationLoad:
         # Run sustained load
         resource_readings = []
         
-        with patch('anomaly_detection.server._detection_service') as mock_detection_service:
+        with patch('anomaly_detection.server.get_detection_service') as mock_get_detection_service:
+            mock_detection_service = Mock()
             mock_result = Mock()
             mock_result.success = True
             mock_result.anomalies = [0, 1]
@@ -941,6 +950,7 @@ class TestSystemIntegrationLoad:
             mock_result.anomaly_count = 2
             mock_result.anomaly_rate = 1.0
             mock_detection_service.detect_anomalies.return_value = mock_result
+            mock_get_detection_service.return_value = mock_detection_service
             
             start_time = time.time()
             request_count = 0
