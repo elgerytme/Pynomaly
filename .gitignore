@@ -381,7 +381,6 @@ benchmarks/results/
 # Build and temp directories that need to be ignored
 buck-out/
 # Note: Allow package-specific build/ but ignore root build/
-/build/
 toolchains/
 tools/
 stories/
