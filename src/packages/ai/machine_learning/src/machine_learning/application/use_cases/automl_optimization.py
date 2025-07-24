@@ -473,7 +473,16 @@ class AutoMLOptimizationUseCase:
 
     def _create_dataset_profile(self, dataset: Dataset):
         """Create a dataset profile from a Dataset entity."""
-        from monorepo.application.services.automl_service import DatasetProfile
+        # Use local dataset profile
+        from dataclasses import dataclass
+        
+        @dataclass 
+        class DatasetProfile:
+            n_samples: int
+            n_features: int
+            feature_types: dict
+            has_categorical: bool = False
+            has_numerical: bool = False
 
         df = dataset.features
         n_samples, n_features = df.shape

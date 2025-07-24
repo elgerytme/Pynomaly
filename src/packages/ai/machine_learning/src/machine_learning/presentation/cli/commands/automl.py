@@ -49,8 +49,25 @@ from interfaces.domain.services.automl_service import (
 from interfaces.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
-from monorepo.infrastructure.data_loaders.parquet_loader import ParquetLoader
+# Create local data loader protocols for CLI use
+from typing import Protocol, Any
+import pandas as pd
+
+class DataLoaderProtocol(Protocol):
+    """Protocol for data loading functionality."""
+    def load(self, file_path: str) -> pd.DataFrame:
+        """Load data from file."""
+        ...
+
+class CSVLoader:
+    """Simple CSV data loader."""
+    def load(self, file_path: str) -> pd.DataFrame:
+        return pd.read_csv(file_path)
+
+class ParquetLoader:
+    """Simple Parquet data loader."""  
+    def load(self, file_path: str) -> pd.DataFrame:
+        return pd.read_parquet(file_path)
 
 console = Console()
 app = typer.Typer()

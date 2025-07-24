@@ -12,7 +12,20 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from monorepo.application.dto.configuration_dto import OptimizationConfigDTO
+# Create local configuration DTO for now
+from dataclasses import dataclass
+from typing import Dict, Any
+
+@dataclass
+class OptimizationConfigDTO:
+    """Configuration for optimization settings."""
+    max_iterations: int = 100
+    optimization_objective: str = "auc"
+    hyperparameter_space: Dict[str, Any] = None
+    
+    def __post_init__(self):
+        if self.hyperparameter_space is None:
+            self.hyperparameter_space = {}
 
 
 class TrainingTrigger(Enum):

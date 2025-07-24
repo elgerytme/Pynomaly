@@ -33,7 +33,16 @@ from interfaces.domain.entities import Dataset
 from interfaces.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
+# Use local data loaders (protocols defined in automl.py)
+import pandas as pd
+
+class CSVLoader:
+    def load(self, file_path: str) -> pd.DataFrame:
+        return pd.read_csv(file_path)
+
+class ParquetLoader:
+    def load(self, file_path: str) -> pd.DataFrame:
+        return pd.read_parquet(file_path)
 
 console = Console()
 
