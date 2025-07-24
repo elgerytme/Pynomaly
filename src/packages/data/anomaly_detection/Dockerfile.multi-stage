@@ -1,0 +1,236 @@
+# Multi-stage Dockerfile for anomaly detection service
+# Optimized for production deployment with minimal image size
+
+# =============================================================================
+# Stage 1: Build Dependencies (Builder Stage)
+# =============================================================================
+FROM python:3.11-slim as builder
+
+# Set build arguments
+ARG ENABLE_GPU=false
+ARG ENABLE_DISTRIBUTED=false
+ARG BUILD_ENV=production
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    git \
+    curl \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Python environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Create app directory
+WORKDIR /app
+
+# Copy requirements files
+COPY requirements-prod.txt requirements-dev.txt pyproject.toml ./
+
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel
+
+# Install base dependencies
+RUN pip install -r requirements-prod.txt
+
+# Conditionally install GPU dependencies
+RUN if [ "$ENABLE_GPU" = "true" ]; then \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
+    pip install tensorflow[and-cuda] && \
+    pip install pynvml GPUtil; \
+    fi
+
+# Conditionally install distributed computing dependencies
+RUN if [ "$ENABLE_DISTRIBUTED" = "true" ]; then \
+    pip install ray[default] dask[distributed] optuna; \
+    fi
+
+# Install development dependencies for building
+RUN if [ "$BUILD_ENV" != "production" ]; then \
+    pip install -r requirements-dev.txt; \
+    fi
+
+# Copy source code
+COPY src/ ./src/
+COPY tests/ ./tests/
+COPY examples/ ./examples/
+
+# Install the package
+RUN pip install -e .
+
+# =============================================================================
+# Stage 2: Runtime Dependencies (Base Runtime)
+# =============================================================================
+FROM python:3.11-slim as runtime-base
+
+# Install runtime system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN groupadd -r anomaly && useradd -r -g anomaly anomaly
+
+# Set up Python environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PATH="/home/anomaly/.local/bin:$PATH"
+
+# Create app directory and set ownership
+WORKDIR /app
+RUN chown -R anomaly:anomaly /app
+
+# Switch to non-root user
+USER anomaly
+
+# =============================================================================
+# Stage 3: Production Runtime
+# =============================================================================
+FROM runtime-base as production
+
+# Copy Python packages from builder
+COPY --from=builder --chown=anomaly:anomaly /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder --chown=anomaly:anomaly /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY --from=builder --chown=anomaly:anomaly /app/src ./src
+COPY --from=builder --chown=anomaly:anomaly /app/examples ./examples
+
+# Copy configuration and scripts
+COPY --chown=anomaly:anomaly scripts/docker/entrypoint.sh ./
+COPY --chown=anomaly:anomaly scripts/docker/healthcheck.py ./
+COPY --chown=anomaly:anomaly config/ ./config/
+
+# Make scripts executable
+USER root
+RUN chmod +x entrypoint.sh
+USER anomaly
+
+# Create necessary directories
+RUN mkdir -p logs data models temp
+
+# Set health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python healthcheck.py
+
+# Expose ports
+EXPOSE 8000 8080 8001
+
+# Set entrypoint
+ENTRYPOINT ["./entrypoint.sh"]
+
+# Default command
+CMD ["api"]
+
+# =============================================================================
+# Stage 4: GPU-Enabled Runtime
+# =============================================================================
+FROM nvidia/cuda:11.8-runtime-ubuntu22.04 as gpu-runtime
+
+# Install Python and basic dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-dev \
+    python3-pip \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create symbolic links
+RUN ln -s /usr/bin/python3.11 /usr/bin/python
+
+# Create non-root user
+RUN groupadd -r anomaly && useradd -r -g anomaly anomaly
+
+# Set up Python environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+WORKDIR /app
+RUN chown -R anomaly:anomaly /app
+USER anomaly
+
+# Copy Python packages and application from builder
+COPY --from=builder --chown=anomaly:anomaly /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder --chown=anomaly:anomaly /usr/local/bin /usr/local/bin
+COPY --from=builder --chown=anomaly:anomaly /app/src ./src
+COPY --from=builder --chown=anomaly:anomaly /app/examples ./examples
+
+# Copy GPU-specific configuration
+COPY --chown=anomaly:anomaly scripts/docker/entrypoint-gpu.sh ./entrypoint.sh
+COPY --chown=anomaly:anomaly scripts/docker/healthcheck-gpu.py ./healthcheck.py
+COPY --chown=anomaly:anomaly config/ ./config/
+
+# Make scripts executable
+USER root
+RUN chmod +x entrypoint.sh
+USER anomaly
+
+# Create directories
+RUN mkdir -p logs data models temp
+
+# GPU-specific health check
+HEALTHCHECK --interval=30s --timeout=15s --start-period=120s --retries=3 \
+    CMD python healthcheck.py --gpu
+
+EXPOSE 8000 8080 8001
+
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["api", "--gpu"]
+
+# =============================================================================
+# Stage 5: Development Runtime
+# =============================================================================
+FROM runtime-base as development
+
+# Copy everything from builder including dev dependencies
+COPY --from=builder --chown=anomaly:anomaly /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder --chown=anomaly:anomaly /usr/local/bin /usr/local/bin
+COPY --from=builder --chown=anomaly:anomaly /app ./
+
+# Install additional development tools
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim \
+    git \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+USER anomaly
+
+# Copy development configuration
+COPY --chown=anomaly:anomaly scripts/docker/entrypoint-dev.sh ./entrypoint.sh
+COPY --chown=anomaly:anomaly scripts/docker/healthcheck-dev.py ./healthcheck.py
+
+# Make scripts executable
+USER root
+RUN chmod +x entrypoint.sh
+USER anomaly
+
+# Create development directories
+RUN mkdir -p logs data models temp .cache notebooks
+
+# Development-specific health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=2 \
+    CMD python healthcheck.py --dev
+
+# Expose additional development ports
+EXPOSE 8000 8080 8001 8888 6006
+
+# Set development environment
+ENV ENVIRONMENT=development \
+    DEBUG=true
+
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["dev"]
