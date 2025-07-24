@@ -8,11 +8,29 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
 [![PyOD](https://img.shields.io/badge/PyOD-2.0+-red.svg)](https://pyod.readthedocs.io/)
 
-🚀 **Enterprise-grade anomaly detection platform** with comprehensive CLI, REST API, and web interface. Built with modern architecture patterns and production-ready features.
+🚀 **Enterprise-grade anomaly detection platform** with comprehensive CLI, REST API, and web interface. Built with **Domain-Driven Design (DDD)** architecture and production-ready features.
+
+!!! info "🏗️ New Architecture"
+    **Domain Migration Complete:** This package has been successfully migrated to a domain-driven architecture for improved scalability, maintainability, and future microservices support.
 
 ## 🎯 Overview
 
-A complete anomaly detection solution providing multiple interfaces (CLI, API, Web) with advanced ML capabilities, real-time streaming, model management, and comprehensive monitoring. Follows Domain-Driven Design principles with clean architecture.
+A complete anomaly detection solution providing multiple interfaces (CLI, API, Web) with advanced ML capabilities, real-time streaming, model management, and comprehensive monitoring. Built with **Domain-Driven Design** principles featuring clear domain boundaries and clean architecture.
+
+### 🏗️ Domain-Driven Architecture
+
+```
+📦 Anomaly Detection Platform
+├── 🤖 AI Domain
+│   ├── machine_learning/     # Core ML algorithms and training
+│   └── mlops/               # Model lifecycle and experiment tracking  
+├── 📊 Data Domain
+│   └── processing/          # Data entities and processing pipelines
+├── 🔧 Shared Infrastructure
+│   ├── infrastructure/      # Configuration, logging, security
+│   └── observability/       # Monitoring, metrics, dashboards
+└── 🎯 Application Layer      # Business logic and orchestration
+```
 
 📋 **[Complete Requirements Documentation](./requirements/)** - Business requirements, user stories, use cases, and feature roadmap
 
