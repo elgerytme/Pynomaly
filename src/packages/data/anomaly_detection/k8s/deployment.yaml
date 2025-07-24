@@ -1,0 +1,416 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-api
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: api
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: anomaly-detection
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: anomaly-detection
+        app.kubernetes.io/component: api
+        app.kubernetes.io/version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: anomaly-detection
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: api
+        image: anomaly-detection:latest
+        imagePullPolicy: IfNotPresent
+        command: ["./entrypoint.sh"]
+        args: ["api"]
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        - name: WORKERS
+          value: "4"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: secret-key
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: redis-url
+        - name: JAEGER_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: anomaly-detection-config
+              key: jaeger-endpoint
+              optional: true
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: data
+          mountPath: /app/data
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /app/temp
+      volumes:
+      - name: config
+        configMap:
+          name: anomaly-detection-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: anomaly-detection-data
+      - name: logs
+        emptyDir: {}
+      - name: temp
+        emptyDir: {}
+      terminationGracePeriodSeconds: 30
+      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-web
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: web
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: anomaly-detection
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: anomaly-detection
+        app.kubernetes.io/component: web
+        app.kubernetes.io/version: "1.0.0"
+    spec:
+      serviceAccountName: anomaly-detection
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: web
+        image: anomaly-detection:latest
+        imagePullPolicy: IfNotPresent
+        command: ["./entrypoint.sh"]
+        args: ["web"]
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: WEB_PORT
+          value: "8080"
+        - name: WEB_WORKERS
+          value: "2"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: secret-key
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: redis-url
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: config
+        configMap:
+          name: anomaly-detection-config
+      - name: logs
+        emptyDir: {}
+        
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-worker
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: anomaly-detection
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: anomaly-detection
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: anomaly-detection
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: worker
+        image: anomaly-detection:latest
+        imagePullPolicy: IfNotPresent
+        command: ["./entrypoint.sh"]
+        args: ["worker"]
+        ports:
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: WORKER_CONCURRENCY
+          value: "4"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: secret-key
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: anomaly-detection-secrets
+              key: redis-url
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - healthcheck.py
+            - --timeout
+            - "5"
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 10
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: data
+          mountPath: /app/data
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /app/temp
+      volumes:
+      - name: config
+        configMap:
+          name: anomaly-detection-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: anomaly-detection-data
+      - name: logs
+        emptyDir: {}
+      - name: temp
+        emptyDir: {}
+        
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-nginx
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: nginx
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: anomaly-detection
+      app.kubernetes.io/component: nginx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: anomaly-detection
+        app.kubernetes.io/component: nginx
+        app.kubernetes.io/version: "1.0.0"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25-alpine
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx
+          readOnly: true
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: anomaly-detection-nginx
