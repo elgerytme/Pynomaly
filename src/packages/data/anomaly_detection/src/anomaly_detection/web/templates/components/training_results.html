@@ -1,0 +1,169 @@
+{% if results.success %}
+<div class="rounded-md bg-green-50 p-4 mb-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">Model Training Completed Successfully</h3>
+            <div class="mt-2 text-sm text-green-700">
+                <p>Your model "{{ results.model_name }}" has been trained and saved.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Training Results</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Model: {{ results.model_name }} ({{ results.algorithm }})</p>
+            </div>
+            <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0">
+                <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Trained
+                </span>
+            </div>
+        </div>
+
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Model ID</dt>
+                    <dd class="mt-1 text-sm text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">{{ results.model_id }}</dd>
+                </div>
+                
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Algorithm</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ results.algorithm }}</dd>
+                </div>
+                
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Training Duration</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ results.training_duration }}s</dd>
+                </div>
+                
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Training Samples</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:,}".format(results.training_samples) }}</dd>
+                </div>
+                
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Features</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ results.training_features }}</dd>
+                </div>
+                
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Contamination Rate</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.1%}".format(results.contamination) }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        {% if results.accuracy != "N/A" or results.precision != "N/A" or results.recall != "N/A" or results.f1_score != "N/A" %}
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">Performance Metrics</h4>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <dt class="text-sm font-medium text-blue-600">Accuracy</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-blue-900">{{ results.accuracy }}</dd>
+                </div>
+                
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <dt class="text-sm font-medium text-green-600">Precision</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-green-900">{{ results.precision }}</dd>
+                </div>
+                
+                <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                    <dt class="text-sm font-medium text-yellow-600">Recall</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-yellow-900">{{ results.recall }}</dd>
+                </div>
+                
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <dt class="text-sm font-medium text-purple-600">F1 Score</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-purple-900">{{ results.f1_score }}</dd>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    Completed at {{ results.timestamp }}
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="viewModelDetails('{{ results.model_id }}')"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        View Details
+                    </button>
+                    <button type="button" onclick="testModel('{{ results.model_id }}')"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8"></path>
+                        </svg>
+                        Test Model
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewModelDetails(modelId) {
+    fetch(`/htmx/models/${modelId}/info`)
+        .then(response => response.text())
+        .then(html => {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+            modal.innerHTML = `
+                <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium">Model Details</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    ${html}
+                </div>
+            `;
+            document.body.appendChild(modal);
+        })
+        .catch(error => {
+            console.error('Error loading model details:', error);
+        });
+}
+
+function testModel(modelId) {
+    window.location.href = `/detection?model=${modelId}`;
+}
+</script>
+{% else %}
+<div class="rounded-md bg-red-50 p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2v6m0-14a8 8 0 108 8"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Training Failed</h3>
+            <div class="mt-2 text-sm text-red-700">
+                <p>The model training process encountered an error and could not be completed.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

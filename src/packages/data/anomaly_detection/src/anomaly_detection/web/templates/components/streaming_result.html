@@ -1,0 +1,181 @@
+{% if success %}
+<div class="bg-white border-l-4 {% if is_anomaly %}border-red-400{% else %}border-green-400{% endif %} p-4 mb-4">
+    <div class="flex items-start">
+        <div class="flex-shrink-0">
+            {% if is_anomaly %}
+            <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            {% else %}
+            <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {% endif %}
+        </div>
+        <div class="ml-3 flex-1">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-medium {% if is_anomaly %}text-red-800{% else %}text-green-800{% endif %}">
+                    {% if is_anomaly %}Anomaly Detected{% else %}Normal Sample{% endif %}
+                </h3>
+                <span class="text-xs text-gray-500">{{ timestamp }}</span>
+            </div>
+            <div class="mt-2 text-sm {% if is_anomaly %}text-red-700{% else %}text-green-700{% endif %}">
+                <div class="flex items-center justify-between">
+                    <span>Algorithm: {{ algorithm }}</span>
+                    {% if confidence_score is not none %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if is_anomaly %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        Confidence: {{ "{:.2f}".format(confidence_score) }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Sample Details</h3>
+        
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Sample Data</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    <div class="bg-gray-50 rounded-md p-3">
+                        <code class="text-xs">{{ sample_data }}</code>
+                    </div>
+                </dd>
+            </div>
+            
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Classification</dt>
+                <dd class="mt-1">
+                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium {% if is_anomaly %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        {% if is_anomaly %}
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        Anomaly
+                        {% else %}
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Normal
+                        {% endif %}
+                    </span>
+                </dd>
+            </div>
+        </div>
+
+        {% if confidence_score is not none %}
+        <div class="mt-4">
+            <dt class="text-sm font-medium text-gray-500 mb-2">Confidence Score</dt>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="h-2 rounded-full {% if is_anomaly %}bg-red-600{% else %}bg-green-600{% endif %}" 
+                     style="width: {{ "{:.0f}".format((confidence_score|abs) * 100) }}%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>0.0</span>
+                <span>{{ "{:.3f}".format(confidence_score|abs) }}</span>
+                <span>1.0</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 border-t border-gray-200 pt-4">
+            <h4 class="text-sm font-medium text-gray-900 mb-3">Stream Status</h4>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <dt class="text-xs font-medium text-gray-500">Buffer Size</dt>
+                    <dd class="mt-1 text-lg font-semibold text-gray-900">{{ buffer_size }}</dd>
+                </div>
+                
+                <div>
+                    <dt class="text-xs font-medium text-gray-500">Model Status</dt>
+                    <dd class="mt-1">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if model_fitted %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if model_fitted %}Fitted{% else %}Training{% endif %}
+                        </span>
+                    </dd>
+                </div>
+                
+                <div>
+                    <dt class="text-xs font-medium text-gray-500">Total Processed</dt>
+                    <dd class="mt-1 text-lg font-semibold text-gray-900">{{ samples_processed }}</dd>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="sendAnotherSample()"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+                Send Another
+            </button>
+            <button type="button" onclick="explainResult()"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Explain
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendAnotherSample() {
+    // Generate new random sample
+    const sampleData = JSON.stringify([
+        Math.random() * 2 - 1,
+        Math.random() * 2 - 1,
+        Math.random() * 2 - 1,
+        Math.random() * 2 - 1,
+        Math.random() * 2 - 1
+    ]);
+    
+    htmx.ajax('POST', '/htmx/streaming/sample', {
+        values: {
+            sample_data: sampleData,
+            algorithm: '{{ algorithm }}'
+        },
+        target: '#streaming-results',
+        swap: 'innerHTML'
+    });
+}
+
+function explainResult() {
+    // Use the sample data for explanation
+    const sampleData = '{{ sample_data|tojson }}';
+    
+    htmx.ajax('POST', '/htmx/explain', {
+        values: {
+            sample_data: sampleData,
+            algorithm: '{{ algorithm }}',
+            explainer_type: 'feature_importance',
+            feature_names: '["feature_0", "feature_1", "feature_2", "feature_3", "feature_4"]'
+        },
+        target: '#explanation-results',
+        swap: 'innerHTML'
+    });
+}
+</script>
+{% else %}
+<div class="rounded-md bg-red-50 p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2v6m0-14a8 8 0 108 8"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Processing Failed</h3>
+            <div class="mt-2 text-sm text-red-700">
+                <p>Unable to process the streaming sample. Please check your input and try again.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

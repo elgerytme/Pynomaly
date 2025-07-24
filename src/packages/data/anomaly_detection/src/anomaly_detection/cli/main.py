@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .. import __version__
-from .commands import detection, models, data, worker, streaming, explain, health, batch
+from .commands import detection, models, data, worker, streaming, explain, health, batch, optimize, reports, monitor
 from ..infrastructure.config.settings import get_settings
 from ..infrastructure.logging import setup_logging
 
@@ -30,6 +30,9 @@ app.add_typer(streaming.app, name="streaming", help="Real-time streaming detecti
 app.add_typer(explain.app, name="explain", help="Model explainability and interpretability commands")
 app.add_typer(health.app, name="health", help="System health monitoring and diagnostics")
 app.add_typer(batch.app, name="batch", help="Batch processing for large-scale data operations")
+app.add_typer(optimize.app, name="optimize", help="Threshold optimization and performance tuning")
+app.add_typer(reports.app, name="reports", help="Report generation and documentation")
+app.add_typer(monitor.app, name="monitor", help="Model performance monitoring and health checks")
 
 
 def version_callback(value: bool) -> None:

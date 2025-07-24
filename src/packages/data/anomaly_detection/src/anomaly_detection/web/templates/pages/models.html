@@ -1,0 +1,230 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Model Management{% endblock %}
+
+{% block head %}
+<style>
+    .model-card {
+        transition: all 0.3s ease;
+    }
+    .model-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .status-trained { background-color: #10b981; color: white; }
+    .status-training { background-color: #f59e0b; color: white; }
+    .status-failed { background-color: #ef4444; color: white; }
+    .status-draft { background-color: #6b7280; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Model Management</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    Manage your anomaly detection models, view performance metrics, and deploy models to production.
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <button type="button" onclick="showTrainModelModal()" 
+                        class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Train New Model
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="mb-6 bg-white shadow rounded-lg p-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <div>
+                <label for="algorithm-filter" class="block text-sm font-medium text-gray-700 mb-1">Algorithm</label>
+                <select id="algorithm-filter" onchange="filterModels()" 
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">All Algorithms</option>
+                    <option value="isolation_forest">Isolation Forest</option>
+                    <option value="one_class_svm">One-Class SVM</option>
+                    <option value="lof">Local Outlier Factor</option>
+                </select>
+            </div>
+            <div>
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="status-filter" onchange="filterModels()" 
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">All Statuses</option>
+                    <option value="trained">Trained</option>
+                    <option value="training">Training</option>
+                    <option value="failed">Failed</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                <input type="text" id="search" placeholder="Search models..." oninput="filterModels()"
+                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div class="flex items-end">
+                <button type="button" onclick="refreshModels()" 
+                        class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Models List -->
+    <div id="models-container">
+        <!-- Models will be loaded here -->
+    </div>
+
+    <!-- Model Info Panel -->
+    <div id="model-info-container" class="mt-6 hidden">
+        <!-- Model info will be loaded here -->
+    </div>
+</div>
+
+<!-- Train Model Modal -->
+<div id="train-model-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideTrainModelModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form hx-post="/htmx/train" hx-target="#training-results" hx-swap="innerHTML">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Train New Model</h3>
+                        <button type="button" onclick="hideTrainModelModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="model_name" class="block text-sm font-medium text-gray-700">Model Name</label>
+                            <input type="text" name="model_name" id="model_name" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                   placeholder="Enter model name">
+                        </div>
+                        
+                        <div>
+                            <label for="algorithm" class="block text-sm font-medium text-gray-700">Algorithm</label>
+                            <select name="algorithm" id="algorithm" 
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <option value="isolation_forest">Isolation Forest</option>
+                                <option value="one_class_svm">One-Class SVM</option>
+                                <option value="lof">Local Outlier Factor</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="contamination" class="block text-sm font-medium text-gray-700">Contamination Rate</label>
+                            <input type="number" name="contamination" id="contamination" step="0.01" min="0.01" max="0.5" value="0.1"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="training_data" class="block text-sm font-medium text-gray-700">Training Data (JSON)</label>
+                            <textarea name="training_data" id="training_data" rows="4" 
+                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                      placeholder="Leave empty to use sample data or paste JSON array"></textarea>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" name="has_labels" id="has_labels" 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="has_labels" class="ml-2 block text-sm text-gray-900">
+                                Training data includes labels
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Train Model
+                    </button>
+                    <button type="button" onclick="hideTrainModelModal()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Training Results -->
+<div id="training-results" class="mt-6"></div>
+
+<script>
+// Load models on page init
+document.addEventListener('DOMContentLoaded', function() {
+    loadModels();
+});
+
+async function loadModels() {
+    try {
+        const response = await fetch('/htmx/models/list');
+        const html = await response.text();
+        document.getElementById('models-container').innerHTML = html;
+    } catch (error) {
+        console.error('Failed to load models:', error);
+        document.getElementById('models-container').innerHTML = `
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Failed to load models</h3>
+                <p class="mt-1 text-sm text-gray-500">There was an error loading the models list.</p>
+            </div>
+        `;
+    }
+}
+
+function refreshModels() {
+    loadModels();
+}
+
+function filterModels() {
+    // This would implement client-side filtering
+    // For now, just reload all models
+    loadModels();
+}
+
+function showTrainModelModal() {
+    document.getElementById('train-model-modal').classList.remove('hidden');
+}
+
+function hideTrainModelModal() {
+    document.getElementById('train-model-modal').classList.add('hidden');
+    document.getElementById('training-results').innerHTML = '';
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        hideTrainModelModal();
+    }
+});
+</script>
+{% endblock %}

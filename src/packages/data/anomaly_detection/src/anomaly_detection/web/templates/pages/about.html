@@ -1,0 +1,228 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Anomaly Detection Platform</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            A comprehensive, enterprise-grade platform for detecting anomalies in your data using advanced machine learning algorithms.
+        </p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-md mb-4">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Multiple Algorithms</h3>
+            <p class="text-gray-600">Support for Isolation Forest, One-Class SVM, Local Outlier Factor, and ensemble methods.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-md mb-4">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Real-time Processing</h3>
+            <p class="text-gray-600">Process streaming data in real-time with WebSocket support and concept drift detection.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-md mb-4">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Advanced Analytics</h3>
+            <p class="text-gray-600">Comprehensive performance monitoring, detailed reporting, and algorithm comparison tools.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-md mb-4">
+                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Model Explainability</h3>
+            <p class="text-gray-600">Understand your model predictions with SHAP, LIME, and feature importance explanations.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-md mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Enterprise Ready</h3>
+            <p class="text-gray-600">Built with security, scalability, and enterprise requirements in mind.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-md mb-4">
+                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Multiple Interfaces</h3>
+            <p class="text-gray-600">Access via web interface, REST API, or command-line interface for maximum flexibility.</p>
+        </div>
+    </div>
+
+    <!-- Architecture Overview -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Architecture Overview</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Core Components</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Detection Engine:</strong>
+                            <span class="text-gray-600"> Advanced ML algorithms for anomaly detection</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Streaming Service:</strong>
+                            <span class="text-gray-600"> Real-time data processing with WebSocket support</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Model Repository:</strong>
+                            <span class="text-gray-600"> Secure model storage and version management</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Worker System:</strong>
+                            <span class="text-gray-600"> Background job processing and queue management</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Health Monitoring:</strong>
+                            <span class="text-gray-600"> Comprehensive system and model health tracking</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Explainability:</strong>
+                            <span class="text-gray-600"> Model interpretability with multiple explanation methods</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-pink-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Ensemble Methods:</strong>
+                            <span class="text-gray-600"> Combine multiple algorithms for better performance</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-2 h-2 bg-gray-500 rounded-full mt-2 mr-3"></div>
+                        <div>
+                            <strong class="text-gray-900">Data Management:</strong>
+                            <span class="text-gray-600"> Validation, profiling, and preprocessing utilities</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Use Cases</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Fraud Detection</h3>
+                <p class="text-gray-600 mb-4">Identify suspicious transactions and activities in financial data streams.</p>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Network Security</h3>
+                <p class="text-gray-600 mb-4">Detect network intrusions and unusual traffic patterns in real-time.</p>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Quality Control</h3>
+                <p class="text-gray-600">Monitor manufacturing processes and identify defective products.</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">IT Operations</h3>
+                <p class="text-gray-600 mb-4">Monitor system performance and detect infrastructure anomalies.</p>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">IoT Monitoring</h3>
+                <p class="text-gray-600 mb-4">Analyze sensor data to detect equipment failures and maintenance needs.</p>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Business Intelligence</h3>
+                <p class="text-gray-600">Identify unusual patterns in business metrics and customer behavior.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Specifications -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Technical Specifications</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+                <h3 class="text-base font-semibold text-gray-900 mb-3">Algorithms</h3>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• Isolation Forest</li>
+                    <li>• One-Class SVM</li>
+                    <li>• Local Outlier Factor</li>
+                    <li>• Ensemble Methods</li>
+                    <li>• Custom Algorithms</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-base font-semibold text-gray-900 mb-3">Data Formats</h3>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• CSV Files</li>
+                    <li>• JSON Data</li>
+                    <li>• Parquet Files</li>
+                    <li>• Real-time Streams</li>
+                    <li>• API Integration</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-base font-semibold text-gray-900 mb-3">Deployment</h3>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• Docker Containers</li>
+                    <li>• Kubernetes</li>
+                    <li>• Cloud Platforms</li>
+                    <li>• On-Premises</li>
+                    <li>• Hybrid Environments</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version Information -->
+    <div class="bg-gray-50 rounded-lg p-6 text-center">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Version Information</h3>
+        <p class="text-gray-600 mb-4">Anomaly Detection Platform v2.0.0</p>
+        <div class="flex justify-center space-x-6 text-sm text-gray-500">
+            <span>Built with Python 3.9+</span>
+            <span>•</span>
+            <span>FastAPI Framework</span>
+            <span>•</span>
+            <span>Scikit-learn ML</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

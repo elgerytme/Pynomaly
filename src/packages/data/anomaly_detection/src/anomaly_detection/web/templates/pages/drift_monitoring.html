@@ -1,0 +1,664 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Concept Drift Monitoring{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .drift-card {
+        transition: all 0.3s ease;
+    }
+    .drift-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .drift-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    .drift-none { background-color: #10b981; }
+    .drift-low { background-color: #f59e0b; }
+    .drift-medium { background-color: #ef4444; }
+    .drift-high { background-color: #7c2d12; }
+    .feature-drift-bar {
+        height: 8px;
+        border-radius: 4px;
+        background-color: #e5e7eb;
+        overflow: hidden;
+    }
+    .feature-drift-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+    .drift-timeline {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Concept Drift Monitoring</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    Monitor data distribution changes and detect concept drift in real-time
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <button type="button" onclick="runDriftAnalysis()" 
+                        class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Run Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Selection -->
+    <div class="mb-6">
+        <label for="model-select" class="block text-sm font-medium text-gray-700 mb-2">Select Model</label>
+        <select id="model-select" onchange="loadDriftData()" 
+                class="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <option value="">Select a model...</option>
+        </select>
+    </div>
+
+    <!-- Drift Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="drift-card bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Overall Status</h3>
+                    <div class="flex items-center mt-1">
+                        <span id="overall-drift-indicator" class="drift-indicator drift-none"></span>
+                        <span id="overall-drift-status" class="text-sm font-medium text-gray-900">No Drift</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drift-card bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Features Monitored</h3>
+                    <p id="features-monitored" class="text-2xl font-bold text-gray-900">--</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="drift-card bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Drifting Features</h3>
+                    <p id="drifting-features" class="text-2xl font-bold text-gray-900">--</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="drift-card bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Last Check</h3>
+                    <p id="last-check" class="text-sm text-gray-900">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Drift Timeline -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Drift Detection Timeline</h3>
+                <div class="relative">
+                    <canvas id="drift-timeline-chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Drift Details -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Feature Drift Analysis</h3>
+            <div id="feature-drift-list" class="space-y-4">
+                <!-- Feature drift items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analysis -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Distribution Comparison -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Distribution Comparison</h3>
+            <div class="mb-4">
+                <label for="feature-select" class="block text-sm font-medium text-gray-700 mb-2">Select Feature</label>
+                <select id="feature-select" onchange="updateDistributionChart()" 
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">Select a feature...</option>
+                </select>
+            </div>
+            <div class="relative">
+                <canvas id="distribution-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Drift Alert History -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Drift Alerts</h3>
+            <div id="drift-alerts" class="drift-timeline space-y-3">
+                <!-- Drift alerts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="config-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideConfigModal()"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Drift Detection Configuration</h3>
+                        <button onclick="hideConfigModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <form id="drift-config-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Detection Threshold</label>
+                            <input type="range" id="drift-threshold" min="0.01" max="0.5" step="0.01" value="0.1" 
+                                   class="w-full mt-1">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0.01</span>
+                                <span id="threshold-value">0.1</span>
+                                <span>0.5</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Check Frequency</label>
+                            <select id="check-frequency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <option value="hourly">Hourly</option>
+                                <option value="daily" selected>Daily</option>
+                                <option value="weekly">Weekly</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="auto-retrain" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Auto-retrain on high drift</span>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="email-alerts" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Email alerts</span>
+                            </label>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button onclick="hideConfigModal()" 
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button onclick="saveDriftConfig()" 
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentModel = null;
+let driftTimelineChart = null;
+let distributionChart = null;
+let driftData = null;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadModels();
+    initializeCharts();
+    
+    // Update threshold display
+    document.getElementById('drift-threshold').addEventListener('input', function() {
+        document.getElementById('threshold-value').textContent = this.value;
+    });
+});
+
+async function loadModels() {
+    try {
+        // Mock data for models
+        const models = [
+            { id: 'model-1', name: 'Credit Card Fraud Model', algorithm: 'Isolation Forest' },
+            { id: 'model-2', name: 'Network Intrusion Model', algorithm: 'One-Class SVM' },
+            { id: 'model-3', name: 'Manufacturing Quality Model', algorithm: 'Local Outlier Factor' }
+        ];
+        
+        const select = document.getElementById('model-select');
+        select.innerHTML = '<option value="">Select a model...</option>';
+        
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.id;
+            option.textContent = `${model.name} (${model.algorithm})`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Failed to load models:', error);
+    }
+}
+
+async function loadDriftData() {
+    const modelId = document.getElementById('model-select').value;
+    if (!modelId) return;
+    
+    currentModel = modelId;
+    
+    try {
+        // Mock drift data
+        driftData = {
+            overall_status: 'low',
+            features_monitored: 24,
+            drifting_features: 3,
+            last_check: new Date().toISOString(),
+            timeline: generateMockTimelineData(),
+            feature_analysis: generateMockFeatureAnalysis(),
+            alerts: generateMockAlerts()
+        };
+        
+        updateDriftOverview(driftData);
+        updateDriftTimeline(driftData.timeline);
+        updateFeatureDriftList(driftData.feature_analysis);
+        updateDriftAlerts(driftData.alerts);
+        populateFeatureSelect(driftData.feature_analysis);
+        
+    } catch (error) {
+        console.error('Failed to load drift data:', error);
+    }
+}
+
+function generateMockTimelineData() {
+    const data = [];
+    const now = new Date();
+    
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const drift_score = Math.random() * 0.3 + (i < 5 ? 0.05 : 0); // Higher drift in recent days
+        
+        data.push({
+            date: date.toISOString().split('T')[0],
+            drift_score: drift_score,
+            status: drift_score > 0.2 ? 'high' : drift_score > 0.1 ? 'medium' : drift_score > 0.05 ? 'low' : 'none'
+        });
+    }
+    
+    return data;
+}
+
+function generateMockFeatureAnalysis() {
+    const features = [
+        'transaction_amount', 'account_age', 'time_since_last_transaction', 
+        'merchant_category', 'location_risk_score', 'velocity_score',
+        'spending_pattern', 'device_fingerprint', 'ip_reputation'
+    ];
+    
+    return features.map(feature => ({
+        name: feature,
+        drift_score: Math.random() * 0.4,
+        p_value: Math.random() * 0.1,
+        status: Math.random() > 0.7 ? 'drifting' : 'stable',
+        last_updated: new Date().toISOString()
+    })).sort((a, b) => b.drift_score - a.drift_score);
+}
+
+function generateMockAlerts() {
+    const alerts = [];
+    const now = new Date();
+    
+    for (let i = 0; i < 8; i++) {
+        const date = new Date(now.getTime() - i * 2 * 60 * 60 * 1000);
+        alerts.push({
+            id: `alert-${i}`,
+            timestamp: date.toISOString(),
+            feature: ['transaction_amount', 'account_age', 'velocity_score'][Math.floor(Math.random() * 3)],
+            severity: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
+            message: 'Significant distribution shift detected',
+            resolved: Math.random() > 0.6
+        });
+    }
+    
+    return alerts;
+}
+
+function updateDriftOverview(data) {
+    // Update overall status
+    const indicator = document.getElementById('overall-drift-indicator');
+    const status = document.getElementById('overall-drift-status');
+    
+    indicator.className = `drift-indicator drift-${data.overall_status}`;
+    status.textContent = data.overall_status.charAt(0).toUpperCase() + data.overall_status.slice(1) + ' Drift';
+    
+    // Update metrics
+    document.getElementById('features-monitored').textContent = data.features_monitored;
+    document.getElementById('drifting-features').textContent = data.drifting_features;
+    document.getElementById('last-check').textContent = formatRelativeTime(data.last_check);
+}
+
+function initializeCharts() {
+    // Initialize drift timeline chart
+    const timelineCtx = document.getElementById('drift-timeline-chart').getContext('2d');
+    driftTimelineChart = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Drift Score',
+                data: [],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 0.5,
+                    title: {
+                        display: true,
+                        text: 'Drift Score'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Initialize distribution chart
+    const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
+    distributionChart = new Chart(distributionCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Reference',
+                data: [],
+                backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                borderColor: '#3b82f6',
+                borderWidth: 1
+            }, {
+                label: 'Current',
+                data: [],
+                backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                borderColor: '#ef4444',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Frequency'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateDriftTimeline(timelineData) {
+    if (!driftTimelineChart) return;
+    
+    const labels = timelineData.map(d => d.date);
+    const data = timelineData.map(d => d.drift_score);
+    
+    driftTimelineChart.data.labels = labels;
+    driftTimelineChart.data.datasets[0].data = data;
+    driftTimelineChart.update();
+}
+
+function updateFeatureDriftList(features) {
+    const container = document.getElementById('feature-drift-list');
+    container.innerHTML = '';
+    
+    features.slice(0, 8).forEach(feature => {
+        const item = document.createElement('div');
+        item.className = 'p-3 border border-gray-200 rounded-lg';
+        
+        const statusColor = feature.status === 'drifting' ? 'text-red-600' : 'text-green-600';
+        const driftWidth = Math.min(feature.drift_score * 250, 100); // Scale to percentage
+        const driftColor = feature.drift_score > 0.2 ? 'bg-red-500' : 
+                          feature.drift_score > 0.1 ? 'bg-yellow-500' : 'bg-green-500';
+        
+        item.innerHTML = `
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-900">${feature.name.replace(/_/g, ' ')}</span>
+                <span class="text-xs ${statusColor} font-medium">${feature.status.toUpperCase()}</span>
+            </div>
+            <div class="feature-drift-bar mb-1">
+                <div class="feature-drift-fill ${driftColor}" style="width: ${driftWidth}%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500">
+                <span>Score: ${feature.drift_score.toFixed(3)}</span>
+                <span>p-value: ${feature.p_value.toFixed(4)}</span>
+            </div>
+        `;
+        
+        container.appendChild(item);
+    });
+}
+
+function updateDriftAlerts(alerts) {
+    const container = document.getElementById('drift-alerts');
+    container.innerHTML = '';
+    
+    if (alerts.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No recent alerts</p>';
+        return;
+    }
+    
+    alerts.forEach(alert => {
+        const item = document.createElement('div');
+        item.className = `p-3 border-l-4 ${getSeverityBorderColor(alert.severity)} bg-gray-50 rounded-r`;
+        
+        const timeAgo = formatRelativeTime(alert.timestamp);
+        const statusIcon = alert.resolved ? '✅' : '⚠️';
+        
+        item.innerHTML = `
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">
+                        ${statusIcon} ${alert.feature.replace(/_/g, ' ')}
+                    </p>
+                    <p class="text-xs text-gray-600">${alert.message}</p>
+                    <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full ${getSeverityBadgeColor(alert.severity)}">
+                    ${alert.severity.toUpperCase()}
+                </span>
+            </div>
+        `;
+        
+        container.appendChild(item);
+    });
+}
+
+function populateFeatureSelect(features) {
+    const select = document.getElementById('feature-select');
+    select.innerHTML = '<option value="">Select a feature...</option>';
+    
+    features.forEach(feature => {
+        const option = document.createElement('option');
+        option.value = feature.name;
+        option.textContent = feature.name.replace(/_/g, ' ');
+        select.appendChild(option);
+    });
+}
+
+function updateDistributionChart() {
+    const featureName = document.getElementById('feature-select').value;
+    if (!featureName || !distributionChart) return;
+    
+    // Mock distribution data
+    const bins = ['0-10', '10-20', '20-30', '30-40', '40-50', '50-60', '60-70', '70-80', '80-90', '90-100'];
+    const referenceData = bins.map(() => Math.floor(Math.random() * 100));
+    const currentData = bins.map((_, i) => referenceData[i] + (Math.random() - 0.5) * 40); // Add some drift
+    
+    distributionChart.data.labels = bins;
+    distributionChart.data.datasets[0].data = referenceData;
+    distributionChart.data.datasets[1].data = currentData;
+    distributionChart.update();
+}
+
+async function runDriftAnalysis() {
+    if (!currentModel) {
+        showNotification('Please select a model first', 'warning');
+        return;
+    }
+    
+    try {
+        showNotification('Running drift analysis...', 'info');
+        
+        // Simulate analysis
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Reload data to show updated results
+        await loadDriftData();
+        
+        showNotification('Drift analysis completed', 'success');
+        
+    } catch (error) {
+        console.error('Failed to run drift analysis:', error);
+        showNotification('Failed to run drift analysis', 'error');
+    }
+}
+
+function getSeverityBorderColor(severity) {
+    switch (severity) {
+        case 'high': return 'border-red-500';
+        case 'medium': return 'border-yellow-500';
+        case 'low': return 'border-blue-500';
+        default: return 'border-gray-300';
+    }
+}
+
+function getSeverityBadgeColor(severity) {
+    switch (severity) {
+        case 'high': return 'bg-red-100 text-red-800';
+        case 'medium': return 'bg-yellow-100 text-yellow-800';
+        case 'low': return 'bg-blue-100 text-blue-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function formatRelativeTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 60) {
+        return `${diffMins} minutes ago`;
+    } else if (diffHours < 24) {
+        return `${diffHours} hours ago`;
+    } else {
+        return `${diffDays} days ago`;
+    }
+}
+
+function showConfigModal() {
+    document.getElementById('config-modal').classList.remove('hidden');
+}
+
+function hideConfigModal() {
+    document.getElementById('config-modal').classList.add('hidden');
+}
+
+function saveDriftConfig() {
+    const threshold = document.getElementById('drift-threshold').value;
+    const frequency = document.getElementById('check-frequency').value;
+    const autoRetrain = document.getElementById('auto-retrain').checked;
+    const emailAlerts = document.getElementById('email-alerts').checked;
+    
+    // In real implementation, save to backend
+    showNotification('Configuration saved successfully', 'success');
+    hideConfigModal();
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        type === 'warning' ? 'bg-yellow-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

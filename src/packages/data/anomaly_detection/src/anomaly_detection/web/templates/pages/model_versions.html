@@ -1,0 +1,651 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Model Version Management{% endblock %}
+
+{% block head %}
+<style>
+    .version-card {
+        transition: all 0.3s ease;
+    }
+    .version-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .version-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .version-current {
+        background-color: #10b981;
+        color: white;
+    }
+    .version-deprecated {
+        background-color: #f59e0b;
+        color: white;
+    }
+    .version-archived {
+        background-color: #6b7280;
+        color: white;
+    }
+    .performance-indicator {
+        width: 100%;
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        height: 0.5rem;
+    }
+    .performance-bar {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+    }
+    .performance-excellent { background-color: #10b981; }
+    .performance-good { background-color: #3b82f6; }
+    .performance-fair { background-color: #f59e0b; }
+    .performance-poor { background-color: #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Model Version Management</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    Manage, compare, and deploy different versions of your anomaly detection models
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <button type="button" onclick="refreshModels()" 
+                        class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh Models
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Selection -->
+    <div class="mb-6">
+        <label for="model-select" class="block text-sm font-medium text-gray-700 mb-2">Select Model</label>
+        <div class="flex space-x-4">
+            <select id="model-select" onchange="loadModelVersions()" 
+                    class="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <option value="">Select a model...</option>
+            </select>
+            <button onclick="showCompareModal()" 
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Compare Versions
+            </button>
+        </div>
+    </div>
+
+    <!-- Version Cards Container -->
+    <div id="versions-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Versions will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="text-center py-12 hidden">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No model selected</h3>
+        <p class="mt-1 text-sm text-gray-500">Select a model from the dropdown to view its versions.</p>
+    </div>
+</div>
+
+<!-- Compare Modal -->
+<div id="compare-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideCompareModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Compare Model Versions</h3>
+                    <button onclick="hideCompareModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Version Selection -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Version A</label>
+                        <select id="compare-version-a" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="">Select version...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Version B</label>
+                        <select id="compare-version-b" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="">Select version...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="performComparison()" 
+                        class="w-full mb-4 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Compare Versions
+                </button>
+                
+                <!-- Comparison Results -->
+                <div id="comparison-results" class="hidden">
+                    <!-- Results will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Version Details Modal -->
+<div id="version-details-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideVersionDetailsModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Version Details</h3>
+                    <button onclick="hideVersionDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="version-details-content">
+                    <!-- Version details will be loaded here -->
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="hideVersionDetailsModal()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Close
+                    </button>
+                    <button id="deploy-version-btn" onclick="deployVersion()" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                        Deploy Version
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentModel = null;
+let currentVersions = [];
+let selectedVersionId = null;
+
+// Load models on page init
+document.addEventListener('DOMContentLoaded', function() {
+    loadModels();
+});
+
+async function loadModels() {
+    try {
+        const response = await fetch('/htmx/models/list');
+        const models = await response.json();
+        
+        const select = document.getElementById('model-select');
+        select.innerHTML = '<option value="">Select a model...</option>';
+        
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.id;
+            option.textContent = `${model.name} (${model.algorithm})`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Failed to load models:', error);
+        showNotification('Failed to load models', 'error');
+    }
+}
+
+async function loadModelVersions() {
+    const modelId = document.getElementById('model-select').value;
+    if (!modelId) {
+        showEmptyState();
+        return;
+    }
+    
+    currentModel = modelId;
+    
+    try {
+        // Mock data for demonstration - in real implementation, fetch from API
+        const versions = [
+            {
+                id: 'v1.0.0',
+                version: '1.0.0',
+                created_at: '2024-01-15T10:00:00Z',
+                status: 'current',
+                performance: { accuracy: 0.92, f1_score: 0.89, precision: 0.91, recall: 0.87 },
+                deployment_count: 3,
+                description: 'Initial production model with isolation forest algorithm'
+            },
+            {
+                id: 'v1.1.0',
+                version: '1.1.0',
+                created_at: '2024-02-01T14:30:00Z',
+                status: 'deprecated',
+                performance: { accuracy: 0.89, f1_score: 0.86, precision: 0.88, recall: 0.84 },
+                deployment_count: 1,
+                description: 'Updated with new preprocessing pipeline'
+            },
+            {
+                id: 'v1.2.0',
+                version: '1.2.0',
+                created_at: '2024-02-15T09:15:00Z',
+                status: 'archived',
+                performance: { accuracy: 0.85, f1_score: 0.82, precision: 0.83, recall: 0.81 },
+                deployment_count: 0,
+                description: 'Experimental ensemble approach - archived due to performance issues'
+            }
+        ];
+        
+        currentVersions = versions;
+        renderVersions(versions);
+        populateCompareSelects(versions);
+        hideEmptyState();
+        
+    } catch (error) {
+        console.error('Failed to load versions:', error);
+        showNotification('Failed to load model versions', 'error');
+    }
+}
+
+function renderVersions(versions) {
+    const container = document.getElementById('versions-container');
+    container.innerHTML = '';
+    
+    versions.forEach(version => {
+        const card = createVersionCard(version);
+        container.appendChild(card);
+    });
+}
+
+function createVersionCard(version) {
+    const card = document.createElement('div');
+    card.className = 'version-card bg-white rounded-lg shadow-md p-6 border border-gray-200';
+    
+    const statusClass = getStatusClass(version.status);
+    const performanceClass = getPerformanceClass(version.performance.f1_score);
+    const performanceWidth = (version.performance.f1_score * 100).toFixed(0);
+    
+    card.innerHTML = `
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Version ${version.version}</h3>
+                <p class="text-sm text-gray-500">${formatDate(version.created_at)}</p>
+            </div>
+            <span class="version-badge ${statusClass}">${version.status.toUpperCase()}</span>
+        </div>
+        
+        <p class="text-gray-600 text-sm mb-4">${version.description}</p>
+        
+        <div class="space-y-3 mb-4">
+            <div>
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>F1-Score</span>     
+                    <span>${(version.performance.f1_score * 100).toFixed(1)}%</span>
+                </div>
+                <div class="performance-indicator">
+                    <div class="performance-bar ${performanceClass}" style="width: ${performanceWidth}%"></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-3 text-sm">
+                <div class="text-center">
+                    <div class="text-gray-500">Accuracy</div>
+                    <div class="font-semibold">${(version.performance.accuracy * 100).toFixed(1)}%</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-500">Precision</div>
+                    <div class="font-semibold">${(version.performance.precision * 100).toFixed(1)}%</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-500">Recall</div>
+                    <div class="font-semibold">${(version.performance.recall * 100).toFixed(1)}%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div class="text-sm text-gray-500">
+                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"></path>
+                </svg>
+                ${version.deployment_count} deployments
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="showVersionDetails('${version.id}')" 
+                        class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                    View Details
+                </button>
+                ${version.status !== 'current' ? `
+                    <button onclick="rollbackToVersion('${version.id}')" 
+                            class="text-green-600 hover:text-green-900 text-sm font-medium">
+                        Rollback
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+function getStatusClass(status) {
+    switch (status) {
+        case 'current': return 'version-current';
+        case 'deprecated': return 'version-deprecated';
+        case 'archived': return 'version-archived';
+        default: return 'version-deprecated';
+    }
+}
+
+function getPerformanceClass(score) {
+    if (score >= 0.9) return 'performance-excellent';
+    if (score >= 0.8) return 'performance-good';
+    if (score >= 0.7) return 'performance-fair';
+    return 'performance-poor';
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function showEmptyState() {
+    document.getElementById('versions-container').classList.add('hidden');
+    document.getElementById('empty-state').classList.remove('hidden');
+}
+
+function hideEmptyState() {
+    document.getElementById('versions-container').classList.remove('hidden');
+    document.getElementById('empty-state').classList.add('hidden');
+}
+
+function showCompareModal() {
+    if (currentVersions.length < 2) {
+        showNotification('At least 2 versions required for comparison', 'warning');
+        return;
+    }
+    document.getElementById('compare-modal').classList.remove('hidden');
+}
+
+function hideCompareModal() {
+    document.getElementById('compare-modal').classList.add('hidden');
+    document.getElementById('comparison-results').classList.add('hidden');
+}
+
+function populateCompareSelects(versions) {
+    const selectA = document.getElementById('compare-version-a');
+    const selectB = document.getElementById('compare-version-b');
+    
+    [selectA, selectB].forEach(select => {
+        select.innerHTML = '<option value="">Select version...</option>';
+        versions.forEach(version => {
+            const option = document.createElement('option');
+            option.value = version.id;
+            option.textContent = `Version ${version.version}`;
+            select.appendChild(option);
+        });
+    });
+}
+
+function performComparison() {
+    const versionA = document.getElementById('compare-version-a').value;
+    const versionB = document.getElementById('compare-version-b').value;
+    
+    if (!versionA || !versionB) {
+        showNotification('Please select both versions to compare', 'warning');
+        return;
+    }
+    
+    if (versionA === versionB) {
+        showNotification('Please select different versions to compare', 'warning');
+        return;
+    }
+    
+    const versionDataA = currentVersions.find(v => v.id === versionA);
+    const versionDataB = currentVersions.find(v => v.id === versionB);
+    
+    renderComparison(versionDataA, versionDataB);
+}
+
+function renderComparison(versionA, versionB) {
+    const resultsDiv = document.getElementById('comparison-results');
+    
+    resultsDiv.innerHTML = `
+        <div class="border rounded-lg p-4">
+            <h4 class="text-lg font-medium mb-4">Performance Comparison</h4>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <h5 class="font-medium text-gray-900 mb-2">Version ${versionA.version}</h5>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Accuracy:</span>
+                            <span class="font-medium">${(versionA.performance.accuracy * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>F1-Score:</span>
+                            <span class="font-medium">${(versionA.performance.f1_score * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Precision:</span>
+                            <span class="font-medium">${(versionA.performance.precision * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Recall:</span>
+                            <span class="font-medium">${(versionA.performance.recall * 100).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h5 class="font-medium text-gray-900 mb-2">Version ${versionB.version}</h5>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Accuracy:</span>
+                            <span class="font-medium">${(versionB.performance.accuracy * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>F1-Score:</span>
+                            <span class="font-medium">${(versionB.performance.f1_score * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Precision:</span>
+                            <span class="font-medium">${(versionB.performance.precision * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Recall:</span>
+                            <span class="font-medium">${(versionB.performance.recall * 100).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-gray-50 rounded">
+                <h6 class="font-medium text-gray-900 mb-2">Recommendation</h6>
+                <p class="text-sm text-gray-600">
+                    ${generateRecommendation(versionA, versionB)}
+                </p>
+            </div>
+        </div>
+    `;
+    
+    resultsDiv.classList.remove('hidden');
+}
+
+function generateRecommendation(versionA, versionB) {
+    const scoreA = versionA.performance.f1_score;
+    const scoreB = versionB.performance.f1_score;
+    
+    if (scoreA > scoreB) {
+        return `Version ${versionA.version} shows better overall performance with ${((scoreA - scoreB) * 100).toFixed(1)}% higher F1-score. Consider using this version for production deployments.`;
+    } else if (scoreB > scoreA) {
+        return `Version ${versionB.version} shows better overall performance with ${((scoreB - scoreA) * 100).toFixed(1)}% higher F1-score. Consider using this version for production deployments.`;
+    } else {
+        return 'Both versions show similar performance. Consider other factors like deployment stability and resource usage.';
+    }
+}
+
+function showVersionDetails(versionId) {
+    const version = currentVersions.find(v => v.id === versionId);
+    if (!version) return;
+    
+    selectedVersionId = versionId;
+    
+    const detailsContent = document.getElementById('version-details-content');
+    detailsContent.innerHTML = `
+        <div class="space-y-4">
+            <div>
+                <h4 class="text-lg font-medium text-gray-900">Version ${version.version}</h4>
+                <p class="text-sm text-gray-500">Created ${formatDate(version.created_at)}</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <p class="mt-1 text-sm text-gray-900">${version.description}</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Status</label>
+                <span class="mt-1 version-badge ${getStatusClass(version.status)}">${version.status.toUpperCase()}</span>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Performance Metrics</label>
+                <div class="mt-2 grid grid-cols-2 gap-4 text-sm">
+                    <div class="flex justify-between">
+                        <span>Accuracy:</span>
+                        <span class="font-medium">${(version.performance.accuracy * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>F1-Score:</span>
+                        <span class="font-medium">${(version.performance.f1_score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Precision:</span>
+                        <span class="font-medium">${(version.performance.precision * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Recall:</span>
+                        <span class="font-medium">${(version.performance.recall * 100).toFixed(1)}%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Deployment Information</label>
+                <p class="mt-1 text-sm text-gray-900">${version.deployment_count} active deployments</p>
+            </div>
+        </div>
+    `;
+    
+    // Update deploy button based on status
+    const deployBtn = document.getElementById('deploy-version-btn');
+    if (version.status === 'current') {
+        deployBtn.textContent = 'Already Current';
+        deployBtn.disabled = true;
+        deployBtn.className = deployBtn.className.replace('bg-green-600 hover:bg-green-700', 'bg-gray-400 cursor-not-allowed');
+    } else {
+        deployBtn.textContent = 'Deploy Version';
+        deployBtn.disabled = false;
+        deployBtn.className = deployBtn.className.replace('bg-gray-400 cursor-not-allowed', 'bg-green-600 hover:bg-green-700');
+    }
+    
+    document.getElementById('version-details-modal').classList.remove('hidden');
+}
+
+function hideVersionDetailsModal() {
+    document.getElementById('version-details-modal').classList.add('hidden');
+    selectedVersionId = null;
+}
+
+async function deployVersion() {
+    if (!selectedVersionId) return;
+    
+    try {
+        // In real implementation, make API call to deploy version
+        showNotification('Version deployment initiated', 'success');
+        hideVersionDetailsModal();
+        
+        // Refresh versions to show updated status
+        setTimeout(() => {
+            loadModelVersions();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Failed to deploy version:', error);
+        showNotification('Failed to deploy version', 'error');
+    }
+}
+
+async function rollbackToVersion(versionId) {
+    if (!confirm('Are you sure you want to rollback to this version? This will replace the current production model.')) {
+        return;
+    }
+    
+    try {
+        // In real implementation, make API call to rollback
+        showNotification('Rollback initiated successfully', 'success');
+        
+        // Refresh versions to show updated status
+        setTimeout(() => {
+            loadModelVersions();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Failed to rollback version:', error);
+        showNotification('Failed to rollback version', 'error');
+    }
+}
+
+function refreshModels() {
+    loadModels();
+    if (currentModel) {
+        document.getElementById('model-select').value = currentModel;
+        loadModelVersions();
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        type === 'warning' ? 'bg-yellow-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

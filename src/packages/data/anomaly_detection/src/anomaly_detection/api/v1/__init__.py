@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from . import detection, models, monitoring, streaming, explainability, workers, health, data_management
+from . import detection, models, monitoring, streaming, explainability, workers, health, data_management, performance_monitoring, reports, enhanced_streaming
 
 api_router = APIRouter()
 api_router.include_router(detection.router, prefix="/detection", tags=["detection"])
@@ -13,3 +13,6 @@ api_router.include_router(explainability.router, prefix="/explainability", tags=
 api_router.include_router(workers.router, prefix="/workers", tags=["workers"])
 api_router.include_router(health.router, prefix="/health", tags=["health"])
 api_router.include_router(data_management.router, prefix="/data", tags=["data-management"])
+api_router.include_router(performance_monitoring.router, tags=["performance-monitoring"])
+api_router.include_router(reports.router, tags=["reports"])
+api_router.include_router(enhanced_streaming.router, prefix="/enhanced-streaming", tags=["enhanced-streaming"])

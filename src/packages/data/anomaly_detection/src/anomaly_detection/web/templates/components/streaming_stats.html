@@ -1,0 +1,129 @@
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Streaming Statistics</h3>
+            <span class="text-xs text-gray-500">Updated at {{ timestamp }}</span>
+        </div>
+
+        {% if stats %}
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-6">
+            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                <dt class="text-sm font-medium text-blue-600">Buffer Size</dt>
+                <dd class="mt-1 text-2xl font-semibold text-blue-900">{{ stats.buffer_size }}</dd>
+            </div>
+            
+            <div class="bg-green-50 rounded-lg p-4 text-center">
+                <dt class="text-sm font-medium text-green-600">Total Samples</dt>
+                <dd class="mt-1 text-2xl font-semibold text-green-900">{{ stats.get('total_samples', 0) }}</dd>
+            </div>
+            
+            <div class="bg-red-50 rounded-lg p-4 text-center">
+                <dt class="text-sm font-medium text-red-600">Anomalies</dt>
+                <dd class="mt-1 text-2xl font-semibold text-red-900">{{ stats.get('anomaly_count', 0) }}</dd>
+            </div>
+            
+            <div class="bg-purple-50 rounded-lg p-4 text-center">
+                <dt class="text-sm font-medium text-purple-600">Anomaly Rate</dt>
+                <dd class="mt-1 text-2xl font-semibold text-purple-900">
+                    {% if stats.get('total_samples', 0) > 0 %}
+                        {{ "{:.1%}".format(stats.get('anomaly_count', 0) / stats.get('total_samples', 1)) }}
+                    {% else %}
+                        0.0%
+                    {% endif %}
+                </dd>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200 pt-4">
+            <h4 class="text-base font-medium text-gray-900 mb-3">Model Status</h4>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium {% if stats.model_fitted %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        <span class="animate-pulse mr-1.5">●</span>
+                        {% if stats.model_fitted %}Model Fitted{% else %}Model Training{% endif %}
+                    </span>
+                </div>
+                {% if stats.get('last_updated') %}
+                <span class="text-sm text-gray-500">Last updated: {{ stats.last_updated }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if drift %}
+        <div class="border-t border-gray-200 pt-4 mt-4">
+            <h4 class="text-base font-medium text-gray-900 mb-3">Concept Drift Detection</h4>
+            {% if drift.get('drift_detected') %}
+            <div class="rounded-md bg-yellow-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">Concept Drift Detected</h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>The data distribution has changed significantly. Consider retraining the model.</p>
+                            {% if drift.get('drift_score') %}
+                            <p class="mt-1">Drift Score: {{ "{:.3f}".format(drift.drift_score) }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="flex items-center">
+                <svg class="h-5 w-5 text-green-400 mr-2" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm text-green-800">No significant drift detected</span>
+                {% if drift.get('drift_score') %}
+                <span class="ml-2 text-xs text-gray-500">(Score: {{ "{:.3f}".format(drift.drift_score) }})</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="refreshStats()"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh
+            </button>
+            <button type="button" onclick="resetStream()"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Reset Stream
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshStats() {
+    htmx.ajax('GET', '/htmx/streaming/stats', {
+        target: '#streaming-stats',
+        swap: 'innerHTML'
+    });
+}
+
+function resetStream() {
+    if (confirm('Are you sure you want to reset the streaming session? This will clear all buffered data and statistics.')) {
+        htmx.ajax('POST', '/htmx/streaming/reset', {
+            target: '#streaming-status',
+            swap: 'innerHTML'
+        });
+    }
+}
+
+// Auto-refresh every 5 seconds
+setTimeout(function() {
+    refreshStats();
+}, 5000);
+</script>
