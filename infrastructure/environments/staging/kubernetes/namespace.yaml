@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-staging
+  labels:
+    environment: staging
+    project: mlops-platform
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlops-config
+  namespace: mlops-staging
+data:
+  DATABASE_URL: "postgresql://mlops_user:mlops_password@postgres-service:5432/mlops_staging"
+  REDIS_URL: "redis://redis-service:6379"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-service:9092"
+  MINIO_ENDPOINT: "minio-service:9000"
+  MINIO_ACCESS_KEY: "minio_admin"
+  ENVIRONMENT: "staging"
+  LOG_LEVEL: "INFO"
+  METRICS_ENABLED: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlops-secrets
+  namespace: mlops-staging
+type: Opaque
+data:
+  postgres-password: bWxvcHNfcGFzc3dvcmQ=  # mlops_password
+  minio-secret-key: bWluaW9fcGFzc3dvcmQ=   # minio_password
+  jwt-secret: c3RhZ2luZ19qd3Rfc2VjcmV0   # staging_jwt_secret
