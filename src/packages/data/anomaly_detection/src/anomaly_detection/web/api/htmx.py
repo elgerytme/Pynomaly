@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 from datetime import datetime
 
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
+from fastapi import APIRouter, Request, Form, File, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score

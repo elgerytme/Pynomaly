@@ -16,6 +16,7 @@ import uuid
 from .domain.services.detection_service import DetectionService
 from .domain.services.ensemble_service import EnsembleService
 from .domain.services.streaming_service import StreamingService
+from .domain.services.explainability_service import ExplainabilityService
 try:
     from data.processing.domain.entities.model import Model
 except ImportError:
@@ -51,6 +52,7 @@ monitoring_dashboard = get_monitoring_dashboard()
 global_detection_service: Optional[DetectionService] = None
 global_ensemble_service: Optional[EnsembleService] = None
 global_streaming_service: Optional[StreamingService] = None
+global_explainability_service: Optional[ExplainabilityService] = None
 global_model_repository: Optional[ModelRepository] = None
 
 
@@ -124,10 +126,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _app_start_time = datetime.utcnow()
     
     # Initialize services
-    global global_detection_service, global_ensemble_service, global_streaming_service, global_model_repository
+    global global_detection_service, global_ensemble_service, global_streaming_service, global_explainability_service, global_model_repository
     global_detection_service = DetectionService()
     global_ensemble_service = EnsembleService()
     global_streaming_service = StreamingService()
+    global_explainability_service = ExplainabilityService()
     global_model_repository = ModelRepository()
     
     # Keep local references for backward compatibility
