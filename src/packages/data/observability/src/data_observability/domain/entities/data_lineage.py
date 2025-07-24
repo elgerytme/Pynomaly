@@ -39,7 +39,7 @@ class LineageRelationType(str, Enum):
     ENRICHES = "enriches"
 
 
-@dataclass
+@dataclass(frozen=True)
 class LineageMetadata:
     """Metadata associated with lineage nodes and edges."""
     
@@ -68,12 +68,12 @@ class LineageNode(BaseModel):
     type: LineageNodeType = Field(..., description="Type of the lineage node")
     namespace: str = Field(..., description="Namespace/domain of the node")
     description: Optional[str] = None
+    asset_id: Optional[UUID] = None # Link to DataCatalogEntry
     metadata: LineageMetadata = Field(default_factory=LineageMetadata)
     
     # Data-specific attributes
-    schema_: Optional[Dict[str, Any]] = Field(None, alias="schema")
-    location: Optional[str] = None
-    format: Optional[str] = None
+    # schema_: Optional[Dict[str, Any]] = Field(None, alias="schema") # Removed, part of DataCatalogEntry
+    # location: Optional[str] = None # Removed, part of DataCatalogEntry
     size_bytes: Optional[int] = None
     row_count: Optional[int] = None
     

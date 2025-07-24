@@ -12,6 +12,12 @@ from ...application.services.data_catalog_service import DataCatalogService
 from ...application.services.predictive_quality_service import PredictiveQualityService
 from ...application.facades.observability_facade import DataObservabilityFacade
 
+from ...infrastructure.persistence.database import get_db_session
+from ...infrastructure.repositories.postgres_data_catalog_repository import PostgresDataCatalogRepository
+from ...infrastructure.repositories.postgres_data_lineage_repository import PostgresDataLineageRepository
+from ...infrastructure.repositories.postgres_pipeline_health_repository import PostgresPipelineHealthRepository
+from ...infrastructure.repositories.postgres_quality_prediction_repository import PostgresQualityPredictionRepository
+
 
 class DataObservabilityContainer(containers.DeclarativeContainer):
     """Dependency injection container for data observability package."""
@@ -19,14 +25,47 @@ class DataObservabilityContainer(containers.DeclarativeContainer):
     # Configuration
     config = providers.Configuration()
     
+    # Database session provider
+    db_session = providers.Resource(get_db_session)
+
+    # Repositories
+    data_catalog_repository = providers.Singleton(
+        PostgresDataCatalogRepository,
+        session=db_session
+    )
+    data_lineage_repository = providers.Singleton(
+        PostgresDataLineageRepository,
+        session=db_session
+    )
+    pipeline_health_repository = providers.Singleton(
+        PostgresPipelineHealthRepository,
+        session=db_session
+    )
+    quality_prediction_repository = providers.Singleton(
+        PostgresQualityPredictionRepository,
+        session=db_session
+    )
+    
     # Core services
-    data_lineage_service = providers.Singleton(DataLineageService)
+    data_lineage_service = providers.Singleton(
+        DataLineageService,
+        repository=data_lineage_repository
+    )
     
-    pipeline_health_service = providers.Singleton(PipelineHealthService)
+    pipeline_health_service = providers.Singleton(
+        PipelineHealthService,
+        repository=pipeline_health_repository
+    )
     
-    data_catalog_service = providers.Singleton(DataCatalogService)
+    data_catalog_service = providers.Singleton(
+        DataCatalogService,
+        repository=data_catalog_repository
+    )
     
-    predictive_quality_service = providers.Singleton(PredictiveQualityService)
+    predictive_quality_service = providers.Singleton(
+        PredictiveQualityService,
+        repository=quality_prediction_repository
+    )
     
     # Composed services that depend on core services
     observability_facade = providers.Factory(

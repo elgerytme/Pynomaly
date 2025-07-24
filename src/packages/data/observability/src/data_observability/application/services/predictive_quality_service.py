@@ -24,16 +24,16 @@ from ...domain.entities.quality_prediction import (
 )
 
 
+from ...domain.repositories.quality_prediction_repository import QualityPredictionRepository
+from ...infrastructure.errors.exceptions import QualityError
+
+
 class PredictiveQualityService:
     """Service for predictive data quality monitoring."""
     
-    def __init__(self):
-        self._predictions: Dict[UUID, QualityPrediction] = {}
-        self._trends: Dict[UUID, List[QualityTrend]] = {}
-        self._forecasts: Dict[UUID, List[QualityForecast]] = {}
-        self._alerts: Dict[UUID, List[QualityAlert]] = {}
-        
-        # Historical metrics for analysis
+    def __init__(self, repository: QualityPredictionRepository):
+        self._repository = repository
+        # Historical metrics for analysis (will be moved to repository later)
         self._metric_history: Dict[UUID, List[QualityMetricPoint]] = {}
         
         # Model configurations
@@ -52,7 +52,7 @@ class PredictiveQualityService:
             "completeness_drop": 0.05,  # 5% completeness drop
         }
     
-    def add_metric_point(self, asset_id: UUID, metric_type: str, value: float, timestamp: datetime = None) -> None:
+    async def add_metric_point(self, asset_id: UUID, metric_type: str, value: float, timestamp: datetime = None) -> None:
         """Add a quality metric point for analysis."""
         if timestamp is None:
             timestamp = datetime.utcnow()
@@ -63,6 +63,8 @@ class PredictiveQualityService:
             metric_type=metric_type
         )
         
+        # Store metric point (will be handled by repository later)
+        # For now, keep in-memory for trend/forecast calculations
         if asset_id not in self._metric_history:
             self._metric_history[asset_id] = []
         
@@ -73,22 +75,14 @@ class PredictiveQualityService:
             self._metric_history[asset_id] = self._metric_history[asset_id][-10000:]
         
         # Trigger analysis for new predictions
-        self._analyze_metrics_for_predictions(asset_id, metric_type)
+        await self._analyze_metrics_for_predictions(asset_id, metric_type)
     
-    def analyze_trends(self, asset_id: UUID, metric_type: str, days: int = 30) -> QualityTrend:
+    async def analyze_trends(self, asset_id: UUID, metric_type: str, days: int = 30) -> QualityTrend:
         """Analyze trends in quality metrics."""
-        if asset_id not in self._metric_history:
-            raise ValueError(f"No metric history found for asset {asset_id}")
-        
-        # Filter metrics by type and time range
-        cutoff_time = datetime.utcnow() - timedelta(days=days)
-        relevant_points = [
-            point for point in self._metric_history[asset_id]
-            if point.metric_type == metric_type and point.timestamp >= cutoff_time
-        ]
+        relevant_points = await self._repository.get_metric_history(asset_id, metric_type, days)
         
         if len(relevant_points) < 5:
-            raise ValueError(f"Insufficient data points for trend analysis (need at least 5, got {len(relevant_points)})")
+            raise QualityError(f"Insufficient data points for trend analysis (need at least 5, got {len(relevant_points)})", asset_id=str(asset_id), metric=metric_type)
         
         # Sort by timestamp
         relevant_points.sort(key=lambda p: p.timestamp)
@@ -138,13 +132,7 @@ class PredictiveQualityService:
         )
         
         # Store trend
-        if asset_id not in self._trends:
-            self._trends[asset_id] = []
-        self._trends[asset_id].append(trend)
-        
-        # Keep only last 100 trends per asset
-        if len(self._trends[asset_id]) > 100:
-            self._trends[asset_id] = self._trends[asset_id][-100:]
+        await self._repository.save_trend(trend)
         
         return trend
     
@@ -197,15 +185,15 @@ class PredictiveQualityService:
         )
         
         # Store prediction
-        self._predictions[prediction.id] = prediction
+        await self._repository.save_prediction(prediction)
         
         # Create alert if prediction indicates issues
         if self._should_create_alert(prediction):
-            self._create_prediction_alert(prediction)
+            await self._create_prediction_alert(prediction)
         
         return prediction
     
-    def create_forecast(
+    async def create_forecast(
         self,
         asset_id: UUID,
         metric_type: str,
@@ -233,7 +221,7 @@ class PredictiveQualityService:
         
         for forecast_time in forecast_times:
             # Use prediction model to forecast each point
-            predicted_value, confidence_score, interval = self._prediction_models[model_name](
+            predicted_value, confidence_score, interval = await self._prediction_models[model_name](
                 asset_id, PredictionType.QUALITY_DEGRADATION, forecast_time, []
             )
             
@@ -267,7 +255,7 @@ class PredictiveQualityService:
         seasonal_pattern = self._detect_forecast_seasonality(forecasted_values)
         
         # Predict anomalies
-        anomaly_times, anomaly_probs = self._predict_anomalies(asset_id, forecast_times)
+        anomaly_times, anomaly_probs = await self._predict_anomalies(asset_id, forecast_times)
         
         forecast = QualityForecast(
             asset_id=asset_id,
@@ -285,32 +273,28 @@ class PredictiveQualityService:
         )
         
         # Store forecast
-        if asset_id not in self._forecasts:
-            self._forecasts[asset_id] = []
-        self._forecasts[asset_id].append(forecast)
-        
-        # Keep only last 50 forecasts per asset
-        if len(self._forecasts[asset_id]) > 50:
-            self._forecasts[asset_id] = self._forecasts[asset_id][-50:]
+        await self._repository.save_forecast(forecast)
         
         return forecast
     
-    def validate_prediction(self, prediction_id: UUID, actual_value: float) -> None:
+    async def validate_prediction(self, prediction_id: UUID, actual_value: float) -> None:
         """Validate a prediction against actual observed value."""
-        prediction = self._predictions.get(prediction_id)
+        prediction = await self._repository.get_prediction_by_id(prediction_id)
         if not prediction:
-            raise ValueError(f"Prediction {prediction_id} not found")
+            raise QualityError(f"Prediction {prediction_id} not found", prediction_id=str(prediction_id))
         
         prediction.validate_prediction(actual_value)
+        await self._repository.update_prediction(prediction)
     
-    def get_prediction_accuracy_report(self, asset_id: UUID = None, days: int = 30) -> Dict[str, Any]:
+    async def get_prediction_accuracy_report(self, asset_id: UUID = None, days: int = 30) -> Dict[str, Any]:
         """Generate a report on prediction accuracy."""
         cutoff_time = datetime.utcnow() - timedelta(days=days)
         
         # Filter predictions
         relevant_predictions = []
-        for prediction in self._predictions.values():
-            if prediction.is_validated and prediction.validation_time >= cutoff_time:
+        all_predictions = await self._repository.get_all_predictions()
+        for prediction in all_predictions:
+            if prediction.is_validated and prediction.validation_time and prediction.validation_time >= cutoff_time:
                 if asset_id is None or prediction.asset_id == asset_id:
                     relevant_predictions.append(prediction)
         
@@ -333,8 +317,8 @@ class PredictiveQualityService:
         for pred_type, predictions in by_type.items():
             type_accuracies[pred_type] = {
                 "count": len(predictions),
-                "avg_accuracy": statistics.mean([p.get_accuracy() for p in predictions if p.get_accuracy() is not None]),
-                "avg_error": statistics.mean([p.prediction_error for p in predictions if p.prediction_error is not None])
+                "avg_accuracy": statistics.mean([p.get_accuracy() for p in predictions if p.get_accuracy() is not None]) if [p.get_accuracy() for p in predictions if p.get_accuracy() is not None] else 0.0,
+                "avg_error": statistics.mean([p.prediction_error for p in predictions if p.prediction_error is not None]) if [p.prediction_error for p in predictions if p.prediction_error is not None] else 0.0
             }
         
         return {
@@ -346,17 +330,9 @@ class PredictiveQualityService:
             "low_accuracy_predictions": len([a for a in accuracies if a < 0.5])
         }
     
-    def get_active_alerts(self, asset_id: UUID = None) -> List[QualityAlert]:
+    async def get_active_alerts(self, asset_id: UUID = None) -> List[QualityAlert]:
         """Get active quality prediction alerts."""
-        active_alerts = []
-        
-        for asset_alerts in self._alerts.values():
-            for alert in asset_alerts:
-                if alert.status == "open" or alert.status == "acknowledged":
-                    if asset_id is None or alert.asset_id == asset_id:
-                        active_alerts.append(alert)
-        
-        return sorted(active_alerts, key=lambda a: a.created_at, reverse=True)
+        return await self._repository.get_active_alerts(asset_id)
     
     def _analyze_metrics_for_predictions(self, asset_id: UUID, metric_type: str) -> None:
         """Analyze metrics to create automatic predictions."""

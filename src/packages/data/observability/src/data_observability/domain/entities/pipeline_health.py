@@ -46,7 +46,7 @@ class AlertSeverity(str, Enum):
     EMERGENCY = "emergency"
 
 
-@dataclass
+@dataclass(frozen=True)
 class MetricThreshold:
     """Threshold configuration for metrics."""
     

@@ -19,15 +19,17 @@ from ...domain.entities.data_lineage import (
 )
 
 
+from ...domain.repositories.data_lineage_repository import DataLineageRepository
+from ...infrastructure.errors.exceptions import LineageError
+
+
 class DataLineageService:
     """Service for managing data lineage operations."""
     
-    def __init__(self):
-        self._lineages: Dict[UUID, DataLineage] = {}
-        self._node_index: Dict[str, Set[UUID]] = {}  # name -> set of node IDs
-        self._type_index: Dict[LineageNodeType, Set[UUID]] = {}  # type -> set of node IDs
+    def __init__(self, repository: DataLineageRepository):
+        self._repository = repository
     
-    def create_lineage(self, name: str, description: str = None, namespace: str = "default") -> DataLineage:
+    async def create_lineage(self, name: str, description: str = None, namespace: str = "default") -> DataLineage:
         """Create a new data lineage graph."""
         lineage = DataLineage(
             name=name,
@@ -35,53 +37,27 @@ class DataLineageService:
             namespace=namespace
         )
         
-        self._lineages[lineage.id] = lineage
-        return lineage
+        return await self._repository.save_lineage(lineage)
     
-    def get_lineage(self, lineage_id: UUID) -> Optional[DataLineage]:
+    async def get_lineage(self, lineage_id: UUID) -> Optional[DataLineage]:
         """Get a lineage by ID."""
-        return self._lineages.get(lineage_id)
+        return await self._repository.get_lineage_by_id(lineage_id)
     
-    def get_lineage_by_name(self, name: str, namespace: str = "default") -> Optional[DataLineage]:
+    async def get_lineage_by_name(self, name: str, namespace: str = "default") -> Optional[DataLineage]:
         """Get a lineage by name and namespace."""
-        for lineage in self._lineages.values():
-            if lineage.name == name and lineage.namespace == namespace:
-                return lineage
-        return None
+        return await self._repository.get_lineage_by_name(name, namespace)
     
-    def list_lineages(self, namespace: str = None) -> List[DataLineage]:
+    async def list_lineages(self, namespace: str = None) -> List[DataLineage]:
         """List all lineages, optionally filtered by namespace."""
-        if namespace:
-            return [
-                lineage for lineage in self._lineages.values()
-                if lineage.namespace == namespace
-            ]
-        return list(self._lineages.values())
+        return await self._repository.list_lineages(namespace)
     
-    def add_node(self, lineage_id: UUID, node: LineageNode) -> None:
+    async def add_node(self, lineage_id: UUID, node: LineageNode) -> None:
         """Add a node to a lineage."""
-        lineage = self._lineages.get(lineage_id)
-        if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
-        
-        lineage.add_node(node)
-        
-        # Update indexes
-        if node.name not in self._node_index:
-            self._node_index[node.name] = set()
-        self._node_index[node.name].add(node.id)
-        
-        if node.type not in self._type_index:
-            self._type_index[node.type] = set()
-        self._type_index[node.type].add(node.id)
+        await self._repository.add_node(lineage_id, node)
     
-    def add_edge(self, lineage_id: UUID, edge: LineageEdge) -> None:
+    async def add_edge(self, lineage_id: UUID, edge: LineageEdge) -> None:
         """Add an edge to a lineage."""
-        lineage = self._lineages.get(lineage_id)
-        if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
-        
-        lineage.add_edge(edge)
+        await self._repository.add_edge(lineage_id, edge)
     
     def create_node(
         self,
@@ -96,15 +72,15 @@ class DataLineageService:
     ) -> LineageNode:
         """Create a new lineage node."""
         metadata = LineageMetadata(created_by=owner)
+        if asset_id:
+            metadata.set_property("asset_id", asset_id)
         
         node = LineageNode(
             name=name,
             type=node_type,
             namespace=namespace,
             description=description,
-            schema_=schema,
-            location=location,
-            owner=owner,
+            asset_id=asset_id,
             metadata=metadata,
             **kwargs
         )
@@ -134,40 +110,27 @@ class DataLineageService:
         
         return edge
     
-    def find_nodes_by_name(self, name: str) -> List[LineageNode]:
+    async def find_nodes_by_name(self, name: str) -> List[LineageNode]:
         """Find all nodes with a given name."""
-        nodes = []
-        node_ids = self._node_index.get(name, set())
-        
-        for lineage in self._lineages.values():
-            for node_id in node_ids:
-                if node_id in lineage.nodes:
-                    nodes.append(lineage.nodes[node_id])
-        
-        return nodes
+        return await self._repository.find_nodes_by_name(name)
     
-    def find_nodes_by_type(self, node_type: LineageNodeType) -> List[LineageNode]:
+    async def find_nodes_by_type(self, node_type: LineageNodeType) -> List[LineageNode]:
         """Find all nodes of a given type."""
-        nodes = []
-        node_ids = self._type_index.get(node_type, set())
-        
-        for lineage in self._lineages.values():
-            for node_id in node_ids:
-                if node_id in lineage.nodes:
-                    nodes.append(lineage.nodes[node_id])
-        
-        return nodes
+        return await self._repository.find_nodes_by_type(node_type.value)
     
-    def get_impact_analysis(self, lineage_id: UUID, node_id: UUID) -> Dict[str, Any]:
+    async def get_impact_analysis(self, lineage_id: UUID, node_id: UUID) -> Dict[str, Any]:
         """Get comprehensive impact analysis for a node."""
-        lineage = self._lineages.get(lineage_id)
+        lineage = await self._repository.get_lineage_by_id(lineage_id)
         if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
+            raise LineageError(f"Lineage {lineage_id} not found")
         
-        node = lineage.get_node(node_id)
+        node = await self._repository.get_node_by_id(node_id)
         if not node:
-            raise ValueError(f"Node {node_id} not found in lineage")
+            raise LineageError(f"Node {node_id} not found in lineage")
         
+        # These methods (get_upstream_nodes, get_downstream_nodes, get_critical_path, validate_lineage) are on the DataLineage entity
+        # They operate on the in-memory graph representation. If the graph is large, this might be inefficient.
+        # For now, we assume the DataLineage object returned by the repository is complete enough for these operations.
         upstream_nodes = lineage.get_upstream_nodes(node_id)
         downstream_nodes = lineage.get_downstream_nodes(node_id)
         
@@ -188,11 +151,11 @@ class DataLineageService:
             "recommendations": self._generate_impact_recommendations(lineage, node_id)
         }
     
-    def get_data_flow_path(self, lineage_id: UUID, source_node_id: UUID, target_node_id: UUID) -> Dict[str, Any]:
+    async def get_data_flow_path(self, lineage_id: UUID, source_node_id: UUID, target_node_id: UUID) -> Dict[str, Any]:
         """Get the data flow path between two nodes."""
-        lineage = self._lineages.get(lineage_id)
+        lineage = await self._repository.get_lineage_by_id(lineage_id)
         if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
+            raise LineageError(f"Lineage {lineage_id} not found")
         
         path_nodes = lineage.get_path(source_node_id, target_node_id)
         
@@ -211,7 +174,7 @@ class DataLineageService:
             next_node = path_nodes[i + 1]
             
             # Find the edge between these nodes
-            for edge in lineage.edges.values():
+            for edge in lineage.edges.values(): # This assumes edges are loaded with the lineage
                 if edge.source_node_id == current_node.id and edge.target_node_id == next_node.id:
                     path_edges.append(edge)
                     break
@@ -226,22 +189,21 @@ class DataLineageService:
             "path_metrics": path_metrics
         }
     
-    def update_node_quality(self, lineage_id: UUID, node_id: UUID, quality_score: float) -> None:
+    async def update_node_quality(self, lineage_id: UUID, node_id: UUID, quality_score: float) -> None:
         """Update the quality score for a node."""
-        lineage = self._lineages.get(lineage_id)
-        if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
-        
-        node = lineage.get_node(node_id)
+        node = await self._repository.get_node_by_id(node_id)
         if not node:
-            raise ValueError(f"Node {node_id} not found in lineage")
+            raise LineageError(f"Node {node_id} not found")
         
         node.update_quality_score(quality_score)
+        await self._repository.update_node(node)
         
         # Propagate quality impact to downstream nodes
-        self._propagate_quality_impact(lineage, node_id, quality_score)
+        lineage = await self._repository.get_lineage_by_id(lineage_id)
+        if lineage:
+            self._propagate_quality_impact(lineage, node_id, quality_score)
     
-    def track_data_transformation(
+    async def track_data_transformation(
         self,
         lineage_id: UUID,
         source_node_id: UUID,
@@ -252,13 +214,13 @@ class DataLineageService:
         error_rate: float = None
     ) -> None:
         """Track a data transformation between two nodes."""
-        lineage = self._lineages.get(lineage_id)
+        lineage = await self._repository.get_lineage_by_id(lineage_id)
         if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
+            raise LineageError(f"Lineage {lineage_id} not found")
         
         # Find existing edge or create new one
         edge = None
-        for e in lineage.edges.values():
+        for e in lineage.edges.values(): # This assumes edges are loaded with the lineage
             if e.source_node_id == source_node_id and e.target_node_id == target_node_id:
                 edge = e
                 break
@@ -269,7 +231,7 @@ class DataLineageService:
                 target_node_id=target_node_id,
                 relationship_type=LineageRelationType.TRANSFORMS_TO
             )
-            lineage.add_edge(edge)
+            await self._repository.add_edge(lineage_id, edge)
         
         # Update edge with transformation details
         edge.set_transform_logic(transform_logic)
@@ -277,12 +239,14 @@ class DataLineageService:
             edge.set_column_mapping(column_mapping)
         if execution_time is not None:
             edge.update_execution_stats(execution_time, error_rate)
-    
-    def get_lineage_health_report(self, lineage_id: UUID) -> Dict[str, Any]:
+        
+        await self._repository.update_edge(edge)
+
+    async def get_lineage_health_report(self, lineage_id: UUID) -> Dict[str, Any]:
         """Generate a health report for a lineage."""
-        lineage = self._lineages.get(lineage_id)
+        lineage = await self._repository.get_lineage_by_id(lineage_id)
         if not lineage:
-            raise ValueError(f"Lineage {lineage_id} not found")
+            raise LineageError(f"Lineage {lineage_id} not found")
         
         validation_errors = lineage.validate_lineage()
         

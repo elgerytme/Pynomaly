@@ -14,6 +14,8 @@ import uvicorn
 
 from .application.facades.observability_facade import DataObservabilityFacade
 from .infrastructure.di.container import DataObservabilityContainer
+from .infrastructure.persistence.database import init_database
+from .infrastructure.config.settings import settings
 
 
 # Pydantic models for API
@@ -47,6 +49,12 @@ app = FastAPI(
     description="REST API for data observability operations",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup."""
+    db_manager = init_database(settings.database.async_url)
+    await db_manager.create_tables()
 
 # CORS middleware
 app.add_middleware(

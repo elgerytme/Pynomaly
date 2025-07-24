@@ -20,12 +20,15 @@ from ...domain.entities.pipeline_health import (
 )
 
 
+from ...domain.repositories.pipeline_health_repository import PipelineHealthRepository
+from ...infrastructure.errors.exceptions import PipelineError
+
+
 class PipelineHealthService:
     """Service for managing pipeline health monitoring."""
     
-    def __init__(self):
-        self._pipelines: Dict[UUID, PipelineHealth] = {}
-        self._metric_history: Dict[UUID, List[PipelineMetric]] = {}
+    def __init__(self, repository: PipelineHealthRepository):
+        self._repository = repository
         self._alert_handlers: Dict[AlertSeverity, List[Callable]] = {
             AlertSeverity.INFO: [],
             AlertSeverity.WARNING: [],
@@ -57,7 +60,7 @@ class PipelineHealthService:
             )
         }
     
-    def register_pipeline(self, pipeline_id: UUID, pipeline_name: str) -> PipelineHealth:
+    async def register_pipeline(self, pipeline_id: UUID, pipeline_name: str) -> PipelineHealth:
         """Register a new pipeline for health monitoring."""
         health = PipelineHealth(
             pipeline_id=pipeline_id,
@@ -65,27 +68,25 @@ class PipelineHealthService:
             status=PipelineStatus.UNKNOWN
         )
         
-        self._pipelines[pipeline_id] = health
-        self._metric_history[pipeline_id] = []
-        
-        return health
+        return await self._repository.save_pipeline_health(health)
     
-    def get_pipeline_health(self, pipeline_id: UUID) -> Optional[PipelineHealth]:
+    async def get_pipeline_health(self, pipeline_id: UUID) -> Optional[PipelineHealth]:
         """Get health status for a pipeline."""
-        return self._pipelines.get(pipeline_id)
+        return await self._repository.get_pipeline_health(pipeline_id)
     
-    def get_all_pipelines(self) -> List[PipelineHealth]:
+    async def get_all_pipelines(self) -> List[PipelineHealth]:
         """Get health status for all pipelines."""
-        return list(self._pipelines.values())
+        return await self._repository.get_all_pipeline_health()
     
-    def get_pipelines_by_status(self, status: PipelineStatus) -> List[PipelineHealth]:
+    async def get_pipelines_by_status(self, status: PipelineStatus) -> List[PipelineHealth]:
         """Get all pipelines with a specific status."""
+        all_pipelines = await self._repository.get_all_pipeline_health()
         return [
-            pipeline for pipeline in self._pipelines.values()
+            pipeline for pipeline in all_pipelines
             if pipeline.status == status
         ]
     
-    def record_metric(
+    async def record_metric(
         self,
         pipeline_id: UUID,
         metric_type: MetricType,
@@ -97,9 +98,9 @@ class PipelineHealthService:
         threshold: MetricThreshold = None
     ) -> None:
         """Record a metric for a pipeline."""
-        pipeline = self._pipelines.get(pipeline_id)
+        pipeline = await self._repository.get_pipeline_health(pipeline_id)
         if not pipeline:
-            raise ValueError(f"Pipeline {pipeline_id} not registered")
+            raise PipelineError(f"Pipeline {pipeline_id} not registered")
         
         # Use default threshold if not provided
         if threshold is None:
@@ -118,16 +119,12 @@ class PipelineHealthService:
         
         # Add to pipeline and history
         pipeline.add_metric(metric)
-        self._metric_history[pipeline_id].append(metric)
+        await self._repository.add_metric(pipeline_id, metric)
         
         # Check for alert conditions
-        self._check_metric_alerts(pipeline, metric)
-        
-        # Trim history to last 1000 metrics per pipeline
-        if len(self._metric_history[pipeline_id]) > 1000:
-            self._metric_history[pipeline_id] = self._metric_history[pipeline_id][-1000:]
+        await self._check_metric_alerts(pipeline, metric)
     
-    def create_alert(
+    async def create_alert(
         self,
         pipeline_id: UUID,
         severity: AlertSeverity,
@@ -139,9 +136,9 @@ class PipelineHealthService:
         threshold_value: float = None
     ) -> PipelineAlert:
         """Create an alert for a pipeline."""
-        pipeline = self._pipelines.get(pipeline_id)
+        pipeline = await self._repository.get_pipeline_health(pipeline_id)
         if not pipeline:
-            raise ValueError(f"Pipeline {pipeline_id} not registered")
+            raise PipelineError(f"Pipeline {pipeline_id} not registered")
         
         alert = PipelineAlert(
             pipeline_id=pipeline_id,
@@ -155,43 +152,41 @@ class PipelineHealthService:
         )
         
         pipeline.add_alert(alert)
+        await self._repository.add_alert(pipeline_id, alert)
         
         # Trigger alert handlers
         self._trigger_alert_handlers(alert)
         
         return alert
     
-    def resolve_alert(self, pipeline_id: UUID, alert_id: UUID) -> bool:
+    async def resolve_alert(self, pipeline_id: UUID, alert_id: UUID) -> bool:
         """Resolve an alert."""
-        pipeline = self._pipelines.get(pipeline_id)
-        if not pipeline:
-            return False
-        
-        return pipeline.resolve_alert(alert_id)
+        return await self._repository.resolve_alert(pipeline_id, alert_id)
     
-    def acknowledge_alert(self, pipeline_id: UUID, alert_id: UUID, acknowledged_by: str) -> bool:
+    async def acknowledge_alert(self, pipeline_id: UUID, alert_id: UUID, acknowledged_by: str) -> bool:
         """Acknowledge an alert."""
-        pipeline = self._pipelines.get(pipeline_id)
+        pipeline = await self._repository.get_pipeline_health(pipeline_id)
         if not pipeline:
             return False
         
         for alert in pipeline.active_alerts:
             if alert.id == alert_id:
                 alert.acknowledge(acknowledged_by)
+                await self._repository.save_pipeline_health(pipeline) # Save the updated pipeline health
                 return True
         
         return False
     
-    def update_pipeline_execution(
+    async def update_pipeline_execution(
         self,
         pipeline_id: UUID,
         success: bool,
         execution_duration: timedelta = None
     ) -> None:
         """Update pipeline execution statistics."""
-        pipeline = self._pipelines.get(pipeline_id)
+        pipeline = await self._repository.get_pipeline_health(pipeline_id)
         if not pipeline:
-            return
+            raise PipelineError(f"Pipeline {pipeline_id} not found")
         
         pipeline.last_execution = datetime.utcnow()
         
@@ -204,7 +199,7 @@ class PipelineHealthService:
             pipeline.failed_executions += 1
             
             # Create alert for failed execution
-            self.create_alert(
+            await self.create_alert(
                 pipeline_id=pipeline_id,
                 severity=AlertSeverity.WARNING,
                 title="Pipeline Execution Failed",
@@ -215,40 +210,28 @@ class PipelineHealthService:
         total_executions = pipeline.successful_executions + pipeline.failed_executions
         if total_executions > 0:
             pipeline.error_rate = pipeline.failed_executions / total_executions
+        
+        await self._repository.save_pipeline_health(pipeline)
     
-    def get_metric_history(
+    async def get_metric_history(
         self,
         pipeline_id: UUID,
         metric_type: MetricType = None,
         hours: int = 24
     ) -> List[PipelineMetric]:
         """Get metric history for a pipeline."""
-        if pipeline_id not in self._metric_history:
-            return []
-        
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
-        
-        metrics = self._metric_history[pipeline_id]
-        
-        # Filter by time
-        metrics = [m for m in metrics if m.timestamp >= cutoff_time]
-        
-        # Filter by type if specified
-        if metric_type:
-            metrics = [m for m in metrics if m.metric_type == metric_type]
-        
-        return sorted(metrics, key=lambda m: m.timestamp)
+        return await self._repository.get_metric_history(pipeline_id, metric_type.value if metric_type else None, hours)
     
-    def get_health_dashboard(self) -> Dict[str, Any]:
+    async def get_health_dashboard(self) -> Dict[str, Any]:
         """Get health dashboard data for all pipelines."""
-        all_pipelines = self.get_all_pipelines()
+        all_pipelines = await self.get_all_pipelines()
         
         # Overall statistics
         total_pipelines = len(all_pipelines)
-        healthy_pipelines = len(self.get_pipelines_by_status(PipelineStatus.HEALTHY))
-        warning_pipelines = len(self.get_pipelines_by_status(PipelineStatus.WARNING))
-        critical_pipelines = len(self.get_pipelines_by_status(PipelineStatus.CRITICAL))
-        failed_pipelines = len(self.get_pipelines_by_status(PipelineStatus.FAILED))
+        healthy_pipelines = len(await self.get_pipelines_by_status(PipelineStatus.HEALTHY))
+        warning_pipelines = len(await self.get_pipelines_by_status(PipelineStatus.WARNING))
+        critical_pipelines = len(await self.get_pipelines_by_status(PipelineStatus.CRITICAL))
+        failed_pipelines = len(await self.get_pipelines_by_status(PipelineStatus.FAILED))
         
         # Alert statistics
         total_alerts = sum(len(p.active_alerts) for p in all_pipelines)
@@ -287,18 +270,18 @@ class PipelineHealthService:
                 "failed": failed_pipelines
             },
             "top_issues": [p.to_summary_dict() for p in problematic_pipelines],
-            "recent_alerts": self._get_recent_alerts(hours=24),
-            "performance_trends": self._get_performance_trends(hours=24)
+            "recent_alerts": await self._get_recent_alerts(hours=24),
+            "performance_trends": await self._get_performance_trends(hours=24)
         }
     
-    def get_pipeline_report(self, pipeline_id: UUID, hours: int = 24) -> Dict[str, Any]:
+    async def get_pipeline_report(self, pipeline_id: UUID, hours: int = 24) -> Dict[str, Any]:
         """Generate a comprehensive report for a pipeline."""
-        pipeline = self._pipelines.get(pipeline_id)
+        pipeline = await self._repository.get_pipeline_health(pipeline_id)
         if not pipeline:
-            raise ValueError(f"Pipeline {pipeline_id} not found")
+            raise PipelineError(f"Pipeline {pipeline_id} not found")
         
         # Get metric history
-        metric_history = self.get_metric_history(pipeline_id, hours=hours)
+        metric_history = await self.get_metric_history(pipeline_id, hours=hours)
         
         # Calculate trends
         trends = self._calculate_metric_trends(metric_history)

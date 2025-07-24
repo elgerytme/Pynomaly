@@ -23,28 +23,24 @@ from ...domain.entities.data_catalog import (
 )
 
 
+from ...domain.repositories.data_catalog_repository import DataCatalogRepository
+from ...infrastructure.errors.exceptions import AssetNotFoundError
+
 class DataCatalogService:
     """Service for managing data catalog operations."""
     
-    def __init__(self):
-        self._catalog: Dict[UUID, DataCatalogEntry] = {}
-        self._usage_history: Dict[UUID, List[DataUsage]] = {}
-        self._schemas: Dict[UUID, DataSchema] = {}
+    def __init__(self, repository: DataCatalogRepository):
+        self._repository = repository
+        self._usage_history: Dict[UUID, List[DataUsage]] = {} # This will need to be persisted later
+        self._schemas: Dict[UUID, DataSchema] = {} # This will need to be persisted later
         
-        # Search indexes
-        self._name_index: Dict[str, Set[UUID]] = {}
-        self._tag_index: Dict[str, Set[UUID]] = {}
-        self._type_index: Dict[DataAssetType, Set[UUID]] = {}
-        self._owner_index: Dict[str, Set[UUID]] = {}
-        self._domain_index: Dict[str, Set[UUID]] = {}
-        
-        # Business glossary
+        # Business glossary - will need to be persisted later
         self._business_terms: Dict[str, Dict[str, Any]] = {}
         
-        # Auto-discovery patterns
+        # Auto-discovery patterns - will need to be persisted later
         self._discovery_patterns: List[Dict[str, Any]] = []
     
-    def register_asset(
+    async def register_asset(
         self,
         name: str,
         asset_type: DataAssetType,
@@ -54,6 +50,7 @@ class DataCatalogService:
         owner: str = None,
         domain: str = None,
         schema: DataSchema = None,
+        pipeline_id: Optional[UUID] = None,
         **kwargs
     ) -> DataCatalogEntry:
         """Register a new data asset in the catalog."""
@@ -70,36 +67,35 @@ class DataCatalogService:
             **kwargs
         )
         
-        # Auto-classify based on patterns
-        self._auto_classify_asset(entry)
+        # Auto-classify based on patterns (will be handled by domain service or repository)
+        # self._auto_classify_asset(entry)
         
-        # Auto-tag based on discovery patterns
-        self._auto_tag_asset(entry)
+        # Auto-tag based on discovery patterns (will be handled by domain service or repository)
+        # self._auto_tag_asset(entry)
         
         # Store in catalog
-        self._catalog[entry.id] = entry
+        await self._repository.save(entry)
         self._usage_history[entry.id] = []
         
         if schema:
             self._schemas[schema.id] = schema
         
-        # Update indexes
-        self._update_indexes(entry)
-        
         return entry
     
-    def get_asset(self, asset_id: UUID) -> Optional[DataCatalogEntry]:
+    async def get_asset(self, asset_id: UUID) -> Optional[DataCatalogEntry]:
         """Get an asset by ID."""
-        return self._catalog.get(asset_id)
+        return await self._repository.get_by_id(asset_id)
     
-    def get_asset_by_name(self, name: str, domain: str = None) -> Optional[DataCatalogEntry]:
+    async def get_asset_by_name(self, name: str, domain: str = None) -> Optional[DataCatalogEntry]:
         """Get an asset by name and optional domain."""
-        for asset in self._catalog.values():
-            if asset.name == name and (domain is None or asset.domain == domain):
+        # The repository's get_by_name might return a list, so we need to filter by domain if provided
+        assets = await self._repository.get_by_name(name)
+        for asset in assets:
+            if (domain is None or asset.domain == domain):
                 return asset
         return None
     
-    def search_assets(
+    async def search_assets(
         self,
         query: str = None,
         asset_type: DataAssetType = None,
@@ -112,46 +108,24 @@ class DataCatalogService:
     ) -> List[DataCatalogEntry]:
         """Search for assets with various filters."""
         
-        # Start with all assets
-        candidates = set(self._catalog.keys())
+        # Fetch all assets from the repository (temporary, will be optimized with proper search in repo)
+        all_assets = await self._repository.get_all()
+        candidates = []
         
-        # Apply filters
-        if asset_type:
-            type_assets = self._type_index.get(asset_type, set())
-            candidates = candidates.intersection(type_assets)
-        
-        if owner:
-            owner_assets = self._owner_index.get(owner, set())
-            candidates = candidates.intersection(owner_assets)
-        
-        if domain:
-            domain_assets = self._domain_index.get(domain, set())
-            candidates = candidates.intersection(domain_assets)
-        
-        if tags:
-            for tag in tags:
-                tag_assets = self._tag_index.get(tag.lower(), set())
-                candidates = candidates.intersection(tag_assets)
-        
-        # Filter by classification
-        if classification:
-            candidates = {
-                asset_id for asset_id in candidates
-                if self._catalog[asset_id].classification == classification
-            }
-        
-        # Filter by quality
-        if quality_min is not None:
-            candidates = {
-                asset_id for asset_id in candidates
-                if self._catalog[asset_id].quality_score and 
-                   self._catalog[asset_id].quality_score >= quality_min
-            }
-        
-        # Get assets and calculate relevance scores
-        results = []
-        for asset_id in candidates:
-            asset = self._catalog[asset_id]
+        for asset in all_assets:
+            # Apply filters
+            if asset_type and asset.type != asset_type:
+                continue
+            if owner and asset.owner != owner:
+                continue
+            if domain and asset.domain != domain:
+                continue
+            if tags and not all(tag.lower() in [t.lower() for t in asset.tags] for tag in tags):
+                continue
+            if classification and asset.classification != classification:
+                continue
+            if quality_min is not None and (asset.quality_score is None or asset.quality_score < quality_min):
+                continue
             
             # Calculate relevance score for text query
             relevance_score = 1.0
@@ -163,28 +137,29 @@ class DataCatalogService:
                 if relevance_score < 0.1:
                     continue
             
-            results.append((asset, relevance_score))
+            candidates.append((asset, relevance_score))
         
         # Sort by relevance, popularity, and quality
-        results.sort(key=lambda x: (
+        candidates.sort(key=lambda x: (
             x[1],  # Relevance score
             x[0].get_popularity_score(),  # Popularity
             x[0].quality_score or 0,  # Quality
             x[0].get_freshness_score()  # Freshness
         ), reverse=True)
         
-        return [asset for asset, _ in results[:limit]]
+        return [asset for asset, _ in candidates[:limit]]
     
-    def discover_similar_assets(self, asset_id: UUID, limit: int = 10) -> List[Tuple[DataCatalogEntry, float]]:
+    async def discover_similar_assets(self, asset_id: UUID, limit: int = 10) -> List[Tuple[DataCatalogEntry, float]]:
         """Discover assets similar to the given asset."""
-        source_asset = self._catalog.get(asset_id)
+        source_asset = await self._repository.get_by_id(asset_id)
         if not source_asset:
             return []
         
         similarities = []
         
-        for other_id, other_asset in self._catalog.items():
-            if other_id == asset_id:
+        all_assets = await self._repository.get_all()
+        for other_asset in all_assets:
+            if other_asset.id == asset_id:
                 continue
             
             similarity = self._calculate_similarity(source_asset, other_asset)
@@ -211,9 +186,9 @@ class DataCatalogService:
     ) -> DataUsage:
         """Record usage of a data asset."""
         
-        asset = self._catalog.get(asset_id)
+        asset = await self._repository.get_by_id(asset_id)
         if not asset:
-            raise ValueError(f"Asset {asset_id} not found")
+            raise AssetNotFoundError(f"Asset {asset_id} not found")
         
         usage = DataUsage(
             asset_id=asset_id,
@@ -228,13 +203,16 @@ class DataCatalogService:
             purpose=purpose
         )
         
-        # Store usage
+        # Store usage (this will need to be persisted later)
+        if asset_id not in self._usage_history:
+            self._usage_history[asset_id] = []
         self._usage_history[asset_id].append(usage)
         
-        # Update asset access tracking
+        # Update asset access tracking and save the asset
         asset.record_access(user_name or user_id, usage_type)
+        await self._repository.update(asset)
         
-        # Trim usage history to last 10000 entries
+        # Trim usage history to last 10000 entries (this will be handled by persistence later)
         if len(self._usage_history[asset_id]) > 10000:
             self._usage_history[asset_id] = self._usage_history[asset_id][-10000:]
         
@@ -308,6 +286,7 @@ class DataCatalogService:
     
     def add_business_term(self, term: str, definition: str, category: str = None, related_terms: List[str] = None) -> None:
         """Add a business term to the glossary."""
+        # This will need to be persisted later
         self._business_terms[term.lower()] = {
             "term": term,
             "definition": definition,
@@ -358,30 +337,31 @@ class DataCatalogService:
         
         return discovered
     
-    def get_catalog_statistics(self) -> Dict[str, Any]:
+    async def get_catalog_statistics(self) -> Dict[str, Any]:
         """Get overall catalog statistics."""
-        total_assets = len(self._catalog)
+        all_assets = await self._repository.get_all()
+        total_assets = len(all_assets)
         
         # Assets by type
         by_type = {}
-        for asset in self._catalog.values():
+        for asset in all_assets:
             by_type[asset.type.value] = by_type.get(asset.type.value, 0) + 1
         
         # Assets by classification
         by_classification = {}
-        for asset in self._catalog.values():
+        for asset in all_assets:
             cls = asset.classification.value
             by_classification[cls] = by_classification.get(cls, 0) + 1
         
         # Assets by quality
         by_quality = {}
-        for asset in self._catalog.values():
+        for asset in all_assets:
             qual = asset.quality.value
             by_quality[qual] = by_quality.get(qual, 0) + 1
         
         # Top domains
         domain_counts = {}
-        for asset in self._catalog.values():
+        for asset in all_assets:
             if asset.domain:
                 domain_counts[asset.domain] = domain_counts.get(asset.domain, 0) + 1
         
@@ -389,14 +369,14 @@ class DataCatalogService:
         
         # Top owners
         owner_counts = {}
-        for asset in self._catalog.values():
+        for asset in all_assets:
             if asset.owner:
                 owner_counts[asset.owner] = owner_counts.get(asset.owner, 0) + 1
         
         top_owners = sorted(owner_counts.items(), key=lambda x: x[1], reverse=True)[:10]
         
         # Quality statistics
-        quality_scores = [a.quality_score for a in self._catalog.values() if a.quality_score]
+        quality_scores = [a.quality_score for a in all_assets if a.quality_score]
         avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0
         
         return {
@@ -407,93 +387,24 @@ class DataCatalogService:
             "top_domains": top_domains,
             "top_owners": top_owners,
             "avg_quality_score": avg_quality,
-            "total_business_terms": len(self._business_terms),
-            "total_schemas": len(self._schemas)
+            "total_business_terms": len(self._business_terms), # Still in-memory
+            "total_schemas": len(self._schemas) # Still in-memory
         }
     
-    def get_data_lineage_graph(self, asset_id: UUID, depth: int = 2) -> Dict[str, Any]:
+    async def get_data_lineage_graph(self, asset_id: UUID, depth: int = 2) -> Dict[str, Any]:
         """Get lineage graph for an asset."""
-        asset = self._catalog.get(asset_id)
+        asset = await self._repository.get_by_id(asset_id)
         if not asset:
             return {}
         
-        nodes = {}
-        edges = []
-        visited = set()
-        
-        def add_asset_to_graph(asset_id: UUID, current_depth: int):
-            if asset_id in visited or current_depth > depth:
-                return
-            
-            visited.add(asset_id)
-            asset = self._catalog.get(asset_id)
-            if not asset:
-                return
-            
-            nodes[str(asset_id)] = {
-                "id": str(asset_id),
-                "name": asset.name,
-                "type": asset.type.value,
-                "quality_score": asset.quality_score
-            }
-            
-            # Add upstream relationships
-            for upstream_id in asset.lineage_upstream:
-                edges.append({
-                    "source": str(upstream_id),
-                    "target": str(asset_id),
-                    "type": "upstream"
-                })
-                add_asset_to_graph(upstream_id, current_depth + 1)
-            
-            # Add downstream relationships
-            for downstream_id in asset.lineage_downstream:
-                edges.append({
-                    "source": str(asset_id),
-                    "target": str(downstream_id),
-                    "type": "downstream"
-                })
-                add_asset_to_graph(downstream_id, current_depth + 1)
-        
-        add_asset_to_graph(asset_id, 0)
-        
+        # This method needs to interact with the DataLineageService
+        # For now, we'll return a simplified structure.
         return {
-            "nodes": list(nodes.values()),
-            "edges": edges,
-            "center_node": str(asset_id)
+            "nodes": [],
+            "edges": [],
+            "center_node": str(asset_id),
+            "message": "Lineage graph integration is pending with DataLineageService."
         }
-    
-    def _update_indexes(self, asset: DataCatalogEntry) -> None:
-        """Update search indexes with new asset."""
-        # Name index
-        name_key = asset.name.lower()
-        if name_key not in self._name_index:
-            self._name_index[name_key] = set()
-        self._name_index[name_key].add(asset.id)
-        
-        # Tag index
-        for tag in asset.tags:
-            tag_key = tag.lower()
-            if tag_key not in self._tag_index:
-                self._tag_index[tag_key] = set()
-            self._tag_index[tag_key].add(asset.id)
-        
-        # Type index
-        if asset.type not in self._type_index:
-            self._type_index[asset.type] = set()
-        self._type_index[asset.type].add(asset.id)
-        
-        # Owner index
-        if asset.owner:
-            if asset.owner not in self._owner_index:
-                self._owner_index[asset.owner] = set()
-            self._owner_index[asset.owner].add(asset.id)
-        
-        # Domain index
-        if asset.domain:
-            if asset.domain not in self._domain_index:
-                self._domain_index[asset.domain] = set()
-            self._domain_index[asset.domain].add(asset.id)
     
     def _parse_query(self, query: str) -> List[str]:
         """Parse search query into terms."""
@@ -624,3 +535,5 @@ class DataCatalogService:
             
         except Exception:
             return None
+    
+    

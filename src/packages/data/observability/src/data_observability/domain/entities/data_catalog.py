@@ -74,7 +74,7 @@ class DataQuality(str, Enum):
     UNKNOWN = "unknown"
 
 
-@dataclass
+@dataclass(frozen=True)
 class ColumnMetadata:
     """Metadata for a data column/field."""
     
@@ -204,8 +204,7 @@ class DataCatalogEntry(BaseModel):
     # Quality and lineage
     quality: DataQuality = Field(default=DataQuality.UNKNOWN)
     quality_score: Optional[float] = None
-    lineage_upstream: Set[UUID] = Field(default_factory=set)
-    lineage_downstream: Set[UUID] = Field(default_factory=set)
+    pipeline_id: Optional[UUID] = None
     
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)

@@ -15,6 +15,8 @@ import time
 
 from .application.facades.observability_facade import DataObservabilityFacade
 from .infrastructure.di.container import DataObservabilityContainer
+from .infrastructure.persistence.database import init_database
+from .infrastructure.config.settings import settings
 
 # Configure logging
 logging.basicConfig(
@@ -34,6 +36,10 @@ class DataObservabilityWorker:
         self.facade = self.container.observability_facade()
         self.running = False
         
+        # Initialize database
+        self.db_manager = init_database(settings.database.async_url)
+        asyncio.run(self.db_manager.create_tables())
+        
     def start(self) -> None:
         """Start the background worker."""
         logger.info("Starting Data Observability Worker...")
@@ -48,6 +54,10 @@ class DataObservabilityWorker:
         
         self.running = True
         
+        # Initialize database
+        self.db_manager = init_database(settings.database.async_url)
+        asyncio.run(self.db_manager.create_tables())
+
         try:
             while self.running:
                 schedule.run_pending()
@@ -56,6 +66,7 @@ class DataObservabilityWorker:
             logger.info("Received shutdown signal")
         finally:
             self.stop()
+            asyncio.run(self.db_manager.close())
     
     def stop(self) -> None:
         """Stop the background worker."""

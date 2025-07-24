@@ -22,6 +22,10 @@ class DataAssetModel(Base):
     asset_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text)
     
+    # Location and format
+    location: Mapped[str] = mapped_column(String(512), nullable=False)
+    format: Mapped[str] = mapped_column(String(50), nullable=False)
+
     # Schema information
     schema_info: Mapped[Optional[Dict]] = mapped_column(JSON)
     
@@ -53,19 +57,15 @@ class DataAssetModel(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
-class DataLineageNodeModel(Base):
-    """SQLAlchemy model for data lineage nodes."""
+class DataLineageGraphModel(Base):
+    """SQLAlchemy model for a data lineage graph."""
     
-    __tablename__ = "lineage_nodes"
+    __tablename__ = "lineage_graphs"
     
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    asset_id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), 
-        ForeignKey("data_assets.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
-    )
-    node_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    namespace: Mapped[str] = mapped_column(String(255), nullable=False, default="default", index=True)
     metadata: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -75,8 +75,49 @@ class DataLineageNodeModel(Base):
         onupdate=func.now()
     )
     
-    # Relationship
-    asset: Mapped["DataAssetModel"] = relationship("DataAssetModel")
+    nodes: Mapped[List["DataLineageNodeModel"]] = relationship(
+        "DataLineageNodeModel", back_populates="lineage_graph", cascade="all, delete-orphan"
+    )
+    edges: Mapped[List["DataLineageEdgeModel"]] = relationship(
+        "DataLineageEdgeModel", back_populates="lineage_graph", cascade="all, delete-orphan"
+    )
+
+
+class DataLineageNodeModel(Base):
+    """SQLAlchemy model for data lineage nodes."""
+    
+    __tablename__ = "lineage_nodes"
+    
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    lineage_graph_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), 
+        ForeignKey("lineage_graphs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    node_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    asset_id: Mapped[Optional[UUID]] = mapped_column(
+        PGUUID(as_uuid=True), 
+        ForeignKey("data_assets.id", ondelete="SET NULL"), # Use SET NULL if asset is deleted
+        nullable=True,
+        index=True
+    )
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    metadata: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        server_default=func.now(), 
+        onupdate=func.now()
+    )
+    
+    # Relationships
+    lineage_graph: Mapped["DataLineageGraphModel"] = relationship(
+        "DataLineageGraphModel", back_populates="nodes"
+    )
+    asset: Mapped[Optional["DataAssetModel"]] = relationship("DataAssetModel")
 
 
 class DataLineageEdgeModel(Base):
@@ -85,6 +126,12 @@ class DataLineageEdgeModel(Base):
     __tablename__ = "lineage_edges"
     
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    lineage_graph_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), 
+        ForeignKey("lineage_graphs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
     source_node_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), 
         ForeignKey("lineage_nodes.id", ondelete="CASCADE"),
@@ -103,13 +150,18 @@ class DataLineageEdgeModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
+    lineage_graph: Mapped["DataLineageGraphModel"] = relationship(
+        "DataLineageGraphModel", back_populates="edges"
+    )
     source_node: Mapped["DataLineageNodeModel"] = relationship(
         "DataLineageNodeModel", 
-        foreign_keys=[source_node_id]
+        foreign_keys=[source_node_id],
+        viewonly=True # Prevent SQLAlchemy from trying to manage this side of the relationship
     )
     target_node: Mapped["DataLineageNodeModel"] = relationship(
         "DataLineageNodeModel", 
-        foreign_keys=[target_node_id]
+        foreign_keys=[target_node_id],
+        viewonly=True # Prevent SQLAlchemy from trying to manage this side of the relationship
     )
 
 
@@ -119,7 +171,7 @@ class PipelineHealthModel(Base):
     __tablename__ = "pipeline_health"
     
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    pipeline_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    pipeline_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), nullable=False, index=True, unique=True)
     pipeline_name: Mapped[str] = mapped_column(String(255), nullable=False)
     
     # Health metrics
@@ -127,12 +179,15 @@ class PipelineHealthModel(Base):
     execution_success_rate: Mapped[float] = mapped_column(Float)
     data_quality_score: Mapped[float] = mapped_column(Float)
     performance_score: Mapped[float] = mapped_column(Float)
+    availability_percentage: Mapped[float] = mapped_column(Float, default=100.0)
     
     # Status information
     status: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     last_run_status: Mapped[Optional[str]] = mapped_column(String(50))
     last_successful_run: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     last_failed_run: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    last_execution: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    execution_duration: Mapped[Optional[float]] = mapped_column(Float)
     
     # Metrics
     total_runs: Mapped[int] = mapped_column(default=0)
@@ -141,7 +196,7 @@ class PipelineHealthModel(Base):
     avg_execution_time: Mapped[Optional[float]] = mapped_column(Float)
     
     # Metadata
-    metadata: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
+    metadata: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict) # Keep for generic metadata
     
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -151,84 +206,71 @@ class PipelineHealthModel(Base):
         onupdate=func.now()
     )
 
+    # Relationships
+    metrics: Mapped[List["PipelineMetricModel"]] = relationship(
+        "PipelineMetricModel", back_populates="pipeline_health", cascade="all, delete-orphan"
+    )
+    alerts: Mapped[List["PipelineAlertModel"]] = relationship(
+        "PipelineAlertModel", back_populates="pipeline_health", cascade="all, delete-orphan"
+    )
 
-class QualityPredictionModel(Base):
-    """SQLAlchemy model for quality predictions."""
+
+class PipelineMetricModel(Base):
+    """SQLAlchemy model for pipeline metrics."""
     
-    __tablename__ = "quality_predictions"
+    __tablename__ = "pipeline_metrics"
     
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    asset_id: Mapped[UUID] = mapped_column(
+    pipeline_health_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), 
-        ForeignKey("data_assets.id", ondelete="CASCADE"),
+        ForeignKey("pipeline_health.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
-    
-    # Prediction results
-    predicted_score: Mapped[float] = mapped_column(Float, nullable=False)
-    confidence: Mapped[float] = mapped_column(Float, nullable=False)
-    prediction_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    
-    # Model information
-    model_version: Mapped[str] = mapped_column(String(50))
-    model_features: Mapped[Optional[Dict]] = mapped_column(JSON)
-    
-    # Validation
-    actual_score: Mapped[Optional[float]] = mapped_column(Float)
-    validation_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    
-    # Metadata
-    metadata: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
-    
-    # Timestamps
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    prediction_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    metric_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
+    unit: Mapped[str] = mapped_column(String(50), nullable=False)
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    labels: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
+    source: Mapped[Optional[str]] = mapped_column(String(255))
     
     # Relationship
-    asset: Mapped["DataAssetModel"] = relationship("DataAssetModel")
+    pipeline_health: Mapped["PipelineHealthModel"] = relationship(
+        "PipelineHealthModel", back_populates="metrics"
+    )
 
 
-class QualityAlertModel(Base):
-    """SQLAlchemy model for quality alerts."""
+class PipelineAlertModel(Base):
+    """SQLAlchemy model for pipeline alerts."""
     
-    __tablename__ = "quality_alerts"
+    __tablename__ = "pipeline_alerts"
     
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    asset_id: Mapped[UUID] = mapped_column(
+    pipeline_health_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), 
-        ForeignKey("data_assets.id", ondelete="CASCADE"),
+        ForeignKey("pipeline_health.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
-    
-    # Alert information
-    alert_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    metric_id: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), index=True)
     severity: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
-    message: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    resolved_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     
-    # Status
-    status: Mapped[str] = mapped_column(String(20), default="active", index=True)
+    # Alert details
+    triggered_by: Mapped[Optional[str]] = mapped_column(String(255))
+    current_value: Mapped[Optional[float]] = mapped_column(Float)
+    threshold_value: Mapped[Optional[float]] = mapped_column(Float)
+    
+    # Action tracking
     acknowledged: Mapped[bool] = mapped_column(Boolean, default=False)
     acknowledged_by: Mapped[Optional[str]] = mapped_column(String(255))
     acknowledged_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     
-    # Resolution
-    resolved: Mapped[bool] = mapped_column(Boolean, default=False)
-    resolved_by: Mapped[Optional[str]] = mapped_column(String(255))
-    resolved_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    resolution_notes: Mapped[Optional[str]] = mapped_column(Text)
-    
-    # Metadata
-    metadata: Mapped[Optional[Dict]] = mapped_column(JSON, default=dict)
-    
-    # Timestamps
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), 
-        server_default=func.now(), 
-        onupdate=func.now()
-    )
-    
     # Relationship
-    asset: Mapped["DataAssetModel"] = relationship("DataAssetModel")
+    pipeline_health: Mapped["PipelineHealthModel"] = relationship(
+        "PipelineHealthModel", back_populates="alerts"
+    )
