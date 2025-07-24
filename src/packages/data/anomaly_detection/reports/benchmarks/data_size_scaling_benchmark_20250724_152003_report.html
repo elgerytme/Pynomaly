@@ -1,0 +1,133 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Performance Benchmark Report - data_size_scaling_benchmark</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
+                .section { margin: 20px 0; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .metric { background-color: #e8f4f8; padding: 10px; margin: 5px; border-radius: 3px; }
+                .algorithm { margin: 15px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Performance Benchmark Report</h1>
+                <h2>data_size_scaling_benchmark</h2>
+                <p><strong>Duration:</strong> 1.80 seconds</p>
+                <p><strong>Tests Run:</strong> 5</p>
+                <p><strong>Period:</strong> 2025-07-24T15:20:01.554143 to 2025-07-24T15:20:03.349988</p>
+            </div>
+            
+            <div class="section">
+                <h3>Environment Information</h3>
+                <div class="metric">
+                    <strong>Platform:</strong> Linux-5.15.153.1-microsoft-standard-WSL2-x86_64-with-glibc2.39<br>
+                    <strong>Python Version:</strong> 3.12.3<br>
+                    <strong>CPU Cores:</strong> 28<br>
+                    <strong>Total Memory:</strong> 62.7 GB<br>
+                    <strong>Available Memory:</strong> 54.5 GB
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Algorithm Performance Summary</h3>
+        
+                <div class="algorithm">
+                    <h4>isolation_forest</h4>
+                    <div class="metric">
+                        <strong>Test Count:</strong> 5<br>
+                        <strong>Error Rate:</strong> 0.0%<br>
+                        <strong>Avg Response Time:</strong> 181.21 ms<br>
+                        <strong>Avg Throughput:</strong> 1944.47 samples/sec<br>
+                        <strong>Peak Memory Usage:</strong> 2.42 MB<br>
+                        <strong>Peak CPU Usage:</strong> 0.0%
+                    </div>
+                </div>
+            
+            </div>
+            
+            <div class="section">
+                <h3>Detailed Results</h3>
+                <table>
+                    <tr>
+                        <th>Test Name</th>
+                        <th>Algorithm</th>
+                        <th>Data Size</th>
+                        <th>Response Time (ms)</th>
+                        <th>Throughput (samples/sec)</th>
+                        <th>Memory (MB)</th>
+                        <th>CPU (%)</th>
+                        <th>Anomalies</th>
+                        <th>Error</th>
+                    </tr>
+        
+                    <tr >
+                        <td>data_scaling_small_50x5</td>
+                        <td>isolation_forest</td>
+                        <td>50</td>
+                        <td>169.35</td>
+                        <td>295.25</td>
+                        <td>2.42</td>
+                        <td>0.0</td>
+                        <td>5</td>
+                        <td>No</td>
+                    </tr>
+            
+                    <tr >
+                        <td>data_scaling_medium_100x10</td>
+                        <td>isolation_forest</td>
+                        <td>100</td>
+                        <td>168.01</td>
+                        <td>595.19</td>
+                        <td>0.36</td>
+                        <td>0.0</td>
+                        <td>10</td>
+                        <td>No</td>
+                    </tr>
+            
+                    <tr >
+                        <td>data_scaling_large_250x15</td>
+                        <td>isolation_forest</td>
+                        <td>250</td>
+                        <td>168.86</td>
+                        <td>1480.54</td>
+                        <td>0.89</td>
+                        <td>0.0</td>
+                        <td>25</td>
+                        <td>No</td>
+                    </tr>
+            
+                    <tr >
+                        <td>data_scaling_xlarge_500x20</td>
+                        <td>isolation_forest</td>
+                        <td>500</td>
+                        <td>184.11</td>
+                        <td>2715.82</td>
+                        <td>0.79</td>
+                        <td>0.0</td>
+                        <td>50</td>
+                        <td>No</td>
+                    </tr>
+            
+                    <tr >
+                        <td>data_scaling_xxlarge_1000x25</td>
+                        <td>isolation_forest</td>
+                        <td>1000</td>
+                        <td>215.72</td>
+                        <td>4635.58</td>
+                        <td>2.25</td>
+                        <td>0.0</td>
+                        <td>100</td>
+                        <td>No</td>
+                    </tr>
+            
+                </table>
+            </div>
+        </body>
+        </html>
+        
