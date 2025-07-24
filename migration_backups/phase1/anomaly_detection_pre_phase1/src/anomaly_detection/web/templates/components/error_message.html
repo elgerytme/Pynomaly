@@ -1,0 +1,21 @@
+<div class="animate-fade-in">
+    <div class="alert alert-error">
+        <div class="flex items-start">
+            <span class="text-lg mr-2 mt-0.5">❌</span>
+            <div class="flex-1">
+                <div class="font-semibold">Error occurred</div>
+                <p class="mt-1 text-sm">{{ error }}</p>
+                {% if algorithm %}
+                <p class="mt-2 text-sm">
+                    <span class="font-medium">Algorithm:</span> {{ algorithm }}
+                </p>
+                {% endif %}
+                {% if method %}
+                <p class="mt-2 text-sm">
+                    <span class="font-medium">Method:</span> {{ method }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

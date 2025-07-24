@@ -1,0 +1,163 @@
+{% if success %}
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Prediction Explanation</h3>
+            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium {% if is_anomaly %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                {% if is_anomaly %}Anomaly{% else %}Normal{% endif %}
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-6">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Algorithm</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ algorithm }}</dd>
+            </div>
+            
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Explainer Type</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ explainer_type.replace('_', ' ').title() }}</dd>
+            </div>
+            
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Confidence</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ "{:.3f}".format(confidence) }}</dd>
+            </div>
+            
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Base Value</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ "{:.3f}".format(base_value) if base_value is not none else 'N/A' }}</dd>
+            </div>
+        </div>
+
+        {% if top_features %}
+        <div class="border-t border-gray-200 pt-6 mb-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">Top Contributing Features</h4>
+            <div class="space-y-3">
+                {% for feature in top_features %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span class="text-sm font-medium text-gray-900">{{ feature.feature }}</span>
+                        <span class="ml-2 text-xs text-gray-500">({{ "{:.3f}".format(feature.value) }})</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                            <div class="h-2 rounded-full {% if feature.importance > 0 %}bg-red-600{% else %}bg-green-600{% endif %}" 
+                                 style="width: {{ "{:.0f}".format((feature.importance|abs) * 100) }}%"></div>
+                        </div>
+                        <span class="text-sm font-medium {% if feature.importance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            {{ "{:.3f}".format(feature.importance) }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if feature_importance %}
+        <div class="border-t border-gray-200 pt-6 mb-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">All Feature Importance</h4>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {% for feature, importance in feature_importance.items() %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">{{ feature }}</span>
+                        <span class="text-sm font-medium {% if importance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            {{ "{:.3f}".format(importance) }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if sample_data %}
+        <div class="border-t border-gray-200 pt-6 mb-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">Sample Data</h4>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {% for feature, value in sample_data.items() %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">{{ feature }}</span>
+                        <span class="text-sm font-mono text-gray-900">{{ "{:.3f}".format(value) if value is number else value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="border-t border-gray-200 pt-4">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500">Explanation generated at {{ timestamp }}</span>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="exportExplanation()"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export
+                    </button>
+                    <button type="button" onclick="explainAnother()"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Explain Another
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportExplanation() {
+    const explanationData = {
+        algorithm: '{{ algorithm }}',
+        explainer_type: '{{ explainer_type }}',
+        is_anomaly: {{ is_anomaly|tojson }},
+        confidence: {{ confidence }},
+        base_value: {{ base_value if base_value is not none else 'null' }},
+        top_features: {{ top_features|tojson if top_features else '[]' }},
+        feature_importance: {{ feature_importance|tojson if feature_importance else '{}' }},
+        sample_data: {{ sample_data|tojson if sample_data else '{}' }},
+        timestamp: '{{ timestamp }}'
+    };
+    
+    const blob = new Blob([JSON.stringify(explanationData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `explanation_{{ timestamp.replace(':', '-') }}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function explainAnother() {
+    // Clear the results and scroll to explanation form
+    document.getElementById('explanation-results').innerHTML = '';
+    document.getElementById('explanation-form').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% else %}
+<div class="rounded-md bg-red-50 p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2v6m0-14a8 8 0 108 8"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Explanation Failed</h3>
+            <div class="mt-2 text-sm text-red-700">
+                <p>Unable to generate explanation for the prediction. Please check your input and try again.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

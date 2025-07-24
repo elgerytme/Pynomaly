@@ -1,0 +1,86 @@
+<div class="animate-fade-in">
+    {% if results.success %}
+    <!-- Success Results -->
+    <div class="alert alert-success mb-4">
+        <div class="flex items-center">
+            <span class="text-lg mr-2">✅</span>
+            <span class="font-semibold">Detection completed successfully!</span>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-blue-50 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-blue-900">{{ results.anomalies_detected }}</div>
+            <div class="text-sm text-blue-700">Anomalies Found</div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-green-900">{{ results.anomaly_rate }}</div>
+            <div class="text-sm text-green-700">Anomaly Rate</div>
+        </div>
+    </div>
+
+    <!-- Details -->
+    <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="font-medium text-gray-700">Algorithm:</span>
+                <span class="badge badge-info ml-2">{{ results.algorithm }}</span>
+            </div>
+            <div>
+                <span class="font-medium text-gray-700">Total Samples:</span>
+                <span class="text-gray-900">{{ results.total_samples }}</span>
+            </div>
+            <div>
+                <span class="font-medium text-gray-700">Processing Time:</span>
+                <span class="text-gray-900">{{ results.processing_time_ms }} ms</span>
+            </div>
+            <div>
+                <span class="font-medium text-gray-700">Contamination:</span>
+                <span class="text-gray-900">{{ results.contamination }}</span>
+            </div>
+        </div>
+
+        <div>
+            <span class="font-medium text-gray-700">Timestamp:</span>
+            <span class="text-gray-600 text-sm">{{ results.timestamp }}</span>
+        </div>
+
+        {% if results.anomaly_indices %}
+        <div>
+            <div class="font-medium text-gray-700 mb-2">Anomaly Indices (first 10):</div>
+            <div class="flex flex-wrap gap-1">
+                {% for idx in results.anomaly_indices %}
+                <span class="badge badge-danger">{{ idx }}</span>
+                {% endfor %}
+                {% if results.anomalies_detected > 10 %}
+                <span class="text-sm text-gray-500">... and {{ results.anomalies_detected - 10 }} more</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="flex space-x-2 pt-4 border-t border-gray-200">
+            <button onclick="AnomalyDetection.downloadData(JSON.stringify({{ results | tojson }}, null, 2), 'detection_results.json')" 
+                    class="btn btn-outline btn-sm">
+                📥 Download Results
+            </button>
+            <button onclick="AnomalyDetection.copyToClipboard(JSON.stringify({{ results | tojson }}, null, 2))" 
+                    class="btn btn-outline btn-sm">
+                📋 Copy to Clipboard
+            </button>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Error State -->
+    <div class="alert alert-error">
+        <div class="flex items-center">
+            <span class="text-lg mr-2">❌</span>
+            <span class="font-semibold">Detection failed</span>
+        </div>
+        <p class="mt-2 text-sm">Please check your input data and try again.</p>
+    </div>
+    {% endif %}
+</div>

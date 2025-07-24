@@ -1,0 +1,144 @@
+global:
+  smtp_smarthost: 'smtp.company.com:587'
+  smtp_from: 'alerts@company.com'
+  smtp_auth_username: 'alerts@company.com'
+  smtp_auth_password: 'smtp_password'
+
+# Routing configuration
+route:
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'default-receiver'
+  routes:
+    # Critical alerts go to multiple channels immediately
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 5m
+    
+    # Model performance alerts
+    - match:
+        type: model_performance
+      receiver: 'ml-team'
+      group_interval: 2m
+    
+    # Infrastructure alerts
+    - match:
+        type: resource
+      receiver: 'devops-team'
+      group_interval: 10m
+    
+    # Business metrics alerts
+    - match:
+        type: business
+      receiver: 'business-team'
+      group_interval: 30m
+    
+    # Security alerts - immediate notification
+    - match:
+        type: security
+      receiver: 'security-team'
+      group_wait: 0s
+      repeat_interval: 1m
+
+# Inhibition rules (suppress certain alerts when others are firing)
+inhibit_rules:
+  # Suppress high latency alerts when service is down
+  - source_match:
+      alertname: ServiceDown
+    target_match:
+      alertname: HighLatency
+    equal: ['service']
+  
+  # Suppress resource alerts when node is down
+  - source_match:
+      alertname: NodeDown
+    target_match_re:
+      alertname: High(CPU|Memory)Usage
+    equal: ['instance']
+
+# Notification channels
+receivers:
+  - name: 'default-receiver'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#mlops-alerts'
+        title: 'MLOps Platform Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'warning'
+
+  - name: 'critical-alerts'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#mlops-critical'
+        title: '🚨 CRITICAL ALERT'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'danger'
+    email_configs:
+      - to: 'oncall@company.com'
+        subject: '🚨 MLOps Critical Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Alert Details:
+          {{ range .Alerts }}
+          - Summary: {{ .Annotations.summary }}
+          - Description: {{ .Annotations.description }}
+          - Severity: {{ .Labels.severity }}
+          - Service: {{ .Labels.service }}
+          - Started: {{ .StartsAt }}
+          {{ if .Annotations.runbook_url }}
+          - Runbook: {{ .Annotations.runbook_url }}
+          {{ end }}
+          {{ end }}
+    webhook_configs:
+      - url: 'https://your-pagerduty-webhook-url'
+        send_resolved: true
+
+  - name: 'ml-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#ml-team'
+        title: '🤖 ML Performance Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'warning'
+
+  - name: 'devops-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#devops-team'
+        title: '⚙️ Infrastructure Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'warning'
+
+  - name: 'business-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#business-metrics'
+        title: '📊 Business Metrics Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'warning'
+
+  - name: 'security-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#security-alerts'
+        title: '🔒 Security Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'danger'
+    email_configs:
+      - to: 'security@company.com'
+        subject: '🔒 Security Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Security Alert Details:
+          {{ range .Alerts }}
+          - Summary: {{ .Annotations.summary }}
+          - Description: {{ .Annotations.description }}
+          - Service: {{ .Labels.service }}
+          - Time: {{ .StartsAt }}
+          {{ end }}
+
+# Templates for custom notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

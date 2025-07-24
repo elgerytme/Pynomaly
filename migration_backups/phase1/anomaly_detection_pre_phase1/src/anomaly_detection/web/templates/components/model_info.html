@@ -1,0 +1,177 @@
+{% if model %}
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-start sm:justify-between">
+            <div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    {{ model.name or 'Unnamed Model' }}
+                </h3>
+                <div class="mt-1 max-w-2xl text-sm text-gray-500">
+                    <p>Model ID: <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ model.model_id }}</code></p>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+                <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium
+                    {% if model.status == 'trained' %}bg-green-100 text-green-800
+                    {% elif model.status == 'training' %}bg-yellow-100 text-yellow-800  
+                    {% elif model.status == 'failed' %}bg-red-100 text-red-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ model.status|default('Unknown')|title }}
+                </span>
+            </div>
+        </div>
+
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Algorithm</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ model.algorithm|default('Unknown') }}</dd>
+                </div>
+                
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Created</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ model.created_at|default('Unknown') }}</dd>
+                </div>
+
+                {% if model.training_samples %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Training Samples</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:,}".format(model.training_samples) }}</dd>
+                </div>
+                {% endif %}
+
+                {% if model.training_features %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Features</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ model.training_features }}</dd>
+                </div>
+                {% endif %}
+
+                {% if model.contamination_rate %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Contamination Rate</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.1%}".format(model.contamination_rate) }}</dd>
+                </div>
+                {% endif %}
+
+                {% if model.training_duration_seconds %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Training Time</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.2f}".format(model.training_duration_seconds) }}s</dd>
+                </div>
+                {% endif %}
+
+                {% if model.accuracy %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Accuracy</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.1%}".format(model.accuracy) }}</dd>
+                </div>
+                {% endif %}
+
+                {% if model.precision %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Precision</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.1%}".format(model.precision) }}</dd>
+                </div>
+                {% endif %}
+
+                {% if model.recall %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Recall</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.1%}".format(model.recall) }}</dd>
+                </div>
+                {% endif %}
+
+                {% if model.f1_score %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">F1 Score</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ "{:.1%}".format(model.f1_score) }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+
+        {% if model.description %}
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <dt class="text-sm font-medium text-gray-500 mb-2">Description</dt>
+            <dd class="text-sm text-gray-900">{{ model.description }}</dd>
+        </div>
+        {% endif %}
+
+        {% if model.feature_names %}
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <dt class="text-sm font-medium text-gray-500 mb-2">Feature Names</dt>
+            <dd class="mt-1">
+                <div class="flex flex-wrap gap-2">
+                    {% for feature in model.feature_names[:10] %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {{ feature }}
+                    </span>
+                    {% endfor %}
+                    {% if model.feature_names|length > 10 %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        +{{ model.feature_names|length - 10 }} more
+                    </span>
+                    {% endif %}
+                </div>
+            </dd>
+        </div>
+        {% endif %}
+
+        {% if model.hyperparameters %}
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <dt class="text-sm font-medium text-gray-500 mb-2">Hyperparameters</dt>
+            <dd class="mt-1">
+                <div class="bg-gray-50 rounded-md p-3">
+                    <pre class="text-xs text-gray-800">{{ model.hyperparameters|tojson(indent=2) }}</pre>
+                </div>
+            </dd>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 border-t border-gray-200 pt-6 flex justify-end space-x-3">
+            {% if model.status == 'trained' %}
+            <button type="button" onclick="downloadModel('{{ model.model_id }}')"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Download
+            </button>
+            <button type="button" onclick="testModel('{{ model.model_id }}')"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Test Model
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">Model not found</h3>
+    <p class="mt-1 text-sm text-gray-500">The requested model could not be loaded.</p>
+</div>
+{% endif %}
+
+<script>
+function downloadModel(modelId) {
+    // Create download link
+    const link = document.createElement('a');
+    link.href = `/api/v1/models/${modelId}/download`;
+    link.download = `model_${modelId}.pkl`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function testModel(modelId) {
+    // Redirect to detection page with model pre-selected
+    window.location.href = `/detection?model=${modelId}`;
+}
+</script>

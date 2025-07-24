@@ -1,0 +1,343 @@
+/* Custom styles for Anomaly Detection documentation */
+
+:root {
+  --md-primary-fg-color: #2196F3;
+  --md-primary-fg-color--light: #42A5F5;
+  --md-primary-fg-color--dark: #1976D2;
+  --md-accent-fg-color: #00BCD4;
+  --md-accent-fg-color--transparent: #00BCD41a;
+}
+
+/* Enhanced code blocks */
+.highlight {
+  border-radius: 0.2rem;
+  margin: 1rem 0;
+}
+
+.highlight pre {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 0.2rem;
+}
+
+/* Custom admonitions for different guide types */
+.md-typeset .admonition.beginner {
+  border-color: #4CAF50;
+}
+
+.md-typeset .admonition.beginner > .admonition-title {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.md-typeset .admonition.beginner > .admonition-title::before {
+  background-color: currentColor;
+  -webkit-mask-image: var(--md-admonition-icon--note);
+          mask-image: var(--md-admonition-icon--note);
+}
+
+.md-typeset .admonition.intermediate {
+  border-color: #FF9800;
+}
+
+.md-typeset .admonition.intermediate > .admonition-title {
+  background-color: #FF9800;
+  border-color: #FF9800;
+}
+
+.md-typeset .admonition.intermediate > .admonition-title::before {
+  background-color: currentColor;
+  -webkit-mask-image: var(--md-admonition-icon--info);
+          mask-image: var(--md-admonition-icon--info);
+}
+
+.md-typeset .admonition.advanced {
+  border-color: #F44336;
+}
+
+.md-typeset .admonition.advanced > .admonition-title {
+  background-color: #F44336;
+  border-color: #F44336;
+}
+
+.md-typeset .admonition.advanced > .admonition-title::before {
+  background-color: currentColor;
+  -webkit-mask-image: var(--md-admonition-icon--warning);
+          mask-image: var(--md-admonition-icon--warning);
+}
+
+/* Learning path cards */
+.learning-path-card {
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.learning-path-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.learning-path-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.learning-path-icon {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
+
+.learning-path-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+}
+
+.learning-path-duration {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.learning-path-description {
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 1rem;
+}
+
+.learning-path-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.learning-path-steps li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  display: flex;
+  align-items: center;
+}
+
+.learning-path-steps li:last-child {
+  border-bottom: none;
+}
+
+.learning-path-steps li::before {
+  content: "✓";
+  color: var(--md-primary-fg-color);
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+/* Algorithm comparison tables */
+.algorithm-comparison {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.algorithm-comparison th,
+.algorithm-comparison td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.algorithm-comparison th {
+  background-color: var(--md-primary-fg-color--light);
+  color: white;
+  font-weight: 600;
+}
+
+.algorithm-comparison tr:hover {
+  background-color: var(--md-default-bg-color--light);
+}
+
+/* Performance metrics visualization */
+.metric-card {
+  background: linear-gradient(135deg, var(--md-primary-fg-color), var(--md-accent-fg-color));
+  color: white;
+  padding: 1.5rem;
+  border-radius: 0.4rem;
+  text-align: center;
+  margin: 0.5rem;
+  min-width: 150px;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  display: block;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Code example tabs */
+.code-example-tabs {
+  margin: 1rem 0;
+}
+
+.code-example-tabs .tabbed-set {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+
+/* Interactive elements */
+.interactive-demo {
+  background: var(--md-code-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.demo-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.demo-button {
+  background: var(--md-primary-fg-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.demo-button:hover {
+  background: var(--md-primary-fg-color--dark);
+}
+
+.demo-output {
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.2rem;
+  padding: 1rem;
+  font-family: var(--md-code-font-family);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Navigation enhancements */
+.md-nav__item--nested > .md-nav__link {
+  font-weight: 600;
+}
+
+/* Responsive grid for feature cards */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.feature-card {
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  color: var(--md-primary-fg-color);
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--md-primary-fg-color);
+}
+
+.feature-description {
+  color: var(--md-default-fg-color--light);
+  line-height: 1.5;
+}
+
+/* Progress indicators */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--md-primary-fg-color), var(--md-accent-fg-color));
+  transition: width 0.3s ease;
+}
+
+/* Dark mode adjustments */
+[data-md-color-scheme="slate"] .learning-path-card {
+  background: var(--md-default-bg-color);
+  border-color: var(--md-default-fg-color--lightest);
+}
+
+[data-md-color-scheme="slate"] .metric-card {
+  background: linear-gradient(135deg, var(--md-primary-fg-color--dark), var(--md-accent-fg-color));
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .learning-path-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .learning-path-duration {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  .demo-controls {
+    flex-direction: column;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print styles */
+@media print {
+  .learning-path-card,
+  .feature-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .demo-controls,
+  .interactive-demo {
+    display: none;
+  }
+}

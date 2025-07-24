@@ -1,0 +1,69 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: [200, 201, 202]
+      method: GET
+      headers:
+        Host: localhost
+        Accept-Language: en-US
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      preferred_ip_protocol: "ip4"
+      
+  http_post_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: [200, 201, 202]
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{"test": "probe"}'
+      
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+    
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+      
+  # ML-specific health checks
+  ml_health_check:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Content-Type: application/json
+      fail_if_body_not_matches_regexp:
+        - "\"status\":\\s*\"healthy\""
+        
+  model_prediction_check:
+    prober: http
+    timeout: 15s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: [200]
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: |
+        {
+          "model_id": "test_model",
+          "features": {
+            "feature1": 0.5,
+            "feature2": 1.0
+          }
+        }
+      fail_if_body_not_matches_regexp:
+        - "\"prediction\""

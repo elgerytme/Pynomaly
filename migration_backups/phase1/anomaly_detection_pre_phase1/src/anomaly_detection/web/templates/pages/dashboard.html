@@ -1,0 +1,256 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Stats Overview -->
+    <div id="dashboard-stats" 
+         hx-get="/htmx/dashboard/stats" 
+         hx-trigger="load, every 30s"
+         hx-swap="innerHTML">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Total Models -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="text-2xl">🤖</div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Models</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ total_models | default(0) }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Detections -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="text-2xl">🔍</div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Recent Detections</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ recent_detections | length }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Algorithms -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="text-2xl">⚙️</div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Algorithms</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ active_algorithms | length }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="text-2xl">💚</div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">System Status</dt>
+                                <dd class="text-lg font-medium text-green-600">Healthy</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Recent Activity -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Performance Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Detection Performance</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Anomaly Distribution -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Anomaly Distribution</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Detections -->
+    <div class="mt-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Recent Detections</h3>
+                <a href="/detection" class="btn btn-outline btn-sm">Run New Detection</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Algorithm</th>
+                            <th>Anomalies Found</th>
+                            <th>Timestamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detection in recent_detections %}
+                        <tr>
+                            <td class="font-mono text-sm">{{ detection.id }}</td>
+                            <td>
+                                <span class="badge badge-info">{{ detection.algorithm }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">{{ detection.anomalies }}</span>
+                            </td>
+                            <td class="text-sm text-gray-500">{{ detection.timestamp }}</td>
+                            <td>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm" 
+                                        onclick="AnomalyDetection.showNotification('View functionality coming soon', 'info')">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">🚀</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Quick Detection</h3>
+                <p class="text-gray-600 text-sm mb-4">
+                    Run anomaly detection with default settings on sample data.
+                </p>
+                <a href="/detection" class="btn btn-primary w-full">Start Detection</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">📊</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">View Models</h3>
+                <p class="text-gray-600 text-sm mb-4">
+                    Manage your trained models and view performance metrics.
+                </p>
+                <a href="/models" class="btn btn-secondary w-full">View Models</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="text-center">
+                <div class="text-3xl mb-4">📈</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">System Monitor</h3>
+                <p class="text-gray-600 text-sm mb-4">
+                    Check system health and performance metrics.
+                </p>
+                <a href="/monitoring" class="btn btn-outline w-full">View Monitoring</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts after page load
+    setTimeout(() => {
+        const performanceCtx = document.getElementById('performanceChart');
+        if (performanceCtx && typeof Chart !== 'undefined') {
+            new Chart(performanceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1h ago', '45m ago', '30m ago', '15m ago', 'Now'],
+                    datasets: [{
+                        label: 'Detection Time (ms)',
+                        data: [120, 135, 110, 125, 118],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'ms';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        const distributionCtx = document.getElementById('distributionChart');
+        if (distributionCtx && typeof Chart !== 'undefined') {
+            new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Normal', 'Anomalies'],
+                    datasets: [{
+                        data: [85, 15],
+                        backgroundColor: [
+                            'rgb(34, 197, 94)',
+                            'rgb(239, 68, 68)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    }, 100);
+});
+</script>
+{% endblock %}

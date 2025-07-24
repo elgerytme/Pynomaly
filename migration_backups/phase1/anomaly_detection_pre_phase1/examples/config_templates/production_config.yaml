@@ -1,0 +1,51 @@
+# Production Deployment Configuration Template
+# Copy this file to config/production_config.yaml and modify as needed
+
+# API Server Settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: false
+  access_log: true
+  
+# Database Configuration
+database:
+  url: "postgresql://user:password@localhost:5432/anomaly_detection"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  
+# Redis Configuration (for caching)
+redis:
+  url: "redis://localhost:6379"
+  db: 0
+  max_connections: 20
+  socket_timeout: 5
+  
+# Security Settings
+security:
+  secret_key: "${SECRET_KEY}"
+  algorithm: "HS256"
+  access_token_expire_minutes: 30
+  cors_origins: ["*"]  # Configure for production
+  
+# Model Settings
+models:
+  preload: ["iforest", "lof"]
+  cache_ttl: 3600  # 1 hour
+  auto_retrain: true
+  retrain_threshold: 0.1
+  
+# Monitoring
+monitoring:
+  metrics_enabled: true
+  health_check_interval: 30
+  log_level: "INFO"
+  
+# Resource Limits
+resources:
+  memory_limit: "4GB"
+  cpu_limit: 2.0
+  request_timeout: 300
+  max_request_size: "10MB"

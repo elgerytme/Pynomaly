@@ -1,0 +1,149 @@
+{% if status == 'started' %}
+<div class="rounded-md bg-green-50 p-4 mb-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">Streaming Detection Started</h3>
+            <div class="mt-2 text-sm text-green-700">
+                <p>Real-time anomaly detection is now active and ready to process samples.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Streaming Configuration</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="animate-pulse mr-1.5">●</span>
+                Active
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="bg-blue-50 rounded-lg p-4">
+                <dt class="text-sm font-medium text-blue-600">Algorithm</dt>
+                <dd class="mt-1 text-lg font-semibold text-blue-900">{{ algorithm }}</dd>
+            </div>
+            
+            <div class="bg-purple-50 rounded-lg p-4">
+                <dt class="text-sm font-medium text-purple-600">Window Size</dt>
+                <dd class="mt-1 text-lg font-semibold text-purple-900">{{ "{:,}".format(window_size) }}</dd>
+            </div>
+            
+            <div class="bg-orange-50 rounded-lg p-4">
+                <dt class="text-sm font-medium text-orange-600">Update Frequency</dt>
+                <dd class="mt-1 text-lg font-semibold text-orange-900">{{ update_frequency }}</dd>
+            </div>
+        </div>
+
+        {% if stats %}
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">Current Statistics</h4>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div class="text-center">
+                    <dt class="text-sm font-medium text-gray-500">Buffer Size</dt>
+                    <dd class="mt-1 text-xl font-semibold text-gray-900">{{ stats.buffer_size }}</dd>
+                </div>
+                
+                <div class="text-center">
+                    <dt class="text-sm font-medium text-gray-500">Model Status</dt>
+                    <dd class="mt-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if stats.model_fitted %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if stats.model_fitted %}Fitted{% else %}Not Fitted{% endif %}
+                        </span>
+                    </dd>
+                </div>
+                
+                <div class="text-center">
+                    <dt class="text-sm font-medium text-gray-500">Total Samples</dt>
+                    <dd class="mt-1 text-xl font-semibold text-gray-900">{{ stats.get('total_samples', 0) }}</dd>
+                </div>
+                
+                <div class="text-center">
+                    <dt class="text-sm font-medium text-gray-500">Anomalies</dt>
+                    <dd class="mt-1 text-xl font-semibold text-red-600">{{ stats.get('anomaly_count', 0) }}</dd>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 border-t border-gray-200 pt-6">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    Ready to process streaming data
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="sendSampleData()"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        Send Sample
+                    </button>
+                    <button type="button" onclick="viewStreamingStats()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        View Stats
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendSampleData() {
+    // Generate or prompt for sample data
+    const sampleData = JSON.stringify([Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]);
+    
+    // Send HTMX request to process sample
+    htmx.ajax('POST', '/htmx/streaming/sample', {
+        values: {
+            sample_data: sampleData,
+            algorithm: '{{ algorithm }}'
+        },
+        target: '#streaming-results',
+        swap: 'innerHTML'
+    });
+}
+
+function viewStreamingStats() {
+    htmx.ajax('GET', '/htmx/streaming/stats', {
+        target: '#streaming-stats',
+        swap: 'innerHTML'
+    });
+}
+
+// Automatically refresh stats every 5 seconds
+setInterval(function() {
+    if (document.getElementById('streaming-stats')) {
+        viewStreamingStats();
+    }
+}, 5000);
+</script>
+{% else %}
+<div class="rounded-md bg-red-50 p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2v6m0-14a8 8 0 108 8"></path>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Streaming Start Failed</h3>
+            <div class="mt-2 text-sm text-red-700">
+                <p>Unable to start streaming detection. Please try again.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

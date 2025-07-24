@@ -1,0 +1,497 @@
+// Jenkins Pipeline for Anomaly Detection Service
+pipeline {
+    agent any
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 60, unit: 'MINUTES')
+        timestamps()
+        ansiColor('xterm')
+    }
+    
+    environment {
+        PYTHON_VERSION = '3.11'
+        DOCKER_REGISTRY = 'your-registry.com'
+        IMAGE_NAME = 'anomaly-detection'
+        KUBECONFIG = credentials('kubeconfig')
+        SLACK_WEBHOOK = credentials('slack-webhook-url')
+        
+        // Dynamic variables
+        BUILD_VERSION = sh(script: "echo ${env.BRANCH_NAME}-${env.BUILD_NUMBER}", returnStdout: true).trim()
+        BUILD_DATE = sh(script: "date -u +'%Y-%m-%dT%H:%M:%SZ'", returnStdout: true).trim()
+        VCS_REF = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    // Change to working directory
+                    dir('src/packages/data/anomaly_detection') {
+                        sh 'pwd && ls -la'
+                    }
+                }
+            }
+        }
+        
+        stage('Setup Python Environment') {
+            steps {
+                dir('src/packages/data/anomaly_detection') {
+                    sh '''
+                        python${PYTHON_VERSION} -m venv venv
+                        . venv/bin/activate
+                        python -m pip install --upgrade pip
+                        pip install -r requirements-dev.txt
+                    '''
+                }
+            }
+        }
+        
+        stage('Code Quality Checks') {
+            parallel {
+                stage('Code Formatting') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                . venv/bin/activate
+                                echo "🎨 Checking code formatting..."
+                                black --check --diff .
+                            '''
+                        }
+                    }
+                }
+                
+                stage('Import Sorting') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                . venv/bin/activate
+                                echo "📦 Checking import sorting..."
+                                isort --check-only --diff .
+                            '''
+                        }
+                    }
+                }
+                
+                stage('Linting') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                . venv/bin/activate
+                                echo "🔍 Running linter..."
+                                flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                            '''
+                        }
+                    }
+                }
+                
+                stage('Type Checking') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                . venv/bin/activate
+                                echo "🔎 Type checking..."
+                                mypy --config-file pyproject.toml .
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Security Scans') {
+            parallel {
+                stage('Code Security') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                . venv/bin/activate
+                                echo "🔒 Running security scan..."
+                                bandit -r . -f json -o bandit-report.json || true
+                            '''
+                            archiveArtifacts artifacts: 'bandit-report.json', allowEmptyArchive: true
+                        }
+                    }
+                }
+                
+                stage('Dependency Scan') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                . venv/bin/activate
+                                echo "🛡️ Scanning dependencies..."
+                                safety check --json --output safety-report.json || true
+                            '''
+                            archiveArtifacts artifacts: 'safety-report.json', allowEmptyArchive: true
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Tests') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                # Start test services
+                                docker-compose -f docker-compose.test.yml up -d postgres redis
+                                
+                                # Wait for services to be ready
+                                sleep 10
+                                
+                                # Run tests
+                                . venv/bin/activate
+                                export ANOMALY_DETECTION_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/anomaly_detection_test"
+                                export ANOMALY_DETECTION_REDIS_URL="redis://localhost:6379/0"
+                                export ANOMALY_DETECTION_ENV="testing"
+                                
+                                echo "🧪 Running unit tests..."
+                                pytest tests/unit/ \\
+                                    --cov=anomaly_detection \\
+                                    --cov-report=xml \\
+                                    --cov-report=html \\
+                                    --cov-report=term \\
+                                    --cov-fail-under=85 \\
+                                    --junit-xml=test-results.xml \\
+                                    -v
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            dir('src/packages/data/anomaly_detection') {
+                                publishTestResults testResultsPattern: 'test-results.xml'
+                                publishCoverage adapters: [
+                                    coberturaAdapter('coverage.xml')
+                                ], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                                archiveArtifacts artifacts: 'htmlcov/**/*', allowEmptyArchive: true
+                                
+                                // Cleanup test services
+                                sh 'docker-compose -f docker-compose.test.yml down || true'
+                            }
+                        }
+                    }
+                }
+                
+                stage('Integration Tests') {
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                # Start test services
+                                docker-compose -f docker-compose.test.yml up -d postgres redis
+                                sleep 10
+                                
+                                . venv/bin/activate
+                                export ANOMALY_DETECTION_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/anomaly_detection_test"
+                                export ANOMALY_DETECTION_REDIS_URL="redis://localhost:6379/0"
+                                export ANOMALY_DETECTION_ENV="testing"
+                                
+                                echo "🔗 Running integration tests..."
+                                pytest tests/integration/ \\
+                                    --junit-xml=integration-test-results.xml \\
+                                    -v
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            dir('src/packages/data/anomaly_detection') {
+                                publishTestResults testResultsPattern: 'integration-test-results.xml'
+                                sh 'docker-compose -f docker-compose.test.yml down || true'
+                            }
+                        }
+                    }
+                }
+                
+                stage('Performance Tests') {
+                    when {
+                        anyOf {
+                            branch 'main'
+                            branch 'develop'
+                        }
+                    }
+                    steps {
+                        dir('src/packages/data/anomaly_detection') {
+                            sh '''
+                                # Start test services
+                                docker-compose -f docker-compose.test.yml up -d postgres redis
+                                sleep 10
+                                
+                                . venv/bin/activate
+                                export ANOMALY_DETECTION_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/anomaly_detection_test"
+                                export ANOMALY_DETECTION_REDIS_URL="redis://localhost:6379/0"
+                                export ANOMALY_DETECTION_ENV="testing"
+                                
+                                echo "⚡ Running performance tests..."
+                                pytest tests/performance/ \\
+                                    --benchmark-only \\
+                                    --benchmark-json=benchmark-results.json \\
+                                    -v
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            dir('src/packages/data/anomaly_detection') {
+                                archiveArtifacts artifacts: 'benchmark-results.json', allowEmptyArchive: true
+                                sh 'docker-compose -f docker-compose.test.yml down || true'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                    tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+                }
+            }
+            steps {
+                dir('src/packages/data/anomaly_detection') {
+                    script {
+                        def dockerImage = docker.build(
+                            "${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_VERSION}",
+                            "--build-arg BUILD_VERSION=${BUILD_VERSION} " +
+                            "--build-arg BUILD_DATE='${BUILD_DATE}' " +
+                            "--build-arg VCS_REF=${VCS_REF} ."
+                        )
+                        
+                        // Tag as latest for main branch
+                        if (env.BRANCH_NAME == 'main') {
+                            dockerImage.tag('latest')
+                        }
+                        
+                        // Push to registry
+                        docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-registry-credentials') {
+                            dockerImage.push()
+                            if (env.BRANCH_NAME == 'main') {
+                                dockerImage.push('latest')
+                            }
+                        }
+                        
+                        // Store image name for later stages
+                        env.DOCKER_IMAGE = "${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_VERSION}"
+                    }
+                }
+            }
+        }
+        
+        stage('Container Security Scan') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                    tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+                }
+            }
+            steps {
+                script {
+                    sh """
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \\
+                            -v \$(pwd):/tmp/trivy \\
+                            aquasec/trivy:latest image \\
+                            --format json \\
+                            --output /tmp/trivy/trivy-report.json \\
+                            ${env.DOCKER_IMAGE}
+                    """
+                }
+                archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
+            }
+        }
+        
+        stage('Deploy to Development') {
+            when {
+                branch 'develop'
+            }
+            environment {
+                KUBE_NAMESPACE = 'anomaly-detection-dev'
+                DEPLOYMENT_ENV = 'development'
+            }
+            steps {
+                script {
+                    dir('src/packages/data/anomaly_detection') {
+                        sh """
+                            echo "🚀 Deploying to development..."
+                            cd k8s/overlays/development
+                            
+                            # Update image in kustomization
+                            sed -i 's|anomaly-detection:.*|anomaly-detection:${BUILD_VERSION}|g' kustomization.yaml
+                            
+                            # Apply manifests
+                            kubectl apply -k . --namespace=${KUBE_NAMESPACE}
+                            
+                            # Wait for rollout
+                            kubectl rollout status deployment/anomaly-detection-api -n ${KUBE_NAMESPACE} --timeout=600s
+                            kubectl rollout status deployment/anomaly-detection-worker -n ${KUBE_NAMESPACE} --timeout=600s
+                            
+                            echo "✅ Development deployment completed"
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Staging') {
+            when {
+                branch 'main'
+            }
+            environment {
+                KUBE_NAMESPACE = 'anomaly-detection-staging'
+                DEPLOYMENT_ENV = 'staging'
+            }
+            steps {
+                script {
+                    dir('src/packages/data/anomaly_detection') {
+                        sh """
+                            echo "🚀 Deploying to staging..."
+                            cd k8s/overlays/staging
+                            
+                            # Update image in kustomization
+                            sed -i 's|anomaly-detection:.*|anomaly-detection:${BUILD_VERSION}|g' kustomization.yaml
+                            
+                            # Apply manifests
+                            kubectl apply -k . --namespace=${KUBE_NAMESPACE}
+                            
+                            # Wait for rollout
+                            kubectl rollout status deployment/anomaly-detection-api -n ${KUBE_NAMESPACE} --timeout=600s
+                            kubectl rollout status deployment/anomaly-detection-worker -n ${KUBE_NAMESPACE} --timeout=600s
+                            
+                            echo "✅ Staging deployment completed"
+                        """
+                    }
+                }
+            }
+            post {
+                success {
+                    // Run E2E tests in staging
+                    dir('src/packages/data/anomaly_detection') {
+                        sh '''
+                            . venv/bin/activate
+                            echo "🧪 Running E2E tests in staging..."
+                            pytest tests/e2e/ --base-url="https://anomaly-detection-staging.company.com" -v
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Production') {
+            when {
+                tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+            }
+            environment {
+                KUBE_NAMESPACE = 'anomaly-detection'
+                DEPLOYMENT_ENV = 'production'
+            }
+            steps {
+                script {
+                    // Manual approval for production deployment
+                    input message: 'Deploy to production?', ok: 'Deploy',
+                          submitterParameter: 'DEPLOYER_NAME'
+                    
+                    dir('src/packages/data/anomaly_detection') {
+                        sh """
+                            echo "🚀 Deploying to production..."
+                            echo "Deployer: ${env.DEPLOYER_NAME}"
+                            
+                            cd k8s/overlays/production
+                            
+                            # Update image in kustomization
+                            sed -i 's|anomaly-detection:.*|anomaly-detection:${BUILD_VERSION}|g' kustomization.yaml
+                            
+                            # Apply manifests
+                            kubectl apply -k . --namespace=${KUBE_NAMESPACE}
+                            
+                            # Wait for rollout
+                            kubectl rollout status deployment/anomaly-detection-api -n ${KUBE_NAMESPACE} --timeout=900s
+                            kubectl rollout status deployment/anomaly-detection-worker -n ${KUBE_NAMESPACE} --timeout=900s
+                            
+                            # Production health check
+                            sleep 30
+                            curl -f "https://anomaly-detection.company.com/health"
+                            curl -f "https://anomaly-detection.company.com/api/v1/algorithms"
+                            
+                            echo "✅ Production deployment completed"
+                        """
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up workspace
+            dir('src/packages/data/anomaly_detection') {
+                sh 'docker-compose -f docker-compose.test.yml down || true'
+                sh 'docker system prune -f || true'
+            }
+        }
+        
+        success {
+            script {
+                def message = """
+                ✅ Anomaly Detection Service Pipeline Successful!
+                - Build: ${env.BUILD_NUMBER}
+                - Branch: ${env.BRANCH_NAME}
+                - Version: ${BUILD_VERSION}
+                - Commit: ${VCS_REF}
+                - Environment: ${env.DEPLOYMENT_ENV ?: 'N/A'}
+                """
+                
+                sh """
+                    curl -X POST -H 'Content-type: application/json' \\
+                        --data '{"text":"${message}"}' \\
+                        ${SLACK_WEBHOOK}
+                """
+            }
+        }
+        
+        failure {
+            script {
+                def message = """
+                ❌ Anomaly Detection Service Pipeline Failed!
+                - Build: ${env.BUILD_NUMBER}
+                - Branch: ${env.BRANCH_NAME}
+                - Version: ${BUILD_VERSION}
+                - Commit: ${VCS_REF}
+                - Pipeline: ${env.BUILD_URL}
+                """
+                
+                sh """
+                    curl -X POST -H 'Content-type: application/json' \\
+                        --data '{"text":"${message}"}' \\
+                        ${SLACK_WEBHOOK}
+                """
+            }
+            
+            // Archive logs for debugging
+            archiveArtifacts artifacts: 'src/packages/data/anomaly_detection/**/*.log', allowEmptyArchive: true
+        }
+        
+        unstable {
+            script {
+                def message = """
+                ⚠️ Anomaly Detection Service Pipeline Unstable!
+                - Build: ${env.BUILD_NUMBER}
+                - Branch: ${env.BRANCH_NAME}
+                - Some tests may have failed or warnings occurred
+                - Pipeline: ${env.BUILD_URL}
+                """
+                
+                sh """
+                    curl -X POST -H 'Content-type: application/json' \\
+                        --data '{"text":"${message}"}' \\
+                        ${SLACK_WEBHOOK}
+                """
+            }
+        }
+    }
+}

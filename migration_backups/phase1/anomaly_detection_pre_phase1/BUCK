@@ -1,0 +1,14 @@
+# Company Python Package - Standardized Buck2 Configuration
+# Domain: data
+# Package: anomaly_detection
+# Type: ml
+
+load("//tools/buck:company_python_package.bzl", "company_python_package")
+
+load("//tools/buck:company_python_package.bzl", "company_ml_package")
+
+company_ml_package(
+    name = "anomaly_detection",
+    frameworks = ["sklearn"],  # Adjust as needed
+    visibility = ["PUBLIC"],
+)

@@ -1,0 +1,231 @@
+groups:
+  - name: mlops-platform
+    rules:
+      # Service availability alerts
+      - alert: ServiceDown
+        expr: up{job=~"model-server|feature-store|inference-engine"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+          runbook_url: "https://wiki.company.com/runbooks/service-down"
+
+      # High error rate alerts
+      - alert: HighErrorRate
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[5m]) /
+            rate(http_requests_total[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.job }}"
+
+      # High latency alerts
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "High latency on {{ $labels.job }}"
+          description: "95th percentile latency is {{ $value }}s for {{ $labels.job }}"
+
+      # Database connection alerts
+      - alert: DatabaseConnectionFailure
+        expr: postgres_up == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL database is unreachable"
+          description: "Cannot connect to PostgreSQL database"
+
+      # Redis connection alerts
+      - alert: RedisConnectionFailure
+        expr: redis_up == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis cache is unreachable"
+          description: "Cannot connect to Redis cache"
+
+      # Model performance alerts
+      - alert: ModelAccuracyDrop
+        expr: model_accuracy < 0.8
+        for: 15m
+        labels:
+          severity: warning
+          type: model_performance
+        annotations:
+          summary: "Model accuracy dropped below threshold"
+          description: "Model {{ $labels.model_id }} accuracy is {{ $value }}"
+
+      # Data drift alerts
+      - alert: DataDriftDetected
+        expr: data_drift_score > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          type: data_quality
+        annotations:
+          summary: "Data drift detected"
+          description: "Data drift score is {{ $value }} for {{ $labels.feature_group }}"
+
+      # Feature store alerts
+      - alert: FeatureFreshnessLag
+        expr: feature_freshness_lag_hours > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: feature-store
+        annotations:
+          summary: "Feature freshness lag detected"
+          description: "Feature {{ $labels.feature_name }} is {{ $value }} hours behind"
+
+      # Resource utilization alerts
+      - alert: HighCPUUsage
+        expr: |
+          (
+            100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+          ) > 85
+        for: 10m
+        labels:
+          severity: warning
+          type: resource
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / 
+            node_memory_MemTotal_bytes
+          ) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          type: resource
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      # Disk space alerts
+      - alert: DiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{fstype!="tmpfs"} / 
+            node_filesystem_size_bytes{fstype!="tmpfs"}
+          ) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          type: resource
+        annotations:
+          summary: "Disk space critically low"
+          description: "Disk space is {{ $value | humanizePercentage }} full on {{ $labels.instance }}"
+
+      # Kafka alerts
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_lag_sum > 1000
+        for: 10m
+        labels:
+          severity: warning
+          service: kafka
+        annotations:
+          summary: "Kafka consumer lag high"
+          description: "Consumer lag is {{ $value }} messages for topic {{ $labels.topic }}"
+
+      # Model serving alerts
+      - alert: ModelServingQueueBacklog
+        expr: model_serving_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: model-server
+        annotations:
+          summary: "Model serving queue backlog"
+          description: "{{ $value }} requests queued for processing"
+
+      # A/B testing alerts
+      - alert: ABTestStatisticalSignificance
+        expr: ab_test_p_value < 0.05 and ab_test_duration_hours > 24
+        for: 1m
+        labels:
+          severity: info
+          type: experiment
+        annotations:
+          summary: "A/B test reached statistical significance"
+          description: "Experiment {{ $labels.experiment_id }} has p-value {{ $value }}"
+
+      # Compliance alerts
+      - alert: ComplianceViolation
+        expr: compliance_violations_total > 0
+        for: 1m
+        labels:
+          severity: critical
+          type: compliance
+        annotations:
+          summary: "Compliance violation detected"
+          description: "{{ $value }} compliance violations detected"
+
+      # Security alerts
+      - alert: UnauthorizedAccess
+        expr: increase(unauthorized_requests_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: critical
+          type: security
+        annotations:
+          summary: "Unauthorized access attempts detected"
+          description: "{{ $value }} unauthorized requests in the last 5 minutes"
+
+  - name: business-metrics
+    rules:
+      # Business KPI alerts
+      - alert: RevenueImpactFromMLModels
+        expr: ml_revenue_impact_daily < 10000
+        for: 1h
+        labels:
+          severity: warning
+          type: business
+        annotations:
+          summary: "ML revenue impact below target"
+          description: "Daily ML revenue impact is ${{ $value }}"
+
+      - alert: ModelPredictionVolumeDrop
+        expr: |
+          (
+            rate(model_predictions_total[1h]) < 
+            rate(model_predictions_total[1h] offset 24h) * 0.7
+          )
+        for: 30m
+        labels:
+          severity: warning
+          type: business
+        annotations:
+          summary: "Significant drop in model predictions"
+          description: "Prediction volume dropped by {{ $value | humanizePercentage }}"
+
+      # Customer experience alerts
+      - alert: CustomerSatisfactionDrop
+        expr: customer_satisfaction_score < 4.0
+        for: 1h
+        labels:
+          severity: warning
+          type: customer_experience
+        annotations:
+          summary: "Customer satisfaction score dropped"
+          description: "Customer satisfaction is {{ $value }}/5.0"

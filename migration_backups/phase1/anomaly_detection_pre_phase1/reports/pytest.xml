@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="20" skipped="0" tests="20" time="45.629" timestamp="2025-07-24T11:59:11.332771-04:00" hostname="rocm-socm"><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_metadata" time="2.950"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:311: in test_anomaly_metadata
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_to_dict" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:135: in test_anomaly_to_dict
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_severity_property" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:112: in test_anomaly_severity_property
+    anomaly1 = Anomaly(index=0, score=0.2, confidence=0.3)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_batch_creation" time="0.006"><failure message="assert 0 &gt;= 3&#10; +  where 0 = len([])">tests/unit/test_anomaly_entity.py:342: in test_anomaly_batch_creation
+    assert len(high_severity) &gt;= 3  # Most should be high given the scores
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 0 &gt;= 3
+E    +  where 0 = len([])</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_from_dict_minimal" time="0.001"><failure message="KeyError: 'confidence_score'">tests/unit/test_anomaly_entity.py:179: in test_anomaly_from_dict_minimal
+    anomaly = Anomaly.from_dict(data)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+src/anomaly_detection/domain/entities/anomaly.py:114: in from_dict
+    confidence_score=data["confidence_score"],
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'confidence_score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_with_nan_features" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:282: in test_anomaly_with_nan_features
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_validation_confidence" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:96: in test_anomaly_validation_confidence
+    anomaly1 = Anomaly(index=0, score=0.5, confidence=0.0)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_validation_index" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:67: in test_anomaly_validation_index
+    anomaly1 = Anomaly(index=0, score=0.5, confidence=0.5)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_str" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:242: in test_anomaly_str
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_validation_score" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:80: in test_anomaly_validation_score
+    anomaly1 = Anomaly(index=0, score=0.0, confidence=0.5)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_equality" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:205: in test_anomaly_equality
+    anomaly1 = Anomaly(index=42, score=0.85, confidence=0.92)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_repr" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:228: in test_anomaly_repr
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_creation_with_features" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:36: in test_anomaly_creation_with_features
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_creation_with_explanation" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:54: in test_anomaly_creation_with_explanation
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_from_dict_validation" time="0.003"><failure message="KeyError: 'confidence_score'">tests/unit/test_anomaly_entity.py:201: in test_anomaly_from_dict_validation
+    Anomaly.from_dict({'index': -1, 'score': 0.5, 'confidence': 0.5})
+src/anomaly_detection/domain/entities/anomaly.py:114: in from_dict
+    confidence_score=data["confidence_score"],
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'confidence_score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_immutability" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:294: in test_anomaly_immutability
+    anomaly = Anomaly(index=42, score=0.85, confidence=0.92)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_sorting" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:257: in test_anomaly_sorting
+    Anomaly(index=0, score=0.5, confidence=0.8),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_hash" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:215: in test_anomaly_hash
+    anomaly1 = Anomaly(index=42, score=0.85, confidence=0.92)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_creation_basic" time="0.001"><failure message="TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'">tests/unit/test_anomaly_entity.py:16: in test_anomaly_creation_basic
+    anomaly = Anomaly(
+E   TypeError: Anomaly.__init__() got an unexpected keyword argument 'score'</failure></testcase><testcase classname="tests.unit.test_anomaly_entity.TestAnomalyEntity" name="test_anomaly_from_dict" time="0.001"><failure message="KeyError: 'confidence_score'">tests/unit/test_anomaly_entity.py:163: in test_anomaly_from_dict
+    anomaly = Anomaly.from_dict(data)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+src/anomaly_detection/domain/entities/anomaly.py:114: in from_dict
+    confidence_score=data["confidence_score"],
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'confidence_score'</failure></testcase></testsuite></testsuites>

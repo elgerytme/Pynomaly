@@ -1,0 +1,196 @@
+# Multi-stage production Dockerfile for Anomaly Detection System
+# Optimized for security, performance, and minimal attack surface
+
+# Build stage - compile and prepare dependencies
+FROM python:3.11-slim as builder
+
+# Set build arguments
+ARG BUILD_DATE
+ARG VERSION
+ARG VCS_REF
+
+# Add metadata
+LABEL org.opencontainers.image.title="Anomaly Detection System"
+LABEL org.opencontainers.image.description="Production-ready anomaly detection service"
+LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.revision=$VCS_REF
+LABEL org.opencontainers.image.source="https://github.com/organization/anomaly-detection"
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    libc6-dev \
+    libpq-dev \
+    libffi-dev \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create and activate virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Upgrade pip and install wheel
+RUN pip install --upgrade pip setuptools wheel
+
+# Copy requirements first for better layer caching
+COPY requirements/production.txt /tmp/requirements.txt
+COPY requirements/base.txt /tmp/base.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --no-deps -r /tmp/requirements.txt
+
+# Compile Python files for better performance
+RUN python -m compileall /opt/venv/lib/python*/site-packages/
+
+# Production stage - minimal runtime image
+FROM python:3.11-slim as production
+
+# Set production environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
+    PATH="/opt/venv/bin:$PATH" \
+    VIRTUAL_ENV=/opt/venv \
+    ENVIRONMENT=production \
+    PORT=8000
+
+# Create non-root user for security
+RUN groupadd -r appuser && \
+    useradd -r -g appuser -d /app -s /bin/bash -c "App User" appuser
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libffi8 \
+    libssl3 \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+
+# Create app directory and set ownership
+RUN mkdir -p /app /app/logs /app/models /app/data && \
+    chown -R appuser:appuser /app
+
+# Switch to app directory
+WORKDIR /app
+
+# Copy application code
+COPY --chown=appuser:appuser src/anomaly_detection ./anomaly_detection
+COPY --chown=appuser:appuser pyproject.toml ./
+COPY --chown=appuser:appuser README.md ./
+
+# Copy configuration files
+COPY --chown=appuser:appuser deployment/config/production.yaml ./config/
+COPY --chown=appuser:appuser deployment/scripts/entrypoint.sh ./
+COPY --chown=appuser:appuser deployment/scripts/healthcheck.sh ./
+
+# Make scripts executable
+RUN chmod +x entrypoint.sh healthcheck.sh
+
+# Install the application
+RUN pip install --no-cache-dir -e .
+
+# Create necessary directories and set permissions
+RUN mkdir -p /app/tmp /app/cache && \
+    chown -R appuser:appuser /app && \
+    chmod 755 /app/tmp /app/cache
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE $PORT
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD ./healthcheck.sh
+
+# Set entrypoint
+ENTRYPOINT ["./entrypoint.sh"]
+
+# Default command (can be overridden)
+CMD ["api"]
+
+# Development stage - for local development
+FROM production as development
+
+# Switch back to root for development dependencies
+USER root
+
+# Install development dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    vim \
+    htop \
+    postgresql-client \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install development Python packages
+COPY requirements/development.txt /tmp/dev-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/dev-requirements.txt
+
+# Switch back to app user
+USER appuser
+
+# Override environment for development
+ENV ENVIRONMENT=development \
+    DEBUG=true \
+    LOG_LEVEL=DEBUG
+
+# Development command
+CMD ["api", "--reload"]
+
+# Test stage - for running tests
+FROM development as test
+
+# Copy test files
+COPY --chown=appuser:appuser tests ./tests
+COPY --chown=appuser:appuser pytest.ini ./
+COPY --chown=appuser:appuser .coveragerc ./
+
+# Install test dependencies
+COPY requirements/test.txt /tmp/test-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/test-requirements.txt
+
+# Run tests by default
+CMD ["pytest", "--cov=anomaly_detection", "--cov-report=html", "--cov-report=term-missing"]
+
+# Worker stage - for background workers
+FROM production as worker
+
+# Override default command for worker
+CMD ["worker"]
+
+# Streaming stage - for streaming service
+FROM production as streaming
+
+# Install streaming-specific dependencies
+COPY requirements/streaming.txt /tmp/streaming-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/streaming-requirements.txt
+
+# Override default command for streaming
+CMD ["streaming"]
+
+# Web stage - for web dashboard
+FROM production as web
+
+# Install web-specific dependencies
+COPY requirements/web.txt /tmp/web-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/web-requirements.txt
+
+# Copy web assets
+COPY --chown=appuser:appuser static ./static
+COPY --chown=appuser:appuser templates ./templates
+
+# Override default command for web
+CMD ["web"]

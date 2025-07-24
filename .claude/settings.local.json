@@ -373,7 +373,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Create shared interfaces and dependency injection infrastructure\n\n**Shared Interfaces Created:**\n- MLOps interfaces: ExperimentTrackingInterface, ModelRegistryInterface, ModelDeploymentInterface\n- Enterprise interfaces: AuthServiceInterface, MultiTenantInterface, OperationsInterface  \n- Data interfaces: DataProcessingInterface, QualityAssessmentInterface, ProfilingEngineInterface\n- Additional interfaces for AutoML, FeatureStore, ModelMonitoring, Governance, Scalability\n\n**Dependency Injection Infrastructure:**\n- ServiceRegistry for managing service instances, factories, and singletons\n- Support for interface-based service registration and resolution\n- Global registry with convenience functions for service management\n- Proper separation between interface definitions and implementations\n\n**Import Violation Fixes:**\n- Refactored configuration packages to use interfaces instead of direct imports\n- Commented out excessive relative imports that violate domain boundaries\n- Replaced `....core.*` and `....enterprise.*` imports with shared interfaces\n\n**Architecture Benefits:**\n- Enables proper dependency inversion principle\n- Allows packages to depend on abstractions, not concretions\n- Supports service substitution and testing with mocks\n- Eliminates cross-domain import violations\n- Enables configuration-driven service wiring\n\nThis establishes the foundation for eliminating the remaining monorepo import violations through proper interface-based architecture.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(if [[ -f \"$file\" ]])",
       "Bash(then)",
-      "Bash(if ! grep -q \"^\\[build-system\\]\" \"$file\")"
+      "Bash(if ! grep -q \"^\\[build-system\\]\" \"$file\")",
+      "Bash(pip uninstall:*)"
     ],
     "deny": []
   }

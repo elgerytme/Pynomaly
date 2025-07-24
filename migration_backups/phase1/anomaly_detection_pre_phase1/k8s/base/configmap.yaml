@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anomaly-detection-config
+  namespace: anomaly-detection
+  labels:
+    app.kubernetes.io/name: anomaly-detection
+    app.kubernetes.io/component: config
+data:
+  # Application configuration
+  ANOMALY_DETECTION_ENV: "production"
+  ANOMALY_DETECTION_LOG_LEVEL: "INFO"
+  ANOMALY_DETECTION_DATA_DIR: "/app/data"
+  ANOMALY_DETECTION_MODEL_DIR: "/app/models"
+  ANOMALY_DETECTION_LOG_DIR: "/app/logs"
+  
+  # Database configuration
+  POSTGRES_DB: "anomaly_detection"
+  POSTGRES_USER: "postgres"
+  
+  # Redis configuration
+  REDIS_DB: "0"
+  
+  # Kafka configuration
+  KAFKA_TOPIC_PREFIX: "anomaly-detection"
+  
+  # Monitoring configuration
+  PROMETHEUS_METRICS_PORT: "9090"
+  HEALTH_CHECK_INTERVAL: "30"
+  
+  # Performance settings
+  UVICORN_WORKERS: "4"
+  WORKER_CONCURRENCY: "4"
+  MAX_BATCH_SIZE: "1000"
+  
+  # Security settings
+  CORS_ALLOWED_ORIGINS: '["http://localhost:3000", "https://anomaly-detection.company.com"]'
+  API_RATE_LIMIT: "100/minute"
