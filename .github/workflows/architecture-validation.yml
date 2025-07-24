@@ -99,7 +99,7 @@ jobs:
         # Check for enterprise_data_platforms  
         if [ -d "src/packages/enterprise/enterprise_data_platforms" ]; then
           echo "❌ Found obsolete package: src/packages/enterprise/enterprise_data_platforms/"
-          echo "   This should be removed - Data platform integrations belong in src/packages/integrations/"
+          echo "   This should be removed - Data monorepo integrations belong in src/packages/integrations/"
           OBSOLETE_FOUND=true
         fi
         
@@ -118,7 +118,7 @@ jobs:
         if [ "$OBSOLETE_FOUND" = true ]; then
           echo ""
           echo "🏗️ Architecture Fix Required:"
-          echo "   1. Move platform integrations to src/packages/integrations/"
+          echo "   1. Move monorepo integrations to src/packages/integrations/"
           echo "   2. Move domain logic to src/packages/core/"
           echo "   3. Keep only cross-cutting concerns in src/packages/enterprise/"
           echo "   4. Use src/packages/configurations/ to compose services"

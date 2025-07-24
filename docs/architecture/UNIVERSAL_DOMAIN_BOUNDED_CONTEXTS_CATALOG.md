@@ -6,7 +6,7 @@
 
 ## 🎯 Executive Summary
 
-This universal catalog provides a comprehensive template for documenting domain bounded contexts across any type of organization - from startups to enterprises, government agencies to non-profits, academic institutions to financial services, and technical platforms to scientific research organizations.
+This universal catalog provides a comprehensive template for documenting domain bounded contexts across any type of organization - from startups to enterprises, government agencies to non-profits, academic institutions to financial services, and technical monorepos to scientific research organizations.
 
 ### 🏛️ Architecture Principles
 

@@ -6,7 +6,7 @@
 
 ## Overview
 
-Machine Learning Operations (MLOps) package and platform.
+Machine Learning Operations (MLOps) package and monorepo.
 
 **Architecture Layer**: Application Layer  
 **Package Type**: ML Operations  
@@ -504,4 +504,4 @@ MIT License. See [LICENSE](../../../LICENSE) file for details.
 
 ---
 
-**Part of the [monorepo](../../../) monorepo** - Advanced ML platform
+**Part of the [monorepo](../../../) monorepo** - Advanced ML monorepo

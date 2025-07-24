@@ -3,7 +3,7 @@
 Security Hardening Report Generator
 
 This script generates a comprehensive report of all security hardening measures
-implemented in the anomaly detection platform.
+implemented in the anomaly domain-bounded monorepo.
 """
 
 import json

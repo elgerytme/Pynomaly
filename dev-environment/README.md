@@ -1,6 +1,6 @@
 # Development Environment Setup
 
-This directory contains tools and configurations for setting up a complete development environment for the anomaly detection platform.
+This directory contains tools and configurations for setting up a complete development environment for the anomaly domain-bounded monorepo.
 
 ## Quick Start
 
@@ -32,7 +32,7 @@ If you prefer to set up the environment manually, follow the sections below.
 - **Git**: Version control system
 - **Python**: 3.11 or higher
 - **curl/wget**: For downloading tools
-- **Docker**: Container platform (optional but recommended)
+- **Docker**: Container monorepo (optional but recommended)
 
 ## Development Tools
 

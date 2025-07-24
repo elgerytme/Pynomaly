@@ -159,7 +159,7 @@ class AutomatedDeployer:
 
             # Execute deployment based on strategy
             strategy = env_config.get("strategy", "rolling_update")
-            platform = env_config.get("platform", "docker_compose")
+            monorepo = env_config.get("platform", "docker_compose")
 
             if dry_run:
                 logger.info(
@@ -168,7 +168,7 @@ class AutomatedDeployer:
                 return True
 
             success = await self._execute_deployment(
-                environment, version, strategy, platform
+                environment, version, strategy, monorepo
             )
 
             if success:
@@ -239,20 +239,20 @@ class AutomatedDeployer:
             return False
 
     async def _execute_deployment(
-        self, environment: str, version: str, strategy: str, platform: str
+        self, environment: str, version: str, strategy: str, monorepo: str
     ) -> bool:
         """Execute the actual deployment."""
         logger.info(f"Executing {strategy} deployment on {platform}")
 
         try:
-            if platform == "docker_compose":
+            if monorepo == "docker_compose":
                 return await self._deploy_docker_compose(environment, version)
-            elif platform == "kubernetes":
+            elif monorepo == "kubernetes":
                 return await self._deploy_kubernetes(environment, version, strategy)
-            elif platform == "helm":
+            elif monorepo == "helm":
                 return await self._deploy_helm(environment, version, strategy)
             else:
-                logger.error(f"Unsupported platform: {platform}")
+                logger.error(f"Unsupported monorepo: {platform}")
                 return False
 
         except Exception as e:

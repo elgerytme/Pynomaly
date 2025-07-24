@@ -1,6 +1,6 @@
 # Platform TypeScript Client
 
-Official TypeScript/JavaScript client for platform services with full type safety and modern features.
+Official TypeScript/JavaScript client for monorepo services with full type safety and modern features.
 
 ## Features
 

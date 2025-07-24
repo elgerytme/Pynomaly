@@ -75,7 +75,7 @@ from src.packages.machine_learning.application.services import (
     AutoMLService
 )
 
-# Data platform services
+# Data monorepo services
 from src.packages.data_platform.application.services import (
     DataProcessingService,
     DataQualityService

@@ -1,4 +1,4 @@
-"""Core SDK package for platform client libraries."""
+"""Core SDK package for monorepo client libraries."""
 
 from sdk_core.auth import JWTAuth, TokenAuth
 from sdk_core.client import BaseClient, SyncClient

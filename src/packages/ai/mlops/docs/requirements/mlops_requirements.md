@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the comprehensive requirements for the MLOps platform, a production-ready machine learning operations system designed to manage the complete ML lifecycle from experimentation to production deployment and monitoring.
+This document outlines the comprehensive requirements for the MLOps monorepo, a production-ready machine learning operations system designed to manage the complete ML lifecycle from experimentation to production deployment and monitoring.
 
 ## 1. Business Requirements
 
@@ -523,4 +523,4 @@ class DeploymentService:
 
 ---
 
-This requirements document serves as the foundation for the MLOps platform development and will be updated as requirements evolve during the implementation process.
+This requirements document serves as the foundation for the MLOps monorepo development and will be updated as requirements evolve during the implementation process.

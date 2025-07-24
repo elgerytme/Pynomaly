@@ -1,4 +1,4 @@
-"""Enterprise monitoring platform integrations."""
+"""Enterprise monitoring monorepo integrations."""
 
 # Optional imports with graceful degradation
 try:

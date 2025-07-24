@@ -30,7 +30,7 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 
     ---
 
-    Deploy, monitor, and scale the platform in production environments with full observability.
+    Deploy, monitor, and scale the monorepo in production environments with full observability.
     
     **Duration**: 1-2 weeks  
     **Prerequisites**: Infrastructure, Containers, K8s  
@@ -40,7 +40,7 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 
     ---
 
-    Understand platform capabilities, use cases, and business value across different industries.
+    Understand monorepo capabilities, use cases, and business value across different industries.
     
     **Duration**: 3-5 days  
     **Prerequisites**: Domain knowledge  
@@ -202,7 +202,7 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 - [ ] **Automated Testing** - Integration with test suites
 - [ ] **Blue-Green Deployment** - Zero-downtime deployments
 
-**🎯 Week 1 Goal**: Deploy platform to Kubernetes with automated CI/CD
+**🎯 Week 1 Goal**: Deploy monorepo to Kubernetes with automated CI/CD
 
 ### Phase 2: Operations & Monitoring (Week 2)
 
@@ -224,7 +224,7 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 - [ ] **Load Testing** - Performance validation
 - [ ] **Capacity Planning** - Resource forecasting
 
-**🎯 Week 2 Goal**: Production-ready platform with full observability and security
+**🎯 Week 2 Goal**: Production-ready monorepo with full observability and security
 
 ### Resources for DevOps Engineers
 - **Helm Charts**: Production-ready Kubernetes manifests
@@ -241,7 +241,7 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 #### Understanding Anomaly Detection
 - [ ] **Business Value** - ROI and business impact of anomaly detection
 - [ ] **Use Case Overview** - Industry applications and success stories
-- [ ] **Platform Capabilities** - What the platform can and cannot do
+- [ ] **Platform Capabilities** - What the monorepo can and cannot do
 - [ ] **Competitive Landscape** - How we compare to alternatives
 
 #### Platform Economics
@@ -278,7 +278,7 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 
 #### Next Steps
 - [ ] **Technical Evaluation** - Setting up proof of concept
-- [ ] **Vendor Evaluation** - Comparing platform alternatives
+- [ ] **Vendor Evaluation** - Comparing monorepo alternatives
 - [ ] **Budget Planning** - Resource and cost planning
 - [ ] **Timeline Development** - Implementation roadmap
 
@@ -295,12 +295,12 @@ Choose your learning journey based on your role, experience level, and goals. Ea
 ## 🎓 Advanced Learning Paths
 
 ### Research & Development Track
-For those interested in contributing to platform development:
+For those interested in contributing to monorepo development:
 
 - **Algorithm Development** - Implementing new detection methods
 - **Performance Optimization** - System and algorithm optimization
 - **Integration Development** - New connector and integration development
-- **Open Source Contribution** - Contributing to the platform ecosystem
+- **Open Source Contribution** - Contributing to the monorepo ecosystem
 
 ### Specialization Tracks
 
@@ -352,4 +352,4 @@ Ready to start your learning journey? Choose your path above and begin with the 
 
 Remember that learning paths can be adapted to your specific needs and timeline. Feel free to mix and match elements from different paths based on your role and interests.
 
-**Need help choosing?** Contact our community or check out the [Quick Start Guide](quickstart.md) to get a feel for the platform before committing to a specific learning path.
+**Need help choosing?** Contact our community or check out the [Quick Start Guide](quickstart.md) to get a feel for the monorepo before committing to a specific learning path.

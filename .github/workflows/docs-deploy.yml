@@ -158,7 +158,7 @@ jobs:
         run: |
           cat > mkdocs.yml << 'EOF'
           site_name: anomaly_detection Documentation
-          site_description: Comprehensive documentation for anomaly_detection detection platform
+          site_description: Comprehensive documentation for anomaly_detection domain-bounded monorepo
           site_url: https://anomaly_detection.github.io/anomaly_detection
           
           theme:
@@ -247,7 +247,7 @@ jobs:
           cat > docs/index.md << 'EOF'
           # anomaly_detection Documentation
 
-          Welcome to the comprehensive documentation for anomaly_detection, a state-of-the-art detection platform.
+          Welcome to the comprehensive documentation for anomaly_detection, a state-of-the-art domain-bounded monorepo.
 
           ## Features
 

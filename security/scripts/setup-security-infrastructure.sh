@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Security Infrastructure Setup Script
-# Configures comprehensive security infrastructure for the detection platform
+# Configures comprehensive security infrastructure for the domain-bounded monorepo
 
 set -euo pipefail
 
@@ -41,7 +41,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Set up security infrastructure for the detection platform.
+Set up security infrastructure for the domain-bounded monorepo.
 
 OPTIONS:
     -e, --environment ENVIRONMENT    Target environment (staging|production)
@@ -405,7 +405,7 @@ EOF
 #!/usr/bin/env python3
 """
 Compliance Monitoring Script
-Monitors and reports on compliance status for the detection platform.
+Monitors and reports on compliance status for the domain-bounded monorepo.
 """
 
 import json
@@ -882,7 +882,7 @@ generate_security_report() {
 
 2. **External Security Tools:**
    - Configure SIEM integration if available
-   - Set up vulnerability management platform
+   - Set up vulnerability management monorepo
    - Connect to threat intelligence feeds
 
 3. **Backup and Disaster Recovery:**

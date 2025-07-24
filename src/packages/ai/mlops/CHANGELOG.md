@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved pipeline orchestration with better error handling
 - Enhanced model registry with advanced metadata management
-- Better integration with cloud ML platforms
+- Better integration with cloud ML monorepos
 - Optimized experiment tracking performance
 
 ### Fixed
@@ -174,7 +174,7 @@ config = ExperimentConfig(
 from mlops.config import DeploymentConfig
 
 config = DeploymentConfig(
-    platform="kubernetes",
+    monorepo="kubernetes",
     namespace="models",
     replicas=3,
     resources={

@@ -97,7 +97,7 @@ PACKAGE_INFO = {
     "supported_frameworks": [
         "Dask - Distributed computing for Python",
         "Ray - Distributed AI/ML framework",
-        "Apache Kafka - Stream processing platform",
+        "Apache Kafka - Stream processing monorepo",
         "Apache Beam - Unified batch/stream processing",
         "Kubernetes - Container orchestration",
         "Apache Spark - Big data processing (integration)",
@@ -117,7 +117,7 @@ PACKAGE_INFO = {
         "Message queues and streams (Kafka, Kinesis, PubSub, RabbitMQ)",
         "Object storage (S3, GCS, Azure Blob)",
         "Data warehouses (Snowflake, BigQuery, Redshift)",
-        "ML platforms (MLflow, Kubeflow, SageMaker)",
+        "ML monorepos (MLflow, Kubeflow, SageMaker)",
         "CI/CD pipelines (Jenkins, GitLab, GitHub Actions)"
     ]
 }

@@ -1,6 +1,6 @@
 # Anomaly Detection Python Client
 
-Official Python client for the platform's anomaly detection service.
+Official Python client for the monorepo's anomaly detection service.
 
 ## Features
 

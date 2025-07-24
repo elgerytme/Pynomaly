@@ -1,6 +1,6 @@
 # 🚀 CI/CD Workflows
 
-This directory contains automated workflows for building, testing, and publishing the anomaly detection platform and its SDKs.
+This directory contains automated workflows for building, testing, and publishing the anomaly domain-bounded monorepo and its SDKs.
 
 ## 📋 Available Workflows
 

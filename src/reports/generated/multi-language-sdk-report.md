@@ -453,7 +453,7 @@ The multi-language SDK development project has been successfully completed, deli
 - **Reliability**: Comprehensive error handling and retry mechanisms
 - **Maintainability**: Clean, well-documented code with automated testing
 
-The SDKs are now ready for production use and will significantly improve the developer experience for integrating with the anomaly_detection anomaly detection platform.
+The SDKs are now ready for production use and will significantly improve the developer experience for integrating with the anomaly_detection anomaly domain-bounded monorepo.
 
 ---
 

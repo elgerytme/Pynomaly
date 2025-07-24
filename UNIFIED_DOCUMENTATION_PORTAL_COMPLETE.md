@@ -15,7 +15,7 @@
 **Location:** `docs-portal/`
 
 **Key Features:**
-- **Unified Navigation** - Single entry point for all platform documentation
+- **Unified Navigation** - Single entry point for all monorepo documentation
 - **Material Design** - Modern, responsive interface with light/dark themes
 - **Multi-Package Integration** - Seamless aggregation across all packages
 - **Interactive Elements** - Enhanced user experience with JavaScript features
@@ -33,7 +33,7 @@ docs-portal/
 ├── docs/
 │   ├── index.md              # Main landing page
 │   ├── getting-started/      # Onboarding documentation
-│   │   ├── platform-overview.md
+│   │   ├── monorepo-overview.md
 │   │   ├── installation.md
 │   │   ├── quickstart.md
 │   │   └── learning-paths.md
@@ -384,7 +384,7 @@ jobs:
 - **Industry Guides** - Sector-specific implementation patterns
 - **Case Studies** - Real-world success stories
 - **Video Tutorials** - Visual learning content
-- **Interactive Demos** - Live platform demonstrations
+- **Interactive Demos** - Live monorepo demonstrations
 
 ---
 
@@ -402,7 +402,7 @@ jobs:
 - ✅ `docs-portal/setup.py` - Automated setup and deployment script
 
 ### **Capabilities Delivered:**
-- 🎯 **Unified Documentation Portal** - Single entry point for all platform docs
+- 🎯 **Unified Documentation Portal** - Single entry point for all monorepo docs
 - 🎓 **Role-Based Learning Paths** - Structured guidance for all user types
 - 📱 **Mobile-First Design** - Responsive interface with touch optimization
 - 🔍 **Enhanced Search & Discovery** - Context-aware content finding
@@ -412,7 +412,7 @@ jobs:
 
 ### **User Experience Achievements:**
 - **90% Improvement** in documentation discovery time
-- **100% Coverage** of platform packages and APIs
+- **100% Coverage** of monorepo packages and APIs
 - **Mobile Responsive** design for global accessibility
 - **Interactive Elements** for enhanced learning experience
 - **Production Ready** with enterprise-grade features
@@ -422,4 +422,4 @@ jobs:
 **✅ Unified Documentation Portal: COMPLETE**  
 **🎉 Result: Comprehensive Platform Documentation System**
 
-The detection platform now has a world-class documentation portal that provides unified access to all platform capabilities, with role-based learning paths, interactive features, and production-ready deployment. Users can efficiently discover, learn, and implement platform features through a single, cohesive interface.
+The domain-bounded monorepo now has a world-class documentation portal that provides unified access to all monorepo capabilities, with role-based learning paths, interactive features, and production-ready deployment. Users can efficiently discover, learn, and implement monorepo features through a single, cohesive interface.

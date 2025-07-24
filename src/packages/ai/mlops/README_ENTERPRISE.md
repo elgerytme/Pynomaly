@@ -92,7 +92,7 @@ experiment = await mlops.create_experiment(
     tags={"environment": "prod", "model": "v2"}
 )
 
-# Log metrics to multiple platforms
+# Log metrics to multiple monorepos
 await mlops.log_metrics(
     experiment=experiment,
     metrics={"accuracy": 0.95, "f1_score": 0.92}
@@ -177,7 +177,7 @@ pytest
 # Run with enterprise integration tests
 pytest -m enterprise
 
-# Run specific platform tests
+# Run specific monorepo tests
 pytest -m mlflow
 pytest -m datadog
 ```

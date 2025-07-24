@@ -64,7 +64,7 @@ naming_conventions:
     
     - terms: ["anomaly_detection", "anomaly_detection", "anomaly_detection"]
       allowed_packages: []
-      message: "anomaly_detection references should be replaced with generic platform terms"
+      message: "anomaly_detection references should be replaced with generic monorepo terms"
     
     - terms: ["detector", "Detector"] 
       allowed_packages: ["anomaly_detection", "fraud_detection", "intrusion_detection"]

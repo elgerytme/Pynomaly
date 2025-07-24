@@ -4,7 +4,7 @@ A comprehensive, self-contained package for data ingestion and collection capabi
 
 ## Overview
 
-This package provides a complete solution for ingesting data from various sources including databases, APIs, files, streaming platforms, and cloud services. It follows Domain-Driven Design principles and provides a clean architecture for scalable data ingestion operations.
+This package provides a complete solution for ingesting data from various sources including databases, APIs, files, streaming monorepos, and cloud services. It follows Domain-Driven Design principles and provides a clean architecture for scalable data ingestion operations.
 
 ## Features
 

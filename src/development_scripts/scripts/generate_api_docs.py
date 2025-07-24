@@ -1133,7 +1133,7 @@ def generate_postman_collection():
         "info": {
             "name": "anomaly detection API",
             "description": (
-                "Comprehensive API collection for anomaly_detection anomaly detection platform"
+                "Comprehensive API collection for anomaly_detection anomaly domain-bounded monorepo"
             ),
             "version": "1.0.0",
             "schema": (
@@ -1393,7 +1393,7 @@ def generate_readme():
     readme_content = f"""# anomaly detection API Documentation
 
 Welcome to the anomaly detection API documentation! This directory contains comprehensive
-documentation for the anomaly_detection anomaly detection platform.
+documentation for the anomaly_detection anomaly domain-bounded monorepo.
 
 ## 📁 Documentation Structure
 

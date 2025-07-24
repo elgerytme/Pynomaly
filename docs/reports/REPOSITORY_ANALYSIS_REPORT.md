@@ -21,7 +21,7 @@ This analysis examined the repository for domain leakage issues, layout problems
 - **Impact**: Breaks domain boundaries and creates circular dependencies
 - **Examples**:
   - Anomaly detection services importing machine learning domain entities
-  - Machine learning services importing data platform components
+  - Machine learning services importing data monorepo components
   - CLI commands mixing multiple domain concerns
 
 #### 1.3 Shared Business Logic Without Proper Boundaries

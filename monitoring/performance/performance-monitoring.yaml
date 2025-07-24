@@ -1,5 +1,5 @@
 # Performance Monitoring Configuration
-# Comprehensive performance monitoring setup for the detection platform
+# Comprehensive performance monitoring setup for the domain-bounded monorepo
 
 apiVersion: v1
 kind: ConfigMap
@@ -110,7 +110,7 @@ data:
             for: 2m
             labels:
               severity: critical
-              team: platform
+              team: monorepo
             annotations:
               summary: "High API response time detected"
               description: "API response time is {{ $value }}s, which is above the 2s threshold"
@@ -121,7 +121,7 @@ data:
             for: 1m
             labels:
               severity: critical
-              team: platform
+              team: monorepo
             annotations:
               summary: "High error rate detected"
               description: "Error rate is {{ $value | humanizePercentage }}, which is above 5%"
@@ -172,7 +172,7 @@ data:
             for: 1m
             labels:
               severity: critical
-              team: platform
+              team: monorepo
             annotations:
               summary: "Service {{ $labels.job }} is down"
               description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"

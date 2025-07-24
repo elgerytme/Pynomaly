@@ -1,5 +1,5 @@
 site_name: Anomaly Detection Platform Documentation
-site_description: Comprehensive documentation for the enterprise anomaly detection platform
+site_description: Comprehensive documentation for the enterprise anomaly domain-bounded monorepo
 site_author: Anomaly Detection Platform Team
 site_url: https://anomaly-detection-platform.github.io/docs
 

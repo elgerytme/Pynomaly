@@ -301,7 +301,7 @@ Structured logging framework with centralized log aggregation and analysis capab
 **Path**: `src/packages/shared/tools/`  
 **Status**: 🟢 Production Ready
 
-Common utilities, helper functions, and development tools used across the platform.
+Common utilities, helper functions, and development tools used across the monorepo.
 
 **Key Features:**
 - Configuration management utilities
@@ -380,7 +380,7 @@ pip install anomaly-detection[dev]
 
 #### Docker Deployment
 ```bash
-# Full platform
+# Full monorepo
 docker run -p 8000:8000 anomaly-detection/platform:latest
 
 # Specific services
@@ -395,7 +395,7 @@ Each package supports flexible configuration:
 ```python
 from anomaly_detection import configure_platform
 
-# Configure entire platform
+# Configure entire monorepo
 configure_platform({
     'anomaly_detection': {
         'algorithms': ['isolation_forest', 'one_class_svm'],

@@ -56,7 +56,7 @@ def test_memory_usage():
 
         # Check if resource module has the required attributes (Unix/Linux only)
         if not hasattr(resource, 'getrusage') or not hasattr(resource, 'RUSAGE_SELF'):
-            print("⚠️ Memory monitoring not available on this platform")
+            print("⚠️ Memory monitoring not available on this monorepo")
             return None
 
         # Use built-in resource module for basic memory info

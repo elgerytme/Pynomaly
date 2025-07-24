@@ -12,7 +12,7 @@ Successfully consolidated dependency management from **5 separate requirements f
 ### Files Removed
 - `requirements-analytics.txt` - 63 analytics/visualization dependencies
 - `requirements-enterprise.txt` - 50 enterprise feature dependencies  
-- `requirements-mlops.txt` - 137 MLOps platform dependencies
+- `requirements-mlops.txt` - 137 MLOps monorepo dependencies
 - `requirements-prod.txt` - 200 production dependencies
 
 ### Files Modified
@@ -24,7 +24,7 @@ Successfully consolidated dependency management from **5 separate requirements f
 | Group | Description | Dependencies |
 |-------|-------------|--------------|
 | `analytics` | Data visualization and analysis tools | plotly, matplotlib, seaborn, jupyter, streamlit, etc. |
-| `mlops` | Machine learning operations platform | mlflow, wandb, airflow, prefect, great-expectations, etc. |
+| `mlops` | Machine learning operations monorepo | mlflow, wandb, airflow, prefect, great-expectations, etc. |
 | `enterprise` | Enterprise features and integrations | elasticsearch, structured logging, security tools |
 | `production` | Production deployment essentials | fastapi, uvicorn, gunicorn, redis, monitoring, etc. |
 
@@ -46,7 +46,7 @@ pip install anomaly_detection[production]
 # Analytics workbench
 pip install anomaly_detection[analytics,jupyter]
 
-# Full MLOps platform
+# Full MLOps monorepo
 pip install anomaly_detection[mlops,production]
 
 # Everything
@@ -88,7 +88,7 @@ pip install anomaly_detection[all]
 - **explainability:** Model interpretation (2 packages)
 
 #### Specialized
-- **mlops:** MLOps platform tools (13 packages)
+- **mlops:** MLOps monorepo tools (13 packages)
 - **enterprise:** Enterprise features (10 packages)
 - **production:** Production deployment (20 packages)
 

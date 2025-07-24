@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive knowledge transfer for the anomaly_detection open source detection platform. It's designed to help new team members, contributors, and maintainers understand the system architecture, implementation details, and operational procedures.
+This document provides comprehensive knowledge transfer for the anomaly_detection open source domain-bounded monorepo. It's designed to help new team members, contributors, and maintainers understand the system architecture, implementation details, and operational procedures.
 
 ## Table of Contents
 
@@ -1056,7 +1056,7 @@ git push origin v0.4.0
    - Audit logging and compliance
 
 2. **Integration Ecosystem**
-   - Popular data platforms (Snowflake, BigQuery)
+   - Popular data monorepos (Snowflake, BigQuery)
    - MLOps tools (MLflow, Kubeflow)
    - Monitoring systems (Datadog, New Relic)
 

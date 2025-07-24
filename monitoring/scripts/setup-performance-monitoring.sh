@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Performance & Monitoring Setup Script
-# Sets up comprehensive performance monitoring and alerting for the detection platform
+# Sets up comprehensive performance monitoring and alerting for the domain-bounded monorepo
 
 set -euo pipefail
 
@@ -39,7 +39,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Set up performance monitoring and alerting for the detection platform.
+Set up performance monitoring and alerting for the domain-bounded monorepo.
 
 OPTIONS:
     -e, --environment ENVIRONMENT    Target environment (staging|production)
@@ -761,7 +761,7 @@ generate_setup_report() {
 - **Quarterly:** Comprehensive monitoring stack review and updates
 
 ---
-*This monitoring setup provides comprehensive observability and automated optimization for the detection platform.*
+*This monitoring setup provides comprehensive observability and automated optimization for the domain-bounded monorepo.*
 EOF
 
     log_success "Setup report generated: $report_file"

@@ -362,7 +362,7 @@ Payment data security includes:
 - **Identity providers**: Active Directory, LDAP, SAML
 - **SIEM systems**: Splunk, QRadar, Azure Sentinel
 - **Key management**: HashiCorp Vault, AWS KMS
-- **Monitoring platforms**: Datadog, New Relic, Prometheus
+- **Monitoring monorepos**: Datadog, New Relic, Prometheus
 
 ## Testing and Validation
 

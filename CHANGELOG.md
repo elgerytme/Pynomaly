@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the monorepo data intelligence platform will be documented in this file.
+All notable changes to the monorepo data intelligence monorepo will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-07-14
 
 ### Added
-- Initial release of data intelligence platform
+- Initial release of data intelligence monorepo
 - Clean Architecture implementation with Domain-Driven Design
 - PyOD integration with 40+ detection algorithms
 - FastAPI REST API with 65+ endpoints

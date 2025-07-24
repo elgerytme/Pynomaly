@@ -1,4 +1,4 @@
-"""MLOps platform integrations."""
+"""MLOps monorepo integrations."""
 
 # Optional imports with graceful degradation
 __all__ = []

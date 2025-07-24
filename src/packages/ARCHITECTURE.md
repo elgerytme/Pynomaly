@@ -37,12 +37,12 @@ src/packages/
 │   ├── governance/                # Audit, compliance
 │   └── security/                  # Enterprise security
 │
-├── integrations/                   # External platform connectors
-│   ├── mlops/                     # MLOps platforms
+├── integrations/                   # External monorepo connectors
+│   ├── mlops/                     # MLOps monorepos
 │   │   ├── mlflow_integration.py  # MLflow connector
 │   │   ├── kubeflow_integration.py # Kubeflow connector
 │   │   └── wandb_integration.py   # W&B connector
-│   ├── monitoring/                # Monitoring platforms
+│   ├── monitoring/                # Monitoring monorepos
 │   │   ├── datadog_integration.py # Datadog connector
 │   │   └── newrelic_integration.py # New Relic connector
 │   └── cloud/                     # Cloud providers
@@ -70,7 +70,7 @@ src/packages/
 - Business entities and rules specific to the domain
 - Domain services and operations  
 - No enterprise features
-- No platform integrations
+- No monorepo integrations
 - No cross-domain dependencies
 
 **Enterprise Services** handle cross-cutting concerns:
@@ -81,8 +81,8 @@ src/packages/
 - Distributed scalability
 - Security & encryption
 
-**Integrations** connect to external platforms:
-- MLOps platforms (MLflow, Kubeflow)
+**Integrations** connect to external monorepos:
+- MLOps monorepos (MLflow, Kubeflow)
 - Monitoring services (Datadog, New Relic)
 - Cloud providers (AWS, Azure, GCP)
 - Storage systems
@@ -201,20 +201,20 @@ class CustomMLOpsConfig(BasicMLOpsConfiguration):
 
 ### 4. Extensibility
 - Add new enterprise services without touching core
-- Add new platform integrations independently
+- Add new monorepo integrations independently
 - Create new configurations easily
 - Mix and match components as needed
 
 ## Migration from Old Architecture
 
-The previous architecture mixed domain logic with enterprise features and platform integrations. The new architecture separates these concerns:
+The previous architecture mixed domain logic with enterprise features and monorepo integrations. The new architecture separates these concerns:
 
 **Old:**
 ```
 enterprise_mlops/                   # Mixed everything
 ├── domain/entities/mlops.py        # Enterprise entities
 ├── infrastructure/mlops/mlflow/    # Platform integrations
-└── infrastructure/monitoring/      # More platform integrations
+└── infrastructure/monitoring/      # More monorepo integrations
 ```
 
 **New:**

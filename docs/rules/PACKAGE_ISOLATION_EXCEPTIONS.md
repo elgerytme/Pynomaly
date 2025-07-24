@@ -49,7 +49,7 @@ This document defines reasonable exceptions to the package isolation rule where 
 - **Rationale**: Enterprise packages are specifically designed for enterprise features
 
 **Examples**:
-- `software.enterprise.adapters/README.md` - "ML platform" is acceptable
+- `software.enterprise.adapters/README.md` - "ML monorepo" is acceptable
 
 **Current Count**: 18 violations (41% of total)
 

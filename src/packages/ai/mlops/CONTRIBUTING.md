@@ -103,7 +103,7 @@ DEFAULT_NAMESPACE=mlops-test
 This package follows Clean Architecture and MLOps best practices:
 
 1. **Separation of Concerns**: Distinct layers for experiments, models, monitoring, and pipelines
-2. **Infrastructure Agnostic**: Support multiple MLOps platforms (MLflow, Kubeflow, SageMaker)
+2. **Infrastructure Agnostic**: Support multiple MLOps monorepos (MLflow, Kubeflow, SageMaker)
 3. **Async-First**: Non-blocking operations for production workloads
 4. **Observability**: Comprehensive logging, metrics, and tracing
 5. **Security**: Model signing, access control, audit trails

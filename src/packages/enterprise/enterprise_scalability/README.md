@@ -1,6 +1,6 @@
 # Enterprise Scalability & Distributed Computing Package
 
-This package provides comprehensive distributed computing and streaming processing capabilities for anomaly_detection, enabling enterprise-scale anomaly detection and data processing across multiple frameworks and cloud platforms.
+This package provides comprehensive distributed computing and streaming processing capabilities for anomaly_detection, enabling enterprise-scale anomaly detection and data processing across multiple frameworks and cloud monorepos.
 
 ## Features
 

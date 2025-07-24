@@ -11,7 +11,7 @@ Comprehensive machine learning operations, model training, optimization, and lif
 
 ## 🎯 Overview
 
-This package consolidates all machine learning operations into a unified, enterprise-ready platform. It provides comprehensive tools for the entire ML lifecycle - from experimentation and training to deployment and monitoring.
+This package consolidates all machine learning operations into a unified, enterprise-ready monorepo. It provides comprehensive tools for the entire ML lifecycle - from experimentation and training to deployment and monitoring.
 
 **Key Capabilities:**
 - **🚀 Automated Training**: Multi-algorithm training pipelines with hyperparameter optimization

@@ -115,7 +115,7 @@ PACKAGE_INFO = {
     ],
     "integrations": [
         "Enterprise SIEM systems",
-        "Compliance management platforms", 
+        "Compliance management monorepos", 
         "Service monitoring tools",
         "Notification systems (Slack, Teams, PagerDuty)",
         "Report generation and document management",

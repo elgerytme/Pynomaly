@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # anomaly_detection Deployment Automation Script
-# Comprehensive deployment automation for all environments and platforms
+# Comprehensive deployment automation for all environments and monorepos
 
 set -euo pipefail
 
@@ -259,7 +259,7 @@ check_prerequisites() {
     log_success "Prerequisites check passed"
 }
 
-# Determine platform from environment if not specified
+# Determine monorepo from environment if not specified
 determine_platform() {
     if [[ -z "$PLATFORM" ]]; then
         case "$ENVIRONMENT" in
@@ -271,7 +271,7 @@ determine_platform() {
                 ;;
         esac
     fi
-    log_info "Using platform: $PLATFORM"
+    log_info "Using monorepo: $PLATFORM"
 }
 
 # Execute deployment

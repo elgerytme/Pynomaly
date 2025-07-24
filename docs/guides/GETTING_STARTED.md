@@ -1,6 +1,6 @@
 # Getting Started with anomaly_detection
 
-Welcome to anomaly_detection, a production-ready open source detection platform built with clean architecture principles and enterprise-grade features.
+Welcome to anomaly_detection, a production-ready open source domain-bounded monorepo built with clean architecture principles and enterprise-grade features.
 
 ## Quick Start
 

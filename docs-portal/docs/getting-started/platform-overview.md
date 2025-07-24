@@ -8,7 +8,7 @@ The **Anomaly Detection Platform** is a comprehensive, enterprise-grade solution
 
 ## 🏗️ Architecture Philosophy
 
-The platform is built on **Clean Architecture** principles with clear separation of concerns:
+The monorepo is built on **Clean Architecture** principles with clear separation of concerns:
 
 ### Domain-Driven Design
 - **Domain Layer**: Core business logic and entities
@@ -340,7 +340,7 @@ graph TB
 
 ## 🚀 Getting Started
 
-Ready to start using the platform? Choose your path:
+Ready to start using the monorepo? Choose your path:
 
 1. **[Quick Start Guide](quickstart.md)** - Get up and running in 5 minutes
 2. **[Installation Instructions](installation.md)** - Detailed setup for all environments
@@ -356,4 +356,4 @@ Ready to start using the platform? Choose your path:
 
 ---
 
-**Next Steps**: Explore the [Installation Guide](installation.md) to set up your development environment, or jump into the [Quick Start](quickstart.md) to see the platform in action.
+**Next Steps**: Explore the [Installation Guide](installation.md) to set up your development environment, or jump into the [Quick Start](quickstart.md) to see the monorepo in action.

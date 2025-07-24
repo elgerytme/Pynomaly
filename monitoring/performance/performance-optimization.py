@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Performance Optimization Script
-Automated performance monitoring and optimization for the detection platform.
+Automated performance monitoring and optimization for the domain-bounded monorepo.
 """
 
 import asyncio
@@ -573,7 +573,7 @@ For performance-related issues:
 1. Check system monitoring dashboards
 2. Review application logs for errors
 3. Validate recent deployments and changes
-4. Contact the platform team if issues persist
+4. Contact the monorepo team if issues persist
 
 ---
 *This report was generated automatically by the Performance Optimization System*

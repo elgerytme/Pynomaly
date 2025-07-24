@@ -9,7 +9,7 @@ This framework provides:
 - Automated validation of industry best practices
 - Configurable rules and thresholds
 - Multi-format reporting (HTML, JSON, SARIF, JUnit)
-- CI/CD integration for all major platforms
+- CI/CD integration for all major monorepos
 - Extensible plugin architecture
 
 Usage:
@@ -104,7 +104,7 @@ def get_supported_languages() -> list:
     return SUPPORTED_LANGUAGES.copy()
 
 def get_supported_ci_platforms() -> list:
-    """Get list of supported CI/CD platforms"""
+    """Get list of supported CI/CD monorepos"""
     return SUPPORTED_CI_PLATFORMS.copy()
 
 # Quick start function

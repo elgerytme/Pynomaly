@@ -209,4 +209,4 @@ python tools/scan_domain_violations.py
 python tools/validate_docs_isolation.py
 ```
 
-This rule ensures clean architecture, maintainable code, and proper domain separation throughout the detection platform.
+This rule ensures clean architecture, maintainable code, and proper domain separation throughout the domain-bounded monorepo.

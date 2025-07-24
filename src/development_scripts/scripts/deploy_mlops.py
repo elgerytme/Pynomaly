@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-MLOps platform deployment and testing script.
-This script deploys the MLOps platform and validates all components.
+MLOps monorepo deployment and testing script.
+This script deploys the MLOps monorepo and validates all components.
 """
 
 import asyncio
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class MLOpsDeployer:
-    """MLOps platform deployment and testing."""
+    """MLOps monorepo deployment and testing."""
 
     def __init__(self, base_url: str = "http://localhost:8000"):
         """Initialize MLOps deployer."""
@@ -596,7 +596,7 @@ async def main():
     deployer = MLOpsDeployer(base_url)
 
     try:
-        logger.info("🚀 Starting MLOps platform deployment...")
+        logger.info("🚀 Starting MLOps monorepo deployment...")
 
         # Run deployment tests
         imports_test = await deployer.test_mlops_imports()
@@ -628,14 +628,14 @@ async def main():
         )
 
         if overall_success:
-            logger.info("✅ MLOps platform deployment completed successfully!")
+            logger.info("✅ MLOps monorepo deployment completed successfully!")
             return True
         else:
-            logger.error("❌ MLOps platform deployment completed with errors")
+            logger.error("❌ MLOps monorepo deployment completed with errors")
             return False
 
     except Exception as e:
-        logger.error(f"MLOps platform deployment failed: {e}")
+        logger.error(f"MLOps monorepo deployment failed: {e}")
         return False
 
 

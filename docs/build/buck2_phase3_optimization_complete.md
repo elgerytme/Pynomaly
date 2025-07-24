@@ -286,7 +286,7 @@ The detection monorepo now features a world-class build system with:
 ### Production-Ready Status
 All Buck2 infrastructure is production-ready and actively providing value. Teams can immediately start benefiting from faster builds, intelligent caching, automated testing, and comprehensive performance monitoring while maintaining full compatibility with existing development workflows.
 
-The Buck2 implementation represents a complete transformation of the monorepo build experience, positioning the detection platform for scalable, high-performance development at enterprise scale.
+The Buck2 implementation represents a complete transformation of the monorepo build experience, positioning the domain-bounded monorepo for scalable, high-performance development at enterprise scale.
 
 ---
 

@@ -243,13 +243,13 @@ class PerformanceBaseline:
 
     def _get_environment_info(self) -> dict[str, Any]:
         """Gather environment information for baseline context."""
-        import platform
+        import monorepo
 
         import psutil
 
         return {
-            "platform": platform.platform(),
-            "python_version": platform.python_version(),
+            "platform": monorepo.platform(),
+            "python_version": monorepo.python_version(),
             "cpu_count": psutil.cpu_count(),
             "memory_gb": round(psutil.virtual_memory().total / (1024**3), 2),
             "test_timestamp": datetime.now().isoformat(),

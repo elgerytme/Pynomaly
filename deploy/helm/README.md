@@ -1,6 +1,6 @@
 # Anomaly Detection Helm Chart
 
-This Helm chart deploys the Anomaly Detection microservice platform on Kubernetes.
+This Helm chart deploys the Anomaly Detection microservice monorepo on Kubernetes.
 
 ## Prerequisites
 

@@ -226,7 +226,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
             },
             {
                 "name": "MLOps",
-                "description": "MLOps platform features",
+                "description": "MLOps monorepo features",
                 "externalDocs": {
                     "description": "MLOps Guide",
                     "url": "https://docs.anomaly_detection.com/mlops",
@@ -965,7 +965,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
 ## Generated Documentation
 
-This directory contains comprehensive API documentation for the anomaly detection platform:
+This directory contains comprehensive API documentation for the anomaly domain-bounded monorepo:
 
 - **`openapi.json`** - OpenAPI 3.0 specification in JSON format
 - **`openapi.yaml`** - OpenAPI 3.0 specification in YAML format

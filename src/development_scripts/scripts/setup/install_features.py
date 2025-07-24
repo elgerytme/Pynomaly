@@ -159,7 +159,7 @@ def main():
         print("=" * 50)
 
         print("🎯 Recommended combinations:")
-        print("   • server: Complete anomaly detection platform")
+        print("   • server: Complete anomaly domain-bounded monorepo")
         print("   • automl + explainability: ML research and interpretability")
         print("   • torch + explainability: Deep learning with explanations")
         print("   • production: Enterprise deployment")

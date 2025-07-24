@@ -1,6 +1,6 @@
 # SDK Client Tests
 
-This directory contains comprehensive tests for the platform SDK client libraries.
+This directory contains comprehensive tests for the monorepo SDK client libraries.
 
 ## Test Structure
 

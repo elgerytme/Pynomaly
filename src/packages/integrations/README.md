@@ -1,7 +1,7 @@
 # Integrations Package
 
-This package contains external platform connectors, including:
+This package contains external monorepo connectors, including:
 
-- `mlops`: MLOps platforms (MLflow, Kubeflow, W&B).
-- `monitoring`: Monitoring platforms (Datadog, New Relic).
+- `mlops`: MLOps monorepos (MLflow, Kubeflow, W&B).
+- `monitoring`: Monitoring monorepos (Datadog, New Relic).
 - `cloud`: Cloud providers (AWS, Azure, GCP).

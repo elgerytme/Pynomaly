@@ -1,6 +1,6 @@
 # Monitoring Stack
 
-This directory contains comprehensive monitoring templates and configurations for the detection platform.
+This directory contains comprehensive monitoring templates and configurations for the domain-bounded monorepo.
 
 ## Overview
 

@@ -1,7 +1,7 @@
 """
 Data Observability Package
 
-This package provides comprehensive data observability capabilities for the anomaly detection platform,
+This package provides comprehensive data observability capabilities for the anomaly domain-bounded monorepo,
 including data lineage tracking, pipeline health monitoring, data catalog management,
 and predictive data quality services.
 """

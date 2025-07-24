@@ -422,10 +422,10 @@ jobs:
         ${{ matrix.executable }} --version
         ${{ matrix.executable }} uquery "//:validation" || echo "Query failed - expected for basic setup"
 
-    - name: Upload platform results
+    - name: Upload monorepo results
       uses: actions/upload-artifact@v4
       with:
-        name: platform-test-${{ matrix.os }}
+        name: monorepo-test-${{ matrix.os }}
         path: |
           *.json
           *.log

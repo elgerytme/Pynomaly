@@ -675,7 +675,7 @@ kubectl create namespace mlops-production
 # Deploy secrets
 kubectl apply -f secrets.yaml
 
-# Deploy MLOps platform
+# Deploy MLOps monorepo
 helm install mlops ./mlops-chart \
   --namespace mlops-production \
   --values values-production.yaml \

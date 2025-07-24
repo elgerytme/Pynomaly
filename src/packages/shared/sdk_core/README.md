@@ -1,6 +1,6 @@
 # Core SDK Package
 
-This package provides the foundational components for all platform client SDKs, including authentication, HTTP client functionality, error handling, and common utilities.
+This package provides the foundational components for all monorepo client SDKs, including authentication, HTTP client functionality, error handling, and common utilities.
 
 ## Features
 

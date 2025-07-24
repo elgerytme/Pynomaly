@@ -645,4 +645,4 @@
 - Report archived for future reference
 - Compliance status documented and tracked
 
-These comprehensive use cases provide detailed scenarios for implementing and testing the MLOps platform, ensuring all stakeholder needs are addressed and system functionality is well-defined.
+These comprehensive use cases provide detailed scenarios for implementing and testing the MLOps monorepo, ensuring all stakeholder needs are addressed and system functionality is well-defined.

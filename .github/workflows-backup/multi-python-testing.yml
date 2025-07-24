@@ -106,7 +106,7 @@ jobs:
       - name: Display Python version
         run: |
           python -c "import sys; print(f'Python {sys.version}')"
-          python -c "import platform; print(f'Platform: {platform.platform()}')"
+          python -c "import monorepo; print(f'Platform: {platform.platform()}')"
           python -c "import sysconfig; print(f'Python path: {sysconfig.get_path(\"stdlib\")}')"
 
       - name: Cache pip dependencies

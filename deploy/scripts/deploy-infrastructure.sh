@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Infrastructure Deployment Script
-# Automated deployment of the detection platform infrastructure
+# Automated deployment of the domain-bounded monorepo infrastructure
 
 set -euo pipefail
 
@@ -40,7 +40,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Deploy infrastructure for the detection platform.
+Deploy infrastructure for the domain-bounded monorepo.
 
 OPTIONS:
     -e, --environment ENVIRONMENT    Target environment (staging|production)

@@ -11,7 +11,7 @@ This package provides comprehensive data engineering tools, utilities, and infra
 - **Infrastructure Tools: Data engineering infrastructure and utilities**
 - **Performance Optimization: Advanced performance tuning and optimization**
 - **Data Processing: High-performance data processing capabilities**
-- **Integration Tools: Seamless integration with data platforms**
+- **Integration Tools: Seamless integration with data monorepos**
 - **Automation: Automated data engineering workflows**
 - **Error Handling**: Robust error handling with comprehensive logging
 - **Monitoring**: Built-in metrics and observability

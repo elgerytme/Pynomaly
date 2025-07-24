@@ -424,7 +424,7 @@ class RemediationSuggestion:
 - **Identity Management**: Active Directory, LDAP, SAML, OAuth
 - **Notification Systems**: Email, Slack, Microsoft Teams, PagerDuty
 - **Ticketing Systems**: Jira, ServiceNow, Azure DevOps
-- **Compliance Systems**: GRC platforms, audit systems
+- **Compliance Systems**: GRC monorepos, audit systems
 - **Monitoring Platforms**: Splunk, Datadog, New Relic
 
 ## 8. Quality Metrics and KPIs

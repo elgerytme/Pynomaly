@@ -530,7 +530,7 @@ def create_github_pages_index() -> str:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>anomaly_detection - Advanced Anomaly Detection Platform</title>
-    <meta name="description" content="Production-ready anomaly detection platform with real-time monitoring, ML governance, and advanced analytics">
+    <meta name="description" content="Production-ready anomaly domain-bounded monorepo with real-time monitoring, ML governance, and advanced analytics">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .gradient-bg {

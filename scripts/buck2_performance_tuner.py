@@ -7,7 +7,7 @@ Analyzes and optimizes Buck2 build performance for the Monorepo monorepo
 import argparse
 import json
 import os
-import platform
+import monorepo
 import psutil
 import shutil
 import subprocess
@@ -30,8 +30,8 @@ class Buck2PerformanceTuner:
             'cpu_count': psutil.cpu_count(),
             'memory_gb': round(psutil.virtual_memory().total / (1024**3)),
             'disk_free_gb': round(shutil.disk_usage('.').free / (1024**3)),
-            'platform': platform.system(),
-            'python_version': platform.python_version(),
+            'platform': monorepo.system(),
+            'python_version': monorepo.python_version(),
         }
     
     def log(self, message: str) -> None:

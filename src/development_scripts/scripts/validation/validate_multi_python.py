@@ -7,7 +7,7 @@ Validates that the multi-version Python setup is working correctly.
 import argparse
 import json
 import logging
-import platform
+import monorepo
 import subprocess
 import sys
 import time
@@ -143,20 +143,20 @@ class MultiPythonValidator:
     def _validate_system_requirements(self) -> tuple[bool, str, dict]:
         """Validate system requirements for multi-version Python."""
         details = {
-            "platform": platform.platform(),
-            "system": platform.system(),
+            "platform": monorepo.platform(),
+            "system": monorepo.system(),
             "python_version": sys.version,
-            "architecture": platform.machine(),
+            "architecture": monorepo.machine(),
         }
 
         # Check for required system tools
         required_tools = []
 
-        if platform.system() == "Linux":
+        if monorepo.system() == "Linux":
             required_tools = ["gcc", "make"]
-        elif platform.system() == "Darwin":
+        elif monorepo.system() == "Darwin":
             required_tools = ["clang", "make"]
-        elif platform.system() == "Windows":
+        elif monorepo.system() == "Windows":
             required_tools = ["python"]
 
         missing_tools = []
@@ -272,7 +272,7 @@ class MultiPythonValidator:
 
                 # Check for Python executable
                 python_exe = env_path / "bin" / "python"
-                if platform.system() == "Windows":
+                if monorepo.system() == "Windows":
                     python_exe = env_path / "Scripts" / "python.exe"
 
                 env_info["python_executable"] = python_exe.exists()
@@ -320,7 +320,7 @@ class MultiPythonValidator:
                 continue
 
             python_exe = env_path / "bin" / "python"
-            if platform.system() == "Windows":
+            if monorepo.system() == "Windows":
                 python_exe = env_path / "Scripts" / "python.exe"
 
             if not python_exe.exists():
@@ -403,7 +403,7 @@ class MultiPythonValidator:
                 continue
 
             python_exe = env_path / "bin" / "python"
-            if platform.system() == "Windows":
+            if monorepo.system() == "Windows":
                 python_exe = env_path / "Scripts" / "python.exe"
 
             if not python_exe.exists():

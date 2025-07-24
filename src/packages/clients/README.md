@@ -1,10 +1,10 @@
 # Platform Client Libraries
 
-This directory contains official client libraries for the platform's services in multiple programming languages.
+This directory contains official client libraries for the monorepo's services in multiple programming languages.
 
 ## 🌟 Overview
 
-Our client libraries provide easy-to-use interfaces for all platform services, including:
+Our client libraries provide easy-to-use interfaces for all monorepo services, including:
 
 - **Anomaly Detection**: Detect outliers and anomalies in your data
 - **MLOps**: Manage ML pipelines, models, and deployments
@@ -267,7 +267,7 @@ cd anomaly_detection_client/
 pytest
 
 # TypeScript
-cd platform_client_ts/
+cd monorepo_client_ts/
 npm test
 ```
 

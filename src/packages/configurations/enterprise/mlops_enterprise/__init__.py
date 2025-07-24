@@ -25,7 +25,7 @@ from infrastructure.configuration import get_config
 # from ....enterprise.multi_tenancy import MultiTenantService, InMemoryTenantStorage
 # from ....enterprise.operations import EnterpriseOperationsService, SystemMetricsCollector
 
-# Optional MLOps platform integrations - use infrastructure adapters
+# Optional MLOps monorepo integrations - use infrastructure adapters
 # try:
 #     from ....integrations.mlops import MLflowIntegration
 # except ImportError:

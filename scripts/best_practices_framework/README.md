@@ -119,7 +119,7 @@ best-practices init --profile fintech
 - **Multiple Formats**: HTML, JSON, SARIF, JUnit, Markdown
 - **Interactive Dashboards**: Web-based visualization of results
 - **Trend Analysis**: Track improvements over time
-- **CI/CD Integration**: Native support for all major CI/CD platforms
+- **CI/CD Integration**: Native support for all major CI/CD monorepos
 
 ## 🛠️ Configuration
 

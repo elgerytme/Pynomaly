@@ -241,7 +241,7 @@ buck2 build //:build-all --show-output
 
 ### Week 2: Package Consolidation 🚧
 - [ ] Eliminate dual package structure
-- [ ] Consolidate data platform packages
+- [ ] Consolidate data monorepo packages
 - [ ] Flatten enterprise package structure
 - [ ] Update all package configurations
 

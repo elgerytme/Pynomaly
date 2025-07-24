@@ -13,7 +13,7 @@ A detailed plan has been formulated and executed to address these inconsistencie
 ### High-Priority Issue: Incomplete `data_quality` Package
 
 *   **Observation:** The `src/packages/data/data_quality` package had a well-defined `domain` layer (entities like `DataProfile`, `DataQualityCheck`, `DataQualityRule`), but its `application` and `presentation` layers were largely empty. This rendered the package non-functional.
-*   **Impact:** Critical data quality functionalities were unavailable, hindering the platform's core purpose.
+*   **Impact:** Critical data quality functionalities were unavailable, hindering the monorepo's core purpose.
 
 ### Medium-Priority Issues: Documentation and Consistency
 

@@ -646,7 +646,7 @@ async def main():
 
     if success:
         print("\n🎉 BETA PROGRAM LAUNCHED SUCCESSFULLY! 🚀")
-        print("🎯 Beta users are now onboarded and actively using the platform")
+        print("🎯 Beta users are now onboarded and actively using the monorepo")
         return 0
     else:
         print("\n❌ BETA PROGRAM LAUNCH FAILED!")

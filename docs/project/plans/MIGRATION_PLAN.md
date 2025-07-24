@@ -682,7 +682,7 @@ class TestModelLifecycleIntegration:
 ### **Week 7-8: Advanced Features Migration**
 - 🔄 Migrate ML lifecycle features
 - 🔄 Migrate MLOps features
-- 🔄 Migrate data platform features
+- 🔄 Migrate data monorepo features
 - 🔄 Test advanced functionality
 
 ### **Week 9-10: Validation & Optimization**

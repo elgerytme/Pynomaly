@@ -125,7 +125,7 @@ jobs:
         run: |
           uv run python --version
           uv run python -c "import sys; print(f'Python executable: {sys.executable}')"
-          uv run python -c "import platform; print(f'Platform: {platform.platform()}')"
+          uv run python -c "import monorepo; print(f'Platform: {platform.platform()}')"
           uv run python -c "import anomaly_detection; print(f'anomaly_detection version: {anomaly_detection.__version__}')"
 
       - name: Run basic smoke tests
@@ -258,7 +258,7 @@ jobs:
           docker run --rm anomaly_detection:test anomaly_detection --help
           docker run --rm anomaly_detection:test anomaly_detection --version
 
-  # Performance comparison across platforms
+  # Performance comparison across monorepos
   performance-comparison:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30

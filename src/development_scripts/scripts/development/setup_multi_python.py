@@ -7,7 +7,7 @@ Automates setup of multiple Python versions for local development and testing.
 import argparse
 import json
 import logging
-import platform
+import monorepo
 import shutil
 import subprocess
 import sys
@@ -68,9 +68,9 @@ class MultiPythonManager:
     def _get_system_info(self) -> dict:
         """Get system information for compatibility checks."""
         return {
-            "platform": platform.platform(),
-            "system": platform.system(),
-            "machine": platform.machine(),
+            "platform": monorepo.platform(),
+            "system": monorepo.system(),
+            "machine": monorepo.machine(),
             "python_version": sys.version,
             "python_executable": sys.executable,
         }

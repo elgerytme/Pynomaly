@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Development Environment Setup Script
-# This script sets up a complete development environment for the anomaly detection platform
+# This script sets up a complete development environment for the anomaly domain-bounded monorepo
 
 set -euo pipefail
 

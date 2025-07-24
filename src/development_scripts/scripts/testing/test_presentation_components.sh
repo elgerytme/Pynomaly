@@ -306,7 +306,7 @@ test_cross_platform() {
     local test_cmd='python3 -c "
 import sys
 import os
-import platform
+import monorepo
 
 print(f\"Platform Information:\")
 print(f\"  System: {platform.system()}\")
@@ -319,7 +319,7 @@ print()
 sys.path.insert(0, \"src\")
 
 try:
-    # Test imports work across platforms
+    # Test imports work across monorepos
     from anomaly_detection.presentation.cli.app import app
     from anomaly_detection.presentation.api.app import create_app
     from anomaly_detection.presentation.web.app import create_web_app

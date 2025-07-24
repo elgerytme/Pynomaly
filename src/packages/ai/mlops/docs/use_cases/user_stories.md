@@ -443,4 +443,4 @@ Policy   Gates    Lineage Compliance Review   Update
 Control  Document Log     Export   Assess   Enhance
 ```
 
-This comprehensive set of user stories, BDD scenarios, and story maps provides the foundation for behavior-driven development of the MLOps platform, ensuring that all stakeholder needs are captured and testable.
+This comprehensive set of user stories, BDD scenarios, and story maps provides the foundation for behavior-driven development of the MLOps monorepo, ensuring that all stakeholder needs are captured and testable.

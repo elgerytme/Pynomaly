@@ -289,10 +289,10 @@ async def login(request: LoginRequestDto) -> LoginResponseDto:
 - **Observability**: Enhanced monitoring and observability
 
 ### **Long-term (6+ months)**
-- **Platform Services**: Extract common platform services
+- **Platform Services**: Extract common monorepo services
 - **Multi-language**: Support for multiple programming languages
 - **Cloud Native**: Cloud-native architecture patterns
-- **AI/ML Integration**: Advanced AI/ML platform features
+- **AI/ML Integration**: Advanced AI/ML monorepo features
 
 ---
 

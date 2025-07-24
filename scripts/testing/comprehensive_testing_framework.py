@@ -740,8 +740,8 @@ class ComprehensiveTestingFramework:
         """Run cross-platform compatibility tests"""
         console.print("[bold blue]Running Cross-Platform Tests...[/bold blue]")
         
-        # This would typically run in CI/CD across different platforms
-        # For now, we'll run platform-specific tests
+        # This would typically run in CI/CD across different monorepos
+        # For now, we'll run monorepo-specific tests
         pytest_args = [
             "--verbose",
             "--tb=short",

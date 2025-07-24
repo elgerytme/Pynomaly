@@ -144,7 +144,7 @@ This report documents the testing of all code examples and instructions in the R
 
 4. **Update Installation Instructions**
    - Add troubleshooting section for virtual environment issues
-   - Provide alternative installation methods for different platforms
+   - Provide alternative installation methods for different monorepos
    - Test installation instructions on fresh environment
 
 5. **Complete Export Functionality**

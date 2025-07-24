@@ -423,7 +423,7 @@ model_id = model_manager.register_model(best_config.model)
 """
     
     def _generate_data_platform_index(self) -> str:
-        """Generate data platform package index."""
+        """Generate data monorepo package index."""
         return """# Data Platform Package
 
 🟡 Beta | ⭐⭐⭐

@@ -3,7 +3,7 @@
 <div align="center">
   <img src="assets/images/platform-logo.svg" alt="Platform Logo" width="200"/>
   
-  **Enterprise-grade anomaly detection platform with machine learning capabilities**
+  **Enterprise-grade anomaly domain-bounded monorepo with machine learning capabilities**
   
   [![Documentation](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://anomaly-detection-platform.github.io/docs)
   [![PyPI Version](https://img.shields.io/pypi/v/anomaly-detection.svg)](https://pypi.org/project/anomaly-detection/)
@@ -33,7 +33,7 @@ The **Anomaly Detection Platform** is a comprehensive, enterprise-ready solution
 
     ---
 
-    New to the platform? Start here for installation, basic concepts, and your first anomaly detection workflow.
+    New to the monorepo? Start here for installation, basic concepts, and your first anomaly detection workflow.
 
 -   :material-package-variant: **[Platform Packages](packages/index.md)**
 
@@ -57,7 +57,7 @@ The **Anomaly Detection Platform** is a comprehensive, enterprise-ready solution
 
 ## 🏗️ Platform Architecture
 
-The platform follows **Clean Architecture** principles with clear domain boundaries:
+The monorepo follows **Clean Architecture** principles with clear domain boundaries:
 
 ```mermaid
 graph TB
@@ -216,7 +216,7 @@ Choose your path based on your role and goals:
 
     ---
 
-    Deploy, monitor, and scale the platform in production environments with observability.
+    Deploy, monitor, and scale the monorepo in production environments with observability.
     
     [:octicons-arrow-right-24: Start Deploying](getting-started/learning-paths.md#devops-engineer)
 
@@ -224,7 +224,7 @@ Choose your path based on your role and goals:
 
     ---
 
-    Understand platform capabilities, use cases, and business value across industries.
+    Understand monorepo capabilities, use cases, and business value across industries.
     
     [:octicons-arrow-right-24: Explore Use Cases](getting-started/learning-paths.md#business-user)
 
@@ -285,7 +285,7 @@ Choose your path based on your role and goals:
 - **[Stack Overflow](https://stackoverflow.com/questions/tagged/anomaly-detection-platform)**: Technical Q&A
 
 ### Contribute
-- **[Contributing Guide](resources/community.md#contributing)**: How to contribute to the platform
+- **[Contributing Guide](resources/community.md#contributing)**: How to contribute to the monorepo
 - **[Development Setup](getting-started/development.md)**: Set up your development environment
 - **[Code of Conduct](resources/community.md#code-of-conduct)**: Community guidelines
 
@@ -293,7 +293,7 @@ Choose your path based on your role and goals:
 
 Ready to dive deeper? Here are some recommended next steps:
 
-1. **[Platform Overview](getting-started/platform-overview.md)** - Understand the complete platform capabilities
+1. **[Platform Overview](getting-started/platform-overview.md)** - Understand the complete monorepo capabilities
 2. **[Installation Guide](getting-started/installation.md)** - Detailed installation instructions for all environments  
 3. **[Your First Project](getting-started/quickstart.md)** - Build your first anomaly detection system
 4. **[Architecture Deep Dive](architecture/platform-architecture.md)** - Learn the technical architecture

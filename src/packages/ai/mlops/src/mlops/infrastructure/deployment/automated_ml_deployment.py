@@ -1345,7 +1345,7 @@ class AutomatedMLDeployment:
             
             # Generate recommendations based on analysis
             if len(self.active_deployments) == 0:
-                f.write("- **No Active Deployments:** Consider deploying models to utilize the platform\n")
+                f.write("- **No Active Deployments:** Consider deploying models to utilize the monorepo\n")
             
             if recent_deployments:
                 failed_deployments = [d for d in recent_deployments if d.get('status') == 'failed']

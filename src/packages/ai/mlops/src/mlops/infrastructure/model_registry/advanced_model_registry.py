@@ -598,7 +598,7 @@ class AdvancedModelRegistry:
         deployment_info = model_entry.deployment_info or {}
         if deployment_info:
             logger.info("Removing model from active deployments")
-            # Implementation would remove from Kubernetes/deployment platform
+            # Implementation would remove from Kubernetes/deployment monorepo
         
         # Schedule for archival
         cleanup_config = self.config["lifecycle"]["cleanup"]

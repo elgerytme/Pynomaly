@@ -65,7 +65,7 @@ The Repository Governance System provides:
 
 #### Markdown Reporter
 - **Documentation Ready**: Clean Markdown format for documentation
-- **GitHub Compatible**: Renders perfectly in GitHub and other platforms
+- **GitHub Compatible**: Renders perfectly in GitHub and other monorepos
 - **Table of Contents**: Automatically generated navigation
 
 #### GitHub Issue Reporter

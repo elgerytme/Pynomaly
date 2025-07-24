@@ -1,4 +1,4 @@
-"""Official Python client for platform anomaly detection service."""
+"""Official Python client for monorepo anomaly detection service."""
 
 from anomaly_detection_client.client import AnomalyDetectionClient, AnomalyDetectionSyncClient
 from anomaly_detection_client.models import (

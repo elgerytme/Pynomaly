@@ -51,7 +51,7 @@ class CICDSummaryGenerator:
     def _generate_overview(self) -> dict[str, Any]:
         """Generate high-level overview"""
         return {
-            "description": "Comprehensive CI/CD pipeline for anomaly_detection anomaly detection platform",
+            "description": "Comprehensive CI/CD pipeline for anomaly_detection anomaly domain-bounded monorepo",
             "objectives": [
                 "Automated testing and quality assurance",
                 "Secure and reliable deployments",

@@ -60,7 +60,7 @@ class DeploymentStrategy(Enum):
 
 
 class DeploymentPlatform(Enum):
-    """Deployment platform types."""
+    """Deployment monorepo types."""
 
     DOCKER_COMPOSE = "docker_compose"
     KUBERNETES = "kubernetes"
@@ -85,18 +85,18 @@ class AnomalyDetectionDeploymentManager:
         self,
         project_root: Path,
         environment: DeploymentEnvironment,
-        platform: DeploymentPlatform,
+        monorepo: DeploymentPlatform,
     ):
         self.project_root = project_root
         self.environment = environment
-        self.platform = platform
+        self.platform = monorepo
         self.deployment_config = self._load_deployment_config()
         self.docker_client = None
         self.k8s_client = None
         self.deployment_id = f"deploy_{int(time.time())}"
         self.deployment_status = DeploymentStatus.PENDING
 
-        # Initialize platform clients
+        # Initialize monorepo clients
         self._initialize_clients()
 
         # Deployment state tracking
@@ -139,7 +139,7 @@ class AnomalyDetectionDeploymentManager:
         }
 
     def _initialize_clients(self):
-        """Initialize deployment platform clients."""
+        """Initialize deployment monorepo clients."""
         try:
             # Docker client
             if self.platform in [DeploymentPlatform.DOCKER_COMPOSE]:
@@ -203,7 +203,7 @@ class AnomalyDetectionDeploymentManager:
                 self.deployment_status = DeploymentStatus.FAILED
                 return False
 
-            # Deploy based on platform
+            # Deploy based on monorepo
             deployment_strategy = strategy or DeploymentStrategy(
                 self.deployment_config.get("strategy", "rolling_update")
             )
@@ -215,7 +215,7 @@ class AnomalyDetectionDeploymentManager:
             elif self.platform == DeploymentPlatform.HELM:
                 success = await self._deploy_helm(deployment_strategy)
             else:
-                raise ValueError(f"Unsupported platform: {self.platform}")
+                raise ValueError(f"Unsupported monorepo: {self.platform}")
 
             if not success:
                 self.deployment_status = DeploymentStatus.FAILED
@@ -286,7 +286,7 @@ class AnomalyDetectionDeploymentManager:
                         )
                         return False
 
-            # Check platform connectivity
+            # Check monorepo connectivity
             if self.platform == DeploymentPlatform.DOCKER_COMPOSE:
                 if not self.docker_client.ping():
                     self._log_deployment_step(
@@ -803,7 +803,7 @@ def cli():
     "-p",
     type=click.Choice(["docker_compose", "kubernetes", "helm"]),
     default="docker_compose",
-    help="Deployment platform",
+    help="Deployment monorepo",
 )
 @click.option(
     "--strategy",
@@ -812,7 +812,7 @@ def cli():
     help="Deployment strategy",
 )
 @click.option("--project-root", default=".", help="Project root directory")
-def deploy(environment: str, platform: str, strategy: str | None, project_root: str):
+def deploy(environment: str, monorepo: str, strategy: str | None, project_root: str):
     """Deploy anomaly_detection to specified environment."""
 
     project_path = Path(project_root).resolve()
@@ -851,10 +851,10 @@ def deploy(environment: str, platform: str, strategy: str | None, project_root: 
     "-p",
     type=click.Choice(["docker_compose", "kubernetes", "helm"]),
     default="docker_compose",
-    help="Deployment platform",
+    help="Deployment monorepo",
 )
 @click.option("--project-root", default=".", help="Project root directory")
-def status(environment: str, platform: str, project_root: str):
+def status(environment: str, monorepo: str, project_root: str):
     """Check deployment status."""
 
     project_path = Path(project_root).resolve()

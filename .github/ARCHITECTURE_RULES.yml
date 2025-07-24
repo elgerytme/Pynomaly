@@ -42,7 +42,7 @@ rules:
       - "from configurations.*"
     violations:
       - "Core packages cannot depend on enterprise services"
-      - "Core packages cannot depend on platform integrations"
+      - "Core packages cannot depend on monorepo integrations"
       - "Core packages cannot depend on configurations"
       - "Core packages should only contain domain business logic"
 
@@ -75,12 +75,12 @@ rules:
       - "specific_platforms"
     violations:
       - "Enterprise packages cannot contain domain-specific logic"
-      - "Enterprise packages cannot contain platform integrations"
+      - "Enterprise packages cannot contain monorepo integrations"
       - "Enterprise services must work with ANY domain"
 
   # Integration packages: Platform connectors ONLY
   integration_packages:
-    description: "Integration packages must contain only external platform connectors"
+    description: "Integration packages must contain only external monorepo connectors"
     path_patterns:
       - "src/packages/integrations/**"
     allowed_patterns:
@@ -140,7 +140,7 @@ rules:
       - "Enterprise packages cannot contain domain-specific subdirectories"
       - "Domain packages cannot contain enterprise subdirectories"
       - "Integration packages cannot contain domain or enterprise logic"
-      - "Domain packages cannot contain platform integrations"
+      - "Domain packages cannot contain monorepo integrations"
 
   # Import restrictions
   import_restrictions:

@@ -43,7 +43,7 @@ welcome_developer() {
 ║         🚀 ANOMALY DETECTION PLATFORM - DEVELOPER SETUP         ║
 ║                                                                  ║
 ║  Welcome to the team! This script will set up your complete     ║
-║  development environment for the detection platform.     ║
+║  development environment for the domain-bounded monorepo.     ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 EOF
@@ -757,7 +757,7 @@ black src/ && ruff check src/ --fix
 
 ## 🎊 Welcome to the Team!
 
-You're all set up and ready to contribute to the detection platform. 
+You're all set up and ready to contribute to the domain-bounded monorepo. 
 The team is excited to work with you!
 
 Remember: Don't hesitate to ask questions. Everyone was new once, and 
@@ -782,7 +782,7 @@ Your development environment is now fully configured and ready for use!
 ╔══════════════════════════════════════════════════════════════════╗
 ║                     ✅ SETUP COMPLETE ✅                        ║
 ║                                                                  ║
-║  Your detection platform development environment is      ║
+║  Your domain-bounded monorepo development environment is      ║
 ║  ready! You can now start contributing to the project.          ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝

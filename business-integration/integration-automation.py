@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Business Integration Automation Script
-Automates the setup of business integrations for the detection platform.
+Automates the setup of business integrations for the domain-bounded monorepo.
 """
 
 import json
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class BusinessIntegrationManager:
-    """Manages business integrations for the detection platform."""
+    """Manages business integrations for the domain-bounded monorepo."""
     
     def __init__(self, config_path: str = "business-integration/config.yaml"):
         self.config_path = Path(config_path)
@@ -730,7 +730,7 @@ For integration issues:
 1. Check service connectivity and credentials
 2. Review integration logs for error details
 3. Validate configuration parameters
-4. Contact platform team for assistance
+4. Contact monorepo team for assistance
 
 """
         

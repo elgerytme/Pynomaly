@@ -29,7 +29,7 @@ Successfully completed major domain boundary fix by redistributing content from 
 ### 1.3 software/services → Domain-specific locations ✅
 - **Anomaly detection services** → Moved to `data/anomaly_detection/services/`
 - **ML services** → Moved to `ai/mlops/services/`
-- **Data platform services** → Moved to `data/data_observability/services/`
+- **Data monorepo services** → Moved to `data/data_observability/services/`
 
 ## Phase 2: Core Directory Elimination ✅
 

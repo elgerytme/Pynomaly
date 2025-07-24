@@ -39,7 +39,7 @@ The package follows clean architecture principles with clear separation of conce
 
 ### 2. Microservices Architecture
 
-The MLOps platform is designed as a collection of loosely coupled microservices:
+The MLOps monorepo is designed as a collection of loosely coupled microservices:
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐

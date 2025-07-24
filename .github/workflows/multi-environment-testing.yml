@@ -19,7 +19,7 @@ on:
         - standard
         - comprehensive
         - stress
-      platform_matrix:
+      monorepo_matrix:
         description: 'Platform coverage'
         required: false
         default: 'all'
@@ -65,19 +65,19 @@ jobs:
     - name: Generate test matrix
       id: generate-matrix
       run: |
-        # Determine platform matrix based on input
+        # Determine monorepo matrix based on input
         case "${{ github.event.inputs.platform_matrix || 'all' }}" in
           linux-only)
-            platforms='["ubuntu-latest"]'
+            monorepos='["ubuntu-latest"]'
             ;;
           windows-only)
-            platforms='["windows-latest"]'
+            monorepos='["windows-latest"]'
             ;;
           macos-only)
-            platforms='["macos-latest"]'
+            monorepos='["macos-latest"]'
             ;;
           all)
-            platforms='["ubuntu-latest", "windows-latest", "macos-latest"]'
+            monorepos='["ubuntu-latest", "windows-latest", "macos-latest"]'
             ;;
         esac
         

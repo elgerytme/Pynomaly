@@ -55,7 +55,7 @@ def test_default_roles_and_permissions():
     admin_perms = DEFAULT_PERMISSIONS[UserRole.SUPER_ADMIN]
     viewer_perms = DEFAULT_PERMISSIONS[UserRole.VIEWER]
 
-    # Admin should have platform management permissions that viewer doesn't
+    # Admin should have monorepo management permissions that viewer doesn't
     assert admin_perms != viewer_perms
     assert any(perm.resource == "platform" for perm in admin_perms)
     assert not any(perm.resource == "platform" for perm in viewer_perms)
