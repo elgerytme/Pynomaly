@@ -16,7 +16,7 @@ import pandas as pd
 import structlog
 
 from ..entities.detection_result import DetectionResult
-from ...infrastructure.monitoring.metrics_collector import get_metrics_collector, MetricsCollector
+from ...infrastructure.monitoring import get_metrics_collector, MetricsCollector
 
 logger = structlog.get_logger(__name__)
 

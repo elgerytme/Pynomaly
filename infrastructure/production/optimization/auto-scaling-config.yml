@@ -1,0 +1,453 @@
+# Advanced Auto-scaling Configuration for MLOps Platform
+# Intelligent scaling based on ML workload patterns and business metrics
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlops-autoscaling-config
+  namespace: mlops-production
+data:
+  scaling-policies.yml: |
+    # Model-specific scaling policies
+    models:
+      customer_churn_prediction:
+        min_replicas: 2
+        max_replicas: 20
+        target_cpu: 70
+        target_memory: 80
+        custom_metrics:
+          - name: model_request_rate
+            target_value: 100  # requests per second
+            scale_up_threshold: 120
+            scale_down_threshold: 50
+          - name: model_queue_depth
+            target_value: 10
+            scale_up_threshold: 20
+            scale_down_threshold: 5
+        business_hours_scaling:
+          weekdays:
+            start_hour: 8
+            end_hour: 18
+            min_replicas: 5  # Higher baseline during business hours
+          weekends:
+            min_replicas: 2
+        
+      customer_lifetime_value:
+        min_replicas: 3
+        max_replicas: 15
+        target_cpu: 60
+        target_memory: 75
+        custom_metrics:
+          - name: model_request_rate
+            target_value: 80
+            scale_up_threshold: 100
+            scale_down_threshold: 40
+        batch_processing_scaling:
+          enabled: true
+          schedule: "0 2 * * *"  # Daily at 2 AM
+          batch_replicas: 10
+          duration_hours: 2
+        
+      fraud_detection:
+        min_replicas: 5  # Higher baseline for critical security service
+        max_replicas: 50
+        target_cpu: 50   # Conservative for fraud detection
+        target_memory: 70
+        priority: critical
+        custom_metrics:
+          - name: model_request_rate
+            target_value: 200  # Higher throughput requirement
+            scale_up_threshold: 250
+            scale_down_threshold: 100
+          - name: fraud_detection_latency_p95
+            target_value: 0.03  # 30ms
+            scale_up_threshold: 0.04
+            scale_down_threshold: 0.02
+        rapid_scaling:
+          enabled: true
+          scale_up_speed: "fast"    # 30s scale-up
+          scale_down_speed: "slow"  # 5min scale-down for stability
+        
+    # Infrastructure component scaling
+    infrastructure:
+      feature_store:
+        min_replicas: 3
+        max_replicas: 25
+        target_cpu: 65
+        target_memory: 80
+        custom_metrics:
+          - name: feature_request_rate
+            target_value: 500
+            scale_up_threshold: 600
+            scale_down_threshold: 300
+          - name: cache_hit_rate
+            target_value: 0.8
+            scale_up_threshold: 0.7  # Scale up if cache performance degrades
+        cache_optimization:
+          enabled: true
+          memory_threshold: 85
+          eviction_policy: "lru"
+          
+      inference_engine:
+        min_replicas: 4
+        max_replicas: 30
+        target_cpu: 60
+        target_memory: 75
+        custom_metrics:
+          - name: inference_request_rate
+            target_value: 300
+            scale_up_threshold: 400
+            scale_down_threshold: 150
+          - name: model_load_balancing_efficiency
+            target_value: 0.85
+            scale_up_threshold: 0.8
+        predictive_scaling:
+          enabled: true
+          lookback_hours: 24
+          prediction_horizon_minutes: 30
+          
+    # Global scaling policies
+    global_policies:
+      resource_limits:
+        max_total_cpu_cores: 500
+        max_total_memory_gb: 2000
+        max_total_replicas: 200
+        cost_limit_hourly: 500  # $500/hour
+        
+      scaling_behavior:
+        scale_up:
+          stabilization_window: 60s
+          policies:
+            - type: percent
+              value: 100
+              period: 60s
+            - type: pods
+              value: 4
+              period: 60s
+        scale_down:
+          stabilization_window: 300s  # 5 min stabilization
+          policies:
+            - type: percent
+              value: 50
+              period: 300s
+            - type: pods
+              value: 2
+              period: 300s
+              
+      business_impact_scaling:
+        enabled: true
+        metrics:
+          - name: revenue_impact_rate
+            threshold_increase: 0.2  # 20% increase triggers scaling
+            scale_factor: 1.5
+          - name: fraud_alert_rate
+            threshold_increase: 0.5  # 50% increase in fraud alerts
+            scale_factor: 2.0
+            priority: critical
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: churn-model-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: customer-churn-model
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: model_request_rate
+      target:
+        type: AverageValue
+        averageValue: "100"
+  - type: Pods
+    pods:
+      metric:
+        name: model_queue_depth
+      target:
+        type: AverageValue
+        averageValue: "10"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 4
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 300
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fraud-detection-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fraud-detection-model
+  minReplicas: 5
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Pods
+    pods:
+      metric:
+        name: fraud_detection_latency_p95
+      target:
+        type: AverageValue
+        averageValue: "30m"  # 30ms
+  - type: Pods
+    pods:
+      metric:
+        name: fraud_request_rate
+      target:
+        type: AverageValue
+        averageValue: "200"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30  # Fast scale-up for critical service
+      policies:
+      - type: Percent
+        value: 200
+        periodSeconds: 30
+      - type: Pods
+        value: 8
+        periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 600  # Slow scale-down for stability
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 300
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: clv-model-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: clv-model
+  minReplicas: 3
+  maxReplicas: 15
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Pods
+    pods:
+      metric:
+        name: clv_request_rate
+      target:
+        type: AverageValue
+        averageValue: "80"
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: feature-store-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: feature-store
+  minReplicas: 3
+  maxReplicas: 25
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 65
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: feature_request_rate
+      target:
+        type: AverageValue
+        averageValue: "500"
+  - type: Pods
+    pods:
+      metric:
+        name: cache_hit_rate
+      target:
+        type: AverageValue
+        averageValue: "0.8"
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: inference-engine-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: inference-engine
+  minReplicas: 4
+  maxReplicas: 30
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Pods
+    pods:
+      metric:
+        name: inference_request_rate
+      target:
+        type: AverageValue
+        averageValue: "300"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: predictive-scaling-config
+  namespace: mlops-production
+data:
+  predictive-scaling.yml: |
+    # Predictive scaling based on historical patterns
+    predictive_models:
+      time_series_forecasting:
+        enabled: true
+        algorithm: "arima"
+        lookback_period_hours: 168  # 1 week
+        forecast_horizon_minutes: 60
+        seasonality:
+          daily: true
+          weekly: true
+          monthly: false
+        
+      machine_learning_prediction:
+        enabled: true
+        algorithm: "gradient_boosting"
+        features:
+          - hour_of_day
+          - day_of_week
+          - month_of_year
+          - historical_load
+          - business_events
+          - external_factors
+        retrain_frequency_hours: 24
+        
+    scaling_triggers:
+      traffic_patterns:
+        business_hours_multiplier: 2.5
+        weekend_multiplier: 0.7
+        holiday_multiplier: 0.5
+        
+      business_events:
+        marketing_campaigns:
+          load_increase: 3.0
+          duration_hours: 48
+          models_affected: ["customer_churn_prediction", "customer_lifetime_value"]
+          
+        fraud_alerts:
+          load_increase: 5.0
+          duration_minutes: 30
+          models_affected: ["fraud_detection"]
+          priority: critical
+          
+        product_launches:
+          load_increase: 2.0
+          duration_hours: 72
+          models_affected: ["product_recommendations", "customer_analytics"]
+          
+    optimization_strategies:
+      cost_optimization:
+        enabled: true
+        target_cost_reduction: 0.15  # 15% cost reduction target
+        strategies:
+          - name: "spot_instances"
+            savings: 0.6
+            reliability: 0.8
+          - name: "reserved_instances"
+            savings: 0.3
+            reliability: 1.0
+          - name: "right_sizing"
+            savings: 0.2
+            reliability: 1.0
+            
+      performance_optimization:
+        enabled: true
+        target_latency_improvement: 0.1  # 10% latency improvement
+        strategies:
+          - name: "model_caching"
+            latency_reduction: 0.4
+            memory_overhead: 1.5
+          - name: "request_batching"
+            throughput_increase: 2.0
+            latency_increase: 0.1
+          - name: "model_quantization"
+            latency_reduction: 0.3
+            accuracy_impact: 0.02
