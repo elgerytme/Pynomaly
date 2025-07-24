@@ -11,7 +11,7 @@ from anomaly_detection.domain.services.ensemble_service import EnsembleService
 from anomaly_detection.domain.services.streaming_service import StreamingService
 from anomaly_detection.api.v1.detection import detect_anomalies, train_model
 from anomaly_detection.api.v1.models import load_model, save_model
-from anomaly_detection.cli_new.commands.models import train_command, predict_command
+from anomaly_detection.cli.commands.models import train_command, predict_command
 from anomaly_detection.web.api.htmx import detection_endpoint, upload_data
 
 

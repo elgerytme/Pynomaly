@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch, mock_open, MagicMock, AsyncMock
 from typer.testing import CliRunner
 
-from anomaly_detection.cli_new.commands.health import app
+from anomaly_detection.cli.commands.health import app
 
 
 class TestHealthCommands:
@@ -91,7 +91,7 @@ class TestHealthCommands:
             'data_points': 1000
         }
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_status_command_success(self, mock_asyncio_run, mock_health_service_class):
         """Test status command with successful health check."""
@@ -114,7 +114,7 @@ class TestHealthCommands:
         assert "System Health: HEALTHY" in result.stdout
         assert "95.5/100" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_status_command_detailed(self, mock_asyncio_run, mock_health_service_class):
         """Test status command with detailed output."""
@@ -141,7 +141,7 @@ class TestHealthCommands:
         assert "Active Alerts" in result.stdout
         assert "High Memory Usage" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_status_command_json_output(self, mock_asyncio_run, mock_health_service_class):
         """Test status command with JSON output."""
@@ -168,13 +168,13 @@ class TestHealthCommands:
     
     def test_status_command_import_error(self):
         """Test status command when health monitoring components are not available."""
-        with patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService', side_effect=ImportError):
+        with patch('anomaly_detection.cli.commands.health.HealthMonitoringService', side_effect=ImportError):
             result = self.runner.invoke(app, ['status'])
             
             assert result.exit_code == 1
             assert "Health monitoring components not available" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_status_command_health_check_failure(self, mock_asyncio_run, mock_health_service_class):
         """Test status command when health check fails."""
@@ -191,7 +191,7 @@ class TestHealthCommands:
         assert result.exit_code == 1
         assert "Health check failed" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_monitor_command_success(self, mock_asyncio_run, mock_health_service_class):
         """Test monitor command with successful monitoring."""
@@ -212,7 +212,7 @@ class TestHealthCommands:
         assert result.exit_code == 0
         mock_asyncio_run.assert_called_once()
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_monitor_command_keyboard_interrupt(self, mock_asyncio_run, mock_health_service_class):
         """Test monitor command with keyboard interrupt."""
@@ -231,13 +231,13 @@ class TestHealthCommands:
     
     def test_monitor_command_import_error(self):
         """Test monitor command when health monitoring components are not available."""
-        with patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService', side_effect=ImportError):
+        with patch('anomaly_detection.cli.commands.health.HealthMonitoringService', side_effect=ImportError):
             result = self.runner.invoke(app, ['monitor'])
             
             assert result.exit_code == 1
             assert "Health monitoring components not available" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_monitor_command_failure(self, mock_asyncio_run, mock_health_service_class):
         """Test monitor command when monitoring fails."""
@@ -254,8 +254,8 @@ class TestHealthCommands:
         assert result.exit_code == 1
         assert "Health monitoring failed" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
-    @patch('anomaly_detection.cli_new.commands.health.AlertSeverity')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.AlertSeverity')
     @patch('asyncio.run')
     def test_alerts_command_success(self, mock_asyncio_run, mock_alert_severity, mock_health_service_class):
         """Test alerts command with successful alert listing."""
@@ -279,8 +279,8 @@ class TestHealthCommands:
         assert "Active Alerts" in result.stdout
         assert "High Memory Usage" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
-    @patch('anomaly_detection.cli_new.commands.health.AlertSeverity')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.AlertSeverity')
     @patch('asyncio.run')
     def test_alerts_command_with_severity_filter(self, mock_asyncio_run, mock_alert_severity, mock_health_service_class):
         """Test alerts command with severity filter."""
@@ -304,7 +304,7 @@ class TestHealthCommands:
         assert result.exit_code == 0
         mock_alert_severity.assert_called_once_with('warning')
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_alerts_command_history(self, mock_asyncio_run, mock_health_service_class):
         """Test alerts command with history flag."""
@@ -325,7 +325,7 @@ class TestHealthCommands:
         assert result.exit_code == 0
         assert "Alert History" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_alerts_command_json_output(self, mock_asyncio_run, mock_health_service_class):
         """Test alerts command with JSON output."""
@@ -351,7 +351,7 @@ class TestHealthCommands:
         except json.JSONDecodeError:
             pytest.fail("Output is not valid JSON")
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_alerts_command_no_alerts(self, mock_asyncio_run, mock_health_service_class):
         """Test alerts command when no alerts are found."""
@@ -373,8 +373,8 @@ class TestHealthCommands:
         assert result.exit_code == 0
         assert "No active alerts found" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
-    @patch('anomaly_detection.cli_new.commands.health.AlertSeverity')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.AlertSeverity')
     def test_alerts_command_invalid_severity(self, mock_alert_severity, mock_health_service_class):
         """Test alerts command with invalid severity."""
         # Setup mocks
@@ -390,7 +390,7 @@ class TestHealthCommands:
         assert result.exit_code == 1
         assert "Invalid severity: invalid" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_performance_command_success(self, mock_asyncio_run, mock_health_service_class):
         """Test performance command with successful metrics retrieval."""
@@ -414,7 +414,7 @@ class TestHealthCommands:
         assert "Response Time Statistics" in result.stdout
         assert "150.5 ms" in result.stdout  # avg_ms
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_performance_command_json_output(self, mock_asyncio_run, mock_health_service_class):
         """Test performance command with JSON output."""
@@ -440,7 +440,7 @@ class TestHealthCommands:
         except json.JSONDecodeError:
             pytest.fail("Output is not valid JSON")
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_performance_command_no_data(self, mock_asyncio_run, mock_health_service_class):
         """Test performance command when no performance data is available."""
@@ -462,7 +462,7 @@ class TestHealthCommands:
         assert result.exit_code == 0
         assert "No performance data available" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_start_monitoring_command_success(self, mock_asyncio_run, mock_health_service_class):
         """Test start_monitoring command with successful service start."""
@@ -486,7 +486,7 @@ class TestHealthCommands:
         mock_health_service_class.assert_called_once_with(check_interval=30)
         mock_asyncio_run.assert_called_once()
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_start_monitoring_command_keyboard_interrupt(self, mock_asyncio_run, mock_health_service_class):
         """Test start_monitoring command with keyboard interrupt."""
@@ -503,7 +503,7 @@ class TestHealthCommands:
         assert result.exit_code == 0
         assert "Health monitoring stopped" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     def test_thresholds_command_show_all(self, mock_health_service_class):
         """Test thresholds command showing all thresholds."""
         # Setup mocks
@@ -524,7 +524,7 @@ class TestHealthCommands:
         assert "80.0" in result.stdout
         assert "95.0" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     def test_thresholds_command_show_specific(self, mock_health_service_class):
         """Test thresholds command showing specific metric thresholds."""
         # Setup mocks
@@ -543,7 +543,7 @@ class TestHealthCommands:
         assert "Warning: 80.0" in result.stdout
         assert "Critical: 95.0" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     def test_thresholds_command_metric_not_found(self, mock_health_service_class):
         """Test thresholds command with non-existent metric."""
         # Setup mocks
@@ -558,7 +558,7 @@ class TestHealthCommands:
         assert result.exit_code == 1
         assert "Metric 'nonexistent' not found" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     def test_thresholds_command_set_thresholds_success(self, mock_health_service_class):
         """Test thresholds command setting new thresholds."""
         # Setup mocks
@@ -578,7 +578,7 @@ class TestHealthCommands:
         mock_health_service.set_threshold.assert_called_once_with('cpu_usage', 75.0, 90.0)
         assert "Updated thresholds for cpu_usage" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     def test_thresholds_command_invalid_thresholds(self, mock_health_service_class):
         """Test thresholds command with invalid threshold values."""
         # Setup mocks
@@ -599,13 +599,13 @@ class TestHealthCommands:
     
     def test_thresholds_command_import_error(self):
         """Test thresholds command when health monitoring components are not available."""
-        with patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService', side_effect=ImportError):
+        with patch('anomaly_detection.cli.commands.health.HealthMonitoringService', side_effect=ImportError):
             result = self.runner.invoke(app, ['thresholds'])
             
             assert result.exit_code == 1
             assert "Health monitoring components not available" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     def test_thresholds_command_error(self, mock_health_service_class):
         """Test thresholds command when service raises error."""
         # Setup mocks
@@ -626,13 +626,13 @@ class TestHealthCommands:
         commands = ['status', 'monitor', 'alerts', 'performance', 'start-monitoring', 'thresholds']
         
         for command in commands:
-            with patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService', side_effect=ImportError):
+            with patch('anomaly_detection.cli.commands.health.HealthMonitoringService', side_effect=ImportError):
                 result = self.runner.invoke(app, [command])
                 
                 assert result.exit_code == 1
                 assert "Health monitoring components not available" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_alerts_command_error(self, mock_asyncio_run, mock_health_service_class):
         """Test alerts command when service raises error."""
@@ -649,7 +649,7 @@ class TestHealthCommands:
         assert result.exit_code == 1
         assert "Failed to get alerts" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_performance_command_error(self, mock_asyncio_run, mock_health_service_class):
         """Test performance command when service raises error."""
@@ -666,7 +666,7 @@ class TestHealthCommands:
         assert result.exit_code == 1
         assert "Failed to get performance metrics" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.health.HealthMonitoringService')
+    @patch('anomaly_detection.cli.commands.health.HealthMonitoringService')
     @patch('asyncio.run')
     def test_start_monitoring_command_error(self, mock_asyncio_run, mock_health_service_class):
         """Test start_monitoring command when service raises error."""

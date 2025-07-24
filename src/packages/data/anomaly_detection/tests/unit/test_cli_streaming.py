@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch, mock_open, MagicMock, AsyncMock
 from typer.testing import CliRunner
 
-from anomaly_detection.cli_new.commands.streaming import app
+from anomaly_detection.cli.commands.streaming import app
 
 
 class TestStreamingCommands:
@@ -37,9 +37,9 @@ class TestStreamingCommands:
             'window_size': 200
         }
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
-    @patch('anomaly_detection.cli_new.commands.streaming.DetectionService')
-    @patch('anomaly_detection.cli_new.commands.streaming._create_data_generator')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.DetectionService')
+    @patch('anomaly_detection.cli.commands.streaming._create_data_generator')
     @patch('time.sleep')
     def test_monitor_command_random_data(self, mock_sleep, mock_generator, 
                                         mock_detection_service, mock_streaming_service):
@@ -80,9 +80,9 @@ class TestStreamingCommands:
         mock_streaming.get_streaming_stats.assert_called()
         assert "Monitoring completed" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
-    @patch('anomaly_detection.cli_new.commands.streaming.DetectionService')
-    @patch('anomaly_detection.cli_new.commands.streaming._create_data_generator')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.DetectionService')
+    @patch('anomaly_detection.cli.commands.streaming._create_data_generator')
     @patch('time.sleep')
     @patch('json.dump')
     @patch('builtins.open', new_callable=mock_open)
@@ -129,9 +129,9 @@ class TestStreamingCommands:
         assert 'streaming_stats' in dumped_data
         assert 'batch_results' in dumped_data
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
-    @patch('anomaly_detection.cli_new.commands.streaming.DetectionService')
-    @patch('anomaly_detection.cli_new.commands.streaming._create_data_generator')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.DetectionService')
+    @patch('anomaly_detection.cli.commands.streaming._create_data_generator')
     @patch('time.sleep')
     def test_monitor_command_with_anomalies(self, mock_sleep, mock_generator,
                                           mock_detection_service, mock_streaming_service):
@@ -168,9 +168,9 @@ class TestStreamingCommands:
         assert "Monitoring completed" in result.stdout
         # Should show non-zero anomaly count
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
-    @patch('anomaly_detection.cli_new.commands.streaming.DetectionService')
-    @patch('anomaly_detection.cli_new.commands.streaming._create_data_generator')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.DetectionService')
+    @patch('anomaly_detection.cli.commands.streaming._create_data_generator')
     def test_monitor_command_keyboard_interrupt(self, mock_generator, mock_detection_service,
                                               mock_streaming_service):
         """Test monitor command with keyboard interrupt."""
@@ -203,7 +203,7 @@ class TestStreamingCommands:
         assert result.exit_code == 0
         assert "interrupted by user" in result.stdout
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
     def test_stats_command_success(self, mock_streaming_service):
         """Test stats command with successful statistics retrieval."""
         # Setup mock
@@ -227,7 +227,7 @@ class TestStreamingCommands:
     
     @patch('builtins.open', new_callable=mock_open, read_data="feature1,feature2\n1.0,2.0\n3.0,4.0")
     @patch('pandas.read_csv')
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
     def test_drift_command_csv_success(self, mock_streaming_service, mock_read_csv, mock_file):
         """Test drift command with CSV file."""
         # Setup mocks
@@ -254,7 +254,7 @@ class TestStreamingCommands:
     
     @patch('builtins.open', new_callable=mock_open, read_data='[{"feature1": 1.0}]')
     @patch('pandas.read_json')
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
     def test_drift_command_json_success(self, mock_streaming_service, mock_read_json, mock_file):
         """Test drift command with JSON file."""
         # Setup mocks
@@ -304,7 +304,7 @@ class TestStreamingCommands:
     
     @patch('builtins.open', new_callable=mock_open, read_data="feature1,feature2\n1.0,2.0\n3.0,4.0")
     @patch('pandas.read_csv')
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
     def test_drift_command_processing_failure(self, mock_streaming_service, mock_read_csv, mock_file):
         """Test drift command when drift analysis fails."""
         # Setup mocks
@@ -327,7 +327,7 @@ class TestStreamingCommands:
     
     def test_create_data_generator_random(self):
         """Test _create_data_generator with random source."""
-        from anomaly_detection.cli_new.commands.streaming import _create_data_generator
+        from anomaly_detection.cli.commands.streaming import _create_data_generator
         
         generator = _create_data_generator("random", 1.0)
         
@@ -345,7 +345,7 @@ class TestStreamingCommands:
     @patch('pandas.read_csv')
     def test_create_data_generator_file_csv(self, mock_read_csv):
         """Test _create_data_generator with CSV file source."""
-        from anomaly_detection.cli_new.commands.streaming import _create_data_generator
+        from anomaly_detection.cli.commands.streaming import _create_data_generator
         
         # Setup mock
         mock_df = pd.DataFrame({
@@ -370,7 +370,7 @@ class TestStreamingCommands:
     @patch('pandas.read_json')
     def test_create_data_generator_file_json(self, mock_read_json):
         """Test _create_data_generator with JSON file source."""
-        from anomaly_detection.cli_new.commands.streaming import _create_data_generator
+        from anomaly_detection.cli.commands.streaming import _create_data_generator
         
         # Setup mock
         mock_df = pd.DataFrame({'feature1': [1.0], 'feature2': [2.0]})
@@ -386,7 +386,7 @@ class TestStreamingCommands:
     
     def test_create_data_generator_file_not_found(self):
         """Test _create_data_generator with non-existent file."""
-        from anomaly_detection.cli_new.commands.streaming import _create_data_generator
+        from anomaly_detection.cli.commands.streaming import _create_data_generator
         
         with patch('pathlib.Path.exists', return_value=False):
             with pytest.raises(ValueError, match="File not found"):
@@ -394,7 +394,7 @@ class TestStreamingCommands:
     
     def test_create_data_generator_unsupported_file_format(self):
         """Test _create_data_generator with unsupported file format."""
-        from anomaly_detection.cli_new.commands.streaming import _create_data_generator
+        from anomaly_detection.cli.commands.streaming import _create_data_generator
         
         with patch('pathlib.Path.exists', return_value=True):
             with pytest.raises(ValueError, match="Unsupported file format"):
@@ -402,14 +402,14 @@ class TestStreamingCommands:
     
     def test_create_data_generator_unsupported_source(self):
         """Test _create_data_generator with unsupported input source."""
-        from anomaly_detection.cli_new.commands.streaming import _create_data_generator
+        from anomaly_detection.cli.commands.streaming import _create_data_generator
         
         with pytest.raises(ValueError, match="Unsupported input source"):
             _create_data_generator("kafka:topic", 1.0)
     
     def test_update_monitoring_display(self):
         """Test _update_monitoring_display function."""
-        from anomaly_detection.cli_new.commands.streaming import _update_monitoring_display
+        from anomaly_detection.cli.commands.streaming import _update_monitoring_display
         from rich.layout import Layout
         
         # Setup mock streaming service
@@ -451,9 +451,9 @@ class TestStreamingCommands:
         assert algorithm_map['one_class_svm'] == 'ocsvm'
         assert algorithm_map['lof'] == 'lof'
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
-    @patch('anomaly_detection.cli_new.commands.streaming.DetectionService')
-    @patch('anomaly_detection.cli_new.commands.streaming._create_data_generator')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.DetectionService')
+    @patch('anomaly_detection.cli.commands.streaming._create_data_generator')
     @patch('time.sleep')
     def test_monitor_command_different_algorithms(self, mock_sleep, mock_generator,
                                                  mock_detection_service, mock_streaming_service):
@@ -490,9 +490,9 @@ class TestStreamingCommands:
             
             assert result.exit_code == 0
     
-    @patch('anomaly_detection.cli_new.commands.streaming.StreamingService')
-    @patch('anomaly_detection.cli_new.commands.streaming.DetectionService')
-    @patch('anomaly_detection.cli_new.commands.streaming._create_data_generator')
+    @patch('anomaly_detection.cli.commands.streaming.StreamingService')
+    @patch('anomaly_detection.cli.commands.streaming.DetectionService')
+    @patch('anomaly_detection.cli.commands.streaming._create_data_generator')
     @patch('time.sleep')
     def test_monitor_command_custom_parameters(self, mock_sleep, mock_generator,
                                              mock_detection_service, mock_streaming_service):
