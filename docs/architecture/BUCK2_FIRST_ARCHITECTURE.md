@@ -15,7 +15,7 @@ This monorepo follows a **Buck2-first architecture** with comprehensive build sy
 ### 2. Domain-Driven Package Organization
 ```
 src/packages/data/
-├── anomaly_detection/       # AI/ML domain
+├── detection_service/       # AI/ML domain
 ├── data_quality/           # Data domain  
 ├── data_management/        # Data domain
 ├── knowledge_graph/        # AI domain

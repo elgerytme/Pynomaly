@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Performance & Monitoring Setup Script
-# Sets up comprehensive performance monitoring and alerting for the anomaly detection platform
+# Sets up comprehensive performance monitoring and alerting for the detection platform
 
 set -euo pipefail
 
@@ -39,7 +39,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Set up performance monitoring and alerting for the anomaly detection platform.
+Set up performance monitoring and alerting for the detection platform.
 
 OPTIONS:
     -e, --environment ENVIRONMENT    Target environment (staging|production)
@@ -264,7 +264,7 @@ setup_grafana_dashboards() {
     # Copy performance dashboard
     cp "monitoring/alerting/alerting-dashboard.json" "$grafana_dashboard_dir/performance-alerting-dashboard.json"
     
-    # Copy existing anomaly detection dashboard
+    # Copy existing detection dashboard
     if [[ -f "deploy/monitoring/grafana/dashboards/anomaly-detection-overview.json" ]]; then
         cp "deploy/monitoring/grafana/dashboards/anomaly-detection-overview.json" "$grafana_dashboard_dir/"
     fi
@@ -761,7 +761,7 @@ generate_setup_report() {
 - **Quarterly:** Comprehensive monitoring stack review and updates
 
 ---
-*This monitoring setup provides comprehensive observability and automated optimization for the anomaly detection platform.*
+*This monitoring setup provides comprehensive observability and automated optimization for the detection platform.*
 EOF
 
     log_success "Setup report generated: $report_file"

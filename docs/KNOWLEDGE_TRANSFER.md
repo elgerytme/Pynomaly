@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive knowledge transfer for the anomaly_detection open source anomaly detection platform. It's designed to help new team members, contributors, and maintainers understand the system architecture, implementation details, and operational procedures.
+This document provides comprehensive knowledge transfer for the anomaly_detection open source detection platform. It's designed to help new team members, contributors, and maintainers understand the system architecture, implementation details, and operational procedures.
 
 ## Table of Contents
 
@@ -230,20 +230,20 @@ package_name/
 
 **Location**: `src/packages/anomaly_detection/`
 
-**Purpose**: Core anomaly detection algorithms and model management.
+**Purpose**: Core detection algorithms and model management.
 
 **Key Classes**:
 ```python
 # Domain Layer
 class AnomalyDetector(Entity):
-    """Core anomaly detection entity."""
+    """Core detection entity."""
     
 class DetectionResult(ValueObject):
     """Immutable detection result."""
 
 # Application Layer  
 class DetectionService(ApplicationService):
-    """Orchestrates anomaly detection workflows."""
+    """Orchestrates detection workflows."""
     
 class ModelTrainingUseCase(UseCase):
     """Handles model training workflows."""
@@ -306,7 +306,7 @@ class Logger:
 **Purpose**: REST API for external integrations.
 
 **Key Endpoints**:
-- `POST /api/v1/detect` - Run anomaly detection
+- `POST /api/v1/detect` - Run detection
 - `GET /api/v1/models` - List available models
 - `POST /api/v1/train` - Train new model
 - `GET /api/v1/health` - Health check
@@ -816,7 +816,7 @@ pytest tests/integration/
 
 #### 4. Performance Issues
 
-**Issue**: Slow anomaly detection performance
+**Issue**: Slow detection performance
 
 **Diagnosis**:
 ```bash
@@ -924,7 +924,7 @@ pytest --cov=src/packages/
 
 # 5. Commit changes
 git add .
-git commit -m "feat: add new anomaly detection algorithm"
+git commit -m "feat: add new detection algorithm"
 
 # 6. Push and create PR
 git push origin feature/new-algorithm

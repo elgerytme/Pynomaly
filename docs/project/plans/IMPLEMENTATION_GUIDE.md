@@ -114,7 +114,7 @@ src/packages/
 # Text replacement script
 replacements = {
     "anomaly_detection": "software",
-    "anomaly detection": "data processing",
+    "detection": "data processing",
     "machine learning": "computational analysis",
     "data science": "data analysis"
 }

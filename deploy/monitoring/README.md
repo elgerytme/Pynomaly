@@ -1,6 +1,6 @@
 # Monitoring Stack
 
-This directory contains comprehensive monitoring templates and configurations for the anomaly detection platform.
+This directory contains comprehensive monitoring templates and configurations for the detection platform.
 
 ## Overview
 
@@ -65,7 +65,7 @@ Pre-built Grafana dashboards are available:
 ### 1. Anomaly Detection Overview
 - Service health status
 - Request rates and response times
-- Error rates and anomaly detection metrics
+- Error rates and detection metrics
 - Model performance indicators
 
 ### 2. Infrastructure Monitoring

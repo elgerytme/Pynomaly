@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Business Integration Automation Script
-Automates the setup of business integrations for the anomaly detection platform.
+Automates the setup of business integrations for the detection platform.
 """
 
 import json
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class BusinessIntegrationManager:
-    """Manages business integrations for the anomaly detection platform."""
+    """Manages business integrations for the detection platform."""
     
     def __init__(self, config_path: str = "business-integration/config.yaml"):
         self.config_path = Path(config_path)

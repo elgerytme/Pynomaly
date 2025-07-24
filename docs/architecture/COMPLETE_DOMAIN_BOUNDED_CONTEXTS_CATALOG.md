@@ -6,7 +6,7 @@
 
 ## 🎯 Executive Summary
 
-This catalog provides a complete inventory of domain bounded contexts within the anomaly_detection anomaly detection platform, documenting the domain-driven design implementation across all business domains. The platform follows clean architecture principles with clear separation of concerns and well-defined domain boundaries.
+This catalog provides a complete inventory of domain bounded contexts within the anomaly_detection detection platform, documenting the domain-driven design implementation across all business domains. The platform follows clean architecture principles with clear separation of concerns and well-defined domain boundaries.
 
 ### 🏗️ Architecture Overview
 
@@ -72,7 +72,7 @@ graph TB
 
 ### 🔍 Bounded Context: Anomaly Detection
 
-**Responsibility**: Core anomaly detection algorithms, real-time detection, ensemble methods, and streaming detection with ML integration delegation.
+**Responsibility**: Core detection algorithms, real-time detection, ensemble methods, and streaming detection with ML integration delegation.
 
 **Package Location**: `@src/packages/data/anomaly_detection` (Consolidated from 118+ services to 3 core services)
 
@@ -144,7 +144,7 @@ class AdapterConfiguration:
 ```python
 # Consolidated from 17+ services to 3 core services
 class DetectionService:
-    """Unified anomaly detection service with adapter pattern"""
+    """Unified detection service with adapter pattern"""
     
     def detect_anomalies(
         self,
@@ -183,7 +183,7 @@ class StreamingService:
     ) -> DetectionResult:
         # 1. Process streaming sample with sliding window
         # 2. Detect concept drift and trigger retraining
-        # 3. Execute real-time anomaly detection
+        # 3. Execute real-time detection
         # 4. Update streaming statistics and performance metrics
 ```
 
@@ -222,7 +222,7 @@ class StreamingService:
 **Story 1**: Unified Detection Interface
 ```gherkin
 As a Data Scientist
-I want to use a single interface for all anomaly detection algorithms
+I want to use a single interface for all detection algorithms
 So that I can easily experiment with different approaches without changing code
 
 Given I have a dataset and want to try different algorithms
@@ -235,10 +235,10 @@ And I should see performance metrics for algorithm comparison
 **Story 2**: Production-Ready Ensemble Detection
 ```gherkin
 As a Production Engineer
-I want to deploy ensemble anomaly detection with high reliability
+I want to deploy ensemble detection with high reliability
 So that I can achieve better accuracy than single algorithms
 
-Given I have a critical production system requiring anomaly detection
+Given I have a critical production system requiring detection
 When I configure ensemble detection with multiple algorithms
 Then the system should combine results intelligently
 And provide confidence scores for each detection
@@ -623,7 +623,7 @@ And rollback should be available if issues occur
 ```python
 # Consolidated from 17+ services to 3 core services
 class DetectionService:
-    """Unified anomaly detection service with adapter pattern"""
+    """Unified detection service with adapter pattern"""
     
     def detect_anomalies(
         self,
@@ -662,7 +662,7 @@ class StreamingService:
     ) -> DetectionResult:
         # 1. Process streaming sample with sliding window
         # 2. Detect concept drift and trigger retraining
-        # 3. Execute real-time anomaly detection
+        # 3. Execute real-time detection
         # 4. Update streaming statistics and performance metrics
 ```
 

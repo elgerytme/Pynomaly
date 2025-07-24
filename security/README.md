@@ -1,6 +1,6 @@
 # Security Scanning Templates and Configuration
 
-This directory contains comprehensive security scanning templates, configurations, and tools for the anomaly detection platform.
+This directory contains comprehensive security scanning templates, configurations, and tools for the detection platform.
 
 ## Overview
 

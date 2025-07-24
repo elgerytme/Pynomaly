@@ -107,7 +107,7 @@ def visualize_results(
     y_true: Optional[np.ndarray] = None
 ) -> None:
     """
-    Visualize anomaly detection results.
+    Visualize detection results.
     
     Args:
         data: Input features
@@ -183,7 +183,7 @@ def visualize_results(
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     """
-    Calculate performance metrics for anomaly detection.
+    Calculate performance metrics for detection.
     
     Args:
         y_true: Ground truth labels

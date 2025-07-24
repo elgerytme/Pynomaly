@@ -10,7 +10,7 @@ anomaly_detection Terminology Replacement Report
 ## Changed Files
 
 ### PHASE_4A_COMPLETION_SUMMARY.md
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### REPOSITORY_ANALYSIS_REPORT.md
 - Replaced 1 occurrences of 'anomaly_detection repository' with 'repository'
@@ -22,28 +22,28 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection library' with 'anomaly_detection library'
 
 ### test_api.py
-- Replaced 3 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 3 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### .claude/settings.local.json
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### docs/COMPLETE_DOMAIN_BOUNDED_CONTEXTS_CATALOG.md
 - Replaced 1 occurrences of 'anomaly_detection Platform' with 'Anomaly Detection Platform'
 
 ### docs/current_violations.txt
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### docs/DOMAIN_CLEANUP_SUMMARY.md
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### docs/domain_violations_report.json
-- Replaced 23 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 23 occurrences of 'anomaly_detection platform' with 'detection platform'
 - Replaced 1 occurrences of 'anomaly_detection package' with 'anomaly_detection package'
-- Replaced 3 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 3 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 - Replaced 22 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### docs/final_violations_report.txt
-- Replaced 11 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 11 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### docs/IMPLEMENTATION_SUMMARY_ISSUES_820-822.md
 - Replaced 2 occurrences of 'anomaly_detection project' with 'project'
@@ -55,13 +55,13 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection project' with 'project'
 
 ### docs/PACKAGE_ISOLATION_RULE.md
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### examples/README.md
-- Replaced 1 occurrences of 'anomaly_detection framework' with 'anomaly detection framework'
+- Replaced 1 occurrences of 'anomaly_detection framework' with 'detection framework'
 
 ### monitoring/prometheus.yml
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### scripts/automated_domain_fixes.py
 - Replaced 1 occurrences of '\bpynomaly\b' with 'anomaly_detection'
@@ -80,43 +80,43 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection monorepo' with 'repository'
 - Replaced 1 occurrences of 'anomaly_detection monorepo' with 'repository'
 - Replaced 1 occurrences of 'anomaly_detection Platform' with 'Anomaly Detection Platform'
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
-- Replaced 1 occurrences of 'anomaly_detection system' with 'anomaly detection system'
-- Replaced 1 occurrences of 'anomaly_detection system' with 'anomaly detection system'
-- Replaced 1 occurrences of 'anomaly_detection framework' with 'anomaly detection framework'
-- Replaced 1 occurrences of 'anomaly_detection framework' with 'anomaly detection framework'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
+- Replaced 1 occurrences of 'anomaly_detection system' with 'detection system'
+- Replaced 1 occurrences of 'anomaly_detection system' with 'detection system'
+- Replaced 1 occurrences of 'anomaly_detection framework' with 'detection framework'
+- Replaced 1 occurrences of 'anomaly_detection framework' with 'detection framework'
 - Replaced 1 occurrences of 'anomaly_detection package' with 'anomaly_detection package'
 - Replaced 1 occurrences of 'anomaly_detection package' with 'anomaly_detection package'
 - Replaced 1 occurrences of 'anomaly_detection module' with 'anomaly_detection module'
 - Replaced 1 occurrences of 'anomaly_detection module' with 'anomaly_detection module'
 - Replaced 1 occurrences of 'anomaly_detection library' with 'anomaly_detection library'
 - Replaced 1 occurrences of 'anomaly_detection library' with 'anomaly_detection library'
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 - Replaced 1 occurrences of 'anomaly_detection command' with 'anomaly-detector command'
 - Replaced 1 occurrences of 'anomaly_detection command' with 'anomaly-detector command'
-- Replaced 1 occurrences of 'anomaly_detection tool' with 'anomaly detection tool'
-- Replaced 1 occurrences of 'anomaly_detection tool' with 'anomaly detection tool'
+- Replaced 1 occurrences of 'anomaly_detection tool' with 'detection tool'
+- Replaced 1 occurrences of 'anomaly_detection tool' with 'detection tool'
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
-- Replaced 1 occurrences of 'anomaly_detection team' with 'anomaly detection team'
+- Replaced 1 occurrences of 'anomaly_detection team' with 'detection team'
 - Replaced 1 occurrences of 'anomaly_detection developers' with 'project developers'
 - Replaced 1 occurrences of 'anomaly_detection developers' with 'project developers'
-- Replaced 2 occurrences of 'anomaly_detection app' with 'anomaly detection app'
-- Replaced 2 occurrences of 'anomaly_detection app' with 'anomaly detection app'
-- Replaced 1 occurrences of 'anomaly_detection service' with 'anomaly detection service'
-- Replaced 1 occurrences of 'anomaly_detection service' with 'anomaly detection service'
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 2 occurrences of 'anomaly_detection app' with 'detection app'
+- Replaced 2 occurrences of 'anomaly_detection app' with 'detection app'
+- Replaced 1 occurrences of 'anomaly_detection service' with 'detection service'
+- Replaced 1 occurrences of 'anomaly_detection service' with 'detection service'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### scripts/targeted_priority_fixes.py
 - Replaced 1 occurrences of '\bPynomaly\b' with 'Anomaly Detection Platform'
 - Replaced 1 occurrences of '\bpynomaly\b' with 'anomaly_detection'
 
 ### .github/workflows/docs-deploy.yml
-- Replaced 2 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 2 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### .github/workflows/performance-testing.yml
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### docs/architecture/ADR-001-domain-separation-reorganization.md
 - Replaced 1 occurrences of 'anomaly_detection repository' with 'repository'
@@ -143,32 +143,32 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/development_scripts/scripts/deploy.sh
-- Replaced 2 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 2 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/deploy_staging.sh
-- Replaced 1 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 1 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/generate_api_docs.py
-- Replaced 7 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 7 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/generate_comprehensive_api_docs.py
 - Replaced 1 occurrences of 'anomaly_detection module' with 'anomaly_detection module'
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
-- Replaced 7 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 7 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/generate_openapi_docs.py
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
-- Replaced 8 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
+- Replaced 8 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/generate_simple_api_docs.py
-- Replaced 4 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 4 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/sdk_generator.py
 - Replaced 2 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
-- Replaced 7 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 7 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/verify_production_deployment.sh
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/analysis/analyze_project_structure.py
 - Replaced 1 occurrences of 'anomaly_detection project' with 'project'
@@ -177,28 +177,28 @@ anomaly_detection Terminology Replacement Report
 - Replaced 2 occurrences of 'anomaly_detection project' with 'project'
 
 ### src/development_scripts/scripts/cli/sdk_cli.py
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/deploy/orchestrate_deployment.py
-- Replaced 1 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 1 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/deployment/deploy.sh
 - Replaced 1 occurrences of 'anomaly_detection project' with 'project'
 
 ### src/development_scripts/scripts/development/monorepo_cli.py
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/development/run_api.py
-- Replaced 4 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 4 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/development/run_app.py
 - Replaced 1 occurrences of 'anomaly_detection module' with 'anomaly_detection module'
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
-- Replaced 2 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
+- Replaced 2 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/development/run_cli.py
-- Replaced 3 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 3 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 
 ### src/development_scripts/scripts/development/setup_standalone.py
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
@@ -210,44 +210,44 @@ anomaly_detection Terminology Replacement Report
 - Replaced 4 occurrences of 'anomaly_detection package' with 'anomaly_detection package'
 
 ### src/development_scripts/scripts/monitoring/production_monitoring_setup.py
-- Replaced 1 occurrences of 'anomaly_detection service' with 'anomaly detection service'
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection service' with 'detection service'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/orchestration/docker-stack-deploy.py
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/performance/establish_baselines.py
-- Replaced 2 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 2 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/performance/profile_cli_startup.py
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 
 ### src/development_scripts/scripts/performance/run_performance_tests.py
-- Replaced 3 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 3 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/run/monorepo_cli.py
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/run/run_api.py
-- Replaced 4 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 4 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/run/run_app.py
 - Replaced 1 occurrences of 'anomaly_detection module' with 'anomaly_detection module'
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
-- Replaced 2 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
+- Replaced 2 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/run/run_cli.py
-- Replaced 3 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 3 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 
 ### src/development_scripts/scripts/security/security_hardening_report.py
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/development_scripts/scripts/setup/fix_windows_setup.ps1
 - Replaced 2 occurrences of 'anomaly_detection package' with 'anomaly_detection package'
 
 ### src/development_scripts/scripts/setup/setup_fresh_environment.sh
-- Replaced 4 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 4 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/setup/setup_standalone.py
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
@@ -256,40 +256,40 @@ anomaly_detection Terminology Replacement Report
 - Replaced 3 occurrences of 'anomaly_detection project' with 'project'
 
 ### src/development_scripts/scripts/setup/start_api_bash.sh
-- Replaced 3 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 3 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/test/test_security_features.py
-- Replaced 1 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 1 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/development_scripts/scripts/testing/execute_cli_testing_plan.sh
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 
 ### src/development_scripts/scripts/testing/test-current.ps1
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test-current.sh
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test-fresh-modified.sh
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test-fresh.ps1
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test-fresh.sh
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test_all_environments.sh
-- Replaced 2 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 2 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test_api_powershell.ps1
-- Replaced 3 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 3 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/development_scripts/scripts/testing/test_fresh_installation.sh
 - Replaced 2 occurrences of 'anomaly_detection package' with 'anomaly_detection package'
 
 ### src/development_scripts/scripts/ux/ux_improvements_summary.py
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 
 ### src/packages/archive/CLEAN_ARCHITECTURE_VALIDATION_REPORT.md
 - Replaced 1 occurrences of 'anomaly_detection monorepo' with 'repository'
@@ -319,22 +319,22 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/packages/ai/mlops/README.md
-- Replaced 2 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 2 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/packages/ai/machine_learning/mlops_backup/pyproject.toml
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/packages/ai/machine_learning/mlops_backup/README.md
-- Replaced 2 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 2 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/packages/ai/machine_learning/mlops_backup/docs/getting-started.md
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/packages/ai/machine_learning/mlops_backup/src/mlops/__init__.py
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/packages/ai/mlops/docs/getting-started.md
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/packages/ai/mlops/src/mlops/__init__.py
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
@@ -373,10 +373,10 @@ anomaly_detection Terminology Replacement Report
 - Replaced 2 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/packages/data/observability/README.md
-- Replaced 2 occurrences of 'anomaly_detection framework' with 'anomaly detection framework'
+- Replaced 2 occurrences of 'anomaly_detection framework' with 'detection framework'
 
 ### src/packages/data/observability/__init__.py
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/packages/data/statistics/pyproject.toml
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
@@ -391,11 +391,11 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/reports/generated/04_production_checklist_detailed.md
-- Replaced 2 occurrences of 'anomaly_detection app' with 'anomaly detection app'
+- Replaced 2 occurrences of 'anomaly_detection app' with 'detection app'
 
 ### src/reports/generated/cli-test-improvement-report.md
 - Replaced 1 occurrences of 'anomaly_detection project' with 'project'
-- Replaced 1 occurrences of 'anomaly_detection CLI' with 'anomaly detection CLI'
+- Replaced 1 occurrences of 'anomaly_detection CLI' with 'detection CLI'
 
 ### src/reports/generated/COMPREHENSIVE_TEST_COVERAGE_REPORT.md
 - Replaced 2 occurrences of 'anomaly_detection project' with 'project'
@@ -404,10 +404,10 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection codebase' with 'codebase'
 
 ### src/reports/generated/multi-language-sdk-report.md
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/reports/generated/Production_Readiness_Report.md
-- Replaced 2 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 2 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/reports/generated/ANOMALY_DETECTION_FEATURE_GAP_ANALYSIS.md
 - Replaced 1 occurrences of 'anomaly_detection codebase' with 'codebase'
@@ -422,17 +422,17 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection project' with 'project'
 
 ### src/reports/generated/TEST_VALIDATION_REPORT.md
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/reports/generated/quality/README_CODE_EXAMPLES_TEST_REPORT.md
 - Replaced 2 occurrences of 'anomaly_detection project' with 'project'
 
 ### src/reports/generated/quality/TESTING_REPORT.md
 - Replaced 1 occurrences of 'anomaly_detection Platform' with 'Anomaly Detection Platform'
-- Replaced 1 occurrences of 'anomaly_detection platform' with 'anomaly detection platform'
+- Replaced 1 occurrences of 'anomaly_detection platform' with 'detection platform'
 
 ### src/templates/client_sdks/README.md
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/templates/client_sdks/python/setup.py
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
@@ -441,11 +441,11 @@ anomaly_detection Terminology Replacement Report
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
 
 ### src/templates/client_sdks/python/monorepo_client/client.py
-- Replaced 3 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 3 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/templates/client_sdks/python/monorepo_client/__init__.py
 - Replaced 1 occurrences of 'anomaly_detection Team' with 'Anomaly Detection Team'
-- Replaced 1 occurrences of 'anomaly_detection API' with 'anomaly detection API'
+- Replaced 1 occurrences of 'anomaly_detection API' with 'detection API'
 
 ### src/temporary/perf/tests/test_performance_baselines.py
 - Replaced 1 occurrences of 'anomaly_detection module' with 'anomaly_detection module'

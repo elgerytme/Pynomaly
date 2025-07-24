@@ -217,7 +217,7 @@ Import consolidation is automatically checked in pre-commit hooks:
 # Fix core domain imports
 find . -name "*.py" -exec sed -i 's/from anomaly_detection\.domain\.entities/from src.packages.core.domain.entities/g' {} \;
 
-# Fix anomaly detection imports
+# Fix detection imports
 find . -name "*.py" -exec sed -i 's/from anomaly_detection\.algorithms/from src.packages.anomaly_detection.algorithms/g' {} \;
 
 # Fix infrastructure imports

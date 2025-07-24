@@ -109,7 +109,7 @@ This document provides the detailed execution roadmap for addressing critical co
 
 #### Tasks:
 1. **Create Documentation Standards**
-   - Templates based on MLOps/anomaly detection examples
+   - Templates based on MLOps/detection examples
    - Automated documentation generation from code
    - Style guides and content requirements
 

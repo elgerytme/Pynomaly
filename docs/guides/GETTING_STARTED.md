@@ -1,6 +1,6 @@
 # Getting Started with anomaly_detection
 
-Welcome to anomaly_detection, a production-ready open source anomaly detection platform built with clean architecture principles and enterprise-grade features.
+Welcome to anomaly_detection, a production-ready open source detection platform built with clean architecture principles and enterprise-grade features.
 
 ## Quick Start
 
@@ -83,7 +83,7 @@ print(f"Found {anomalies.sum()} anomalies out of {len(data)} samples")
 # Show help
 anomaly_detection --help
 
-# Run anomaly detection on a CSV file
+# Run detection on a CSV file
 anomaly_detection detect --input data.csv --output results.csv --algorithm isolation_forest
 
 # List available algorithms
@@ -186,7 +186,7 @@ anomaly_detection/
 
 ## Available Algorithms
 
-anomaly_detection supports 40+ anomaly detection algorithms:
+anomaly_detection supports 40+ detection algorithms:
 
 ### Statistical Methods
 - Isolation Forest

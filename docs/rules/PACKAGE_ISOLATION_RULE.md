@@ -76,7 +76,7 @@ def test_anomaly_detection_scoring():  # Wrong - not your domain
 # ❌ PROHIBITED: Cross-domain documentation
 """
 This package handles user authentication and integrates with the
-anomaly detection system to provide security for ML models.
+detection system to provide security for ML models.
 """  # Wrong - references another package's domain
 ```
 
@@ -105,9 +105,9 @@ THIS package's API only.
 ```
 
 ### Prohibited Documentation Patterns
-- ❌ "This package works with the anomaly detection system..."
+- ❌ "This package works with the detection system..."
 - ❌ "Integrates with the ML pipeline to provide..."
-- ❌ "Handles user data for anomaly detection..."
+- ❌ "Handles user data for detection..."
 - ❌ "Provides authentication for the detection dashboard..."
 
 ### Allowed Documentation Patterns
@@ -161,13 +161,13 @@ THIS package's API only.
 ```python
 # In authentication package
 class AnomalyDetectionAuth:
-    """Authentication for anomaly detection system."""
+    """Authentication for detection system."""
     
     def authenticate_ml_user(self, user):
         """Authenticate user for ML model access."""
         pass
 
-# Documentation mentions anomaly detection specifics
+# Documentation mentions detection specifics
 # Class names reference other domains
 # Methods have domain-specific names
 ```
@@ -209,4 +209,4 @@ python tools/scan_domain_violations.py
 python tools/validate_docs_isolation.py
 ```
 
-This rule ensures clean architecture, maintainable code, and proper domain separation throughout the anomaly detection platform.
+This rule ensures clean architecture, maintainable code, and proper domain separation throughout the detection platform.

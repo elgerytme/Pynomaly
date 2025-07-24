@@ -1,5 +1,5 @@
 # Performance Monitoring Configuration
-# Comprehensive performance monitoring setup for the anomaly detection platform
+# Comprehensive performance monitoring setup for the detection platform
 
 apiVersion: v1
 kind: ConfigMap
@@ -184,7 +184,7 @@ data:
               severity: warning
               team: ml
             annotations:
-              summary: "Low anomaly detection throughput"
+              summary: "Low detection throughput"
               description: "Processing only {{ $value }} detections per second, which is below expected threshold"
 
 ---

@@ -138,7 +138,7 @@ src/packages/
 │           └── training_automation_commands.py
 └── data/
     ├── anomaly_detection/
-    │   └── (now contains only anomaly detection specific files)
+    │   └── (now contains only detection specific files)
     └── data_quality/
         └── (ready for general data quality components)
 ```

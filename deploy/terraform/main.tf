@@ -1,4 +1,4 @@
-# Terraform Configuration for Anomaly Detection Platform
+# Terraform Configuration for Detection Platform
 # Multi-environment infrastructure setup with Kubernetes clusters
 
 terraform {
@@ -23,7 +23,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "anomaly-detection-terraform-state"
+    bucket = "detection-platform-terraform-state"
     key    = "infrastructure/terraform.tfstate"
     region = "us-east-1"
   }
@@ -38,7 +38,7 @@ variable "environment" {
 variable "project_name" {
   description = "Project name"
   type        = string
-  default     = "anomaly-detection"
+  default     = "detection-platform"
 }
 
 variable "kubernetes_cluster_name" {

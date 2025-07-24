@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Performance Optimization Script
-Automated performance monitoring and optimization for the anomaly detection platform.
+Automated performance monitoring and optimization for the detection platform.
 """
 
 import asyncio

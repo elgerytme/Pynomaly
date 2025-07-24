@@ -670,7 +670,7 @@ class TestModelLifecycleIntegration:
 ### **Week 3-4: Core Features Migration**
 - 🔄 Migrate authentication features
 - 🔄 Migrate user management features
-- 🔄 Migrate anomaly detection features
+- 🔄 Migrate detection features
 - 🔄 Test core functionality
 
 ### **Week 5-6: Business Features Migration**

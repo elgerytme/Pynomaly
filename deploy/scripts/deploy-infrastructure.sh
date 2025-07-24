@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Infrastructure Deployment Script
-# Automated deployment of the anomaly detection platform infrastructure
+# Automated deployment of the detection platform infrastructure
 
 set -euo pipefail
 
@@ -40,7 +40,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Deploy infrastructure for the anomaly detection platform.
+Deploy infrastructure for the detection platform.
 
 OPTIONS:
     -e, --environment ENVIRONMENT    Target environment (staging|production)

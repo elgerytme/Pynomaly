@@ -14,7 +14,7 @@ anomaly_detection/
 ├── src/                      # 📦  Source code (packages only)
 │   └── packages/             # All domain packages
 │       ├── core/             # Core domain logic (main anomaly_detection code)
-│       ├── anomaly_detection/# Consolidated anomaly detection
+│       ├── anomaly_detection/# Consolidated detection
 │       ├── machine_learning/ # ML operations & lifecycle
 │       ├── people_ops/       # User management & auth
 │       ├── mathematics/      # Statistical analysis

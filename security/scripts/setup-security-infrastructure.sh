@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Security Infrastructure Setup Script
-# Configures comprehensive security infrastructure for the anomaly detection platform
+# Configures comprehensive security infrastructure for the detection platform
 
 set -euo pipefail
 
@@ -41,7 +41,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Set up security infrastructure for the anomaly detection platform.
+Set up security infrastructure for the detection platform.
 
 OPTIONS:
     -e, --environment ENVIRONMENT    Target environment (staging|production)
@@ -405,7 +405,7 @@ EOF
 #!/usr/bin/env python3
 """
 Compliance Monitoring Script
-Monitors and reports on compliance status for the anomaly detection platform.
+Monitors and reports on compliance status for the detection platform.
 """
 
 import json
@@ -487,7 +487,7 @@ class ComplianceMonitor:
         return True  # Placeholder
     
     def _check_anomaly_detection(self) -> bool:
-        """Check if anomaly detection is operational."""
+        """Check if detection is operational."""
         # Implementation would verify monitoring systems
         return True  # Placeholder
     

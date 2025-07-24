@@ -128,7 +128,7 @@ packages/
 ├── mathematics/          # Mathematical utilities (no dependencies)
 ├── infrastructure/       # Technical infrastructure
 ├── interfaces/          # User interfaces (API, CLI, Web, SDK)
-├── anomaly_detection/   # Core anomaly detection algorithms
+├── anomaly_detection/   # Core detection algorithms
 ├── machine_learning/    # ML lifecycle and training
 ├── data_platform/       # Data processing and quality
 ├── services/            # Consolidated application services

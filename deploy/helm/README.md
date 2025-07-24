@@ -16,7 +16,7 @@ To install the chart with the release name `my-release`:
 helm install my-release ./deploy/helm
 ```
 
-The command deploys the anomaly detection service on the Kubernetes cluster in the default configuration.
+The command deploys the detection service on the Kubernetes cluster in the default configuration.
 
 ## Environment-Specific Deployments
 

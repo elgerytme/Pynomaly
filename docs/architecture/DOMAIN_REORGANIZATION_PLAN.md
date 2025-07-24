@@ -6,7 +6,7 @@ This document outlines the comprehensive reorganization of the repository into l
 
 ## Current Issues Addressed
 
-1. **Scattered anomaly detection logic**: `anomaly_detection-detection/` package moved to standard `src/packages/data/anomaly_detection/` structure
+1. **Scattered detection logic**: `anomaly_detection-detection/` package moved to standard `src/packages/data/anomaly_detection/` structure
 2. **Overlapping responsibilities**: Multiple packages handling similar functionality (algorithms, core detection, mlops)
 3. **Inconsistent package structure**: Some packages follow standards, others don't
 4. **Mixed concerns**: Packages containing multiple unrelated domains

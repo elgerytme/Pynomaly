@@ -44,7 +44,7 @@ python examples/basic_usage.py
 ### 2. Time Series Detection (`time_series_detection.py`)
 
 **What it covers:**
-- Time series anomaly detection
+- Time series detection
 - Seasonal pattern recognition
 - Point anomalies, collective anomalies, trend changes
 - Temporal context and windowing
@@ -53,7 +53,7 @@ python examples/basic_usage.py
 **Key concepts:**
 - Seasonal decomposition
 - Change point detection
-- Collective anomaly detection
+- Collective detection
 - Time-aware evaluation metrics
 
 ```bash
@@ -63,7 +63,7 @@ python examples/time_series_detection.py
 ### 3. Multivariate Detection (`multivariate_detection.py`)
 
 **What it covers:**
-- High-dimensional anomaly detection
+- High-dimensional detection
 - Feature correlation analysis
 - Dimensionality reduction techniques
 - Ensemble methods for multivariate data
@@ -82,7 +82,7 @@ python examples/multivariate_detection.py
 ### 4. Streaming Detection (`streaming_detection.py`)
 
 **What it covers:**
-- Real-time anomaly detection
+- Real-time detection
 - Online learning and model updates
 - Concept drift detection and adaptation
 - Buffer management and sliding windows
@@ -101,11 +101,11 @@ python examples/streaming_detection.py
 ### 5. Deep Learning Methods (`deep_learning_detection.py`)
 
 **What it covers:**
-- Neural network-based anomaly detection
+- Neural network-based detection
 - Autoencoders and variational autoencoders
 - Deep SVDD and other deep methods
 - GPU acceleration and optimization
-- Transfer learning for anomaly detection
+- Transfer learning for detection
 
 **Key concepts:**
 - Reconstruction error
@@ -139,8 +139,8 @@ python examples/production_example.py
 ### 7. Custom Algorithm Development (`custom_algorithm.py`)
 
 **What it covers:**
-- Creating custom anomaly detection algorithms
-- Integrating with anomaly detection framework
+- Creating custom detection algorithms
+- Integrating with detection framework
 - Algorithm validation and testing
 - Performance benchmarking
 - Documentation and best practices

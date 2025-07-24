@@ -5,7 +5,7 @@
 
 ## Context
 
-The repository had evolved over time with significant domain leakage where anomaly detection functionality was scattered across multiple packages, violating clean architecture principles and making the codebase difficult to maintain and understand.
+The repository had evolved over time with significant domain leakage where detection functionality was scattered across multiple packages, violating clean architecture principles and making the codebase difficult to maintain and understand.
 
 ### Problems Identified
 
@@ -21,7 +21,7 @@ The repository had evolved over time with significant domain leakage where anoma
 
 3. **Maintenance Issues**:
    - Code duplication leading to inconsistencies
-   - Difficult to locate and modify anomaly detection functionality
+   - Difficult to locate and modify detection functionality
    - Testing complexity due to scattered functionality
 
 ## Decision
@@ -63,7 +63,7 @@ anomaly_detection/
 ## Implementation
 
 ### Phase 1: File Migration (Completed)
-- Systematically identified all anomaly detection files across packages
+- Systematically identified all detection files across packages
 - Moved 40+ files to `anomaly_detection` package
 - Organized into clean architecture layers
 - Updated package interfaces
@@ -86,8 +86,8 @@ anomaly_detection/
 
 1. **Clean Architecture**: 
    - Clear separation of concerns
-   - 95/100 anomaly detection isolation score
-   - Easy to locate and modify anomaly detection code
+   - 95/100 detection isolation score
+   - Easy to locate and modify detection code
 
 2. **Reduced Complexity**:
    - Eliminated 314 duplicate files
@@ -95,7 +95,7 @@ anomaly_detection/
    - Simplified testing and maintenance
 
 3. **Better Maintainability**:
-   - Single source of truth for anomaly detection
+   - Single source of truth for detection
    - Clear domain boundaries prevent future leakage
    - Easier onboarding for new developers
 

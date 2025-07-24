@@ -54,7 +54,7 @@ The repository follows a domain-driven design (DDD) approach with clear boundari
 - Domain-specific algorithms
 
 ### 4. `anomaly_detection` Package
-**Purpose**: Contains anomaly detection specific domain logic.
+**Purpose**: Contains detection specific domain logic.
 
 **Allowed Concepts**:
 - Anomaly detection algorithms
@@ -204,7 +204,7 @@ from software.core.domain.abstractions.base_entity import BaseEntity
 from anomaly_detection.core.domain.value_objects.severity_score import SeverityScore
 
 class Alert(BaseEntity):
-    """Alert entity for anomaly detection domain"""
+    """Alert entity for detection domain"""
     
     def __init__(self, severity: SeverityScore):
         self.severity = severity

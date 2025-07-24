@@ -2,7 +2,7 @@
 """
 Time Series Anomaly Detection Example
 
-This example demonstrates time series anomaly detection using anomaly_detection:
+This example demonstrates time series detection using anomaly_detection:
 - Creating synthetic time series data with seasonal patterns
 - Detecting point anomalies, collective anomalies, and trend changes
 - Visualizing results with interactive plots
@@ -348,7 +348,7 @@ def evaluate_time_series_detection(
     tolerance_window: int = 5
 ) -> dict:
     """
-    Evaluate time series anomaly detection performance.
+    Evaluate time series detection performance.
     
     Args:
         predictions: Binary predictions (1 for anomaly, 0 for normal)
