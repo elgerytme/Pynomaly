@@ -11,7 +11,6 @@ __email__ = "team@anomaly_detection.io"
 # Domain layer exports
 from .domain.services.detection_service import DetectionService
 from .domain.services.ensemble_service import EnsembleService  
-from .domain.services.processing_service import ProcessingService
 
 # Infrastructure layer exports
 from .infrastructure.adapters.algorithms.adapters.sklearn_adapter import SklearnAdapter
@@ -35,7 +34,6 @@ __all__ = [
     # Domain services
     "DetectionService",
     "EnsembleService",
-    "ProcessingService",
     # Infrastructure adapters
     "SklearnAdapter",
     "PyODAdapter", 
