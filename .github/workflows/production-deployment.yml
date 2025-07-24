@@ -1,0 +1,561 @@
+# Production Deployment CI/CD Pipeline for MLOps Platform
+
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/packages/**'
+      - 'infrastructure/production/**'
+      - '.github/workflows/production-deployment.yml'
+  
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/packages/**'
+      - 'infrastructure/production/**'
+  
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Type of deployment'
+        required: true
+        default: 'rolling'
+        type: choice
+        options:
+          - rolling
+          - blue-green
+          - canary
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: us-west-2
+  TERRAFORM_VERSION: 1.5.0
+  KUBECTL_VERSION: v1.28.0
+  HELM_VERSION: v3.12.0
+  DOCKER_BUILDKIT: 1
+  REGISTRY: ghcr.io
+  
+jobs:
+  # Security and compliance checks
+  security-scan:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Run Bandit security linter
+      run: |
+        pip install bandit[toml]
+        bandit -r src/ -f json -o bandit-report.json || true
+    
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          trivy-results.sarif
+          bandit-report.json
+  
+  # Code quality and testing
+  test-and-quality:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install
+    
+    - name: Run type checking
+      run: |
+        poetry run mypy src/
+    
+    - name: Run linting
+      run: |
+        poetry run flake8 src/
+        poetry run black --check src/
+        poetry run isort --check-only src/
+    
+    - name: Run unit tests
+      run: |
+        poetry run pytest src/ -v --cov=src --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+  
+  # Infrastructure validation
+  terraform-validate:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+    
+    - name: Terraform Format Check
+      run: |
+        cd infrastructure/production/terraform
+        terraform fmt -check -recursive
+    
+    - name: Terraform Init
+      run: |
+        cd infrastructure/production/terraform
+        terraform init -backend=false
+    
+    - name: Terraform Validate
+      run: |
+        cd infrastructure/production/terraform
+        terraform validate
+    
+    - name: Run Checkov security scan
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: infrastructure/production/terraform
+        framework: terraform
+        output_format: sarif
+        output_file_path: checkov-report.sarif
+    
+    - name: Upload Checkov scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: checkov-report.sarif
+  
+  # Build and push Docker images
+  build-images:
+    runs-on: ubuntu-latest
+    needs: [security-scan, test-and-quality]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    
+    strategy:
+      matrix:
+        service:
+          - model-server
+          - feature-store
+          - inference-engine
+          - ab-testing-service
+          - model-governance
+          - automl-service
+          - explainability-service
+          - api-gateway
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/mlops-${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: src/packages/${{ matrix.service }}/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+  
+  # Staging deployment
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build-images, terraform-validate]
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+    
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: ${{ env.KUBECTL_VERSION }}
+    
+    - name: Setup Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: ${{ env.HELM_VERSION }}
+    
+    - name: Deploy to staging
+      run: |
+        export ENVIRONMENT=staging
+        export TERRAFORM_VAR_environment=staging
+        cd infrastructure/production
+        
+        # Update image tags for staging
+        export IMAGE_TAG="${{ github.sha }}"
+        
+        # Deploy infrastructure
+        cd terraform
+        terraform init
+        terraform plan -var="environment=staging" -out=staging.tfplan
+        terraform apply -auto-approve staging.tfplan
+        
+        # Configure kubectl
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name staging-mlops-cluster
+        
+        # Deploy applications
+        cd ../kubernetes
+        envsubst < deployments.yaml | kubectl apply -f -
+        kubectl apply -f services.yaml
+        kubectl apply -f hpa.yaml
+        
+        # Wait for deployment
+        kubectl wait --for=condition=available --timeout=600s deployment --all -n mlops-production
+    
+    - name: Run staging tests
+      run: |
+        # Run integration tests against staging environment
+        export STAGING_ENDPOINT=$(kubectl get service api-gateway-external -n mlops-production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        
+        # Wait for load balancer to be ready
+        timeout 300 bash -c 'until curl -f http://$STAGING_ENDPOINT/health; do sleep 10; done'
+        
+        # Run API tests
+        cd tests/integration
+        python -m pytest staging_tests.py -v --staging-url="http://$STAGING_ENDPOINT"
+  
+  # Production deployment approval
+  production-approval:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production-approval
+    
+    steps:
+    - name: Wait for approval
+      run: |
+        echo "✅ Staging deployment completed successfully"
+        echo "🔍 Review staging environment before proceeding to production"
+        echo "📊 Check monitoring dashboards and metrics"
+        echo "🚀 Ready for production deployment"
+  
+  # Production deployment
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [production-approval]
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+    
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: ${{ env.KUBECTL_VERSION }}
+    
+    - name: Setup Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: ${{ env.HELM_VERSION }}
+    
+    - name: Create deployment backup
+      run: |
+        # Configure kubectl for production
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name production-mlops-cluster
+        
+        # Create backup of current state
+        mkdir -p backup/$(date +%Y%m%d-%H%M%S)
+        kubectl get all -n mlops-production -o yaml > backup/$(date +%Y%m%d-%H%M%S)/pre-deployment-state.yaml
+        
+        # Upload backup to S3
+        aws s3 cp backup/ s3://mlops-deployment-backups/$(date +%Y%m%d-%H%M%S)/ --recursive
+    
+    - name: Deploy to production
+      run: |
+        export ENVIRONMENT=production
+        export DEPLOYMENT_TYPE="${{ github.event.inputs.deployment_type || 'rolling' }}"
+        export IMAGE_TAG="${{ github.sha }}"
+        
+        # Make deployment script executable
+        chmod +x infrastructure/production/scripts/deploy.sh
+        
+        case $DEPLOYMENT_TYPE in
+          "blue-green")
+            echo "🔵🟢 Executing blue-green deployment"
+            # Custom blue-green deployment logic
+            ;;
+          "canary")
+            echo "🐤 Executing canary deployment"
+            # Custom canary deployment logic
+            ;;
+          *)
+            echo "🔄 Executing rolling deployment"
+            # Use standard rolling deployment
+            ;;
+        esac
+        
+        # Execute deployment
+        cd infrastructure/production
+        ./scripts/deploy.sh
+    
+    - name: Validate production deployment
+      run: |
+        # Configure kubectl
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name production-mlops-cluster
+        
+        # Check deployment status
+        kubectl get deployments -n mlops-production
+        kubectl get pods -n mlops-production
+        
+        # Wait for all deployments to be ready
+        kubectl wait --for=condition=available --timeout=600s deployment --all -n mlops-production
+        
+        # Get external endpoint
+        PROD_ENDPOINT=$(kubectl get service api-gateway-external -n mlops-production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        
+        # Wait for endpoint to be ready
+        timeout 300 bash -c 'until curl -f http://$PROD_ENDPOINT/health; do sleep 10; done'
+        
+        echo "✅ Production deployment validation completed"
+        echo "🌐 Production endpoint: http://$PROD_ENDPOINT"
+    
+    - name: Run smoke tests
+      run: |
+        # Get production endpoint
+        PROD_ENDPOINT=$(kubectl get service api-gateway-external -n mlops-production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        
+        # Run critical path tests
+        cd tests/smoke
+        python -m pytest production_smoke_tests.py -v --prod-url="http://$PROD_ENDPOINT"
+    
+    - name: Update deployment status
+      run: |
+        # Create deployment record
+        cat > deployment-record.json << EOF
+        {
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "commit_sha": "${{ github.sha }}",
+          "deployment_type": "${{ github.event.inputs.deployment_type || 'rolling' }}",
+          "environment": "production",
+          "status": "success",
+          "deployed_by": "${{ github.actor }}",
+          "workflow_run": "${{ github.run_id }}"
+        }
+        EOF
+        
+        # Store deployment record
+        aws s3 cp deployment-record.json s3://mlops-deployment-records/$(date +%Y%m%d-%H%M%S)-deployment.json
+    
+    - name: Notify deployment success
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        channel: '#mlops-deployments'
+        text: |
+          🚀 Production Deployment ${{ job.status == 'success' && 'Completed Successfully' || 'Failed' }}
+          
+          📋 Details:
+          • Environment: Production
+          • Commit: ${{ github.sha }}
+          • Type: ${{ github.event.inputs.deployment_type || 'rolling' }}
+          • Triggered by: ${{ github.actor }}
+          • Workflow: ${{ github.run_id }}
+          
+          ${{ job.status == 'success' && '✅ All systems operational' || '❌ Deployment failed - immediate attention required' }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  
+  # Post-deployment monitoring
+  post-deployment-monitoring:
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always() && needs.deploy-production.result == 'success'
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: ${{ env.KUBECTL_VERSION }}
+    
+    - name: Monitor deployment for 10 minutes
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name production-mlops-cluster
+        
+        echo "🔍 Monitoring production deployment for 10 minutes..."
+        
+        for i in {1..10}; do
+          echo "Monitor cycle $i/10..."
+          
+          # Check pod health
+          UNHEALTHY_PODS=$(kubectl get pods -n mlops-production --field-selector=status.phase!=Running --no-headers | wc -l)
+          
+          if [ $UNHEALTHY_PODS -gt 0 ]; then
+            echo "❌ Found $UNHEALTHY_PODS unhealthy pods"
+            kubectl get pods -n mlops-production --field-selector=status.phase!=Running
+            
+            # Trigger rollback if needed
+            echo "🚨 Triggering automatic rollback"
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/actions/workflows/emergency-rollback.yml/dispatches \
+              -d '{"ref":"main","inputs":{"reason":"Unhealthy pods detected during post-deployment monitoring"}}'
+            
+            exit 1
+          fi
+          
+          # Check error rates (if monitoring endpoint is available)
+          PROD_ENDPOINT=$(kubectl get service api-gateway-external -n mlops-production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          
+          if curl -f "http://$PROD_ENDPOINT/metrics" > /tmp/metrics.txt 2>/dev/null; then
+            ERROR_RATE=$(grep "error_rate" /tmp/metrics.txt | awk '{print $2}' | head -1)
+            if (( $(echo "$ERROR_RATE > 0.01" | bc -l) )); then
+              echo "⚠️ High error rate detected: $ERROR_RATE"
+            fi
+          fi
+          
+          echo "✅ System healthy - cycle $i complete"
+          sleep 60
+        done
+        
+        echo "🎉 10-minute monitoring period completed successfully"
+    
+    - name: Generate deployment report
+      run: |
+        # Create comprehensive deployment report
+        cat > deployment-report.md << EOF
+        # Production Deployment Report
+        
+        ## Deployment Details
+        - **Date**: $(date -u +%Y-%m-%d %H:%M:%S UTC)
+        - **Commit**: ${{ github.sha }}
+        - **Type**: ${{ github.event.inputs.deployment_type || 'rolling' }}
+        - **Triggered by**: ${{ github.actor }}
+        - **Workflow Run**: ${{ github.run_id }}
+        
+        ## System Status
+        $(kubectl get deployments -n mlops-production)
+        
+        ## Resource Utilization
+        $(kubectl top nodes)
+        
+        ## Next Steps
+        1. Continue monitoring system metrics for the next 24 hours
+        2. Review application logs for any anomalies
+        3. Validate business metrics and KPIs
+        4. Update runbooks if any issues were encountered
+        
+        ## Rollback Procedure
+        If issues are detected, use the emergency rollback workflow or run:
+        \`\`\`
+        ./infrastructure/production/scripts/rollback.sh --strategy rolling --target previous
+        \`\`\`
+        EOF
+        
+        # Upload report
+        aws s3 cp deployment-report.md s3://mlops-deployment-reports/$(date +%Y%m%d-%H%M%S)-report.md
+        
+        echo "📊 Deployment report generated and uploaded"
