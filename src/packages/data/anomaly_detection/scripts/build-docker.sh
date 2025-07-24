@@ -8,15 +8,16 @@ PROJECT_NAME="anomaly-detection"
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 VCS_REF=$(git rev-parse --short HEAD)
 VERSION=${1:-latest}
-DOCKERFILE=${2:-Dockerfile}
+DOCKERFILE=${2:-Dockerfile.optimized}  # Use optimized Dockerfile by default for domain architecture
 
-echo "🐳 Building Docker image for Anomaly Detection Service"
-echo "=================================================="
+echo "🐳 Building Docker image for Anomaly Detection Service (Domain-Driven)"
+echo "=================================================================="
 echo "Project: $PROJECT_NAME"
 echo "Version: $VERSION"
 echo "Dockerfile: $DOCKERFILE"
 echo "Build Date: $BUILD_DATE"
 echo "VCS Ref: $VCS_REF"
+echo "Architecture: Domain-Driven Design"
 echo ""
 
 # Build the image

@@ -1,155 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="28" failures="0" skipped="0" tests="28" time="9.843" timestamp="2025-07-24T14:25:17.517524-04:00" hostname="rocm-socm"><testcase classname="" name="tests.e2e.test_complete_workflows" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/e2e/test_complete_workflows.py'.
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="15" failures="0" skipped="0" tests="15" time="12.146" timestamp="2025-07-24T14:55:20.811300-04:00" hostname="rocm-socm"><testcase classname="" name="tests.performance.test_performance_load" time="0.000"><error message="collection failure">'load' not found in `markers` configuration option</error></testcase><testcase classname="" name="tests.performance.test_performance_memory" time="0.000"><error message="collection failure">'memory' not found in `markers` configuration option</error></testcase><testcase classname="" name="tests.property.test_property_based_data_structures" time="0.000"><error message="collection failure">'property' not found in `markers` configuration option</error></testcase><testcase classname="" name="tests.property.test_property_based_detection" time="0.000"><error message="collection failure">'property' not found in `markers` configuration option</error></testcase><testcase classname="" name="tests.security.test_security_authentication" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_authentication.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/e2e/test_complete_workflows.py:14: in &lt;module&gt;
-    from anomaly_detection.server import create_app
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.e2e.test_comprehensive_e2e" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/e2e/test_comprehensive_e2e.py'.
+tests/security/test_security_authentication.py:14: in &lt;module&gt;
+    from anomaly_detection.infrastructure.auth.jwt_handler import JWTHandler
+E   ModuleNotFoundError: No module named 'anomaly_detection.infrastructure.auth'</error></testcase><testcase classname="" name="tests.security.test_security_input_validation" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_input_validation.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/e2e/test_comprehensive_e2e.py:14: in &lt;module&gt;
-    from anomaly_detection.server import create_app
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.integration" time="0.000"><error message="collection failure">/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
-    ???
-&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
-    ???
-&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
-    ???
-&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
-    ???
-/home/admeier/.local/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/integration/conftest.py:12: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_algorithm_performance" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_algorithm_performance.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_algorithm_performance.py:13: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_batch_performance_investigation" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_batch_performance_investigation.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_batch_performance_investigation.py:14: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_batch_vs_single_performance" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_batch_vs_single_performance.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_batch_vs_single_performance.py:14: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_performance_benchmarks" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_performance_benchmarks.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_performance_benchmarks.py:12: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_performance_load" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_performance_load.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_performance_load.py:15: in &lt;module&gt;
-    from anomaly_detection.main import create_app
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_performance_memory" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_performance_memory.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_performance_memory.py:14: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.performance.test_system_performance" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/performance/test_system_performance.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/performance/test_system_performance.py:14: in &lt;module&gt;
-    from anomaly_detection.server import create_app
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.property.test_property_based_data_structures" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/property/test_property_based_data_structures.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/property/test_property_based_data_structures.py:11: in &lt;module&gt;
-    from anomaly_detection.domain.entities.detection_result import DetectionResult
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.property.test_property_based_detection" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/property/test_property_based_detection.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/property/test_property_based_detection.py:10: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.security.test_api_security" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_api_security.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/security/test_api_security.py:12: in &lt;module&gt;
-    from anomaly_detection.server import create_app
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.security.test_comprehensive_security" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_comprehensive_security.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/security/test_comprehensive_security.py:16: in &lt;module&gt;
-    from anomaly_detection.server import create_app
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.security.test_data_security" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_data_security.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/security/test_data_security.py:14: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.security.test_security_authentication" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_authentication.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/security/test_security_authentication.py:12: in &lt;module&gt;
-    from anomaly_detection.api.v1.detection import detect_anomalies
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.security.test_security_cryptography" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_cryptography.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/security/test_security_cryptography.py:17: in &lt;module&gt;
-    from anomaly_detection.infrastructure.security.encryption import DataEncryption
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.security.test_security_input_validation" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/security/test_security_input_validation.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/security/test_security_input_validation.py:9: in &lt;module&gt;
-    from anomaly_detection.domain.services.detection_service import DetectionService
-E   ModuleNotFoundError: No module named 'anomaly_detection'</error></testcase><testcase classname="" name="tests.test_runner" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/test_runner.py'.
+tests/security/test_security_input_validation.py:14: in &lt;module&gt;
+    from anomaly_detection.cli.commands.models import train_command, predict_command
+E   ImportError: cannot import name 'train_command' from 'anomaly_detection.cli.commands.models' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/cli/commands/models.py)</error></testcase><testcase classname="" name="tests.test_runner" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/test_runner.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module
@@ -183,15 +48,7 @@ Traceback:
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/unit/test_cli_health.py:10: in &lt;module&gt;
     from anomaly_detection.cli.commands.health import app
-E   ModuleNotFoundError: No module named 'anomaly_detection.cli.commands.health'</error></testcase><testcase classname="" name="tests.unit.test_entry_main" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/unit/test_entry_main.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.12/importlib/__init__.py:90: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/unit/test_entry_main.py:12: in &lt;module&gt;
-    from anomaly_detection.cli_new.main import app as cli_app
-E   ModuleNotFoundError: No module named 'anomaly_detection.cli_new'</error></testcase><testcase classname="" name="tests.unit.test_entry_server" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/unit/test_entry_server.py'.
+E   ModuleNotFoundError: No module named 'anomaly_detection.cli.commands.health'</error></testcase><testcase classname="" name="tests.unit.test_entry_server" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/unit/test_entry_server.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module
@@ -223,7 +80,7 @@ Traceback:
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/unit/test_infrastructure_monitoring.py:26: in &lt;module&gt;
     from anomaly_detection.infrastructure.monitoring.alerting_system import (
-E   ModuleNotFoundError: No module named 'anomaly_detection.infrastructure.monitoring.alerting_system'</error></testcase><testcase classname="" name="tests.utils.test_factories" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/utils/test_factories.py'.
+E   ImportError: cannot import name 'AlertChannel' from 'anomaly_detection.infrastructure.monitoring.alerting_system' (/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/src/anomaly_detection/infrastructure/monitoring/alerting_system.py)</error></testcase><testcase classname="" name="tests.utils.test_factories" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/monorepo/src/packages/data/anomaly_detection/tests/utils/test_factories.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.12/importlib/__init__.py:90: in import_module

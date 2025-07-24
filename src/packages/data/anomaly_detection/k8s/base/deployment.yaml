@@ -50,6 +50,10 @@ spec:
           value: "redis://redis:6379/$(REDIS_DB)"
         - name: ANOMALY_DETECTION_KAFKA_BROKERS
           value: "kafka:9092"
+        - name: ANOMALY_DETECTION_DOMAIN_MODE
+          value: "enabled"
+        - name: ANOMALY_DETECTION_FALLBACK_IMPORTS
+          value: "enabled"
         envFrom:
         - configMapRef:
             name: anomaly-detection-config
@@ -188,6 +192,10 @@ spec:
           value: "redis://redis:6379/$(REDIS_DB)"
         - name: ANOMALY_DETECTION_KAFKA_BROKERS
           value: "kafka:9092"
+        - name: ANOMALY_DETECTION_DOMAIN_MODE
+          value: "enabled"
+        - name: ANOMALY_DETECTION_FALLBACK_IMPORTS
+          value: "enabled"
         envFrom:
         - configMapRef:
             name: anomaly-detection-config

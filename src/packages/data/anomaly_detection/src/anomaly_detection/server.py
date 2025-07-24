@@ -46,6 +46,11 @@ health_checker = get_health_checker()
 performance_monitor = get_performance_monitor()
 monitoring_dashboard = get_monitoring_dashboard()
 
+# Global service instances - initialized during startup
+global_detection_service: Optional[DetectionService] = None
+global_ensemble_service: Optional[EnsembleService] = None
+global_model_repository: Optional[ModelRepository] = None
+
 
 class DetectionRequest(BaseModel):
     """Request model for anomaly detection."""
@@ -116,9 +121,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _app_start_time = datetime.utcnow()
     
     # Initialize services
-    _detection_service = DetectionService()
-    _ensemble_service = EnsembleService()
-    _model_repository = ModelRepository()
+    global global_detection_service, global_ensemble_service, global_model_repository
+    global_detection_service = DetectionService()
+    global_ensemble_service = EnsembleService()
+    global_model_repository = ModelRepository()
+    
+    # Keep local references for backward compatibility
+    _detection_service = global_detection_service
+    _ensemble_service = global_ensemble_service
+    _model_repository = global_model_repository
     
     logger.info("Services initialized successfully")
     
