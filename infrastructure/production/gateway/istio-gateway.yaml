@@ -1,0 +1,571 @@
+# Istio Service Mesh Configuration for MLOps Platform
+# This file defines the complete service mesh setup for production
+
+# =============================================================================
+# GATEWAY CONFIGURATION
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: mlops-gateway
+  namespace: mlops-production
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  # HTTPS Traffic
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: mlops-tls-cert
+    hosts:
+    - api.mlops-platform.com
+    - app.mlops-platform.com
+    - monitoring.mlops-platform.com
+  # HTTP Traffic (Redirect to HTTPS)
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - api.mlops-platform.com
+    - app.mlops-platform.com
+    - monitoring.mlops-platform.com
+    tls:
+      httpsRedirect: true
+
+---
+# =============================================================================
+# VIRTUAL SERVICES
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mlops-api-vs
+  namespace: mlops-production
+spec:
+  hosts:
+  - api.mlops-platform.com
+  gateways:
+  - mlops-gateway
+  http:
+  # Authentication Routes
+  - match:
+    - uri:
+        prefix: /api/v1/auth
+    route:
+    - destination:
+        host: api-server
+        port:
+          number: 8000
+    timeout: 10s
+    retries:
+      attempts: 3
+      perTryTimeout: 3s
+    fault:
+      delay:
+        percentage:
+          value: 0.1
+        fixedDelay: 100ms
+  
+  # Model Prediction Routes (High Priority)
+  - match:
+    - uri:
+        prefix: /api/v1/models/predict
+    route:
+    - destination:
+        host: model-server
+        port:
+          number: 8080
+      weight: 90
+    - destination:
+        host: model-server-canary
+        port:
+          number: 8080
+      weight: 10
+    timeout: 30s
+    retries:
+      attempts: 2
+      perTryTimeout: 15s
+  
+  # General API Routes
+  - match:
+    - uri:
+        prefix: /api/v1
+    route:
+    - destination:
+        host: api-server
+        port:
+          number: 8000
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  
+  # Health Check Routes
+  - match:
+    - uri:
+        exact: /health
+    - uri:
+        exact: /health/detailed
+    route:
+    - destination:
+        host: api-server
+        port:
+          number: 8000
+    timeout: 5s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mlops-web-vs
+  namespace: mlops-production
+spec:
+  hosts:
+  - app.mlops-platform.com
+  gateways:
+  - mlops-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: web-ui
+        port:
+          number: 80
+    timeout: 30s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mlops-monitoring-vs
+  namespace: mlops-production
+spec:
+  hosts:
+  - monitoring.mlops-platform.com
+  gateways:
+  - mlops-gateway
+  http:
+  # Grafana Dashboard
+  - match:
+    - uri:
+        prefix: /grafana
+    route:
+    - destination:
+        host: grafana
+        port:
+          number: 3000
+    timeout: 30s
+  
+  # Prometheus Metrics
+  - match:
+    - uri:
+        prefix: /prometheus
+    route:
+    - destination:
+        host: prometheus
+        port:
+          number: 9090
+    timeout: 30s
+  
+  # AlertManager
+  - match:
+    - uri:
+        prefix: /alertmanager
+    route:
+    - destination:
+        host: alertmanager
+        port:
+          number: 9093
+    timeout: 30s
+
+---
+# =============================================================================
+# DESTINATION RULES
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: api-server-dr
+  namespace: mlops-production
+spec:
+  host: api-server
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+        consecutiveGatewayErrors: 5
+        interval: 30s
+        baseEjectionTime: 30s
+    circuitBreaker:
+      consecutiveGatewayErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+  portLevelSettings:
+  - port:
+      number: 8000
+    connectionPool:
+      tcp:
+        maxConnections: 50
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: model-server-dr
+  namespace: mlops-production
+spec:
+  host: model-server
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 25
+        http2MaxRequests: 50
+        maxRequestsPerConnection: 5
+        maxRetries: 2
+    circuitBreaker:
+      consecutiveGatewayErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 30
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: canary
+    labels:
+      version: canary
+    trafficPolicy:
+      loadBalancer:
+        simple: LEAST_CONN
+
+---
+# =============================================================================
+# SERVICE ENTRIES FOR EXTERNAL SERVICES
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-database
+  namespace: mlops-production
+spec:
+  hosts:
+  - database.external.com
+  ports:
+  - number: 5432
+    name: postgres
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-object-storage
+  namespace: mlops-production
+spec:
+  hosts:
+  - s3.amazonaws.com
+  - "*.s3.amazonaws.com"
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+# =============================================================================
+# SECURITY POLICIES
+# =============================================================================
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: mlops-production
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: api-server-authz
+  namespace: mlops-production
+spec:
+  selector:
+    matchLabels:
+      app: api-server
+  rules:
+  # Allow health checks from anywhere
+  - to:
+    - operation:
+        paths: ["/health", "/health/detailed"]
+    from:
+    - source:
+        principals: ["*"]
+  
+  # Allow authenticated API access
+  - to:
+    - operation:
+        paths: ["/api/v1/*"]
+    from:
+    - source:
+        requestPrincipals: ["*"]
+    when:
+    - key: request.headers[authorization]
+      values: ["Bearer *"]
+  
+  # Allow Prometheus scraping
+  - to:
+    - operation:
+        paths: ["/metrics"]
+    from:
+    - source:
+        principals: ["cluster.local/ns/mlops-production/sa/prometheus"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: model-server-authz
+  namespace: mlops-production
+spec:
+  selector:
+    matchLabels:
+      app: model-server
+  rules:
+  # Allow predictions from API server only
+  - to:
+    - operation:
+        paths: ["/predict", "/batch-predict"]
+    from:
+    - source:
+        principals: ["cluster.local/ns/mlops-production/sa/api-server"]
+  
+  # Allow health checks
+  - to:
+    - operation:
+        paths: ["/health"]
+    from:
+    - source:
+        principals: ["*"]
+
+---
+# =============================================================================
+# REQUEST AUTHENTICATION
+# =============================================================================
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: mlops-production
+spec:
+  selector:
+    matchLabels:
+      app: api-server
+  jwtRules:
+  - issuer: "https://auth.mlops-platform.com"
+    jwksUri: "https://auth.mlops-platform.com/.well-known/jwks.json"
+    audiences:
+    - "mlops-api"
+    forwardOriginalToken: true
+
+---
+# =============================================================================
+# TELEMETRY CONFIGURATION
+# =============================================================================
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: default
+  namespace: mlops-production
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+  - overrides:
+    - match:
+        metric: ALL_METRICS
+      tagOverrides:
+        environment:
+          value: "production"
+        service_version:
+          value: "%{ISTIO_META_VERSION}"
+  accessLogging:
+  - providers:
+    - name: otel
+
+---
+# =============================================================================
+# ENVOY FILTERS FOR CUSTOM FUNCTIONALITY
+# =============================================================================
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: rate-limiting
+  namespace: mlops-production
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.local_ratelimit
+        typed_config:
+          "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+          type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+          value:
+            stat_prefix: rate_limiter
+            token_bucket:
+              max_tokens: 1000
+              tokens_per_fill: 100
+              fill_interval: 1s
+            filter_enabled:
+              runtime_key: local_rate_limit_enabled
+              default_value:
+                numerator: 100
+                denominator: HUNDRED
+            filter_enforced:
+              runtime_key: local_rate_limit_enforced
+              default_value:
+                numerator: 100
+                denominator: HUNDRED
+            response_headers_to_add:
+            - append: false
+              header:
+                key: x-local-rate-limit
+                value: 'true'
+
+---
+# =============================================================================
+# WORKLOAD ENTRIES FOR EXTERNAL SERVICES
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: WorkloadEntry
+metadata:
+  name: external-ml-service
+  namespace: mlops-production
+spec:
+  address: ml-service.external.com
+  ports:
+    http: 8080
+  labels:
+    app: external-ml-service
+    version: v1
+
+---
+# =============================================================================
+# SIDECAR CONFIGURATION
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: default
+  namespace: mlops-production
+spec:
+  egress:
+  - hosts:
+    - "./*"
+    - "istio-system/*"
+    - "kube-system/*"
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+
+---
+# =============================================================================
+# WASM PLUGINS FOR ADVANCED FUNCTIONALITY
+# =============================================================================
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: custom-auth
+  namespace: mlops-production
+spec:
+  selector:
+    matchLabels:
+      app: api-server
+  url: oci://registry.mlops-platform.com/wasm/custom-auth:latest
+  pluginConfig:
+    auth_service_url: "https://auth.mlops-platform.com/validate"
+    cache_ttl: 300
+    allowed_paths:
+    - "/health"
+    - "/metrics"
+  phase: AUTHN
+
+---
+# =============================================================================
+# PROXY CONFIGURATION
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio-proxy-config
+  namespace: mlops-production
+data:
+  custom_bootstrap.json: |
+    {
+      "stats_config": {
+        "stats_tags": [
+          {
+            "tag_name": "service_name",
+            "regex": "^cluster\\.((.+?)\\.).*"
+          }
+        ]
+      },
+      "static_resources": {
+        "clusters": [
+          {
+            "name": "custom_metrics_service",
+            "type": "STRICT_DNS",
+            "lb_policy": "ROUND_ROBIN",
+            "load_assignment": {
+              "cluster_name": "custom_metrics_service",
+              "endpoints": [
+                {
+                  "lb_endpoints": [
+                    {
+                      "endpoint": {
+                        "address": {
+                          "socket_address": {
+                            "address": "metrics-collector.monitoring.svc.cluster.local",
+                            "port_value": 8080
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
