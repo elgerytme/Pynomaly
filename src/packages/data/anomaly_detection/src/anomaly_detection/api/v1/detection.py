@@ -26,10 +26,8 @@ class DetectionRequest(BaseModel):
     )
     algorithm: Literal[
         "isolation_forest", 
-        "one_class_svm", 
         "local_outlier_factor",
         "lof",
-        "ocsvm",
         "iforest"
     ] = Field(
         default="isolation_forest", 
@@ -68,13 +66,8 @@ class DetectionRequest(BaseModel):
     
     @validator('algorithm')
     def normalize_algorithm_name(cls, v):
-        # Normalize algorithm names
-        algorithm_mapping = {
-            "iforest": "isolation_forest",
-            "lof": "local_outlier_factor", 
-            "ocsvm": "one_class_svm"
-        }
-        return algorithm_mapping.get(v, v)
+        # Normalize algorithm names - keep as-is since we only support these
+        return v
     
     @validator('parameters')
     def validate_parameters(cls, v, values):
@@ -100,7 +93,7 @@ class DetectionRequest(BaseModel):
 class EnsembleRequest(BaseModel):
     """Request model for ensemble detection."""
     data: List[List[float]] = Field(..., description="Input data as list of feature vectors")
-    algorithms: List[str] = Field(default=["isolation_forest", "one_class_svm", "lof"], 
+    algorithms: List[str] = Field(default=["isolation_forest", "lof"], 
                                  description="Algorithms to use in ensemble")
     method: str = Field(default="majority", description="Ensemble combination method")
     contamination: float = Field(default=0.1, ge=0.001, le=0.5, description="Expected contamination rate")
@@ -167,10 +160,9 @@ async def detect_anomalies(
         # Convert to numpy array
         data_array = np.array(request.data, dtype=np.float64)
         
-        # Map algorithm names
+        # Map algorithm names to supported backend algorithms
         algorithm_map = {
             'isolation_forest': 'iforest',
-            'one_class_svm': 'ocsvm',
             'local_outlier_factor': 'lof',
             'lof': 'lof'
         }
@@ -244,10 +236,9 @@ async def ensemble_detect(
         # Convert to numpy array
         data_array = np.array(request.data, dtype=np.float64)
         
-        # Map algorithm names
+        # Map algorithm names to supported backend algorithms
         algorithm_map = {
             'isolation_forest': 'iforest',
-            'one_class_svm': 'ocsvm',
             'local_outlier_factor': 'lof',
             'lof': 'lof'
         }
@@ -329,7 +320,6 @@ async def list_algorithms() -> Dict[str, List[str]]:
     return {
         "single_algorithms": [
             "isolation_forest",
-            "one_class_svm", 
             "local_outlier_factor",
             "lof"
         ],

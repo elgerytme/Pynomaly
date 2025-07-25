@@ -30,6 +30,19 @@ from mlops.domain.interfaces.mlops_monitoring_operations import (
     AlertingPort,
     HealthCheckPort
 )
+from mlops.domain.interfaces.service_discovery_operations import (
+    ServiceRegistryPort,
+    ServiceDiscoveryPort,
+    HealthCheckPort as ServiceHealthCheckPort,
+    LoadBalancerPort
+)
+from mlops.domain.interfaces.configuration_management_operations import (
+    ConfigurationProviderPort,
+    ConfigurationWatcherPort,
+    ConfigurationValidatorPort,
+    SecretManagementPort,
+    EnvironmentConfigurationPort
+)
 
 T = TypeVar('T')
 
@@ -57,6 +70,19 @@ class ContainerConfig:
     enable_datadog_monitoring: bool = False
     enable_local_monitoring: bool = True
     monitoring_config: Dict[str, Any] = None
+    
+    # Service discovery configuration
+    enable_file_service_discovery: bool = True
+    enable_consul_service_discovery: bool = False
+    enable_etcd_service_discovery: bool = False
+    service_discovery_path: str = "service_discovery"
+    
+    # Configuration management
+    enable_file_configuration: bool = True
+    enable_consul_configuration: bool = False
+    enable_vault_secrets: bool = False
+    configuration_path: str = "configuration"
+    secrets_path: str = "secrets"
     
     # Database configuration
     enable_postgresql: bool = False
@@ -105,6 +131,8 @@ class Container:
         self._configure_model_registry_adapters()
         self._configure_monitoring_adapters()
         self._configure_storage_adapters()
+        self._configure_service_discovery_adapters()
+        self._configure_configuration_management_adapters()
     
     def _configure_experiment_tracking_adapters(self):
         """Configure experiment tracking adapters."""
@@ -267,6 +295,90 @@ class Container:
         # Fallback to stub implementations
         self._configure_monitoring_stubs()
     
+    def _configure_service_discovery_adapters(self):
+        """Configure service discovery adapters."""
+        # File-based service discovery (default)
+        if self._config.enable_file_service_discovery:
+            try:
+                from mlops.infrastructure.adapters.file_based.service_discovery_adapters import (
+                    FileBasedServiceRegistry,
+                    FileBasedServiceDiscovery,
+                    FileBasedHealthCheck,
+                    FileBasedLoadBalancer
+                )
+                
+                discovery_path = Path(self._config.service_discovery_path)
+                
+                # Create service registry
+                service_registry = FileBasedServiceRegistry(str(discovery_path / "registry"))
+                self._singletons[ServiceRegistryPort] = service_registry
+                
+                # Create service discovery
+                service_discovery = FileBasedServiceDiscovery(service_registry)
+                self._singletons[ServiceDiscoveryPort] = service_discovery
+                
+                # Create health check
+                health_check = FileBasedHealthCheck(str(discovery_path / "health"))
+                self._singletons[ServiceHealthCheckPort] = health_check
+                
+                # Create load balancer
+                load_balancer = FileBasedLoadBalancer(service_discovery, str(discovery_path / "load_balancer"))
+                self._singletons[LoadBalancerPort] = load_balancer
+                
+                logger.info("File-based service discovery adapters configured")
+                return
+                
+            except ImportError:
+                logger.warning("File service discovery adapter not available, falling back to stubs")
+        
+        # Fallback to stub implementations
+        self._configure_service_discovery_stubs()
+    
+    def _configure_configuration_management_adapters(self):
+        """Configure configuration management adapters."""
+        # File-based configuration management (default)
+        if self._config.enable_file_configuration:
+            try:
+                from mlops.infrastructure.adapters.file_based.configuration_management_adapters import (
+                    FileBasedConfigurationProvider,
+                    FileBasedConfigurationWatcher,
+                    FileBasedConfigurationValidator,
+                    FileBasedSecretManagement,
+                    FileBasedEnvironmentConfiguration
+                )
+                
+                config_path = Path(self._config.configuration_path)
+                secrets_path = Path(self._config.secrets_path)
+                
+                # Create configuration provider
+                config_provider = FileBasedConfigurationProvider(str(config_path))
+                self._singletons[ConfigurationProviderPort] = config_provider
+                
+                # Create configuration watcher
+                config_watcher = FileBasedConfigurationWatcher(config_provider)
+                self._singletons[ConfigurationWatcherPort] = config_watcher
+                
+                # Create configuration validator
+                config_validator = FileBasedConfigurationValidator(str(config_path / "validation"))
+                self._singletons[ConfigurationValidatorPort] = config_validator
+                
+                # Create secret management
+                secret_management = FileBasedSecretManagement(str(secrets_path))
+                self._singletons[SecretManagementPort] = secret_management
+                
+                # Create environment configuration
+                env_config = FileBasedEnvironmentConfiguration(str(config_path / "environments"))
+                self._singletons[EnvironmentConfigurationPort] = env_config
+                
+                logger.info("File-based configuration management adapters configured")
+                return
+                
+            except ImportError:
+                logger.warning("File configuration management adapter not available, falling back to stubs")
+        
+        # Fallback to stub implementations
+        self._configure_configuration_management_stubs()
+    
     def _configure_storage_adapters(self):
         """Configure storage adapters."""
         # S3 storage
@@ -341,12 +453,48 @@ class Container:
         
         logger.info("Monitoring stubs configured")
     
+    def _configure_service_discovery_stubs(self):
+        """Configure service discovery stub implementations."""
+        from mlops.infrastructure.adapters.stubs.service_discovery_stubs import (
+            ServiceRegistryStub,
+            ServiceDiscoveryStub,
+            ServiceHealthCheckStub,
+            LoadBalancerStub
+        )
+        
+        self._singletons[ServiceRegistryPort] = ServiceRegistryStub()
+        self._singletons[ServiceDiscoveryPort] = ServiceDiscoveryStub()
+        self._singletons[ServiceHealthCheckPort] = ServiceHealthCheckStub()
+        self._singletons[LoadBalancerPort] = LoadBalancerStub()
+        
+        logger.info("Service discovery stubs configured")
+    
+    def _configure_configuration_management_stubs(self):
+        """Configure configuration management stub implementations."""
+        from mlops.infrastructure.adapters.stubs.configuration_management_stubs import (
+            ConfigurationProviderStub,
+            ConfigurationWatcherStub,
+            ConfigurationValidatorStub,
+            SecretManagementStub,
+            EnvironmentConfigurationStub
+        )
+        
+        self._singletons[ConfigurationProviderPort] = ConfigurationProviderStub()
+        self._singletons[ConfigurationWatcherPort] = ConfigurationWatcherStub()
+        self._singletons[ConfigurationValidatorPort] = ConfigurationValidatorStub()
+        self._singletons[SecretManagementPort] = SecretManagementStub()
+        self._singletons[EnvironmentConfigurationPort] = EnvironmentConfigurationStub()
+        
+        logger.info("Configuration management stubs configured")
+    
     def _configure_domain_services(self):
         """Configure domain services with dependency injection."""
         try:
             from mlops.domain.services.refactored_experiment_service import ExperimentService
             from mlops.domain.services.refactored_model_registry_service import ModelRegistryService
             from mlops.domain.services.refactored_monitoring_service import MonitoringService
+            from mlops.domain.services.service_discovery_service import ServiceDiscoveryService
+            from mlops.domain.services.configuration_management_service import ConfigurationManagementService
             
             # Experiment service
             experiment_service = ExperimentService(
@@ -380,6 +528,25 @@ class Container:
                 health_check_port=self.get(HealthCheckPort)
             )
             self._singletons[MonitoringService] = monitoring_service
+            
+            # Service discovery service
+            service_discovery_service = ServiceDiscoveryService(
+                service_registry_port=self.get(ServiceRegistryPort),
+                service_discovery_port=self.get(ServiceDiscoveryPort),
+                health_check_port=self.get(ServiceHealthCheckPort),
+                load_balancer_port=self.get(LoadBalancerPort)
+            )
+            self._singletons[ServiceDiscoveryService] = service_discovery_service
+            
+            # Configuration management service
+            configuration_management_service = ConfigurationManagementService(
+                configuration_provider_port=self.get(ConfigurationProviderPort),
+                configuration_watcher_port=self.get(ConfigurationWatcherPort),
+                configuration_validator_port=self.get(ConfigurationValidatorPort),
+                secret_management_port=self.get(SecretManagementPort),
+                environment_configuration_port=self.get(EnvironmentConfigurationPort)
+            )
+            self._singletons[ConfigurationManagementService] = configuration_management_service
             
             logger.info("Domain services configured")
             

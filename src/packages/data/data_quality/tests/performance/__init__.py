@@ -1,0 +1,1 @@
+"""Performance tests for data_quality package."""

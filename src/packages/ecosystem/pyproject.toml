@@ -1,0 +1,239 @@
+[project]
+name = "ecosystem"
+version = "1.0.0"
+description = "Ecosystem integration framework for MLOps platform partnerships"
+authors = [
+    {name = "MLOps Platform Team", email = "platform@company.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+keywords = ["mlops", "ecosystem", "integrations", "partnerships", "connectors"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+dependencies = [
+    # Core dependencies
+    "structlog>=23.1.0",
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0",
+    
+    # Async support
+    "asyncio-mqtt>=0.16.0",
+    "aiofiles>=23.0.0",
+    
+    # Data handling
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    
+    # Serialization
+    "orjson>=3.8.0",
+    "msgpack>=1.0.0",
+    
+    # Database connectivity
+    "sqlalchemy>=2.0.0",
+    "asyncpg>=0.28.0",
+    
+    # Monitoring and observability
+    "prometheus-client>=0.16.0",
+    "opentelemetry-api>=1.18.0",
+    
+    # Cloud providers
+    "boto3>=1.26.0",
+    "azure-identity>=1.13.0",
+    "google-cloud-core>=2.3.0",
+]
+
+[project.optional-dependencies]
+# MLOps integrations
+mlops = [
+    "mlflow>=2.4.0",
+    "kubeflow-pipelines>=2.0.0",
+    "wandb>=0.15.0",
+    "neptune>=1.2.0",
+]
+
+# Data platform integrations
+data = [
+    "databricks-sdk>=0.8.0",
+    "snowflake-connector-python>=3.0.0",
+    "dbt-core>=1.5.0",
+    "great-expectations>=0.17.0",
+]
+
+# Monitoring integrations
+monitoring = [
+    "datadog>=0.47.0",
+    "newrelic>=8.8.0",
+    "grafana-client>=3.5.0",
+    "prometheus-client>=0.16.0",
+]
+
+# Cloud integrations
+cloud = [
+    "boto3>=1.26.0",
+    "azure-mgmt-core>=1.4.0",
+    "google-cloud-storage>=2.9.0",
+    "kubernetes>=26.1.0",
+]
+
+# Development dependencies
+dev = [
+    "pytest>=7.3.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.3.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.3.0",
+    "pre-commit>=3.3.0",
+]
+
+# Documentation dependencies
+docs = [
+    "mkdocs>=1.4.0",
+    "mkdocs-material>=9.1.0",
+    "mkdocs-mermaid2-plugin>=1.1.0",
+    "mkdocstrings[python]>=0.22.0",
+]
+
+# All optional dependencies
+all = [
+    "ecosystem[mlops,data,monitoring,cloud]"
+]
+
+[project.urls]
+Homepage = "https://github.com/company/mlops-platform"
+Documentation = "https://docs.company.com/ecosystem"
+Repository = "https://github.com/company/mlops-platform"
+Issues = "https://github.com/company/mlops-platform/issues"
+
+[project.scripts]
+ecosystem-cli = "ecosystem.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.github",
+    "/docs",
+    "/tests",
+    "/.gitignore",
+    "/.pre-commit-config.yaml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ecosystem"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "mlflow.*",
+    "databricks.*",
+    "snowflake.*",
+    "datadog.*",
+    "wandb.*",
+    "neptune.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--cov=src/ecosystem",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--strict-markers",
+    "--disable-warnings",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+    "requires_auth: Tests that require authentication",
+    "requires_network: Tests that require network access",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src/ecosystem"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
