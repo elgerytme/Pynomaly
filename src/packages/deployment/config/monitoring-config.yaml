@@ -324,5 +324,18 @@ integrations:
     
   # Jaeger integration (for tracing)
   jaeger:
-    enabled: false
+    enabled: true
     endpoint: "http://jaeger:14268"
+    service_name: "hexagonal-architecture"
+    sampling_rate: 0.1
+  
+  # DataDog integration (optional)
+  datadog:
+    enabled: false
+    api_key: "${DATADOG_API_KEY}"
+    app_key: "${DATADOG_APP_KEY}"
+  
+  # New Relic integration (optional)
+  newrelic:
+    enabled: false
+    license_key: "${NEWRELIC_LICENSE_KEY}"

@@ -1,0 +1,890 @@
+# OAuth2 and RBAC Authentication Setup
+# Production-ready authentication and authorization system
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: auth-system
+  labels:
+    name: auth-system
+    security: restricted
+
+---
+# OAuth2 Provider Configuration (Keycloak)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+  namespace: auth-system
+data:
+  standalone-ha.xml: |
+    <?xml version='1.0' encoding='UTF-8'?>
+    <server xmlns="urn:jboss:domain:8.0">
+        <extensions>
+            <extension module="org.jboss.as.clustering.infinispan"/>
+            <extension module="org.jboss.as.jaxrs"/>
+            <extension module="org.jboss.as.jdr"/>
+            <extension module="org.jboss.as.logging"/>
+            <extension module="org.jboss.as.naming"/>
+            <extension module="org.jboss.as.security"/>
+            <extension module="org.jboss.as.transactions"/>
+            <extension module="org.keycloak.keycloak-adapter-subsystem"/>
+            <extension module="org.keycloak.keycloak-server-subsystem"/>
+        </extensions>
+        <system-properties>
+            <property name="keycloak.profile.feature.admin_fine_grained_authz" value="enabled"/>
+            <property name="keycloak.profile.feature.docker" value="enabled"/>
+            <property name="keycloak.profile.feature.impersonation" value="enabled"/>
+            <property name="keycloak.profile.feature.openshift_integration" value="enabled"/>
+            <property name="keycloak.profile.feature.scripts" value="enabled"/>
+            <property name="keycloak.profile.feature.token_exchange" value="enabled"/>
+            <property name="keycloak.profile.feature.web_authn" value="enabled"/>
+        </system-properties>
+    </server>
+
+  realm-config.json: |
+    {
+      "realm": "domain-driven-platform",
+      "enabled": true,
+      "sslRequired": "external",
+      "registrationAllowed": false,
+      "registrationEmailAsUsername": false,
+      "rememberMe": true,
+      "verifyEmail": true,
+      "loginWithEmailAllowed": true,
+      "duplicateEmailsAllowed": false,
+      "resetPasswordAllowed": true,
+      "editUsernameAllowed": false,
+      "bruteForceProtected": true,
+      "permanentLockout": false,
+      "maxFailureWaitSeconds": 900,
+      "minimumQuickLoginWaitSeconds": 60,
+      "waitIncrementSeconds": 60,
+      "quickLoginCheckMilliSeconds": 1000,
+      "maxDeltaTimeSeconds": 43200,
+      "failureFactor": 30,
+      "defaultRoles": ["default-roles-domain-driven-platform", "offline_access", "uma_authorization"],
+      "requiredCredentials": ["password"],
+      "passwordPolicy": "length(12) and digits(2) and lowerCase(2) and upperCase(2) and specialChars(2) and notUsername",
+      "otpPolicyType": "totp",
+      "otpPolicyAlgorithm": "HmacSHA1",
+      "otpPolicyInitialCounter": 0,
+      "otpPolicyDigits": 6,
+      "otpPolicyLookAheadWindow": 1,
+      "otpPolicyPeriod": 30,
+      "clients": [
+        {
+          "clientId": "platform-web",
+          "enabled": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "web-client-secret",
+          "redirectUris": [
+            "https://platform.com/*",
+            "https://app.platform.com/*"
+          ],
+          "webOrigins": [
+            "https://platform.com",
+            "https://app.platform.com"
+          ],
+          "protocol": "openid-connect",
+          "attributes": {
+            "saml.assertion.signature": "false",
+            "saml.force.post.binding": "false",
+            "saml.multivalued.roles": "false",
+            "saml.encrypt": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "backchannel.logout.revoke.offline.tokens": "false",
+            "saml.server.signature": "false",
+            "saml.server.signature.keyinfo.ext": "false",
+            "exclude.session.state.from.auth.response": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "saml.artifact.binding": "false",
+            "backchannel.logout.session.required": "true",
+            "client_credentials.use_refresh_token": "false",
+            "saml_force_name_id_format": "false",
+            "require.pushed.authorization.requests": "false",
+            "saml.client.signature": "false",
+            "tls.client.certificate.bound.access.tokens": "false",
+            "saml.authnstatement": "false",
+            "display.on.consent.screen": "false",
+            "saml.onetimeuse.condition": "false"
+          },
+          "authenticationFlowBindingOverrides": {},
+          "fullScopeAllowed": true,
+          "nodeReRegistrationTimeout": -1,
+          "defaultClientScopes": [
+            "web-origins",
+            "role_list",
+            "profile",
+            "roles",
+            "email"
+          ],
+          "optionalClientScopes": [
+            "address",
+            "phone",
+            "offline_access",
+            "microprofile-jwt"
+          ]
+        },
+        {
+          "clientId": "platform-api",
+          "enabled": true,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "api-client-secret",
+          "serviceAccountsEnabled": true,
+          "protocol": "openid-connect",
+          "attributes": {
+            "oauth2.device.authorization.grant.enabled": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "client_credentials.use_refresh_token": "false",
+            "require.pushed.authorization.requests": "false",
+            "tls.client.certificate.bound.access.tokens": "false",
+            "display.on.consent.screen": "false"
+          },
+          "authenticationFlowBindingOverrides": {},
+          "fullScopeAllowed": true,
+          "nodeReRegistrationTimeout": -1,
+          "defaultClientScopes": [
+            "web-origins",
+            "role_list",
+            "profile",
+            "roles",
+            "email"
+          ],
+          "optionalClientScopes": [
+            "address",
+            "phone",
+            "offline_access",
+            "microprofile-jwt"
+          ]
+        }
+      ],
+      "roles": {
+        "realm": [
+          {
+            "name": "platform-admin",
+            "description": "Platform Administrator",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "domain-driven-platform"
+          },
+          {
+            "name": "package-developer",
+            "description": "Package Developer",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "domain-driven-platform"
+          },
+          {
+            "name": "package-viewer",
+            "description": "Package Viewer",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "domain-driven-platform"
+          },
+          {
+            "name": "enterprise-user",
+            "description": "Enterprise User",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "domain-driven-platform"
+          }
+        ]
+      },
+      "groups": [
+        {
+          "name": "Administrators",
+          "path": "/Administrators",
+          "realmRoles": ["platform-admin"]
+        },
+        {
+          "name": "Developers",
+          "path": "/Developers",
+          "realmRoles": ["package-developer"]
+        },
+        {
+          "name": "Enterprise Users",
+          "path": "/Enterprise Users",
+          "realmRoles": ["enterprise-user"]
+        }
+      ],
+      "users": [
+        {
+          "username": "admin",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "Platform",
+          "lastName": "Administrator",
+          "email": "admin@platform.com",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "admin123!@#",
+              "temporary": true
+            }
+          ],
+          "realmRoles": ["platform-admin"],
+          "groups": ["/Administrators"]
+        }
+      ],
+      "scopeMappings": [],
+      "clientScopeMappings": {},
+      "protocolMappers": [
+        {
+          "name": "audience resolve",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-resolve-mapper",
+          "consentRequired": false,
+          "config": {}
+        }
+      ],
+      "defaultDefaultClientScopes": [
+        "role_list",
+        "profile",
+        "email",
+        "web-origins"
+      ],
+      "defaultOptionalClientScopes": [
+        "offline_access",
+        "address",
+        "phone",
+        "microprofile-jwt"
+      ],
+      "browserSecurityHeaders": {
+        "contentSecurityPolicyReportOnly": "",
+        "xContentTypeOptions": "nosniff",
+        "xRobotsTag": "none",
+        "xFrameOptions": "SAMEORIGIN",
+        "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+        "xXSSProtection": "1; mode=block",
+        "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+      },
+      "smtpServer": {},
+      "eventsEnabled": true,
+      "eventsListeners": ["jboss-logging"],
+      "enabledEventTypes": [
+        "SEND_RESET_PASSWORD",
+        "UPDATE_CONSENT_ERROR",
+        "GRANT_CONSENT",
+        "REMOVE_TOTP",
+        "REVOKE_GRANT",
+        "LOGIN_ERROR",
+        "CLIENT_LOGIN",
+        "RESET_PASSWORD_ERROR",
+        "IMPERSONATE_ERROR",
+        "CODE_TO_TOKEN_ERROR",
+        "CUSTOM_REQUIRED_ACTION",
+        "RESTART_AUTHENTICATION",
+        "IMPERSONATE",
+        "UPDATE_PROFILE_ERROR",
+        "LOGIN",
+        "UPDATE_PASSWORD_ERROR",
+        "CLIENT_INITIATED_ACCOUNT_LINKING",
+        "TOKEN_EXCHANGE",
+        "LOGOUT",
+        "REGISTER",
+        "CLIENT_REGISTER",
+        "IDENTITY_PROVIDER_LINK_ACCOUNT",
+        "UPDATE_PASSWORD",
+        "CLIENT_DELETE",
+        "FEDERATED_IDENTITY_LINK_ERROR",
+        "IDENTITY_PROVIDER_FIRST_LOGIN",
+        "CLIENT_DELETE_ERROR",
+        "VERIFY_EMAIL",
+        "CLIENT_LOGIN_ERROR",
+        "RESTART_AUTHENTICATION_ERROR",
+        "EXECUTE_ACTIONS",
+        "REMOVE_FEDERATED_IDENTITY_ERROR",
+        "TOKEN_EXCHANGE_ERROR",
+        "PERMISSION_TOKEN",
+        "SEND_IDENTITY_PROVIDER_LINK_ERROR",
+        "SEND_VERIFY_EMAIL",
+        "RESET_PASSWORD",
+        "CLIENT_INITIATED_ACCOUNT_LINKING_ERROR",
+        "OAUTH2_DEVICE_VERIFY_USER_CODE",
+        "UPDATE_CONSENT",
+        "REMOVE_FEDERATED_IDENTITY",
+        "SEND_IDENTITY_PROVIDER_LINK",
+        "SEND_VERIFY_EMAIL_ERROR",
+        "RESTART_AUTHENTICATION",
+        "IDENTITY_PROVIDER_POST_LOGIN",
+        "UPDATE_PROFILE",
+        "OAUTH2_DEVICE_VERIFY_USER_CODE_ERROR",
+        "FEDERATED_IDENTITY_LINK",
+        "CLIENT_UPDATE",
+        "CLIENT_UPDATE_ERROR",
+        "REGISTER_ERROR",
+        "REVOKE_GRANT_ERROR",
+        "EXECUTE_ACTIONS_ERROR"
+      ],
+      "adminEventsEnabled": true,
+      "adminEventsDetailsEnabled": true,
+      "identityProviders": [],
+      "identityProviderMappers": [],
+      "components": {
+        "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
+          {
+            "name": "Allowed Protocol Mapper Types",
+            "providerId": "allowed-protocol-mappers",
+            "subType": "anonymous",
+            "config": {
+              "allowed-protocol-mapper-types": [
+                "oidc-full-name-mapper",
+                "saml-user-property-mapper",
+                "oidc-address-mapper",
+                "saml-role-list-mapper",
+                "saml-user-attribute-mapper",
+                "oidc-usermodel-property-mapper",
+                "oidc-usermodel-attribute-mapper"
+              ]
+            }
+          }
+        ]
+      },
+      "internationalizationEnabled": false,
+      "supportedLocales": [],
+      "authenticationFlows": [
+        {
+          "alias": "platform-browser",
+          "description": "Platform browser based authentication",
+          "providerId": "basic-flow",
+          "topLevel": true,
+          "builtIn": false,
+          "authenticationExecutions": [
+            {
+              "authenticator": "auth-cookie",
+              "requirement": "ALTERNATIVE",
+              "priority": 10,
+              "userSetupAllowed": false
+            },
+            {
+              "authenticator": "auth-spnego",
+              "requirement": "DISABLED",
+              "priority": 20,
+              "userSetupAllowed": false
+            },
+            {
+              "authenticator": "identity-provider-redirector",
+              "requirement": "ALTERNATIVE",
+              "priority": 25,
+              "userSetupAllowed": false
+            },
+            {
+              "flowAlias": "platform-browser forms",
+              "requirement": "ALTERNATIVE",
+              "priority": 30,
+              "userSetupAllowed": false
+            }
+          ]
+        }
+      ]
+    }
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak
+  namespace: auth-system
+  labels:
+    app: keycloak
+spec:
+  serviceName: keycloak-headless
+  replicas: 2
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/auth/realms/master/metrics"
+    spec:
+      serviceAccountName: keycloak
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: keycloak
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:22.0.5
+        args:
+          - start
+          - --hostname-strict=false
+          - --hostname-strict-https=false
+          - --http-enabled=true
+          - --http-port=8080
+          - --https-port=8443
+          - --cache=ispn
+          - --cache-stack=kubernetes
+          - --db=postgres
+          - --features=token-exchange,admin-fine-grained-authz
+          - --metrics-enabled=true
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-admin
+              key: password
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://postgres-primary.domain-driven-platform:5432/keycloak"
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-db
+              key: username
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-db
+              key: password
+        - name: KC_CACHE_STACK
+          value: "kubernetes"
+        - name: jgroups.dns.query
+          value: "keycloak-headless.auth-system.svc.cluster.local"
+        - name: JAVA_OPTS_APPEND
+          value: "-Djgroups.dns.query=keycloak-headless.auth-system.svc.cluster.local"
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: https
+          containerPort: 8443
+          protocol: TCP
+        - name: jgroups
+          containerPort: 7600
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /auth/realms/master
+            port: 8080
+          initialDelaySeconds: 300
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /auth/realms/master
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        volumeMounts:
+        - name: keycloak-config
+          mountPath: /opt/keycloak/conf/cache-ispn.xml
+          subPath: cache-ispn.xml
+        - name: realm-import
+          mountPath: /opt/keycloak/data/import
+      volumes:
+      - name: keycloak-config
+        configMap:
+          name: keycloak-config
+      - name: realm-import
+        configMap:
+          name: keycloak-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: auth-system
+  labels:
+    app: keycloak
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/auth/realms/master/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: keycloak
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-headless
+  namespace: auth-system
+  labels:
+    app: keycloak
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: jgroups
+    port: 7600
+    targetPort: 7600
+    protocol: TCP
+  selector:
+    app: keycloak
+
+---
+# RBAC Configuration for Kubernetes
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keycloak
+  namespace: auth-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: auth-system
+  name: keycloak-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: keycloak-rolebinding
+  namespace: auth-system
+subjects:
+- kind: ServiceAccount
+  name: keycloak
+  namespace: auth-system
+roleRef:
+  kind: Role
+  name: keycloak-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Platform RBAC Configuration
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: platform-admin
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: package-developer
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  resourceNames: []
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: package-viewer
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: enterprise-user
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+
+---
+# JWT Validation Webhook
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionWebhook
+metadata:
+  name: jwt-validator
+webhooks:
+- name: jwt-validator.auth-system.svc
+  clientConfig:
+    service:
+      name: jwt-validator
+      namespace: auth-system
+      path: "/validate"
+  rules:
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  failurePolicy: Fail
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jwt-validator
+  namespace: auth-system
+  labels:
+    app: jwt-validator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jwt-validator
+  template:
+    metadata:
+      labels:
+        app: jwt-validator
+    spec:
+      serviceAccountName: jwt-validator
+      containers:
+      - name: jwt-validator
+        image: jwt-validator:latest
+        ports:
+        - containerPort: 8443
+          name: webhook-api
+        env:
+        - name: TLS_CERT_FILE
+          value: /etc/webhook/certs/cert.pem
+        - name: TLS_PRIVATE_KEY_FILE
+          value: /etc/webhook/certs/key.pem
+        - name: KEYCLOAK_URL
+          value: "http://keycloak:8080"
+        - name: KEYCLOAK_REALM
+          value: "domain-driven-platform"
+        volumeMounts:
+        - name: webhook-certs
+          mountPath: /etc/webhook/certs
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: webhook-certs
+        secret:
+          secretName: jwt-validator-certs
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jwt-validator
+  namespace: auth-system
+  labels:
+    app: jwt-validator
+spec:
+  ports:
+  - name: webhook-api
+    port: 443
+    targetPort: 8443
+  selector:
+    app: jwt-validator
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jwt-validator
+  namespace: auth-system
+
+---
+# OAuth2 Proxy for additional security
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: auth-system
+  labels:
+    app: oauth2-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+    spec:
+      containers:
+      - name: oauth2-proxy
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
+        args:
+        - --provider=keycloak-oidc
+        - --client-id=platform-web
+        - --client-secret=web-client-secret
+        - --oidc-issuer-url=http://keycloak:8080/auth/realms/domain-driven-platform
+        - --cookie-secret=super-secret-cookie-secret-16-bytes
+        - --cookie-secure=true
+        - --cookie-httponly=true
+        - --cookie-samesite=lax
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        - --email-domain=*
+        - --pass-access-token=true
+        - --pass-user-headers=true
+        - --set-authorization-header=true
+        - --skip-provider-button=true
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+          name: http
+        env:
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-proxy-secrets
+              key: client-secret
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-proxy-secrets
+              key: cookie-secret
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 4180
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 4180
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-proxy
+  namespace: auth-system
+  labels:
+    app: oauth2-proxy
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4180
+    targetPort: 4180
+    protocol: TCP
+    name: http
+  selector:
+    app: oauth2-proxy
+
+---
+# Ingress with OAuth2 authentication
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: platform-ingress
+  namespace: domain-driven-platform
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.auth-system.svc.cluster.local:4180/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.auth-system.svc.cluster.local:4180/oauth2/start?rd=https://$host$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user,x-auth-request-email,x-auth-request-access-token"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - platform.com
+    - api.platform.com
+    - app.platform.com
+    secretName: platform-tls
+  rules:
+  - host: platform.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: platform-web
+            port:
+              number: 80
+  - host: api.platform.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: platform-api
+            port:
+              number: 8080
+  - host: app.platform.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: platform-app
+            port:
+              number: 3000
