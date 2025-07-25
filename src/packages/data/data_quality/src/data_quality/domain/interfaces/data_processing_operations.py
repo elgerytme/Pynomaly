@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 from data_quality.domain.entities.data_profile import DataProfile, ColumnProfile
-from data_quality.domain.entities.data_quality_check import DataQualityCheck, DataQualityResult
+from data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckResult
 from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleCondition
 
 
@@ -137,7 +137,7 @@ class DataValidationPort(ABC):
     async def validate_data_quality(
         self, 
         request: DataValidationRequest
-    ) -> List[DataQualityResult]:
+    ) -> List[CheckResult]:
         """Validate data quality against a set of rules.
         
         Args:
@@ -153,7 +153,7 @@ class DataValidationPort(ABC):
         self, 
         data_source: str, 
         check: DataQualityCheck
-    ) -> DataQualityResult:
+    ) -> CheckResult:
         """Execute a single data quality check.
         
         Args:
@@ -170,7 +170,7 @@ class DataValidationPort(ABC):
         self, 
         data_source: str, 
         rules: List[DataQualityRule]
-    ) -> List[DataQualityResult]:
+    ) -> List[CheckResult]:
         """Validate data against business rules.
         
         Args:

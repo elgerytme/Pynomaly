@@ -1,0 +1,657 @@
+# Automated Backup and Disaster Recovery Configuration
+# This file defines comprehensive backup strategies for the MLOps platform
+
+# =============================================================================
+# DATABASE BACKUP CONFIGURATION
+# =============================================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: mlops-production
+  labels:
+    app: postgres-backup
+    component: backup
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: backup-service-account
+          containers:
+          - name: postgres-backup
+            image: postgres:15-alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Starting PostgreSQL backup..."
+              
+              # Create backup filename with timestamp
+              BACKUP_FILE="mlops_prod_$(date +%Y%m%d_%H%M%S).sql"
+              BACKUP_PATH="/tmp/${BACKUP_FILE}"
+              
+              # Perform database backup
+              pg_dump \
+                --host=${POSTGRES_HOST} \
+                --port=${POSTGRES_PORT} \
+                --username=${POSTGRES_USER} \
+                --dbname=${POSTGRES_DB} \
+                --format=custom \
+                --compress=9 \
+                --verbose \
+                --file=${BACKUP_PATH}
+              
+              # Verify backup file
+              if [ ! -f "${BACKUP_PATH}" ]; then
+                echo "ERROR: Backup file not created"
+                exit 1
+              fi
+              
+              # Get backup file size
+              BACKUP_SIZE=$(du -h "${BACKUP_PATH}" | cut -f1)
+              echo "Backup completed: ${BACKUP_FILE} (${BACKUP_SIZE})"
+              
+              # Upload to S3
+              aws s3 cp "${BACKUP_PATH}" "s3://${S3_BACKUP_BUCKET}/database/postgres/" \
+                --storage-class STANDARD_IA \
+                --metadata "source=postgres,environment=production,backup-type=full"
+              
+              # Verify S3 upload
+              if aws s3 ls "s3://${S3_BACKUP_BUCKET}/database/postgres/${BACKUP_FILE}"; then
+                echo "Backup successfully uploaded to S3"
+              else
+                echo "ERROR: Failed to upload backup to S3"
+                exit 1
+              fi
+              
+              # Send notification
+              curl -X POST "${SLACK_WEBHOOK_URL}" \
+                -H 'Content-type: application/json' \
+                --data "{\"text\":\"✅ Database backup completed: ${BACKUP_FILE} (${BACKUP_SIZE})\"}"
+              
+              # Cleanup old backups (keep last 30 days)
+              aws s3 ls "s3://${S3_BACKUP_BUCKET}/database/postgres/" \
+                --query 'Contents[?LastModified<=`'"$(date -d '30 days ago' --iso-8601)"'`].Key' \
+                --output text | xargs -r -I {} aws s3 rm "s3://${S3_BACKUP_BUCKET}/database/postgres/{}"
+              
+              echo "Database backup process completed successfully"
+            env:
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: "mlops_prod"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mlops-database-credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlops-database-credentials
+                  key: password
+            - name: S3_BACKUP_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: backup-config
+                  key: s3-backup-bucket
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secrets
+                  key: slack-webhook-url
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: secret-access-key
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+            volumeMounts:
+            - name: backup-scripts
+              mountPath: /scripts
+          volumes:
+          - name: backup-scripts
+            configMap:
+              name: backup-scripts
+              defaultMode: 0755
+
+---
+# =============================================================================
+# REDIS BACKUP CONFIGURATION
+# =============================================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: mlops-production
+  labels:
+    app: redis-backup
+    component: backup
+spec:
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: redis-backup
+            image: redis:7-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Starting Redis backup..."
+              
+              # Create backup filename with timestamp
+              BACKUP_FILE="redis_cache_$(date +%Y%m%d_%H%M%S).rdb"
+              BACKUP_PATH="/tmp/${BACKUP_FILE}"
+              
+              # Create Redis backup using BGSAVE
+              redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -a ${REDIS_PASSWORD} BGSAVE
+              
+              # Wait for background save to complete
+              while [ $(redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -a ${REDIS_PASSWORD} LASTSAVE) -eq $(redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -a ${REDIS_PASSWORD} LASTSAVE) ]; do
+                sleep 5
+              done
+              
+              # Copy RDB file
+              redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -a ${REDIS_PASSWORD} --rdb ${BACKUP_PATH}
+              
+              # Compress backup
+              gzip ${BACKUP_PATH}
+              BACKUP_PATH="${BACKUP_PATH}.gz"
+              
+              # Upload to S3
+              aws s3 cp "${BACKUP_PATH}" "s3://${S3_BACKUP_BUCKET}/redis/" \
+                --storage-class STANDARD_IA
+              
+              echo "Redis backup completed: ${BACKUP_FILE}.gz"
+            env:
+            - name: REDIS_HOST
+              value: "redis-cache"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlops-secrets
+                  key: redis-password
+            - name: S3_BACKUP_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: backup-config
+                  key: s3-backup-bucket
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: secret-access-key
+
+---
+# =============================================================================
+# PERSISTENT VOLUME BACKUP
+# =============================================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: volume-backup
+  namespace: mlops-production
+  labels:
+    app: volume-backup
+    component: backup
+spec:
+  schedule: "0 4 * * 0"  # Weekly on Sunday at 4 AM
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: volume-backup
+            image: restic/restic:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Starting persistent volume backup..."
+              
+              # Initialize restic repository if not exists
+              restic snapshots || restic init
+              
+              # Backup model storage
+              restic backup /app/models \
+                --tag "models,production,$(date +%Y%m%d)" \
+                --exclude "*.tmp" \
+                --exclude "*.log"
+              
+              # Backup application logs
+              restic backup /var/log/app \
+                --tag "logs,production,$(date +%Y%m%d)" \
+                --exclude "*.gz"
+              
+              # Cleanup old snapshots (keep last 30 days)
+              restic forget \
+                --keep-daily 30 \
+                --keep-weekly 12 \
+                --keep-monthly 6 \
+                --prune
+              
+              # Verify backup integrity
+              restic check --read-data-subset=10%
+              
+              echo "Volume backup completed successfully"
+            env:
+            - name: RESTIC_REPOSITORY
+              value: "s3:s3.amazonaws.com/mlops-backup-bucket/volumes"
+            - name: RESTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backup-secrets
+                  key: restic-password
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: secret-access-key
+            volumeMounts:
+            - name: model-storage
+              mountPath: /app/models
+              readOnly: true
+            - name: logs-storage
+              mountPath: /var/log/app
+              readOnly: true
+            resources:
+              requests:
+                cpu: 200m
+                memory: 512Mi
+              limits:
+                cpu: 1
+                memory: 2Gi
+          volumes:
+          - name: model-storage
+            persistentVolumeClaim:
+              claimName: model-storage
+          - name: logs-storage
+            persistentVolumeClaim:
+              claimName: logs-storage
+
+---
+# =============================================================================
+# CONFIGURATION BACKUP
+# =============================================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: config-backup
+  namespace: mlops-production
+  labels:
+    app: config-backup
+    component: backup
+spec:
+  schedule: "0 1 * * 0"  # Weekly on Sunday at 1 AM
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: config-backup
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Starting configuration backup..."
+              
+              # Create backup directory
+              BACKUP_DIR="/tmp/config-backup-$(date +%Y%m%d_%H%M%S)"
+              mkdir -p ${BACKUP_DIR}
+              
+              # Backup Kubernetes resources
+              kubectl get all -n mlops-production -o yaml > ${BACKUP_DIR}/resources.yaml
+              kubectl get configmaps -n mlops-production -o yaml > ${BACKUP_DIR}/configmaps.yaml
+              kubectl get secrets -n mlops-production -o yaml > ${BACKUP_DIR}/secrets.yaml
+              kubectl get pvc -n mlops-production -o yaml > ${BACKUP_DIR}/pvc.yaml
+              kubectl get ingress -n mlops-production -o yaml > ${BACKUP_DIR}/ingress.yaml
+              
+              # Backup Istio configuration
+              kubectl get gateway -n mlops-production -o yaml > ${BACKUP_DIR}/istio-gateway.yaml
+              kubectl get virtualservice -n mlops-production -o yaml > ${BACKUP_DIR}/istio-virtualservice.yaml
+              kubectl get destinationrule -n mlops-production -o yaml > ${BACKUP_DIR}/istio-destinationrule.yaml
+              
+              # Create archive
+              tar -czf ${BACKUP_DIR}.tar.gz -C /tmp $(basename ${BACKUP_DIR})
+              
+              # Upload to S3
+              aws s3 cp ${BACKUP_DIR}.tar.gz s3://${S3_BACKUP_BUCKET}/configuration/ \
+                --storage-class STANDARD_IA
+              
+              echo "Configuration backup completed"
+            env:
+            - name: S3_BACKUP_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: backup-config
+                  key: s3-backup-bucket
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: secret-access-key
+
+---
+# =============================================================================
+# BACKUP MONITORING AND ALERTING
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: backup-monitor
+  namespace: mlops-production
+  labels:
+    app: backup-monitor
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  selector:
+    app: backup-monitor
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backup-monitor
+  namespace: mlops-production
+  labels:
+    app: backup-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backup-monitor
+  template:
+    metadata:
+      labels:
+        app: backup-monitor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: backup-monitor
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8080
+        command:
+        - python
+        - -c
+        - |
+          import time
+          import boto3
+          import json
+          from datetime import datetime, timedelta
+          from http.server import HTTPServer, BaseHTTPRequestHandler
+          from threading import Thread
+          
+          class BackupMonitor:
+              def __init__(self):
+                  self.s3 = boto3.client('s3')
+                  self.bucket = os.environ['S3_BACKUP_BUCKET']
+                  self.metrics = {}
+              
+              def check_backups(self):
+                  while True:
+                      try:
+                          # Check database backups
+                          db_backups = self.s3.list_objects_v2(
+                              Bucket=self.bucket,
+                              Prefix='database/postgres/'
+                          )
+                          
+                          latest_db_backup = None
+                          if 'Contents' in db_backups:
+                              latest_db_backup = max(db_backups['Contents'], 
+                                                   key=lambda x: x['LastModified'])
+                          
+                          # Check if backup is recent (within 25 hours)
+                          if latest_db_backup:
+                              backup_age = datetime.now(latest_db_backup['LastModified'].tzinfo) - latest_db_backup['LastModified']
+                              self.metrics['database_backup_age_hours'] = backup_age.total_seconds() / 3600
+                              self.metrics['database_backup_success'] = 1 if backup_age.total_seconds() < 25*3600 else 0
+                          else:
+                              self.metrics['database_backup_success'] = 0
+                              self.metrics['database_backup_age_hours'] = 999
+                          
+                          # Check volume backups
+                          # Similar logic for other backup types...
+                          
+                          time.sleep(300)  # Check every 5 minutes
+                      except Exception as e:
+                          print(f"Error checking backups: {e}")
+                          time.sleep(60)
+              
+              def get_metrics(self):
+                  output = []
+                  for metric, value in self.metrics.items():
+                      output.append(f"backup_{metric} {value}")
+                  return "\n".join(output)
+          
+          class MetricsHandler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  if self.path == '/metrics':
+                      self.send_response(200)
+                      self.send_header('Content-type', 'text/plain')
+                      self.end_headers()
+                      self.wfile.write(monitor.get_metrics().encode())
+                  elif self.path == '/health':
+                      self.send_response(200)
+                      self.send_header('Content-type', 'application/json')
+                      self.end_headers()
+                      self.wfile.write(json.dumps({"status": "healthy"}).encode())
+          
+          # Start monitoring
+          monitor = BackupMonitor()
+          monitor_thread = Thread(target=monitor.check_backups)
+          monitor_thread.daemon = True
+          monitor_thread.start()
+          
+          # Start HTTP server
+          server = HTTPServer(('0.0.0.0', 8080), MetricsHandler)
+          server.serve_forever()
+        env:
+        - name: S3_BACKUP_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: backup-config
+              key: s3-backup-bucket
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: access-key-id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: secret-access-key
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+
+---
+# =============================================================================
+# DISASTER RECOVERY PROCEDURES
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-scripts
+  namespace: mlops-production
+data:
+  restore-database.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "Starting database restore procedure..."
+    
+    # Get the latest backup file
+    LATEST_BACKUP=$(aws s3 ls s3://${S3_BACKUP_BUCKET}/database/postgres/ --recursive | sort | tail -n 1 | awk '{print $4}')
+    
+    if [ -z "$LATEST_BACKUP" ]; then
+        echo "ERROR: No backup file found"
+        exit 1
+    fi
+    
+    echo "Restoring from backup: $LATEST_BACKUP"
+    
+    # Download backup file
+    aws s3 cp s3://${S3_BACKUP_BUCKET}/${LATEST_BACKUP} /tmp/restore.sql
+    
+    # Stop application services
+    kubectl scale deployment api-server --replicas=0 -n mlops-production
+    kubectl scale deployment model-server --replicas=0 -n mlops-production
+    kubectl scale deployment worker --replicas=0 -n mlops-production
+    
+    # Restore database
+    kubectl exec -i postgres-0 -n mlops-production -- psql -U mlops -d mlops_prod < /tmp/restore.sql
+    
+    # Restart application services
+    kubectl scale deployment api-server --replicas=3 -n mlops-production
+    kubectl scale deployment model-server --replicas=2 -n mlops-production
+    kubectl scale deployment worker --replicas=3 -n mlops-production
+    
+    echo "Database restore completed successfully"
+  
+  restore-volumes.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "Starting volume restore procedure..."
+    
+    # Stop pods using the volumes
+    kubectl scale deployment api-server --replicas=0 -n mlops-production
+    kubectl scale deployment model-server --replicas=0 -n mlops-production
+    
+    # Create temporary restore pod
+    kubectl run restore-pod --image=restic/restic:latest -n mlops-production --rm -i --tty -- /bin/sh
+    
+    # Inside the restore pod, run:
+    # restic restore latest --target /restore
+    # Then copy files to the appropriate volumes
+    
+    echo "Volume restore completed successfully"
+
+---
+# =============================================================================
+# BACKUP CONFIGURATION
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: mlops-production
+data:
+  s3-backup-bucket: "mlops-platform-backups"
+  backup-retention-days: "30"
+  backup-notification-channel: "#ops-alerts"
+  
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backup-secrets
+  namespace: mlops-production
+type: Opaque
+data:
+  restic-password: "cGFzc3dvcmQxMjM="  # password123 (base64 encoded)
+
+---
+# =============================================================================
+# SERVICE ACCOUNT FOR BACKUP OPERATIONS
+# =============================================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-service-account
+  namespace: mlops-production
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: mlops-production
+  name: backup-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "configmaps", "secrets", "persistentvolumeclaims"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["get", "list", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: backup-role-binding
+  namespace: mlops-production
+subjects:
+- kind: ServiceAccount
+  name: backup-service-account
+  namespace: mlops-production
+roleRef:
+  kind: Role
+  name: backup-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,299 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mlops-marketplace"
+dynamic = ["version"]
+description = "Enterprise MLOps Marketplace and Ecosystem Platform"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.11"
+keywords = ["mlops", "marketplace", "ecosystem", "enterprise", "machine-learning"]
+authors = [
+    {name = "AI Platform Team", email = "ai-platform@company.com"},
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    # Core dependencies
+    "pydantic>=2.0.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.12.0",
+    "asyncpg>=0.28.0",
+    "redis>=5.0.0",
+    
+    # API and web framework
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "httpx>=0.25.0",
+    "websockets>=12.0",
+    
+    # Authentication and security
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.6",
+    
+    # Background tasks and scheduling
+    "celery>=5.3.0",
+    "flower>=2.0.0",
+    "apscheduler>=3.10.0",
+    
+    # Cloud and storage
+    "boto3>=1.29.0",
+    "minio>=7.2.0",
+    "azure-storage-blob>=12.19.0",
+    "google-cloud-storage>=2.10.0",
+    
+    # ML and model management
+    "mlflow>=2.8.0",
+    "docker>=6.1.0",
+    "kubernetes>=28.1.0",
+    
+    # Data processing and analytics
+    "pandas>=2.1.0",
+    "numpy>=1.25.0",
+    "scikit-learn>=1.3.0",
+    
+    # Search and indexing
+    "elasticsearch>=8.11.0",
+    "opensearch-py>=2.4.0",
+    
+    # Monitoring and observability
+    "prometheus-client>=0.19.0",
+    "opentelemetry-api>=1.21.0",
+    "opentelemetry-sdk>=1.21.0",
+    "structlog>=23.2.0",
+    
+    # Configuration and environment
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.1",
+    "click>=8.1.0",
+    
+    # Validation and testing
+    "jsonschema>=4.20.0",
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    
+    # Documentation generation
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    
+    # Development tools
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.5.0",
+    "coverage[toml]>=7.3.0",
+    "pre-commit>=3.6.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+]
+
+monitoring = [
+    "prometheus-client>=0.19.0",
+    "grafana-api>=1.0.3",
+    "jaeger-client>=4.8.0",
+]
+
+cloud = [
+    "boto3>=1.29.0",
+    "azure-storage-blob>=12.19.0",
+    "google-cloud-storage>=2.10.0",
+    "kubernetes>=28.1.0",
+]
+
+search = [
+    "elasticsearch>=8.11.0",
+    "opensearch-py>=2.4.0",
+    "whoosh>=2.7.4",
+]
+
+all = [
+    "mlops-marketplace[dev,monitoring,cloud,search]",
+]
+
+[project.urls]
+Homepage = "https://github.com/company/monorepo"
+Documentation = "https://docs.company.com/mlops-marketplace"
+Repository = "https://github.com/company/monorepo.git"
+Issues = "https://github.com/company/monorepo/issues"
+Changelog = "https://github.com/company/monorepo/blob/main/CHANGELOG.md"
+
+[project.scripts]
+mlops-marketplace = "mlops_marketplace.cli:main"
+marketplace-server = "mlops_marketplace.server:main"
+marketplace-worker = "mlops_marketplace.worker:main"
+
+[tool.hatch.version]
+path = "src/mlops_marketplace/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mlops_marketplace"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-mock",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = ["coverage combine", "coverage report"]
+cov-html = ["coverage combine", "coverage html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--disable-warnings",
+    "-ra",
+    "--cov=src/mlops_marketplace",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "e2e: marks tests as end-to-end tests",
+    "security: marks tests as security tests",
+    "performance: marks tests as performance tests",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["F401", "F811"]
+
+[tool.ruff.isort]
+known-first-party = ["mlops_marketplace"]
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_equality = true
+exclude = [
+    "build/",
+    "dist/",
+    "tests/",
+    "migrations/",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "flower.*",
+    "mlflow.*",
+    "docker.*",
+    "kubernetes.*",
+    "minio.*",
+    "elasticsearch.*",
+    "opensearchpy.*",
+    "boto3.*",
+    "botocore.*",
+    "azure.*",
+    "google.*",
+    "prometheus_client.*",
+    "structlog.*",
+]
+ignore_missing_imports = true
+
+[tool.black]
+target-version = ['py311']
+line-length = 88
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+known_first_party = ["mlops_marketplace"]

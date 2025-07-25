@@ -1,0 +1,680 @@
+# Comprehensive Security Policies for MLOps Platform
+# This file defines all security configurations for production deployment
+
+# =============================================================================
+# NAMESPACE SECURITY
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-security
+  labels:
+    security.policy/level: "high"
+    security.policy/pci-compliant: "true"
+    security.policy/soc2-compliant: "true"
+
+---
+# =============================================================================
+# POD SECURITY POLICIES
+# =============================================================================
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: mlops-restricted-psp
+  namespace: mlops-production
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  readOnlyRootFilesystem: true
+  seLinux:
+    rule: 'RunAsAny'
+
+---
+# =============================================================================
+# RBAC CONFIGURATION
+# =============================================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlops-api-server
+  namespace: mlops-production
+  annotations:
+    kubernetes.io/service-account.name: mlops-api-server
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlops-model-server
+  namespace: mlops-production
+  annotations:
+    kubernetes.io/service-account.name: mlops-model-server
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlops-worker
+  namespace: mlops-production
+  annotations:
+    kubernetes.io/service-account.name: mlops-worker
+
+---
+# API Server Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: mlops-production
+  name: mlops-api-server-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mlops-api-server-binding
+  namespace: mlops-production
+subjects:
+- kind: ServiceAccount
+  name: mlops-api-server
+  namespace: mlops-production
+roleRef:
+  kind: Role
+  name: mlops-api-server-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Model Server Role (Minimal Permissions)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: mlops-production
+  name: mlops-model-server-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["model-secrets"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mlops-model-server-binding
+  namespace: mlops-production
+subjects:
+- kind: ServiceAccount
+  name: mlops-model-server
+  namespace: mlops-production
+roleRef:
+  kind: Role
+  name: mlops-model-server-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# =============================================================================
+# NETWORK SECURITY POLICIES
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mlops-deny-all
+  namespace: mlops-production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mlops-api-server-policy
+  namespace: mlops-production
+spec:
+  podSelector:
+    matchLabels:
+      app: api-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    ports:
+    - protocol: TCP
+      port: 8000
+  # Allow traffic from monitoring
+  - from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow database access
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  # Allow Redis access
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis-cache
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow model server communication
+  - to:
+    - podSelector:
+        matchLabels:
+          app: model-server
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow external HTTPS traffic
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mlops-model-server-policy
+  namespace: mlops-production
+spec:
+  podSelector:
+    matchLabels:
+      app: model-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Only allow traffic from API server
+  - from:
+    - podSelector:
+        matchLabels:
+          app: api-server
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow monitoring
+  - from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow Redis access
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis-cache
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow external model registry access
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mlops-database-policy
+  namespace: mlops-production
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+  - Ingress
+  ingress:
+  # Only allow from application pods
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: application
+    - podSelector:
+        matchLabels:
+          tier: background
+    ports:
+    - protocol: TCP
+      port: 5432
+
+---
+# =============================================================================
+# ADMISSION CONTROLLERS
+# =============================================================================
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionWebhook
+metadata:
+  name: mlops-security-validator
+webhooks:
+- name: security-policy.mlops.local
+  clientConfig:
+    service:
+      name: mlops-security-validator
+      namespace: mlops-security
+      path: "/validate"
+  rules:
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: ["apps"]
+    apiVersions: ["v1"]
+    resources: ["deployments"]
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  failurePolicy: Fail
+
+---
+# =============================================================================
+# SECRETS MANAGEMENT
+# =============================================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlops-tls-cert
+  namespace: mlops-production
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod"
+type: kubernetes.io/tls
+data:
+  # Certificate and key will be populated by cert-manager
+  tls.crt: ""
+  tls.key: ""
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlops-database-credentials
+  namespace: mlops-production
+  annotations:
+    kubernetes.io/description: "Database credentials for MLOps platform"
+type: Opaque
+data:
+  # Base64 encoded credentials (replace with actual values from secure source)
+  username: bWxvcHM=  # mlops
+  password: ""  # To be set via external secret management
+  admin-username: cG9zdGdyZXM= # postgres
+  admin-password: ""  # To be set via external secret management
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlops-jwt-secrets
+  namespace: mlops-production
+  annotations:
+    kubernetes.io/description: "JWT signing secrets"
+type: Opaque
+data:
+  # Base64 encoded secrets (replace with actual values)
+  jwt-secret-key: ""  # To be set via external secret management
+  jwt-refresh-secret: ""  # To be set via external secret management
+  jwt-reset-secret: ""  # To be set via external secret management
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlops-api-keys
+  namespace: mlops-production
+  annotations:
+    kubernetes.io/description: "External API keys and credentials"
+type: Opaque
+data:
+  # Base64 encoded API keys (replace with actual values)
+  s3-access-key: ""
+  s3-secret-key: ""
+  redis-password: ""
+  smtp-password: ""
+  external-ml-api-key: ""
+
+---
+# =============================================================================
+# EXTERNAL SECRETS OPERATOR CONFIGURATION
+# =============================================================================
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: mlops-secret-store
+  namespace: mlops-production
+spec:
+  provider:
+    vault:
+      server: "https://vault.company.com"
+      path: "secret"
+      version: "v2"
+      auth:
+        kubernetes:
+          mountPath: "kubernetes"
+          role: "mlops-production"
+          serviceAccountRef:
+            name: "external-secrets-sa"
+
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: mlops-database-external-secret
+  namespace: mlops-production
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: mlops-secret-store
+    kind: SecretStore
+  target:
+    name: mlops-database-credentials
+    creationPolicy: Owner
+  data:
+  - secretKey: password
+    remoteRef:
+      key: mlops/database
+      property: password
+  - secretKey: admin-password
+    remoteRef:
+      key: mlops/database
+      property: admin-password
+
+---
+# =============================================================================
+# SECURITY SCANNING POLICIES
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-scan-config
+  namespace: mlops-production
+data:
+  scan-policy.yaml: |
+    # Image scanning policy
+    image_scanning:
+      enabled: true
+      registry_scanning: true
+      vulnerability_threshold: "HIGH"
+      fail_on_critical: true
+      allow_list:
+        - "CVE-2021-12345"  # Example allowed CVE
+      
+    # Runtime security policy
+    runtime_security:
+      enabled: true
+      monitor_file_integrity: true
+      monitor_network_connections: true
+      detect_privilege_escalation: true
+      detect_suspicious_processes: true
+      
+    # Compliance checks
+    compliance:
+      pci_dss: true
+      soc2: true
+      iso27001: true
+      nist: true
+
+---
+# =============================================================================
+# FALCO SECURITY RULES
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-rules
+  namespace: mlops-production
+data:
+  mlops_rules.yaml: |
+    # MLOps specific security rules
+    - rule: Unauthorized API Access
+      desc: Detect unauthorized access to MLOps API
+      condition: >
+        ka and
+        ka.uri.path startswith "/api/v1" and
+        not ka.request.headers contains "authorization"
+      output: >
+        Unauthorized API access detected
+        (user=%ka.user,
+         uri=%ka.uri.path,
+         method=%ka.request.method,
+         source_ip=%ka.source.ip)
+      priority: WARNING
+      
+    - rule: Model File Tampering
+      desc: Detect unauthorized modification of model files
+      condition: >
+        open_write and
+        fd.directory startswith "/app/models" and
+        not proc.name in (model-server, mlops-worker)
+      output: >
+        Unauthorized model file modification
+        (file=%fd.name,
+         process=%proc.name,
+         user=%user.name)
+      priority: CRITICAL
+      
+    - rule: Suspicious Database Query
+      desc: Detect potential SQL injection attempts
+      condition: >
+        spawned_process and
+        proc.name in (psql, mysql) and
+        proc.cmdline contains "DROP" or
+        proc.cmdline contains "DELETE" or
+        proc.cmdline contains "TRUNCATE"
+      output: >
+        Suspicious database query detected
+        (command=%proc.cmdline,
+         user=%user.name,
+         process=%proc.name)
+      priority: HIGH
+
+---
+# =============================================================================
+# OPA GATEKEEPER POLICIES
+# =============================================================================
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: mlopsrequiredsecuritycontext
+spec:
+  crd:
+    spec:
+      names:
+        kind: MLOpsRequiredSecurityContext
+      validation:
+        type: object
+        properties:
+          runAsNonRoot:
+            type: boolean
+          readOnlyRootFilesystem:
+            type: boolean
+          allowPrivilegeEscalation:
+            type: boolean
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package mlopsrequiredsecuritycontext
+        
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.runAsNonRoot == true
+          msg := "Container must run as non-root user"
+        }
+        
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.readOnlyRootFilesystem == true
+          msg := "Container must have read-only root filesystem"
+        }
+        
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.allowPrivilegeEscalation == false
+          msg := "Container must not allow privilege escalation"
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: MLOpsRequiredSecurityContext
+metadata:
+  name: mlops-security-context-constraint
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["mlops-production"]
+  parameters:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+
+---
+# =============================================================================
+# CERT-MANAGER CERTIFICATES
+# =============================================================================
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: security@mlops-platform.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: istio
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mlops-platform-cert
+  namespace: mlops-production
+spec:
+  secretName: mlops-tls-cert
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - api.mlops-platform.com
+  - app.mlops-platform.com
+  - monitoring.mlops-platform.com
+
+---
+# =============================================================================
+# SECURITY MONITORING
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-monitoring-config
+  namespace: mlops-production
+data:
+  prometheus-rules.yaml: |
+    groups:
+    - name: mlops.security
+      rules:
+      - alert: UnauthorizedAPIAccess
+        expr: increase(falco_events{rule_name="Unauthorized API Access"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unauthorized API access detected"
+          description: "{{ $value }} unauthorized API access attempts in the last 5 minutes"
+      
+      - alert: ModelFileTampering
+        expr: increase(falco_events{rule_name="Model File Tampering"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Model file tampering detected"
+          description: "Unauthorized modification of model files detected"
+      
+      - alert: HighFailedLogins
+        expr: increase(mlops_auth_failed_logins_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "{{ $value }} failed login attempts in the last 5 minutes"
+      
+      - alert: SuspiciousDatabaseActivity
+        expr: increase(falco_events{rule_name="Suspicious Database Query"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: high
+        annotations:
+          summary: "Suspicious database activity detected"
+          description: "Potentially malicious database queries detected"
