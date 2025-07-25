@@ -1,0 +1,198 @@
+version: '3.8'
+
+# Development Docker Compose Configuration
+# All services with hot reload and development-friendly settings
+
+services:
+  # Data Quality Service (Development)
+  data-quality-dev:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/data-quality/Dockerfile
+      target: development
+    container_name: data-quality-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_QUALITY_ENVIRONMENT=development
+      - DATA_QUALITY_STORAGE_PATH=/app/data
+      - DATA_QUALITY_LOG_LEVEL=DEBUG
+      - DATA_QUALITY_ENABLE_FILE_DATA_PROCESSING=true
+      - DATA_QUALITY_ENABLE_STATISTICAL_ANALYSIS=true
+    volumes:
+      - ../../data/data_quality:/app/src:rw
+      - data_quality_dev_storage:/app/data
+      - shared_dev_logs:/app/logs
+    networks:
+      - hexagonal-dev-network
+    command: ["python", "-m", "uvicorn", "src.data_quality.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # MLOps Services (Development)
+  mlops-dev:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/mlops/Dockerfile
+      target: development
+    container_name: mlops-dev
+    ports:
+      - "8001:8001"
+      - "8002:8002"
+      - "8003:8003"
+    environment:
+      - MLOPS_ENVIRONMENT=development
+      - MLOPS_STORAGE_PATH=/app/data
+      - MLOPS_LOG_LEVEL=DEBUG
+      - MLOPS_ENABLE_FILE_EXPERIMENT_TRACKING=true
+      - MLOPS_ENABLE_LOCAL_MODEL_REGISTRY=true
+      - MLOPS_ENABLE_FILE_CONFIGURATION=true
+      - MLOPS_ENABLE_FILE_SERVICE_DISCOVERY=true
+    volumes:
+      - ../../ai/mlops:/app/src:rw
+      - mlops_dev_storage:/app/data
+      - shared_dev_logs:/app/logs
+    networks:
+      - hexagonal-dev-network
+    command: ["python", "-m", "uvicorn", "src.mlops.api.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+
+  # Machine Learning Service (Development)
+  ml-dev:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/machine-learning/Dockerfile
+      target: development
+    container_name: ml-dev
+    ports:
+      - "8004:8004"
+      - "8005:8005"
+    environment:
+      - ML_ENVIRONMENT=development
+      - ML_STORAGE_PATH=/app/data
+      - ML_LOG_LEVEL=DEBUG
+      - ML_ENABLE_FILE_MODEL_STORAGE=true
+      - ML_ENABLE_DISTRIBUTED_TRAINING=false
+    volumes:
+      - ../../ai/machine_learning:/app/src:rw
+      - ml_dev_storage:/app/data
+      - shared_dev_logs:/app/logs
+    networks:
+      - hexagonal-dev-network
+    command: ["python", "-m", "uvicorn", "src.machine_learning.api.main:app", "--host", "0.0.0.0", "--port", "8004", "--reload"]
+
+  # Anomaly Detection Service (Development)
+  anomaly-detection-dev:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/anomaly-detection/Dockerfile
+      target: development
+    container_name: anomaly-detection-dev
+    ports:
+      - "8007:8007"
+    environment:
+      - ANOMALY_DETECTION_ENVIRONMENT=development
+      - ANOMALY_DETECTION_STORAGE_PATH=/app/data
+      - ANOMALY_DETECTION_LOG_LEVEL=DEBUG
+      - ANOMALY_DETECTION_ENABLE_CACHING=false
+    volumes:
+      - ../../data/anomaly_detection:/app/src:rw
+      - anomaly_detection_dev_storage:/app/data
+      - shared_dev_logs:/app/logs
+    networks:
+      - hexagonal-dev-network
+    command: ["python", "-m", "uvicorn", "src.anomaly_detection.api.main:app", "--host", "0.0.0.0", "--port", "8007", "--reload"]
+
+  # Development Database (PostgreSQL)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=hexagonal_dev
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - hexagonal-dev-network
+    restart: unless-stopped
+
+  # Development Redis (Caching)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - hexagonal-dev-network
+    restart: unless-stopped
+
+  # Development Monitoring
+  prometheus-dev:
+    image: prom/prometheus:latest
+    container_name: prometheus-dev
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus-dev.yml:/etc/prometheus/prometheus.yml
+      - prometheus_dev_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=24h'
+      - '--web.enable-lifecycle'
+    networks:
+      - hexagonal-dev-network
+
+  grafana-dev:
+    image: grafana/grafana:latest
+    container_name: grafana-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=dev123
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_dev_data:/var/lib/grafana
+      - ./monitoring/grafana/dev-dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/dev-datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - hexagonal-dev-network
+    depends_on:
+      - prometheus-dev
+
+volumes:
+  # Development storage
+  data_quality_dev_storage:
+    driver: local
+  mlops_dev_storage:
+    driver: local
+  ml_dev_storage:
+    driver: local
+  anomaly_detection_dev_storage:
+    driver: local
+  
+  # Development databases
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  
+  # Development monitoring
+  prometheus_dev_data:
+    driver: local
+  grafana_dev_data:
+    driver: local
+  
+  # Shared development
+  shared_dev_logs:
+    driver: local
+
+networks:
+  hexagonal-dev-network:
+    driver: bridge
+    name: hexagonal-architecture-dev-network

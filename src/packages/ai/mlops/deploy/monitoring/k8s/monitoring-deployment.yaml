@@ -1,0 +1,779 @@
+# Kubernetes Deployment Manifests for MLOps Advanced Monitoring Stack
+# 
+# Complete deployment configuration for production monitoring infrastructure
+# including observability platform, monitoring services, and dependencies.
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-monitoring
+  labels:
+    name: mlops-monitoring
+    purpose: monitoring-observability
+
+---
+# ConfigMap for monitoring configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+  namespace: mlops-monitoring
+data:
+  monitoring-stack-config.yaml: |
+    name: "mlops_k8s_monitoring"
+    description: "Kubernetes-deployed MLOps monitoring stack"
+    environment: "production"
+    global_config:
+      log_level: "INFO"
+      metrics_export_port: 8080
+      dashboard_port: 3000
+      enable_security_monitoring: true
+    services:
+      observability_platform:
+        enabled: true
+        config:
+          enable_ai_insights: true
+          insights_interval_hours: 1
+      drift_detector:
+        enabled: true
+        dependencies: ["observability_platform"]
+      pipeline_monitor:
+        enabled: true
+        dependencies: ["observability_platform"]
+      real_time_analytics:
+        enabled: true
+        dependencies: ["observability_platform", "pipeline_monitor"]
+
+---
+# Secret for sensitive configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: monitoring-secrets
+  namespace: mlops-monitoring
+type: Opaque
+stringData:
+  grafana-admin-password: "change-me-in-production"
+  smtp-password: "change-me-in-production"
+  slack-webhook-url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+  pipeline-webhook-url: "https://your-webhook-url.com"
+
+---
+# ServiceAccount for monitoring services
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitoring-service-account
+  namespace: mlops-monitoring
+
+---
+# ClusterRole for monitoring services
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/metrics", "services", "endpoints", "pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: monitoring-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: monitoring-service-account
+  namespace: mlops-monitoring
+
+---
+# Deployment for Advanced Observability Platform
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: observability-platform
+  namespace: mlops-monitoring
+  labels:
+    app: observability-platform
+    component: monitoring
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: observability-platform
+  template:
+    metadata:
+      labels:
+        app: observability-platform
+        component: monitoring
+    spec:
+      serviceAccountName: monitoring-service-account
+      containers:
+      - name: observability-platform
+        image: mlops/observability-platform:latest
+        ports:
+        - containerPort: 8080
+          name: metrics
+        - containerPort: 8000
+          name: api
+        env:
+        - name: CONFIG_PATH
+          value: "/config/monitoring-stack-config.yaml"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: METRICS_PORT
+          value: "8080"
+        - name: API_PORT
+          value: "8000"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: secrets
+          mountPath: /secrets
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: monitoring-config
+      - name: secrets
+        secret:
+          secretName: monitoring-secrets
+
+---
+# Service for Observability Platform
+apiVersion: v1
+kind: Service
+metadata:
+  name: observability-platform-service
+  namespace: mlops-monitoring
+  labels:
+    app: observability-platform
+spec:
+  selector:
+    app: observability-platform
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+  - name: api
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP
+
+---
+# Deployment for Model Drift Detector
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drift-detector
+  namespace: mlops-monitoring
+  labels:
+    app: drift-detector
+    component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drift-detector
+  template:
+    metadata:
+      labels:
+        app: drift-detector
+        component: monitoring
+    spec:
+      serviceAccountName: monitoring-service-account
+      containers:
+      - name: drift-detector
+        image: mlops/drift-detector:latest
+        ports:
+        - containerPort: 8081
+          name: metrics
+        env:
+        - name: CONFIG_PATH
+          value: "/config/monitoring-stack-config.yaml"
+        - name: OBSERVABILITY_PLATFORM_URL
+          value: "http://observability-platform-service:8000"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: monitoring-config
+
+---
+# Service for Drift Detector
+apiVersion: v1
+kind: Service
+metadata:
+  name: drift-detector-service
+  namespace: mlops-monitoring
+  labels:
+    app: drift-detector
+spec:
+  selector:
+    app: drift-detector
+  ports:
+  - name: metrics
+    port: 8081
+    targetPort: 8081
+  type: ClusterIP
+
+---
+# Deployment for Pipeline Monitor
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pipeline-monitor
+  namespace: mlops-monitoring
+  labels:
+    app: pipeline-monitor
+    component: monitoring
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pipeline-monitor
+  template:
+    metadata:
+      labels:
+        app: pipeline-monitor
+        component: monitoring
+    spec:
+      serviceAccountName: monitoring-service-account
+      containers:
+      - name: pipeline-monitor
+        image: mlops/pipeline-monitor:latest
+        ports:
+        - containerPort: 8082
+          name: metrics
+        env:
+        - name: CONFIG_PATH
+          value: "/config/monitoring-stack-config.yaml"
+        - name: OBSERVABILITY_PLATFORM_URL
+          value: "http://observability-platform-service:8000"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: secrets
+          mountPath: /secrets
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8082
+          initialDelaySeconds: 15
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: monitoring-config
+      - name: secrets
+        secret:
+          secretName: monitoring-secrets
+
+---
+# Service for Pipeline Monitor
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipeline-monitor-service
+  namespace: mlops-monitoring
+  labels:
+    app: pipeline-monitor
+spec:
+  selector:
+    app: pipeline-monitor
+  ports:
+  - name: metrics
+    port: 8082
+    targetPort: 8082
+  type: ClusterIP
+
+---
+# Deployment for Real-Time Analytics
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: real-time-analytics
+  namespace: mlops-monitoring
+  labels:
+    app: real-time-analytics
+    component: monitoring
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: real-time-analytics
+  template:
+    metadata:
+      labels:
+        app: real-time-analytics
+        component: monitoring
+    spec:
+      serviceAccountName: monitoring-service-account
+      containers:
+      - name: real-time-analytics
+        image: mlops/real-time-analytics:latest
+        ports:
+        - containerPort: 8083
+          name: metrics
+        - containerPort: 9000
+          name: streaming
+        env:
+        - name: CONFIG_PATH
+          value: "/config/monitoring-stack-config.yaml"
+        - name: OBSERVABILITY_PLATFORM_URL
+          value: "http://observability-platform-service:8000"
+        - name: PIPELINE_MONITOR_URL
+          value: "http://pipeline-monitor-service:8082"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8083
+          initialDelaySeconds: 15
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: monitoring-config
+
+---
+# Service for Real-Time Analytics
+apiVersion: v1
+kind: Service
+metadata:
+  name: real-time-analytics-service
+  namespace: mlops-monitoring
+  labels:
+    app: real-time-analytics
+spec:
+  selector:
+    app: real-time-analytics
+  ports:
+  - name: metrics
+    port: 8083
+    targetPort: 8083
+  - name: streaming
+    port: 9000
+    targetPort: 9000
+  type: ClusterIP
+
+---
+# Prometheus Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: mlops-monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+    
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+    
+    scrape_configs:
+      - job_name: 'observability-platform'
+        static_configs:
+          - targets: ['observability-platform-service:8080']
+        scrape_interval: 15s
+        metrics_path: /metrics
+        
+      - job_name: 'drift-detector'
+        static_configs:
+          - targets: ['drift-detector-service:8081']
+        scrape_interval: 30s
+        metrics_path: /metrics
+        
+      - job_name: 'pipeline-monitor'
+        static_configs:
+          - targets: ['pipeline-monitor-service:8082']
+        scrape_interval: 15s
+        metrics_path: /metrics
+        
+      - job_name: 'real-time-analytics'
+        static_configs:
+          - targets: ['real-time-analytics-service:8083']
+        scrape_interval: 15s
+        metrics_path: /metrics
+        
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+          - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+            
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics
+
+---
+# Prometheus Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: mlops-monitoring
+  labels:
+    app: prometheus
+    component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        component: monitoring
+    spec:
+      serviceAccountName: monitoring-service-account
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.40.0
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus/'
+          - '--web.console.libraries=/etc/prometheus/console_libraries'
+          - '--web.console.templates=/etc/prometheus/consoles'
+          - '--storage.tsdb.retention.time=90d'
+          - '--web.enable-lifecycle'
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus/
+        - name: prometheus-storage
+          mountPath: /prometheus/
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-storage
+        persistentVolumeClaim:
+          claimName: prometheus-storage
+
+---
+# Prometheus Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: mlops-monitoring
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+  - name: web
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+
+---
+# Prometheus Storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-storage
+  namespace: mlops-monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: fast-ssd
+
+---
+# Grafana Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: mlops-monitoring
+data:
+  grafana.ini: |
+    [server]
+    http_port = 3000
+    
+    [security]
+    admin_user = admin
+    
+    [users]
+    allow_sign_up = false
+    
+    [auth.anonymous]
+    enabled = false
+    
+    [dashboards]
+    default_home_dashboard_path = /var/lib/grafana/dashboards/mlops-overview.json
+
+  datasources.yml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus:9090
+        access: proxy
+        isDefault: true
+
+---
+# Grafana Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: mlops-monitoring
+  labels:
+    app: grafana
+    component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: monitoring
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:9.3.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: monitoring-secrets
+              key: grafana-admin-password
+        volumeMounts:
+        - name: grafana-config
+          mountPath: /etc/grafana/
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: grafana-config
+        configMap:
+          name: grafana-config
+      - name: grafana-storage
+        persistentVolumeClaim:
+          claimName: grafana-storage
+
+---
+# Grafana Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: mlops-monitoring
+  labels:
+    app: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: web
+    port: 3000
+    targetPort: 3000
+  type: LoadBalancer
+
+---
+# Grafana Storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-storage
+  namespace: mlops-monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+
+---
+# Horizontal Pod Autoscaler for Observability Platform
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: observability-platform-hpa
+  namespace: mlops-monitoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: observability-platform
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# Network Policy for monitoring namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: monitoring-network-policy
+  namespace: mlops-monitoring
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: mlops-production
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: mlops-production
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53

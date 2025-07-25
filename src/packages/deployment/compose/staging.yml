@@ -1,0 +1,327 @@
+version: '3.8'
+
+# Staging Docker Compose Configuration
+# Production-like environment for testing
+
+services:
+  # Data Quality Service (Staging)
+  data-quality-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/data-quality/Dockerfile
+      target: production
+    container_name: data-quality-staging
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_QUALITY_ENVIRONMENT=staging
+      - DATA_QUALITY_STORAGE_PATH=/app/data
+      - DATA_QUALITY_LOG_LEVEL=INFO
+      - DATA_QUALITY_ENABLE_FILE_DATA_PROCESSING=true
+      - DATA_QUALITY_ENABLE_STATISTICAL_ANALYSIS=true
+    volumes:
+      - data_quality_staging_storage:/app/data
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # MLOps Services (Staging)
+  mlops-experiments-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/mlops/Dockerfile
+      target: production
+    container_name: mlops-experiments-staging
+    ports:
+      - "8001:8001"
+    environment:
+      - MLOPS_ENVIRONMENT=staging
+      - MLOPS_SERVICE_NAME=experiment_tracking
+      - MLOPS_STORAGE_PATH=/app/data
+      - MLOPS_LOG_LEVEL=INFO
+      - MLOPS_ENABLE_FILE_EXPERIMENT_TRACKING=true
+      - MLOPS_ENABLE_FILE_SERVICE_DISCOVERY=true
+    volumes:
+      - mlops_staging_experiments:/app/data/experiments
+      - mlops_staging_service_discovery:/app/data/service_discovery
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+
+  mlops-registry-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/mlops/Dockerfile
+      target: production
+    container_name: mlops-registry-staging
+    ports:
+      - "8002:8001"
+    environment:
+      - MLOPS_ENVIRONMENT=staging
+      - MLOPS_SERVICE_NAME=model_registry
+      - MLOPS_STORAGE_PATH=/app/data
+      - MLOPS_LOG_LEVEL=INFO
+      - MLOPS_ENABLE_LOCAL_MODEL_REGISTRY=true
+      - MLOPS_ENABLE_FILE_SERVICE_DISCOVERY=true
+    volumes:
+      - mlops_staging_models:/app/data/models
+      - mlops_staging_service_discovery:/app/data/service_discovery
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    depends_on:
+      - mlops-experiments-staging
+
+  mlops-config-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/mlops/Dockerfile
+      target: production
+    container_name: mlops-config-staging
+    ports:
+      - "8003:8001"
+    environment:
+      - MLOPS_ENVIRONMENT=staging
+      - MLOPS_SERVICE_NAME=configuration_management
+      - MLOPS_STORAGE_PATH=/app/data
+      - MLOPS_LOG_LEVEL=INFO
+      - MLOPS_ENABLE_FILE_CONFIGURATION=true
+      - MLOPS_ENABLE_FILE_SERVICE_DISCOVERY=true
+    volumes:
+      - mlops_staging_configurations:/app/data/configurations
+      - mlops_staging_service_discovery:/app/data/service_discovery
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    depends_on:
+      - mlops-experiments-staging
+
+  # Machine Learning Services (Staging)
+  ml-training-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/machine-learning/Dockerfile
+      target: production
+    container_name: ml-training-staging
+    ports:
+      - "8004:8004"
+    environment:
+      - ML_ENVIRONMENT=staging
+      - ML_SERVICE_NAME=training
+      - ML_STORAGE_PATH=/app/data
+      - ML_LOG_LEVEL=INFO
+      - ML_ENABLE_FILE_MODEL_STORAGE=true
+      - ML_ENABLE_DISTRIBUTED_TRAINING=false
+    volumes:
+      - ml_staging_models:/app/data/models
+      - ml_staging_training_jobs:/app/data/training_jobs
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+          cpus: '1.5'
+        reservations:
+          memory: 1.5G
+          cpus: '0.75'
+    depends_on:
+      - mlops-registry-staging
+      - data-quality-staging
+
+  ml-prediction-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/machine-learning/Dockerfile
+      target: production
+    container_name: ml-prediction-staging
+    ports:
+      - "8005:8004"
+    environment:
+      - ML_ENVIRONMENT=staging
+      - ML_SERVICE_NAME=prediction
+      - ML_STORAGE_PATH=/app/data
+      - ML_LOG_LEVEL=INFO
+      - ML_ENABLE_FILE_MODEL_STORAGE=true
+    volumes:
+      - ml_staging_models:/app/data/models:ro
+      - ml_staging_predictions:/app/data/predictions
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '0.75'
+        reservations:
+          memory: 750M
+          cpus: '0.375'
+    depends_on:
+      - ml-training-staging
+
+  # Anomaly Detection Service (Staging)
+  anomaly-detection-staging:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/anomaly-detection/Dockerfile
+      target: production
+    container_name: anomaly-detection-staging
+    ports:
+      - "8007:8007"
+    environment:
+      - ANOMALY_DETECTION_ENVIRONMENT=staging
+      - ANOMALY_DETECTION_STORAGE_PATH=/app/data
+      - ANOMALY_DETECTION_LOG_LEVEL=INFO
+      - ANOMALY_DETECTION_ENABLE_CACHING=true
+      - ANOMALY_DETECTION_CACHE_TTL=1800
+    volumes:
+      - anomaly_detection_staging_models:/app/data/models
+      - anomaly_detection_staging_results:/app/data/detection_results
+      - anomaly_detection_staging_cache:/app/data/cache
+      - shared_staging_logs:/app/logs
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    depends_on:
+      - data-quality-staging
+      - ml-prediction-staging
+
+  # Staging Database (PostgreSQL)
+  postgres-staging:
+    image: postgres:15-alpine
+    container_name: postgres-staging
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=hexagonal_staging
+      - POSTGRES_USER=staging_user
+      - POSTGRES_PASSWORD=staging_secure_password
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+
+  # Staging Redis (Caching)
+  redis-staging:
+    image: redis:7-alpine
+    container_name: redis-staging
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_staging_data:/data
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+
+  # Staging Monitoring
+  prometheus-staging:
+    image: prom/prometheus:latest
+    container_name: prometheus-staging
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus-staging.yml:/etc/prometheus/prometheus.yml
+      - prometheus_staging_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=168h'
+      - '--web.enable-lifecycle'
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+
+  grafana-staging:
+    image: grafana/grafana:latest
+    container_name: grafana-staging
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=staging_admin_password
+    volumes:
+      - grafana_staging_data:/var/lib/grafana
+      - ./monitoring/grafana/staging-dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/staging-datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - hexagonal-staging-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus-staging
+
+volumes:
+  # Staging Data Quality
+  data_quality_staging_storage:
+    driver: local
+  
+  # Staging MLOps
+  mlops_staging_experiments:
+    driver: local
+  mlops_staging_models:
+    driver: local
+  mlops_staging_configurations:
+    driver: local
+  mlops_staging_service_discovery:
+    driver: local
+  
+  # Staging Machine Learning
+  ml_staging_models:
+    driver: local
+  ml_staging_training_jobs:
+    driver: local
+  ml_staging_predictions:
+    driver: local
+  
+  # Staging Anomaly Detection
+  anomaly_detection_staging_models:
+    driver: local
+  anomaly_detection_staging_results:
+    driver: local
+  anomaly_detection_staging_cache:
+    driver: local
+  
+  # Staging Databases
+  postgres_staging_data:
+    driver: local
+  redis_staging_data:
+    driver: local
+  
+  # Staging Monitoring
+  prometheus_staging_data:
+    driver: local
+  grafana_staging_data:
+    driver: local
+  
+  # Shared Staging
+  shared_staging_logs:
+    driver: local
+
+networks:
+  hexagonal-staging-network:
+    driver: bridge
+    name: hexagonal-architecture-staging-network

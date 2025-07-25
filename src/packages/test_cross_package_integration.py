@@ -33,13 +33,17 @@ async def test_machine_learning_integration():
     try:
         # Import ML container and interfaces
         from machine_learning.infrastructure.container.container import (
-            Container as MachineLearningContainer,
-            ContainerConfig as MachineLearningContainerConfig
+            MachineLearningContainer,
+            MachineLearningContainerConfig
         )
-        from machine_learning.domain.interfaces.ml_operations import (
-            TrainingPort,
-            ModelManagementPort,
-            PredictionPort
+        from machine_learning.domain.interfaces.data_processing_operations import (
+            DataPreprocessingPort,
+            DataValidationPort
+        )
+        from machine_learning.domain.interfaces.model_operations import (
+            ModelTrainingPort,
+            ModelPredictionPort,
+            ModelEvaluationPort
         )
         
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -54,19 +58,21 @@ async def test_machine_learning_integration():
             container = MachineLearningContainer(config)
             
             # Test service registration
-            training_service = container.get(TrainingPort)
-            model_service = container.get(ModelManagementPort)
-            prediction_service = container.get(PredictionPort)
+            preprocessing_service = container.get(DataPreprocessingPort)
+            training_service = container.get(ModelTrainingPort)
+            prediction_service = container.get(ModelPredictionPort)
+            evaluation_service = container.get(ModelEvaluationPort)
             
+            assert preprocessing_service is not None, "Preprocessing service should be registered"
             assert training_service is not None, "Training service should be registered"
-            assert model_service is not None, "Model service should be registered"
             assert prediction_service is not None, "Prediction service should be registered"
+            assert evaluation_service is not None, "Evaluation service should be registered"
             
             # Test basic operations (simplified)
             print("✅ Machine Learning package integration successful")
             return {
                 "status": "success",
-                "services_tested": ["training", "model_management", "prediction"],
+                "services_tested": ["preprocessing", "training", "prediction", "evaluation"],
                 "container_config": config.environment
             }
             
@@ -86,7 +92,7 @@ async def test_mlops_integration():
             MLOpsContainerConfig
         )
         from mlops.domain.interfaces.configuration_management_operations import (
-            ConfigurationManagementPort
+            ConfigurationProviderPort
         )
         from mlops.domain.interfaces.service_discovery_operations import (
             ServiceDiscoveryPort
@@ -103,18 +109,20 @@ async def test_mlops_integration():
             container = MLOpsContainer(config)
             
             # Test service registration
-            config_service = container.get(ConfigurationManagementPort)
+            config_service = container.get(ConfigurationProviderPort)
             discovery_service = container.get(ServiceDiscoveryPort)
             
             assert config_service is not None, "Configuration service should be registered"
             assert discovery_service is not None, "Service discovery should be registered"
             
             # Test basic operations
-            config_stored = await config_service.store_configuration(
-                "ml_service", "training_config", {
+            from mlops.domain.interfaces.configuration_management_operations import ConfigurationScope
+            config_stored = await config_service.set_configuration(
+                "ml_service.training_config", {
                     "model_type": "random_forest",
                     "hyperparameters": {"n_estimators": 100}
-                }
+                },
+                scope=ConfigurationScope.SERVICE
             )
             assert config_stored is True, "Configuration should be stored successfully"
             
@@ -200,10 +208,20 @@ async def test_data_quality_integration():
             assert metrics_service is not None, "Metrics service should be registered"
             assert rule_service is not None, "Rule service should be registered"
             
+            # Create a test dataset
+            import pandas as pd
+            test_data = pd.DataFrame({
+                'col1': [1, 2, 3, 4, 5],
+                'col2': ['a', 'b', 'c', 'd', 'e'],
+                'col3': [1.1, 2.2, 3.3, 4.4, 5.5]
+            })
+            test_file = f"{temp_dir}/test_dataset.csv"
+            test_data.to_csv(test_file, index=False)
+            
             # Test basic operations
             from data_quality.domain.interfaces.data_processing_operations import DataProfilingRequest
             profiling_request = DataProfilingRequest(
-                data_source="test_dataset.csv",
+                data_source=test_file,
                 profile_config={"basic_stats": True},
                 metadata={"test": True}
             )
@@ -277,8 +295,8 @@ async def test_cross_package_workflow():
         # Step 3: Machine Learning Container
         print("Step 3: Testing ML container...")
         from machine_learning.infrastructure.container.container import (
-            Container as MachineLearningContainer,
-            ContainerConfig as MachineLearningContainerConfig
+            MachineLearningContainer,
+            MachineLearningContainerConfig
         )
         
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -325,8 +343,8 @@ async def test_container_interoperability():
         with tempfile.TemporaryDirectory() as temp_dir:
             # Machine Learning Container
             from machine_learning.infrastructure.container.container import (
-                Container as MachineLearningContainer,
-                ContainerConfig as MachineLearningContainerConfig
+                MachineLearningContainer,
+                MachineLearningContainerConfig
             )
             ml_config = MachineLearningContainerConfig(
                 model_storage_path=str(Path(temp_dir) / "ml"),
@@ -389,11 +407,11 @@ async def test_hexagonal_architecture_compliance():
         print("  - Testing domain isolation...")
         
         # Check machine learning domain interfaces
-        from machine_learning.domain.interfaces.ml_operations import TrainingPort, ModelManagementPort
+        from machine_learning.domain.interfaces.model_operations import ModelTrainingPort, ModelPredictionPort
         
         # These should be abstract interfaces with no implementation details
-        assert hasattr(TrainingPort, '__abstractmethods__'), "TrainingPort should be abstract"
-        assert hasattr(ModelManagementPort, '__abstractmethods__'), "ModelManagementPort should be abstract"
+        assert hasattr(ModelTrainingPort, '__abstractmethods__'), "ModelTrainingPort should be abstract"
+        assert hasattr(ModelPredictionPort, '__abstractmethods__'), "ModelPredictionPort should be abstract"
         
         compliance_results["domain_isolation"] = True
         
@@ -416,11 +434,11 @@ async def test_hexagonal_architecture_compliance():
         # Test 3: Adapter pattern - infrastructure should implement domain interfaces
         print("  - Testing adapter pattern...")
         
-        from machine_learning.infrastructure.adapters.file_based.ml_adapters import FileBasedTraining
+        from machine_learning.infrastructure.adapters.file_based.model_adapters import FileBasedModelTraining
         from data_quality.infrastructure.adapters.file_based.data_processing_adapters import FileBasedDataProfiling
         
         # Adapters should implement the domain ports
-        assert issubclass(FileBasedTraining, TrainingPort), "FileBasedTraining should implement TrainingPort"
+        assert issubclass(FileBasedModelTraining, ModelTrainingPort), "FileBasedModelTraining should implement ModelTrainingPort"
         
         from data_quality.domain.interfaces.data_processing_operations import DataProfilingPort
         assert issubclass(FileBasedDataProfiling, DataProfilingPort), "FileBasedDataProfiling should implement DataProfilingPort"

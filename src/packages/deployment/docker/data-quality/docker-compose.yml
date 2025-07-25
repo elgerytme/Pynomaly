@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  data-quality:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/data-quality/Dockerfile
+      target: production
+    container_name: data-quality-service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_QUALITY_ENVIRONMENT=production
+      - DATA_QUALITY_STORAGE_PATH=/app/data
+      - DATA_QUALITY_LOG_LEVEL=INFO
+    volumes:
+      - data_quality_storage:/app/data
+      - data_quality_logs:/app/logs
+    networks:
+      - hexagonal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  data-quality-dev:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/data-quality/Dockerfile
+      target: development
+    container_name: data-quality-dev
+    ports:
+      - "8001:8000"
+    environment:
+      - DATA_QUALITY_ENVIRONMENT=development
+      - DATA_QUALITY_STORAGE_PATH=/app/data
+      - DATA_QUALITY_LOG_LEVEL=DEBUG
+    volumes:
+      - ../../../data/data_quality:/app/src:rw
+      - data_quality_dev_storage:/app/data
+    networks:
+      - hexagonal-network
+    command: ["python", "-m", "uvicorn", "src.data_quality.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+volumes:
+  data_quality_storage:
+    driver: local
+  data_quality_logs:
+    driver: local
+  data_quality_dev_storage:
+    driver: local
+
+networks:
+  hexagonal-network:
+    driver: bridge
+    name: hexagonal-architecture-network

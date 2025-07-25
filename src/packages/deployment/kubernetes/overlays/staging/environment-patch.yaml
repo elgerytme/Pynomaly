@@ -1,0 +1,80 @@
+# Staging environment variables patch
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-quality-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: data-quality
+        env:
+        - name: DATA_QUALITY_ENVIRONMENT
+          value: "staging"
+        - name: DATA_QUALITY_LOG_LEVEL
+          value: "INFO"
+        - name: DATA_QUALITY_ENABLE_FILE_DATA_PROCESSING
+          value: "true"
+        - name: DATA_QUALITY_ENABLE_STATISTICAL_ANALYSIS
+          value: "true"
+        - name: DATA_QUALITY_ENABLE_PERFORMANCE_MONITORING
+          value: "true"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: machine-learning-training-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: machine-learning
+        env:
+        - name: ML_ENVIRONMENT
+          value: "staging"
+        - name: ML_LOG_LEVEL
+          value: "INFO"
+        - name: ML_ENABLE_DISTRIBUTED_TRAINING
+          value: "false"
+        - name: ML_ENABLE_PERFORMANCE_MONITORING
+          value: "true"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: anomaly-detection
+        env:
+        - name: ANOMALY_DETECTION_ENVIRONMENT
+          value: "staging"
+        - name: ANOMALY_DETECTION_LOG_LEVEL
+          value: "INFO"
+        - name: ANOMALY_DETECTION_ENABLE_CACHING
+          value: "true"
+        - name: ANOMALY_DETECTION_CACHE_TTL
+          value: "1800"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

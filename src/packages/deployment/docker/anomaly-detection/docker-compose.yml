@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  anomaly-detection:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/anomaly-detection/Dockerfile
+      target: production
+    container_name: anomaly-detection-service
+    ports:
+      - "8007:8007"
+    environment:
+      - ANOMALY_DETECTION_ENVIRONMENT=production
+      - ANOMALY_DETECTION_STORAGE_PATH=/app/data
+      - ANOMALY_DETECTION_LOG_LEVEL=INFO
+      - ANOMALY_DETECTION_ENABLE_CACHING=true
+      - ANOMALY_DETECTION_CACHE_TTL=3600
+    volumes:
+      - anomaly_detection_models:/app/data/models
+      - anomaly_detection_results:/app/data/detection_results
+      - anomaly_detection_cache:/app/data/cache
+      - anomaly_detection_logs:/app/logs
+    networks:
+      - hexagonal-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+          cpus: '1.5'
+        reservations:
+          memory: 1.5G
+          cpus: '0.75'
+
+  anomaly-detection-streaming:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/anomaly-detection/Dockerfile
+      target: production
+    container_name: anomaly-detection-streaming
+    ports:
+      - "8008:8007"
+    environment:
+      - ANOMALY_DETECTION_ENVIRONMENT=production
+      - ANOMALY_DETECTION_SERVICE_MODE=streaming
+      - ANOMALY_DETECTION_STORAGE_PATH=/app/data
+      - ANOMALY_DETECTION_LOG_LEVEL=INFO
+      - ANOMALY_DETECTION_ENABLE_CACHING=true
+      - ANOMALY_DETECTION_STREAMING_BUFFER_SIZE=1000
+    volumes:
+      - anomaly_detection_models:/app/data/models:ro
+      - anomaly_detection_streaming_results:/app/data/detection_results
+      - anomaly_detection_cache:/app/data/cache
+      - anomaly_detection_logs:/app/logs
+    networks:
+      - hexagonal-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  anomaly-detection-dev:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/anomaly-detection/Dockerfile
+      target: development
+    container_name: anomaly-detection-dev
+    ports:
+      - "8009:8007"
+    environment:
+      - ANOMALY_DETECTION_ENVIRONMENT=development
+      - ANOMALY_DETECTION_STORAGE_PATH=/app/data
+      - ANOMALY_DETECTION_LOG_LEVEL=DEBUG
+    volumes:
+      - ../../../data/anomaly_detection:/app/src:rw
+      - anomaly_detection_dev_storage:/app/data
+    networks:
+      - hexagonal-network
+    command: ["python", "-m", "uvicorn", "src.anomaly_detection.api.main:app", "--host", "0.0.0.0", "--port", "8007", "--reload"]
+
+volumes:
+  anomaly_detection_models:
+    driver: local
+  anomaly_detection_results:
+    driver: local
+  anomaly_detection_streaming_results:
+    driver: local
+  anomaly_detection_cache:
+    driver: local
+  anomaly_detection_logs:
+    driver: local
+  anomaly_detection_dev_storage:
+    driver: local
+
+networks:
+  hexagonal-network:
+    external: true
+    name: hexagonal-architecture-network

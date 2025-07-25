@@ -1,0 +1,85 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hexagonal-architecture-ingress
+  labels:
+    app: hexagonal-architecture
+    component: ingress
+    part-of: hexagonal-architecture
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.hexagonal-architecture.com
+    secretName: hexagonal-architecture-tls
+  rules:
+  - host: api.hexagonal-architecture.com
+    http:
+      paths:
+      - path: /data-quality
+        pathType: Prefix
+        backend:
+          service:
+            name: data-quality-service
+            port:
+              number: 8000
+      - path: /mlops/experiments
+        pathType: Prefix
+        backend:
+          service:
+            name: mlops-experiment-tracking-service
+            port:
+              number: 8001
+      - path: /mlops/models
+        pathType: Prefix
+        backend:
+          service:
+            name: mlops-model-registry-service
+            port:
+              number: 8002
+      - path: /ml/training
+        pathType: Prefix
+        backend:
+          service:
+            name: ml-training-service
+            port:
+              number: 8004
+      - path: /ml/prediction
+        pathType: Prefix
+        backend:
+          service:
+            name: ml-prediction-service
+            port:
+              number: 8005
+      - path: /anomaly-detection
+        pathType: Prefix
+        backend:
+          service:
+            name: anomaly-detection-service
+            port:
+              number: 8007
+      - path: /anomaly-detection/streaming
+        pathType: Prefix
+        backend:
+          service:
+            name: anomaly-detection-streaming-service
+            port:
+              number: 8008
+      - path: /metrics
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-service
+            port:
+              number: 9090
+      - path: /dashboards
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-service
+            port:
+              number: 3000

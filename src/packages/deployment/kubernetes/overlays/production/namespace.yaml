@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hexagonal-production
+  labels:
+    name: hexagonal-production
+    environment: production
+    part-of: hexagonal-architecture

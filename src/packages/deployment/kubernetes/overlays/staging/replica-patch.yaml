@@ -1,0 +1,49 @@
+# Staging environment - moderate replicas for production-like testing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-quality-service
+spec:
+  replicas: 2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: machine-learning-training-service
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: machine-learning-prediction-service
+spec:
+  replicas: 2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-service
+spec:
+  replicas: 2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-experiment-tracking-service
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-model-registry-service
+spec:
+  replicas: 2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-configuration-service
+spec:
+  replicas: 1

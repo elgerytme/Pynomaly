@@ -134,7 +134,7 @@ async def test_data_profiling_integration():
         
         # Verify profile creation
         assert profile is not None, "Profile should not be None"
-        assert profile.dataset_name == "test_data.csv", "Dataset name should match"
+        assert profile.dataset_name == test_data_path, "Dataset name should match"
         assert profile.total_rows > 0, "Row count should be positive"
         assert profile.total_columns > 0, "Column count should be positive"
         assert len(profile.column_profiles) > 0, "Should have column profiles"

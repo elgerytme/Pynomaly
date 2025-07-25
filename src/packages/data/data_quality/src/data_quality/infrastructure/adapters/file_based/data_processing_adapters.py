@@ -186,7 +186,7 @@ class FileBasedDataProfiling(DataProfilingPort):
         new_request = DataProfilingRequest(
             data_source=new_data_source,
             profile_config={},
-            metadata=profile.metadata
+            metadata=profile.config
         )
         return await self.create_data_profile(new_request)
     
@@ -199,15 +199,15 @@ class FileBasedDataProfiling(DataProfilingPort):
         comparison = {
             "profile1_id": profile1.id,
             "profile2_id": profile2.id,
-            "row_count_diff": profile2.row_count - profile1.row_count,
-            "column_count_diff": profile2.column_count - profile1.column_count,
+            "row_count_diff": profile2.total_rows - profile1.total_rows,
+            "column_count_diff": profile2.total_columns - profile1.total_columns,
             "schema_changes": [],
             "statistical_changes": {}
         }
         
         # Check schema changes
-        cols1 = set(profile1.column_profiles.keys())
-        cols2 = set(profile2.column_profiles.keys())
+        cols1 = set(cp.column_name for cp in profile1.column_profiles)
+        cols2 = set(cp.column_name for cp in profile2.column_profiles)
         
         if cols1 != cols2:
             comparison["schema_changes"] = {
@@ -217,14 +217,18 @@ class FileBasedDataProfiling(DataProfilingPort):
         
         # Check statistical changes for common columns
         common_cols = cols1 & cols2
+        # Create column lookup dictionaries
+        cols1_dict = {cp.column_name: cp for cp in profile1.column_profiles}
+        cols2_dict = {cp.column_name: cp for cp in profile2.column_profiles}
+        
         for col in common_cols:
-            stats1 = profile1.column_profiles[col].statistics
-            stats2 = profile2.column_profiles[col].statistics
+            stats1 = cols1_dict[col].statistics
+            stats2 = cols2_dict[col].statistics
             
-            if "mean" in stats1 and "mean" in stats2:
+            if stats1.mean is not None and stats2.mean is not None:
                 comparison["statistical_changes"][col] = {
-                    "mean_change": stats2["mean"] - stats1["mean"],
-                    "null_count_change": stats2["null_count"] - stats1["null_count"]
+                    "mean_change": stats2.mean - stats1.mean,
+                    "null_count_change": stats2.null_count - stats1.null_count
                 }
         
         return comparison
@@ -242,8 +246,8 @@ class FileBasedDataProfiling(DataProfilingPort):
         }
         
         # Check for column changes
-        baseline_cols = set(baseline_profile.column_profiles.keys())
-        current_cols = set(current_profile.column_profiles.keys())
+        baseline_cols = set(cp.column_name for cp in baseline_profile.column_profiles)
+        current_cols = set(cp.column_name for cp in current_profile.column_profiles)
         
         if baseline_cols != current_cols:
             drift_analysis["has_drift"] = True
@@ -254,10 +258,14 @@ class FileBasedDataProfiling(DataProfilingPort):
                 "removed_columns": list(baseline_cols - current_cols)
             })
         
+        # Create column lookup dictionaries
+        baseline_cols_dict = {cp.column_name: cp for cp in baseline_profile.column_profiles}
+        current_cols_dict = {cp.column_name: cp for cp in current_profile.column_profiles}
+        
         # Check for data type changes
         for col in baseline_cols & current_cols:
-            baseline_type = baseline_profile.data_types.get(col)
-            current_type = current_profile.data_types.get(col)
+            baseline_type = baseline_cols_dict[col].data_type
+            current_type = current_cols_dict[col].data_type
             
             if baseline_type != current_type:
                 drift_analysis["has_drift"] = True

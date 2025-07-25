@@ -1,0 +1,232 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-experiment-tracking
+  labels:
+    app: mlops
+    component: experiment-tracking
+    part-of: hexagonal-architecture
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mlops
+      component: experiment-tracking
+  template:
+    metadata:
+      labels:
+        app: mlops
+        component: experiment-tracking
+        part-of: hexagonal-architecture
+    spec:
+      containers:
+      - name: mlops-experiments
+        image: hexagonal-architecture/mlops:latest
+        ports:
+        - containerPort: 8001
+          name: http
+        env:
+        - name: MLOPS_ENVIRONMENT
+          value: "kubernetes"
+        - name: MLOPS_SERVICE_NAME
+          value: "experiment_tracking"
+        - name: MLOPS_STORAGE_PATH
+          value: "/app/data"
+        - name: MLOPS_LOG_LEVEL
+          value: "INFO"
+        - name: MLOPS_ENABLE_FILE_EXPERIMENT_TRACKING
+          value: "true"
+        - name: MLOPS_ENABLE_FILE_SERVICE_DISCOVERY
+          value: "true"
+        volumeMounts:
+        - name: experiments-storage
+          mountPath: /app/data/experiments
+        - name: service-discovery-storage
+          mountPath: /app/data/service_discovery
+        - name: logs
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: experiments-storage
+        persistentVolumeClaim:
+          claimName: mlops-experiments-storage
+      - name: service-discovery-storage
+        persistentVolumeClaim:
+          claimName: mlops-service-discovery-storage
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-model-registry
+  labels:
+    app: mlops
+    component: model-registry
+    part-of: hexagonal-architecture
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mlops
+      component: model-registry
+  template:
+    metadata:
+      labels:
+        app: mlops
+        component: model-registry
+        part-of: hexagonal-architecture
+    spec:
+      containers:
+      - name: mlops-registry
+        image: hexagonal-architecture/mlops:latest
+        ports:
+        - containerPort: 8001
+          name: http
+        env:
+        - name: MLOPS_ENVIRONMENT
+          value: "kubernetes"
+        - name: MLOPS_SERVICE_NAME
+          value: "model_registry"
+        - name: MLOPS_STORAGE_PATH
+          value: "/app/data"
+        - name: MLOPS_LOG_LEVEL
+          value: "INFO"
+        - name: MLOPS_ENABLE_LOCAL_MODEL_REGISTRY
+          value: "true"
+        - name: MLOPS_ENABLE_FILE_SERVICE_DISCOVERY
+          value: "true"
+        volumeMounts:
+        - name: models-storage
+          mountPath: /app/data/models
+        - name: service-discovery-storage
+          mountPath: /app/data/service_discovery
+        - name: logs
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: models-storage
+        persistentVolumeClaim:
+          claimName: mlops-models-storage
+      - name: service-discovery-storage
+        persistentVolumeClaim:
+          claimName: mlops-service-discovery-storage
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlops-experiment-tracking-service
+  labels:
+    app: mlops
+    component: experiment-tracking
+    part-of: hexagonal-architecture
+spec:
+  selector:
+    app: mlops
+    component: experiment-tracking
+  ports:
+  - name: http
+    port: 8001
+    targetPort: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlops-model-registry-service
+  labels:
+    app: mlops
+    component: model-registry
+    part-of: hexagonal-architecture
+spec:
+  selector:
+    app: mlops
+    component: model-registry
+  ports:
+  - name: http
+    port: 8002
+    targetPort: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlops-experiments-storage
+  labels:
+    app: mlops
+    component: experiments-storage
+    part-of: hexagonal-architecture
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlops-models-storage
+  labels:
+    app: mlops
+    component: models-storage
+    part-of: hexagonal-architecture
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlops-service-discovery-storage
+  labels:
+    app: mlops
+    component: service-discovery-storage
+    part-of: hexagonal-architecture
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi

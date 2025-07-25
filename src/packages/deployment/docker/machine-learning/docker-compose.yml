@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  machine-learning-training:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/machine-learning/Dockerfile
+      target: production
+    container_name: ml-training-service
+    ports:
+      - "8004:8004"
+    environment:
+      - ML_ENVIRONMENT=production
+      - ML_SERVICE_NAME=training
+      - ML_STORAGE_PATH=/app/data
+      - ML_LOG_LEVEL=INFO
+      - ML_ENABLE_FILE_MODEL_STORAGE=true
+      - ML_ENABLE_DISTRIBUTED_TRAINING=false
+    volumes:
+      - ml_models:/app/data/models
+      - ml_training_jobs:/app/data/training_jobs
+      - ml_logs:/app/logs
+    networks:
+      - hexagonal-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+  machine-learning-prediction:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/machine-learning/Dockerfile
+      target: production
+    container_name: ml-prediction-service
+    ports:
+      - "8005:8004"
+    environment:
+      - ML_ENVIRONMENT=production
+      - ML_SERVICE_NAME=prediction
+      - ML_STORAGE_PATH=/app/data
+      - ML_LOG_LEVEL=INFO
+      - ML_ENABLE_FILE_MODEL_STORAGE=true
+    volumes:
+      - ml_models:/app/data/models:ro
+      - ml_predictions:/app/data/predictions
+      - ml_logs:/app/logs
+    networks:
+      - hexagonal-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  machine-learning-dev:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/machine-learning/Dockerfile
+      target: development
+    container_name: ml-dev
+    ports:
+      - "8006:8004"
+    environment:
+      - ML_ENVIRONMENT=development
+      - ML_STORAGE_PATH=/app/data
+      - ML_LOG_LEVEL=DEBUG
+    volumes:
+      - ../../../ai/machine_learning:/app/src:rw
+      - ml_dev_storage:/app/data
+    networks:
+      - hexagonal-network
+    command: ["python", "-m", "uvicorn", "src.machine_learning.api.main:app", "--host", "0.0.0.0", "--port", "8004", "--reload"]
+
+volumes:
+  ml_models:
+    driver: local
+  ml_training_jobs:
+    driver: local
+  ml_predictions:
+    driver: local
+  ml_logs:
+    driver: local
+  ml_dev_storage:
+    driver: local
+
+networks:
+  hexagonal-network:
+    external: true
+    name: hexagonal-architecture-network

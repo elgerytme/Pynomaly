@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: hexagonal-architecture-staging
+
+namespace: hexagonal-staging
+
+resources:
+- namespace.yaml
+- ../../base/data-quality-deployment.yaml
+- ../../base/machine-learning-deployment.yaml
+- ../../base/anomaly-detection-deployment.yaml
+- ../../base/mlops-deployment.yaml
+- ../../base/monitoring-deployment.yaml
+
+patchesStrategicMerge:
+- replica-patch.yaml
+- environment-patch.yaml
+
+images:
+- name: hexagonal-architecture/data-quality
+  newTag: staging
+- name: hexagonal-architecture/machine-learning
+  newTag: staging
+- name: hexagonal-architecture/anomaly-detection
+  newTag: staging
+- name: hexagonal-architecture/mlops
+  newTag: staging
+
+namePrefix: staging-
+
+commonLabels:
+  environment: staging
+  version: staging
+
+configMapGenerator:
+- name: staging-config
+  literals:
+  - LOG_LEVEL=INFO
+  - ENABLE_DEBUG=false
+  - STORAGE_TYPE=file
+  - PERFORMANCE_MONITORING=true

@@ -1,0 +1,37 @@
+# Production dependencies for Data Quality package
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pandas==2.1.0
+numpy==1.24.0
+sqlalchemy==2.0.0
+alembic==1.12.0
+python-multipart==0.0.6
+
+# For hexagonal architecture and dependency injection
+dependency-injector==4.41.0
+
+# For statistical analysis and data profiling
+scipy==1.11.0
+scikit-learn==1.3.0
+
+# For data validation and quality checks
+cerberus==1.3.4
+jsonschema==4.19.0
+
+# For file handling and data processing
+openpyxl==3.1.0
+
+# For CLI interface
+click==8.1.0
+rich==13.6.0
+
+# For configuration management
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# For logging and monitoring
+structlog==23.2.0
+
+# For database operations
+psycopg2-binary==2.9.7
