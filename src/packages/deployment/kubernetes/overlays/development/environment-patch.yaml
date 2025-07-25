@@ -1,0 +1,74 @@
+# Development environment variables patch
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-quality-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: data-quality
+        env:
+        - name: DATA_QUALITY_ENVIRONMENT
+          value: "development"
+        - name: DATA_QUALITY_LOG_LEVEL
+          value: "DEBUG"
+        - name: DATA_QUALITY_ENABLE_FILE_DATA_PROCESSING
+          value: "true"
+        - name: DATA_QUALITY_ENABLE_STATISTICAL_ANALYSIS
+          value: "true"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: machine-learning-training-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: machine-learning
+        env:
+        - name: ML_ENVIRONMENT
+          value: "development"
+        - name: ML_LOG_LEVEL
+          value: "DEBUG"
+        - name: ML_ENABLE_DISTRIBUTED_TRAINING
+          value: "false"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomaly-detection-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: anomaly-detection
+        env:
+        - name: ANOMALY_DETECTION_ENVIRONMENT
+          value: "development"
+        - name: ANOMALY_DETECTION_LOG_LEVEL
+          value: "DEBUG"
+        - name: ANOMALY_DETECTION_ENABLE_CACHING
+          value: "false"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"

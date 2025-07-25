@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: hexagonal-architecture-development
+
+namespace: hexagonal-dev
+
+resources:
+- namespace.yaml
+- ../../base/data-quality-deployment.yaml
+- ../../base/machine-learning-deployment.yaml
+- ../../base/anomaly-detection-deployment.yaml
+- ../../base/mlops-deployment.yaml
+- ../../base/monitoring-deployment.yaml
+
+patchesStrategicMerge:
+- replica-patch.yaml
+- environment-patch.yaml
+
+images:
+- name: hexagonal-architecture/data-quality
+  newTag: dev
+- name: hexagonal-architecture/machine-learning
+  newTag: dev
+- name: hexagonal-architecture/anomaly-detection
+  newTag: dev
+- name: hexagonal-architecture/mlops
+  newTag: dev
+
+namePrefix: dev-
+
+commonLabels:
+  environment: development
+  version: dev
+
+configMapGenerator:
+- name: development-config
+  literals:
+  - LOG_LEVEL=DEBUG
+  - ENABLE_DEBUG=true
+  - STORAGE_TYPE=file
