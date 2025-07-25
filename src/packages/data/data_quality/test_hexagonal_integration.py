@@ -35,7 +35,7 @@ from data_quality.domain.interfaces.quality_assessment_operations import (
 )
 
 # Import domain entities
-from data_quality.domain.entities.data_quality_rule import DataQualityRule
+from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleType, RuleSeverity, RuleCondition, RuleOperator
 from uuid import uuid4
 
 
@@ -113,20 +113,28 @@ async def test_data_profiling_integration():
         
         # Verify profile creation
         assert profile is not None, "Profile should not be None"
-        assert profile.data_source == "test_data.csv", "Data source should match"
-        assert profile.row_count > 0, "Row count should be positive"
-        assert profile.column_count > 0, "Column count should be positive"
+        assert profile.dataset_name == "test_data.csv", "Dataset name should match"
+        assert profile.total_rows > 0, "Row count should be positive"
+        assert profile.total_columns > 0, "Column count should be positive"
         assert len(profile.column_profiles) > 0, "Should have column profiles"
         
-        print(f"✅ Created profile with {profile.row_count} rows and {profile.column_count} columns")
+        print(f"✅ Created profile with {profile.total_rows} rows and {profile.total_columns} columns")
         
-        # Test column profiling
-        column_profile = await profiling_service.create_column_profile(
-            "test_data.csv", "test_column", {}
-        )
-        
-        assert column_profile is not None, "Column profile should not be None"
-        assert column_profile.column_name == "test_column", "Column name should match"
+        # Test column profiling using an existing column from the profile
+        if profile.column_profiles:
+            existing_column_name = profile.column_profiles[0].column_name
+            column_profile = await profiling_service.create_column_profile(
+                "test_data.csv", existing_column_name, {}
+            )
+            
+            assert column_profile is not None, "Column profile should not be None"
+            assert column_profile.column_name == existing_column_name, "Column name should match"
+        else:
+            # If no columns exist, test with stub data
+            column_profile = await profiling_service.create_column_profile(
+                "test_data.csv", "id", {}
+            )
+            assert column_profile is not None, "Column profile should not be None"
         
         print("✅ Column profiling completed successfully")
         
@@ -149,28 +157,30 @@ async def test_data_validation_integration():
         # Create test quality rules
         test_rules = [
             DataQualityRule(
-                id=uuid4(),
                 name="Completeness Check",
                 description="Check data completeness",
-                rule_type="completeness",
-                target_column="id",
-                conditions={"min_completeness": 0.95},
-                threshold_value=0.95,
-                severity="high",
-                tags=["completeness"],
-                metadata={}
+                rule_type=RuleType.NOT_NULL,
+                severity=RuleSeverity.ERROR,
+                dataset_name="test_data.csv",
+                conditions=[
+                    RuleCondition(
+                        column_name="id",
+                        operator=RuleOperator.IS_NOT_NULL
+                    )
+                ]
             ),
             DataQualityRule(
-                id=uuid4(),
-                name="Uniqueness Check",
+                name="Uniqueness Check", 
                 description="Check data uniqueness",
-                rule_type="uniqueness",
-                target_column="id",
-                conditions={},
-                threshold_value=1.0,
-                severity="medium",
-                tags=["uniqueness"],
-                metadata={}
+                rule_type=RuleType.UNIQUENESS,
+                severity=RuleSeverity.WARNING,
+                dataset_name="test_data.csv",
+                conditions=[
+                    RuleCondition(
+                        column_name="id",
+                        operator=RuleOperator.IS_NOT_NULL
+                    )
+                ]
             )
         ]
         
@@ -183,7 +193,6 @@ async def test_data_validation_integration():
         
         for result in validation_results:
             assert result.check_id is not None, "Check ID should not be None"
-            assert result.rule_id is not None, "Rule ID should not be None"
             assert isinstance(result.passed, bool), "Passed should be boolean"
             assert isinstance(result.score, float), "Score should be float"
             assert result.executed_at is not None, "Execution time should not be None"
@@ -220,22 +229,23 @@ async def test_quality_assessment_integration():
         
         # Test rule evaluation
         test_rule = DataQualityRule(
-            id="eval_rule_001",
             name="Test Rule",
-            description="Test rule evaluation",
-            rule_type="completeness",
-            target_column="test_column",
-            conditions={},
-            threshold_value=0.9,
-            severity="medium",
-            tags=["test"],
-            metadata={}
+            description="Test rule evaluation", 
+            rule_type=RuleType.NOT_NULL,
+            severity=RuleSeverity.WARNING,
+            dataset_name="test_data.csv",
+            conditions=[
+                RuleCondition(
+                    column_name="id",
+                    operator=RuleOperator.IS_NOT_NULL
+                )
+            ]
         )
         
         rule_result = await rule_evaluation_service.evaluate_rule("test_data.csv", test_rule)
         
         assert rule_result is not None, "Rule result should not be None"
-        assert rule_result.rule_id == test_rule.id, "Rule ID should match"
+        assert rule_result.rule_id == str(test_rule.id), "Rule ID should match"
         assert isinstance(rule_result.passed, bool), "Passed should be boolean"
         assert isinstance(rule_result.score, float), "Score should be float"
         
@@ -402,16 +412,17 @@ async def test_end_to_end_workflow():
         
         validation_rules = [
             DataQualityRule(
-                id="workflow_rule_001",
                 name="Workflow Completeness",
                 description="Ensure data completeness for workflow",
-                rule_type="completeness",
-                target_column="id",
-                conditions={"min_completeness": 0.95},
-                threshold_value=0.95,
-                severity="high",
-                tags=["workflow"],
-                metadata={}
+                rule_type=RuleType.NOT_NULL,
+                severity=RuleSeverity.ERROR,
+                dataset_name="workflow_test_data.csv",
+                conditions=[
+                    RuleCondition(
+                        column_name="id",
+                        operator=RuleOperator.IS_NOT_NULL
+                    )
+                ]
             )
         ]
         
@@ -491,9 +502,9 @@ async def test_end_to_end_workflow():
             "completed_at": datetime.now().isoformat(),
             "profile_summary": {
                 "profile_id": profile.id,
-                "row_count": profile.row_count,
-                "column_count": profile.column_count,
-                "data_types": len(profile.data_types)
+                "row_count": profile.total_rows,
+                "column_count": profile.total_columns,
+                "column_profiles": len(profile.column_profiles)
             },
             "validation_summary": {
                 "rules_executed": len(validation_results),

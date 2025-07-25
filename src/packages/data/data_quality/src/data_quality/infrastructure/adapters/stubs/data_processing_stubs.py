@@ -14,7 +14,7 @@ from data_quality.domain.interfaces.data_processing_operations import (
     DataValidationRequest,
     StatisticalAnalysisRequest
 )
-from data_quality.domain.entities.data_profile import DataProfile, ColumnProfile
+from data_quality.domain.entities.data_profile import DataProfile, ColumnProfile, ProfileStatistics, DataType
 from data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckResult
 from data_quality.domain.entities.data_quality_rule import DataQualityRule
 
@@ -25,28 +25,24 @@ class DataProfilingStub(DataProfilingPort):
     async def create_data_profile(self, request: DataProfilingRequest) -> DataProfile:
         """Create a stub data profile."""
         return DataProfile(
-            id="stub_profile_001",
-            data_source=request.data_source,
-            created_at=datetime.now(),
-            row_count=1000,
-            column_count=5,
-            column_profiles={
-                "id": ColumnProfile(
+            dataset_name=request.data_source,
+            total_rows=1000,
+            total_columns=5,
+            column_profiles=[
+                ColumnProfile(
                     column_name="id",
-                    data_type="int64",
-                    null_count=0,
-                    unique_count=1000,
-                    statistics={"mean": 500.5, "min": 1, "max": 1000},
-                    value_distribution={"type": "numeric"},
-                    common_values={},
-                    metadata={}
+                    data_type=DataType.INTEGER,
+                    statistics=ProfileStatistics(
+                        total_count=1000,
+                        null_count=0,
+                        distinct_count=1000,
+                        mean=500.5,
+                        min_value=1,
+                        max_value=1000
+                    )
                 )
-            },
-            data_types={"id": "int64", "name": "object"},
-            missing_value_summary={"id": 0, "name": 10},
-            duplicate_rows=0,
-            memory_usage=50000,
-            metadata=request.metadata or {}
+            ],
+            config=request.metadata or {}
         )
     
     async def create_column_profile(
@@ -58,13 +54,17 @@ class DataProfilingStub(DataProfilingPort):
         """Create a stub column profile."""
         return ColumnProfile(
             column_name=column_name,
-            data_type="object",
-            null_count=0,
-            unique_count=100,
-            statistics={"count": 100},
-            value_distribution={"type": "categorical"},
-            common_values={"value1": 50, "value2": 30},
-            metadata={}
+            data_type=DataType.STRING,
+            statistics=ProfileStatistics(
+                total_count=100,
+                null_count=0,
+                distinct_count=100
+            ),
+            sample_values=["value1", "value2", "value3"],
+            top_values=[
+                {"value": "value1", "count": 50, "percentage": 50.0},
+                {"value": "value2", "count": 30, "percentage": 30.0}
+            ]
         )
     
     async def update_profile_incrementally(
@@ -129,15 +129,17 @@ class DataValidationStub(DataValidationPort):
         check: DataQualityCheck
     ) -> CheckResult:
         """Execute quality check."""
-        return DataQualityResult(
+        return CheckResult(
             check_id=check.id,
-            rule_id=check.rule.id,
+            dataset_name="stub_dataset",
             passed=True,
             score=0.95,
-            details={"message": "Check passed (stub)"},
-            error_count=0,
-            warning_count=0,
+            total_records=1000,
+            passed_records=950,
+            failed_records=50,
             executed_at=datetime.now(),
+            message="Check passed (stub)",
+            details={"message": "Check passed (stub)"},
             metadata={}
         )
     

@@ -29,7 +29,7 @@ class RuleEvaluationStub(RuleEvaluationPort):
     ) -> RuleResult:
         """Evaluate rule."""
         return RuleResult(
-            rule_id=rule.id,
+            rule_id=str(rule.id),
             passed=True,
             score=0.95,
             details={"message": "Rule evaluation passed (stub)"},
