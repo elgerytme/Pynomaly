@@ -1,0 +1,680 @@
+# Advanced Production Monitoring Configuration
+# This file defines comprehensive monitoring, alerting, and observability for production
+
+# =============================================================================
+# PROMETHEUS CONFIGURATION
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-production-config
+  namespace: mlops-production
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        environment: production
+        cluster: mlops-production
+        region: us-east-1
+    
+    # Alertmanager configuration
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+    
+    # Load rules once and periodically evaluate them
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+    
+    # Scrape configurations
+    scrape_configs:
+      # Kubernetes API server
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+        - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: default;kubernetes;https
+    
+      # Kubernetes nodes
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+        - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+    
+      # Kubernetes pods
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: kubernetes_namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: kubernetes_pod_name
+    
+      # MLOps application services
+      - job_name: 'mlops-api-server'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - mlops-production
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          action: keep
+          regex: api-server
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: metrics
+        metric_relabel_configs:
+        - source_labels: [__name__]
+          regex: 'go_.*'
+          action: drop
+    
+      # Model servers
+      - job_name: 'mlops-model-server'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - mlops-production
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          action: keep
+          regex: model-server
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: metrics
+    
+      # Database monitoring
+      - job_name: 'postgres-exporter'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - mlops-production
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          action: keep
+          regex: postgres-exporter
+    
+      # Redis monitoring
+      - job_name: 'redis-exporter'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - mlops-production
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          action: keep
+          regex: redis-exporter
+    
+      # Istio service mesh
+      - job_name: 'istio-mesh'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-proxy;http-monitoring
+    
+      # Business metrics from custom applications
+      - job_name: 'business-metrics'
+        static_configs:
+        - targets: ['business-metrics-exporter:8080']
+        scrape_interval: 30s
+
+---
+# =============================================================================
+# ALERTING RULES
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: mlops-production
+data:
+  critical-alerts.yml: |
+    groups:
+    - name: mlops.critical
+      interval: 30s
+      rules:
+      - alert: MLOpsServiceDown
+        expr: up{job=~"mlops-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "MLOps service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+          runbook_url: "https://runbook.mlops-platform.com/service-down"
+          action_required: "Immediate investigation and resolution required"
+      
+      - alert: MLOpsHighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "High error rate detected in {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.service }}"
+          runbook_url: "https://runbook.mlops-platform.com/high-error-rate"
+      
+      - alert: MLOpsDatabaseDown
+        expr: up{job="postgres-exporter"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Database is unreachable"
+          description: "PostgreSQL database has been unreachable for 30 seconds"
+          runbook_url: "https://runbook.mlops-platform.com/database-down"
+      
+      - alert: MLOpsRedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Redis cache is unreachable"
+          description: "Redis cache has been unreachable for 1 minute"
+    
+    - name: mlops.performance
+      interval: 30s
+      rules:
+      - alert: MLOpsHighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High response time in {{ $labels.service }}"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.service }}"
+      
+      - alert: MLOpsHighModelLatency
+        expr: histogram_quantile(0.95, rate(model_prediction_duration_seconds_bucket[5m])) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          team: ml
+        annotations:
+          summary: "High model prediction latency"
+          description: "95th percentile model prediction time is {{ $value }}s"
+      
+      - alert: MLOpsLowThroughput
+        expr: rate(http_requests_total[5m]) < 10
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Low request throughput"
+          description: "Request rate is only {{ $value }} requests/second"
+    
+    - name: mlops.resources
+      interval: 60s
+      rules:
+      - alert: MLOpsHighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High memory usage in {{ $labels.pod }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} in pod {{ $labels.pod }}"
+      
+      - alert: MLOpsHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High CPU usage in {{ $labels.pod }}"
+          description: "CPU usage is {{ $value | humanizePercentage }} in pod {{ $labels.pod }}"
+      
+      - alert: MLOpsDiskSpaceLow
+        expr: (node_filesystem_free_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is {{ $value | humanizePercentage }} full on {{ $labels.instance }}"
+    
+    - name: mlops.business
+      interval: 60s
+      rules:
+      - alert: MLOpsLowPredictionVolume
+        expr: rate(model_predictions_total[1h]) < 100
+        for: 30m
+        labels:
+          severity: warning
+          team: business
+        annotations:
+          summary: "Low prediction volume detected"
+          description: "Model prediction rate is only {{ $value }} predictions/hour"
+      
+      - alert: MLOpsModelAccuracyDrop
+        expr: model_accuracy < 0.85
+        for: 15m
+        labels:
+          severity: critical
+          team: ml
+        annotations:
+          summary: "Model accuracy dropped below threshold"
+          description: "Model {{ $labels.model_id }} accuracy is {{ $value }}"
+      
+      - alert: MLOpsDataDriftDetected
+        expr: data_drift_score > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          team: ml
+        annotations:
+          summary: "Data drift detected in {{ $labels.model_id }}"
+          description: "Data drift score is {{ $value }} for model {{ $labels.model_id }}"
+
+  security-alerts.yml: |
+    groups:
+    - name: mlops.security
+      interval: 30s
+      rules:
+      - alert: MLOpsUnauthorizedAccess
+        expr: increase(http_requests_total{status="401"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Multiple unauthorized access attempts"
+          description: "{{ $value }} unauthorized access attempts in 5 minutes"
+      
+      - alert: MLOpsSSLCertificateExpiring
+        expr: ssl_certificate_expiry_days < 30
+        for: 1h
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate expires in {{ $value }} days"
+      
+      - alert: MLOpsSecurityPolicyViolation
+        expr: increase(security_policy_violations_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Security policy violation detected"
+          description: "{{ $value }} security policy violations detected"
+
+---
+# =============================================================================
+# ALERTMANAGER CONFIGURATION
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: mlops-production
+data:
+  alertmanager.yml: |
+    global:
+      smtp_smarthost: 'smtp.company.com:587'
+      smtp_from: 'alerts@mlops-platform.com'
+      smtp_auth_username: 'alerts@mlops-platform.com'
+      smtp_auth_password: '${SMTP_PASSWORD}'
+      
+    # Template configuration
+    templates:
+    - '/etc/alertmanager/templates/*.tmpl'
+    
+    # Routing configuration
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default'
+      routes:
+      # Critical alerts - immediate escalation
+      - match:
+          severity: critical
+        receiver: 'critical-alerts'
+        group_wait: 0s
+        group_interval: 5m
+        repeat_interval: 15m
+        routes:
+        - match:
+            team: platform
+          receiver: 'platform-critical'
+        - match:
+            team: ml
+          receiver: 'ml-critical'
+        - match:
+            team: security
+          receiver: 'security-critical'
+      
+      # Warning alerts - team-specific routing
+      - match:
+          severity: warning
+        receiver: 'warning-alerts'
+        routes:
+        - match:
+            team: platform
+          receiver: 'platform-team'
+        - match:
+            team: ml
+          receiver: 'ml-team'
+        - match:
+            team: business
+          receiver: 'business-team'
+        - match:
+            team: security
+          receiver: 'security-team'
+      
+      # Maintenance window - suppress all alerts
+      - match:
+          alertname: MaintenanceWindow
+        receiver: 'null'
+    
+    # Inhibit rules
+    inhibit_rules:
+    - source_match:
+        severity: critical
+      target_match:
+        severity: warning
+      equal: ['alertname', 'cluster', 'service']
+    
+    # Receivers configuration
+    receivers:
+    - name: 'default'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#mlops-alerts'
+        title: 'MLOps Alert'
+        text: 'Alert: {{ .GroupLabels.alertname }}'
+    
+    - name: 'critical-alerts'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#mlops-critical'
+        title: '🚨 CRITICAL ALERT 🚨'
+        text: |
+          🚨 *CRITICAL ALERT* 🚨
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Environment:* Production
+          *Severity:* {{ .GroupLabels.severity }}
+          *Time:* {{ .CommonAnnotations.timestamp }}
+          
+          {{ range .Alerts }}
+          *Description:* {{ .Annotations.description }}
+          *Runbook:* {{ .Annotations.runbook_url }}
+          {{ end }}
+        send_resolved: true
+      
+      email_configs:
+      - to: 'oncall@company.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          CRITICAL ALERT in Production MLOps Platform
+          
+          Alert: {{ .GroupLabels.alertname }}
+          Severity: {{ .GroupLabels.severity }}
+          Time: {{ .CommonAnnotations.timestamp }}
+          
+          {{ range .Alerts }}
+          Description: {{ .Annotations.description }}
+          Runbook: {{ .Annotations.runbook_url }}
+          {{ end }}
+      
+      pagerduty_configs:
+      - routing_key: '${PAGERDUTY_ROUTING_KEY}'
+        description: '{{ .GroupLabels.alertname }}'
+        severity: '{{ .GroupLabels.severity }}'
+    
+    - name: 'platform-critical'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#platform-oncall'
+        title: '🔥 Platform Critical Alert'
+        text: |
+          🔥 *PLATFORM CRITICAL* 🔥
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Service:* {{ .Labels.service }}
+          *Description:* {{ .Annotations.description }}
+          *Action Required:* {{ .Annotations.action_required }}
+          {{ end }}
+    
+    - name: 'ml-critical'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#ml-oncall'
+        title: '🤖 ML Critical Alert'
+        text: |
+          🤖 *ML SYSTEM CRITICAL* 🤖
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Model:* {{ .Labels.model_id }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+    
+    - name: 'security-critical'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#security-incidents'
+        title: '🛡️ Security Critical Alert'
+        text: |
+          🛡️ *SECURITY INCIDENT* 🛡️
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Description:* {{ .Annotations.description }}
+          *Immediate Action Required*
+          {{ end }}
+      
+      email_configs:
+      - to: 'security@company.com'
+        subject: '🛡️ SECURITY INCIDENT: {{ .GroupLabels.alertname }}'
+    
+    - name: 'warning-alerts'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#mlops-warnings'
+        title: '⚠️ Warning Alert'
+        text: |
+          ⚠️ *Warning* ⚠️
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+    
+    - name: 'platform-team'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#platform-team'
+    
+    - name: 'ml-team'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#ml-team'
+    
+    - name: 'business-team'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#business-metrics'
+    
+    - name: 'security-team'
+      slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#security-team'
+    
+    - name: 'null'
+
+---
+# =============================================================================
+# GRAFANA DASHBOARD PROVISIONING
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-config
+  namespace: mlops-production
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: 'MLOps Production'
+      type: file
+      disableDeletion: false
+      updateIntervalSeconds: 10
+      allowUiUpdates: true
+      options:
+        path: /var/lib/grafana/dashboards
+    
+    - name: 'business'
+      orgId: 1
+      folder: 'Business Metrics'
+      type: file
+      disableDeletion: false
+      updateIntervalSeconds: 10
+      options:
+        path: /var/lib/grafana/dashboards/business
+    
+    - name: 'security'
+      orgId: 1
+      folder: 'Security Monitoring'
+      type: file
+      disableDeletion: false
+      updateIntervalSeconds: 10
+      options:
+        path: /var/lib/grafana/dashboards/security
+
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus:9090
+      isDefault: true
+      editable: false
+    
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki:3100
+      editable: false
+    
+    - name: Jaeger
+      type: jaeger
+      access: proxy
+      url: http://jaeger:16686
+      editable: false
+
+---
+# =============================================================================
+# CUSTOM METRICS EXPORTERS
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: business-metrics-exporter
+  namespace: mlops-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: business-metrics-exporter
+  template:
+    metadata:
+      labels:
+        app: business-metrics-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: exporter
+        image: mlops-registry/business-metrics-exporter:latest
+        ports:
+        - containerPort: 8080
+          name: metrics
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: database-url
+        - name: METRICS_PORT
+          value: "8080"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: business-metrics-exporter
+  namespace: mlops-production
+  labels:
+    app: business-metrics-exporter
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: metrics
+  selector:
+    app: business-metrics-exporter
