@@ -1,0 +1,205 @@
+# Advanced Tracing and Business Metrics Configuration
+
+tracing:
+  enabled: true
+  service_name: "hexagonal-architecture"
+  jaeger_endpoint: "${JAEGER_ENDPOINT:-http://localhost:14268/api/traces}"
+  sampling_rate: 0.1
+  export_timeout: 30
+  max_export_batch_size: 512
+  
+  # Sampling configuration per service
+  per_service_sampling:
+    api-gateway: 0.2          # Higher sampling for gateway
+    data-quality-service: 0.15
+    anomaly-detection-service: 0.1
+    workflow-engine: 0.1
+    authentication-service: 0.05
+
+metrics:
+  prometheus_endpoint: "localhost:8000"
+  collection_interval: 15
+  export_timeout: 30
+  custom_metrics_enabled: true
+  
+  # Metric retention policies
+  retention:
+    high_resolution: "24h"
+    medium_resolution: "7d"
+    low_resolution: "30d"
+
+business_metrics:
+  enabled: true
+  collection_interval: 60
+  retention_days: 90
+  
+  # Alert thresholds for business KPIs
+  alert_thresholds:
+    data_quality_failure_rate: 0.05      # 5% failure rate
+    anomaly_detection_rate: 0.02          # 2% anomaly rate
+    workflow_success_rate: 0.95           # 95% success rate
+    response_time_p95: 2000               # 2 seconds
+    error_rate: 0.01                      # 1% error rate
+    availability: 0.999                   # 99.9% availability
+    
+  # Business KPI definitions
+  kpis:
+    data_quality_score:
+      description: "Overall data quality score"
+      target: 95.0
+      unit: "percent"
+      
+    anomaly_detection_accuracy:
+      description: "Accuracy of anomaly detection"
+      target: 98.0
+      unit: "percent"
+      
+    workflow_success_rate:
+      description: "Percentage of successful workflow executions"
+      target: 98.0
+      unit: "percent"
+      
+    user_satisfaction:
+      description: "User satisfaction rating"
+      target: 4.5
+      unit: "rating"
+      
+    business_transaction_volume:
+      description: "Number of business transactions per hour"
+      target: 10000
+      unit: "transactions/hour"
+      
+    revenue_per_hour:
+      description: "Revenue generated per hour"
+      target: 100000
+      unit: "currency/hour"
+
+# Instrumentation configuration
+instrumentation:
+  http_requests: true
+  database_queries: true
+  redis_operations: true
+  background_jobs: true
+  external_apis: true
+  
+  # Auto-instrumentation libraries
+  libraries:
+    - aiohttp
+    - requests
+    - sqlalchemy
+    - redis
+    - celery
+    - kafka
+
+# Custom trace attributes
+custom_attributes:
+  service_metadata:
+    - service.version
+    - deployment.environment
+    - k8s.namespace
+    - k8s.pod.name
+    
+  business_context:
+    - user.id
+    - tenant.id
+    - transaction.id
+    - workflow.id
+    - data_source.type
+
+# Trace sampling rules
+sampling_rules:
+  # High priority operations
+  critical_operations:
+    sample_rate: 1.0
+    operations:
+      - "user_authentication"
+      - "payment_processing"
+      - "data_quality_critical"
+      
+  # Error traces
+  error_traces:
+    sample_rate: 1.0
+    conditions:
+      - "error = true"
+      - "http.status_code >= 500"
+      
+  # Slow operations
+  slow_operations:
+    sample_rate: 0.5
+    conditions:
+      - "duration > 1000ms"
+
+# Performance optimization
+performance:
+  # Batch processing
+  batching:
+    enabled: true
+    max_batch_size: 512
+    batch_timeout: 5000  # milliseconds
+    
+  # Compression
+  compression:
+    enabled: true
+    algorithm: "gzip"
+    
+  # Resource limits
+  resource_limits:
+    max_memory_usage: "256MB"
+    max_cpu_usage: "0.5"
+    max_spans_per_trace: 1000
+
+# Integration settings
+integrations:
+  # Jaeger
+  jaeger:
+    enabled: true
+    collector_endpoint: "${JAEGER_COLLECTOR_ENDPOINT:-http://localhost:14268}"
+    agent_endpoint: "${JAEGER_AGENT_ENDPOINT:-localhost:6832}"
+    
+  # Zipkin (alternative)
+  zipkin:
+    enabled: false
+    endpoint: "${ZIPKIN_ENDPOINT:-http://localhost:9411/api/v2/spans}"
+    
+  # Grafana integration
+  grafana:
+    enabled: true
+    datasource_name: "Jaeger-Tracing"
+    dashboard_import: true
+    
+  # Prometheus integration
+  prometheus:
+    enabled: true
+    metrics_path: "/metrics"
+    scrape_interval: "15s"
+
+# Security configuration
+security:
+  # Sensitive data filtering
+  data_filtering:
+    enabled: true
+    filter_patterns:
+      - "password"
+      - "token"
+      - "api_key"
+      - "secret"
+      - "credit_card"
+      - "ssn"
+    
+  # Authentication for trace access
+  authentication:
+    enabled: false
+    method: "bearer_token"
+    token: "${TRACING_ACCESS_TOKEN}"
+
+# Development and debugging
+development:
+  debug_mode: false
+  verbose_logging: false
+  export_to_console: false
+  
+  # Local development overrides
+  local_overrides:
+    sampling_rate: 1.0
+    export_timeout: 10
+    debug_mode: true
