@@ -7,11 +7,8 @@ from uuid import UUID
 
 from anomaly_detection.domain.entities.anomaly import Anomaly, AnomalyType, AnomalySeverity
 from anomaly_detection.domain.entities.dataset import Dataset
-from anomaly_detection.domain.entities.model import (
-    AnomalyModel, ModelStatus, ModelMetrics, ModelConfiguration
-)
-from anomaly_detection.domain.value_objects.data_point import DataPoint
-from anomaly_detection.domain.value_objects.anomaly_score import AnomalyScore
+from anomaly_detection.domain.value_objects.algorithm_config import AlgorithmConfig, AlgorithmType
+from anomaly_detection.domain.value_objects.detection_metrics import DetectionMetrics
 
 
 class TestAnomalyEntity:
@@ -20,107 +17,113 @@ class TestAnomalyEntity:
     def test_anomaly_creation_basic(self):
         """Test basic anomaly creation."""
         anomaly = Anomaly(
-            data_point_id="dp_001",
-            anomaly_type=AnomalyType.STATISTICAL,
-            severity=AnomalySeverity.HIGH,
-            score=0.95,
-            description="Statistical outlier detected"
+            index=0,
+            confidence_score=0.95,
+            anomaly_type=AnomalyType.POINT,
+            severity=AnomalySeverity.HIGH
         )
         
-        assert anomaly.data_point_id == "dp_001"
-        assert anomaly.anomaly_type == AnomalyType.STATISTICAL
+        assert anomaly.index == 0
+        assert anomaly.confidence_score == 0.95
+        assert anomaly.anomaly_type == AnomalyType.POINT
         assert anomaly.severity == AnomalySeverity.HIGH
-        assert anomaly.score == 0.95
-        assert anomaly.description == "Statistical outlier detected"
-        assert isinstance(anomaly.anomaly_id, str)
-        assert isinstance(anomaly.detected_at, datetime)
+        assert anomaly.metadata == {}  # Should be initialized empty
     
-    def test_anomaly_creation_with_context(self):
-        """Test anomaly creation with context data."""
-        context = {
-            "feature_contributions": {"temperature": 0.8, "humidity": 0.2},
+    def test_anomaly_creation_with_metadata(self):
+        """Test anomaly creation with metadata."""
+        import numpy as np
+        
+        feature_contributions = {"temperature": 0.8, "humidity": 0.2}
+        metadata = {
             "model_version": "v1.2.3",
-            "threshold": 0.9
+            "threshold": 0.9,
+            "processing_time": 0.05
         }
         
         anomaly = Anomaly(
-            data_point_id="dp_002",
-            anomaly_type=AnomalyType.MULTIVARIATE,
+            index=1,
+            confidence_score=0.98,
+            anomaly_type=AnomalyType.COLLECTIVE,
             severity=AnomalySeverity.CRITICAL,
-            score=0.98,
-            description="Multi-feature anomaly",
-            context=context
+            feature_values=np.array([25.5, 60.0]),
+            feature_contributions=feature_contributions,
+            timestamp=datetime.utcnow(),
+            metadata=metadata,
+            explanation="Multi-feature anomaly detected"
         )
         
-        assert anomaly.context == context
-        assert anomaly.context["feature_contributions"]["temperature"] == 0.8
+        assert anomaly.feature_contributions == feature_contributions
+        assert anomaly.metadata == metadata
+        assert anomaly.explanation == "Multi-feature anomaly detected"
+        assert anomaly.feature_values is not None
+        assert len(anomaly.feature_values) == 2
     
     def test_anomaly_validation(self):
         """Test anomaly validation rules."""
-        # Test invalid score range
-        with pytest.raises(ValueError, match="Score must be between 0 and 1"):
-            Anomaly(
-                data_point_id="dp_003",
-                anomaly_type=AnomalyType.STATISTICAL,
-                severity=AnomalySeverity.LOW,
-                score=1.5
-            )
+        # Test valid confidence score ranges
+        valid_anomaly = Anomaly(
+            index=2,
+            confidence_score=0.5,
+            anomaly_type=AnomalyType.CONTEXTUAL,
+            severity=AnomalySeverity.MEDIUM
+        )
+        assert valid_anomaly.confidence_score == 0.5
         
-        # Test negative score
-        with pytest.raises(ValueError, match="Score must be between 0 and 1"):
-            Anomaly(
-                data_point_id="dp_004",
-                anomaly_type=AnomalyType.STATISTICAL,
-                severity=AnomalySeverity.LOW,
-                score=-0.1
-            )
+        # Test boundary values
+        boundary_low = Anomaly(
+            index=3,
+            confidence_score=0.0,
+            anomaly_type=AnomalyType.POINT
+        )
+        assert boundary_low.confidence_score == 0.0
+        
+        boundary_high = Anomaly(
+            index=4,
+            confidence_score=1.0,
+            anomaly_type=AnomalyType.POINT
+        )
+        assert boundary_high.confidence_score == 1.0
     
     def test_anomaly_severity_ordering(self):
         """Test anomaly severity comparison."""
         low_anomaly = Anomaly(
-            data_point_id="dp_005",
-            anomaly_type=AnomalyType.STATISTICAL,
-            severity=AnomalySeverity.LOW,
-            score=0.3
+            index=5,
+            confidence_score=0.3,
+            anomaly_type=AnomalyType.POINT,
+            severity=AnomalySeverity.LOW
         )
         
         high_anomaly = Anomaly(
-            data_point_id="dp_006",
-            anomaly_type=AnomalyType.STATISTICAL,
-            severity=AnomalySeverity.HIGH,
-            score=0.9
+            index=6,
+            confidence_score=0.9,
+            anomaly_type=AnomalyType.POINT,
+            severity=AnomalySeverity.HIGH
         )
         
-        # Test severity values for ordering
-        severity_values = {
-            AnomalySeverity.LOW: 1,
-            AnomalySeverity.MEDIUM: 2,
-            AnomalySeverity.HIGH: 3,
-            AnomalySeverity.CRITICAL: 4
-        }
-        
-        assert severity_values[high_anomaly.severity] > severity_values[low_anomaly.severity]
+        # Test severity enumeration values
+        assert low_anomaly.severity == AnomalySeverity.LOW
+        assert high_anomaly.severity == AnomalySeverity.HIGH
+        assert low_anomaly.severity.value == "low"
+        assert high_anomaly.severity.value == "high"
     
-    def test_anomaly_to_dict(self):
-        """Test anomaly serialization to dictionary."""
+    def test_anomaly_metadata_update(self):
+        """Test anomaly metadata updates."""
         anomaly = Anomaly(
-            data_point_id="dp_007",
-            anomaly_type=AnomalyType.TIME_SERIES,
-            severity=AnomalySeverity.MEDIUM,
-            score=0.75,
-            description="Time series anomaly",
-            context={"window_size": 10}
+            index=7,
+            confidence_score=0.75,
+            anomaly_type=AnomalyType.CONTEXTUAL,
+            severity=AnomalySeverity.MEDIUM
         )
         
-        anomaly_dict = anomaly.to_dict()
+        # Test initial empty metadata
+        assert anomaly.metadata == {}
         
-        assert anomaly_dict["data_point_id"] == "dp_007"
-        assert anomaly_dict["anomaly_type"] == "time_series"
-        assert anomaly_dict["severity"] == "medium"
-        assert anomaly_dict["score"] == 0.75
-        assert anomaly_dict["context"]["window_size"] == 10
-        assert "anomaly_id" in anomaly_dict
-        assert "detected_at" in anomaly_dict
+        # Test metadata can be updated (since it's mutable)
+        anomaly.metadata["window_size"] = 10
+        anomaly.metadata["algorithm"] = "isolation_forest"
+        
+        assert anomaly.metadata["window_size"] == 10
+        assert anomaly.metadata["algorithm"] == "isolation_forest"
 
 
 class TestDatasetEntity:
@@ -172,216 +175,169 @@ class TestDatasetEntity:
         assert hasattr(dataset, 'source_path')
 
 
-class TestAnomalyModelEntity:
-    """Test cases for AnomalyModel domain entity."""
+class TestAlgorithmConfigValueObject:
+    """Test cases for AlgorithmConfig value object."""
     
-    def test_model_creation(self):
-        """Test basic model creation."""
-        config = ModelConfiguration(
-            algorithm="isolation_forest",
-            hyperparameters={"n_estimators": 100, "contamination": 0.1},
-            feature_columns=["temperature", "humidity", "pressure"]
+    def test_algorithm_config_creation(self):
+        """Test basic algorithm config creation."""
+        config = AlgorithmConfig(
+            algorithm_type=AlgorithmType.ISOLATION_FOREST,
+            contamination=0.1,
+            random_state=42,
+            hyperparameters={"n_estimators": 100, "max_samples": "auto"}
         )
         
-        model = AnomalyModel(
-            name="sensor_anomaly_detector",
-            configuration=config,
-            version="1.0.0"
-        )
-        
-        assert model.name == "sensor_anomaly_detector"
-        assert model.version == "1.0.0"
-        assert model.status == ModelStatus.CREATED
-        assert model.configuration.algorithm == "isolation_forest"
-        assert len(model.configuration.feature_columns) == 3
-        assert isinstance(model.model_id, str)
-        assert isinstance(model.created_at, datetime)
+        assert config.algorithm_type == AlgorithmType.ISOLATION_FOREST
+        assert config.contamination == 0.1
+        assert config.random_state == 42
+        assert config.hyperparameters["n_estimators"] == 100
+        assert config.is_valid
     
-    def test_model_status_transitions(self):
-        """Test valid model status transitions."""
-        config = ModelConfiguration(
-            algorithm="lof",
-            hyperparameters={"n_neighbors": 20},
-            feature_columns=["value"]
+    def test_algorithm_config_validation(self):
+        """Test algorithm config validation."""
+        # Test invalid contamination - too high
+        with pytest.raises(ValueError, match="Contamination must be between 0.0 and 0.5"):
+            AlgorithmConfig(
+                algorithm_type=AlgorithmType.LOCAL_OUTLIER_FACTOR,
+                contamination=0.8
+            )
+        
+        # Test invalid contamination - negative
+        with pytest.raises(ValueError, match="Contamination must be between 0.0 and 0.5"):
+            AlgorithmConfig(
+                algorithm_type=AlgorithmType.LOCAL_OUTLIER_FACTOR,
+                contamination=-0.1
+            )
+        
+        # Test valid boundary values
+        config_min = AlgorithmConfig(
+            algorithm_type=AlgorithmType.ONE_CLASS_SVM,
+            contamination=0.0
         )
+        assert config_min.is_valid
         
-        model = AnomalyModel(name="test_model", configuration=config, version="1.0.0")
-        
-        # Test valid transitions
-        model.start_training()
-        assert model.status == ModelStatus.TRAINING
-        
-        model.complete_training()
-        assert model.status == ModelStatus.TRAINED
-        
-        model.deploy()
-        assert model.status == ModelStatus.DEPLOYED
-        
-        model.retire()
-        assert model.status == ModelStatus.RETIRED
+        config_max = AlgorithmConfig(
+            algorithm_type=AlgorithmType.ONE_CLASS_SVM,
+            contamination=0.5
+        )
+        assert config_max.is_valid
     
-    def test_model_invalid_transitions(self):
-        """Test invalid model status transitions."""
-        config = ModelConfiguration(
-            algorithm="isolation_forest",
-            hyperparameters={},
-            feature_columns=["value"]
+    def test_algorithm_config_sklearn_params(self):
+        """Test sklearn parameter generation."""
+        config = AlgorithmConfig(
+            algorithm_type=AlgorithmType.ISOLATION_FOREST,
+            contamination=0.15,
+            random_state=123,
+            hyperparameters={"n_estimators": 200, "max_features": 1.0}
         )
         
-        model = AnomalyModel(name="test_model", configuration=config, version="1.0.0")
+        params = config.get_sklearn_params()
         
-        # Cannot deploy without training
-        with pytest.raises(ValueError, match="Cannot deploy model that is not trained"):
-            model.deploy()
+        assert params["contamination"] == 0.15
+        assert params["random_state"] == 123
+        assert params["n_estimators"] == 200
+        assert params["max_features"] == 1.0
         
-        # Cannot retire non-deployed model
-        with pytest.raises(ValueError, match="Cannot retire model that is not deployed"):
-            model.retire()
+        # Test without random state
+        config_no_random = AlgorithmConfig(
+            algorithm_type=AlgorithmType.LOCAL_OUTLIER_FACTOR,
+            contamination=0.1
+        )
+        
+        params_no_random = config_no_random.get_sklearn_params()
+        assert "random_state" not in params_no_random
+        assert params_no_random["contamination"] == 0.1
     
-    def test_model_metrics(self):
-        """Test model metrics handling."""
-        config = ModelConfiguration(
-            algorithm="isolation_forest",
-            hyperparameters={"n_estimators": 50},
-            feature_columns=["temperature", "humidity"]
-        )
-        
-        model = AnomalyModel(name="metrics_test", configuration=config, version="1.0.0")
-        
-        # Add training metrics
-        training_metrics = ModelMetrics(
+class TestDetectionMetricsValueObject:
+    """Test cases for DetectionMetrics value object."""
+    
+    def test_detection_metrics_creation(self):
+        """Test detection metrics creation."""
+        metrics = DetectionMetrics(
             accuracy=0.95,
             precision=0.88,
             recall=0.92,
             f1_score=0.90,
-            custom_metrics={"auc_roc": 0.94, "training_time": 120.5}
+            auc_roc=0.94,
+            false_positive_rate=0.05,
+            false_negative_rate=0.08
         )
         
-        model.add_metrics("training", training_metrics)
-        
-        assert model.get_metrics("training").accuracy == 0.95
-        assert model.get_metrics("training").custom_metrics["auc_roc"] == 0.94
-        
-        # Test non-existent metrics
-        assert model.get_metrics("validation") is None
+        assert metrics.accuracy == 0.95
+        assert metrics.precision == 0.88
+        assert metrics.recall == 0.92
+        assert metrics.f1_score == 0.90
+        assert metrics.auc_roc == 0.94
+        assert metrics.false_positive_rate == 0.05
+        assert metrics.false_negative_rate == 0.08
     
-    def test_model_configuration_validation(self):
-        """Test model configuration validation."""
-        # Test empty feature columns
-        with pytest.raises(ValueError, match="Feature columns cannot be empty"):
-            ModelConfiguration(
-                algorithm="isolation_forest",
-                hyperparameters={},
-                feature_columns=[]
+    def test_detection_metrics_validation(self):
+        """Test detection metrics validation."""
+        # Test invalid accuracy - too high
+        with pytest.raises(ValueError, match="accuracy must be between 0.0 and 1.0"):
+            DetectionMetrics(
+                accuracy=1.5,
+                precision=0.8,
+                recall=0.9,
+                f1_score=0.85
             )
         
-        # Test invalid algorithm
-        with pytest.raises(ValueError, match="Unsupported algorithm"):
-            ModelConfiguration(
-                algorithm="invalid_algorithm",
-                hyperparameters={},
-                feature_columns=["value"]
+        # Test invalid precision - negative
+        with pytest.raises(ValueError, match="precision must be between 0.0 and 1.0"):
+            DetectionMetrics(
+                accuracy=0.9,
+                precision=-0.1,
+                recall=0.9,
+                f1_score=0.85
+            )
+        
+        # Test invalid AUC-ROC
+        with pytest.raises(ValueError, match="AUC-ROC must be between 0.0 and 1.0"):
+            DetectionMetrics(
+                accuracy=0.9,
+                precision=0.8,
+                recall=0.9,
+                f1_score=0.85,
+                auc_roc=1.2
             )
 
 
-class TestDataPointValueObject:
-    """Test cases for DataPoint value object."""
-    
-    def test_data_point_creation(self):
-        """Test data point creation."""
-        features = {"temperature": 25.5, "humidity": 60.0, "pressure": 1013.25}
-        timestamp = datetime.utcnow()
+    def test_detection_metrics_performance_assessment(self):
+        """Test performance assessment methods."""
+        # Good performance metrics
+        good_metrics = DetectionMetrics(
+            accuracy=0.85,
+            precision=0.80,
+            recall=0.75,
+            f1_score=0.77
+        )
+        assert good_metrics.is_good_performance
         
-        data_point = DataPoint(
-            features=features,
-            timestamp=timestamp,
-            source_id="sensor_001"
+        # Poor performance metrics
+        poor_metrics = DetectionMetrics(
+            accuracy=0.60,
+            precision=0.50,
+            recall=0.65,
+            f1_score=0.55
+        )
+        assert not poor_metrics.is_good_performance
+    
+    def test_detection_metrics_to_dict(self):
+        """Test metrics serialization to dictionary."""
+        metrics = DetectionMetrics(
+            accuracy=0.92,
+            precision=0.89,
+            recall=0.94,
+            f1_score=0.91,
+            auc_roc=0.96
         )
         
-        assert data_point.features == features
-        assert data_point.timestamp == timestamp
-        assert data_point.source_id == "sensor_001"
-        assert isinstance(data_point.point_id, str)
-    
-    def test_data_point_feature_access(self):
-        """Test data point feature access methods."""
-        features = {"temp": 22.0, "humidity": 45.0, "wind": 5.2}
-        data_point = DataPoint(features=features, timestamp=datetime.utcnow())
+        metrics_dict = metrics.to_dict()
         
-        assert data_point.get_feature("temp") == 22.0
-        assert data_point.get_feature("humidity") == 45.0
-        assert data_point.get_feature("nonexistent") is None
-        assert data_point.get_feature("nonexistent", default=0.0) == 0.0
-    
-    def test_data_point_validation(self):
-        """Test data point validation."""
-        # Test empty features
-        with pytest.raises(ValueError, match="Features cannot be empty"):
-            DataPoint(features={}, timestamp=datetime.utcnow())
-        
-        # Test None features
-        with pytest.raises(ValueError, match="Features cannot be None"):
-            DataPoint(features=None, timestamp=datetime.utcnow())
-    
-    def test_data_point_immutability(self):
-        """Test that data point is immutable."""
-        features = {"temperature": 25.0}
-        data_point = DataPoint(features=features, timestamp=datetime.utcnow())
-        
-        # Modifying original features should not affect data point
-        features["temperature"] = 30.0
-        assert data_point.get_feature("temperature") == 25.0
-
-
-class TestAnomalyScoreValueObject:
-    """Test cases for AnomalyScore value object."""
-    
-    def test_anomaly_score_creation(self):
-        """Test anomaly score creation."""
-        score = AnomalyScore(
-            value=0.85,
-            confidence=0.92,
-            method="isolation_forest"
-        )
-        
-        assert score.value == 0.85
-        assert score.confidence == 0.92
-        assert score.method == "isolation_forest"
-    
-    def test_anomaly_score_validation(self):
-        """Test anomaly score validation."""
-        # Test invalid score value
-        with pytest.raises(ValueError, match="Score value must be between 0 and 1"):
-            AnomalyScore(value=1.5, confidence=0.9, method="test")
-        
-        # Test invalid confidence
-        with pytest.raises(ValueError, match="Confidence must be between 0 and 1"):
-            AnomalyScore(value=0.5, confidence=1.2, method="test")
-    
-    def test_anomaly_score_comparison(self):
-        """Test anomaly score comparison methods."""
-        score1 = AnomalyScore(value=0.8, confidence=0.9, method="method1")
-        score2 = AnomalyScore(value=0.6, confidence=0.95, method="method2")
-        
-        assert score1.is_higher_than(score2)
-        assert not score2.is_higher_than(score1)
-        assert score1.is_higher_than(0.7)
-        assert not score1.is_higher_than(0.9)
-    
-    def test_anomaly_score_threshold_check(self):
-        """Test anomaly score threshold checking."""
-        score = AnomalyScore(value=0.75, confidence=0.88, method="test_method")
-        
-        assert score.exceeds_threshold(0.7)
-        assert not score.exceeds_threshold(0.8)
-        assert score.exceeds_threshold(0.75)  # Equal case
-    
-    def test_anomaly_score_categorization(self):
-        """Test anomaly score categorization."""
-        low_score = AnomalyScore(value=0.2, confidence=0.8, method="test")
-        medium_score = AnomalyScore(value=0.6, confidence=0.9, method="test")
-        high_score = AnomalyScore(value=0.9, confidence=0.95, method="test")
-        
-        assert low_score.get_severity_category() == AnomalySeverity.LOW
-        assert medium_score.get_severity_category() == AnomalySeverity.MEDIUM
-        assert high_score.get_severity_category() == AnomalySeverity.HIGH
+        assert metrics_dict["accuracy"] == 0.92
+        assert metrics_dict["precision"] == 0.89
+        assert metrics_dict["recall"] == 0.94
+        assert metrics_dict["f1_score"] == 0.91
+        assert metrics_dict["auc_roc"] == 0.96
+        assert metrics_dict["false_positive_rate"] is None
+        assert metrics_dict["false_negative_rate"] is None

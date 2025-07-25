@@ -1,0 +1,446 @@
+# HashiCorp Vault Configuration for Secrets Management
+# Production-ready Vault cluster with auto-unseal and HA
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault-system
+  labels:
+    name: vault-system
+    security: restricted
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault
+  namespace: vault-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-auth
+rules:
+- apiGroups: [""]
+  resources: ["serviceaccounts", "serviceaccounts/token"]
+  verbs: ["create", "get", "list", "delete"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: ["authentication.k8s.io"]
+  resources: ["tokenreviews"]
+  verbs: ["create"]
+- apiGroups: ["authorization.k8s.io"]
+  resources: ["subjectaccessreviews"]
+  verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-auth
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vault-auth
+subjects:
+- kind: ServiceAccount
+  name: vault
+  namespace: vault-system
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+  namespace: vault-system
+data:
+  vault.hcl: |
+    ui = true
+    cluster_addr = "https://POD_IP:8201"
+    api_addr = "https://POD_IP:8200"
+    
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      cluster_address = "0.0.0.0:8201"
+      tls_cert_file = "/vault/tls/tls.crt"
+      tls_key_file = "/vault/tls/tls.key"
+      tls_client_ca_file = "/vault/tls/ca.crt"
+    }
+    
+    storage "raft" {
+      path = "/vault/data"
+      node_id = "POD_NAME"
+      
+      retry_join {
+        leader_api_addr = "https://vault-0.vault-internal:8200"
+        leader_ca_cert_file = "/vault/tls/ca.crt"
+      }
+      
+      retry_join {
+        leader_api_addr = "https://vault-1.vault-internal:8200"
+        leader_ca_cert_file = "/vault/tls/ca.crt"
+      }
+      
+      retry_join {
+        leader_api_addr = "https://vault-2.vault-internal:8200"
+        leader_ca_cert_file = "/vault/tls/ca.crt"
+      }
+    }
+    
+    seal "awskms" {
+      region = "us-east-1"
+      kms_key_id = "alias/vault-unseal-key"
+    }
+    
+    service_registration "kubernetes" {}
+    
+    # Telemetry
+    telemetry {
+      prometheus_retention_time = "30s"
+      disable_hostname = true
+    }
+    
+    # API rate limiting
+    api_rate_limit {
+      rate = 1000
+      burst = 100
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: vault-system
+  labels:
+    app: vault
+spec:
+  type: ClusterIP
+  ports:
+  - name: vault-port
+    port: 8200
+    targetPort: 8200
+    protocol: TCP
+  - name: vault-cluster-port
+    port: 8201
+    targetPort: 8201
+    protocol: TCP
+  selector:
+    app: vault
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-internal
+  namespace: vault-system
+  labels:
+    app: vault
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: vault-port
+    port: 8200
+    targetPort: 8200
+    protocol: TCP
+  - name: vault-cluster-port
+    port: 8201
+    targetPort: 8201
+    protocol: TCP
+  selector:
+    app: vault
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  namespace: vault-system
+  labels:
+    app: vault
+spec:
+  serviceName: vault-internal
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      serviceAccountName: vault
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        fsGroup: 1000
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: vault
+            topologyKey: kubernetes.io/hostname
+      volumes:
+      - name: config
+        configMap:
+          name: vault-config
+      - name: vault-tls
+        secret:
+          secretName: vault-tls
+      containers:
+      - name: vault
+        image: hashicorp/vault:1.15.2
+        command:
+        - /bin/sh
+        - -c
+        - |
+          cp /vault/config/vault.hcl /tmp/vault.hcl
+          sed -i "s/POD_IP/${POD_IP}/g" /tmp/vault.hcl
+          sed -i "s/POD_NAME/${POD_NAME}/g" /tmp/vault.hcl
+          vault server -config=/tmp/vault.hcl
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: VAULT_ADDR
+          value: "https://127.0.0.1:8200"
+        - name: VAULT_API_ADDR
+          value: "https://$(POD_IP):8200"
+        - name: VAULT_CLUSTER_ADDR
+          value: "https://$(POD_IP):8201"
+        - name: VAULT_RAFT_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: VAULT_LOG_LEVEL
+          value: "INFO"
+        - name: VAULT_LOG_FORMAT
+          value: "json"
+        - name: AWS_REGION
+          value: "us-east-1"
+        ports:
+        - containerPort: 8200
+          name: vault-port
+          protocol: TCP
+        - containerPort: 8201
+          name: vault-cluster
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - 'vault status'
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /v1/sys/health?standbyok=true
+            port: 8200
+            scheme: HTTPS
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        volumeMounts:
+        - name: data
+          mountPath: /vault/data
+        - name: config
+          mountPath: /vault/config
+        - name: vault-tls
+          mountPath: /vault/tls
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: fast-ssd
+
+---
+# Vault Agent for Secret Injection
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-agent-config
+  namespace: vault-system
+data:
+  vault-agent.hcl: |
+    pid_file = "/tmp/pidfile"
+    
+    vault {
+      address = "https://vault:8200"
+      ca_cert = "/vault/tls/ca.crt"
+    }
+    
+    auto_auth {
+      method "kubernetes" {
+        mount_path = "auth/kubernetes"
+        config = {
+          role = "platform-role"
+        }
+      }
+      
+      sink "file" {
+        config = {
+          path = "/vault/secrets/.vault-token"
+        }
+      }
+    }
+    
+    template {
+      source = "/vault/templates/database.tpl"
+      destination = "/vault/secrets/database"
+    }
+    
+    template {
+      source = "/vault/templates/redis.tpl"
+      destination = "/vault/secrets/redis"
+    }
+    
+    template {
+      source = "/vault/templates/kafka.tpl"
+      destination = "/vault/secrets/kafka"
+    }
+
+---
+# Vault Initialization Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init
+  namespace: vault-system
+spec:
+  template:
+    spec:
+      serviceAccountName: vault
+      restartPolicy: OnFailure
+      containers:
+      - name: vault-init
+        image: hashicorp/vault:1.15.2
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for Vault to be ready
+          while ! vault status; do
+            echo "Waiting for Vault..."
+            sleep 5
+          done
+          
+          # Initialize Vault if not already initialized
+          if ! vault status | grep -q "Initialized.*true"; then
+            vault operator init -key-shares=5 -key-threshold=3 > /tmp/init-output
+            echo "Vault initialized. Store these keys securely:"
+            cat /tmp/init-output
+            
+            # Auto-unseal should handle unsealing, but manual backup
+            UNSEAL_KEY1=$(grep 'Unseal Key 1:' /tmp/init-output | awk '{print $4}')
+            UNSEAL_KEY2=$(grep 'Unseal Key 2:' /tmp/init-output | awk '{print $4}')
+            UNSEAL_KEY3=$(grep 'Unseal Key 3:' /tmp/init-output | awk '{print $4}')
+            ROOT_TOKEN=$(grep 'Initial Root Token:' /tmp/init-output | awk '{print $4}')
+            
+            # Store keys in Kubernetes secrets for emergency access
+            kubectl create secret generic vault-keys \
+              --from-literal=unseal-key-1="$UNSEAL_KEY1" \
+              --from-literal=unseal-key-2="$UNSEAL_KEY2" \
+              --from-literal=unseal-key-3="$UNSEAL_KEY3" \
+              --from-literal=root-token="$ROOT_TOKEN" \
+              -n vault-system
+          fi
+          
+          # Configure Vault
+          export VAULT_TOKEN=$(kubectl get secret vault-keys -o jsonpath='{.data.root-token}' | base64 -d)
+          
+          # Enable Kubernetes auth
+          vault auth enable kubernetes
+          
+          # Configure Kubernetes auth
+          vault write auth/kubernetes/config \
+            token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+            kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
+            kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          
+          # Create policy for platform services
+          vault policy write platform-policy - <<EOF
+          path "secret/data/platform/*" {
+            capabilities = ["read", "list"]
+          }
+          path "database/creds/platform-role" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          # Create role for platform services
+          vault write auth/kubernetes/role/platform-role \
+            bound_service_account_names=platform-service-account \
+            bound_service_account_namespaces=domain-driven-platform \
+            policies=platform-policy \
+            ttl=24h
+          
+          # Enable KV secrets engine
+          vault secrets enable -path=secret kv-v2
+          
+          # Enable database secrets engine
+          vault secrets enable database
+          
+          echo "Vault configuration complete"
+        env:
+        - name: VAULT_ADDR
+          value: "https://vault:8200"
+        - name: VAULT_CACERT
+          value: "/vault/tls/ca.crt"
+        volumeMounts:
+        - name: vault-tls
+          mountPath: /vault/tls
+      volumes:
+      - name: vault-tls
+        secret:
+          secretName: vault-tls
+
+---
+# Vault Metrics Service Monitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vault-metrics
+  namespace: vault-system
+  labels:
+    app: vault
+spec:
+  selector:
+    matchLabels:
+      app: vault
+  endpoints:
+  - port: vault-port
+    path: /v1/sys/metrics
+    params:
+      format: ['prometheus']
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prometheus/secrets/vault-tls/ca.crt
+      certFile: /etc/prometheus/secrets/vault-tls/tls.crt
+      keyFile: /etc/prometheus/secrets/vault-tls/tls.key

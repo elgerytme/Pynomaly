@@ -1,0 +1,686 @@
+name: Enhanced Production Deployment Pipeline
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: true
+        default: 'rolling'
+        type: choice
+        options:
+        - rolling
+        - blue-green
+        - canary
+      skip_tests:
+        description: 'Skip test phase'
+        required: false
+        default: false
+        type: boolean
+      force_deploy:
+        description: 'Force deployment'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PYTHON_VERSION: '3.11'
+  DEPLOYMENT_TIMEOUT: 1800  # 30 minutes
+
+jobs:
+  # Pre-deployment validation
+  validate-changes:
+    name: Validate Changes
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.changes.outputs.should-deploy }}
+      affected-services: ${{ steps.changes.outputs.affected-services }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect changes
+        id: changes
+        run: |
+          # Detect which services have changed
+          AFFECTED_SERVICES=""
+          if git diff --name-only HEAD~1 | grep -q "src/packages/data/data_quality"; then
+            AFFECTED_SERVICES="$AFFECTED_SERVICES,data-quality"
+          fi
+          if git diff --name-only HEAD~1 | grep -q "src/packages/data/anomaly_detection"; then
+            AFFECTED_SERVICES="$AFFECTED_SERVICES,anomaly-detection"
+          fi
+          if git diff --name-only HEAD~1 | grep -q "src/packages/enterprise/workflow_engine"; then
+            AFFECTED_SERVICES="$AFFECTED_SERVICES,workflow-engine"
+          fi
+          if git diff --name-only HEAD~1 | grep -q "src/packages/integrations"; then
+            AFFECTED_SERVICES="$AFFECTED_SERVICES,api-gateway"
+          fi
+          
+          # Remove leading comma
+          AFFECTED_SERVICES=${AFFECTED_SERVICES#,}
+          
+          echo "affected-services=$AFFECTED_SERVICES" >> $GITHUB_OUTPUT
+          echo "should-deploy=$([[ -n "$AFFECTED_SERVICES" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          
+          echo "Affected services: $AFFECTED_SERVICES"
+
+  # Enhanced security scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Run Bandit security linter
+        run: |
+          pip install bandit[toml]
+          bandit -r src/ -f json -o bandit-report.json || true
+      
+      - name: Check for critical vulnerabilities
+        run: |
+          # Fail if critical vulnerabilities found
+          if grep -q '"issue_severity": "HIGH\|CRITICAL"' bandit-report.json; then
+            echo "❌ Critical security vulnerabilities found"
+            exit 1
+          fi
+          echo "✅ No critical vulnerabilities found"
+
+  # Comprehensive testing
+  test-suite:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+    strategy:
+      matrix:
+        test-type: [unit, integration, security, performance]
+        python-version: ['3.9', '3.11']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/packages/deployment/requirements.txt
+          pip install pytest pytest-cov pytest-asyncio pytest-benchmark
+      
+      - name: Run unit tests
+        if: matrix.test-type == 'unit'
+        run: |
+          pytest src/ -v --cov=src --cov-report=xml --junitxml=unit-test-results.xml \
+            -m "not integration and not security and not performance"
+      
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          pytest src/ -v --junitxml=integration-test-results.xml \
+            -m "integration"
+      
+      - name: Run security tests
+        if: matrix.test-type == 'security'
+        run: |
+          pytest src/ -v --junitxml=security-test-results.xml \
+            -m "security"
+      
+      - name: Run performance tests
+        if: matrix.test-type == 'performance'
+        run: |
+          pytest src/ -v --junitxml=performance-test-results.xml \
+            --benchmark-only --benchmark-json=benchmark-results.json
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-${{ matrix.test-type }}-${{ matrix.python-version }}
+          path: |
+            *-test-results.xml
+            coverage.xml
+            benchmark-results.json
+
+  # Package boundary validation
+  validate-architecture:
+    name: Architecture Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install validation tools
+        run: |
+          pip install ast-tools networkx matplotlib pyyaml
+      
+      - name: Run framework validation
+        run: |
+          python src/packages/deployment/testing/framework-validator.py \
+            --report framework-validation-report.txt
+      
+      - name: Check validation results
+        run: |
+          if grep -q "FAILED" framework-validation-report.txt; then
+            echo "❌ Framework validation failed"
+            cat framework-validation-report.txt
+            exit 1
+          fi
+          echo "✅ Framework validation passed"
+      
+      - name: Upload validation report
+        uses: actions/upload-artifact@v3
+        with:
+          name: framework-validation-report
+          path: framework-validation-report.txt
+
+  # Build and test containers
+  build-and-test:
+    name: Build and Test Containers
+    runs-on: ubuntu-latest
+    needs: [validate-changes, security-scan]
+    if: needs.validate-changes.outputs.should-deploy == 'true'
+    strategy:
+      matrix:
+        service: [data-quality, anomaly-detection, workflow-engine, api-gateway]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix={{branch}}-
+      
+      - name: Build container image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/packages/deployment/docker/${{ matrix.service }}/Dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+      
+      - name: Test container
+        run: |
+          # Run container health checks
+          IMAGE_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          docker run --rm -d --name test-${{ matrix.service }} \
+            -p 8080:8080 "$IMAGE_TAG"
+          
+          # Wait for container to start
+          sleep 30
+          
+          # Health check
+          if curl -f http://localhost:8080/health; then
+            echo "✅ Container health check passed"
+          else
+            echo "❌ Container health check failed"
+            docker logs test-${{ matrix.service }}
+            exit 1
+          fi
+          
+          # Stop container
+          docker stop test-${{ matrix.service }}
+      
+      - name: Push container image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/packages/deployment/docker/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+
+  # Deploy to staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [test-suite, validate-architecture, build-and-test]
+    if: |
+      always() && 
+      (needs.test-suite.result == 'success' || inputs.skip_tests) &&
+      needs.validate-architecture.result == 'success' &&
+      needs.build-and-test.result == 'success' &&
+      (github.ref == 'refs/heads/main' || inputs.environment == 'staging')
+    environment: staging
+    outputs:
+      deployment-url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up deployment tools
+        run: |
+          # Install deployment dependencies
+          pip install -r src/packages/deployment/requirements.txt
+      
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
+      
+      - name: Run pre-deployment validation
+        run: |
+          python src/packages/deployment/validation/production-validator.py \
+            --environment staging --suite pre_deployment \
+            --report staging-pre-validation.txt
+      
+      - name: Execute deployment
+        id: deploy
+        run: |
+          STRATEGY="${{ inputs.deployment_strategy || 'rolling' }}"
+          
+          # Execute deployment using our automation script
+          src/packages/deployment/scripts/automated-deployment.sh \
+            -e staging \
+            -s "$STRATEGY" \
+            --auto-approve \
+            --parallel 2
+          
+          # Get deployment URL
+          URL=$(kubectl get service api-gateway -n staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "url=http://$URL" >> $GITHUB_OUTPUT
+      
+      - name: Run post-deployment validation
+        run: |
+          python src/packages/deployment/validation/production-validator.py \
+            --environment staging --suite smoke_tests \
+            --report staging-post-validation.txt
+      
+      - name: Run integration tests
+        run: |
+          # Wait for services to be ready
+          sleep 60
+          
+          # Run integration tests against staging
+          pytest src/packages/system_tests/integration/ \
+            --staging-url="${{ steps.deploy.outputs.url }}" \
+            --junitxml=staging-integration-results.xml
+      
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: staging-deployment-results
+          path: |
+            staging-*-validation.txt
+            staging-integration-results.xml
+
+  # Performance and load testing
+  performance-testing:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: needs.deploy-staging.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install load testing tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apache2-utils
+          pip install locust
+      
+      - name: Run load tests
+        env:
+          STAGING_URL: ${{ needs.deploy-staging.outputs.deployment-url }}
+        run: |
+          # Basic load test with ab
+          ab -n 1000 -c 10 "${STAGING_URL}/health" > ab-results.txt
+          
+          # More comprehensive load test with Locust
+          cat > locustfile.py << 'EOF'
+          from locust import HttpUser, task, between
+          
+          class APIUser(HttpUser):
+              wait_time = between(1, 3)
+              
+              @task(3)
+              def health_check(self):
+                  self.client.get("/health")
+              
+              @task(2)
+              def api_status(self):
+                  self.client.get("/api/v1/status")
+              
+              @task(1)
+              def data_quality_health(self):
+                  self.client.get("/api/v1/data-quality/health")
+          EOF
+          
+          # Run Locust test
+          locust -f locustfile.py --headless -u 50 -r 10 -t 60s \
+            --host="${STAGING_URL}" --html=locust-report.html
+      
+      - name: Analyze performance results
+        run: |
+          # Check if performance is acceptable
+          if grep -q "failed" ab-results.txt; then
+            echo "❌ Load test failures detected"
+            cat ab-results.txt
+            exit 1
+          fi
+          
+          echo "✅ Performance tests passed"
+          echo "Load test summary:"
+          grep -E "(Requests per second|Time per request)" ab-results.txt
+      
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-test-results
+          path: |
+            ab-results.txt
+            locust-report.html
+
+  # Production deployment approval
+  production-approval:
+    name: Production Approval
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, performance-testing]
+    if: |
+      always() &&
+      needs.deploy-staging.result == 'success' &&
+      (needs.performance-testing.result == 'success' || needs.performance-testing.result == 'skipped') &&
+      (startsWith(github.ref, 'refs/tags/v') || inputs.environment == 'production')
+    environment: production-approval
+    steps:
+      - name: Production deployment summary
+        run: |
+          echo "🚀 Ready for Production Deployment"
+          echo "=================================="
+          echo "Environment: Production"
+          echo "Strategy: ${{ inputs.deployment_strategy || 'rolling' }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo ""
+          echo "✅ All pre-deployment validations passed"
+          echo "✅ Staging deployment successful"
+          echo "✅ Performance tests completed"
+          echo ""
+          echo "Waiting for manual approval..."
+
+  # Production deployment
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [production-approval]
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up deployment tools
+        run: |
+          pip install -r src/packages/deployment/requirements.txt
+      
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
+      
+      - name: Create deployment backup
+        run: |
+          # Create backup before deployment
+          src/packages/deployment/scripts/disaster-recovery.sh \
+            backup -e production --auto-approve
+      
+      - name: Run pre-deployment validation
+        run: |
+          python src/packages/deployment/validation/production-validator.py \
+            --environment production --suite pre_deployment \
+            --report production-pre-validation.txt
+          
+          # Check for critical failures
+          if grep -q "CRITICAL.*FAILED" production-pre-validation.txt; then
+            echo "❌ Critical pre-deployment validation failed"
+            cat production-pre-validation.txt
+            exit 1
+          fi
+      
+      - name: Execute production deployment
+        run: |
+          STRATEGY="${{ inputs.deployment_strategy || 'rolling' }}"
+          FORCE_FLAG="${{ inputs.force_deploy == true && '--force' || '' }}"
+          
+          # Execute deployment
+          src/packages/deployment/scripts/automated-deployment.sh \
+            -e production \
+            -s "$STRATEGY" \
+            --auto-approve \
+            --parallel 1 \
+            --monitoring-duration 600 \
+            $FORCE_FLAG
+      
+      - name: Run post-deployment validation
+        run: |
+          # Comprehensive post-deployment validation
+          python src/packages/deployment/validation/production-validator.py \
+            --environment production \
+            --report production-post-validation.txt
+          
+          # Check results
+          if grep -q "CRITICAL.*FAILED" production-post-validation.txt; then
+            echo "❌ Critical post-deployment validation failed"
+            echo "🚨 Initiating automatic rollback"
+            
+            # Trigger rollback
+            src/packages/deployment/scripts/disaster-recovery.sh \
+              rollback -e production --auto-approve
+            
+            exit 1
+          fi
+      
+      - name: Run production smoke tests
+        run: |
+          # Get production endpoint
+          PROD_URL=$(kubectl get service api-gateway -n production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          
+          # Run smoke tests
+          pytest src/packages/system_tests/e2e/ \
+            --production-url="http://$PROD_URL" \
+            --junitxml=production-smoke-results.xml
+      
+      - name: Setup monitoring and alerting
+        run: |
+          # Configure monitoring for new deployment
+          python src/packages/deployment/monitoring/observability-integration.py \
+            --setup-all --config config/observability-config.yaml
+      
+      - name: Update deployment status
+        run: |
+          # Record successful deployment
+          cat > deployment-record.json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "deployment_strategy": "${{ inputs.deployment_strategy || 'rolling' }}",
+            "environment": "production",
+            "status": "success",
+            "deployed_by": "${{ github.actor }}",
+            "workflow_run": "${{ github.run_id }}",
+            "version": "${{ github.ref_name }}",
+            "duration_minutes": "$((SECONDS / 60))"
+          }
+          EOF
+          
+          echo "✅ Production deployment completed successfully"
+          cat deployment-record.json
+      
+      - name: Upload production deployment results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: production-deployment-results
+          path: |
+            production-*-validation.txt
+            production-smoke-results.xml
+            deployment-record.json
+
+  # Post-deployment monitoring
+  post-deployment-monitoring:
+    name: Post-deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always() && needs.deploy-production.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
+      
+      - name: Monitor deployment health
+        timeout-minutes: 30
+        run: |
+          echo "🔍 Monitoring production deployment for 30 minutes..."
+          
+          for i in {1..30}; do
+            echo "Monitor cycle $i/30..."
+            
+            # Check pod health
+            UNHEALTHY_PODS=$(kubectl get pods -n production --field-selector=status.phase!=Running --no-headers | wc -l)
+            
+            if [ $UNHEALTHY_PODS -gt 0 ]; then
+              echo "❌ Found $UNHEALTHY_PODS unhealthy pods"
+              kubectl get pods -n production --field-selector=status.phase!=Running
+              
+              # Trigger emergency rollback
+              echo "🚨 Triggering emergency rollback"
+              curl -X POST \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                https://api.github.com/repos/${{ github.repository }}/actions/workflows/emergency-rollback.yml/dispatches \
+                -d '{"ref":"main","inputs":{"reason":"Unhealthy pods detected during monitoring"}}'
+              
+              exit 1
+            fi
+            
+            # Check error rates
+            PROD_URL=$(kubectl get service api-gateway -n production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+            if ! curl -f "http://$PROD_URL/health" --max-time 10; then
+              echo "❌ Health check failed"
+              exit 1
+            fi
+            
+            echo "✅ System healthy - cycle $i complete"
+            sleep 60
+          done
+          
+          echo "🎉 30-minute monitoring period completed successfully"
+
+  # Notification and cleanup
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [deploy-production, post-deployment-monitoring]
+    if: always()
+    steps:
+      - name: Notify Slack
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#production-deployments'
+          text: |
+            🚀 Production Deployment Successful!
+            
+            📋 Details:
+            • Environment: Production
+            • Strategy: ${{ inputs.deployment_strategy || 'rolling' }}
+            • Commit: ${{ github.sha }}
+            • Deployed by: ${{ github.actor }}
+            • Workflow: ${{ github.run_id }}
+            
+            ✅ All systems operational
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: Notify failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#production-deployments'
+          text: |
+            ❌ Production Deployment Failed!
+            
+            📋 Details:
+            • Environment: Production
+            • Commit: ${{ github.sha }}
+            • Workflow: ${{ github.run_id }}
+            
+            🚨 Immediate attention required
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

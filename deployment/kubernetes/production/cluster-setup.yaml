@@ -1,0 +1,167 @@
+# Production Kubernetes Cluster Configuration
+# High-availability multi-node setup with security hardening
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: domain-driven-platform
+  labels:
+    name: domain-driven-platform
+    environment: production
+    security.policy: strict
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: platform-resource-quota
+  namespace: domain-driven-platform
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+    persistentvolumeclaims: "10"
+    services: "50"
+    secrets: "100"
+    configmaps: "100"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: domain-driven-platform
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-internal-traffic
+  namespace: domain-driven-platform
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: domain-driven-platform
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: domain-driven-platform
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 443
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: platform-service-account
+  namespace: domain-driven-platform
+automountServiceAccountToken: false
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: domain-driven-platform
+  name: platform-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: platform-rolebinding
+  namespace: domain-driven-platform
+subjects:
+- kind: ServiceAccount
+  name: platform-service-account
+  namespace: domain-driven-platform
+roleRef:
+  kind: Role
+  name: platform-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-config
+  namespace: domain-driven-platform
+data:
+  environment: "production"
+  log_level: "INFO"
+  metrics_enabled: "true"
+  tracing_enabled: "true"
+  security_mode: "strict"
+  backup_enabled: "true"
+  monitoring_namespace: "monitoring"
+
+---
+# Security Context Constraints
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: platform-psp
+  namespace: domain-driven-platform
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  readOnlyRootFilesystem: true
+  seccompProfile:
+    type: RuntimeDefault
+
+---
+# Node affinity for production workloads
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-affinity-config
+  namespace: domain-driven-platform
+data:
+  preferred-zones: |
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+  node-selector: |
+    workload-type: production
+    instance-size: large
