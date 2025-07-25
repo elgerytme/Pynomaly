@@ -1,0 +1,779 @@
+# Production Kubernetes Deployment Configuration
+# This file defines the complete Kubernetes deployment for production environment
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-production
+  labels:
+    environment: production
+    managed-by: kubernetes
+
+---
+# =============================================================================
+# CONFIGURATION MANAGEMENT
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlops-config
+  namespace: mlops-production
+data:
+  application.yml: |
+    application:
+      name: "mlops-platform"
+      environment: "production"
+    server:
+      port: 8000
+      host: "0.0.0.0"
+    logging:
+      level: "INFO"
+      format: "structured"
+    monitoring:
+      metrics:
+        enabled: true
+        endpoint: "/metrics"
+        port: 9090
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlops-secrets
+  namespace: mlops-production
+type: Opaque
+data:
+  # Base64 encoded secrets (replace with actual values)
+  database-url: cG9zdGdyZXNxbDovL21sb3BzOnBhc3N3b3JkQHBvc3RncmVzOjU0MzIvbWxvcHM=
+  jwt-secret: c3VwZXItc2VjcmV0LWp3dC1rZXk=
+  redis-password: cmVkaXMtcGFzc3dvcmQ=
+
+---
+# =============================================================================
+# PERSISTENT VOLUMES
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-storage
+  namespace: mlops-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-storage
+  namespace: mlops-production
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi
+  storageClassName: shared-storage
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-storage
+  namespace: mlops-production
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+
+---
+# =============================================================================
+# DATABASE DEPLOYMENT
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: mlops-production
+  labels:
+    app: postgres
+    tier: database
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        tier: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "mlops_prod"
+        - name: POSTGRES_USER
+          value: "mlops"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: postgres-password
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - mlops
+            - -d
+            - mlops_prod
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - mlops
+            - -d
+            - mlops_prod
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: mlops-production
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: postgres
+  type: ClusterIP
+
+---
+# =============================================================================
+# REDIS DEPLOYMENT
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache
+  namespace: mlops-production
+  labels:
+    app: redis-cache
+    tier: cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+        tier: cache
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: redis-password
+        command:
+        - redis-server
+        - --requirepass
+        - $(REDIS_PASSWORD)
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cache
+  namespace: mlops-production
+  labels:
+    app: redis-cache
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis-cache
+  type: ClusterIP
+
+---
+# =============================================================================
+# API SERVER DEPLOYMENT
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+  namespace: mlops-production
+  labels:
+    app: api-server
+    tier: application
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-server
+  template:
+    metadata:
+      labels:
+        app: api-server
+        tier: application
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: api-server
+        image: mlops-registry/mlops-api:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: database-url
+        - name: REDIS_CACHE_URL
+          value: "redis://redis-cache:6379/0"
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: jwt-secret
+        - name: ENVIRONMENT
+          value: "production"
+        - name: CONFIG_FILE
+          value: "/app/config/application.yml"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: logs-volume
+          mountPath: /var/log/app
+        - name: model-storage
+          mountPath: /app/models
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 15"]
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mlops-config
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: logs-storage
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-server
+  namespace: mlops-production
+  labels:
+    app: api-server
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  - port: 9090
+    targetPort: 9090
+    name: metrics
+  selector:
+    app: api-server
+  type: ClusterIP
+
+---
+# =============================================================================
+# MODEL SERVER DEPLOYMENT
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-server
+  namespace: mlops-production
+  labels:
+    app: model-server
+    tier: ml
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: model-server
+  template:
+    metadata:
+      labels:
+        app: model-server
+        tier: ml
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      containers:
+      - name: model-server
+        image: mlops-registry/mlops-model-server:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: MODEL_STORAGE_PATH
+          value: "/app/models"
+        - name: REDIS_URL
+          value: "redis://redis-cache:6379/2"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: database-url
+        volumeMounts:
+        - name: model-storage
+          mountPath: /app/models
+        - name: logs-volume
+          mountPath: /var/log/app
+        resources:
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+            nvidia.com/gpu: 1
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-storage
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: logs-storage
+      nodeSelector:
+        accelerator: nvidia-tesla-v100
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-server
+  namespace: mlops-production
+  labels:
+    app: model-server
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  - port: 9090
+    targetPort: 9090
+    name: metrics
+  selector:
+    app: model-server
+  type: ClusterIP
+
+---
+# =============================================================================
+# WORKER DEPLOYMENT
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: mlops-production
+  labels:
+    app: worker
+    tier: background
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+        tier: background
+    spec:
+      containers:
+      - name: worker
+        image: mlops-registry/mlops-worker:latest
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: mlops-secrets
+              key: database-url
+        - name: REDIS_CACHE_URL
+          value: "redis://redis-cache:6379/0"
+        - name: WORKER_TYPE
+          value: "general"
+        - name: CONFIG_FILE
+          value: "/app/config/application.yml"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: model-storage
+          mountPath: /app/models
+        - name: logs-volume
+          mountPath: /var/log/app
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+        livenessProbe:
+          exec:
+            command: ["python", "-c", "import sys; sys.exit(0)"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mlops-config
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-storage
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: logs-storage
+
+---
+# =============================================================================
+# MONITORING DEPLOYMENTS
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: mlops-production
+  labels:
+    app: prometheus
+    tier: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        tier: monitoring
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.45.0
+        ports:
+        - containerPort: 9090
+        args:
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --storage.tsdb.path=/prometheus
+        - --web.console.libraries=/etc/prometheus/console_libraries
+        - --web.console.templates=/etc/prometheus/consoles
+        - --storage.tsdb.retention.time=30d
+        - --web.enable-lifecycle
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+        - name: prometheus-storage
+          mountPath: /prometheus
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-storage
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: mlops-production
+  labels:
+    app: prometheus
+spec:
+  ports:
+  - port: 9090
+    targetPort: 9090
+  selector:
+    app: prometheus
+  type: ClusterIP
+
+---
+# =============================================================================
+# INGRESS CONFIGURATION
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mlops-ingress
+  namespace: mlops-production
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - api.mlops-platform.com
+    - app.mlops-platform.com
+    secretName: mlops-tls-secret
+  rules:
+  - host: api.mlops-platform.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-server
+            port:
+              number: 8000
+  - host: app.mlops-platform.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-ui
+            port:
+              number: 80
+
+---
+# =============================================================================
+# HORIZONTAL POD AUTOSCALER
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-server-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-server
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: model-server-hpa
+  namespace: mlops-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: model-server
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
+
+---
+# =============================================================================
+# NETWORK POLICIES
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mlops-network-policy
+  namespace: mlops-production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: mlops-production
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: mlops-production
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 443
+
+---
+# =============================================================================
+# POD DISRUPTION BUDGETS
+# =============================================================================
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-server-pdb
+  namespace: mlops-production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api-server
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: model-server-pdb
+  namespace: mlops-production
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: model-server

@@ -1,0 +1,484 @@
+# Production Application Configuration
+# This file contains environment-specific settings for production deployment
+
+# =============================================================================
+# APPLICATION SETTINGS
+# =============================================================================
+application:
+  name: "mlops-platform"
+  version: "${APP_VERSION:1.0.0}"
+  environment: "production"
+  
+  # Application-wide settings
+  settings:
+    max_concurrent_requests: 1000
+    request_timeout_seconds: 30
+    enable_request_logging: true
+    enable_metrics: true
+    enable_health_checks: true
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: ${PORT:8000}
+  host: "0.0.0.0"
+  
+  # SSL/TLS Configuration
+  ssl:
+    enabled: true
+    cert_file: "/etc/ssl/certs/server.crt"
+    key_file: "/etc/ssl/private/server.key"
+    protocols: ["TLSv1.2", "TLSv1.3"]
+    ciphers: ["ECDHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES128-GCM-SHA256"]
+  
+  # Performance Settings
+  workers: ${WORKERS:4}
+  worker_connections: ${WORKER_CONNECTIONS:1000}
+  keepalive_timeout: 65
+  client_max_body_size: "10MB"
+
+# =============================================================================
+# DATABASE CONFIGURATION
+# =============================================================================
+database:
+  # Primary Database
+  primary:
+    url: "${DATABASE_URL}"
+    driver: "postgresql+asyncpg"
+    pool_size: ${DB_POOL_SIZE:20}
+    max_overflow: ${DB_MAX_OVERFLOW:30}
+    pool_timeout: 30
+    pool_recycle: 3600
+    
+    # Connection retry settings
+    retry_attempts: 3
+    retry_delay: 1
+    
+    # SSL Configuration
+    ssl_mode: "require"
+    ssl_ca: "/etc/ssl/certs/db-ca.crt"
+  
+  # Read Replica (Optional)
+  replica:
+    enabled: ${DB_REPLICA_ENABLED:false}
+    url: "${DATABASE_REPLICA_URL:}"
+    pool_size: ${DB_REPLICA_POOL_SIZE:10}
+
+# =============================================================================
+# REDIS CONFIGURATION
+# =============================================================================
+redis:
+  # Cache Configuration
+  cache:
+    url: "${REDIS_CACHE_URL}"
+    password: "${REDIS_CACHE_PASSWORD}"
+    ssl: true
+    ssl_ca_certs: "/etc/ssl/certs/redis-ca.crt"
+    
+    # Connection Pool
+    max_connections: ${REDIS_CACHE_MAX_CONNECTIONS:50}
+    retry_on_timeout: true
+    socket_timeout: 5
+    socket_connect_timeout: 5
+  
+  # Session Store
+  session:
+    url: "${REDIS_SESSION_URL}"
+    password: "${REDIS_SESSION_PASSWORD}"
+    ssl: true
+    db: 1
+    prefix: "session:"
+    ttl: 3600
+
+# =============================================================================
+# MESSAGING CONFIGURATION
+# =============================================================================
+messaging:
+  # Message Broker (RabbitMQ/Apache Kafka)
+  broker:
+    type: "${MESSAGE_BROKER_TYPE:kafka}"
+    
+    # Kafka Configuration
+    kafka:
+      bootstrap_servers: "${KAFKA_BOOTSTRAP_SERVERS}"
+      security_protocol: "SASL_SSL"
+      sasl_mechanism: "PLAIN"
+      sasl_username: "${KAFKA_USERNAME}"
+      sasl_password: "${KAFKA_PASSWORD}"
+      ssl_ca_location: "/etc/ssl/certs/kafka-ca.crt"
+      
+      # Producer Settings
+      producer:
+        acks: "all"
+        retries: 3
+        batch_size: 16384
+        linger_ms: 10
+        compression_type: "snappy"
+      
+      # Consumer Settings
+      consumer:
+        group_id: "${KAFKA_CONSUMER_GROUP_ID:mlops-platform}"
+        auto_offset_reset: "earliest"
+        enable_auto_commit: false
+        max_poll_records: 500
+    
+    # RabbitMQ Configuration (Alternative)
+    rabbitmq:
+      url: "${RABBITMQ_URL}"
+      ssl: true
+      ssl_ca_certs: "/etc/ssl/certs/rabbitmq-ca.crt"
+      heartbeat: 600
+      connection_attempts: 3
+
+# =============================================================================
+# OBJECT STORAGE CONFIGURATION
+# =============================================================================
+storage:
+  # Primary Object Storage (S3/MinIO/GCS)
+  primary:
+    type: "${STORAGE_TYPE:s3}"
+    
+    # S3 Compatible Configuration
+    s3:
+      endpoint_url: "${S3_ENDPOINT_URL}"
+      access_key: "${S3_ACCESS_KEY}"
+      secret_key: "${S3_SECRET_KEY}"
+      bucket_name: "${S3_BUCKET_NAME}"
+      region: "${S3_REGION:us-east-1}"
+      use_ssl: true
+      
+      # Advanced S3 Settings
+      multipart_threshold: 67108864  # 64MB
+      multipart_chunksize: 16777216  # 16MB
+      max_concurrency: 10
+      
+    # Google Cloud Storage Configuration
+    gcs:
+      project_id: "${GCS_PROJECT_ID}"
+      bucket_name: "${GCS_BUCKET_NAME}"
+      credentials_path: "/etc/gcp/service-account.json"
+
+# =============================================================================
+# AUTHENTICATION & AUTHORIZATION
+# =============================================================================
+auth:
+  # JWT Configuration
+  jwt:
+    secret_key: "${JWT_SECRET_KEY}"
+    algorithm: "HS256"
+    access_token_expire_minutes: 30
+    refresh_token_expire_days: 7
+    issuer: "mlops-platform"
+    audience: "api-users"
+  
+  # OAuth2 Configuration
+  oauth2:
+    enabled: ${OAUTH2_ENABLED:false}
+    providers:
+      google:
+        client_id: "${GOOGLE_CLIENT_ID}"
+        client_secret: "${GOOGLE_CLIENT_SECRET}"
+        redirect_uri: "${GOOGLE_REDIRECT_URI}"
+      
+      microsoft:
+        client_id: "${MICROSOFT_CLIENT_ID}"
+        client_secret: "${MICROSOFT_CLIENT_SECRET}"
+        tenant_id: "${MICROSOFT_TENANT_ID}"
+  
+  # LDAP Configuration
+  ldap:
+    enabled: ${LDAP_ENABLED:false}
+    server: "${LDAP_SERVER}"
+    port: ${LDAP_PORT:636}
+    use_ssl: true
+    bind_dn: "${LDAP_BIND_DN}"
+    bind_password: "${LDAP_BIND_PASSWORD}"
+    user_search_base: "${LDAP_USER_SEARCH_BASE}"
+    group_search_base: "${LDAP_GROUP_SEARCH_BASE}"
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level: "${LOG_LEVEL:INFO}"
+  format: "structured"  # structured, plain
+  
+  # Log Destinations
+  handlers:
+    console:
+      enabled: true
+      level: "INFO"
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    
+    file:
+      enabled: true
+      level: "DEBUG"
+      filename: "/var/log/mlops-platform/app.log"
+      max_bytes: 10485760  # 10MB
+      backup_count: 5
+      
+    syslog:
+      enabled: ${SYSLOG_ENABLED:false}
+      address: "${SYSLOG_ADDRESS:/dev/log}"
+      facility: "local0"
+      
+    # External Log Aggregation
+    fluentd:
+      enabled: ${FLUENTD_ENABLED:false}
+      host: "${FLUENTD_HOST}"
+      port: ${FLUENTD_PORT:24224}
+      tag: "mlops.platform"
+
+# =============================================================================
+# MONITORING & OBSERVABILITY
+# =============================================================================
+monitoring:
+  # Metrics Configuration
+  metrics:
+    enabled: true
+    endpoint: "/metrics"
+    port: ${METRICS_PORT:9090}
+    
+    # Prometheus Integration
+    prometheus:
+      enabled: true
+      namespace: "mlops_platform"
+      labels:
+        environment: "production"
+        service: "mlops-platform"
+  
+  # Health Check Configuration
+  health:
+    enabled: true
+    endpoint: "/health"
+    detailed_endpoint: "/health/detailed"
+    
+    # Health Check Components
+    checks:
+      database: true
+      redis: true
+      storage: true
+      external_apis: true
+  
+  # Distributed Tracing
+  tracing:
+    enabled: ${TRACING_ENABLED:true}
+    service_name: "mlops-platform"
+    
+    # Jaeger Configuration
+    jaeger:
+      agent_host: "${JAEGER_AGENT_HOST:localhost}"
+      agent_port: ${JAEGER_AGENT_PORT:6831}
+      sampler_type: "probabilistic"
+      sampler_param: 0.1
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+security:
+  # CORS Configuration
+  cors:
+    enabled: true
+    allow_origins: 
+      - "https://app.yourcompany.com"
+      - "https://admin.yourcompany.com"
+    allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers: ["*"]
+    allow_credentials: true
+    max_age: 3600
+  
+  # Rate Limiting
+  rate_limiting:
+    enabled: true
+    default_rate: "1000/hour"
+    burst_size: 50
+    
+    # Rate Limit Rules
+    rules:
+      "/api/v1/auth/login": "10/minute"
+      "/api/v1/models/predict": "10000/hour"
+      "/api/v1/admin": "100/hour"
+  
+  # Content Security Policy
+  csp:
+    enabled: true
+    default_src: "'self'"
+    script_src: "'self' 'unsafe-inline'"
+    style_src: "'self' 'unsafe-inline'"
+    img_src: "'self' data: https:"
+    connect_src: "'self'"
+  
+  # API Key Management
+  api_keys:
+    header_name: "X-API-Key"
+    require_https: true
+    rate_limit_per_key: "5000/hour"
+
+# =============================================================================
+# FEATURE FLAGS
+# =============================================================================
+feature_flags:
+  # ML Model Features
+  enable_model_versioning: ${FEATURE_MODEL_VERSIONING:true}
+  enable_a_b_testing: ${FEATURE_AB_TESTING:true}
+  enable_model_monitoring: ${FEATURE_MODEL_MONITORING:true}
+  enable_auto_scaling: ${FEATURE_AUTO_SCALING:true}
+  
+  # Data Processing Features
+  enable_real_time_inference: ${FEATURE_REAL_TIME_INFERENCE:true}
+  enable_batch_processing: ${FEATURE_BATCH_PROCESSING:true}
+  enable_data_validation: ${FEATURE_DATA_VALIDATION:true}
+  
+  # Analytics Features
+  enable_business_metrics: ${FEATURE_BUSINESS_METRICS:true}
+  enable_cost_tracking: ${FEATURE_COST_TRACKING:true}
+  enable_performance_analytics: ${FEATURE_PERFORMANCE_ANALYTICS:true}
+
+# =============================================================================
+# ML/AI SPECIFIC CONFIGURATION
+# =============================================================================
+ml:
+  # Model Registry
+  model_registry:
+    type: "${MODEL_REGISTRY_TYPE:mlflow}"
+    url: "${MODEL_REGISTRY_URL}"
+    
+    # MLflow Configuration
+    mlflow:
+      tracking_uri: "${MLFLOW_TRACKING_URI}"
+      artifact_root: "${MLFLOW_ARTIFACT_ROOT}"
+      default_experiment: "production"
+  
+  # Model Serving
+  model_serving:
+    max_models_per_instance: ${MAX_MODELS_PER_INSTANCE:10}
+    model_cache_size: "${MODEL_CACHE_SIZE:1GB}"
+    prediction_timeout: ${PREDICTION_TIMEOUT:30}
+    
+    # GPU Configuration
+    gpu:
+      enabled: ${GPU_ENABLED:false}
+      memory_fraction: ${GPU_MEMORY_FRACTION:0.8}
+      allow_growth: true
+  
+  # Data Processing
+  data_processing:
+    batch_size: ${DATA_BATCH_SIZE:1000}
+    max_workers: ${DATA_MAX_WORKERS:4}
+    chunk_size: ${DATA_CHUNK_SIZE:10000}
+    
+    # Data Validation
+    validation:
+      enabled: true
+      schema_enforcement: true
+      drift_detection: true
+      drift_threshold: 0.1
+
+# =============================================================================
+# EXTERNAL INTEGRATIONS
+# =============================================================================
+integrations:
+  # Notification Services
+  notifications:
+    # Slack Integration
+    slack:
+      enabled: ${SLACK_ENABLED:false}
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channel: "#mlops-alerts"
+      
+    # Email Service
+    email:
+      enabled: ${EMAIL_ENABLED:true}
+      smtp_host: "${SMTP_HOST}"
+      smtp_port: ${SMTP_PORT:587}
+      smtp_username: "${SMTP_USERNAME}"
+      smtp_password: "${SMTP_PASSWORD}"
+      use_tls: true
+      from_address: "${EMAIL_FROM_ADDRESS}"
+  
+  # Third-party APIs
+  external_apis:
+    timeout: 30
+    retry_attempts: 3
+    retry_delay: 1
+    
+    # Example API Configuration
+    data_provider:
+      base_url: "${DATA_PROVIDER_API_URL}"
+      api_key: "${DATA_PROVIDER_API_KEY}"
+      timeout: 60
+
+# =============================================================================
+# PERFORMANCE OPTIMIZATION
+# =============================================================================
+performance:
+  # Caching Strategy
+  caching:
+    default_ttl: 3600
+    max_memory_usage: "512MB"
+    
+    # Cache Layers
+    layers:
+      application: true
+      database_query: true
+      api_response: true
+      model_predictions: true
+  
+  # Connection Pooling
+  connection_pooling:
+    database:
+      min_size: 5
+      max_size: 20
+      max_idle_time: 300
+    
+    http_client:
+      pool_connections: 10
+      pool_maxsize: 20
+      max_retries: 3
+  
+  # Async Processing
+  async_processing:
+    task_queue_size: 1000
+    worker_concurrency: 10
+    result_backend_ttl: 3600
+
+# =============================================================================
+# BACKUP & DISASTER RECOVERY
+# =============================================================================
+backup:
+  # Database Backup
+  database:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
+    compression: true
+    encryption: true
+    destination: "${BACKUP_STORAGE_URL}"
+  
+  # Configuration Backup
+  configuration:
+    enabled: true
+    schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+    include_secrets: false
+    destination: "${CONFIG_BACKUP_URL}"
+
+# =============================================================================
+# ENVIRONMENT VARIABLES DOCUMENTATION
+# =============================================================================
+# The following environment variables are required:
+#
+# REQUIRED:
+# - DATABASE_URL: PostgreSQL connection string
+# - REDIS_CACHE_URL: Redis cache connection string
+# - JWT_SECRET_KEY: Secret key for JWT token signing
+# - S3_ACCESS_KEY, S3_SECRET_KEY: Object storage credentials
+#
+# OPTIONAL:
+# - APP_VERSION: Application version (default: 1.0.0)
+# - PORT: Server port (default: 8000)
+# - WORKERS: Number of worker processes (default: 4)
+# - LOG_LEVEL: Logging level (default: INFO)
+# - FEATURE_*: Feature flag overrides
+#
+# For complete documentation, see: docs/configuration/production-config.md

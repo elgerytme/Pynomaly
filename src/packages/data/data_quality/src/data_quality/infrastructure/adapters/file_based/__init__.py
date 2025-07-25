@@ -1,0 +1,1 @@
+"""File-based adapters for data quality operations."""

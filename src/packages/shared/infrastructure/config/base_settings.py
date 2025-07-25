@@ -26,6 +26,8 @@ except ImportError:
         """Fallback BaseSettings when Pydantic is not available."""
         pass
 
+from interfaces.patterns import ConfigurationProvider
+
 T = TypeVar('T', bound='BasePackageSettings')
 
 
