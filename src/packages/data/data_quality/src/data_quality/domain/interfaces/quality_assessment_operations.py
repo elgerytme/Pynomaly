@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union, Callable
 from enum import Enum
 
-from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleCondition, RuleResult
+from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleCondition
 from data_quality.domain.entities.data_quality_check import DataQualityCheck, DataQualityResult
 
 
