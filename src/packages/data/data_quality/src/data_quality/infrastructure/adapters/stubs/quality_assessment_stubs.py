@@ -15,7 +15,8 @@ from data_quality.domain.interfaces.quality_assessment_operations import (
     MetricType,
     AnomalyType
 )
-from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleResult
+from data_quality.domain.entities.data_quality_rule import DataQualityRule
+from data_quality.domain.interfaces.quality_assessment_operations import RuleResult
 
 
 class RuleEvaluationStub(RuleEvaluationPort):

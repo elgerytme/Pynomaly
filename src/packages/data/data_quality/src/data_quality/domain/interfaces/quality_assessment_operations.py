@@ -7,7 +7,20 @@ from typing import Any, Dict, List, Optional, Union, Callable
 from enum import Enum
 
 from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleCondition
-from data_quality.domain.entities.data_quality_check import DataQualityCheck, DataQualityResult
+from data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckResult
+
+
+@dataclass
+class RuleResult:
+    """Result of rule evaluation."""
+    rule_id: str
+    passed: bool
+    score: float
+    details: Dict[str, Any]
+    error_count: int = 0
+    warning_count: int = 0
+    executed_at: Optional[datetime] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class RuleType(Enum):
