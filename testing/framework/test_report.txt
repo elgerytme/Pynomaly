@@ -1,0 +1,25 @@
+
+Monorepo Comprehensive Test Report
+==================================
+
+Generated: 2025-07-25T16:31:17.044002
+Monorepo Root: /mnt/c/Users/andre/monorepo/testing/framework
+Packages Tested: 1
+Test Types: unit
+
+Summary
+-------
+Total Packages: 1
+Passed: 0
+Failed: 1
+Warnings: 0
+Skipped: 0
+Success Rate: 0.0%
+
+Package Results
+---------------
+
+❌ anomaly_detection: FAIL
+   🧪 Unit Tests: fail
+   ⚠️  Issues: 1
+      - unit tests failed

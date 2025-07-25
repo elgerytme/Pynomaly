@@ -1,6 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="8.819" timestamp="2025-07-25T12:22:04.498767-04:00" hostname="rocm-socm"><testcase classname="" name="tests.security.test_comprehensive_security_framework" time="0.000"><error message="collection failure">tests/security/test_comprehensive_security_framework.py:40: in &lt;module&gt;
-    class TestSecurityFrameworkIntegration:
-tests/security/test_comprehensive_security_framework.py:212: in TestSecurityFrameworkIntegration
-    ) -&gt; Dict[str, Any]:
-         ^^^^
-E   NameError: name 'Dict' is not defined</error></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="30.352" timestamp="2025-07-25T12:31:26.997454-04:00" hostname="rocm-socm"><testcase classname="tests.unit.test_api_detection.TestDetectionEndpoints" name="test_detect_anomalies_success" time="0.177" /></testsuite></testsuites>

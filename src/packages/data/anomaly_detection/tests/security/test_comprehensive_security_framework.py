@@ -4,6 +4,7 @@ import asyncio
 import json
 import pytest
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any, Union, Tuple, AsyncGenerator
 from unittest.mock import AsyncMock, Mock, patch, MagicMock
 from pathlib import Path
 
@@ -209,7 +210,7 @@ class TestSecurityFrameworkIntegration:
     async def _run_comprehensive_security_assessment(
         self,
         project_path: str
-    ) -> "Dict[str, Any]":
+    ) -> Dict[str, Any]:
         """Run comprehensive security assessment."""
         assessment_results = {
             "assessment_metadata": {

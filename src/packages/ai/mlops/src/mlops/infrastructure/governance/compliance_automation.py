@@ -22,10 +22,74 @@ from pydantic import BaseModel, Field
 import structlog
 from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
 
-from .ml_governance_framework import (
-    MLGovernanceFramework, ComplianceFramework, GovernanceRisk,
-    AuditEventType, GovernancePolicy, ComplianceCheck
-)
+# Import placeholder for governance framework
+# from .ml_governance_framework import (
+#     MLGovernanceFramework, ComplianceFramework, GovernanceRisk,
+#     AuditEventType, GovernancePolicy, ComplianceCheck
+# )
+
+# Temporary enums for standalone operation
+from enum import Enum
+
+class ComplianceFramework(Enum):
+    """Compliance frameworks for ML systems."""
+    GDPR = "gdpr"
+    HIPAA = "hipaa" 
+    SOX = "sox"
+    PCI_DSS = "pci_dss"
+    ISO_27001 = "iso_27001"
+    CCPA = "ccpa"
+
+class GovernanceRisk(Enum):
+    """Risk levels for governance issues."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+class AuditEventType(Enum):
+    """Types of audit events."""
+    MODEL_DEPLOYMENT = "model_deployment"
+    DATA_ACCESS = "data_access"
+    COMPLIANCE_CHECK = "compliance_check"
+    SECURITY_INCIDENT = "security_incident"
+
+# Temporary governance framework stub
+class MLGovernanceFramework:
+    """Minimal governance framework for compliance automation."""
+    
+    def __init__(self):
+        self.audit_events = []
+    
+    async def log_audit_event(self, event_type, user_id, action, resource, details=None, **kwargs):
+        """Log an audit event."""
+        event = {
+            "event_type": event_type,
+            "user_id": user_id,
+            "action": action,
+            "resource": resource,
+            "details": details or {},
+            "timestamp": datetime.utcnow(),
+            **kwargs
+        }
+        self.audit_events.append(event)
+        
+    async def get_audit_trail(self, start_date=None, end_date=None, limit=None):
+        """Get audit trail events."""
+        events = self.audit_events
+        if start_date:
+            events = [e for e in events if e["timestamp"] >= start_date]
+        if end_date:
+            events = [e for e in events if e["timestamp"] <= end_date]
+        if limit:
+            events = events[-limit:]
+        return events
+    
+    async def request_approval(self, request_type, model_id, requester_id, title, description, justification):
+        """Request approval for an action."""
+        request_id = str(uuid.uuid4())
+        # In production, would integrate with approval workflow
+        return request_id
 
 
 class AutomationTrigger(Enum):

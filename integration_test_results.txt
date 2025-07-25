@@ -1,0 +1,66 @@
+================================================================================
+INTEGRATION TEST SUITE REPORT
+================================================================================
+Test Suite: Cross-Domain Integration Tests
+Timestamp: 2025-07-25 16:30:48 UTC
+Duration: 0.10 seconds
+
+SUMMARY
+----------------------------------------
+Total Tests: 9
+✅ Passed: 3
+❌ Failed: 6
+⏭️ Skipped: 0
+📊 Success Rate: 33.3%
+
+DETAILED RESULTS
+----------------------------------------
+❌ domain_boundary_validation
+   Message: Boundary validation test failed: [Errno 2] No such file or directory: 'python'
+   Duration: 0.05s
+   Errors:
+     - [Errno 2] No such file or directory: 'python'
+
+❌ cross_domain_messaging_import
+   Message: Could not import integration examples: No module named 'shared'
+   Duration: 0.00s
+   Errors:
+     - No module named 'shared'
+
+❌ security_config_loading
+   Message: Security configuration test failed: No module named 'shared'
+   Duration: 0.00s
+   Errors:
+     - No module named 'shared'
+
+❌ security_exception_handling
+   Message: Security exception handling test failed: No module named 'shared'
+   Duration: 0.00s
+   Errors:
+     - No module named 'shared'
+
+✅ data_flow_integration
+   Message: Data flow integration test passed
+   Duration: 0.00s
+
+✅ api_gateway_integration
+   Message: API gateway integration test passed (4 endpoints)
+   Duration: 0.00s
+
+❌ event_bus_integration
+   Message: Event bus integration test failed: No module named 'shared'
+   Duration: 0.00s
+   Errors:
+     - No module named 'shared'
+
+✅ compliance_integration
+   Message: Compliance integration test passed for 4 frameworks
+   Duration: 0.00s
+
+❌ performance_integration
+   Message: Performance integration test failed: [Errno 2] No such file or directory: 'python'
+   Duration: 0.05s
+   Errors:
+     - [Errno 2] No such file or directory: 'python'
+
+================================================================================

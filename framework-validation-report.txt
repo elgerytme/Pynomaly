@@ -1,0 +1,93 @@
+================================================================================
+FRAMEWORK VALIDATION TEST REPORT
+================================================================================
+Generated: 2025-07-25 12:29:43 UTC
+
+Overall Status: ⚠️ PASSED WITH WARNINGS (Non-critical failures)
+
+Summary:
+  Total Tests: 13
+  Passed: 10 (76.9%)
+  Failed: 3 (23.1%)
+  Skipped: 0 (0.0%)
+
+--------------------------------------------------------------------------------
+CATEGORY: STRUCTURE
+----------------------------------------
+  ✅ 🔴 deployment_scripts_exist          0.01s
+      Description: Verify all deployment scripts exist
+      scripts_found: 8
+
+  ✅ 🟠 scripts_executable                0.01s
+      Description: Verify scripts have execute permissions
+      executable_scripts: 7
+
+  ✅ 🟡 documentation_complete            0.00s
+      Description: Verify documentation is complete
+      docs_found: 4
+
+
+CATEGORY: FUNCTIONALITY
+----------------------------------------
+  ✅ 🔴 deployment_script_syntax          0.01s
+      Description: Validate deployment script syntax
+      syntax_check: valid
+
+  ✅ 🔴 monitoring_script_syntax          0.05s
+      Description: Validate monitoring script syntax
+      syntax_check: valid
+
+  ✅ 🔴 validator_script_syntax           0.05s
+      Description: Validate validator script syntax
+      syntax_check: valid
+
+  ✅ 🔴 disaster_recovery_syntax          0.01s
+      Description: Validate disaster recovery script syntax
+      syntax_check: valid
+
+
+CATEGORY: CONFIGURATION
+----------------------------------------
+  ✅ 🟠 makefile_targets                  0.01s
+      Description: Verify Makefile targets are valid
+      makefile_valid: True
+
+  ❌ 🟠 docker_compose_valid              0.10s
+      Description: Validate Docker Compose configurations
+      Error: Invalid compose files: 3
+
+  ✅ 🟠 kubernetes_manifests              0.11s
+      Description: Validate Kubernetes manifests
+      valid_yaml_files: 17
+
+
+CATEGORY: INTEGRATION
+----------------------------------------
+  ✅ 🟠 deployment_dry_run                0.02s
+      Description: Test deployment script dry run
+      Output: [0;32m[2025-07-25 12:29:43] INFO: Starting automated deployment script[0m
+[0;32m[2025-07-25 12:29...
+      help_functionality: working
+
+  ❌ 🟡 monitoring_startup                0.24s
+      Description: Test monitoring system startup
+      Error: Help functionality failed: Traceback (most recent call last):
+  File "/mnt/c/Users/andre/monorepo/src/packages/deployment/monitoring/production-monitoring.py", line 15, in <module>
+    import aiohttp
+ModuleNotFoundError: No module named 'aiohttp'
+
+
+  ❌ 🟡 validation_execution              0.23s
+      Description: Test validation framework execution
+      Error: Help functionality failed: Traceback (most recent call last):
+  File "/mnt/c/Users/andre/monorepo/src/packages/deployment/validation/production-validator.py", line 16, in <module>
+    import aiohttp
+ModuleNotFoundError: No module named 'aiohttp'
+
+
+
+================================================================================
+Legend:
+  ✅ PASSED  ❌ FAILED  ⏭️ SKIPPED  ⏸️ PENDING  🔄 RUNNING
+  🔴 CRITICAL  🟠 HIGH  🟡 MEDIUM  🟢 LOW
+================================================================================

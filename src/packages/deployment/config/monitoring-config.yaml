@@ -1,0 +1,328 @@
+# Production Monitoring Configuration
+# Configuration for the production monitoring and alerting system
+
+# Service endpoints and health checks
+services:
+  api-gateway:
+    health_endpoint: "/health"
+    metrics_endpoint: "/metrics"
+    port: 8080
+    timeout: 30
+    interval: 60
+    retries: 3
+    
+  data-quality-service:
+    health_endpoint: "/health"
+    metrics_endpoint: "/metrics"
+    port: 8081
+    timeout: 30
+    interval: 60
+    retries: 3
+    
+  anomaly-detection-service:
+    health_endpoint: "/health" 
+    metrics_endpoint: "/metrics"
+    port: 8082
+    timeout: 30
+    interval: 60
+    retries: 3
+    
+  workflow-engine:
+    health_endpoint: "/health"
+    metrics_endpoint: "/metrics"
+    port: 8083
+    timeout: 30
+    interval: 60
+    retries: 3
+    
+  authentication-service:
+    health_endpoint: "/health"
+    metrics_endpoint: "/metrics"
+    port: 8084
+    timeout: 30
+    interval: 60
+    retries: 3
+
+# Alert thresholds for system and application metrics
+thresholds:
+  # System resource thresholds
+  cpu_usage:
+    warning: 70.0    # 70% CPU usage
+    critical: 90.0   # 90% CPU usage
+    
+  memory_usage:
+    warning: 80.0    # 80% memory usage
+    critical: 95.0   # 95% memory usage
+    
+  disk_usage:
+    warning: 85.0    # 85% disk usage
+    critical: 95.0   # 95% disk usage
+    
+  # Application performance thresholds
+  response_time:
+    warning: 1000.0  # 1 second P95
+    critical: 5000.0 # 5 seconds P99
+    
+  error_rate:
+    warning: 1.0     # 1% error rate
+    critical: 5.0    # 5% error rate
+    
+  throughput:
+    warning: 100     # requests per second
+    critical: 50     # requests per second
+    
+  # Infrastructure thresholds
+  pod_restart_rate:
+    warning: 5       # pod restarts per hour
+    critical: 20     # pod restarts per hour
+    
+  node_availability:
+    warning: 1       # number of unavailable nodes
+    critical: 2      # number of unavailable nodes
+
+# Monitoring intervals (in seconds)
+intervals:
+  health_check: 30        # Health check frequency
+  metrics_collection: 60  # Metrics collection frequency
+  alert_evaluation: 30    # Alert evaluation frequency
+  log_analysis: 300       # Log analysis frequency
+  kubernetes_check: 60    # Kubernetes cluster check frequency
+
+# Alerting configuration
+alerting:
+  # Slack integration
+  slack_webhook: "${SLACK_WEBHOOK_URL}"
+  slack_channel: "#production-alerts"
+  slack_username: "Production Monitor"
+  
+  # Email notifications
+  email_recipients:
+    - "devops@company.com"
+    - "sre@company.com"
+    - "oncall@company.com"
+  email_smtp_server: "smtp.company.com"
+  email_smtp_port: 587
+  email_from: "monitoring@company.com"
+  
+  # PagerDuty integration
+  pagerduty_integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+  pagerduty_service_id: "${PAGERDUTY_SERVICE_ID}"
+  
+  # Alert routing rules
+  routing_rules:
+    critical:
+      channels: ["slack", "email", "pagerduty"]
+      escalation_time: 300  # 5 minutes
+    warning:
+      channels: ["slack", "email"]
+      escalation_time: 900  # 15 minutes
+    info:
+      channels: ["slack"]
+      escalation_time: 3600 # 1 hour
+
+# Environment-specific configurations
+environments:
+  production:
+    api_gateway_url: "https://api.company.com"
+    database_host: "prod-db.company.com"
+    redis_host: "prod-redis.company.com"
+    kubernetes_namespace: "production"
+    log_level: "INFO"
+    
+  staging:
+    api_gateway_url: "https://staging-api.company.com"
+    database_host: "staging-db.company.com"
+    redis_host: "staging-redis.company.com"
+    kubernetes_namespace: "staging"
+    log_level: "DEBUG"
+    
+  development:
+    api_gateway_url: "http://localhost:8080"
+    database_host: "localhost"
+    redis_host: "localhost"
+    kubernetes_namespace: "development"
+    log_level: "DEBUG"
+
+# Dashboard configuration
+dashboards:
+  system_overview:
+    refresh_interval: 30
+    panels:
+      - type: "cpu_usage"
+        title: "CPU Usage"
+        query: "cpu_percent"
+        visualization: "gauge"
+      - type: "memory_usage"  
+        title: "Memory Usage"
+        query: "memory_percent"
+        visualization: "gauge"
+      - type: "disk_usage"
+        title: "Disk Usage"
+        query: "disk_percent"
+        visualization: "gauge"
+      - type: "network_io"
+        title: "Network I/O"
+        query: "network_bytes"
+        visualization: "graph"
+        
+  application_metrics:
+    refresh_interval: 30
+    panels:
+      - type: "response_time"
+        title: "Response Time (P95/P99)"
+        query: "response_time_percentile"
+        visualization: "graph"
+      - type: "throughput"
+        title: "Requests per Second"
+        query: "requests_per_second"
+        visualization: "graph"
+      - type: "error_rate"
+        title: "Error Rate"
+        query: "error_percentage"
+        visualization: "graph"
+      - type: "active_connections"
+        title: "Active Connections" 
+        query: "active_connections"
+        visualization: "stat"
+        
+  infrastructure:
+    refresh_interval: 60
+    panels:
+      - type: "kubernetes_pods"
+        title: "Pod Status"
+        query: "kubernetes_pod_status"
+        visualization: "table"
+      - type: "kubernetes_nodes"
+        title: "Node Status"
+        query: "kubernetes_node_status"
+        visualization: "table"
+      - type: "database_connections"
+        title: "Database Connections"
+        query: "database_active_connections"
+        visualization: "stat"
+      - type: "cache_hit_rate"
+        title: "Cache Hit Rate"
+        query: "redis_hit_rate"
+        visualization: "gauge"
+
+# Log analysis configuration
+log_analysis:
+  # Log sources
+  sources:
+    - type: "kubernetes"
+      namespace: "production"
+      labels:
+        - "app.kubernetes.io/part-of=hexagonal-architecture"
+    - type: "application"
+      paths:
+        - "/var/log/application/*.log"
+        - "/var/log/nginx/*.log"
+        
+  # Error patterns to detect
+  error_patterns:
+    - pattern: "ERROR"
+      severity: "high"
+      alert_threshold: 50  # errors per 5 minutes
+    - pattern: "CRITICAL"
+      severity: "critical" 
+      alert_threshold: 10  # critical errors per 5 minutes
+    - pattern: "Exception"
+      severity: "medium"
+      alert_threshold: 100 # exceptions per 5 minutes
+    - pattern: "timeout"
+      severity: "medium"
+      alert_threshold: 20  # timeouts per 5 minutes
+      
+  # Anomaly detection for logs
+  anomaly_detection:
+    enabled: true
+    baseline_window: 3600    # 1 hour baseline
+    sensitivity: 0.8         # anomaly detection sensitivity
+    min_samples: 100         # minimum samples for detection
+
+# Performance optimization
+performance:
+  # Metrics collection optimization
+  metrics_batching:
+    enabled: true
+    batch_size: 100
+    flush_interval: 30
+    
+  # Caching configuration
+  caching:
+    enabled: true
+    ttl: 300              # 5 minutes cache TTL
+    max_size: 10000       # maximum cached items
+    
+  # Connection pooling
+  connection_pools:
+    database:
+      min_connections: 5
+      max_connections: 20
+      timeout: 30
+    redis:
+      min_connections: 2
+      max_connections: 10
+      timeout: 10
+      
+# Security configuration
+security:
+  # API authentication
+  api_auth:
+    enabled: true
+    token_expiry: 3600    # 1 hour
+    
+  # TLS configuration
+  tls:
+    enabled: true
+    cert_path: "/etc/ssl/certs/monitoring.crt"
+    key_path: "/etc/ssl/private/monitoring.key"
+    
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_size: 100
+
+# Data retention policies
+retention:
+  metrics:
+    high_resolution: 24h    # 1 day of high-resolution metrics
+    medium_resolution: 7d   # 7 days of medium-resolution metrics  
+    low_resolution: 30d     # 30 days of low-resolution metrics
+    
+  logs:
+    debug: 24h             # 1 day of debug logs
+    info: 7d               # 7 days of info logs
+    warning: 30d           # 30 days of warning logs
+    error: 90d             # 90 days of error logs
+    critical: 365d         # 1 year of critical logs
+    
+  alerts:
+    active: 30d            # 30 days of active alerts
+    resolved: 90d          # 90 days of resolved alerts
+
+# Integration settings
+integrations:
+  # Prometheus integration
+  prometheus:
+    enabled: true
+    endpoint: "http://prometheus:9090"
+    scrape_interval: 15s
+    
+  # Grafana integration
+  grafana:
+    enabled: true
+    endpoint: "http://grafana:3000"
+    api_key: "${GRAFANA_API_KEY}"
+    
+  # Elasticsearch integration (for logs)
+  elasticsearch:
+    enabled: true
+    hosts: ["elasticsearch:9200"]
+    index_pattern: "hexagonal-logs-*"
+    
+  # Jaeger integration (for tracing)
+  jaeger:
+    enabled: false
+    endpoint: "http://jaeger:14268"
