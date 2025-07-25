@@ -256,7 +256,7 @@ class TestDataQualityCheckService:
 
     @pytest.mark.parametrize("rule_type,severity", [
         (RuleType.NOT_NULL, RuleSeverity.ERROR),
-        (RuleType.UNIQUE, RuleSeverity.WARNING),
+        (RuleType.UNIQUENESS, RuleSeverity.WARNING),
         (RuleType.RANGE, RuleSeverity.CRITICAL),
         (RuleType.PATTERN, RuleSeverity.INFO),
     ])

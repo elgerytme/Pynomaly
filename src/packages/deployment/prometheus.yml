@@ -1,0 +1,31 @@
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - alertmanager:9093
+global:
+  evaluation_interval: 15s
+  scrape_interval: 15s
+rule_files:
+- alert_rules.yml
+scrape_configs:
+- job_name: hexagonal-architecture
+  metrics_path: /metrics
+  scrape_interval: 30s
+  static_configs:
+  - targets:
+    - api-gateway:8080
+    - data-quality-service:8081
+    - anomaly-detection-service:8082
+    - workflow-engine:8083
+- job_name: kubernetes-pods
+  kubernetes_sd_configs:
+  - role: pod
+  relabel_configs:
+  - action: keep
+    regex: 'true'
+    source_labels:
+    - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+- job_name: kubernetes-nodes
+  kubernetes_sd_configs:
+  - role: node

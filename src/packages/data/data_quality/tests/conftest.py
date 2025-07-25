@@ -538,7 +538,7 @@ def assert_rule_valid(rule: DataQualityRule):
 # ==========================================
 
 # Common test parameters
-RULE_TYPES = [RuleType.NOT_NULL, RuleType.UNIQUE, RuleType.RANGE, RuleType.PATTERN]
+RULE_TYPES = [RuleType.NOT_NULL, RuleType.UNIQUENESS, RuleType.RANGE, RuleType.PATTERN]
 RULE_SEVERITIES = [RuleSeverity.INFO, RuleSeverity.WARNING, RuleSeverity.ERROR, RuleSeverity.CRITICAL]
 DATA_TYPES = [DataType.INTEGER, DataType.FLOAT, DataType.STRING, DataType.BOOLEAN, DataType.DATE]
 RULE_OPERATORS = [RuleOperator.EQUALS, RuleOperator.NOT_EQUALS, RuleOperator.GREATER_THAN, RuleOperator.LESS_THAN]

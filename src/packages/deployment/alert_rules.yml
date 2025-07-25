@@ -1,0 +1,74 @@
+groups:
+- name: system_alerts
+  rules:
+  - alert: HighCPUUsage
+    annotations:
+      description: CPU usage is above 90% for more than 5 minutes
+      summary: High CPU usage detected
+    expr: avg(rate(cpu_usage_total[5m])) * 100 > 90
+    for: 5m
+    labels:
+      severity: critical
+  - alert: HighMemoryUsage
+    annotations:
+      description: Memory usage is above 95% for more than 5 minutes
+      summary: High memory usage detected
+    expr: (1 - (avg(memory_available_bytes) / avg(memory_total_bytes))) * 100 > 95
+    for: 5m
+    labels:
+      severity: critical
+  - alert: HighDiskUsage
+    annotations:
+      description: Disk usage is above 95% for more than 10 minutes
+      summary: High disk usage detected
+    expr: (1 - (avg(disk_free_bytes) / avg(disk_total_bytes))) * 100 > 95
+    for: 10m
+    labels:
+      severity: critical
+- name: application_alerts
+  rules:
+  - alert: HighResponseTime
+    annotations:
+      description: 95th percentile response time is above 1 second
+      summary: High response time detected
+    expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+      > 1
+    for: 5m
+    labels:
+      severity: warning
+  - alert: HighErrorRate
+    annotations:
+      description: Error rate is above 5% for more than 5 minutes
+      summary: High error rate detected
+    expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+      * 100 > 5
+    for: 5m
+    labels:
+      severity: critical
+  - alert: ServiceDown
+    annotations:
+      description: Service {{ $labels.instance }} is down
+      summary: Service is down
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+- name: kubernetes_alerts
+  rules:
+  - alert: PodCrashLooping
+    annotations:
+      description: Pod {{ $labels.pod }} has restarted more than 5 times in the last
+        hour
+      summary: Pod is crash looping
+    expr: increase(kube_pod_container_status_restarts_total[1h]) > 5
+    for: 5m
+    labels:
+      severity: critical
+  - alert: NodeNotReady
+    annotations:
+      description: Node {{ $labels.node }} has been not ready for more than 10 minutes
+      summary: Kubernetes node not ready
+    expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+    for: 10m
+    labels:
+      severity: critical
