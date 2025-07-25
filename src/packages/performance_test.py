@@ -5,18 +5,69 @@ import time
 from typing import Dict, Any
 import logging
 
-from shared.performance import performance_tracker, PerformanceMetrics
-from ai.machine_learning.src.machine_learning.infrastructure.adapters.optimized_file_adapter import (
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'shared', 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'ai', 'machine_learning', 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'data', 'data_quality', 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'interfaces', 'src'))
+
+# Import performance utilities directly
+import asyncio
+import time
+from typing import Any, Dict, Optional, Callable, TypeVar, ParamSpec
+from functools import wraps
+from dataclasses import dataclass
+from contextlib import asynccontextmanager
+
+P = ParamSpec('P')
+T = TypeVar('T')
+
+@dataclass
+class PerformanceMetrics:
+    """Performance metrics for operations."""
+    operation_name: str
+    execution_time: float
+    memory_usage: Optional[int] = None
+    success: bool = True
+    error_message: Optional[str] = None
+
+class PerformanceTracker:
+    """Tracks performance metrics across operations."""
+    
+    def __init__(self):
+        self._metrics: Dict[str, list[PerformanceMetrics]] = {}
+    
+    def record_metric(self, metric: PerformanceMetrics) -> None:
+        """Record a performance metric."""
+        if metric.operation_name not in self._metrics:
+            self._metrics[metric.operation_name] = []
+        self._metrics[metric.operation_name].append(metric)
+    
+    def get_metrics(self, operation_name: str) -> list[PerformanceMetrics]:
+        """Get metrics for a specific operation."""
+        return self._metrics.get(operation_name, [])
+    
+    def get_average_time(self, operation_name: str) -> float:
+        """Get average execution time for an operation."""
+        metrics = self._metrics.get(operation_name, [])
+        if not metrics:
+            return 0.0
+        return sum(m.execution_time for m in metrics) / len(metrics)
+
+# Global performance tracker
+performance_tracker = PerformanceTracker()
+from machine_learning.infrastructure.adapters.optimized_file_adapter import (
     OptimizedFileBasedDataIngestion,
     OptimizedFileBasedDataProcessing,
     OptimizedFileBasedDataStorage
 )
-from data.data_quality.src.data_quality.infrastructure.adapters.optimized_adapters import (
+from data_quality.infrastructure.adapters.optimized_adapters import (
     OptimizedDataProfiling,
     OptimizedDataValidation,
     OptimizedStatisticalAnalysis
 )
-from data.data_quality.src.data_quality.domain.entities.data_profiling_request import DataProfilingRequest
+from data_quality.domain.entities.data_profiling_request import DataProfilingRequest
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -107,7 +158,7 @@ class PerformanceBenchmark:
         cached_profiling_time = time.time() - start_time
         
         # Test data validation performance
-        from data.data_quality.src.data_quality.domain.entities.data_quality_rule import DataQualityRule
+        from data_quality.domain.entities.data_quality_rule import DataQualityRule
         
         rules = [
             DataQualityRule(rule_name=f"test_rule_{i}", description=f"Test rule {i}")
