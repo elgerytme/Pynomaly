@@ -209,7 +209,7 @@ class TestSecurityFrameworkIntegration:
     async def _run_comprehensive_security_assessment(
         self,
         project_path: str
-    ) -> Dict[str, Any]:
+    ) -> "Dict[str, Any]":
         """Run comprehensive security assessment."""
         assessment_results = {
             "assessment_metadata": {
