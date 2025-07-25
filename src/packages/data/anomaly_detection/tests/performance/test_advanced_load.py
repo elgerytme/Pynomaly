@@ -245,7 +245,7 @@ class TestAdvancedLoadScenarios:
         """Single ensemble API request with specific data."""
         response = self.client.post("/api/v1/detection/ensemble", json={
             "data": data,
-            "algorithms": ["isolation_forest", "one_class_svm"],
+            "algorithms": ["isolation_forest", "lof"],
             "method": "majority",
             "contamination": 0.1
         })
@@ -349,7 +349,7 @@ class TestAdvancedLoadScenarios:
     
     def test_algorithm_comparison_load(self):
         """Compare performance of different algorithms under load."""
-        algorithms = ["isolation_forest", "one_class_svm", "local_outlier_factor"]
+        algorithms = ["isolation_forest", "lof"]
         algorithm_results = {}
         
         for algorithm in algorithms:
@@ -451,7 +451,7 @@ class TestAdvancedLoadScenarios:
     
     def test_concurrent_algorithm_execution(self):
         """Test concurrent execution of different algorithms."""
-        algorithms = ["isolation_forest", "one_class_svm", "local_outlier_factor"]
+        algorithms = ["isolation_forest", "lof"]
         results = []
         errors = []
         

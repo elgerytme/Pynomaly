@@ -152,7 +152,7 @@ class TestAlgorithmBenchmarks:
         
         self.algorithms = [
             "isolation_forest",
-            "one_class_svm",
+            "lof",
             "local_outlier_factor",
             "elliptic_envelope"
         ]
@@ -212,7 +212,7 @@ class TestAlgorithmBenchmarks:
         )
     
     @pytest.mark.parametrize("algorithm", [
-        "isolation_forest", "one_class_svm", "local_outlier_factor"
+        "isolation_forest", "lof", "local_outlier_factor"
     ])
     def test_algorithm_performance_small_dataset(self, algorithm):
         """Test algorithm performance on small dataset."""
@@ -235,7 +235,7 @@ class TestAlgorithmBenchmarks:
         print(f"  Accuracy: {result.accuracy:.3f}")
     
     @pytest.mark.parametrize("algorithm", [
-        "isolation_forest", "one_class_svm"
+        "isolation_forest", "lof"
     ])
     def test_algorithm_performance_medium_dataset(self, algorithm):
         """Test algorithm performance on medium dataset."""
@@ -295,17 +295,17 @@ class TestEnsembleBenchmarks:
         
         self.ensemble_configs = [
             {
-                "algorithms": ["isolation_forest", "one_class_svm"],
+                "algorithms": ["isolation_forest", "lof"],
                 "method": "majority",
                 "name": "two_algorithm_majority"
             },
             {
-                "algorithms": ["isolation_forest", "one_class_svm", "local_outlier_factor"],
+                "algorithms": ["isolation_forest", "lof", "local_outlier_factor"],
                 "method": "average",
                 "name": "three_algorithm_average"
             },
             {
-                "algorithms": ["isolation_forest", "one_class_svm", "local_outlier_factor", "elliptic_envelope"],
+                "algorithms": ["isolation_forest", "lof", "local_outlier_factor", "elliptic_envelope"],
                 "method": "weighted_average",
                 "name": "four_algorithm_weighted"
             }
@@ -350,8 +350,8 @@ class TestEnsembleBenchmarks:
         )
     
     @pytest.mark.parametrize("config", [
-        {"algorithms": ["isolation_forest", "one_class_svm"], "method": "majority", "name": "two_alg_majority"},
-        {"algorithms": ["isolation_forest", "one_class_svm", "local_outlier_factor"], "method": "average", "name": "three_alg_average"}
+        {"algorithms": ["isolation_forest", "lof"], "method": "majority", "name": "two_alg_majority"},
+        {"algorithms": ["isolation_forest", "lof", "local_outlier_factor"], "method": "average", "name": "three_alg_average"}
     ])
     def test_ensemble_performance(self, config):
         """Test ensemble method performance."""

@@ -1,0 +1,687 @@
+---
+# =============================================================================
+# AUTOMATED DEPLOYMENT PIPELINE WITH ROLLBACK CAPABILITIES
+# GitOps-based deployment automation with comprehensive rollback strategies
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: anomaly-detection-platform
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: anomaly-detection-platform
+    app.kubernetes.io/managed-by: argocd
+    environment: "{{ ENVIRONMENT }}"
+    version: "{{ VERSION }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: deployment-notifications
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: deployment-alerts
+spec:
+  project: anomaly-detection
+  
+  # Source configuration
+  source:
+    repoURL: https://github.com/elgerytme/monorepo.git
+    targetRevision: "{{ TARGET_REVISION | default('HEAD') }}"
+    path: deploy/helm
+    helm:
+      valueFiles:
+        - "values-{{ ENVIRONMENT }}.yaml"
+      parameters:
+        - name: image.tag
+          value: "{{ IMAGE_TAG }}"
+        - name: deployment.id
+          value: "{{ DEPLOYMENT_ID }}"
+        - name: environment
+          value: "{{ ENVIRONMENT }}"
+        - name: rollback.enabled
+          value: "{{ ROLLBACK_ENABLED | default('true') }}"
+  
+  # Destination configuration
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: "{{ ENVIRONMENT }}"
+  
+  # Sync policy configuration
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Rollback configuration
+  revisionHistoryLimit: 10
+  
+  # Health and sync status
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: "*"
+      kind: "*"
+      managedFieldsManagers:
+        - kube-controller-manager
+
+---
+# =============================================================================
+# DEPLOYMENT ROLLBACK AUTOMATION
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: anomaly-detection-rollout
+  namespace: "{{ ENVIRONMENT }}"
+  labels:
+    app: anomaly-detection
+    environment: "{{ ENVIRONMENT }}"
+    deployment.strategy: "{{ DEPLOYMENT_STRATEGY | default('blue-green') }}"
+spec:
+  replicas: "{{ REPLICAS | default(3) }}"
+  
+  # Deployment strategy configuration
+  strategy:
+    "{{ DEPLOYMENT_STRATEGY | default('blue-green') }}":
+      # Blue-Green strategy
+      activeService: anomaly-detection-active
+      previewService: anomaly-detection-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+      prePromotionAnalysis:
+        templates:
+          - templateName: success-rate
+        args:
+          - name: service-name
+            value: anomaly-detection-preview
+      postPromotionAnalysis:
+        templates:
+          - templateName: success-rate
+        args:
+          - name: service-name
+            value: anomaly-detection-active
+      
+      # Canary strategy (alternative)
+      # canary:
+      #   steps:
+      #     - setWeight: 10
+      #     - pause: {duration: 1m}
+      #     - analysis:
+      #         templates:
+      #           - templateName: success-rate
+      #         args:
+      #           - name: service-name
+      #             value: anomaly-detection-canary
+      #     - setWeight: 50
+      #     - pause: {duration: 5m}
+      #     - setWeight: 100
+      #   analysis:
+      #     templates:
+      #       - templateName: success-rate
+      #     startingStep: 2
+      #     args:
+      #       - name: service-name
+      #         value: anomaly-detection-canary
+  
+  # Pod template
+  selector:
+    matchLabels:
+      app: anomaly-detection
+  
+  template:
+    metadata:
+      labels:
+        app: anomaly-detection
+        version: "{{ VERSION }}"
+        deployment.id: "{{ DEPLOYMENT_ID }}"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: anomaly-detection-app
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      containers:
+        - name: anomaly-detection
+          image: "{{ IMAGE_REPOSITORY }}:{{ IMAGE_TAG }}"
+          imagePullPolicy: Always
+          
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+          
+          env:
+            - name: ENVIRONMENT
+              value: "{{ ENVIRONMENT }}"
+            - name: DEPLOYMENT_ID
+              value: "{{ DEPLOYMENT_ID }}"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          
+          envFrom:
+            - configMapRef:
+                name: anomaly-detection-config
+            - secretRef:
+                name: anomaly-detection-secrets
+          
+          resources:
+            requests:
+              cpu: "{{ RESOURCES_REQUESTS_CPU | default('500m') }}"
+              memory: "{{ RESOURCES_REQUESTS_MEMORY | default('1Gi') }}"
+            limits:
+              cpu: "{{ RESOURCES_LIMITS_CPU | default('2') }}"
+              memory: "{{ RESOURCES_LIMITS_MEMORY | default('4Gi') }}"
+          
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          
+          startupProbe:
+            httpGet:
+              path: /api/health/startup
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+            successThreshold: 1
+          
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/config
+              readOnly: true
+            - name: temp
+              mountPath: /tmp
+      
+      volumes:
+        - name: app-config
+          configMap:
+            name: anomaly-detection-config
+        - name: temp
+          emptyDir: {}
+      
+      # Topology and affinity rules
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: anomaly-detection
+                topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values: ["amd64"]
+                  - key: node.kubernetes.io/instance-type
+                    operator: NotIn
+                    values: ["t2.nano", "t2.micro"]
+      
+      tolerations:
+        - key: "spot"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      
+      # Graceful shutdown
+      terminationGracePeriodSeconds: 60
+
+---
+# =============================================================================
+# ANALYSIS TEMPLATES FOR AUTOMATED ROLLBACK
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+  namespace: "{{ ENVIRONMENT }}"
+spec:
+  args:
+    - name: service-name
+    - name: prometheus-url
+      value: "http://prometheus.monitoring.svc.cluster.local:9090"
+  metrics:
+    - name: success-rate
+      successCondition: result[0] >= 0.95
+      failureCondition: result[0] < 0.90
+      provider:
+        prometheus:
+          address: "{{ args.prometheus-url }}"
+          query: |
+            sum(
+              rate(
+                http_requests_total{
+                  job="{{ args.service-name }}",
+                  code!~"5.."
+                }[5m]
+              )
+            ) / 
+            sum(
+              rate(
+                http_requests_total{
+                  job="{{ args.service-name }}"
+                }[5m]
+              )
+            )
+      interval: 30s
+      count: 10
+      failureLimit: 3
+    
+    - name: avg-response-time
+      successCondition: result[0] <= 500
+      failureCondition: result[0] > 1000
+      provider:
+        prometheus:
+          address: "{{ args.prometheus-url }}"
+          query: |
+            histogram_quantile(0.95,
+              sum(
+                rate(
+                  http_request_duration_seconds_bucket{
+                    job="{{ args.service-name }}"
+                  }[5m]
+                )
+              ) by (le)
+            ) * 1000
+      interval: 30s
+      count: 10
+      failureLimit: 3
+    
+    - name: error-rate
+      successCondition: result[0] <= 0.05
+      failureCondition: result[0] > 0.10
+      provider:
+        prometheus:
+          address: "{{ args.prometheus-url }}"
+          query: |
+            sum(
+              rate(
+                http_requests_total{
+                  job="{{ args.service-name }}",
+                  code=~"5.."
+                }[5m]
+              )
+            ) / 
+            sum(
+              rate(
+                http_requests_total{
+                  job="{{ args.service-name }}"
+                }[5m]
+              )
+            )
+      interval: 30s
+      count: 10
+      failureLimit: 3
+
+---
+# =============================================================================
+# AUTOMATED ROLLBACK WORKFLOW
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: automated-rollback
+  namespace: "{{ ENVIRONMENT }}"
+spec:
+  entrypoint: rollback-pipeline
+  
+  arguments:
+    parameters:
+      - name: rollout-name
+        value: "anomaly-detection-rollout"
+      - name: namespace
+        value: "{{ ENVIRONMENT }}"
+      - name: reason
+        value: "Automated rollback triggered"
+      - name: slack-webhook
+        value: "{{ SLACK_WEBHOOK_URL }}"
+  
+  templates:
+    - name: rollback-pipeline
+      steps:
+        - - name: detect-failure
+            template: check-rollout-status
+            arguments:
+              parameters:
+                - name: rollout-name
+                  value: "{{ workflow.parameters.rollout-name }}"
+                - name: namespace
+                  value: "{{ workflow.parameters.namespace }}"
+        
+        - - name: notify-rollback-start
+            template: send-notification
+            arguments:
+              parameters:
+                - name: message
+                  value: "🔄 Starting automated rollback for {{ workflow.parameters.rollout-name }}"
+                - name: webhook-url
+                  value: "{{ workflow.parameters.slack-webhook }}"
+        
+        - - name: execute-rollback
+            template: perform-rollback
+            arguments:
+              parameters:
+                - name: rollout-name
+                  value: "{{ workflow.parameters.rollout-name }}"
+                - name: namespace
+                  value: "{{ workflow.parameters.namespace }}"
+        
+        - - name: verify-rollback
+            template: verify-rollback-success
+            arguments:
+              parameters:
+                - name: rollout-name
+                  value: "{{ workflow.parameters.rollout-name }}"
+                - name: namespace
+                  value: "{{ workflow.parameters.namespace }}"
+        
+        - - name: notify-completion
+            template: send-notification
+            arguments:
+              parameters:
+                - name: message
+                  value: "✅ Automated rollback completed successfully for {{ workflow.parameters.rollout-name }}"
+                - name: webhook-url
+                  value: "{{ workflow.parameters.slack-webhook }}"
+    
+    - name: check-rollout-status
+      inputs:
+        parameters:
+          - name: rollout-name
+          - name: namespace
+      script:
+        image: argoproj/argocd:v2.8.0
+        command: ["/bin/bash"]
+        source: |
+          set -euo pipefail
+          
+          ROLLOUT_NAME="{{ inputs.parameters.rollout-name }}"
+          NAMESPACE="{{ inputs.parameters.namespace }}"
+          
+          # Check rollout status
+          STATUS=$(kubectl get rollout $ROLLOUT_NAME -n $NAMESPACE -o jsonpath='{.status.phase}')
+          
+          echo "Current rollout status: $STATUS"
+          
+          if [[ "$STATUS" == "Degraded" || "$STATUS" == "ScaledDown" ]]; then
+            echo "Rollout is in failed state, triggering rollback"
+            exit 0
+          else
+            echo "Rollout is healthy, no rollback needed"
+            exit 1
+          fi
+    
+    - name: perform-rollback
+      inputs:
+        parameters:
+          - name: rollout-name
+          - name: namespace
+      script:
+        image: argoproj/argo-rollouts:v1.6.0
+        command: ["/bin/bash"]
+        source: |
+          set -euo pipefail
+          
+          ROLLOUT_NAME="{{ inputs.parameters.rollout-name }}"
+          NAMESPACE="{{ inputs.parameters.namespace }}"
+          
+          echo "Executing rollback for $ROLLOUT_NAME in namespace $NAMESPACE"
+          
+          # Perform rollback to previous version
+          kubectl argo rollouts undo $ROLLOUT_NAME -n $NAMESPACE
+          
+          # Wait for rollback to complete
+          kubectl argo rollouts status $ROLLOUT_NAME -n $NAMESPACE --timeout=600s
+          
+          echo "Rollback completed successfully"
+    
+    - name: verify-rollback-success
+      inputs:
+        parameters:
+          - name: rollout-name
+          - name: namespace
+      script:
+        image: argoproj/argocd:v2.8.0
+        command: ["/bin/bash"]
+        source: |
+          set -euo pipefail
+          
+          ROLLOUT_NAME="{{ inputs.parameters.rollout-name }}"
+          NAMESPACE="{{ inputs.parameters.namespace }}"
+          
+          # Wait for rollout to be healthy
+          echo "Verifying rollback success..."
+          
+          for i in {1..30}; do
+            STATUS=$(kubectl get rollout $ROLLOUT_NAME -n $NAMESPACE -o jsonpath='{.status.phase}')
+            
+            if [[ "$STATUS" == "Healthy" ]]; then
+              echo "✅ Rollback verification successful"
+              exit 0
+            fi
+            
+            echo "Waiting for rollout to become healthy... (attempt $i/30)"
+            sleep 10
+          done
+          
+          echo "❌ Rollback verification failed"
+          exit 1
+    
+    - name: send-notification
+      inputs:
+        parameters:
+          - name: message
+          - name: webhook-url
+      script:
+        image: curlimages/curl:latest
+        command: ["/bin/sh"]
+        source: |
+          MESSAGE="{{ inputs.parameters.message }}"
+          WEBHOOK_URL="{{ inputs.parameters.webhook-url }}"
+          
+          if [[ -n "$WEBHOOK_URL" ]]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":\"$MESSAGE\"}" \
+              "$WEBHOOK_URL"
+            echo "Notification sent"
+          else
+            echo "No webhook URL provided, skipping notification"
+          fi
+
+---
+# =============================================================================
+# ROLLBACK TRIGGER AND MONITORING
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rollback-automation-config
+  namespace: "{{ ENVIRONMENT }}"
+data:
+  rollback-policy.yaml: |
+    # Automated rollback policy configuration
+    policies:
+      - name: health-check-failure
+        enabled: true
+        conditions:
+          - metric: success_rate
+            threshold: 0.90
+            duration: 300s
+          - metric: error_rate
+            threshold: 0.10
+            duration: 300s
+        action: rollback
+        
+      - name: performance-degradation
+        enabled: true
+        conditions:
+          - metric: avg_response_time
+            threshold: 1000
+            duration: 600s
+        action: rollback
+        
+      - name: resource-exhaustion
+        enabled: true
+        conditions:
+          - metric: memory_usage
+            threshold: 0.90
+            duration: 300s
+          - metric: cpu_usage
+            threshold: 0.90
+            duration: 300s
+        action: scale_down
+    
+    notifications:
+      slack:
+        webhook_url: "{{ SLACK_WEBHOOK_URL }}"
+        channels:
+          - "#deployments"
+          - "#alerts"
+      
+      email:
+        recipients:
+          - "platform-team@company.com"
+          - "oncall@company.com"
+    
+    rollback:
+      max_attempts: 3
+      cooldown_period: 900s
+      verification_timeout: 600s
+      preserve_history: 10
+
+---
+# =============================================================================
+# DEPLOYMENT PIPELINE MONITORING
+# =============================================================================
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: deployment-pipeline-monitor
+  namespace: "{{ ENVIRONMENT }}"
+  labels:
+    app: deployment-pipeline
+spec:
+  selector:
+    matchLabels:
+      app: anomaly-detection
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+      - "{{ ENVIRONMENT }}"
+
+---
+# =============================================================================
+# ALERT RULES FOR DEPLOYMENT MONITORING
+# =============================================================================
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: deployment-pipeline-alerts
+  namespace: "{{ ENVIRONMENT }}"
+  labels:
+    app: deployment-pipeline
+spec:
+  groups:
+    - name: deployment.rules
+      rules:
+        - alert: DeploymentFailed
+          expr: increase(rollout_phase{phase="Degraded"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+            component: deployment
+          annotations:
+            summary: "Deployment failed for {{ $labels.rollout }}"
+            description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} has failed"
+            runbook_url: "https://runbooks.company.com/deployment-failure"
+        
+        - alert: RollbackTriggered
+          expr: increase(rollout_undo_total[5m]) > 0
+          for: 0m
+          labels:
+            severity: warning
+            component: deployment
+          annotations:
+            summary: "Automated rollback triggered for {{ $labels.rollout }}"
+            description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} triggered an automated rollback"
+        
+        - alert: HighErrorRate
+          expr: rate(http_requests_total{code=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            component: application
+          annotations:
+            summary: "High error rate detected"
+            description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.job }}"
+        
+        - alert: SlowResponseTime
+          expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+          for: 5m
+          labels:
+            severity: warning
+            component: application
+          annotations:
+            summary: "Slow response time detected"
+            description: "95th percentile response time is {{ $value }}s for service {{ $labels.job }}"

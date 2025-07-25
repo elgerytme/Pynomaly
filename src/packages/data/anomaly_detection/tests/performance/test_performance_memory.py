@@ -288,7 +288,7 @@ class TestDetectionServiceMemory:
     
     def test_algorithm_memory_comparison(self):
         """Compare memory usage across different algorithms."""
-        algorithms = ["isolation_forest", "one_class_svm", "local_outlier_factor"]
+        algorithms = ["isolation_forest", "lof", "local_outlier_factor"]
         memory_usage = {}
         
         for algorithm in algorithms:
@@ -335,7 +335,7 @@ class TestEnsembleServiceMemory:
         
         result = self.ensemble_service.detect_with_ensemble(
             self.test_data,
-            algorithms=["isolation_forest", "one_class_svm", "local_outlier_factor"],
+            algorithms=["isolation_forest", "lof", "local_outlier_factor"],
             ensemble_method="majority",
             contamination=0.1
         )
@@ -359,7 +359,7 @@ class TestEnsembleServiceMemory:
         ensemble_sizes = [2, 3, 4]
         memory_usage = {}
         
-        algorithms_pool = ["isolation_forest", "one_class_svm", "local_outlier_factor", "elliptic_envelope"]
+        algorithms_pool = ["isolation_forest", "lof", "local_outlier_factor", "elliptic_envelope"]
         
         for size in ensemble_sizes:
             self.profiler.set_baseline(f"before_ensemble_{size}")

@@ -6,9 +6,9 @@ try:
 except ImportError:
     # Fallback health implementation
     from fastapi import APIRouter
-    
+
     health = APIRouter()
-    
+
     @health.get("/health")
     async def health_check():
         """Basic health check endpoint."""

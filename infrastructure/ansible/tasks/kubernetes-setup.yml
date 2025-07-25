@@ -1,0 +1,600 @@
+---
+# =============================================================================
+# KUBERNETES CLUSTER SETUP AND CONFIGURATION
+# Comprehensive EKS cluster setup, add-ons, and application deployment
+# =============================================================================
+
+- name: Configure kubectl for EKS cluster
+  shell: |
+    aws eks update-kubeconfig \
+      --region {{ aws_region }} \
+      --name {{ cluster_name }} \
+      --kubeconfig {{ kubeconfig_path | default('~/.kube/config') }}
+  environment:
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
+  tags: ['kubectl']
+
+- name: Verify cluster connectivity
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Node
+  register: cluster_nodes
+  retries: 5
+  delay: 30
+  until: cluster_nodes.resources | length > 0
+  tags: ['verification']
+
+- name: Display cluster information
+  debug:
+    msg:
+      - "Cluster Name: {{ cluster_name }}"
+      - "Available Nodes: {{ cluster_nodes.resources | length }}"
+      - "Node Names: {{ cluster_nodes.resources | map(attribute='metadata.name') | list }}"
+
+# =============================================================================
+# NAMESPACE CREATION
+# =============================================================================
+
+- name: Create application namespaces
+  kubernetes.core.k8s:
+    name: "{{ item }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+    definition:
+      metadata:
+        name: "{{ item }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+          environment: "{{ environment }}"
+          project: "{{ project_name }}"
+  loop:
+    - "{{ environment }}"
+    - monitoring
+    - ingress-nginx
+    - cert-manager
+    - kube-system
+  tags: ['namespaces']
+
+# =============================================================================
+# RBAC CONFIGURATION
+# =============================================================================
+
+- name: Create service accounts
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+        annotations: "{{ item.annotations | default({}) }}"
+  loop:
+    - name: anomaly-detection-app
+      namespace: "{{ environment }}"
+      annotations:
+        eks.amazonaws.com/role-arn: "{{ irsa_role_arn | default('') }}"
+    - name: cluster-autoscaler
+      namespace: kube-system
+      annotations:
+        eks.amazonaws.com/role-arn: "{{ cluster_autoscaler_role_arn | default('') }}"
+    - name: aws-load-balancer-controller
+      namespace: kube-system
+      annotations:
+        eks.amazonaws.com/role-arn: "{{ alb_controller_role_arn | default('') }}"
+  tags: ['rbac', 'service-accounts']
+
+- name: Create cluster roles
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        name: "{{ item.name }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      rules: "{{ item.rules }}"
+  loop:
+    - name: anomaly-detection-app-reader
+      rules:
+        - apiGroups: [""]
+          resources: ["configmaps", "secrets", "services"]
+          verbs: ["get", "list", "watch"]
+        - apiGroups: ["apps"]
+          resources: ["deployments", "replicasets"]
+          verbs: ["get", "list", "watch"]
+  tags: ['rbac', 'cluster-roles']
+
+- name: Create cluster role bindings
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: "{{ item.name }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      subjects:
+        - kind: ServiceAccount
+          name: "{{ item.service_account }}"
+          namespace: "{{ item.namespace }}"
+      roleRef:
+        kind: ClusterRole
+        name: "{{ item.cluster_role }}"
+        apiGroup: rbac.authorization.k8s.io
+  loop:
+    - name: anomaly-detection-app-reader-binding
+      service_account: anomaly-detection-app
+      namespace: "{{ environment }}"
+      cluster_role: anomaly-detection-app-reader
+  tags: ['rbac', 'role-bindings']
+
+# =============================================================================
+# CLUSTER ADD-ONS INSTALLATION
+# =============================================================================
+
+- name: Install AWS Load Balancer Controller
+  kubernetes.core.helm:
+    name: aws-load-balancer-controller
+    chart_ref: eks/aws-load-balancer-controller
+    release_namespace: kube-system
+    create_namespace: false
+    values:
+      clusterName: "{{ cluster_name }}"
+      serviceAccount:
+        create: false
+        name: aws-load-balancer-controller
+      region: "{{ aws_region }}"
+      vpcId: "{{ vpc_id }}"
+      enableShield: "{{ enable_shield | default(false) }}"
+      enableWaf: "{{ enable_waf | default(false) }}"
+      enableWafv2: "{{ enable_wafv2 | default(true) }}"
+  tags: ['addons', 'load-balancer']
+
+- name: Install External DNS
+  kubernetes.core.helm:
+    name: external-dns
+    chart_ref: bitnami/external-dns
+    release_namespace: kube-system
+    create_namespace: false
+    values:
+      provider: aws
+      aws:
+        region: "{{ aws_region }}"
+        zoneType: public
+      domainFilters:
+        - "{{ domain_name | default('example.com') }}"
+      txtOwnerId: "{{ cluster_name }}"
+      serviceAccount:
+        create: true
+        annotations:
+          eks.amazonaws.com/role-arn: "{{ external_dns_role_arn | default('') }}"
+  when: enable_external_dns | default(true)
+  tags: ['addons', 'external-dns']
+
+- name: Install cert-manager
+  kubernetes.core.helm:
+    name: cert-manager
+    chart_ref: jetstack/cert-manager
+    release_namespace: cert-manager
+    create_namespace: true
+    values:
+      installCRDs: true
+      serviceAccount:
+        create: true
+        annotations:
+          eks.amazonaws.com/role-arn: "{{ cert_manager_role_arn | default('') }}"
+      securityContext:
+        fsGroup: 1001
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+  when: enable_cert_manager | default(true)
+  tags: ['addons', 'cert-manager']
+
+- name: Install Cluster Autoscaler
+  kubernetes.core.helm:
+    name: cluster-autoscaler
+    chart_ref: autoscaler/cluster-autoscaler
+    release_namespace: kube-system
+    create_namespace: false
+    values:
+      awsRegion: "{{ aws_region }}"
+      autoDiscovery:
+        clusterName: "{{ cluster_name }}"
+        enabled: true
+      serviceAccount:
+        create: false
+        name: cluster-autoscaler
+      extraArgs:
+        v: 4
+        stderrthreshold: info
+        cloud-provider: aws
+        skip-nodes-with-local-storage: false
+        expander: least-waste
+        node-group-auto-discovery: "asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/{{ cluster_name }}"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 300Mi
+        limits:
+          cpu: 100m
+          memory: 300Mi
+  when: enable_cluster_autoscaler | default(true)
+  tags: ['addons', 'autoscaler']
+
+- name: Install Metrics Server
+  kubernetes.core.helm:
+    name: metrics-server
+    chart_ref: metrics-server/metrics-server
+    release_namespace: kube-system
+    create_namespace: false
+    values:
+      args:
+        - --cert-dir=/tmp
+        - --secure-port=4443
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+        limits:
+          cpu: 100m
+          memory: 200Mi
+  tags: ['addons', 'metrics']
+
+# =============================================================================
+# INGRESS CONTROLLER SETUP
+# =============================================================================
+
+- name: Install NGINX Ingress Controller
+  kubernetes.core.helm:
+    name: ingress-nginx
+    chart_ref: ingress-nginx/ingress-nginx
+    release_namespace: ingress-nginx
+    create_namespace: true
+    values:
+      controller:
+        service:
+          type: LoadBalancer
+          annotations:
+            service.beta.kubernetes.io/aws-load-balancer-type: nlb
+            service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+            service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+            service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+        config:
+          use-proxy-protocol: "true"
+          compute-full-forwarded-for: "true"
+          use-forwarded-headers: "true"
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 90Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        autoscaling:
+          enabled: true
+          minReplicas: 2
+          maxReplicas: 10
+          targetCPUUtilizationPercentage: 80
+  when: enable_ingress_nginx | default(true)
+  tags: ['addons', 'ingress']
+
+# =============================================================================
+# STORAGE CLASSES AND PERSISTENT VOLUMES
+# =============================================================================
+
+- name: Create storage classes
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: "{{ item.name }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "{{ item.default | default('false') }}"
+      provisioner: "{{ item.provisioner }}"
+      parameters: "{{ item.parameters }}"
+      volumeBindingMode: "{{ item.binding_mode | default('WaitForFirstConsumer') }}"
+      allowVolumeExpansion: "{{ item.allow_expansion | default(true) }}"
+  loop:
+    - name: gp3-encrypted
+      provisioner: ebs.csi.aws.com
+      default: true
+      parameters:
+        type: gp3
+        encrypted: "true"
+        fsType: ext4
+    - name: gp3-fast
+      provisioner: ebs.csi.aws.com
+      parameters:
+        type: gp3
+        encrypted: "true"
+        iops: "3000"
+        throughput: "125"
+        fsType: ext4
+    - name: io2-high-performance
+      provisioner: ebs.csi.aws.com
+      parameters:
+        type: io2
+        encrypted: "true"
+        iops: "1000"
+        fsType: ext4
+  tags: ['storage']
+
+# =============================================================================
+# NETWORK POLICIES
+# =============================================================================
+
+- name: Create network policies
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      spec: "{{ item.spec }}"
+  loop:
+    - name: default-deny-all
+      namespace: "{{ environment }}"
+      spec:
+        podSelector: {}
+        policyTypes:
+          - Ingress
+          - Egress
+    - name: allow-app-ingress
+      namespace: "{{ environment }}"
+      spec:
+        podSelector:
+          matchLabels:
+            app: anomaly-detection
+        policyTypes:
+          - Ingress
+        ingress:
+          - from:
+              - namespaceSelector:
+                  matchLabels:
+                    name: ingress-nginx
+            ports:
+              - protocol: TCP
+                port: 8000
+    - name: allow-app-egress
+      namespace: "{{ environment }}"
+      spec:
+        podSelector:
+          matchLabels:
+            app: anomaly-detection
+        policyTypes:
+          - Egress
+        egress:
+          - to: []
+            ports:
+              - protocol: TCP
+                port: 443
+              - protocol: TCP
+                port: 5432
+              - protocol: TCP
+                port: 6379
+              - protocol: UDP
+                port: 53
+  when: enable_network_policies | default(false)
+  tags: ['security', 'network-policies']
+
+# =============================================================================
+# RESOURCE QUOTAS AND LIMITS
+# =============================================================================
+
+- name: Create resource quotas
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ResourceQuota
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      spec:
+        hard: "{{ item.limits }}"
+  loop:
+    - name: compute-quota
+      namespace: "{{ environment }}"
+      limits:
+        requests.cpu: "{{ resource_quota_cpu_requests | default('4') }}"
+        requests.memory: "{{ resource_quota_memory_requests | default('8Gi') }}"
+        limits.cpu: "{{ resource_quota_cpu_limits | default('8') }}"
+        limits.memory: "{{ resource_quota_memory_limits | default('16Gi') }}"
+        pods: "{{ resource_quota_pods | default('20') }}"
+        persistentvolumeclaims: "{{ resource_quota_pvc | default('10') }}"
+        services: "{{ resource_quota_services | default('10') }}"
+        secrets: "{{ resource_quota_secrets | default('20') }}"
+        configmaps: "{{ resource_quota_configmaps | default('20') }}"
+  when: enable_resource_quotas | default(true)
+  tags: ['resource-management']
+
+- name: Create limit ranges
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: LimitRange
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      spec:
+        limits: "{{ item.limits }}"
+  loop:
+    - name: default-limits
+      namespace: "{{ environment }}"
+      limits:
+        - default:
+            cpu: "500m"
+            memory: "512Mi"
+          defaultRequest:
+            cpu: "100m"
+            memory: "128Mi"
+          type: Container
+        - max:
+            cpu: "2"
+            memory: "4Gi"
+          min:
+            cpu: "50m"
+            memory: "64Mi"
+          type: Container
+        - max:
+            storage: "100Gi"
+          min:
+            storage: "1Gi"
+          type: PersistentVolumeClaim
+  when: enable_limit_ranges | default(true)
+  tags: ['resource-management']
+
+# =============================================================================
+# HORIZONTAL POD AUTOSCALER
+# =============================================================================
+
+- name: Create Horizontal Pod Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: autoscaling/v2
+      kind: HorizontalPodAutoscaler
+      metadata:
+        name: anomaly-detection-hpa
+        namespace: "{{ environment }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      spec:
+        scaleTargetRef:
+          apiVersion: apps/v1
+          kind: Deployment
+          name: anomaly-detection
+        minReplicas: "{{ hpa_min_replicas | default(2) }}"
+        maxReplicas: "{{ hpa_max_replicas | default(20) }}"
+        metrics:
+          - type: Resource
+            resource:
+              name: cpu
+              target:
+                type: Utilization
+                averageUtilization: "{{ hpa_cpu_target | default(70) }}"
+          - type: Resource
+            resource:
+              name: memory
+              target:
+                type: Utilization
+                averageUtilization: "{{ hpa_memory_target | default(80) }}"
+        behavior:
+          scaleDown:
+            stabilizationWindowSeconds: 300
+            policies:
+              - type: Percent
+                value: 10
+                periodSeconds: 60
+          scaleUp:
+            stabilizationWindowSeconds: 60
+            policies:
+              - type: Percent
+                value: 100
+                periodSeconds: 15
+              - type: Pods
+                value: 2
+                periodSeconds: 60
+  when: enable_hpa | default(true)
+  tags: ['autoscaling']
+
+# =============================================================================
+# POD DISRUPTION BUDGETS
+# =============================================================================
+
+- name: Create Pod Disruption Budgets
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: policy/v1
+      kind: PodDisruptionBudget
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+        labels:
+          app.kubernetes.io/managed-by: ansible
+      spec:
+        selector:
+          matchLabels: "{{ item.selector }}"
+        minAvailable: "{{ item.min_available | default(1) }}"
+  loop:
+    - name: anomaly-detection-pdb
+      namespace: "{{ environment }}"
+      selector:
+        app: anomaly-detection
+      min_available: "{{ pdb_min_available | default('50%') }}"
+  tags: ['availability']
+
+# =============================================================================
+# CLUSTER VALIDATION
+# =============================================================================
+
+- name: Wait for all nodes to be ready
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Node
+    wait: true
+    wait_condition:
+      type: Ready
+      status: "True"
+    wait_timeout: 600
+  tags: ['validation']
+
+- name: Verify critical add-ons are running
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: kube-system
+    label_selectors:
+      - "{{ item }}"
+    wait: true
+    wait_condition:
+      type: Ready
+      status: "True"
+    wait_timeout: 300
+  loop:
+    - k8s-app=metrics-server
+    - app.kubernetes.io/name=aws-load-balancer-controller
+  tags: ['validation']
+
+- name: Display cluster status summary
+  debug:
+    msg:
+      - "=========================================="
+      - "✅ Kubernetes cluster setup completed"
+      - "Cluster: {{ cluster_name }}"
+      - "Region: {{ aws_region }}"
+      - "Nodes: {{ cluster_nodes.resources | length }}"
+      - "Add-ons installed: {{ addons_installed | default(['metrics-server', 'load-balancer-controller']) | join(', ') }}"
+      - "=========================================="
+  tags: ['summary']

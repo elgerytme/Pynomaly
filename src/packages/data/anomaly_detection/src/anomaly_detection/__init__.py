@@ -6,8 +6,8 @@ ensemble methods, streaming capabilities, and explainable AI features.
 Built with Domain-Driven Design principles for scalability and maintainability.
 """
 
-import os
 import logging
+import os
 
 __version__ = "0.3.0"
 __author__ = "Anomaly Detection Team"
@@ -46,37 +46,41 @@ if _LAZY_LOADING:
     initialize_experiment_tracking_integration = _lazy_import(".application.services.mlops", "initialize_experiment_tracking_integration")
 else:
     # Direct imports for immediate availability
-    from .domain.services.detection_service import DetectionService
-    from .domain.services.ensemble_service import EnsembleService  
-    from .infrastructure.adapters.algorithms.adapters.sklearn_adapter import SklearnAdapter
-    from .infrastructure.adapters.algorithms.adapters.pyod_adapter import PyODAdapter
-    from .infrastructure.adapters.algorithms.adapters.deeplearning_adapter import DeepLearningAdapter
     from .application.services.explanation.analyzers import ExplanationAnalyzers
-    from .application.services.performance.optimization import PerformanceOptimizer
     from .application.services.mlops import (
-        UnifiedModelRegistry,
         ExperimentTrackingIntegration,
-        initialize_unified_model_registry,
+        UnifiedModelRegistry,
         initialize_experiment_tracking_integration,
+        initialize_unified_model_registry,
+    )
+    from .application.services.performance.optimization import PerformanceOptimizer
+    from .domain.services.detection_service import DetectionService
+    from .domain.services.ensemble_service import EnsembleService
+    from .infrastructure.adapters.algorithms.adapters.deeplearning_adapter import (
+        DeepLearningAdapter,
+    )
+    from .infrastructure.adapters.algorithms.adapters.pyod_adapter import PyODAdapter
+    from .infrastructure.adapters.algorithms.adapters.sklearn_adapter import (
+        SklearnAdapter,
     )
 
 __all__ = [
-    "__version__",
-    "__author__", 
-    "__email__",
+    "DeepLearningAdapter",
     # Domain services
     "DetectionService",
     "EnsembleService",
-    # Infrastructure adapters
-    "SklearnAdapter",
-    "PyODAdapter", 
-    "DeepLearningAdapter",
+    "ExperimentTrackingIntegration",
     # Application services
     "ExplanationAnalyzers",
     "PerformanceOptimizer",
+    "PyODAdapter",
+    # Infrastructure adapters
+    "SklearnAdapter",
     # MLOps integration
     "UnifiedModelRegistry",
-    "ExperimentTrackingIntegration",
-    "initialize_unified_model_registry",
+    "__author__",
+    "__email__",
+    "__version__",
     "initialize_experiment_tracking_integration",
+    "initialize_unified_model_registry",
 ]

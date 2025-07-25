@@ -258,9 +258,9 @@ class PerformanceBenchmarker:
         results = []
         
         ensemble_configs = [
-            (["isolation_forest", "one_class_svm"], "majority", "ensemble_2alg_majority"),
-            (["isolation_forest", "one_class_svm", "local_outlier_factor"], "majority", "ensemble_3alg_majority"),
-            (["isolation_forest", "one_class_svm"], "average", "ensemble_2alg_average"),
+            (["isolation_forest", "lof"], "majority", "ensemble_2alg_majority"),
+            (["isolation_forest", "lof", "local_outlier_factor"], "majority", "ensemble_3alg_majority"),
+            (["isolation_forest", "lof"], "average", "ensemble_2alg_average"),
         ]
         
         for algorithms, method, test_name in ensemble_configs:
@@ -588,7 +588,7 @@ class TestPerformanceBenchmarkSuite:
     
     def test_comprehensive_algorithm_benchmark(self):
         """Run comprehensive algorithm performance benchmark."""
-        algorithms = ["isolation_forest", "one_class_svm", "local_outlier_factor"]
+        algorithms = ["isolation_forest", "lof", "local_outlier_factor"]
         
         results = self.benchmarker.run_algorithm_comparison_benchmark(
             client=self.client,
@@ -727,7 +727,7 @@ class TestPerformanceBenchmarkSuite:
         # Run all benchmark categories
         benchmarks = [
             ("Algorithm Comparison", self.benchmarker.run_algorithm_comparison_benchmark, 
-             (self.client, {"medium": self.test_datasets["medium"]}, ["isolation_forest", "one_class_svm"])),
+             (self.client, {"medium": self.test_datasets["medium"]}, ["isolation_forest", "lof"])),
             ("Data Size Scaling", self.benchmarker.run_data_size_scaling_benchmark, 
              (self.client,)),
             ("Ensemble Performance", self.benchmarker.run_ensemble_performance_benchmark, 

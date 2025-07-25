@@ -746,3 +746,8 @@ def reset_container():
     """Reset the global container instance."""
     global _global_container
     _global_container = None
+
+
+# Aliases for backward compatibility
+MLOpsContainer = Container
+MLOpsContainerConfig = ContainerConfig

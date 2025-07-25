@@ -1,0 +1,177 @@
+---
+# =============================================================================
+# MAIN ANSIBLE PLAYBOOK FOR ANOMALY DETECTION PLATFORM
+# Comprehensive infrastructure configuration and application deployment
+# =============================================================================
+
+- name: Anomaly Detection Platform Infrastructure Setup
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    project_name: "anomaly-detection-platform"
+    deployment_timestamp: "{{ ansible_date_time.epoch }}"
+    
+  tasks:
+    - name: Display deployment information
+      debug:
+        msg:
+          - "=== Anomaly Detection Platform Deployment ==="
+          - "Environment: {{ environment | default('development') }}"
+          - "Region: {{ aws_region | default('us-west-2') }}"
+          - "Deployment ID: {{ deployment_id | default('manual') }}"
+          - "Timestamp: {{ deployment_timestamp }}"
+          - "=============================================="
+
+    - name: Validate required variables
+      assert:
+        that:
+          - environment is defined
+          - aws_region is defined
+          - cluster_name is defined
+        fail_msg: "Required variables (environment, aws_region, cluster_name) must be defined"
+
+# =============================================================================
+# INFRASTRUCTURE PREPARATION
+# =============================================================================
+
+- name: Infrastructure Preparation
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include infrastructure preparation tasks
+      include_tasks: tasks/infrastructure-preparation.yml
+      tags: ['infrastructure', 'preparation']
+
+# =============================================================================
+# KUBERNETES CLUSTER CONFIGURATION
+# =============================================================================
+
+- name: Kubernetes Cluster Configuration
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include Kubernetes setup tasks
+      include_tasks: tasks/kubernetes-setup.yml
+      tags: ['kubernetes', 'cluster']
+
+# =============================================================================
+# APPLICATION DEPLOYMENT
+# =============================================================================
+
+- name: Application Deployment
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include application deployment tasks
+      include_tasks: tasks/application-deployment.yml
+      tags: ['application', 'deployment']
+
+# =============================================================================
+# MONITORING AND OBSERVABILITY
+# =============================================================================
+
+- name: Monitoring and Observability Setup
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include monitoring setup tasks
+      include_tasks: tasks/monitoring-setup.yml
+      tags: ['monitoring', 'observability']
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+
+- name: Security Configuration
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include security configuration tasks
+      include_tasks: tasks/security-configuration.yml
+      tags: ['security', 'hardening']
+
+# =============================================================================
+# BACKUP AND DISASTER RECOVERY
+# =============================================================================
+
+- name: Backup and Disaster Recovery Setup
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include backup setup tasks
+      include_tasks: tasks/backup-setup.yml
+      tags: ['backup', 'disaster-recovery']
+
+# =============================================================================
+# VALIDATION AND TESTING
+# =============================================================================
+
+- name: Deployment Validation and Testing
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include validation tasks
+      include_tasks: tasks/deployment-validation.yml
+      tags: ['validation', 'testing']
+
+# =============================================================================
+# POST-DEPLOYMENT TASKS
+# =============================================================================
+
+- name: Post-Deployment Configuration
+  hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    
+  tasks:
+    - name: Include post-deployment tasks
+      include_tasks: tasks/post-deployment.yml
+      tags: ['post-deployment', 'cleanup']
+
+    - name: Generate deployment summary
+      template:
+        src: templates/deployment-summary.j2
+        dest: "{{ ansible_env.HOME }}/deployment-summary-{{ deployment_timestamp }}.md"
+      tags: ['summary']
+
+    - name: Display deployment completion
+      debug:
+        msg:
+          - "=========================================="
+          - "🎉 Deployment completed successfully!"
+          - "Environment: {{ environment }}"
+          - "Cluster: {{ cluster_name }}"
+          - "Region: {{ aws_region }}"
+          - "Summary available at: {{ ansible_env.HOME }}/deployment-summary-{{ deployment_timestamp }}.md"
+          - "=========================================="

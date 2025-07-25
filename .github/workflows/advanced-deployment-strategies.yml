@@ -1,0 +1,934 @@
+name: Advanced Deployment Strategies
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      deployment_strategy:
+        description: 'Deployment Strategy'
+        required: true
+        default: 'blue-green'
+        type: choice
+        options:
+        - blue-green
+        - canary
+        - rolling
+        - feature-flag
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      rollback_on_failure:
+        description: 'Auto rollback on failure'
+        required: false
+        default: true
+        type: boolean
+      canary_percentage:
+        description: 'Canary traffic percentage (for canary deployments)'
+        required: false
+        default: '10'
+        type: string
+      feature_flags:
+        description: 'Feature flags to enable (comma-separated)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+  deployments: write
+  actions: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # =============================================================================
+  # DEPLOYMENT STRATEGY CONFIGURATION
+  # =============================================================================
+  strategy-configuration:
+    name: Configure Deployment Strategy
+    runs-on: ubuntu-latest
+    outputs:
+      strategy: ${{ steps.config.outputs.strategy }}
+      environment: ${{ steps.config.outputs.environment }}
+      canary-percentage: ${{ steps.config.outputs.canary-percentage }}
+      feature-flags: ${{ steps.config.outputs.feature-flags }}
+      rollback-enabled: ${{ steps.config.outputs.rollback-enabled }}
+      image-tag: ${{ steps.config.outputs.image-tag }}
+      deployment-id: ${{ steps.config.outputs.deployment-id }}
+      
+    steps:
+    - name: Configure deployment strategy
+      id: config
+      run: |
+        # Set deployment strategy based on input or branch
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          STRATEGY="${{ github.event.inputs.deployment_strategy }}"
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          CANARY_PERCENTAGE="${{ github.event.inputs.canary_percentage }}"
+          FEATURE_FLAGS="${{ github.event.inputs.feature_flags }}"
+          ROLLBACK_ENABLED="${{ github.event.inputs.rollback_on_failure }}"
+        else
+          # Auto-select strategy based on branch and environment
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            STRATEGY="blue-green"
+            ENVIRONMENT="production"
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            STRATEGY="rolling"
+            ENVIRONMENT="staging"
+          else
+            STRATEGY="feature-flag"
+            ENVIRONMENT="staging"
+          fi
+          CANARY_PERCENTAGE="10"
+          FEATURE_FLAGS=""
+          ROLLBACK_ENABLED="true"
+        fi
+        
+        # Set image tag
+        if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          IMAGE_TAG="${GITHUB_REF#refs/tags/}"
+        else
+          IMAGE_TAG="${{ github.sha }}"
+        fi
+        
+        # Generate unique deployment ID
+        DEPLOYMENT_ID="deploy-$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:8}"
+        
+        # Output configuration
+        echo "strategy=$STRATEGY" >> $GITHUB_OUTPUT
+        echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+        echo "canary-percentage=$CANARY_PERCENTAGE" >> $GITHUB_OUTPUT
+        echo "feature-flags=$FEATURE_FLAGS" >> $GITHUB_OUTPUT
+        echo "rollback-enabled=$ROLLBACK_ENABLED" >> $GITHUB_OUTPUT
+        echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+        echo "deployment-id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+        
+        echo "## 🚀 Deployment Configuration"
+        echo "Strategy: $STRATEGY"
+        echo "Environment: $ENVIRONMENT"
+        echo "Image Tag: $IMAGE_TAG"
+        echo "Deployment ID: $DEPLOYMENT_ID"
+        echo "Canary Percentage: $CANARY_PERCENTAGE%"
+        echo "Feature Flags: $FEATURE_FLAGS"
+        echo "Auto Rollback: $ROLLBACK_ENABLED"
+
+  # =============================================================================
+  # BUILD AND PREPARE DEPLOYMENT ARTIFACTS
+  # =============================================================================
+  build-deployment-artifacts:
+    name: Build Deployment Artifacts
+    runs-on: ubuntu-latest
+    needs: strategy-configuration
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      helm-chart-version: ${{ steps.helm.outputs.version }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=${{ needs.strategy-configuration.outputs.deployment-id }}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: deploy/docker/Dockerfile.production
+        target: runtime
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          DEPLOYMENT_ID=${{ needs.strategy-configuration.outputs.deployment-id }}
+          FEATURE_FLAGS=${{ needs.strategy-configuration.outputs.feature-flags }}
+
+    - name: Package Helm Chart
+      id: helm
+      run: |
+        # Install Helm
+        curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz | tar xz
+        sudo mv linux-amd64/helm /usr/local/bin/
+        
+        # Package Helm chart with deployment-specific values
+        cd deploy/helm
+        
+        # Update Chart.yaml with deployment metadata
+        CHART_VERSION="1.0.0-${{ needs.strategy-configuration.outputs.deployment-id }}"
+        yq eval ".version = \"$CHART_VERSION\"" -i Chart.yaml
+        yq eval ".appVersion = \"${{ needs.strategy-configuration.outputs.image-tag }}\"" -i Chart.yaml
+        
+        # Package chart
+        helm package . --version "$CHART_VERSION" --app-version "${{ needs.strategy-configuration.outputs.image-tag }}"
+        
+        echo "version=$CHART_VERSION" >> $GITHUB_OUTPUT
+        
+        # Upload chart to registry if configured
+        # helm push "anomaly-detection-platform-$CHART_VERSION.tgz" oci://${{ env.REGISTRY }}/helm-charts
+
+    - name: Generate deployment manifests
+      run: |
+        mkdir -p deployment-manifests
+        
+        # Generate Kubernetes manifests for different strategies
+        cd deploy/helm
+        
+        # Blue-Green deployment manifests
+        helm template anomaly-detection-platform . \
+          --set deployment.strategy=blue-green \
+          --set image.tag=${{ needs.strategy-configuration.outputs.image-tag }} \
+          --set deployment.id=${{ needs.strategy-configuration.outputs.deployment-id }} \
+          --set featureFlags="${{ needs.strategy-configuration.outputs.feature-flags }}" \
+          > ../../deployment-manifests/blue-green-manifests.yaml
+        
+        # Canary deployment manifests
+        helm template anomaly-detection-platform . \
+          --set deployment.strategy=canary \
+          --set image.tag=${{ needs.strategy-configuration.outputs.image-tag }} \
+          --set deployment.id=${{ needs.strategy-configuration.outputs.deployment-id }} \
+          --set canary.percentage=${{ needs.strategy-configuration.outputs.canary-percentage }} \
+          --set featureFlags="${{ needs.strategy-configuration.outputs.feature-flags }}" \
+          > ../../deployment-manifests/canary-manifests.yaml
+        
+        # Rolling deployment manifests
+        helm template anomaly-detection-platform . \
+          --set deployment.strategy=rolling \
+          --set image.tag=${{ needs.strategy-configuration.outputs.image-tag }} \
+          --set deployment.id=${{ needs.strategy-configuration.outputs.deployment-id }} \
+          --set featureFlags="${{ needs.strategy-configuration.outputs.feature-flags }}" \
+          > ../../deployment-manifests/rolling-manifests.yaml
+
+    - name: Upload deployment artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-artifacts-${{ needs.strategy-configuration.outputs.deployment-id }}
+        path: |
+          deployment-manifests/
+          deploy/helm/*.tgz
+        retention-days: 30
+
+  # =============================================================================
+  # BLUE-GREEN DEPLOYMENT
+  # =============================================================================
+  blue-green-deployment:
+    name: Blue-Green Deployment
+    runs-on: ubuntu-latest
+    needs: [strategy-configuration, build-deployment-artifacts]
+    if: needs.strategy-configuration.outputs.strategy == 'blue-green'
+    environment: 
+      name: ${{ needs.strategy-configuration.outputs.environment }}
+      url: https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download deployment artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: deployment-artifacts-${{ needs.strategy-configuration.outputs.deployment-id }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        CONTEXT="${{ needs.strategy-configuration.outputs.environment }}"
+        
+        # Configure kubectl for target environment
+        kubectl config set-cluster $CONTEXT \
+          --server=${{ secrets[format('{0}_CLUSTER_URL', upper(needs.strategy-configuration.outputs.environment))] }} \
+          --certificate-authority-data=${{ secrets[format('{0}_CA_CERT', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-credentials ${CONTEXT}-user \
+          --token=${{ secrets[format('{0}_TOKEN', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-context $CONTEXT \
+          --cluster=$CONTEXT \
+          --user=${CONTEXT}-user \
+          --namespace=$CONTEXT
+        kubectl config use-context $CONTEXT
+
+    - name: Determine current active environment
+      id: current
+      run: |
+        # Check which environment is currently active (blue or green)
+        CURRENT_COLOR=$(kubectl get service detection-platform-active \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -o jsonpath='{.spec.selector.color}' 2>/dev/null || echo "blue")
+        
+        if [[ "$CURRENT_COLOR" == "blue" ]]; then
+          NEW_COLOR="green"
+        else
+          NEW_COLOR="blue"
+        fi
+        
+        echo "current-color=$CURRENT_COLOR" >> $GITHUB_OUTPUT
+        echo "new-color=$NEW_COLOR" >> $GITHUB_OUTPUT
+        
+        echo "Current active environment: $CURRENT_COLOR"
+        echo "Deploying to: $NEW_COLOR"
+
+    - name: Deploy to inactive environment
+      run: |
+        echo "Deploying to ${{ steps.current.outputs.new-color }} environment..."
+        
+        # Apply blue-green manifests with color-specific modifications
+        sed "s/{{COLOR}}/${{ steps.current.outputs.new-color }}/g" \
+          deployment-manifests/blue-green-manifests.yaml | \
+          kubectl apply -f - --context=${{ needs.strategy-configuration.outputs.environment }}
+        
+        # Wait for deployment to be ready
+        kubectl rollout status deployment/detection-platform-${{ steps.current.outputs.new-color }} \
+          --timeout=600s --context=${{ needs.strategy-configuration.outputs.environment }}
+
+    - name: Run health checks on new environment
+      run: |
+        echo "Running health checks on ${{ steps.current.outputs.new-color }} environment..."
+        
+        # Get service IP/port for health checks
+        SERVICE_IP=$(kubectl get service detection-platform-${{ steps.current.outputs.new-color }} \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || \
+          kubectl get service detection-platform-${{ steps.current.outputs.new-color }} \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -o jsonpath='{.spec.clusterIP}')
+        
+        SERVICE_PORT=$(kubectl get service detection-platform-${{ steps.current.outputs.new-color }} \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -o jsonpath='{.spec.ports[0].port}')
+        
+        # Health check with retries
+        for i in {1..10}; do
+          if curl -f -s "http://$SERVICE_IP:$SERVICE_PORT/api/health/ready"; then
+            echo "✅ Health check passed for ${{ steps.current.outputs.new-color }}"
+            break
+          elif [ $i -eq 10 ]; then
+            echo "❌ Health check failed after 10 attempts"
+            exit 1
+          else
+            echo "Health check attempt $i failed, retrying in 30s..."
+            sleep 30
+          fi
+        done
+
+    - name: Switch traffic to new environment
+      run: |
+        echo "Switching traffic from ${{ steps.current.outputs.current-color }} to ${{ steps.current.outputs.new-color }}..."
+        
+        # Update active service selector to point to new color
+        kubectl patch service detection-platform-active \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -p '{"spec":{"selector":{"color":"${{ steps.current.outputs.new-color }}"}}}'
+        
+        # Wait for service endpoint update
+        sleep 30
+        
+        # Verify traffic switch
+        NEW_ENDPOINTS=$(kubectl get endpoints detection-platform-active \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -o jsonpath='{.subsets[0].addresses[*].ip}')
+        echo "New active endpoints: $NEW_ENDPOINTS"
+
+    - name: Verify production traffic
+      run: |
+        echo "Verifying production traffic on new environment..."
+        
+        BASE_URL="https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}"
+        
+        # Multiple verification requests
+        for i in {1..5}; do
+          curl -f -s "$BASE_URL/api/health/ready" || exit 1
+          curl -f -s "$BASE_URL/api/v1/health/" || exit 1
+          sleep 10
+        done
+        
+        echo "✅ Production traffic verification successful"
+
+    - name: Keep old environment for rollback
+      run: |
+        echo "Keeping ${{ steps.current.outputs.current-color }} environment for potential rollback..."
+        
+        # Add rollback label to old deployment
+        kubectl label deployment detection-platform-${{ steps.current.outputs.current-color }} \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          deployment.kubernetes.io/rollback-ready=true \
+          --overwrite
+        
+        echo "Old environment marked for rollback: ${{ steps.current.outputs.current-color }}"
+
+  # =============================================================================
+  # CANARY DEPLOYMENT
+  # =============================================================================
+  canary-deployment:
+    name: Canary Deployment
+    runs-on: ubuntu-latest
+    needs: [strategy-configuration, build-deployment-artifacts]
+    if: needs.strategy-configuration.outputs.strategy == 'canary'
+    environment: 
+      name: ${{ needs.strategy-configuration.outputs.environment }}
+      url: https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download deployment artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: deployment-artifacts-${{ needs.strategy-configuration.outputs.deployment-id }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        CONTEXT="${{ needs.strategy-configuration.outputs.environment }}"
+        
+        kubectl config set-cluster $CONTEXT \
+          --server=${{ secrets[format('{0}_CLUSTER_URL', upper(needs.strategy-configuration.outputs.environment))] }} \
+          --certificate-authority-data=${{ secrets[format('{0}_CA_CERT', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-credentials ${CONTEXT}-user \
+          --token=${{ secrets[format('{0}_TOKEN', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-context $CONTEXT \
+          --cluster=$CONTEXT \
+          --user=${CONTEXT}-user \
+          --namespace=$CONTEXT
+        kubectl config use-context $CONTEXT
+
+    - name: Deploy canary version
+      run: |
+        echo "Deploying canary version with ${{ needs.strategy-configuration.outputs.canary-percentage }}% traffic..."
+        
+        # Apply canary manifests
+        kubectl apply -f deployment-manifests/canary-manifests.yaml \
+          --context=${{ needs.strategy-configuration.outputs.environment }}
+        
+        # Wait for canary deployment
+        kubectl rollout status deployment/detection-platform-canary \
+          --timeout=600s --context=${{ needs.strategy-configuration.outputs.environment }}
+
+    - name: Configure traffic split
+      run: |
+        echo "Configuring traffic split: ${{ needs.strategy-configuration.outputs.canary-percentage }}% canary, ${{ 100 - needs.strategy-configuration.outputs.canary-percentage }}% stable..."
+        
+        # Update ingress or service mesh configuration for traffic splitting
+        # This example uses Istio VirtualService for traffic splitting
+        cat <<EOF | kubectl apply -f - --context=${{ needs.strategy-configuration.outputs.environment }}
+        apiVersion: networking.istio.io/v1alpha3
+        kind: VirtualService
+        metadata:
+          name: detection-platform-canary
+          namespace: ${{ needs.strategy-configuration.outputs.environment }}
+        spec:
+          hosts:
+          - detection-platform.io
+          http:
+          - match:
+            - headers:
+                canary:
+                  exact: "true"
+            route:
+            - destination:
+                host: detection-platform-canary
+                port:
+                  number: 80
+          - route:
+            - destination:
+                host: detection-platform-stable
+                port:
+                  number: 80
+              weight: ${{ 100 - needs.strategy-configuration.outputs.canary-percentage }}
+            - destination:
+                host: detection-platform-canary
+                port:
+                  number: 80
+              weight: ${{ needs.strategy-configuration.outputs.canary-percentage }}
+        EOF
+
+    - name: Monitor canary metrics
+      run: |
+        echo "Monitoring canary deployment metrics..."
+        
+        # Monitor for 10 minutes
+        for i in {1..20}; do
+          echo "Monitoring cycle $i/20..."
+          
+          # Check error rates
+          CANARY_ERRORS=$(kubectl exec deployment/prometheus \
+            --context=${{ needs.strategy-configuration.outputs.environment }} -- \
+            promtool query instant 'rate(http_requests_total{job="detection-platform-canary",code=~"5.."}[5m])' 2>/dev/null || echo "0")
+          
+          STABLE_ERRORS=$(kubectl exec deployment/prometheus \
+            --context=${{ needs.strategy-configuration.outputs.environment }} -- \
+            promtool query instant 'rate(http_requests_total{job="detection-platform-stable",code=~"5.."}[5m])' 2>/dev/null || echo "0")
+          
+          echo "Canary error rate: $CANARY_ERRORS"
+          echo "Stable error rate: $STABLE_ERRORS"
+          
+          # Simple error rate comparison (in production, use more sophisticated metrics)
+          if (( $(echo "$CANARY_ERRORS > $STABLE_ERRORS * 2" | bc -l) )); then
+            echo "❌ Canary error rate too high, triggering rollback"
+            exit 1
+          fi
+          
+          sleep 30
+        done
+        
+        echo "✅ Canary monitoring completed successfully"
+
+    - name: Promote canary to production
+      run: |
+        echo "Promoting canary to 100% traffic..."
+        
+        # Gradually increase canary traffic
+        for percentage in 25 50 75 100; do
+          echo "Increasing canary traffic to $percentage%..."
+          
+          # Update traffic split
+          cat <<EOF | kubectl apply -f - --context=${{ needs.strategy-configuration.outputs.environment }}
+          apiVersion: networking.istio.io/v1alpha3
+          kind: VirtualService
+          metadata:
+            name: detection-platform-canary
+            namespace: ${{ needs.strategy-configuration.outputs.environment }}
+          spec:
+            hosts:
+            - detection-platform.io
+            http:
+            - route:
+              - destination:
+                  host: detection-platform-stable
+                  port:
+                    number: 80
+                weight: $((100 - percentage))
+              - destination:
+                  host: detection-platform-canary
+                  port:
+                    number: 80
+                weight: $percentage
+        EOF
+          
+          # Wait and monitor
+          sleep 120
+          
+          # Quick health check
+          curl -f -s "https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}/api/health/ready" || exit 1
+        done
+        
+        echo "✅ Canary promotion completed"
+
+    - name: Cleanup old stable version
+      run: |
+        echo "Replacing stable version with canary..."
+        
+        # Scale down old stable deployment
+        kubectl scale deployment detection-platform-stable \
+          --replicas=0 --context=${{ needs.strategy-configuration.outputs.environment }}
+        
+        # Rename canary to stable
+        kubectl patch deployment detection-platform-canary \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -p '{"metadata":{"name":"detection-platform-stable"}}'
+
+  # =============================================================================
+  # ROLLING DEPLOYMENT
+  # =============================================================================
+  rolling-deployment:
+    name: Rolling Deployment
+    runs-on: ubuntu-latest
+    needs: [strategy-configuration, build-deployment-artifacts]
+    if: needs.strategy-configuration.outputs.strategy == 'rolling'
+    environment: 
+      name: ${{ needs.strategy-configuration.outputs.environment }}
+      url: https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download deployment artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: deployment-artifacts-${{ needs.strategy-configuration.outputs.deployment-id }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        CONTEXT="${{ needs.strategy-configuration.outputs.environment }}"
+        
+        kubectl config set-cluster $CONTEXT \
+          --server=${{ secrets[format('{0}_CLUSTER_URL', upper(needs.strategy-configuration.outputs.environment))] }} \
+          --certificate-authority-data=${{ secrets[format('{0}_CA_CERT', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-credentials ${CONTEXT}-user \
+          --token=${{ secrets[format('{0}_TOKEN', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-context $CONTEXT \
+          --cluster=$CONTEXT \
+          --user=${CONTEXT}-user \
+          --namespace=$CONTEXT
+        kubectl config use-context $CONTEXT
+
+    - name: Execute rolling deployment
+      run: |
+        echo "Executing rolling deployment..."
+        
+        # Apply rolling deployment manifests
+        kubectl apply -f deployment-manifests/rolling-manifests.yaml \
+          --context=${{ needs.strategy-configuration.outputs.environment }}
+        
+        # Configure rolling update strategy
+        kubectl patch deployment detection-platform \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -p '{
+            "spec": {
+              "strategy": {
+                "type": "RollingUpdate",
+                "rollingUpdate": {
+                  "maxUnavailable": 1,
+                  "maxSurge": 1
+                }
+              }
+            }
+          }'
+        
+        # Update image to trigger rolling update
+        kubectl set image deployment/detection-platform \
+          detection-platform=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.strategy-configuration.outputs.image-tag }} \
+          --context=${{ needs.strategy-configuration.outputs.environment }}
+        
+        # Monitor rolling update
+        kubectl rollout status deployment/detection-platform \
+          --timeout=900s --context=${{ needs.strategy-configuration.outputs.environment }}
+
+    - name: Verify rolling deployment
+      run: |
+        echo "Verifying rolling deployment..."
+        
+        # Check all pods are running with new image
+        EXPECTED_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.strategy-configuration.outputs.image-tag }}"
+        
+        POD_IMAGES=$(kubectl get pods -l app=detection-platform \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          -o jsonpath='{.items[*].spec.containers[0].image}')
+        
+        for image in $POD_IMAGES; do
+          if [[ "$image" != "$EXPECTED_IMAGE" ]]; then
+            echo "❌ Pod running unexpected image: $image"
+            exit 1
+          fi
+        done
+        
+        echo "✅ All pods running expected image: $EXPECTED_IMAGE"
+        
+        # Health checks
+        curl -f -s "https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}/api/health/ready" || exit 1
+        curl -f -s "https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}/api/v1/health/" || exit 1
+        
+        echo "✅ Rolling deployment verified successfully"
+
+  # =============================================================================
+  # FEATURE FLAG DEPLOYMENT
+  # =============================================================================
+  feature-flag-deployment:
+    name: Feature Flag Deployment
+    runs-on: ubuntu-latest
+    needs: [strategy-configuration, build-deployment-artifacts]
+    if: needs.strategy-configuration.outputs.strategy == 'feature-flag'
+    environment: 
+      name: ${{ needs.strategy-configuration.outputs.environment }}
+      url: https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy with feature flags
+      run: |
+        echo "Deploying with feature flags: ${{ needs.strategy-configuration.outputs.feature-flags }}"
+        
+        # Configure feature flags in deployment
+        kubectl set env deployment/detection-platform \
+          --context=${{ needs.strategy-configuration.outputs.environment }} \
+          FEATURE_FLAGS="${{ needs.strategy-configuration.outputs.feature-flags }}" \
+          DEPLOYMENT_ID="${{ needs.strategy-configuration.outputs.deployment-id }}"
+        
+        # Update image
+        kubectl set image deployment/detection-platform \
+          detection-platform=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.strategy-configuration.outputs.image-tag }} \
+          --context=${{ needs.strategy-configuration.outputs.environment }}
+        
+        # Wait for rollout
+        kubectl rollout status deployment/detection-platform \
+          --timeout=600s --context=${{ needs.strategy-configuration.outputs.environment }}
+
+    - name: Verify feature flags
+      run: |
+        echo "Verifying feature flag deployment..."
+        
+        # Test feature flag endpoints
+        BASE_URL="https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}"
+        
+        # Check feature flag status
+        FEATURE_STATUS=$(curl -s "$BASE_URL/api/v1/features/status" | jq -r '.enabled_features[]' 2>/dev/null || echo "")
+        echo "Enabled features: $FEATURE_STATUS"
+        
+        # Verify specific features if configured
+        if [[ -n "${{ needs.strategy-configuration.outputs.feature-flags }}" ]]; then
+          IFS=',' read -ra FLAGS <<< "${{ needs.strategy-configuration.outputs.feature-flags }}"
+          for flag in "${FLAGS[@]}"; do
+            if curl -s "$BASE_URL/api/v1/features/$flag/status" | grep -q "enabled"; then
+              echo "✅ Feature flag verified: $flag"
+            else
+              echo "❌ Feature flag not enabled: $flag"
+              exit 1
+            fi
+          done
+        fi
+        
+        echo "✅ Feature flag deployment verified"
+
+  # =============================================================================
+  # ROLLBACK MECHANISM
+  # =============================================================================
+  rollback-deployment:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    needs: [strategy-configuration, blue-green-deployment, canary-deployment, rolling-deployment, feature-flag-deployment]
+    if: always() && needs.strategy-configuration.outputs.rollback-enabled == 'true' && (failure() || cancelled())
+    
+    steps:
+    - name: Configure kubectl for rollback
+      run: |
+        CONTEXT="${{ needs.strategy-configuration.outputs.environment }}"
+        
+        kubectl config set-cluster $CONTEXT \
+          --server=${{ secrets[format('{0}_CLUSTER_URL', upper(needs.strategy-configuration.outputs.environment))] }} \
+          --certificate-authority-data=${{ secrets[format('{0}_CA_CERT', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-credentials ${CONTEXT}-user \
+          --token=${{ secrets[format('{0}_TOKEN', upper(needs.strategy-configuration.outputs.environment))] }}
+        kubectl config set-context $CONTEXT \
+          --cluster=$CONTEXT \
+          --user=${CONTEXT}-user \
+          --namespace=$CONTEXT
+        kubectl config use-context $CONTEXT
+
+    - name: Execute automatic rollback
+      run: |
+        echo "🔄 Executing automatic rollback for deployment strategy: ${{ needs.strategy-configuration.outputs.strategy }}"
+        
+        case "${{ needs.strategy-configuration.outputs.strategy }}" in
+          "blue-green")
+            # Rollback blue-green by switching traffic back
+            echo "Rolling back blue-green deployment..."
+            
+            # Find the previous active color
+            CURRENT_ACTIVE=$(kubectl get service detection-platform-active \
+              --context=${{ needs.strategy-configuration.outputs.environment }} \
+              -o jsonpath='{.spec.selector.color}')
+            
+            if [[ "$CURRENT_ACTIVE" == "blue" ]]; then
+              ROLLBACK_COLOR="green"
+            else
+              ROLLBACK_COLOR="blue"
+            fi
+            
+            # Switch traffic back
+            kubectl patch service detection-platform-active \
+              --context=${{ needs.strategy-configuration.outputs.environment }} \
+              -p "{\"spec\":{\"selector\":{\"color\":\"$ROLLBACK_COLOR\"}}}"
+            
+            echo "✅ Blue-green rollback completed to $ROLLBACK_COLOR"
+            ;;
+            
+          "canary")
+            # Rollback canary by setting traffic to 0%
+            echo "Rolling back canary deployment..."
+            
+            kubectl patch virtualservice detection-platform-canary \
+              --context=${{ needs.strategy-configuration.outputs.environment }} \
+              --type='merge' \
+              -p '{"spec":{"http":[{"route":[{"destination":{"host":"detection-platform-stable","port":{"number":80}},"weight":100},{"destination":{"host":"detection-platform-canary","port":{"number":80}},"weight":0}]}]}}'
+            
+            echo "✅ Canary rollback completed"
+            ;;
+            
+          "rolling"|"feature-flag")
+            # Rollback using kubectl rollout undo
+            echo "Rolling back deployment..."
+            
+            kubectl rollout undo deployment/detection-platform \
+              --context=${{ needs.strategy-configuration.outputs.environment }}
+            
+            kubectl rollout status deployment/detection-platform \
+              --timeout=600s --context=${{ needs.strategy-configuration.outputs.environment }}
+            
+            echo "✅ Rolling deployment rollback completed"
+            ;;
+        esac
+
+    - name: Verify rollback success
+      run: |
+        echo "Verifying rollback success..."
+        
+        # Health checks after rollback
+        BASE_URL="https://${{ needs.strategy-configuration.outputs.environment == 'production' && 'detection-platform.io' || 'staging.detection-platform.io' }}"
+        
+        for i in {1..5}; do
+          if curl -f -s "$BASE_URL/api/health/ready"; then
+            echo "✅ Rollback health check passed"
+            break
+          elif [ $i -eq 5 ]; then
+            echo "❌ Rollback health check failed"
+            exit 1
+          else
+            echo "Rollback health check attempt $i failed, retrying..."
+            sleep 30
+          fi
+        done
+        
+        echo "🔄 Automatic rollback completed successfully"
+
+  # =============================================================================
+  # DEPLOYMENT SUMMARY AND NOTIFICATIONS
+  # =============================================================================
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [strategy-configuration, blue-green-deployment, canary-deployment, rolling-deployment, feature-flag-deployment, rollback-deployment]
+    if: always()
+    
+    steps:
+    - name: Generate deployment report
+      run: |
+        mkdir -p deployment-reports
+        
+        echo "# 🚀 Advanced Deployment Strategy Report" > deployment-reports/advanced-deployment-summary.md
+        echo "" >> deployment-reports/advanced-deployment-summary.md
+        echo "**Deployment Date:** $(date)" >> deployment-reports/advanced-deployment-summary.md
+        echo "**Strategy:** ${{ needs.strategy-configuration.outputs.strategy }}" >> deployment-reports/advanced-deployment-summary.md
+        echo "**Environment:** ${{ needs.strategy-configuration.outputs.environment }}" >> deployment-reports/advanced-deployment-summary.md
+        echo "**Image Tag:** ${{ needs.strategy-configuration.outputs.image-tag }}" >> deployment-reports/advanced-deployment-summary.md
+        echo "**Deployment ID:** ${{ needs.strategy-configuration.outputs.deployment-id }}" >> deployment-reports/advanced-deployment-summary.md
+        echo "**Feature Flags:** ${{ needs.strategy-configuration.outputs.feature-flags }}" >> deployment-reports/advanced-deployment-summary.md
+        echo "" >> deployment-reports/advanced-deployment-summary.md
+        
+        echo "## 📊 Deployment Results" >> deployment-reports/advanced-deployment-summary.md
+        echo "" >> deployment-reports/advanced-deployment-summary.md
+        
+        # Strategy-specific results
+        case "${{ needs.strategy-configuration.outputs.strategy }}" in
+          "blue-green")
+            if [[ "${{ needs.blue-green-deployment.result }}" == "success" ]]; then
+              echo "✅ **Blue-Green Deployment:** Successful" >> deployment-reports/advanced-deployment-summary.md
+            else
+              echo "❌ **Blue-Green Deployment:** Failed" >> deployment-reports/advanced-deployment-summary.md
+            fi
+            ;;
+          "canary")
+            if [[ "${{ needs.canary-deployment.result }}" == "success" ]]; then
+              echo "✅ **Canary Deployment:** Successful (Traffic: ${{ needs.strategy-configuration.outputs.canary-percentage }}%)" >> deployment-reports/advanced-deployment-summary.md
+            else
+              echo "❌ **Canary Deployment:** Failed" >> deployment-reports/advanced-deployment-summary.md
+            fi
+            ;;
+          "rolling")
+            if [[ "${{ needs.rolling-deployment.result }}" == "success" ]]; then
+              echo "✅ **Rolling Deployment:** Successful" >> deployment-reports/advanced-deployment-summary.md
+            else
+              echo "❌ **Rolling Deployment:** Failed" >> deployment-reports/advanced-deployment-summary.md
+            fi
+            ;;
+          "feature-flag")
+            if [[ "${{ needs.feature-flag-deployment.result }}" == "success" ]]; then
+              echo "✅ **Feature Flag Deployment:** Successful" >> deployment-reports/advanced-deployment-summary.md
+            else
+              echo "❌ **Feature Flag Deployment:** Failed" >> deployment-reports/advanced-deployment-summary.md
+            fi
+            ;;
+        esac
+        
+        # Rollback status
+        if [[ "${{ needs.rollback-deployment.result }}" == "success" ]]; then
+          echo "🔄 **Automatic Rollback:** Executed Successfully" >> deployment-reports/advanced-deployment-summary.md
+        elif [[ "${{ needs.rollback-deployment.result }}" == "skipped" ]]; then
+          echo "✅ **Rollback:** Not Required" >> deployment-reports/advanced-deployment-summary.md
+        fi
+
+    - name: Upload deployment report
+      uses: actions/upload-artifact@v4
+      with:
+        name: advanced-deployment-report-${{ needs.strategy-configuration.outputs.deployment-id }}
+        path: deployment-reports/
+        retention-days: 90
+
+    - name: Set final deployment status
+      run: |
+        # Determine overall deployment success
+        STRATEGY="${{ needs.strategy-configuration.outputs.strategy }}"
+        
+        case "$STRATEGY" in
+          "blue-green")
+            RESULT="${{ needs.blue-green-deployment.result }}"
+            ;;
+          "canary")
+            RESULT="${{ needs.canary-deployment.result }}"
+            ;;
+          "rolling")
+            RESULT="${{ needs.rolling-deployment.result }}"
+            ;;
+          "feature-flag")
+            RESULT="${{ needs.feature-flag-deployment.result }}"
+            ;;
+        esac
+        
+        if [[ "$RESULT" == "success" ]]; then
+          echo "✅ Advanced Deployment Strategy ($STRATEGY) completed successfully"
+          echo "🎯 Enhanced deployment automation with advanced patterns"
+          exit 0
+        else
+          echo "❌ Advanced Deployment Strategy ($STRATEGY) failed"
+          if [[ "${{ needs.rollback-deployment.result }}" == "success" ]]; then
+            echo "🔄 Automatic rollback completed successfully"
+          fi
+          exit 1
+        fi

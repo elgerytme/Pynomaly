@@ -137,7 +137,7 @@ def get_dashboard_service_dep() -> DashboardService:
 
 # Analytics Endpoints
 @router.post("/query", response_model=AnalyticsResponse)
-@async_log_decorator("execute_analytics_query")
+# #@async_log_decorator("execute_analytics_query")  # Temporarily disabled
 async def execute_query(
     query_request: AnalyticsQueryModel,
     analytics_engine: AnalyticsEngine = Depends(get_analytics_engine_dep)
@@ -195,7 +195,7 @@ async def execute_query(
 
 
 @router.get("/insights/{metric_type}", response_model=InsightsResponse)
-@async_log_decorator("get_analytics_insights")
+#@async_log_decorator("get_analytics_insights")
 async def get_insights(
     metric_type: str,
     hours_back: int = Query(default=24, ge=1, le=8760, description="Hours to look back"),
@@ -247,7 +247,7 @@ async def get_insights(
 
 # Dashboard Endpoints
 @router.get("/dashboards", response_model=DashboardListResponse)
-@async_log_decorator("list_dashboards")
+#@async_log_decorator("list_dashboards")
 async def list_dashboards(
     tags: Optional[str] = Query(None, description="Comma-separated tags to filter by"),
     dashboard_service: DashboardService = Depends(get_dashboard_service_dep)

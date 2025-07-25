@@ -374,7 +374,8 @@
       "Bash(if [[ -f \"$file\" ]])",
       "Bash(then)",
       "Bash(if ! grep -q \"^\\[build-system\\]\" \"$file\")",
-      "Bash(pip uninstall:*)"
+      "Bash(pip uninstall:*)",
+      "Bash(/usr/bin/python3:*)"
     ],
     "deny": []
   }

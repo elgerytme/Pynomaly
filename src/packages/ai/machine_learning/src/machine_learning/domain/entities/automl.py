@@ -541,3 +541,7 @@ class AutoMLSummary:
             raise ValueError("Average success rate must be between 0.0 and 1.0")
         if not (0.0 <= self.average_best_score <= 1.0):
             raise ValueError("Average best score must be between 0.0 and 1.0")
+
+
+# Alias for backward compatibility
+AutoML = AutoMLPipeline

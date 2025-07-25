@@ -146,7 +146,7 @@ class TestAPILoadTesting:
         
         self.ensemble_data = {
             "data": [[1, 2], [3, 4], [5, 6], [7, 8]],
-            "algorithms": ["isolation_forest", "one_class_svm"],
+            "algorithms": ["isolation_forest", "lof"],
             "ensemble_method": "majority",
             "contamination": 0.1
         }
@@ -360,7 +360,7 @@ class TestServiceLoadTesting:
         """Single ensemble service call."""
         result = self.ensemble_service.detect_with_ensemble(
             self.test_data,
-            algorithms=["isolation_forest", "one_class_svm"],
+            algorithms=["isolation_forest", "lof"],
             ensemble_method="majority",
             contamination=0.1
         )
@@ -903,7 +903,7 @@ class TestSystemIntegrationLoad:
                 elif operation == 'ensemble':
                     response = self.client.post("/api/v1/detection/ensemble", json={
                         "data": self.test_datasets["small"],
-                        "algorithms": ["isolation_forest", "one_class_svm"],
+                        "algorithms": ["isolation_forest", "lof"],
                         "method": "majority",
                         "contamination": 0.1
                     })
