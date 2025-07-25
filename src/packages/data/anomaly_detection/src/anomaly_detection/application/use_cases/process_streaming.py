@@ -92,4 +92,82 @@ class ProcessStreamingUseCase:
                         # Perform detection
                         result = self._detection_service.predict(
                             dataset, self._loaded_model
-                        )\n                        \n                        # Check for alerts\n                        alert_triggered = any(\n                            score >= request.alert_threshold\n                            for score in result.anomaly_scores\n                        )\n                        \n                        yield ProcessStreamingResponse(\n                            prediction=result,\n                            alert_triggered=alert_triggered,\n                            success=True\n                        )\n                        \n                        # Clear batch\n                        batch = []\n                        \n                except Exception as e:\n                    yield ProcessStreamingResponse(\n                        success=False,\n                        error_message=f\"Error processing data point: {str(e)}\"\n                    )\n                    batch = []  # Clear batch on error\n                    \n        except Exception as e:\n            yield ProcessStreamingResponse(\n                success=False,\n                error_message=f\"Stream processing error: {str(e)}\"\n            )\n    \n    def execute_single(self, request: ProcessStreamingRequest, data_point: Dict[str, Any]) -> ProcessStreamingResponse:\n        \"\"\"Execute detection on a single data point.\n        \n        Args:\n            request: Processing request\n            data_point: Single data point\n            \n        Returns:\n            Processing response\n        \"\"\"\n        try:\n            # Load model if needed\n            if self._current_model_id != request.model_id:\n                self._loaded_model = self._model_repository.load(request.model_id)\n                self._current_model_id = request.model_id\n                \n                if not self._loaded_model:\n                    return ProcessStreamingResponse(\n                        success=False,\n                        error_message=f\"Model {request.model_id} not found\"\n                    )\n            \n            # Create dataset from single point\n            dataset = Dataset.from_dict_list([data_point])\n            \n            # Validate data quality\n            if not dataset.is_valid():\n                return ProcessStreamingResponse(\n                    success=False,\n                    error_message=\"Invalid data point format or quality\"\n                )\n            \n            # Perform detection\n            result = self._detection_service.predict(dataset, self._loaded_model)\n            \n            # Check for alert\n            alert_triggered = result.anomaly_scores[0] >= request.alert_threshold\n            \n            return ProcessStreamingResponse(\n                prediction=result,\n                alert_triggered=alert_triggered,\n                success=True\n            )\n            \n        except Exception as e:\n            return ProcessStreamingResponse(\n                success=False,\n                error_message=str(e)\n            )"
+                        )
+                        
+                        # Check for alerts
+                        alert_triggered = any(
+                            score >= request.alert_threshold
+                            for score in result.anomaly_scores
+                        )
+                        
+                        yield ProcessStreamingResponse(
+                            prediction=result,
+                            alert_triggered=alert_triggered,
+                            success=True
+                        )
+                        
+                        # Clear batch
+                        batch = []
+                        
+                except Exception as e:
+                    yield ProcessStreamingResponse(
+                        success=False,
+                        error_message=f"Error processing data point: {str(e)}"
+                    )
+                    batch = []  # Clear batch on error
+                    
+        except Exception as e:
+            yield ProcessStreamingResponse(
+                success=False,
+                error_message=f"Stream processing error: {str(e)}"
+            )
+    
+    def execute_single(self, request: ProcessStreamingRequest, data_point: Dict[str, Any]) -> ProcessStreamingResponse:
+        """Execute detection on a single data point.
+        
+        Args:
+            request: Processing request
+            data_point: Single data point
+            
+        Returns:
+            Processing response
+        """
+        try:
+            # Load model if needed
+            if self._current_model_id != request.model_id:
+                self._loaded_model = self._model_repository.load(request.model_id)
+                self._current_model_id = request.model_id
+                
+                if not self._loaded_model:
+                    return ProcessStreamingResponse(
+                        success=False,
+                        error_message=f"Model {request.model_id} not found"
+                    )
+            
+            # Create dataset from single point
+            dataset = Dataset.from_dict_list([data_point])
+            
+            # Validate data quality
+            if not dataset.is_valid():
+                return ProcessStreamingResponse(
+                    success=False,
+                    error_message="Invalid data point format or quality"
+                )
+            
+            # Perform detection
+            result = self._detection_service.predict(dataset, self._loaded_model)
+            
+            # Check for alert
+            alert_triggered = result.anomaly_scores[0] >= request.alert_threshold
+            
+            return ProcessStreamingResponse(
+                prediction=result,
+                alert_triggered=alert_triggered,
+                success=True
+            )
+            
+        except Exception as e:
+            return ProcessStreamingResponse(
+                success=False,
+                error_message=str(e)
+            )

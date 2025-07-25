@@ -15,7 +15,7 @@ from data_quality.domain.interfaces.data_processing_operations import (
     StatisticalAnalysisRequest
 )
 from data_quality.domain.entities.data_profile import DataProfile, ColumnProfile
-from data_quality.domain.entities.data_quality_check import DataQualityCheck, DataQualityResult
+from data_quality.domain.entities.data_quality_check import DataQualityCheck, CheckResult
 from data_quality.domain.entities.data_quality_rule import DataQualityRule
 
 
@@ -105,18 +105,20 @@ class DataValidationStub(DataValidationPort):
     async def validate_data_quality(
         self, 
         request: DataValidationRequest
-    ) -> List[DataQualityResult]:
+    ) -> List[CheckResult]:
         """Validate data quality."""
         return [
-            DataQualityResult(
+            CheckResult(
                 check_id="stub_check_001",
-                rule_id="stub_rule_001",
+                dataset_name=request.data_source,
                 passed=True,
                 score=0.95,
-                details={"message": "Validation passed (stub)"},
-                error_count=0,
-                warning_count=0,
+                total_records=1000,
+                passed_records=950,
+                failed_records=50,
                 executed_at=datetime.now(),
+                message="Validation passed (stub)",
+                details={"message": "Validation passed (stub)"},
                 metadata={}
             )
         ]
@@ -125,7 +127,7 @@ class DataValidationStub(DataValidationPort):
         self, 
         data_source: str, 
         check: DataQualityCheck
-    ) -> DataQualityResult:
+    ) -> CheckResult:
         """Execute quality check."""
         return DataQualityResult(
             check_id=check.id,
@@ -143,18 +145,20 @@ class DataValidationStub(DataValidationPort):
         self, 
         data_source: str, 
         rules: List[DataQualityRule]
-    ) -> List[DataQualityResult]:
+    ) -> List[CheckResult]:
         """Validate business rules."""
         return [
-            DataQualityResult(
+            CheckResult(
                 check_id=f"business_check_{rule.id}",
-                rule_id=rule.id,
+                dataset_name=data_source,
                 passed=True,
                 score=0.9,
-                details={"message": "Business rule passed (stub)"},
-                error_count=0,
-                warning_count=0,
+                total_records=1000,
+                passed_records=900,
+                failed_records=100,
                 executed_at=datetime.now(),
+                message="Business rule passed (stub)",
+                details={"message": "Business rule passed (stub)"},
                 metadata={}
             )
             for rule in rules

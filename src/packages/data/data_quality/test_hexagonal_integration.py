@@ -36,6 +36,7 @@ from data_quality.domain.interfaces.quality_assessment_operations import (
 
 # Import domain entities
 from data_quality.domain.entities.data_quality_rule import DataQualityRule
+from uuid import uuid4
 
 
 async def test_container_configuration():
@@ -148,7 +149,7 @@ async def test_data_validation_integration():
         # Create test quality rules
         test_rules = [
             DataQualityRule(
-                id="rule_001",
+                id=uuid4(),
                 name="Completeness Check",
                 description="Check data completeness",
                 rule_type="completeness",
@@ -160,7 +161,7 @@ async def test_data_validation_integration():
                 metadata={}
             ),
             DataQualityRule(
-                id="rule_002",
+                id=uuid4(),
                 name="Uniqueness Check",
                 description="Check data uniqueness",
                 rule_type="uniqueness",

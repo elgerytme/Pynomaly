@@ -345,15 +345,17 @@ class FileBasedDataValidation(DataValidationPort):
             rule_result = self._execute_rule_logic(df, check.rule)
             
             # Create result
-            result = DataQualityResult(
+            result = CheckResult(
                 check_id=check.id,
-                rule_id=check.rule.id,
+                dataset_name=data_source,
                 passed=rule_result["passed"],
                 score=rule_result["score"],
-                details=rule_result["details"],
-                error_count=rule_result.get("error_count", 0),
-                warning_count=rule_result.get("warning_count", 0),
+                total_records=rule_result.get("total_records", 1000),
+                passed_records=rule_result.get("passed_records", 0),
+                failed_records=rule_result.get("error_count", 0),
                 executed_at=datetime.now(),
+                message=str(rule_result["details"]),
+                details=rule_result["details"],
                 metadata=check.metadata
             )
             
@@ -377,15 +379,17 @@ class FileBasedDataValidation(DataValidationPort):
             return result
             
         except Exception as e:
-            return DataQualityResult(
+            return CheckResult(
                 check_id=check.id,
-                rule_id=check.rule.id,
+                dataset_name=data_source,
                 passed=False,
                 score=0.0,
-                details={"error": str(e)},
-                error_count=1,
-                warning_count=0,
+                total_records=0,
+                passed_records=0,
+                failed_records=1,
                 executed_at=datetime.now(),
+                message=f"Error: {str(e)}",
+                details={"error": str(e)},
                 metadata=check.metadata
             )
     
