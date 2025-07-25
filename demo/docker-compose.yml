@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Demo Web Interface
+  demo-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=demo
+      - API_BASE_URL=http://localhost:8000
+    volumes:
+      - ./public:/app/public
+      - ./src:/app/src
+    depends_on:
+      - demo-api
+      - postgres
+      - redis
+
+  # Demo API Backend
+  demo-api:
+    build:
+      context: ../
+      dockerfile: demo/Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://demo:demo@postgres:5432/demo_db
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=demo
+      - LOG_LEVEL=INFO
+    volumes:
+      - ../src:/app/src
+      - ../tools:/app/tools
+      - ./generated-packages:/app/demo-packages
+    depends_on:
+      - postgres
+      - redis
+    command: python -m uvicorn demo.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Package Generator Service
+  package-generator:
+    build:
+      context: ../
+      dockerfile: demo/Dockerfile.generator
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ../tools:/app/tools
+      - ../src:/app/src
+      - ./generated-packages:/app/output
+    command: python tools/package-generator/main.py --serve --port 8001
+
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=demo_db
+      - POSTGRES_USER=demo
+      - POSTGRES_PASSWORD=demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=demo
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+
+  # Documentation Server
+  docs:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../docs:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - demo-api
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

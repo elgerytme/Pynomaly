@@ -1,0 +1,430 @@
+name: Platform CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run nightly security scans at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # Security scanning job
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[security]')
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install security tools
+      run: |
+        pip install bandit safety semgrep
+        # Install additional security tools
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+    - name: Run comprehensive security audit
+      run: |
+        mkdir -p reports
+        python tools/security-audit/penetration_testing.py \
+          --config tools/security-audit/config.yaml \
+          --output reports/security-audit-report.json \
+          --format json
+
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: reports/security-audit-report.json
+
+    - name: Comment security results on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('reports/security-audit-report.json', 'utf8'));
+          
+          const comment = `## 🔒 Security Scan Results
+          
+          - **Critical Issues**: ${report.critical_count}
+          - **High Issues**: ${report.high_count}
+          - **Medium Issues**: ${report.medium_count}
+          - **Low Issues**: ${report.low_count}
+          
+          ${report.critical_count > 0 ? '⚠️ **Critical security issues found!** Please address before merging.' : '✅ No critical security issues found.'}
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  # Package testing job
+  package-tests:
+    name: Package Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: [unit, integration, security, performance]
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r demo/requirements.txt
+        pip install pytest-xvfb pytest-benchmark
+
+    - name: Run comprehensive tests
+      run: |
+        python tools/testing/comprehensive_test_suite.py \
+          --config tools/testing/test_config.yaml \
+          --output reports/test-report-${{ matrix.test-type }}.json \
+          --format json
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.test-type }}
+        path: reports/test-report-${{ matrix.test-type }}.json
+
+  # Package independence validation
+  independence-validation:
+    name: Package Independence
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r demo/requirements.txt
+
+    - name: Validate package independence
+      run: |
+        python tools/package-independence-validator/main.py \
+          --all-packages \
+          --output reports/independence-report.json \
+          --enforcement-level strict
+
+    - name: Check independence score
+      run: |
+        python -c "
+        import json
+        with open('reports/independence-report.json') as f:
+            report = json.load(f)
+        score = report['overall_score']
+        print(f'Independence Score: {score}')
+        if score < 80:
+            print('❌ Independence score too low!')
+            exit(1)
+        else:
+            print('✅ Independence validation passed!')
+        "
+
+  # Demo environment deployment
+  demo-deployment:
+    name: Deploy Demo Environment
+    runs-on: ubuntu-latest
+    needs: [package-tests, independence-validation]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build demo images
+      run: |
+        cd demo
+        docker-compose build
+
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        cd demo
+        # In real scenario, would deploy to cloud environment
+        docker-compose up -d --remove-orphans
+        
+        # Wait for services to be ready
+        sleep 30
+        
+        # Health checks
+        curl -f http://localhost:8000/health || exit 1
+        curl -f http://localhost:3000 || exit 1
+
+    - name: Run smoke tests
+      run: |
+        # Test package generation API
+        curl -X POST http://localhost:8000/api/packages/generate \
+          -H "Content-Type: application/json" \
+          -d '{"name":"test-package","domain":"demo","description":"Test package"}'
+        
+        # Test platform stats
+        curl -f http://localhost:8000/api/platform/stats
+
+  # Documentation deployment
+  docs-deployment:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Build documentation
+      run: |
+        # Install documentation tools
+        npm install -g @docsify/cli
+        
+        # Generate API documentation
+        pip install -r demo/requirements.txt
+        
+        # Create comprehensive docs
+        mkdir -p docs-build
+        cp -r docs/* docs-build/
+        
+        # Generate API docs from OpenAPI spec
+        python -c "
+        import json
+        from demo.api.main import app
+        with open('docs-build/api-spec.json', 'w') as f:
+            json.dump(app.openapi(), f, indent=2)
+        "
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs-build
+
+  # Package generation testing
+  package-generation-test:
+    name: Test Package Generation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - name: "user-auth"
+            domain: "identity"
+            architecture: "clean"
+            framework: "fastapi"
+          - name: "order-management"
+            domain: "ecommerce"
+            architecture: "hexagonal"
+            framework: "fastapi"
+          - name: "notification-service"
+            domain: "communication"
+            architecture: "event_driven"
+            framework: "fastapi"
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r demo/requirements.txt
+
+    - name: Generate test package
+      run: |
+        python tools/package-generator/main.py \
+          --name "${{ matrix.example.name }}" \
+          --domain "${{ matrix.example.domain }}" \
+          --architecture "${{ matrix.example.architecture }}" \
+          --framework "${{ matrix.example.framework }}" \
+          --output test-packages \
+          --non-interactive
+
+    - name: Validate generated package
+      run: |
+        # Check package structure
+        test -d "test-packages/${{ matrix.example.domain }}/${{ matrix.example.name }}"
+        test -f "test-packages/${{ matrix.example.domain }}/${{ matrix.example.name }}/pyproject.toml"
+        test -f "test-packages/${{ matrix.example.domain }}/${{ matrix.example.name }}/Dockerfile"
+        
+        # Run package independence validation
+        python tools/package-independence-validator/main.py \
+          --package "test-packages/${{ matrix.example.domain }}/${{ matrix.example.name }}" \
+          --output "reports/independence-${{ matrix.example.name }}.json"
+
+    - name: Test generated package
+      run: |
+        cd "test-packages/${{ matrix.example.domain }}/${{ matrix.example.name }}"
+        
+        # Install package dependencies
+        pip install -e .
+        
+        # Run tests
+        pytest tests/ -v
+        
+        # Build Docker image
+        docker build -t "test-${{ matrix.example.name }}" .
+
+  # Performance benchmarking
+  performance-benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[benchmark]')
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r demo/requirements.txt
+        pip install locust
+
+    - name: Run performance benchmarks
+      run: |
+        # Start demo environment
+        cd demo
+        docker-compose up -d
+        sleep 60  # Wait for services to start
+        
+        # Run load tests
+        locust -f ../tools/testing/locustfile.py \
+          --host http://localhost:8000 \
+          --users 50 \
+          --spawn-rate 5 \
+          --run-time 5m \
+          --html reports/performance-report.html
+
+    - name: Upload performance report
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-report
+        path: reports/performance-report.html
+
+  # Release automation
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [security-scan, package-tests, independence-validation, demo-deployment]
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release]')
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        # Generate changelog from commits
+        git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0)..HEAD > CHANGELOG.md
+        
+        # Create release notes
+        echo "## 🚀 What's New" >> RELEASE_NOTES.md
+        cat CHANGELOG.md >> RELEASE_NOTES.md
+        
+        echo "## 📊 Platform Statistics" >> RELEASE_NOTES.md
+        echo "- Security Score: $(jq -r '.overall_score' reports/security-audit-report.json 2>/dev/null || echo 'N/A')" >> RELEASE_NOTES.md
+        echo "- Test Coverage: $(jq -r '.coverage_summary.overall' reports/test-report.json 2>/dev/null || echo 'N/A')%" >> RELEASE_NOTES.md
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body_path: RELEASE_NOTES.md
+        draft: false
+        prerelease: false
+
+# Workflow for scheduled maintenance
+  maintenance:
+    name: Scheduled Maintenance
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Update dependencies
+      run: |
+        # Update Python dependencies
+        pip-compile demo/requirements.in
+        
+        # Update Node.js dependencies
+        npm update
+
+    - name: Run full platform health check
+      run: |
+        python tools/platform-health-check.py \
+          --comprehensive \
+          --output reports/health-check.json
+
+    - name: Create maintenance report
+      run: |
+        echo "## 🔧 Scheduled Maintenance Report" > MAINTENANCE.md
+        echo "**Date**: $(date)" >> MAINTENANCE.md
+        echo "**Status**: Completed" >> MAINTENANCE.md
+        
+        # Add health check summary
+        python -c "
+        import json
+        try:
+            with open('reports/health-check.json') as f:
+                health = json.load(f)
+            print(f'**Platform Health**: {health.get(\"overall_status\", \"Unknown\")}')
+        except:
+            print('**Platform Health**: Check failed')
+        " >> MAINTENANCE.md
+
+    - name: Create maintenance issue
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const maintenance = fs.readFileSync('MAINTENANCE.md', 'utf8');
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Scheduled Maintenance - ${new Date().toISOString().split('T')[0]}`,
+            body: maintenance,
+            labels: ['maintenance', 'automated']
+          });

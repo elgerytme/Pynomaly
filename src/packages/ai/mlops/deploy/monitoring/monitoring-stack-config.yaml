@@ -1,0 +1,421 @@
+# MLOps Advanced Monitoring Stack Configuration
+# 
+# This configuration defines the complete observability and monitoring
+# stack for the MLOps platform with production-ready settings.
+
+name: "mlops_advanced_monitoring"
+description: "Advanced MLOps monitoring and observability platform"
+environment: "production"
+
+global_config:
+  log_level: "INFO"
+  metrics_export_port: 8080
+  dashboard_port: 3000
+  enable_security_monitoring: true
+  data_retention_days: 90
+  high_availability: true
+  
+  # Prometheus configuration
+  prometheus:
+    scrape_interval: "15s"
+    evaluation_interval: "15s"
+    external_labels:
+      cluster: "mlops-production"
+      environment: "production"
+  
+  # Grafana configuration
+  grafana:
+    admin_password: "${GRAFANA_ADMIN_PASSWORD}"
+    enable_plugins: true
+    auto_provisioning: true
+    
+  # Alertmanager configuration
+  alertmanager:
+    smtp_smarthost: "${SMTP_SERVER}:587"
+    smtp_from: "alerts@mlops-platform.com"
+    slack_webhook_url: "${SLACK_WEBHOOK_URL}"
+
+services:
+  # Advanced Observability Platform
+  observability_platform:
+    enabled: true
+    dependencies: []
+    health_check_interval: 60
+    restart_on_failure: true
+    max_restart_attempts: 3
+    config:
+      enable_ai_insights: true
+      insights_interval_hours: 1
+      metrics_retention_days: 90
+      enable_anomaly_detection: true
+      real_time_processing: true
+      dashboard_refresh_interval: 30
+      alert_evaluation_interval: 60
+      
+      # AI insights configuration
+      ai_insights:
+        confidence_threshold: 0.7
+        max_insights_per_hour: 10
+        enable_predictive_alerts: true
+        trend_analysis_window_days: 7
+        
+      # Platform health scoring
+      health_scoring:
+        model_weight: 0.3
+        data_weight: 0.3
+        pipeline_weight: 0.2
+        infrastructure_weight: 0.2
+        
+      # Business impact tracking
+      business_metrics:
+        enable_cost_tracking: true
+        enable_performance_roi: true
+        sla_tracking: true
+
+  # Model Drift Detection Service
+  drift_detector:
+    enabled: true
+    dependencies: ["observability_platform"]
+    health_check_interval: 120
+    restart_on_failure: true
+    max_restart_attempts: 3
+    config:
+      reference_window_days: 30
+      monitoring_window_hours: 24
+      drift_threshold: 0.05
+      performance_threshold: 0.1
+      
+      # Drift detection methods
+      detection_methods:
+        - "kolmogorov_smirnov"
+        - "chi_square"
+        - "jensen_shannon_divergence"
+        - "earth_movers_distance"
+        
+      # Alert thresholds
+      alert_thresholds:
+        low: 0.05
+        medium: 0.01
+        high: 0.005
+        critical: 0.001
+        
+      # Continuous monitoring
+      continuous_monitoring:
+        default_interval_minutes: 60
+        batch_size: 1000
+        parallel_models: 5
+
+  # Pipeline Monitoring Service
+  pipeline_monitor:
+    enabled: true
+    dependencies: ["observability_platform"]
+    health_check_interval: 60
+    restart_on_failure: true
+    max_restart_attempts: 3
+    config:
+      enable_metrics: true
+      enable_performance_monitoring: true
+      enable_alerting: true
+      metrics_interval_seconds: 30
+      resource_monitoring_interval: 60
+      
+      # Timeout configurations
+      stage_timeout_minutes: 120
+      pipeline_timeout_minutes: 480
+      
+      # Resource thresholds
+      memory_threshold_mb: 4096
+      cpu_threshold_percent: 90.0
+      disk_threshold_percent: 85.0
+      
+      # Alert channels
+      alert_channels: ["log", "webhook", "slack"]
+      webhook_url: "${PIPELINE_WEBHOOK_URL}"
+      
+      # Retention policies
+      metrics_retention_days: 30
+      logs_retention_days: 7
+
+  # Real-Time Analytics Service
+  real_time_analytics:
+    enabled: true
+    dependencies: ["observability_platform", "pipeline_monitor"]
+    health_check_interval: 30
+    restart_on_failure: true
+    max_restart_attempts: 5
+    config:
+      processing_interval_seconds: 30
+      buffer_size: 1000
+      enable_streaming: true
+      event_retention_seconds: 3600
+      
+      # Stream processing
+      max_parallel_queries: 10
+      query_timeout_seconds: 60
+      aggregation_window_seconds: 300
+      
+      # Real-time alerting
+      enable_real_time_alerts: true
+      alert_evaluation_interval: 10
+      alert_buffer_size: 500
+
+  # Business Metrics Collector
+  business_metrics:
+    enabled: true
+    dependencies: ["observability_platform"]
+    health_check_interval: 300
+    restart_on_failure: true
+    max_restart_attempts: 3
+    config:
+      collection_interval_minutes: 15
+      enable_cost_analysis: true
+      enable_roi_calculation: true
+      enable_sla_monitoring: true
+      
+      # Cost tracking
+      cost_tracking:
+        compute_cost_per_hour: 0.10
+        storage_cost_per_gb_month: 0.023
+        network_cost_per_gb: 0.09
+        
+      # SLA definitions
+      sla_targets:
+        model_availability: 99.9
+        model_latency_p99_ms: 100
+        pipeline_success_rate: 99.5
+        data_freshness_hours: 1
+
+  # Security Monitor
+  security_monitor:
+    enabled: true
+    dependencies: ["observability_platform"]
+    health_check_interval: 60
+    restart_on_failure: true
+    max_restart_attempts: 3
+    config:
+      enable_anomaly_detection: true
+      enable_access_monitoring: true
+      enable_data_protection_monitoring: true
+      
+      # Security thresholds
+      failed_login_threshold: 5
+      unusual_access_threshold: 3
+      data_access_rate_limit: 1000
+      
+      # Compliance monitoring
+      compliance_checks:
+        - "gdpr"
+        - "hipaa" 
+        - "sox"
+
+# Default Streaming Queries
+default_queries:
+  model_performance_monitoring:
+    query_id: "model_performance_monitor"
+    name: "Model Performance Monitoring"
+    description: "Monitor model accuracy and latency in real-time"
+    source_streams: ["model_metrics", "prediction_logs"]
+    filters:
+      environment: "production"
+    aggregations:
+      - name: "avg_accuracy"
+        type: "average"
+        field: "accuracy"
+      - name: "p99_latency"
+        type: "percentile"
+        field: "latency"
+        percentile: 99
+      - name: "prediction_count"
+        type: "count"
+    window:
+      window_type: "sliding"
+      window_size_seconds: 300
+      slide_interval_seconds: 60
+    output_stream: "model_performance_alerts"
+    enabled: true
+
+  data_quality_monitoring:
+    query_id: "data_quality_monitor"
+    name: "Data Quality Monitoring"
+    description: "Monitor data quality metrics across datasets"
+    source_streams: ["data_quality_metrics"]
+    filters:
+      quality_score:
+        $lt: 0.8
+    aggregations:
+      - name: "min_quality_score"
+        type: "min"
+        field: "quality_score"
+      - name: "affected_datasets"
+        type: "count"
+    window:
+      window_type: "tumbling"
+      window_size_seconds: 600
+    output_stream: "data_quality_alerts"
+    enabled: true
+
+  pipeline_health_monitoring:
+    query_id: "pipeline_health_monitor"
+    name: "Pipeline Health Monitoring"
+    description: "Monitor pipeline execution and failure rates"
+    source_streams: ["pipeline_events"]
+    aggregations:
+      - name: "success_rate"
+        type: "custom"
+        expression: "successful_runs / total_runs"
+      - name: "avg_duration"
+        type: "average"
+        field: "duration_seconds"
+      - name: "failure_count"
+        type: "count"
+        field: "status"
+        filter: "failed"
+    window:
+      window_type: "sliding"
+      window_size_seconds: 3600
+      slide_interval_seconds: 300
+    output_stream: "pipeline_health_alerts"
+    enabled: true
+
+# Default Alert Rules
+default_alert_rules:
+  model_accuracy_degradation:
+    id: "model_accuracy_degradation"
+    name: "Model Accuracy Degradation"
+    description: "Alert when model accuracy drops significantly"
+    query_ids: ["model_performance_monitor"]
+    condition:
+      field: "avg_accuracy"
+      operator: "lt"
+      threshold: 0.85
+    severity: "high"
+    evaluation_interval: 60
+    silence_duration: 300
+    message: "Model accuracy has dropped below acceptable threshold"
+    
+  high_prediction_latency:
+    id: "high_prediction_latency"
+    name: "High Prediction Latency"
+    description: "Alert when prediction latency is too high"
+    query_ids: ["model_performance_monitor"]
+    condition:
+      field: "p99_latency"
+      operator: "gt"
+      threshold: 1000
+    severity: "medium"
+    evaluation_interval: 120
+    silence_duration: 600
+    message: "Prediction latency is exceeding SLA targets"
+    
+  data_quality_degradation:
+    id: "data_quality_degradation"
+    name: "Data Quality Degradation"
+    description: "Alert when data quality drops significantly"
+    query_ids: ["data_quality_monitor"]
+    condition:
+      field: "min_quality_score"
+      operator: "lt"
+      threshold: 0.7
+    severity: "high"
+    evaluation_interval: 300
+    silence_duration: 900
+    message: "Data quality has degraded across multiple datasets"
+    
+  pipeline_failure_rate:
+    id: "pipeline_failure_rate"
+    name: "High Pipeline Failure Rate"
+    description: "Alert when pipeline failure rate is too high"
+    query_ids: ["pipeline_health_monitor"]
+    condition:
+      field: "success_rate"
+      operator: "lt"
+      threshold: 0.95
+    severity: "critical"
+    evaluation_interval: 180
+    silence_duration: 300
+    message: "Pipeline failure rate is above acceptable threshold"
+
+# Dashboard Configurations
+default_dashboards:
+  ml_overview:
+    id: "ml_overview_dashboard"
+    name: "ML Operations Overview"
+    description: "High-level overview of ML platform health and performance"
+    refresh_interval_seconds: 30
+    time_range_hours: 24
+    panels:
+      - type: "stat"
+        title: "Platform Health Score"
+        targets: ["avg(platform_health_score)"]
+        gridPos: {h: 8, w: 6, x: 0, y: 0}
+        thresholds: [{color: "red", value: 0.6}, {color: "yellow", value: 0.8}, {color: "green", value: 0.9}]
+        
+      - type: "graph"
+        title: "Model Accuracy Trends"
+        targets: ["ml_model_accuracy_score"]
+        gridPos: {h: 8, w: 18, x: 6, y: 0}
+        yAxis: {min: 0, max: 1}
+        
+      - type: "graph"
+        title: "Prediction Volume"
+        targets: ["rate(ml_model_predictions_total[5m])"]
+        gridPos: {h: 8, w: 12, x: 0, y: 8}
+        
+      - type: "table"
+        title: "Active Alerts"
+        targets: ["anomaly_detection_alerts_total"]
+        gridPos: {h: 8, w: 12, x: 12, y: 8}
+
+  data_quality:
+    id: "data_quality_dashboard"
+    name: "Data Quality Monitoring"
+    description: "Comprehensive data quality monitoring across all datasets"
+    refresh_interval_seconds: 60
+    time_range_hours: 24
+    panels:
+      - type: "heatmap"
+        title: "Data Quality Heatmap"
+        targets: ["data_quality_score"]
+        gridPos: {h: 12, w: 24, x: 0, y: 0}
+        
+      - type: "graph"
+        title: "Quality Score Trends"
+        targets: ["data_quality_score"]
+        gridPos: {h: 8, w: 12, x: 0, y: 12}
+        
+      - type: "table"
+        title: "Quality Issues"
+        targets: ["data_quality_score < 0.8"]
+        gridPos: {h: 8, w: 12, x: 12, y: 12}
+
+# Resource Requirements
+resource_requirements:
+  observability_platform:
+    memory: "2Gi"
+    cpu: "1000m"
+    storage: "10Gi"
+    
+  drift_detector:
+    memory: "1Gi"
+    cpu: "500m"
+    storage: "5Gi"
+    
+  pipeline_monitor:
+    memory: "1Gi"
+    cpu: "500m"
+    storage: "5Gi"
+    
+  real_time_analytics:
+    memory: "2Gi"
+    cpu: "1000m"
+    storage: "10Gi"
+    
+  business_metrics:
+    memory: "512Mi"
+    cpu: "250m"
+    storage: "2Gi"
+    
+  security_monitor:
+    memory: "512Mi"
+    cpu: "250m"
+    storage: "2Gi"

@@ -1,0 +1,418 @@
+# Prometheus Production Values
+# High-availability configuration for production monitoring
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# Prometheus server configuration
+prometheus:
+  enabled: true
+  prometheusSpec:
+    # Resource requirements
+    resources:
+      requests:
+        memory: "4Gi"
+        cpu: "2000m"
+      limits:
+        memory: "8Gi"
+        cpu: "4000m"
+    
+    # Storage configuration
+    retention: 30d
+    retentionSize: 50GB
+    
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: fast-ssd
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi
+    
+    # High availability
+    replicas: 2
+    shards: 1
+    
+    # External labels for federation
+    externalLabels:
+      cluster: "production"
+      environment: "prod"
+      region: "us-east-1"
+    
+    # Remote write configuration (optional)
+    remoteWrite:
+    - url: "https://prometheus-remote.company.com/api/v1/write"
+      writeRelabelConfigs:
+      - sourceLabels: [__name__]
+        regex: 'prometheus_.*|alertmanager_.*'
+        action: drop
+    
+    # Service monitor selector
+    serviceMonitorSelector:
+      matchLabels:
+        environment: production
+    
+    # Pod monitor selector
+    podMonitorSelector:
+      matchLabels:
+        environment: production
+    
+    # Rule selector
+    ruleSelector:
+      matchLabels:
+        environment: production
+    
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    
+    # Pod security policy
+    podSecurityPolicy:
+      enabled: true
+    
+    # Additional scrape configs
+    additionalScrapeConfigs:
+    - job_name: 'custom-business-metrics'
+      static_configs:
+      - targets: ['business-metrics-exporter:8080']
+      scrape_interval: 30s
+      metrics_path: /metrics
+    
+    - job_name: 'ssl-certificate-exporter'
+      static_configs:
+      - targets: ['ssl-exporter:9219']
+      scrape_interval: 300s
+
+# AlertManager configuration
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    # Resource requirements
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+    
+    # High availability
+    replicas: 3
+    
+    # Storage configuration
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    
+    # External URL for webhooks
+    externalUrl: "https://monitoring.mlops-platform.com/alertmanager"
+    
+    # Retention
+    retention: 120h
+    
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    
+    # Configuration
+    configSecret: alertmanager-config
+
+# Grafana configuration
+grafana:
+  enabled: true
+  
+  # Admin credentials
+  adminPassword: "secure-admin-password-change-me"
+  
+  # Resource requirements
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+  
+  # Persistence
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: standard
+  
+  # External access
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: istio
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+    - monitoring.mlops-platform.com
+    paths:
+    - /grafana
+    tls:
+    - secretName: grafana-tls
+      hosts:
+      - monitoring.mlops-platform.com
+  
+  # Grafana configuration
+  grafana.ini:
+    server:
+      root_url: "https://monitoring.mlops-platform.com/grafana"
+      serve_from_sub_path: true
+    
+    security:
+      admin_user: admin
+      admin_password: ${GF_SECURITY_ADMIN_PASSWORD}
+      secret_key: ${GF_SECURITY_SECRET_KEY}
+    
+    auth:
+      disable_login_form: false
+      disable_signout_menu: false
+    
+    auth.github:
+      enabled: true
+      allow_sign_up: true
+      client_id: ${GF_AUTH_GITHUB_CLIENT_ID}
+      client_secret: ${GF_AUTH_GITHUB_CLIENT_SECRET}
+      scopes: user:email,read:org
+      auth_url: https://github.com/login/oauth/authorize
+      token_url: https://github.com/login/oauth/access_token
+      api_url: https://api.github.com/user
+      allowed_organizations: company-org
+    
+    smtp:
+      enabled: true
+      host: ${GF_SMTP_HOST}:587
+      user: ${GF_SMTP_USER}
+      password: ${GF_SMTP_PASSWORD}
+      from_address: grafana@mlops-platform.com
+      from_name: MLOps Grafana
+    
+    alerting:
+      enabled: true
+      execute_alerts: true
+    
+    log:
+      mode: console
+      level: info
+  
+  # Environment variables
+  env:
+    GF_SECURITY_ADMIN_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: admin-password
+    GF_SECURITY_SECRET_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: secret-key
+    GF_AUTH_GITHUB_CLIENT_ID:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: github-client-id
+    GF_AUTH_GITHUB_CLIENT_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: github-client-secret
+    GF_SMTP_HOST:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: smtp-host
+    GF_SMTP_USER:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: smtp-user
+    GF_SMTP_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secrets
+          key: smtp-password
+  
+  # Datasource configuration
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server:9090
+        access: proxy
+        isDefault: true
+        editable: false
+      
+      - name: Loki
+        type: loki
+        url: http://loki:3100
+        access: proxy
+        editable: false
+      
+      - name: Jaeger
+        type: jaeger
+        url: http://jaeger-query:16686
+        access: proxy
+        editable: false
+  
+  # Dashboard providers
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'production-dashboards'
+        orgId: 1
+        folder: 'Production'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards/production
+      
+      - name: 'business-dashboards'
+        orgId: 1
+        folder: 'Business'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards/business
+      
+      - name: 'security-dashboards'
+        orgId: 1
+        folder: 'Security'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards/security
+  
+  # Sidecar for dashboard auto-loading
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      folder: /var/lib/grafana/dashboards
+      searchNamespace: ALL
+    
+    datasources:
+      enabled: true
+      label: grafana_datasource
+
+# Node Exporter configuration
+nodeExporter:
+  enabled: true
+  operatingSystems:
+    linux:
+      enabled: true
+
+# Kube State Metrics configuration
+kubeStateMetrics:
+  enabled: true
+
+# Prometheus Operator configuration
+prometheusOperator:
+  enabled: true
+  
+  # Resource requirements
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+
+# Service monitors for application components
+serviceMonitors:
+  # MLOps API server
+  - name: mlops-api-server
+    selector:
+      matchLabels:
+        app: api-server
+    endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+    
+  # MLOps model server
+  - name: mlops-model-server
+    selector:
+      matchLabels:
+        app: model-server
+    endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+
+# Additional components
+additionalPrometheusRules:
+  - name: mlops-production-rules
+    groups:
+    - name: mlops.sla
+      interval: 30s
+      rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+      
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High latency detected"
+          description: "95th percentile latency is {{ $value }}s"
+
+# Security configuration
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+
+# Pod security policies
+podSecurityPolicy:
+  enabled: true
+
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: mlops-production

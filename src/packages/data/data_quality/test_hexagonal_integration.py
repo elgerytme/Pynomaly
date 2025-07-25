@@ -4,6 +4,8 @@
 import asyncio
 import tempfile
 import sys
+import pandas as pd
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -37,6 +39,21 @@ from data_quality.domain.interfaces.quality_assessment_operations import (
 # Import domain entities
 from data_quality.domain.entities.data_quality_rule import DataQualityRule, RuleType, RuleSeverity, RuleCondition, RuleOperator
 from uuid import uuid4
+
+
+def create_test_data(file_path: str):
+    """Create test CSV file for testing."""
+    test_data = {
+        'id': range(1, 101),
+        'name': [f'User_{i}' for i in range(1, 101)],
+        'age': [20 + (i % 50) for i in range(1, 101)],
+        'score': [85.5 + (i % 15) for i in range(1, 101)],
+        'active': [True if i % 2 == 0 else False for i in range(1, 101)]
+    }
+    
+    df = pd.DataFrame(test_data)
+    df.to_csv(file_path, index=False)
+    return df
 
 
 async def test_container_configuration():
@@ -88,6 +105,10 @@ async def test_data_profiling_integration():
     print("\n📊 Testing Data Profiling Integration...")
     
     with tempfile.TemporaryDirectory() as temp_dir:
+        # Create test data file
+        test_data_path = os.path.join(temp_dir, "test_data.csv")
+        create_test_data(test_data_path)
+        
         container = DataQualityContainer(DataQualityContainerConfig(
             data_storage_path=temp_dir,
             environment="test"
@@ -98,7 +119,7 @@ async def test_data_profiling_integration():
         
         # Create a test data profiling request
         profiling_request = DataProfilingRequest(
-            data_source="test_data.csv",
+            data_source=test_data_path,
             profile_config={
                 "include_distributions": True,
                 "include_correlations": False
@@ -124,7 +145,7 @@ async def test_data_profiling_integration():
         if profile.column_profiles:
             existing_column_name = profile.column_profiles[0].column_name
             column_profile = await profiling_service.create_column_profile(
-                "test_data.csv", existing_column_name, {}
+                test_data_path, existing_column_name, {}
             )
             
             assert column_profile is not None, "Column profile should not be None"
@@ -132,7 +153,7 @@ async def test_data_profiling_integration():
         else:
             # If no columns exist, test with stub data
             column_profile = await profiling_service.create_column_profile(
-                "test_data.csv", "id", {}
+                test_data_path, "id", {}
             )
             assert column_profile is not None, "Column profile should not be None"
         

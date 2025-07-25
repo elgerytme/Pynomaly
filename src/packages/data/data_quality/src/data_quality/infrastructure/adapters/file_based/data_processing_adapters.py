@@ -104,8 +104,8 @@ class FileBasedDataProfiling(DataProfilingPort):
                 "data_type": str(column_data.dtype)
             }
             
-            # Numeric statistics
-            if pd.api.types.is_numeric_dtype(column_data):
+            # Numeric statistics (exclude boolean columns)
+            if pd.api.types.is_numeric_dtype(column_data) and not pd.api.types.is_bool_dtype(column_data):
                 stats.update({
                     "mean": column_data.mean(),
                     "median": column_data.median(),
@@ -147,12 +147,12 @@ class FileBasedDataProfiling(DataProfilingPort):
                 profile_stats.max_length = stats["max_length"]
             
             # Determine data type
-            if pd.api.types.is_integer_dtype(column_data):
+            if pd.api.types.is_bool_dtype(column_data):
+                data_type = DataType.BOOLEAN
+            elif pd.api.types.is_integer_dtype(column_data):
                 data_type = DataType.INTEGER
             elif pd.api.types.is_float_dtype(column_data):
                 data_type = DataType.FLOAT
-            elif pd.api.types.is_bool_dtype(column_data):
-                data_type = DataType.BOOLEAN
             elif pd.api.types.is_datetime64_any_dtype(column_data):
                 data_type = DataType.DATETIME
             else:
