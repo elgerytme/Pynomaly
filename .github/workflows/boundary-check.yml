@@ -1,0 +1,146 @@
+name: Domain Boundary Violation Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  boundary-check:
+    name: Check Domain Boundaries
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ast-tools
+    
+    - name: Make boundary check script executable
+      run: chmod +x src/packages/deployment/scripts/boundary-violation-check.py
+    
+    - name: Run boundary violation check
+      id: boundary-check
+      run: |
+        echo "Running domain boundary violation check..."
+        python src/packages/deployment/scripts/boundary-violation-check.py \
+          src/packages \
+          --format github \
+          --fail-on-critical \
+          --output boundary-violations.txt
+        
+        # Store results for later use
+        echo "violations_found=$(test -s boundary-violations.txt && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        
+        # If violations found, also generate detailed report
+        if [ -s boundary-violations.txt ]; then
+          echo "Generating detailed report..."
+          python src/packages/deployment/scripts/boundary-violation-check.py \
+            src/packages \
+            --format json \
+            --output boundary-report.json
+        fi
+    
+    - name: Upload boundary violation report
+      if: steps.boundary-check.outputs.violations_found == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: boundary-violation-report
+        path: |
+          boundary-violations.txt
+          boundary-report.json
+        retention-days: 30
+    
+    - name: Comment on PR with violations
+      if: steps.boundary-check.outputs.violations_found == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let violationContent = '';
+          try {
+            violationContent = fs.readFileSync('boundary-violations.txt', 'utf8');
+          } catch (error) {
+            console.log('No violations file found');
+            return;
+          }
+          
+          if (violationContent.trim() === '') {
+            console.log('No violations to report');
+            return;
+          }
+          
+          const body = `## ❌ Domain Boundary Violations Detected
+          
+This pull request introduces domain boundary violations that need to be fixed before merging.
+          
+### Violations Found:
+\`\`\`
+${violationContent}
+\`\`\`
+          
+### How to Fix:
+1. Review the violations above
+2. Refactor imports to use proper cross-domain integration patterns
+3. Use the shared integration framework in \`src/packages/shared/src/shared/integration/\`
+4. Ensure imports follow domain boundaries defined in the architecture
+          
+### Resources:
+- [Cross-Domain Integration Patterns](src/packages/shared/src/shared/integration/)
+- [Domain Architecture Guide](src/packages/ECOSYSTEM_ARCHITECTURE.md)
+- [Integration Examples](src/packages/shared/src/shared/integration/examples/)
+          
+The CI/CD pipeline will continue to fail until these violations are resolved.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+    
+    - name: Generate boundary check summary
+      run: |
+        echo "## Domain Boundary Check Results" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -s boundary-violations.txt ]; then
+          echo "❌ **Violations Found**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Domain boundary violations were detected in this build." >> $GITHUB_STEP_SUMMARY
+          echo "Please review the violations and refactor the code to maintain clean architecture." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Summary:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          head -20 boundary-violations.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f boundary-report.json ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 **Detailed Report Available**" >> $GITHUB_STEP_SUMMARY
+            echo "A complete JSON report has been uploaded as an artifact." >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "✅ **No Violations Found**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All domain boundaries are properly maintained." >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Fail if critical violations found
+      if: steps.boundary-check.outputs.violations_found == 'true'
+      run: |
+        echo "Critical domain boundary violations detected!"
+        echo "Please fix the violations before merging."
+        exit 1
