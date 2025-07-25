@@ -1,0 +1,729 @@
+# SSL/TLS Certificate Management
+# Cert-Manager with Let's Encrypt and internal CA
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+  labels:
+    name: cert-manager
+    certmanager.k8s.io/disable-validation: "true"
+
+---
+# Cert-Manager Installation
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+  labels:
+    app: cert-manager
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager-cainjector
+  namespace: cert-manager
+  labels:
+    app: cainjector
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager-webhook
+  namespace: cert-manager
+  labels:
+    app: webhook
+
+---
+# RBAC for cert-manager
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-controller-issuers
+  labels:
+    app: cert-manager
+rules:
+- apiGroups: ["cert-manager.io"]
+  resources: ["issuers", "issuers/status"]
+  verbs: ["update", "patch"]
+- apiGroups: ["cert-manager.io"]
+  resources: ["issuers"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-controller-clusterissuers
+  labels:
+    app: cert-manager
+rules:
+- apiGroups: ["cert-manager.io"]
+  resources: ["clusterissuers", "clusterissuers/status"]
+  verbs: ["update", "patch"]
+- apiGroups: ["cert-manager.io"]
+  resources: ["clusterissuers"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-controller-certificates
+  labels:
+    app: cert-manager
+rules:
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates", "certificates/status", "certificaterequests", "certificaterequests/status"]
+  verbs: ["update", "patch"]
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates", "certificaterequests", "clusterissuers", "issuers"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates/finalizers", "certificaterequests/finalizers"]
+  verbs: ["update"]
+- apiGroups: ["acme.cert-manager.io"]
+  resources: ["orders"]
+  verbs: ["create", "delete", "get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+
+---
+# ClusterRoleBindings
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-controller-issuers
+  labels:
+    app: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-issuers
+subjects:
+- name: cert-manager
+  namespace: cert-manager
+  kind: ServiceAccount
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-controller-clusterissuers
+  labels:
+    app: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-clusterissuers
+subjects:
+- name: cert-manager
+  namespace: cert-manager
+  kind: ServiceAccount
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-controller-certificates
+  labels:
+    app: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-controller-certificates
+subjects:
+- name: cert-manager
+  namespace: cert-manager
+  kind: ServiceAccount
+
+---
+# Cert-Manager Controller Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+  labels:
+    app: cert-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cert-manager
+  template:
+    metadata:
+      labels:
+        app: cert-manager
+      annotations:
+        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9402"
+    spec:
+      serviceAccountName: cert-manager
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: cert-manager
+        image: quay.io/jetstack/cert-manager-controller:v1.13.2
+        args:
+        - --v=2
+        - --cluster-resource-namespace=$(POD_NAMESPACE)
+        - --leader-election-namespace=kube-system
+        - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.13.2
+        - --max-concurrent-challenges=60
+        - --metrics-listen-address=0.0.0.0:9402
+        ports:
+        - containerPort: 9402
+          name: http-metrics
+          protocol: TCP
+        - containerPort: 9403
+          name: http-healthz
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        livenessProbe:
+          httpGet:
+            path: /livez
+            port: http-healthz
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 15
+          successThreshold: 1
+          failureThreshold: 8
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http-healthz
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+---
+# Cert-Manager Webhook
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cert-manager-webhook
+  namespace: cert-manager
+  labels:
+    app: webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook
+  template:
+    metadata:
+      labels:
+        app: webhook
+    spec:
+      serviceAccountName: cert-manager-webhook
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: cert-manager-webhook
+        image: quay.io/jetstack/cert-manager-webhook:v1.13.2
+        args:
+        - --v=2
+        - --secure-port=10250
+        - --dynamic-serving-ca-secret-namespace=$(POD_NAMESPACE)
+        - --dynamic-serving-ca-secret-name=cert-manager-webhook-ca
+        - --dynamic-serving-dns-names=cert-manager-webhook
+        - --dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE)
+        - --dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE).svc
+        ports:
+        - name: https
+          protocol: TCP
+          containerPort: 10250
+        - name: healthcheck
+          protocol: TCP
+          containerPort: 6080
+        livenessProbe:
+          httpGet:
+            path: /livez
+            port: 6080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 6080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cert-manager-webhook
+  namespace: cert-manager
+  labels:
+    app: webhook
+spec:
+  type: ClusterIP
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    app: webhook
+
+---
+# Let's Encrypt Cluster Issuer (Production)
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # Production ACME server
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: certificates@platform.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    # HTTP01 solver for web validation
+    - http01:
+        ingress:
+          class: nginx
+          podTemplate:
+            spec:
+              nodeSelector:
+                "kubernetes.io/os": linux
+    # DNS01 solver for wildcard certificates
+    - dns01:
+        cloudflare:
+          email: certificates@platform.com
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+      selector:
+        dnsNames:
+        - '*.platform.com'
+        - '*.api.platform.com'
+
+---
+# Let's Encrypt Cluster Issuer (Staging)
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Staging ACME server
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: certificates@platform.com
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+    - dns01:
+        cloudflare:
+          email: certificates@platform.com
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+
+---
+# Internal CA Issuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: platform-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: "Platform Internal CA"
+  secretName: platform-ca-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+  subject:
+    organizationalUnits:
+      - "Platform Security"
+    organizations:
+      - "Domain-Driven Platform"
+    countries:
+      - "US"
+    localities:
+      - "San Francisco"
+    provinces:
+      - "California"
+
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: platform-ca-issuer
+spec:
+  ca:
+    secretName: platform-ca-secret
+
+---
+# Production certificates
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: platform-tls
+  namespace: domain-driven-platform
+spec:
+  secretName: platform-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - platform.com
+  - www.platform.com
+  - api.platform.com
+  - app.platform.com
+  - admin.platform.com
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-platform-tls
+  namespace: domain-driven-platform
+spec:
+  secretName: wildcard-platform-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - '*.platform.com'
+  - platform.com
+
+---
+# Internal service certificates
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-tls
+  namespace: vault-system
+spec:
+  secretName: vault-tls
+  issuerRef:
+    name: platform-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - vault
+  - vault.vault-system
+  - vault.vault-system.svc
+  - vault.vault-system.svc.cluster.local
+  - vault-0.vault-internal
+  - vault-1.vault-internal
+  - vault-2.vault-internal
+  - localhost
+  ipAddresses:
+  - 127.0.0.1
+  uris:
+  - spiffe://cluster.local/ns/vault-system/sa/vault
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: keycloak-tls
+  namespace: auth-system
+spec:
+  secretName: keycloak-tls
+  issuerRef:
+    name: platform-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - keycloak
+  - keycloak.auth-system
+  - keycloak.auth-system.svc
+  - keycloak.auth-system.svc.cluster.local
+  - auth.platform.com
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-tls
+  namespace: monitoring
+spec:
+  secretName: prometheus-tls
+  issuerRef:
+    name: platform-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - prometheus
+  - prometheus.monitoring
+  - prometheus.monitoring.svc
+  - prometheus.monitoring.svc.cluster.local
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tls
+  namespace: monitoring
+spec:
+  secretName: grafana-tls
+  issuerRef:
+    name: platform-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - grafana
+  - grafana.monitoring
+  - grafana.monitoring.svc
+  - grafana.monitoring.svc.cluster.local
+  - grafana.platform.com
+
+---
+# Certificate monitoring
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-monitor-alerts
+  namespace: cert-manager
+data:
+  cert-alerts.yml: |
+    groups:
+    - name: cert-manager.rules
+      rules:
+      - alert: CertManagerAbsent
+        expr: absent(up{job="cert-manager"})
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cert Manager has disappeared from Prometheus service discovery."
+          description: "New certificates will not be able to be minted, and existing ones can't be renewed until cert-manager is back."
+      
+      - alert: CertManagerCertExpirySoon
+        expr: |
+          avg by (exported_namespace, name) (
+            certmanager_certificate_expiration_timestamp_seconds - time()
+          ) < (21 * 24 * 3600) # 21 days
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "The cert {{ $labels.name }} is {{ $value | humanizeDuration }} from expiry, it should have renewed over a week ago."
+          description: "The domain that this cert covers will be unavailable after {{ $value | humanizeDuration }}. Clients using endpoints that this cert protects will start to fail in {{ $value | humanizeDuration }}."
+      
+      - alert: CertManagerCertNotReady
+        expr: |
+          max by (name, exported_namespace, condition) (
+            certmanager_certificate_ready_status{condition!="True"} == 1
+          )
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "The cert {{ $labels.name }} is not ready to serve traffic."
+          description: "This certificate has not been ready to serve traffic for at least 10m. If the cert is being renewed or there is another valid cert, the ingress controller _may_ be able to serve that instead."
+      
+      - alert: CertManagerHittingRateLimits
+        expr: |
+          sum by (host) (
+            rate(certmanager_http_acme_client_request_count{status=~"4.."}[5m])
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cert manager hitting LetsEncrypt rate limits."
+          description: "Depending on the rate limit, cert-manager may be unable to generate certificates for up to a week."
+
+---
+# Service Monitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cert-manager-metrics
+  namespace: cert-manager
+  labels:
+    app: cert-manager
+spec:
+  selector:
+    matchLabels:
+      app: cert-manager
+  endpoints:
+  - port: http-metrics
+    interval: 60s
+    path: /metrics
+
+---
+# Certificate rotation job
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cert-rotation-check
+  namespace: cert-manager
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cert-manager
+          containers:
+          - name: cert-checker
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/bash
+            - -c
+            - |
+              # Check certificate expiration
+              echo "Checking certificate expiration..."
+              
+              # Get all certificates
+              kubectl get certificates --all-namespaces -o json | \
+              jq -r '.items[] | select(.status.notAfter != null) | 
+                     "\(.metadata.namespace)/\(.metadata.name): \(.status.notAfter)"' | \
+              while read cert_info; do
+                namespace=$(echo $cert_info | cut -d'/' -f1)
+                name_and_date=$(echo $cert_info | cut -d'/' -f2-)
+                name=$(echo $name_and_date | cut -d':' -f1)
+                expiry_date=$(echo $name_and_date | cut -d':' -f2- | xargs)
+                
+                # Calculate days until expiry
+                expiry_timestamp=$(date -d "$expiry_date" +%s)
+                current_timestamp=$(date +%s)
+                days_until_expiry=$(( (expiry_timestamp - current_timestamp) / 86400 ))
+                
+                echo "Certificate $namespace/$name expires in $days_until_expiry days"
+                
+                # Force renewal if expiring in less than 30 days
+                if [ $days_until_expiry -lt 30 ]; then
+                  echo "Forcing renewal of certificate $namespace/$name"
+                  kubectl annotate certificate $name -n $namespace \
+                    cert-manager.io/issue-temporary-certificate="true" --overwrite
+                fi
+              done
+              
+              echo "Certificate check complete"
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                cpu: 100m
+                memory: 128Mi
+          restartPolicy: OnFailure
+
+---
+# Network Policy for cert-manager
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cert-manager-netpol
+  namespace: cert-manager
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9402
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 6443

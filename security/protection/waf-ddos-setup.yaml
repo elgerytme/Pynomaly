@@ -1,0 +1,664 @@
+# Web Application Firewall and DDoS Protection Setup
+# CloudFlare + NGINX Ingress + Rate Limiting
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security-protection
+  labels:
+    name: security-protection
+
+---
+# NGINX Ingress Controller with Security Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configuration
+  namespace: security-protection
+data:
+  # Security headers
+  add-headers: "security-protection/security-headers"
+  
+  # Rate limiting
+  limit-rate-after: "1024"
+  limit-rate: "50"
+  
+  # Client body and request limits
+  client-body-buffer-size: "1m"
+  client-body-timeout: "10"
+  client-header-buffer-size: "1k"
+  client-header-timeout: "10"
+  client-max-body-size: "10m"
+  large-client-header-buffers: "4 8k"
+  
+  # Connection limits
+  limit-connections: "20"
+  limit-rps: "100"
+  
+  # Security configurations
+  hide-headers: "Server,X-Powered-By"
+  server-tokens: "false"
+  
+  # SSL Configuration
+  ssl-protocols: "TLSv1.2 TLSv1.3"
+  ssl-ciphers: "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384"
+  ssl-prefer-server-ciphers: "true"
+  ssl-session-cache: "shared:SSL:10m"
+  ssl-session-timeout: "10m"
+  
+  # Disable weak methods
+  allowed-methods: "GET, HEAD, POST, PUT, PATCH, DELETE"
+  
+  # Enable ModSecurity WAF
+  enable-modsecurity: "true"
+  enable-owasp-modsecurity-crs: "true"
+  
+  # DDoS protection
+  limit-req-status-code: "429"
+  limit-conn-status-code: "429"
+  
+  # Logging
+  log-format-escape-json: "true"
+  access-log-params: "buffer=16k flush=5s"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-headers
+  namespace: security-protection
+data:
+  X-Frame-Options: "SAMEORIGIN"
+  X-Content-Type-Options: "nosniff"
+  X-XSS-Protection: "1; mode=block"
+  Referrer-Policy: "strict-origin-when-cross-origin"
+  Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:; frame-ancestors 'self'"
+  Strict-Transport-Security: "max-age=31536000; includeSubDomains; preload"
+  Permissions-Policy: "geolocation=(), microphone=(), camera=(), speaker=(), fullscreen=(self)"
+
+---
+# ModSecurity Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: modsecurity-config
+  namespace: security-protection
+data:
+  modsecurity.conf: |
+    # ModSecurity Core Rules Set Configuration
+    SecRuleEngine On
+    SecRequestBodyAccess On
+    SecRequestBodyLimit 13107200
+    SecRequestBodyNoFilesLimit 131072
+    SecRequestBodyInMemoryLimit 131072
+    SecRequestBodyLimitAction Reject
+    SecRule REQUEST_HEADERS:Content-Type "text/xml" \
+         "id:'200000',phase:1,t:none,t:lowercase,pass,nolog,ctl:requestBodyProcessor=XML"
+    SecRule REQUEST_HEADERS:Content-Type "application/xml" \
+         "id:'200001',phase:1,t:none,t:lowercase,pass,nolog,ctl:requestBodyProcessor=XML"
+    SecRule REQUEST_HEADERS:Content-Type "text/json" \
+         "id:'200002',phase:1,t:none,t:lowercase,pass,nolog,ctl:requestBodyProcessor=JSON"
+    SecRule REQUEST_HEADERS:Content-Type "application/json" \
+         "id:'200003',phase:1,t:none,t:lowercase,pass,nolog,ctl:requestBodyProcessor=JSON"
+    SecRequestBodyJsonDepthLimit 512
+    SecRequestBodyNoFilesLimit 131072
+    SecResponseBodyAccess On
+    SecResponseBodyMimeType text/plain text/html text/xml
+    SecResponseBodyLimit 524288
+    SecResponseBodyLimitAction ProcessPartial
+    SecTmpDir /tmp/
+    SecDataDir /tmp/
+    SecAuditEngine RelevantOnly
+    SecAuditLogRelevantStatus "^(?:5|4(?!04))"
+    SecAuditLogParts ABIJDEFHZ
+    SecAuditLogType Serial
+    SecAuditLog /var/log/nginx/modsec_audit.log
+    SecArgumentSeparator &
+    SecCookieFormat 0
+    SecDebugLog /var/log/nginx/modsec_debug.log
+    SecDebugLogLevel 0
+    SecDefaultAction "phase:1,log,auditlog,pass"
+    SecDefaultAction "phase:2,log,auditlog,pass"
+    
+    # OWASP CRS v3.3 Configuration
+    Include /etc/nginx/owasp-modsecurity-crs/crs-setup.conf
+    Include /etc/nginx/owasp-modsecurity-crs/rules/*.conf
+    
+    # Custom rules for platform protection
+    SecRule ARGS "@detectSQLi" \
+        "id:1001,\
+        phase:2,\
+        block,\
+        msg:'SQL Injection Attack Detected',\
+        logdata:'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}',\
+        tag:'application-multi',\
+        tag:'language-multi',\
+        tag:'platform-multi',\
+        tag:'attack-sqli'"
+    
+    SecRule ARGS "@detectXSS" \
+        "id:1002,\
+        phase:2,\
+        block,\
+        msg:'XSS Attack Detected',\
+        logdata:'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}',\
+        tag:'application-multi',\
+        tag:'language-multi',\
+        tag:'platform-multi',\
+        tag:'attack-xss'"
+    
+    # Rate limiting rules
+    SecAction \
+        "id:1003,\
+        phase:1,\
+        nolog,\
+        pass,\
+        initcol:IP=%{REMOTE_ADDR},\
+        initcol:USER=%{REMOTE_ADDR},\
+        setvar:IP.requests=+1,\
+        expirevar:IP.requests=60"
+    
+    SecRule IP:requests "@gt 100" \
+        "id:1004,\
+        phase:1,\
+        deny,\
+        status:429,\
+        msg:'Rate limit exceeded',\
+        tag:'dos-protection'"
+
+---
+# DDoS Protection with Rate Limiting
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rate-limit-config
+  namespace: security-protection
+data:
+  nginx.conf: |
+    # Rate limiting zones
+    limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=search:10m rate=5r/s;
+    limit_req_zone $binary_remote_addr zone=global:10m rate=100r/s;
+    
+    # Connection limiting
+    limit_conn_zone $binary_remote_addr zone=perip:10m;
+    limit_conn_zone $server_name zone=perserver:10m;
+    
+    # Geographic restrictions (if needed)
+    geo $allowed_country {
+        default 1;
+        # Add specific country restrictions if needed
+        # ~^(?!US|CA|GB|DE|FR|AU|JP) 0;
+    }
+    
+    map $allowed_country $blocked_country {
+        0 1;
+        1 0;
+    }
+
+---
+# CloudFlare Tunnel Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflare-tunnel-config
+  namespace: security-protection
+data:
+  config.yaml: |
+    tunnel: domain-driven-platform-tunnel
+    credentials-file: /etc/cloudflared/credentials.json
+    protocol: h2mux
+    
+    # Origin configuration
+    originRequest:
+      connectTimeout: 30s
+      tlsTimeout: 30s
+      tcpKeepAlive: 30s
+      noHappyEyeballs: false
+      keepAliveConnections: 100
+      keepAliveTimeout: 1m30s
+      httpHostHeader: platform.com
+      originServerName: platform.com
+      caPool: /etc/ssl/certs/ca-certificates.crt
+      
+    # Ingress rules
+    ingress:
+      - hostname: platform.com
+        service: https://nginx-ingress-controller.security-protection.svc.cluster.local:443
+        originRequest:
+          noTLSVerify: false
+          
+      - hostname: api.platform.com
+        service: https://nginx-ingress-controller.security-protection.svc.cluster.local:443
+        originRequest:
+          noTLSVerify: false
+          
+      - hostname: app.platform.com
+        service: https://nginx-ingress-controller.security-protection.svc.cluster.local:443
+        originRequest:
+          noTLSVerify: false
+          
+      # Catch-all rule
+      - service: http_status:404
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflare-tunnel
+  namespace: security-protection
+  labels:
+    app: cloudflare-tunnel
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudflare-tunnel
+  template:
+    metadata:
+      labels:
+        app: cloudflare-tunnel
+    spec:
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args:
+        - tunnel
+        - --config
+        - /etc/cloudflared/config.yaml
+        - run
+        - domain-driven-platform-tunnel
+        volumeMounts:
+        - name: tunnel-config
+          mountPath: /etc/cloudflared/config.yaml
+          subPath: config.yaml
+        - name: tunnel-credentials
+          mountPath: /etc/cloudflared/credentials.json
+          subPath: credentials.json
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: tunnel-config
+        configMap:
+          name: cloudflare-tunnel-config
+      - name: tunnel-credentials
+        secret:
+          secretName: cloudflare-tunnel-credentials
+
+---
+# Fail2ban for additional protection
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fail2ban
+  namespace: security-protection
+  labels:
+    app: fail2ban
+spec:
+  selector:
+    matchLabels:
+      app: fail2ban
+  template:
+    metadata:
+      labels:
+        app: fail2ban
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: fail2ban
+        image: fail2ban/fail2ban:latest
+        securityContext:
+          privileged: true
+        env:
+        - name: F2B_LOG_LEVEL
+          value: "INFO"
+        - name: F2B_LOG_TARGET
+          value: "STDOUT"
+        volumeMounts:
+        - name: fail2ban-config
+          mountPath: /data/jail.d
+        - name: nginx-logs
+          mountPath: /var/log/nginx
+          readOnly: true
+        - name: varlog
+          mountPath: /var/log/host
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+      volumes:
+      - name: fail2ban-config
+        configMap:
+          name: fail2ban-config
+      - name: nginx-logs
+        hostPath:
+          path: /var/log/nginx
+      - name: varlog
+        hostPath:
+          path: /var/log
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fail2ban-config
+  namespace: security-protection
+data:
+  nginx-http-auth.conf: |
+    [nginx-http-auth]
+    enabled = true
+    port = http,https
+    filter = nginx-http-auth
+    logpath = /var/log/nginx/error.log
+    maxretry = 5
+    bantime = 3600
+    findtime = 600
+    action = iptables-multiport[name=NoAuthFailures, port="http,https"]
+    
+  nginx-noscript.conf: |
+    [nginx-noscript]
+    enabled = true
+    port = http,https
+    filter = nginx-noscript
+    logpath = /var/log/nginx/access.log
+    maxretry = 6
+    bantime = 86400
+    findtime = 600
+    action = iptables-multiport[name=NoScript, port="http,https"]
+    
+  nginx-badbots.conf: |
+    [nginx-badbots]
+    enabled = true
+    port = http,https
+    filter = nginx-badbots
+    logpath = /var/log/nginx/access.log
+    maxretry = 2
+    bantime = 86400
+    findtime = 600
+    action = iptables-multiport[name=BadBots, port="http,https"]
+    
+  nginx-noproxy.conf: |
+    [nginx-noproxy]
+    enabled = true
+    port = http,https
+    filter = nginx-noproxy
+    logpath = /var/log/nginx/access.log
+    maxretry = 2
+    bantime = 86400
+    findtime = 600
+    action = iptables-multiport[name=NoProxy, port="http,https"]
+
+---
+# IP Whitelist and Blacklist
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ip-access-control
+  namespace: security-protection
+data:
+  whitelist.conf: |
+    # CloudFlare IP ranges
+    173.245.48.0/20
+    103.21.244.0/22
+    103.22.200.0/22
+    103.31.4.0/22
+    141.101.64.0/18
+    108.162.192.0/18
+    190.93.240.0/20
+    188.114.96.0/20
+    197.234.240.0/22
+    198.41.128.0/17
+    162.158.0.0/15
+    172.64.0.0/13
+    131.0.72.0/22
+    
+    # Office IP ranges (example)
+    203.0.113.0/24
+    198.51.100.0/24
+    
+  blacklist.conf: |
+    # Known malicious IP ranges
+    # Add specific IPs or ranges as needed
+    # 192.0.2.0/24
+    
+  geo-restrictions.conf: |
+    # Allowed countries (ISO 3166-1 alpha-2)
+    allow US;
+    allow CA;
+    allow GB;
+    allow DE;
+    allow FR;
+    allow AU;
+    allow JP;
+    allow NL;
+    allow SE;
+    allow NO;
+    allow DK;
+    allow FI;
+    allow CH;
+    allow AT;
+    allow BE;
+    allow IT;
+    allow ES;
+    allow PT;
+    allow IE;
+    allow NZ;
+    allow SG;
+    allow HK;
+    allow KR;
+    allow IL;
+    
+    # Block all others
+    deny all;
+
+---
+# DDoS Detection and Mitigation Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ddos-detector
+  namespace: security-protection
+  labels:
+    app: ddos-detector
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  selector:
+    app: ddos-detector
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddos-detector
+  namespace: security-protection
+  labels:
+    app: ddos-detector
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ddos-detector
+  template:
+    metadata:
+      labels:
+        app: ddos-detector
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: ddos-detector
+        image: ddos-detector:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: THRESHOLD_RPS
+          value: "1000"
+        - name: THRESHOLD_CONNECTIONS
+          value: "10000"
+        - name: ANALYSIS_WINDOW
+          value: "60"
+        - name: BLOCK_DURATION
+          value: "3600"
+        - name: PROMETHEUS_ENDPOINT
+          value: "http://prometheus.monitoring:9090"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# Security monitoring alerts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-alerts
+  namespace: security-protection
+data:
+  security-rules.yml: |
+    groups:
+    - name: security.rules
+      rules:
+      - alert: HighFailedLoginAttempts
+        expr: increase(nginx_ingress_controller_requests_total{status="401"}[5m]) > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "{{ $value }} failed login attempts in the last 5 minutes"
+      
+      - alert: SuspiciousUserAgent
+        expr: increase(nginx_ingress_controller_requests_total{user_agent=~".*bot.*|.*crawler.*|.*scanner.*"}[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Suspicious user agent activity detected"
+          description: "High bot/crawler activity: {{ $value }} requests in 5 minutes"
+      
+      - alert: RateLimitExceeded
+        expr: increase(nginx_ingress_controller_requests_total{status="429"}[1m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rate limit exceeded"
+          description: "{{ $value }} requests blocked due to rate limiting"
+      
+      - alert: WAFBlockedRequests
+        expr: increase(modsecurity_blocked_requests_total[5m]) > 20
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WAF blocking high number of requests"
+          description: "{{ $value }} requests blocked by WAF in 5 minutes"
+      
+      - alert: DDoSAttackDetected
+        expr: rate(nginx_ingress_controller_requests_total[1m]) > 10000
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Potential DDoS attack detected"
+          description: "Request rate: {{ $value }} requests/second"
+
+---
+# Service Monitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: security-protection-metrics
+  namespace: security-protection
+  labels:
+    app: security-protection
+spec:
+  selector:
+    matchLabels:
+      app: ddos-detector
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+
+---
+# Network Policy for Security Protection
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: security-protection-netpol
+  namespace: security-protection
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: domain-driven-platform
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
