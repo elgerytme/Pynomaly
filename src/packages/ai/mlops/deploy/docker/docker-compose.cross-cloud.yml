@@ -1,0 +1,248 @@
+version: '3.8'
+
+services:
+  # Cross-Cloud Deployment Orchestrator
+  cross-cloud-orchestrator:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.cross-cloud-deployment
+      target: production
+    image: mlops/cross-cloud-deployment-orchestrator:latest
+    container_name: cross-cloud-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # HTTP API
+      - "9090:9090"  # Metrics
+      - "9000:9000"  # gRPC
+    environment:
+      - LOG_LEVEL=INFO
+      - METRICS_ENABLED=true
+      - CONFIG_PATH=/app/config/config.yaml
+      - CREDENTIALS_PATH=/app/credentials
+      - PROMETHEUS_PUSHGATEWAY_URL=http://prometheus-pushgateway:9091
+      - JAEGER_AGENT_HOST=jaeger-agent
+      - JAEGER_AGENT_PORT=6831
+    volumes:
+      - ./config:/app/config:ro
+      - ./credentials:/app/credentials:ro
+      - ./workdir:/app/workdir
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker deployment
+    networks:
+      - mlops-network
+    depends_on:
+      - redis
+      - prometheus
+      - jaeger-agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Cross-Cloud CLI
+  cross-cloud-cli:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.cross-cloud-deployment
+      target: cli
+    image: mlops/cross-cloud-deployment-cli:latest
+    container_name: cross-cloud-cli
+    profiles:
+      - cli
+    environment:
+      - ORCHESTRATOR_URL=http://cross-cloud-orchestrator:8080
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./config:/app/config:ro
+      - ./credentials:/app/credentials:ro
+      - ./specs:/app/specs
+    networks:
+      - mlops-network
+    depends_on:
+      - cross-cloud-orchestrator
+
+  # Redis for state management and caching
+  redis:
+    image: redis:7-alpine
+    container_name: cross-cloud-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - mlops-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cross-cloud-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - mlops-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus Pushgateway for metrics pushing
+  prometheus-pushgateway:
+    image: prom/pushgateway:latest
+    container_name: cross-cloud-pushgateway
+    restart: unless-stopped
+    ports:
+      - "9092:9091"
+    networks:
+      - mlops-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9091/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana for monitoring dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cross-cloud-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - mlops-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Jaeger for distributed tracing
+  jaeger-agent:
+    image: jaegertracing/jaeger-agent:latest
+    container_name: cross-cloud-jaeger-agent
+    restart: unless-stopped
+    ports:
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+    environment:
+      - REPORTER_GRPC_HOST_PORT=jaeger-collector:14250
+    networks:
+      - mlops-network
+    depends_on:
+      - jaeger-collector
+
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector:latest
+    container_name: cross-cloud-jaeger-collector
+    restart: unless-stopped
+    ports:
+      - "14250:14250"
+      - "14268:14268"
+    environment:
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+    volumes:
+      - jaeger-data:/badger
+    networks:
+      - mlops-network
+
+  jaeger-ui:
+    image: jaegertracing/jaeger-query:latest
+    container_name: cross-cloud-jaeger-ui
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+    environment:
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+    volumes:
+      - jaeger-data:/badger
+    networks:
+      - mlops-network
+    depends_on:
+      - jaeger-collector
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: cross-cloud-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - mlops-network
+    depends_on:
+      - cross-cloud-orchestrator
+      - grafana
+      - jaeger-ui
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  jaeger-data:
+    driver: local
+
+networks:
+  mlops-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

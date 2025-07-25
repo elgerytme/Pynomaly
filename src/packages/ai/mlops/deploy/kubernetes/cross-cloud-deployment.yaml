@@ -1,0 +1,545 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-deployment
+  labels:
+    name: mlops-deployment
+    tier: platform
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deployment-orchestrator-config
+  namespace: mlops-deployment
+data:
+  config.yaml: |
+    orchestrator:
+      name: "cross-cloud-deployment-orchestrator"
+      version: "1.0.0"
+      log_level: "INFO"
+      metrics_enabled: true
+      health_check_interval: 30
+      
+    deployment:
+      default_strategy: "rolling_update"
+      default_replicas: 3
+      health_check_timeout: 600
+      deployment_timeout: 1800
+      retry_max_attempts: 3
+      retry_backoff_seconds: 30
+      
+    cloud_providers:
+      aws:
+        enabled: true
+        default_region: "us-east-1"
+        supported_targets:
+          - "aws_eks"
+          - "aws_fargate"
+          - "aws_ec2"
+      
+      azure:
+        enabled: true
+        default_region: "eastus"
+        supported_targets:
+          - "azure_aks"
+          - "azure_container_instances"
+          - "azure_vms"
+      
+      gcp:
+        enabled: true
+        default_region: "us-central1"
+        supported_targets:
+          - "gcp_gke"
+          - "gcp_cloud_run"
+          - "gcp_compute_engine"
+    
+    traffic_management:
+      default_strategy: "percentage"
+      sticky_sessions: false
+      session_timeout: 3600
+      health_check_interval: 30
+      
+    failover:
+      enabled: true
+      mode: "automatic"
+      failure_threshold: 3
+      success_threshold: 2
+      check_interval: 30
+      failover_timeout: 300
+      recovery_timeout: 600
+      
+    monitoring:
+      prometheus_enabled: true
+      grafana_enabled: true
+      jaeger_enabled: true
+      metrics_retention: "30d"
+      
+    security:
+      rbac_enabled: true
+      network_policies_enabled: true
+      pod_security_policies_enabled: true
+      image_pull_policy: "Always"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloud-credentials
+  namespace: mlops-deployment
+type: Opaque
+data:
+  # Base64 encoded cloud provider credentials
+  # These should be populated during deployment
+  aws-credentials.yaml: ""
+  azure-credentials.yaml: ""
+  gcp-credentials.yaml: ""
+  kubernetes-credentials.yaml: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+    tier: platform
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: cross-cloud-deployment-orchestrator
+  template:
+    metadata:
+      labels:
+        app: cross-cloud-deployment-orchestrator
+        component: orchestrator
+        tier: platform
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: deployment-orchestrator
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: orchestrator
+        image: mlops/cross-cloud-deployment-orchestrator:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        - name: grpc
+          containerPort: 9000
+          protocol: TCP
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONFIG_PATH
+          value: "/etc/config/config.yaml"
+        - name: CREDENTIALS_PATH
+          value: "/etc/credentials"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: JAEGER_AGENT_HOST
+          value: "jaeger-agent.monitoring.svc.cluster.local"
+        - name: PROMETHEUS_PUSHGATEWAY_URL
+          value: "http://prometheus-pushgateway.monitoring.svc.cluster.local:9091"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: credentials
+          mountPath: /etc/credentials
+          readOnly: true
+        - name: workdir
+          mountPath: /app/workdir
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: config
+        configMap:
+          name: deployment-orchestrator-config
+      - name: credentials
+        secret:
+          secretName: cloud-credentials
+      - name: workdir
+        emptyDir: {}
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+      - key: "platform"
+        operator: "Equal"
+        value: "mlops"
+        effect: "NoSchedule"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: cross-cloud-deployment-orchestrator
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+  - name: grpc
+    port: 9000
+    targetPort: grpc
+    protocol: TCP
+  selector:
+    app: cross-cloud-deployment-orchestrator
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cross-cloud-deployment-orchestrator-headless
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: grpc
+    port: 9000
+    targetPort: grpc
+    protocol: TCP
+  selector:
+    app: cross-cloud-deployment-orchestrator
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: deployment-orchestrator-auth
+spec:
+  tls:
+  - hosts:
+    - deployment.mlops.company.com
+    secretName: deployment-orchestrator-tls
+  rules:
+  - host: deployment.mlops.company.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cross-cloud-deployment-orchestrator
+            port:
+              number: 80
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deployment-orchestrator
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "secrets", "namespaces"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["*"]
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["servicemonitors", "prometheusrules"]
+  verbs: ["get", "list", "create", "update", "patch", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["*"]
+- apiGroups: ["extensions"]
+  resources: ["ingresses"]
+  verbs: ["*"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["*"]
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
+  verbs: ["*"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["*"]
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: deployment-orchestrator
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: deployment-orchestrator
+subjects:
+- kind: ServiceAccount
+  name: deployment-orchestrator
+  namespace: mlops-deployment
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cross-cloud-deployment-orchestrator
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: cross-cloud-deployment-orchestrator
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  podSelector:
+    matchLabels:
+      app: cross-cloud-deployment-orchestrator
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+    - protocol: TCP
+      port: 9000
+  egress:
+  - {}  # Allow all egress for cloud provider API calls
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  selector:
+    matchLabels:
+      app: cross-cloud-deployment-orchestrator
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    honorLabels: true
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cross-cloud-deployment-orchestrator
+  namespace: mlops-deployment
+  labels:
+    app: cross-cloud-deployment-orchestrator
+    component: orchestrator
+spec:
+  groups:
+  - name: cross-cloud-deployment.rules
+    rules:
+    - alert: DeploymentOrchestratorDown
+      expr: up{job="cross-cloud-deployment-orchestrator"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Cross-cloud deployment orchestrator is down"
+        description: "Cross-cloud deployment orchestrator has been down for more than 5 minutes."
+    
+    - alert: DeploymentOrchestratorHighCPU
+      expr: rate(container_cpu_usage_seconds_total{pod=~"cross-cloud-deployment-orchestrator-.*"}[5m]) > 0.8
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage on deployment orchestrator"
+        description: "CPU usage is above 80% for more than 10 minutes."
+    
+    - alert: DeploymentOrchestratorHighMemory
+      expr: container_memory_usage_bytes{pod=~"cross-cloud-deployment-orchestrator-.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage on deployment orchestrator"
+        description: "Memory usage is above 90% for more than 5 minutes."
+    
+    - alert: DeploymentFailureRate
+      expr: rate(cross_cloud_deployments_total{status="failed"}[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High deployment failure rate"
+        description: "Deployment failure rate is above 10% for more than 5 minutes."
+    
+    - alert: DeploymentDurationHigh
+      expr: histogram_quantile(0.95, rate(cross_cloud_deployment_duration_seconds_bucket[5m])) > 1800
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High deployment duration"
+        description: "95th percentile deployment duration is above 30 minutes."
