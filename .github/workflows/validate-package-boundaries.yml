@@ -1,0 +1,110 @@
+name: Validate Package Boundaries
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/**/*.py'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/**/*.py'
+
+jobs:
+  validate-boundaries:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ast-tools pathlib
+        
+    - name: Validate Package Import Boundaries
+      id: validate
+      run: |
+        echo "Running package boundary validation..."
+        python src/packages/tools/import_boundary_validator/boundary_validator.py \
+          --root . \
+          --format json \
+          --output boundary-report.json \
+          --fail-on-violations
+        
+    - name: Upload validation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: boundary-validation-report
+        path: boundary-report.json
+        
+    - name: Comment PR with violations
+      if: failure() && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const report = JSON.parse(fs.readFileSync('boundary-report.json', 'utf8'));
+            
+            if (report.summary.total_violations > 0) {
+              let comment = `## 🚫 Package Boundary Violations Detected\n\n`;
+              comment += `**Total violations:** ${report.summary.total_violations}\n\n`;
+              
+              // Add summary by type
+              comment += `### Violations by Type\n`;
+              for (const [type, count] of Object.entries(report.summary.violations_by_type)) {
+                if (count > 0) {
+                  comment += `- **${type.replace(/_/g, ' ')}**: ${count}\n`;
+                }
+              }
+              
+              comment += `\n### Details\n`;
+              
+              // Add first few violations as examples
+              const maxShow = 5;
+              for (let i = 0; i < Math.min(report.violations.length, maxShow); i++) {
+                const v = report.violations[i];
+                comment += `\n#### ${v.violation_type.replace(/_/g, ' ')}\n`;
+                comment += `**File:** \`${v.file_path}:${v.line_number}\`\n`;
+                comment += `**Import:** \`${v.import_statement}\`\n`;
+                comment += `**Issue:** ${v.description}\n`;
+                if (v.suggestion) {
+                  comment += `**Suggestion:** ${v.suggestion}\n`;
+                }
+              }
+              
+              if (report.violations.length > maxShow) {
+                comment += `\n*... and ${report.violations.length - maxShow} more violations. See the full report in the workflow artifacts.*\n`;
+              }
+              
+              comment += `\n---\n`;
+              comment += `📖 **Please review the [Import Guidelines](src/packages/IMPORT_GUIDELINES.md) for proper package interaction patterns.**\n`;
+              comment += `🔧 **Run the validator locally:** \`python src/packages/tools/import_boundary_validator/boundary_validator.py\``;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+          } catch (error) {
+            console.log('Could not read or parse boundary report:', error);
+          }
+          
+    - name: Fail if violations found
+      if: failure()
+      run: |
+        echo "❌ Package boundary violations detected!"
+        echo "Please fix the violations and ensure imports follow the architectural guidelines."
+        echo "See IMPORT_GUIDELINES.md for proper patterns."
+        exit 1

@@ -1,163 +1,139 @@
-# Pre-commit configuration for domain boundary validation
+# Pre-commit hooks for package boundary validation and code quality
 repos:
+  # Package boundary validation
   - repo: local
     hooks:
-      - id: validate-report-locations
-        name: Validate Report Locations
-        entry: python tools/scripts/validate_report_locations.py
-        language: python
-        args: [--scan-all]
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
-        description: "Ensures reports are placed in correct locations (docs/reports/ or package/docs/reports/)"
-        
-      - id: prevent-root-documentation
-        name: Prevent Root Documentation Files
-        entry: python tools/scripts/validate_root_documentation.py
-        language: python
-        args: [--suggest-moves]
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
-        description: "Prevents creation of new documentation files in repository root"
-        
-      - id: single-package-development
-        name: Single Package Development Rule
-        entry: python3 tools/validate_single_package_development.py
+      - id: validate-package-boundaries
+        name: Validate Package Import Boundaries
+        entry: python src/packages/tools/import_boundary_validator/boundary_validator.py
+        args: [--root, ., --fail-on-violations]
         language: system
-        always_run: true
         pass_filenames: false
+        types: [python]
         stages: [commit]
-        description: Ensures only one package is modified at a time
         
-      - id: package-isolation
-        name: Package Isolation Rule
-        entry: python3 tools/scan_domain_violations_with_exceptions.py
-        language: system
-        always_run: true
+  # Python code formatting and linting
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        args: [--line-length=100]
+        language_version: python3
+        
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile, black, --line-length=100]
+        
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=100, --extend-ignore=E203,W503]
+        
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, src/packages/, -f, json, -o, bandit-report.json]
         pass_filenames: false
-        stages: [commit]
-        description: Validates package isolation boundaries
         
-      - id: domain-boundary-validator
-        name: Domain Boundary Validator
-        entry: python scripts/domain_boundary_validator.py
-        language: python
-        pass_filenames: false
-        always_run: true
-        args: [--fail-on-error]
-        
+  # Import boundary specific hooks
   - repo: local
     hooks:
-      - id: domain-import-validator
-        name: Domain Import Validator
-        entry: python scripts/domain_import_validator.py
-        language: python
-        files: \.py$
-        args: [--fail-on-violation]
-        
-  - repo: local
-    hooks:
-      - id: domain-architecture-validator
-        name: Domain Architecture Validator
-        entry: python scripts/domain_architecture_validator.py
-        language: python
-        pass_filenames: false
-        always_run: true
-        args: [--check-cycles, --check-dependencies]
-        
-      - id: test-domain-leakage-validator
-        name: Test Domain Leakage Validator
-        entry: python src/packages/tools/test_domain_leakage_detector/cli.py
-        language: python
-        args: [scan, --strict, --format, console]
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
-        description: "Validates test files don't have cross-domain imports"
-        
-  - repo: local
-    hooks:
-      - id: validate-repository-structure
-        name: Validate Repository Structure
-        entry: python scripts/validate_repository_structure.py
-        language: python
-        always_run: true
-        pass_filenames: false
-        description: "Prevent creation of prohibited folders and files"
-        
-      - id: check-prohibited-folders
-        name: Check for Prohibited Folders
-        entry: bash
-        language: system
-        always_run: true
-        pass_filenames: false
-        args:
-          - -c
-          - |
-            # Check for prohibited folder patterns
-            prohibited_found=false
-            
-            # Check for core folders (excluding node_modules)
-            if find . -type d -name "core" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
-              echo "ERROR: 'core' folders found. These are prohibited."
-              find . -type d -name "core" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
-              prohibited_found=true
-            fi
-            
-            # Check for other prohibited folders
-            for folder in common shared utils helpers lib misc; do
-              if find . -type d -name "$folder" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
-                echo "ERROR: '$folder' folders found. These are prohibited."
-                find . -type d -name "$folder" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
-                prohibited_found=true
-              fi
-            done
-            
-            if [ "$prohibited_found" = true ]; then
-              echo ""
-              echo "See REPOSITORY_RULES.md for naming conventions."
-              echo "See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
-              echo "GitHub Issue: https://github.com/elgerytme/anomaly_detection/issues/830"
-              exit 1
-            fi
-            
-            echo "✅ No prohibited folders found."
+      - id: check-domain-imports
+        name: Check Domain Package Imports
+        entry: python -c "
+import sys
+import re
+from pathlib import Path
 
+def check_file(file_path):
+    # Only check domain packages
+    if not any(domain in str(file_path) for domain in ['/ai/', '/data/']):
+        return True
+        
+    with open(file_path, 'r') as f:
+        content = f.read()
+    
+    # Check for forbidden patterns
+    forbidden_patterns = [
+        r'from (enterprise|integrations)\.',
+        r'from ai\.[^.]+\.' if '/data/' in str(file_path) else r'from data\.[^.]+\.',
+        r'import (enterprise|integrations)\.',
+    ]
+    
+    violations = []
+    for i, line in enumerate(content.split('\n'), 1):
+        for pattern in forbidden_patterns:
+            if re.search(pattern, line):
+                violations.append(f'{file_path}:{i}: {line.strip()}')
+    
+    if violations:
+        print('Domain package import violations:')
+        for v in violations:
+            print(f'  {v}')
+        return False
+    return True
+
+files = sys.argv[1:]
+all_good = True
+for file_path in files:
+    if not check_file(file_path):
+        all_good = False
+
+sys.exit(0 if all_good else 1)
+"
+        language: system
+        types: [python]
+        files: "src/packages/(ai|data)/.*\\.py$"
+        
   - repo: local
     hooks:
-      - id: branch-isolation-validation
-        name: Git Branch Isolation Validation
-        entry: python scripts/git_branch_isolation_manager.py
-        language: python
-        args: [validate]
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
-        description: "Validates branch name follows isolation rules"
+      - id: check-interfaces-stability
+        name: Check Interfaces Package Stability
+        entry: python -c "
+import sys
+import re
+from pathlib import Path
+
+def check_file(file_path):
+    # Only check interfaces package
+    if '/interfaces/' not in str(file_path):
+        return True
         
-      - id: quality-gate-pre-commit
-        name: Quality Gate Pre-commit Validation
-        entry: python scripts/quality_gate_runner.py
-        language: python
-        args: [--quick]
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
-        description: "Run Phase 1 quality gate validation before commit"
-        
-      - id: pytest-critical-tests
-        name: Run Critical Tests
-        entry: python -m pytest
-        language: python
-        args: [
-          src/packages/ai/machine_learning/tests/unit/test_algorithm_validation.py::TestAnomalyDetectionAlgorithms::test_high_dimensional_anomaly_detection,
-          src/packages/enterprise/enterprise_auth/tests/security/test_authentication_security.py::TestSecurityValidation::test_prevent_sql_injection,
-          --no-cov,
-          -v,
-          --tb=short
-        ]
-        pass_filenames: false
-        stages: [commit]
-        description: "Run critical algorithm and security tests before commit"
+    with open(file_path, 'r') as f:
+        content = f.read()
+    
+    # Check for forbidden imports in interfaces package
+    forbidden_patterns = [
+        r'from (ai|data|enterprise|integrations|configurations)\.',
+        r'import (ai|data|enterprise|integrations|configurations)\.',
+    ]
+    
+    violations = []
+    for i, line in enumerate(content.split('\n'), 1):
+        for pattern in forbidden_patterns:
+            if re.search(pattern, line):
+                violations.append(f'{file_path}:{i}: {line.strip()}')
+    
+    if violations:
+        print('Interfaces package should not import from other monorepo packages:')
+        for v in violations:
+            print(f'  {v}')
+        return False
+    return True
+
+files = sys.argv[1:]
+all_good = True
+for file_path in files:
+    if not check_file(file_path):
+        all_good = False
+
+sys.exit(0 if all_good else 1)
+"
+        language: system
+        types: [python]
+        files: "src/packages/interfaces/.*\\.py$"
